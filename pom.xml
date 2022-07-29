@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.gepardec.mega</groupId>
-    <artifactId>mega-zep-backend</artifactId>
+    <artifactId>mega-backend</artifactId>
     <version>${revision}</version>
     <name>MEGA ZEP-Backend</name>
     <properties>
@@ -39,6 +39,12 @@
         <!-- !!! IMPORTANT !!!! -->
         <!-- remove -SNAPSHOT in release-branch but keep it in develop branch -->
 
+        <!-- Sonar configuration -->
+        <sonar.projectKey>${project.artifactId}</sonar.projectKey>
+        <sonar.host.url>https://sonarqube.apps.play.gepaplexx.com</sonar.host.url>
+        <sonar.language>java</sonar.language>
+        <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
+        <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
         <revision>3.4.0-SNAPSHOT</revision>
         <git.commit>local</git.commit>
         <git.branch>local</git.branch>
