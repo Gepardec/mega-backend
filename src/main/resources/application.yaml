@@ -125,6 +125,7 @@ mega:
           - "johannes.riegler@gepardec.com"
           - "daniel.rasztovich@gepardec.com"
           - "theresa.mueller@gepardec.com"
+          - "michael.leitner@gepardec.com"
 
 ## TEST Properties
 "%test":
@@ -162,9 +163,10 @@ mega:
 
       reminder:
         om:
-          - "thomas.herzog@gepardec.com"
-          - "philipp.wurm@gepardec.com"
-          - "werner.bruckmueller@gepardec.com"
+#          - "thomas.herzog@gepardec.com"
+#          - "philipp.wurm@gepardec.com"
+#          - "werner.bruckmueller@gepardec.com"
+          - "michael.leitner@gepardec.com"
 
 
 # PROD Properties
