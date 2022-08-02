@@ -116,7 +116,6 @@ class ManagementResourceTest {
 
         assertThat(result).hasSize(1);
         ManagementEntryDto entry = result.get(0);
-        assertThat(entry.customerCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.DONE);
         assertThat(entry.internalCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
         assertThat(entry.employeeCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
         assertThat(entry.projectCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.DONE);
@@ -267,7 +266,6 @@ class ManagementResourceTest {
         // assert management entry
         assertThat(entrymmustermann).isPresent();
         ManagementEntryDto entry = entrymmustermann.get();
-        assertThat(entry.customerCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.DONE);
         assertThat(entry.internalCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
         assertThat(entry.employeeCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
         assertThat(entry.projectCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.DONE);
@@ -349,7 +347,6 @@ class ManagementResourceTest {
         // assert management entry
         assertThat(entrymmustermann).isPresent();
         ManagementEntryDto entry = entrymmustermann.get();
-        assertThat(entry.customerCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.DONE);
         assertThat(entry.internalCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
         assertThat(entry.employeeCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
         assertThat(entry.projectCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.DONE);
@@ -435,7 +432,6 @@ class ManagementResourceTest {
         // assert management entry
         assertThat(entrymmustermann).isPresent();
         ManagementEntryDto entry = entrymmustermann.get();
-        assertThat(entry.customerCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.DONE);
         assertThat(entry.internalCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
         assertThat(entry.employeeCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
         assertThat(entry.projectCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.DONE);
