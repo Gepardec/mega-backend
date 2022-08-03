@@ -36,7 +36,6 @@ public class EnterpriseEntryServiceImpl implements EnterpriseEntryService {
             EnterpriseEntry entry = optionalEntry.get();
             entry.setChargeabilityExternalEmployeesRecorded(State.valueOf(updatedEntryDto.getChargeabilityExternalEmployeesRecorded().name()));
             entry.setPayrollAccountingSent(State.valueOf(updatedEntryDto.getPayrollAccountingSent().name()));
-            entry.setZepMonthlyReportDone(State.valueOf(updatedEntryDto.getZepMonthlyReportDone().name()));
             entry.setZepTimesReleased(State.valueOf(updatedEntryDto.getZepTimesReleased().name()));
 
             return enterpriseEntryRepository.updateEntry(entry);

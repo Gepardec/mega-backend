@@ -25,8 +25,6 @@ public class EnterpriseEntryDto {
 
     private final ProjectState payrollAccountingSent;
 
-    private final ProjectState zepMonthlyReportDone;
-
     private final LocalDate date;
 
     private final LocalDateTime creationDate;

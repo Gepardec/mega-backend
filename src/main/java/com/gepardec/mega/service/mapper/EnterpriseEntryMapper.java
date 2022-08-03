@@ -19,7 +19,6 @@ public class EnterpriseEntryMapper {
                 .date(enterpriseEntry.get().getDate())
                 .chargeabilityExternalEmployeesRecorded(ProjectState.byName(enterpriseEntry.get().getChargeabilityExternalEmployeesRecorded().name()))
                 .payrollAccountingSent(ProjectState.byName(enterpriseEntry.get().getPayrollAccountingSent().name()))
-                .zepMonthlyReportDone(ProjectState.byName(enterpriseEntry.get().getZepMonthlyReportDone().name()))
                 .zepTimesReleased(ProjectState.byName(enterpriseEntry.get().getZepTimesReleased().name()))
                 .build();
     }
