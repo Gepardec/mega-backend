@@ -41,7 +41,11 @@ public class InvalidWorkingLocationInJourneyCalculator implements WarningCalcula
                         workingLocation = WorkingLocation.MAIN;
                     }
                     if (!isProjectEntryValid(projectEntry, workingLocation, journeyDirection)) {
-                        warnings.add(createJourneyWarningWithEnumType(projectEntry, JourneyWarningType.INVALID_WORKING_LOCATION));
+                        boolean existsWorkingLocationWarning = warnings.stream().anyMatch(it -> it.getWarningTypes().contains(JourneyWarningType.INVALID_WORKING_LOCATION));
+                        if(!existsWorkingLocationWarning){
+                            warnings.add(createJourneyWarningWithEnumType(projectEntry, JourneyWarningType.INVALID_WORKING_LOCATION));
+                        }
+
                     }
                 }
             }
