@@ -56,6 +56,8 @@ public class MonthlyReport {
 
     private int nonPaidVacationDays;
 
+    private int paidSickLeave;
+
     private String billableTime;
 
     private String totalWorkingTime;
