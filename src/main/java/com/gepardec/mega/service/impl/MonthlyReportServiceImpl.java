@@ -38,15 +38,25 @@ import static com.gepardec.mega.domain.utils.DateUtils.*;
 public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     public static final String COMPENSATORY_DAYS = "FA";
+
     public static final String HOME_OFFICE_DAYS = "HO";
+
     public static final String VACATION_DAYS = "UB";
+
     public static final String NURSING_DAYS = "PU";
+
     public static final String MATERNITY_LEAVE_DAYS = "KA";
+
     public static final String EXTERNAL_TRAINING_DAYS = "EW";
+
     public static final String CONFERENCE_DAYS = "KO";
+
     public static final String MATERNITY_PROTECTION_DAYS = "MU";
+
     public static final String FATHER_MONTH_DAYS = "PA";
+
     public static final String PAID_SPECIAL_LEAVE_DAYS = "SU";
+
     public static final String NON_PAID_VACATION_DAYS = "UU";
 
     public static final String PAID_SICK_LEAVE = "KR";
@@ -126,8 +136,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .collect(Collectors.toList());
 
         final boolean otherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesForOtherChecks(employee)
-                                                        .stream()
-                                                        .allMatch(stepEntry -> stepEntry.getState() == EmployeeState.DONE);
+                .stream()
+                .allMatch(stepEntry -> stepEntry.getState() == EmployeeState.DONE);
 
         return MonthlyReport.builder()
                 .employee(employee)
