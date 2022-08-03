@@ -28,8 +28,8 @@ class EnterpriseEntryRepositoryTest {
         enterpriseEntry.setCreationDate(LocalDateTime.now());
         enterpriseEntry.setChargeabilityExternalEmployeesRecorded(State.OPEN);
         enterpriseEntry.setPayrollAccountingSent(State.OPEN);
-        enterpriseEntry.setZepMonthlyReportDone(State.OPEN);
         enterpriseEntry.setZepTimesReleased(State.OPEN);
+        enterpriseEntry.setZepMonthlyReportDone(State.OPEN);
 
         enterpriseEntryRepository.persist(enterpriseEntry);
 
