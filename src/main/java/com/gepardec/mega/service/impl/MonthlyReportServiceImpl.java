@@ -49,6 +49,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     public static final String PAID_SPECIAL_LEAVE_DAYS = "SU";
     public static final String NON_PAID_VACATION_DAYS = "UU";
 
+    public static final String PAID_SICK_LEAVE = "KR";
+
     private LocalDate currentMonthYear;
 
     @Inject
@@ -149,6 +151,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .fatherMonthDays(getAbsenceTimesForEmployee(absenceEntries, FATHER_MONTH_DAYS))
                 .paidSpecialLeaveDays(getAbsenceTimesForEmployee(absenceEntries, PAID_SPECIAL_LEAVE_DAYS))
                 .nonPaidVacationDays(getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS))
+                .paidSickLeave(getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE))
                 .build();
     }
 
