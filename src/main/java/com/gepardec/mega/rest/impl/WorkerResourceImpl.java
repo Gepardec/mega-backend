@@ -81,6 +81,7 @@ public class WorkerResourceImpl implements WorkerResource {
                     .fatherMonthDays(0)
                     .paidSpecialLeaveDays(0)
                     .nonPaidVacationDays(0)
+                    .paidSickLeave(0)
                     .build();
         }
 

@@ -85,4 +85,7 @@ public class MonthlyReportDto {
 
     @JsonProperty
     private String totalWorkingTime;
+
+    @JsonProperty
+    private String paidSickLeave;
 }

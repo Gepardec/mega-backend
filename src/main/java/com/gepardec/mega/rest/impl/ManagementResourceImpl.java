@@ -223,7 +223,6 @@ public class ManagementResourceImpl implements ManagementResource {
         if (!stepEntries.isEmpty()) {
             return ManagementEntryDto.builder()
                     .employee(employee)
-                    .customerCheckState(extractCustomerCheckState(stepEntries))
                     .employeeCheckState(extractEmployeeCheckState(stepEntries))
                     .internalCheckState(extractInternalCheckState(stepEntries))
                     .projectCheckState(extractStateForProject(stepEntries, projectId))
@@ -247,32 +246,18 @@ public class ManagementResourceImpl implements ManagementResource {
         return employeeCheckStateOpen ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;
     }
 
-    private com.gepardec.mega.domain.model.State extractCustomerCheckState(List<StepEntry> stepEntries) {
-        if (userContext == null || userContext.getUser() == null) {
-            throw new IllegalStateException("User context does not exist or user is null.");
-        }
-
-        boolean customerCheckStateOpen = stepEntries.stream()
-                .filter(stepEntry ->
-                        StepName.CONTROL_EXTERNAL_TIMES.name().equalsIgnoreCase(stepEntry.getStep().getName())
-                                && StringUtils.equalsIgnoreCase(Objects.requireNonNull(userContext.getUser()).getEmail(), stepEntry.getAssignee().getEmail())
-                ).anyMatch(stepEntry -> EmployeeState.OPEN.equals(stepEntry.getState()));
-
-        return customerCheckStateOpen ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;
-    }
-
     private com.gepardec.mega.domain.model.State extractInternalCheckState(List<StepEntry> stepEntries) {
         if (userContext == null || userContext.getUser() == null) {
             throw new IllegalStateException("User context does not exist.");
         }
 
-        boolean customerCheckStateOpen = stepEntries.stream()
+        boolean internalCheckStateOpen = stepEntries.stream()
                 .filter(stepEntry ->
                         StepName.CONTROL_INTERNAL_TIMES.name().equalsIgnoreCase(stepEntry.getStep().getName())
                                 && StringUtils.equalsIgnoreCase(Objects.requireNonNull(userContext.getUser()).getEmail(), stepEntry.getAssignee().getEmail())
                 ).anyMatch(stepEntry -> EmployeeState.OPEN.equals(stepEntry.getState()));
 
-        return customerCheckStateOpen ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;
+        return internalCheckStateOpen ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;
     }
 
     private com.gepardec.mega.domain.model.State extractStateForProject(List<StepEntry> stepEntries, String projectId) {
