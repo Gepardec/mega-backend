@@ -1,5 +1,7 @@
 package com.gepardec.mega.service.impl;
 
+import com.gepardec.mega.application.configuration.ApplicationConfig;
+import com.gepardec.mega.application.producer.ResourceBundleProducer;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
@@ -9,11 +11,13 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntryWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
+import com.gepardec.mega.rest.model.MappedTimeWarning;
 import com.gepardec.mega.rest.model.PmProgressDto;
 import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WarningCalculator;
+import com.gepardec.mega.service.mapper.TimeWarningMapper;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
@@ -22,14 +26,18 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.annotation.Nonnull;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import static com.gepardec.mega.domain.utils.DateUtils.*;
@@ -74,6 +82,9 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     @Inject
     StepEntryService stepEntryService;
+
+    @Inject
+    TimeWarningMapper timeWarningMapper;
 
     @Override
     public MonthlyReport getMonthendReportForUser(final String userId) {
@@ -139,6 +150,9 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .stream()
                 .allMatch(stepEntry -> stepEntry.getState() == EmployeeState.DONE);
 
+        mapTimeWarnings(timeWarnings);
+
+
         return MonthlyReport.builder()
                 .employee(employee)
                 .timeWarnings(timeWarnings)
@@ -182,5 +196,15 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
             fehlzeit.setStartdatum(currentMonthYear.with(TemporalAdjusters.firstDayOfMonth()).toString());
         }
         return fehlzeit;
+    }
+
+    private List<MappedTimeWarning> mapTimeWarnings(List<TimeWarning> timeWarnings){
+        final List<MappedTimeWarning> mappedTimeWarnings = new ArrayList<>();
+
+        timeWarnings.forEach(timeWarning -> {
+            mappedTimeWarnings.add(timeWarningMapper.map(timeWarning));
+        });
+
+        return mappedTimeWarnings;
     }
 }
