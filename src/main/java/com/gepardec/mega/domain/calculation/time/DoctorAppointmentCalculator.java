@@ -48,10 +48,12 @@ public class DoctorAppointmentCalculator extends AbstractTimeWarningCalculationS
 
             if(projectEntryFromTime.isBefore(START_HOUR_MORNING)
             || (projectEntryToTime.isAfter(END_HOUR_MORNING)
-            && projectEntryToTime.isBefore(START_HOUR_AFTERNOON))
+                && projectEntryToTime.isBefore(START_HOUR_AFTERNOON))
             || (projectEntryFromTime.isAfter(END_HOUR_MORNING)
-            && projectEntryFromTime.isBefore(START_HOUR_AFTERNOON))
-            || projectEntryToTime.isAfter(END_HOUR_AFTERNOON)){
+                && projectEntryFromTime.isBefore(START_HOUR_AFTERNOON))
+            || projectEntryToTime.isAfter(END_HOUR_AFTERNOON)
+            || (projectEntryFromTime.isBefore(END_HOUR_MORNING)
+                && projectEntryToTime.isAfter(START_HOUR_AFTERNOON))){
                 warnings.add(createTimeWarning(projectEntry));
             }
         }
