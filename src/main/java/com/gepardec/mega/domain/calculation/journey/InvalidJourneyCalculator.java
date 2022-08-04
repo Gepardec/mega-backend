@@ -7,6 +7,7 @@ import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarningType;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
+import de.provantis.zep.FehlzeitType;
 
 import java.util.ArrayList;
 import java.util.Comparator;

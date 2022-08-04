@@ -22,4 +22,6 @@ public class ProjectTimeEntry implements ProjectEntry {
     private Task task;
 
     private WorkingLocation workingLocation;
+
+    private String process;
 }

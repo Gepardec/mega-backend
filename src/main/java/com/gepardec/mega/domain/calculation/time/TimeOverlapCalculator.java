@@ -5,6 +5,7 @@ import com.gepardec.mega.domain.calculation.WarningCalculationStrategy;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
+import de.provantis.zep.FehlzeitType;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
