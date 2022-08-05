@@ -38,12 +38,11 @@ public class TimeWarning implements ProjectEntryWarning {
         this.excessWorkTime = excessWorkTime;
     }
 
-     TimeWarning(Double missingRestTime, Double missingBreakTime, Double excessWorkTime) {
+    TimeWarning(Double missingRestTime, Double missingBreakTime, Double excessWorkTime) {
         this.missingRestTime = missingRestTime;
         this.missingBreakTime = missingBreakTime;
         this.excessWorkTime = excessWorkTime;
     }
-
 
     public static TimeWarning of(LocalDate date, Double missingRestTime, Double missingBreakTime, Double excessWorkTime) {
         return new TimeWarning(date, missingRestTime, missingBreakTime, excessWorkTime);
@@ -117,6 +116,11 @@ public class TimeWarning implements ProjectEntryWarning {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(date, missingRestTime, missingBreakTime, excessWorkTime, warnings, warningTypes);
+    }
+
+        @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -133,15 +137,4 @@ public class TimeWarning implements ProjectEntryWarning {
                 Objects.equals(warningTypes, warning.warningTypes);
     }
 
-    @Override
-    public int hashCode() {
-        double mrt, mbt, ewt;
-        mrt = missingRestTime == null || missingRestTime == 0.0 ? 0.0 : 1.0;
-        mbt = missingBreakTime == null || missingBreakTime == 0.0 ? 0.0 : 1.0;
-        ewt = excessWorkTime == null || excessWorkTime == 0.0 ? 0.0 : 1.0;
-
-        int myHash = Objects.hash(mrt,mbt,ewt);
-        return myHash;
-        // -33524641
-    }
 }
