@@ -5,7 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import org.junit.jupiter.api.Test;
@@ -59,7 +59,7 @@ class GoogleVerifierProducerTest {
         when(oAuthConfig.getClientId()).thenReturn("client-id");
         when(oAuthConfig.getIssuer()).thenReturn("issuer");
         final HttpTransport expectedHttpTransport = new NetHttpTransport();
-        final JsonFactory expectedJsonFactory = new JacksonFactory();
+        final JsonFactory expectedJsonFactory = new GsonFactory();
 
         final GoogleIdTokenVerifier verifier = producer.createGoogleTokenVerifier(expectedHttpTransport, expectedJsonFactory);
 
