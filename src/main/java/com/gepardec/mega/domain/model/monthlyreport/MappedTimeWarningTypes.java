@@ -20,7 +20,7 @@ public enum MappedTimeWarningTypes {
         this.resolver = resolver;
     }
 
-    public Function<TimeWarning, String> getTemplateValue() {
-        return resolver;
+    public String getTemplateValue(TimeWarning tw) {
+        return resolver.apply(tw);
     }
 }
