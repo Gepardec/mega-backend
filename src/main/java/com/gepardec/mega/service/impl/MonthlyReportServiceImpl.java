@@ -145,12 +145,12 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .stream()
                 .allMatch(stepEntry -> stepEntry.getState() == EmployeeState.DONE);
 
-        List<MappedTimeWarningDTO> test = timeWarningMapper.map(timeWarnings);
+        List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
 
 
         return MonthlyReport.builder()
                 .employee(employee)
-                .timeWarnings(timeWarnings)
+                .timeWarnings(mappedTimeWarnings)
                 .journeyWarnings(journeyWarnings)
                 .comments(comments)
                 .employeeCheckState(employeeCheckState.orElse(EmployeeState.OPEN))

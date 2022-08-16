@@ -65,7 +65,8 @@ public class DoctorAppointmentCalculator extends AbstractTimeWarningCalculationS
     private TimeWarning createTimeWarning(ProjectTimeEntry absence){
         TimeWarning timeWarning = new TimeWarning();
         timeWarning.setDate(absence.getDate());
-        timeWarning.getWarnings().add("ARZTBUCHUNG FALSCH");
+        timeWarning.getWarnings().add("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
+        timeWarning.getWarningTypes().add(TimeWarningType.WRONG_DOCTOR_APPOINTMENT);
 
         return timeWarning;
     }

@@ -178,7 +178,7 @@ class WarningCalculatorTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("ARZTBUCHUNG FALSCH");
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
     }
 
     @Test
@@ -188,7 +188,7 @@ class WarningCalculatorTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("ARZTBUCHUNG FALSCH");
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
     }
 
     @Test
@@ -198,7 +198,7 @@ class WarningCalculatorTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("ARZTBUCHUNG FALSCH");
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
     }
 
     @Test
@@ -208,7 +208,7 @@ class WarningCalculatorTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("ARZTBUCHUNG FALSCH");
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
     }
 
     @Test
@@ -237,7 +237,7 @@ class WarningCalculatorTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("ARZTBUCHUNG FALSCH");
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
     }
 
     @Test
@@ -247,7 +247,7 @@ class WarningCalculatorTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("ARZTBUCHUNG FALSCH");
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
     }
 
 

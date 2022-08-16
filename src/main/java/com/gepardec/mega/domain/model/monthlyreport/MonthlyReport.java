@@ -3,6 +3,7 @@ package com.gepardec.mega.domain.model.monthlyreport;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.PmProgressDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ import java.util.List;
 public class MonthlyReport {
     private Employee employee;
 
-    private List<TimeWarning> timeWarnings;
+    private List<MappedTimeWarningDTO> timeWarnings;
 
     private List<JourneyWarning> journeyWarnings;
 
