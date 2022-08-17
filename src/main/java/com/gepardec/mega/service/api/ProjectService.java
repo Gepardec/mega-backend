@@ -12,5 +12,5 @@ public interface ProjectService {
 
     List<Project> getProjectsForMonthYear(final LocalDate monthYear, final List<ProjectFilter> projectFilters);
 
-    void addProject(final com.gepardec.mega.db.entity.project.Project project);
+    void addProject(final com.gepardec.mega.db.entity.project.Project project, LocalDate selectedDate);
 }

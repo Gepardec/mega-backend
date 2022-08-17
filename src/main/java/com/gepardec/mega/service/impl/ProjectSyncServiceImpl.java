@@ -61,7 +61,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         logger.debug("Users are: {}", activeUsers);
 
         createProjects(activeUsers, projectsForMonthYear, date)
-                .forEach(projectService::addProject);
+                .forEach(project -> projectService.addProject(project, date));
 
         List<Project> projects = projectService.getProjectsForMonthYear(date);
 
@@ -74,6 +74,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
 
         return !projects.isEmpty();
     }
+
 
     @Override
     public boolean generateProjects() {

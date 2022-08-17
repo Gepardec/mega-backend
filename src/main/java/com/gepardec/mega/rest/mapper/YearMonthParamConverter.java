@@ -2,17 +2,18 @@ package com.gepardec.mega.rest.mapper;
 
 import javax.ws.rs.ext.ParamConverter;
 import java.time.LocalDate;
+import java.time.YearMonth;
 
-public class LocalDateParamConverter implements ParamConverter<LocalDate> {
+public class YearMonthParamConverter implements ParamConverter<YearMonth> {
     @Override
-    public LocalDate fromString(String value) {
+    public YearMonth fromString(String value) {
         if (value == null)
             return null;
-        return LocalDate.parse(value);
+        return YearMonth.parse(value);
     }
 
     @Override
-    public String toString(LocalDate value) {
+    public String toString(YearMonth value) {
         if (value == null)
             return null;
         return value.toString();

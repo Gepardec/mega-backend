@@ -7,6 +7,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 @Path("/sync")
 public interface SyncResource {
@@ -14,20 +15,21 @@ public interface SyncResource {
     @Path("/projects")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    Response syncProjects(@QueryParam("date") LocalDate date);
+    Response syncProjects(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
 
     @Path("/employees")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    Response syncEmployees(@QueryParam("date") LocalDate date);
+    Response syncEmployees();
 
     @Path("/enterprise-entries")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    Response syncEnterpriseEntries();
+    Response generateEnterpriseEntries();
+
 
     @Path("/step-entries")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    Response syncStepEntries();
+    Response generateSyncEntries();
 }

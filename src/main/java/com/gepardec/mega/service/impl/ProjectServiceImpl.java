@@ -45,7 +45,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void addProject(com.gepardec.mega.db.entity.project.Project project) {
+    public void addProject(com.gepardec.mega.db.entity.project.Project project, LocalDate selectedDate) {
 
         com.gepardec.mega.db.entity.project.Project projectEntity = projectRepository.findByName(project.getName());
 
@@ -64,11 +64,11 @@ public class ProjectServiceImpl implements ProjectService {
 
         com.gepardec.mega.db.entity.project.Project finalProjectEntity1 = projectEntity;
 
-        LocalDate currentMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
+//        LocalDate currentMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
 
         boolean noProjectEntriesExist = true;
         if (projectEntity.getProjectEntries() != null) {
-            noProjectEntriesExist = projectEntity.getProjectEntries().stream().noneMatch(pe -> pe.getDate().equals(currentMonth));
+            noProjectEntriesExist = projectEntity.getProjectEntries().stream().noneMatch(pe -> pe.getDate().equals(selectedDate));
         }
 
         if (noProjectEntriesExist) {

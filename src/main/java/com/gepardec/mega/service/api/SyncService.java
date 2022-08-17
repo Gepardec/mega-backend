@@ -10,5 +10,4 @@ public interface SyncService {
 
     void syncEmployees();
 
-    void syncEmployees(LocalDate date);
 }

@@ -52,16 +52,12 @@ public class SyncServiceImpl implements SyncService {
 
     @Override
     public void syncEmployees() {
-       syncEmployees(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()));
-    }
-
-    public void syncEmployees(LocalDate date){
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         log.info("Started user sync: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
 
-        final List<Project> projects = projectService.getProjectsForMonthYear(date);
-        log.info("Loaded projects: {}", projects.size());
+        final List<Project> projects = projectService.getProjectsForMonthYear(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()));
+        log.info("Loaded projects (for employee generation): {}", projects.size());
 
         final List<Employee> employees = employeeService.getAllActiveEmployees();
         log.info("Loaded employees: {}", employees.size());
@@ -76,8 +72,6 @@ public class SyncServiceImpl implements SyncService {
         log.info("User sync took: {}ms", stopWatch.getTime());
         log.info("Finished user sync: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
     }
-
-
 
     private void createNonExistentUsers(final List<Employee> employees, final List<User> users, final List<Project> projects) {
         final List<User> notExistentUsers = filterNotExistingEmployeesAndMapToUser(employees, users, projects);
