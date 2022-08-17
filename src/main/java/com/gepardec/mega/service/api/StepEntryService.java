@@ -35,4 +35,6 @@ public interface StepEntryService {
     List<ProjectEmployees> getProjectEmployeesForPM(final LocalDate from, final LocalDate to, final String assigneEmail);
 
     List<ProjectEmployees> getAllProjectEmployeesForPM(final LocalDate from, final LocalDate to);
+
+    List<com.gepardec.mega.db.entity.employee.StepEntry> findAll();
 }

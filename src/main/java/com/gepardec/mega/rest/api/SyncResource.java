@@ -6,7 +6,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.LocalDate;
 import java.time.YearMonth;
 
 @Path("/sync")
@@ -31,5 +30,5 @@ public interface SyncResource {
     @Path("/step-entries")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    Response generateSyncEntries();
+    Response generateStepEntries();
 }

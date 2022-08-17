@@ -54,7 +54,7 @@ public class SyncResourceImpl implements SyncResource {
     }
 
     @Override
-    public Response generateSyncEntries() {
+    public Response generateStepEntries() {
         stepEntrySyncService.generateStepEntriesFromEndpoint();
         return Response.ok("ok").build();
     }

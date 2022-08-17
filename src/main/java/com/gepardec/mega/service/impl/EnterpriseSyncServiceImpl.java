@@ -52,6 +52,7 @@ public class EnterpriseSyncServiceImpl implements EnterpriseSyncService {
             enterpriseEntry.setChargeabilityExternalEmployeesRecorded(State.OPEN);
             enterpriseEntry.setPayrollAccountingSent(State.OPEN);
             enterpriseEntry.setZepTimesReleased(State.OPEN);
+            enterpriseEntry.setZepMonthlyReportDone(State.OPEN);
 
             enterpriseEntryRepository.persist(enterpriseEntry);
         } else {

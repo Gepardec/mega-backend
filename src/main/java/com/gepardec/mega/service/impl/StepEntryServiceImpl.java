@@ -9,6 +9,7 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.ProjectEmployees;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.StepEntryService;
+import io.quarkus.panache.common.Sort;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
@@ -176,5 +177,10 @@ public class StepEntryServiceImpl implements StepEntryService {
             entryDate = DateUtils.getFirstDayOfFollowingMonth(releaseDate);
         }
         return entryDate;
+    }
+
+    @Override
+    public List<StepEntry> findAll() {
+        return stepEntryRepository.findAll().list();
     }
 }

@@ -51,7 +51,8 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
 
     @Override
     public void generateStepEntriesFromEndpoint() {
-        generateStepEntries(1);
+        // frueher 1 gewesen
+        generateStepEntries(3);
     }
 
     @Override
@@ -108,13 +109,33 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
             }
         }
 
-        toBeCreatedStepEntries.forEach(stepEntryService::addStepEntry);
+        final List<com.gepardec.mega.db.entity.employee.StepEntry> allEntityStepEntries = stepEntryService.findAll();
+        List<StepEntry> toBeCreatedFilteredStepEntries = toBeCreatedStepEntries;
+
+        if(!allEntityStepEntries.isEmpty()){
+           toBeCreatedFilteredStepEntries = toBeCreatedStepEntries.stream()
+                    .filter(stepEntry -> allEntityStepEntries.stream()
+                            .noneMatch(stepEntry1 -> modelEqualsEntityStepEntry(stepEntry, stepEntry1)))
+                    .collect(Collectors.toList());
+        }
+
+
+        toBeCreatedFilteredStepEntries.forEach(stepEntryService::addStepEntry);
 
         stopWatch.stop();
 
         logger.info("Processed step entries: {}", toBeCreatedStepEntries.size());
         logger.info("Step entry generation took: {}ms", stopWatch.getTime());
         logger.info("Finished step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
+    }
+
+    private boolean modelEqualsEntityStepEntry(StepEntry model, com.gepardec.mega.db.entity.employee.StepEntry entity) {
+        if (entity.getDate().equals(model.getDate()) &&
+                entity.getAssignee().getEmail().equals(model.getAssignee().getEmail()) &&
+                entity.getOwner().getEmail().equals(model.getOwner().getEmail())) {
+            return true;
+        }
+        return false;
     }
 
     private List<StepEntry> createStepEntriesProjectLeadForUsers(final LocalDate date, final Step step, final List<Project> projects, final List<User> users) {
