@@ -38,6 +38,8 @@ class WarningCalculatorTest {
     private static final Integer[] HOLIDAYS = {8, 25, 26};
 
     private static final Integer[] WEEKEND_DAYS = {5, 6, 12, 13, 19, 20, 26, 27};
+    
+    private static String DOCTOR_APPOINTMENT = "Arztbesuch";
 
     @Mock
     ResourceBundle messages;
@@ -173,7 +175,7 @@ class WarningCalculatorTest {
 
     @Test
     void whenDoctorBefore830_thenError() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(7, 25, 7, 45, "Arztbesuch");
+        final ProjectTimeEntry pte = projectTimeEntryFor(7, 25, 7, 45, DOCTOR_APPOINTMENT);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
@@ -183,7 +185,7 @@ class WarningCalculatorTest {
 
     @Test
     void whenDoctorBetween12_1230_thenErrorv1() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(12, 15, 13, 45, "Arztbesuch");
+        final ProjectTimeEntry pte = projectTimeEntryFor(12, 15, 13, 45, DOCTOR_APPOINTMENT);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
@@ -193,7 +195,7 @@ class WarningCalculatorTest {
 
     @Test
     void whenDoctorBetween12_1230_thenErrorv2() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(7, 45, 12, 25, "Arztbesuch");
+        final ProjectTimeEntry pte = projectTimeEntryFor(7, 45, 12, 25, DOCTOR_APPOINTMENT);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
@@ -203,7 +205,7 @@ class WarningCalculatorTest {
 
     @Test
     void whenDoctorAfter17_thenError() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(15, 25, 17, 45, "Arztbesuch");
+        final ProjectTimeEntry pte = projectTimeEntryFor(15, 25, 17, 45, DOCTOR_APPOINTMENT);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
@@ -232,7 +234,7 @@ class WarningCalculatorTest {
 
     @Test
     void whenDoctorSpanOverMidday_thenError() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(8, 30, 17, 0, "Arztbesuch");
+        final ProjectTimeEntry pte = projectTimeEntryFor(8, 30, 17, 0, DOCTOR_APPOINTMENT);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
@@ -242,7 +244,7 @@ class WarningCalculatorTest {
 
     @Test
     void whenDoctorSpanOverMidday_thenErrorv2() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(11, 59, 12, 31, "Arztbesuch");
+        final ProjectTimeEntry pte = projectTimeEntryFor(11, 59, 12, 31, DOCTOR_APPOINTMENT);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
