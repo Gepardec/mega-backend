@@ -1,8 +1,12 @@
 package com.gepardec.mega.service.api;
 
+import java.time.YearMonth;
+
 public interface StepEntrySyncService {
 
-    void generateStepEntriesFromEndpoint();
+    boolean generateStepEntriesFromEndpoint();
 
-    void generateStepEntriesFromScheduler();
+    boolean generateStepEntriesFromEndpoint(YearMonth date);
+
+    boolean generateStepEntriesFromScheduler();
 }

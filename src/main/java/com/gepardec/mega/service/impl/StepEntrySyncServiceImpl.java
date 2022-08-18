@@ -20,6 +20,8 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,17 +52,21 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
     NotificationConfig notificationConfig;
 
     @Override
-    public void generateStepEntriesFromEndpoint() {
-        // frueher 1 gewesen
-        generateStepEntries(3);
+    public boolean generateStepEntriesFromEndpoint() {
+        return generateStepEntries(1);
     }
 
     @Override
-    public void generateStepEntriesFromScheduler() {
-        generateStepEntries(0);
+    public boolean generateStepEntriesFromEndpoint(YearMonth date) {
+        return generateStepEntries((int) ChronoUnit.MONTHS.between(LocalDate.now().withDayOfMonth(1), date.atDay(1)));
     }
 
-    private void generateStepEntries(int month) {
+    @Override
+    public boolean generateStepEntriesFromScheduler() {
+        return generateStepEntries(0);
+    }
+
+    private boolean generateStepEntries(int month) {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -127,6 +133,8 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
         logger.info("Processed step entries: {}", toBeCreatedStepEntries.size());
         logger.info("Step entry generation took: {}ms", stopWatch.getTime());
         logger.info("Finished step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
+
+        return true;
     }
 
     private boolean modelEqualsEntityStepEntry(StepEntry model, com.gepardec.mega.db.entity.employee.StepEntry entity) {
