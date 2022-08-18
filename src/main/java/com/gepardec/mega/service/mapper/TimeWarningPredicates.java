@@ -12,6 +12,9 @@ import java.util.function.Predicate;
 @ApplicationScoped
 public class TimeWarningPredicates {
 
+    public Map<MappedTimeWarningTypes, Predicate<TimeWarning>> getPredicateMap() {
+        return predicateMap;
+    }
 
     private final Map<MappedTimeWarningTypes,Predicate<TimeWarning>> predicateMap = Map.ofEntries(
             Map.entry(MappedTimeWarningTypes.MISSINGREST, missingRestPredicate),
@@ -95,9 +98,4 @@ public class TimeWarningPredicates {
         }
         return false;
     };
-
-
-    public Map<MappedTimeWarningTypes, Predicate<TimeWarning>> getPredicateMap() {
-        return predicateMap;
-    }
 }

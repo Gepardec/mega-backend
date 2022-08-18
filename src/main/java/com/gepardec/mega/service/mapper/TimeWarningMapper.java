@@ -25,11 +25,6 @@ public class TimeWarningMapper {
 
     @Inject
     TimeWarningPredicates timeWarningPredicates;
-
-
-
-
-
     public List<MappedTimeWarningDTO> map(List<TimeWarning> timeWarningList) {
         final HashMap<TimeWarning, ArrayList<MappedTimeWarningTypes>> timeWarningMapping = new HashMap<>();
         ResourceBundle templates = resourceBundleProducer.getWarningTemplateResourceBundle(applicationConfig.getDefaultLocale());
