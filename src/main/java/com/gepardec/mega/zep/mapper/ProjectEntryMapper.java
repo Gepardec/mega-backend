@@ -40,6 +40,7 @@ public class ProjectEntryMapper {
         LocalDateTime from = toLocalDateTime(projektzeitType.getDatum(), projektzeitType.getVon());
         LocalDateTime to = toLocalDateTime(projektzeitType.getDatum(), projektzeitType.getBis());
         WorkingLocation workingLocation = toWorkingLocation(projektzeitType.getOrt());
+        String process = projektzeitType.getVorgangNr();
 
         if (Task.isJourney(task)) {
             JourneyDirection journeyDirection = toJourneyDirection(projektzeitType.getReiseRichtung());
@@ -53,7 +54,13 @@ public class ProjectEntryMapper {
                     .vehicle(vehicle)
                     .build();
         } else {
-            return ProjectTimeEntry.builder().fromTime(from).toTime(to).task(task).workingLocation(workingLocation).build();
+            return ProjectTimeEntry.builder()
+                    .fromTime(from)
+                    .toTime(to)
+                    .task(task)
+                    .workingLocation(workingLocation)
+                    .process(process)
+                    .build();
         }
     }
 
@@ -80,4 +87,5 @@ public class ProjectEntryMapper {
         return JourneyDirection.fromString(direction)
                 .orElseThrow(() -> new IllegalArgumentException("JourneyDirection '" + direction + "' is not mapped in Enum JourneyDirection"));
     }
+
 }

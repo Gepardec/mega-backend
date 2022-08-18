@@ -9,6 +9,7 @@ import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
+import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.MonthlyReportDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
@@ -66,7 +67,7 @@ class WorkerResourceTest {
         Employee employee = createEmployeeForUser(user);
         when(employeeService.getEmployee(anyString())).thenReturn(employee);
 
-        List<TimeWarning> timeWarnings = List.of();
+        List<MappedTimeWarningDTO> timeWarnings = List.of();
         List<JourneyWarning> journeyWarnings = List.of();
 
         int vacationDays = 0;

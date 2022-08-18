@@ -9,11 +9,13 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntryWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
+import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.PmProgressDto;
 import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WarningCalculator;
+import com.gepardec.mega.service.mapper.TimeWarningMapper;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
@@ -25,6 +27,7 @@ import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -74,6 +77,9 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     @Inject
     StepEntryService stepEntryService;
+
+    @Inject
+    TimeWarningMapper timeWarningMapper;
 
     @Override
     public MonthlyReport getMonthendReportForUser(final String userId) {
@@ -139,9 +145,12 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .stream()
                 .allMatch(stepEntry -> stepEntry.getState() == EmployeeState.DONE);
 
+        List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
+
+
         return MonthlyReport.builder()
                 .employee(employee)
-                .timeWarnings(timeWarnings)
+                .timeWarnings(mappedTimeWarnings)
                 .journeyWarnings(journeyWarnings)
                 .comments(comments)
                 .employeeCheckState(employeeCheckState.orElse(EmployeeState.OPEN))

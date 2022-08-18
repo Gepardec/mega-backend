@@ -38,6 +38,8 @@ class WarningCalculatorTest {
     private static final Integer[] HOLIDAYS = {8, 25, 26};
 
     private static final Integer[] WEEKEND_DAYS = {5, 6, 12, 13, 19, 20, 26, 27};
+    
+    private static String DOCTOR_APPOINTMENT = "Arztbesuch";
 
     @Mock
     ResourceBundle messages;
@@ -54,29 +56,35 @@ class WarningCalculatorTest {
     }
 
     private ProjectTimeEntry projectTimeEntryFor(final int startHour, final int endHour) {
-        return projectTimeEntryFor(2, startHour, 0, 1, endHour, 0, WorkingLocation.MAIN);
+        return projectTimeEntryFor(2, startHour, 0, 1, endHour, 0, WorkingLocation.MAIN, "");
     }
 
     private ProjectTimeEntry projectTimeEntryFor(final int day, final int startHour, final int endHour) {
-        return projectTimeEntryFor(day, startHour, 0, day, endHour, 0, WorkingLocation.MAIN);
+        return projectTimeEntryFor(day, startHour, 0, day, endHour, 0, WorkingLocation.MAIN, null);
     }
 
     private ProjectTimeEntry projectTimeEntryFor(final int day, final int startHour, final int startMinute, final int endHour,
                                                  final int endMinute) {
-        return projectTimeEntryFor(day, startHour, startMinute, day, endHour, endMinute, WorkingLocation.MAIN);
+        return projectTimeEntryFor(day, startHour, startMinute, day, endHour, endMinute, WorkingLocation.MAIN, "");
     }
 
     private ProjectTimeEntry projectTimeEntryFor(final int day, final int startHour, final int endHour, WorkingLocation workingLocation) {
-        return projectTimeEntryFor(day, startHour, 0, day, endHour, 0, workingLocation);
+        return projectTimeEntryFor(day, startHour, 0, day, endHour, 0, workingLocation, "");
+    }
+
+    private ProjectTimeEntry projectTimeEntryFor(final int startHour, final int startMinute, final int endHour,
+                                                 final int endMinute, final String process) {
+        return projectTimeEntryFor(1, startHour, startMinute, 1, endHour, endMinute, WorkingLocation.MAIN, process);
     }
 
     private ProjectTimeEntry projectTimeEntryFor(final int startDay, final int startHour, final int startMinute, final int endDay, final int endHour,
-                                                 final int endMinute, WorkingLocation workingLocation) {
+                                                 final int endMinute, WorkingLocation workingLocation, final String process) {
         return ProjectTimeEntry.builder()
                 .fromTime(LocalDateTime.of(2020, 1, startDay, startHour, startMinute))
                 .toTime(LocalDateTime.of(2020, 1, endDay, endHour, endMinute))
                 .task(Task.BEARBEITEN)
                 .workingLocation(workingLocation)
+                .process(process)
                 .build();
     }
 
@@ -164,6 +172,87 @@ class WarningCalculatorTest {
         assertThat(warnings.get(0).getWarningTypes()).hasSize(2);
         assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
+
+    @Test
+    void whenDoctorBefore830_thenError() {
+        final ProjectTimeEntry pte = projectTimeEntryFor(7, 25, 7, 45, DOCTOR_APPOINTMENT);
+
+        final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
+    }
+
+    @Test
+    void whenDoctorBetween12_1230_thenErrorv1() {
+        final ProjectTimeEntry pte = projectTimeEntryFor(12, 15, 13, 45, DOCTOR_APPOINTMENT);
+
+        final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
+    }
+
+    @Test
+    void whenDoctorBetween12_1230_thenErrorv2() {
+        final ProjectTimeEntry pte = projectTimeEntryFor(7, 45, 12, 25, DOCTOR_APPOINTMENT);
+
+        final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
+    }
+
+    @Test
+    void whenDoctorAfter17_thenError() {
+        final ProjectTimeEntry pte = projectTimeEntryFor(15, 25, 17, 45, DOCTOR_APPOINTMENT);
+
+        final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
+    }
+
+    @Test
+    void whenDoctorProcessNull_ThenNoWarning() {
+        final ProjectTimeEntry pte = projectTimeEntryFor(15, 8, 30,15, 10, 5, WorkingLocation.MAIN, null);
+
+        final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
+
+        assertThat(result).hasSize(0);
+    }
+
+
+    @Test
+    void whenNotDoctor_ThenNoWarning() {
+        final ProjectTimeEntry pte = projectTimeEntryFor(15, 7, 0,15, 10, 5, WorkingLocation.MAIN, "I'm not an Arztbesuch");
+
+        final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
+
+        assertThat(result).hasSize(0);
+    }
+
+    @Test
+    void whenDoctorSpanOverMidday_thenError() {
+        final ProjectTimeEntry pte = projectTimeEntryFor(8, 30, 17, 0, DOCTOR_APPOINTMENT);
+
+        final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
+    }
+
+    @Test
+    void whenDoctorSpanOverMidday_thenErrorv2() {
+        final ProjectTimeEntry pte = projectTimeEntryFor(11, 59, 12, 31, DOCTOR_APPOINTMENT);
+
+        final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
+    }
+
+
 
     /*
     Comment disabled because:

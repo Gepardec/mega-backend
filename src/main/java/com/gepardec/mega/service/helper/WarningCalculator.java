@@ -4,6 +4,7 @@ import com.gepardec.mega.domain.calculation.WarningCalculationStrategy;
 import com.gepardec.mega.domain.calculation.journey.InvalidJourneyCalculator;
 import com.gepardec.mega.domain.calculation.journey.InvalidWorkingLocationInJourneyCalculator;
 import com.gepardec.mega.domain.calculation.time.CoreWorkingHoursCalculator;
+import com.gepardec.mega.domain.calculation.time.DoctorAppointmentCalculator;
 import com.gepardec.mega.domain.calculation.time.ExceededMaximumWorkingHoursPerDayCalculator;
 import com.gepardec.mega.domain.calculation.time.HolidayCalculator;
 import com.gepardec.mega.domain.calculation.time.InsufficientBreakCalculator;
@@ -36,12 +37,14 @@ public class WarningCalculator {
             new CoreWorkingHoursCalculator(),
             new TimeOverlapCalculator(),
             new HolidayCalculator(),
-            new WeekendCalculator());
+            new WeekendCalculator(),
+            new DoctorAppointmentCalculator());
 
     private static final List<WarningCalculationStrategy<JourneyWarning>> journeyWarningCalculators = List.of(
             new InvalidJourneyCalculator(),
             new InvalidWorkingLocationInJourneyCalculator()
     );
+
 
     @Inject
     ResourceBundle messages;
@@ -69,6 +72,7 @@ public class WarningCalculator {
         warnings.sort(Comparator.comparing(JourneyWarning::getDate));
         return warnings;
     }
+
 
     public List<TimeWarning> determineNoTimeEntries(List<ProjectEntry> projectEntries, List<FehlzeitType> absenceEntries) {
         NoEntryCalculator calculator = new NoEntryCalculator();

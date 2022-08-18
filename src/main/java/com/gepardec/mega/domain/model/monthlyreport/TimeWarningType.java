@@ -6,7 +6,8 @@ public enum TimeWarningType implements WarningType {
     NO_TIME_ENTRY,
     EMPTY_ENTRY_LIST,
     HOLIDAY,
-    WEEKEND;
+    WEEKEND,
+    WRONG_DOCTOR_APPOINTMENT;
 
     @Override
     public String warningType() {

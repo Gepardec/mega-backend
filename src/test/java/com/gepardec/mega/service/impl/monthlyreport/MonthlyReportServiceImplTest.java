@@ -9,6 +9,7 @@ import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
+import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.service.helper.WarningCalculator;
 import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
 import com.gepardec.mega.zep.ZepService;
@@ -101,10 +102,6 @@ class MonthlyReportServiceImplTest {
                 .isFalse();
         assertThat(monthendReportForUser.getTimeWarnings().get(0).getDate())
                 .isEqualTo(LocalDate.of(2020, 1, 31));
-        assertThat(monthendReportForUser.getTimeWarnings().get(0).getExcessWorkTime())
-                .isEqualTo(1d);
-        assertThat(monthendReportForUser.getTimeWarnings().get(0).getMissingBreakTime())
-                .isEqualTo(0.5d);
     }
 
     @Test
@@ -197,6 +194,7 @@ class MonthlyReportServiceImplTest {
         );
     }
 
+
     @Test
     void getMonthendReportForUser_isUserIsValidAndHasConferenceAbsenceDays_thenReturnsReportWithCorrectAmountOfConferenceDays() {
         final Employee employee = createEmployee(0);
@@ -227,6 +225,7 @@ class MonthlyReportServiceImplTest {
         );
     }
 
+
     @Test
     void getMonthendReportForUser_isUserIsValidAndHasMaternityProtectionAbsenceDays_thenReturnsReportWithCorrectAmountOfMaternityProtectionDays() {
         final Employee employee = createEmployee(0);
@@ -243,6 +242,8 @@ class MonthlyReportServiceImplTest {
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+
+        List<MappedTimeWarningDTO> test = monthendReportForUser.getTimeWarnings();
 
         assertAll(
                 () -> assertThat(monthendReportForUser)

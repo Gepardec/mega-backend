@@ -6,6 +6,7 @@ import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
+import com.gepardec.mega.domain.model.monthlyreport.MappedTimeWarningTypes;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +28,7 @@ public class MonthlyReportDto {
     private Employee employee;
 
     @JsonProperty
-    private List<TimeWarning> timeWarnings;
+    private List<MappedTimeWarningDTO> timeWarnings;
 
     @JsonProperty
     private List<JourneyWarning> journeyWarnings;
