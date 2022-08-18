@@ -12,6 +12,7 @@ import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.api.StepEntrySyncService;
 import com.gepardec.mega.service.api.StepService;
 import com.gepardec.mega.service.api.UserService;
+import net.bytebuddy.asm.Advice;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 
@@ -53,26 +54,26 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
 
     @Override
     public boolean generateStepEntriesFromEndpoint() {
-        return generateStepEntries(1);
+        return generateStepEntries(LocalDate.now().minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()));
     }
 
     @Override
     public boolean generateStepEntriesFromEndpoint(YearMonth date) {
-        return generateStepEntries((int) ChronoUnit.MONTHS.between(LocalDate.now().withDayOfMonth(1), date.atDay(1)));
+        return generateStepEntries(date.atDay(1));
     }
 
     @Override
     public boolean generateStepEntriesFromScheduler() {
-        return generateStepEntries(0);
+        return generateStepEntries(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()));
     }
 
-    private boolean generateStepEntries(int month) {
+
+    private boolean generateStepEntries(LocalDate date) {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         logger.info("Started step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
 
-        final LocalDate date = LocalDate.now().minusMonths(month).with(TemporalAdjusters.firstDayOfMonth());
         logger.info("Processing date: {}", date);
 
         final List<User> activeUsers = userService.findActiveUsers();
@@ -119,7 +120,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
         List<StepEntry> toBeCreatedFilteredStepEntries = toBeCreatedStepEntries;
 
         if(!allEntityStepEntries.isEmpty()){
-           toBeCreatedFilteredStepEntries = toBeCreatedStepEntries.stream()
+            toBeCreatedFilteredStepEntries = toBeCreatedStepEntries.stream()
                     .filter(stepEntry -> allEntityStepEntries.stream()
                             .noneMatch(stepEntry1 -> modelEqualsEntityStepEntry(stepEntry, stepEntry1)))
                     .collect(Collectors.toList());
