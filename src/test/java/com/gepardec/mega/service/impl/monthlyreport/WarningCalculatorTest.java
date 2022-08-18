@@ -8,6 +8,7 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
+import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.service.helper.WarningCalculator;
@@ -180,7 +181,7 @@ class WarningCalculatorTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
     }
 
     @Test
@@ -190,7 +191,7 @@ class WarningCalculatorTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
     }
 
     @Test
@@ -200,7 +201,7 @@ class WarningCalculatorTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
     }
 
     @Test
@@ -210,7 +211,7 @@ class WarningCalculatorTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
     }
 
     @Test
@@ -239,7 +240,7 @@ class WarningCalculatorTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
     }
 
     @Test
@@ -249,7 +250,7 @@ class WarningCalculatorTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo("Warnung: Doktorbuchung außerhalb der Sollarbeitszeit");
+        assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
     }
 
 
