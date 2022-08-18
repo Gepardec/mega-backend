@@ -2,21 +2,12 @@ package com.gepardec.mega.domain.calculation.time;
 
 import com.gepardec.mega.domain.calculation.AbstractTimeWarningCalculationStrategy;
 import com.gepardec.mega.domain.calculation.WarningCalculationStrategy;
-import com.gepardec.mega.domain.model.Employee;
-
-import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
-import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
-import de.provantis.zep.FehlzeitType;
-import net.bytebuddy.asm.Advice;
 
-import java.sql.Time;
-import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

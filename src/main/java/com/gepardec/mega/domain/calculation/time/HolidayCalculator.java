@@ -7,7 +7,6 @@ import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import de.jollyday.HolidayCalendar;
 import de.jollyday.HolidayManager;
-import de.provantis.zep.FehlzeitType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

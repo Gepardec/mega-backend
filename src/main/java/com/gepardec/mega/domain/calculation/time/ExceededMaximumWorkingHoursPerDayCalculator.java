@@ -6,7 +6,6 @@ import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
-import de.provantis.zep.FehlzeitType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
