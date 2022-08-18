@@ -69,6 +69,7 @@ class BusinessDayCalculatorTest {
 
     @Test
     void getEventforDate_differentDatesOfMonthNovember_shouldReturnCorrectReminder() {
+
         assertAll(
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 1))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 2))),
@@ -82,7 +83,7 @@ class BusinessDayCalculatorTest {
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 10))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 11))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 12))),
-                () -> assertReminderEquals(OM_RELEASE, businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 13))),
+                () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 13))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 14))),
                 () -> assertReminderEquals(OM_ADMINISTRATIVE, businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 15))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 16))),
@@ -94,7 +95,7 @@ class BusinessDayCalculatorTest {
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 22))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 23))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 24))),
-                () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 25))),
+                () -> assertReminderEquals(OM_RELEASE, businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 25))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 26))),
                 () -> assertReminderEquals(OM_SALARY, businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 27))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2019, 11, 28))),
@@ -105,6 +106,8 @@ class BusinessDayCalculatorTest {
 
     @Test
     void getEventforDate_differentDatesOfMonthFebruary_shouldReturnCorrectReminder() {
+
+
         assertAll(
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 1))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 2))),
@@ -117,7 +120,7 @@ class BusinessDayCalculatorTest {
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 9))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 10))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 11))),
-                () -> assertReminderEquals(OM_RELEASE, businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 12))),
+                () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 12))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 13))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 14))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 15))),
@@ -129,7 +132,7 @@ class BusinessDayCalculatorTest {
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 21))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 22))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 23))),
-                () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 24))),
+                () -> assertReminderEquals(OM_RELEASE, businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 24))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 25))),
                 () -> assertReminderEquals(OM_SALARY, businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 26))),
                 () -> assertReminderEmpty(businessDayCalculator.getEventForDate(LocalDate.of(2020, 2, 27))),
