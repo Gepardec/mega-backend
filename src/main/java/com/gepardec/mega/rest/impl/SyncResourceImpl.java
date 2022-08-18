@@ -12,9 +12,8 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.time.YearMonth;
 
-
 @RequestScoped
-//@IfBuildProperty(name = "mega.endpoint.test.enable", stringValue = "true", enableIfMissing = true)
+@IfBuildProperty(name = "mega.endpoint.test.enable", stringValue = "true", enableIfMissing = true)
 public class SyncResourceImpl implements SyncResource {
 
     @Inject
@@ -31,11 +30,15 @@ public class SyncResourceImpl implements SyncResource {
 
     @Override
     public Response syncProjects(YearMonth from, YearMonth to) {
-        if (from == null) return Response.ok(projectSyncService.generateProjects()).build();
+        if (from == null) {
+            return Response.ok(projectSyncService.generateProjects()).build();
+        }
 
-        if(to == null) return Response.ok(projectSyncService.generateProjects(from.atDay(1))).build();
+        if (to == null) {
+            return Response.ok(projectSyncService.generateProjects(from.atDay(1))).build();
+        }
 
-        while(from.isBefore(to)){
+        while (from.isBefore(to)) {
             projectSyncService.generateProjects(from.atDay(1));
             from = from.plusMonths(1);
         }
@@ -49,13 +52,16 @@ public class SyncResourceImpl implements SyncResource {
         return Response.ok("ok").build();
     }
 
-
     @Override
     public Response generateEnterpriseEntries(YearMonth from, YearMonth to) {
-        if(from == null) return Response.ok(enterpriseSyncService.generateEnterpriseEntries()).build();
-        if(to == null) return Response.ok(enterpriseSyncService.generateEnterpriseEntries(from.atDay(1))).build();
+        if (from == null) {
+            return Response.ok(enterpriseSyncService.generateEnterpriseEntries()).build();
+        }
+        if (to == null) {
+            return Response.ok(enterpriseSyncService.generateEnterpriseEntries(from.atDay(1))).build();
+        }
 
-        while(from.isBefore(to)){
+        while (from.isBefore(to)) {
             enterpriseSyncService.generateEnterpriseEntries(from.atDay(1));
             from = from.plusMonths(1);
         }
@@ -65,10 +71,14 @@ public class SyncResourceImpl implements SyncResource {
 
     @Override
     public Response generateStepEntries(YearMonth from, YearMonth to) {
-        if(from == null) return Response.ok(stepEntrySyncService.generateStepEntriesFromEndpoint()).build();
-        if(to == null) return Response.ok(stepEntrySyncService.generateStepEntriesFromEndpoint(from)).build();
+        if (from == null) {
+            return Response.ok(stepEntrySyncService.generateStepEntriesFromEndpoint()).build();
+        }
+        if (to == null) {
+            return Response.ok(stepEntrySyncService.generateStepEntriesFromEndpoint(from)).build();
+        }
 
-        while(from.isBefore(to)){
+        while (from.isBefore(to)) {
             stepEntrySyncService.generateStepEntriesFromEndpoint(from);
             from = from.plusMonths(1);
         }
@@ -79,9 +89,9 @@ public class SyncResourceImpl implements SyncResource {
     @Override
     public Response syncAll(YearMonth from, YearMonth to) {
         syncEmployees();
-        syncProjects(from,to);
+        syncProjects(from, to);
         generateEnterpriseEntries(from, to);
-        generateStepEntries(from,to);
+        generateStepEntries(from, to);
 
         return Response.ok("ok").build();
     }
