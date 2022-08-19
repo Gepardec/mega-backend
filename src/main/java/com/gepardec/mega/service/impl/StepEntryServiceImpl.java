@@ -177,4 +177,9 @@ public class StepEntryServiceImpl implements StepEntryService {
         }
         return entryDate;
     }
+
+    @Override
+    public List<StepEntry> findAll() {
+        return stepEntryRepository.findAll().list();
+    }
 }

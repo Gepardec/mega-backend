@@ -20,6 +20,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,22 +51,27 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
     NotificationConfig notificationConfig;
 
     @Override
-    public void generateStepEntriesFromEndpoint() {
-        generateStepEntries(1);
+    public boolean generateStepEntriesFromEndpoint() {
+        return generateStepEntries(LocalDate.now().minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()));
     }
 
     @Override
-    public void generateStepEntriesFromScheduler() {
-        generateStepEntries(0);
+    public boolean generateStepEntriesFromEndpoint(YearMonth date) {
+        return generateStepEntries(date.atDay(1));
     }
 
-    private void generateStepEntries(int month) {
+    @Override
+    public boolean generateStepEntriesFromScheduler() {
+        return generateStepEntries(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()));
+    }
+
+
+    private boolean generateStepEntries(LocalDate date) {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         logger.info("Started step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
 
-        final LocalDate date = LocalDate.now().minusMonths(month).with(TemporalAdjusters.firstDayOfMonth());
         logger.info("Processing date: {}", date);
 
         final List<User> activeUsers = userService.findActiveUsers();
@@ -108,13 +114,35 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
             }
         }
 
-        toBeCreatedStepEntries.forEach(stepEntryService::addStepEntry);
+        final List<com.gepardec.mega.db.entity.employee.StepEntry> allEntityStepEntries = stepEntryService.findAll();
+        List<StepEntry> toBeCreatedFilteredStepEntries = toBeCreatedStepEntries;
+
+        if(!allEntityStepEntries.isEmpty()){
+            toBeCreatedFilteredStepEntries = toBeCreatedStepEntries.stream()
+                    .filter(stepEntry -> allEntityStepEntries.stream()
+                            .noneMatch(stepEntry1 -> modelEqualsEntityStepEntry(stepEntry, stepEntry1)))
+                    .collect(Collectors.toList());
+        }
+
+
+        toBeCreatedFilteredStepEntries.forEach(stepEntryService::addStepEntry);
 
         stopWatch.stop();
 
         logger.info("Processed step entries: {}", toBeCreatedStepEntries.size());
         logger.info("Step entry generation took: {}ms", stopWatch.getTime());
         logger.info("Finished step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
+
+        return true;
+    }
+
+    private boolean modelEqualsEntityStepEntry(StepEntry model, com.gepardec.mega.db.entity.employee.StepEntry entity) {
+        if (entity.getDate().equals(model.getDate()) &&
+                entity.getAssignee().getEmail().equals(model.getAssignee().getEmail()) &&
+                entity.getOwner().getEmail().equals(model.getOwner().getEmail())) {
+            return true;
+        }
+        return false;
     }
 
     private List<StepEntry> createStepEntriesProjectLeadForUsers(final LocalDate date, final Step step, final List<Project> projects, final List<User> users) {

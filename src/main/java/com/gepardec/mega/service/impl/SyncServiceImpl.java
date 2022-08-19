@@ -57,7 +57,7 @@ public class SyncServiceImpl implements SyncService {
         log.info("Started user sync: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
 
         final List<Project> projects = projectService.getProjectsForMonthYear(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()));
-        log.info("Loaded projects: {}", projects.size());
+        log.info("Loaded projects (for employee generation): {}", projects.size());
 
         final List<Employee> employees = employeeService.getAllActiveEmployees();
         log.info("Loaded employees: {}", employees.size());

@@ -7,4 +7,5 @@ package com.gepardec.mega.service.api;
 public interface SyncService {
 
     void syncEmployees();
+
 }

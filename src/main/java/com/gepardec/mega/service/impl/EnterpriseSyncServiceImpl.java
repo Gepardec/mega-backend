@@ -33,14 +33,14 @@ public class EnterpriseSyncServiceImpl implements EnterpriseSyncService {
     @Inject
     EnterpriseEntryRepository enterpriseEntryRepository;
 
-    @Override
-    public boolean generateEnterpriseEntries() {
+
+
+    public boolean generateEnterpriseEntries(LocalDate date){
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         logger.info("Started enterprise entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
 
-        LocalDate date = LocalDate.now().minusMonths(1).withDayOfMonth(1);
         logger.info("Processing date: {}", date);
 
         Optional<EnterpriseEntry> savedEnterpriseEntry = enterpriseEntryRepository.findByDate(date);
@@ -52,6 +52,7 @@ public class EnterpriseSyncServiceImpl implements EnterpriseSyncService {
             enterpriseEntry.setChargeabilityExternalEmployeesRecorded(State.OPEN);
             enterpriseEntry.setPayrollAccountingSent(State.OPEN);
             enterpriseEntry.setZepTimesReleased(State.OPEN);
+            enterpriseEntry.setZepMonthlyReportDone(State.OPEN);
 
             enterpriseEntryRepository.persist(enterpriseEntry);
         } else {
@@ -64,5 +65,9 @@ public class EnterpriseSyncServiceImpl implements EnterpriseSyncService {
         logger.info("Finished enterprise entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
 
         return enterpriseEntryRepository.findByDate(date).isPresent();
+    }
+    @Override
+    public boolean generateEnterpriseEntries() {
+        return generateEnterpriseEntries(LocalDate.now().minusMonths(1).withDayOfMonth(1));
     }
 }

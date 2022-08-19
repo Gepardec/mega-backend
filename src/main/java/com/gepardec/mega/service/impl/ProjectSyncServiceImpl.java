@@ -43,13 +43,11 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
     ProjectEntryService projectEntryService;
 
     @Override
-    public boolean generateProjects() {
+    public boolean generateProjects(LocalDate date) {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         logger.info("Started project generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
-
-        LocalDate date = LocalDate.now().minusMonths(1).withDayOfMonth(1);
         logger.info("Processing date: {}", date);
 
         List<User> activeUsers = userService.findActiveUsers();
@@ -63,7 +61,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         logger.debug("Users are: {}", activeUsers);
 
         createProjects(activeUsers, projectsForMonthYear, date)
-                .forEach(projectService::addProject);
+                .forEach(project -> projectService.addProject(project, date));
 
         List<Project> projects = projectService.getProjectsForMonthYear(date);
 
@@ -75,6 +73,12 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         logger.info("Finished project generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
 
         return !projects.isEmpty();
+    }
+
+
+    @Override
+    public boolean generateProjects() {
+        return generateProjects(LocalDate.now().minusMonths(1).withDayOfMonth(1));
     }
 
     private List<com.gepardec.mega.db.entity.project.Project> createProjects(List<User> activeUsers, List<Project> projects, LocalDate date) {
