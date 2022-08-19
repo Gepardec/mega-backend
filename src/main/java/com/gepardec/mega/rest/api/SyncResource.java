@@ -15,7 +15,7 @@ import javax.ws.rs.core.Response;
 import java.time.YearMonth;
 
 @Path("/sync")
-@Tag(name = "Sync for testing")
+@Tag(name = "SyncResource")
 @Produces(MediaType.APPLICATION_JSON)
 public interface SyncResource {
 
