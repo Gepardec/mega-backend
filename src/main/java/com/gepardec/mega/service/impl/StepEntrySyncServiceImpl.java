@@ -12,7 +12,6 @@ import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.api.StepEntrySyncService;
 import com.gepardec.mega.service.api.StepService;
 import com.gepardec.mega.service.api.UserService;
-import net.bytebuddy.asm.Advice;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 
@@ -22,7 +21,6 @@ import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collection;

@@ -32,7 +32,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.gepardec.mega.domain.utils.DateUtils.*;
+import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfFollowingMonth;
+import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfFollowingMonth;
 
 @RequestScoped
 public class MonthlyReportServiceImpl implements MonthlyReportService {
