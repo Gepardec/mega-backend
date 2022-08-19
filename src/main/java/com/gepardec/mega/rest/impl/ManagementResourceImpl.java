@@ -193,7 +193,6 @@ public class ManagementResourceImpl implements ManagementResource {
         List<ManagementEntryDto> entries = new ArrayList<>();
 
         for (String userId : projectEmployees.getEmployees()) {
-
             if (employees.containsKey(userId)) {
                 Employee employee = employees.get(userId);
                 List<StepEntry> stepEntries = stepEntryService.findAllStepEntriesForEmployeeAndProject(
