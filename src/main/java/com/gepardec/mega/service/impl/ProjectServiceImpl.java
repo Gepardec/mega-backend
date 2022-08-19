@@ -64,8 +64,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         com.gepardec.mega.db.entity.project.Project finalProjectEntity1 = projectEntity;
 
-//        LocalDate currentMonth = LocalDate.now().minusMonths(1).withDayOfMonth(1);
-
         boolean noProjectEntriesExist = true;
         if (projectEntity.getProjectEntries() != null) {
             noProjectEntriesExist = projectEntity.getProjectEntries().stream().noneMatch(pe -> pe.getDate().equals(selectedDate));
