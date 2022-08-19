@@ -90,6 +90,10 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-context-propagation</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-metrics</artifactId>
+        </dependency>
         <!-- Quarkus JPA-Extensions -->
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -386,6 +390,14 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-smallrye-metrics</artifactId>
+                <version>${quarkus-plugin.version}</version>
+                <configuration>
+                    <quarkus.smallrye-metrics.path>/metrics</quarkus.smallrye-metrics.path>
+                </configuration>
             </plugin>
         </plugins>
     </build>
