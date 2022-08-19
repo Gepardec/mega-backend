@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.api;
 
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -19,6 +20,8 @@ import java.time.YearMonth;
 @Produces(MediaType.APPLICATION_JSON)
 public interface SyncResource {
 
+
+    @Operation(operationId = "syncProjects", description = "Syncs projects for a given amount of months.")
     @Parameter(name = "from",
             description = "If not given uses the current month. " +
                     "If given uses the parameter-date.",
@@ -34,10 +37,12 @@ public interface SyncResource {
     @GET
     Response syncProjects(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
 
+    @Operation(operationId = "syncEmployees", description = "Syncs current active employees.")
     @Path("/employees")
     @GET
     Response syncEmployees();
 
+    @Operation(operationId = "generateEnterpriseEntries", description = "Generates enterprise-entries for existing data.")
     @Parameter(name = "from",
             description = "If not given uses the current month. " +
                     "If given uses the parameter-date.",
@@ -53,6 +58,7 @@ public interface SyncResource {
     @GET
     Response generateEnterpriseEntries(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
 
+    @Operation(operationId = "generateStepEntries", description = "Generates step-entries for existing data.")
     @Parameter(name = "from",
             description = "If not given uses the current month. " +
                     "If given uses the parameter-date.",
@@ -68,6 +74,7 @@ public interface SyncResource {
     @GET
     Response generateStepEntries(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
 
+    @Operation(operationId = "syncAll", description = "Runs a complete sync for a given amount of months inclusive step-generation.")
     @Parameter(name = "from",
             description = "If not given uses the current month. " +
                     "If given uses the parameter-date.",
