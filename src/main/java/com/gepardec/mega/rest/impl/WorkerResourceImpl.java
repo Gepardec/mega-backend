@@ -37,9 +37,6 @@ public class WorkerResourceImpl implements WorkerResource {
     EmployeeService employeeService;
 
     @Inject
-    StepEntryService stepEntryService;
-
-    @Inject
     MapperManager mapper;
 
     @Override
