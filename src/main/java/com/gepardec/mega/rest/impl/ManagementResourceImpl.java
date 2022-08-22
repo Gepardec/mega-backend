@@ -11,6 +11,7 @@ import com.gepardec.mega.domain.model.FinishedAndTotalComments;
 import com.gepardec.mega.domain.model.ProjectEmployees;
 import com.gepardec.mega.domain.model.ProjectState;
 import com.gepardec.mega.domain.model.Role;
+import com.gepardec.mega.domain.model.State;
 import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.rest.api.ManagementResource;
@@ -271,11 +272,10 @@ public class ManagementResourceImpl implements ManagementResource {
                         return StepName.CONTROL_TIME_EVIDENCES.name().equalsIgnoreCase(se.getStep().getName());
                     } else {
                         return StepName.CONTROL_TIME_EVIDENCES.name().equalsIgnoreCase(se.getStep().getName()) &&
-                                StringUtils.equalsIgnoreCase(se.getProject(), projectId) &&
-                                StringUtils.equalsIgnoreCase(se.getAssignee().getEmail(), Objects.requireNonNull(userContext.getUser()).getEmail());
+                                StringUtils.equalsIgnoreCase(se.getProject(), projectId);
                     }
                 })
                 .map(StepEntry::getState)
-                .anyMatch(state -> state.equals(EmployeeState.OPEN)) ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;
+                .anyMatch(state -> state.equals(EmployeeState.DONE)) ? com.gepardec.mega.domain.model.State.DONE : State.OPEN;
     }
 }
