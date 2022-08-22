@@ -1,13 +1,11 @@
 package com.gepardec.mega.service.mapper;
 
-import com.gepardec.mega.application.constant.DateTimeConstants;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
 import de.provantis.zep.BeschaeftigungszeitType;
 import de.provantis.zep.MitarbeiterType;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
