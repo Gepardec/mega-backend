@@ -1,5 +1,6 @@
 package com.gepardec.mega.domain.calculation.time;
 
+import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
@@ -35,7 +36,7 @@ class NoEntryCalculatorTest {
         List<TimeWarning> expectedTimeWarningsList = new ArrayList<>();
         expectedTimeWarningsList.add(expectedTimeWarning);
 
-        List<TimeWarning> result = noEntryCalculator.calculate(new ArrayList<>(), new ArrayList<>());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), new ArrayList<>(), new ArrayList<>());
 
         assertThat(result).hasSize(1).containsExactlyElementsOf(expectedTimeWarningsList);
     }
@@ -48,7 +49,7 @@ class NoEntryCalculatorTest {
         List<TimeWarning> expectedTimeWarningsList = new ArrayList<>();
         expectedTimeWarningsList.add(expectedTimeWarning);
 
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryList(1), new ArrayList<>());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryList(1), new ArrayList<>());
 
         assertThat(result).hasSize(1)
                 .extracting(TimeWarning::getDate)
@@ -57,91 +58,91 @@ class NoEntryCalculatorTest {
 
     @Test
     void calculate_whenAllEntries_thenNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryList(0), new ArrayList<>());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryList(0), new ArrayList<>());
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenAllEntriesAndVacationDayOnWorkingDay_thenNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryList(2), createAbsenceListFromUBType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryList(2), createAbsenceListFromUBType());
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenAllEntriesAndCompensatoryDayOnWorkingDay_thenNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryList(2), createAbsenceListFromFAType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryList(2), createAbsenceListFromFAType());
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenAllEntriesAndSicknessDayOnWorkingDay_thenNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryList(2), createAbsenceListFromKRType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryList(2), createAbsenceListFromKRType());
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenAllEntriesInMonthWithHolidayOnFirstNov_thenNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryListForNovember(), new ArrayList<>());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), new ArrayList<>());
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenNursingDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryListForNovember(), createAbsenceListFromPUType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromPUType());
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenMaternityLeaveDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryListForNovember(), createAbsenceListFromKAType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromKAType());
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenExternalTrainingDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryListForNovember(), createAbsenceListFromEWType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromEWType());
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenConferenceDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryListForNovember(), createAbsenceListFromKOType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromKOType());
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenMaternityProtectionDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryListForNovember(), createAbsenceListFromMUType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromMUType());
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenFatherMonthDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryListForNovember(), createAbsenceListFromPAType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromPAType());
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenPaidSpecialLeaveDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryListForNovember(), createAbsenceListFromSUType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromSUType());
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenNonPaidVacationDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryListForNovember(), createAbsenceListFromUUType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromUUType());
 
         assertThat(result).isEmpty();
     }
@@ -307,4 +308,27 @@ class NoEntryCalculatorTest {
                 .toTime(LocalDateTime.of(LocalDate.of(2021, month, day), LocalTime.of(12, 0)))
                 .build();
     }
+
+    private Employee createEmployee() {
+        return createEmployeeWithReleaseDate(0, "2022-01-01");
+    }
+
+    private Employee createEmployeeWithReleaseDate(final int userId, String releaseDate) {
+        final String name = "Max_" + userId;
+
+        final Employee employee = Employee.builder()
+                .email(name + "@gepardec.com")
+                .firstname(name)
+                .lastname(name + "_Nachname")
+                .title("Ing.")
+                .userId(String.valueOf(userId))
+                .salutation("Herr")
+                .workDescription("ARCHITEKT")
+                .releaseDate(releaseDate)
+                .active(true)
+                .build();
+
+        return employee;
+    }
 }
+

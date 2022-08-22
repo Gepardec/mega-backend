@@ -12,6 +12,7 @@ import com.gepardec.mega.domain.calculation.time.InsufficientRestCalculator;
 import com.gepardec.mega.domain.calculation.time.NoEntryCalculator;
 import com.gepardec.mega.domain.calculation.time.TimeOverlapCalculator;
 import com.gepardec.mega.domain.calculation.time.WeekendCalculator;
+import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntryWarning;
@@ -74,11 +75,11 @@ public class WarningCalculator {
     }
 
 
-    public List<TimeWarning> determineNoTimeEntries(List<ProjectEntry> projectEntries, List<FehlzeitType> absenceEntries) {
+    public List<TimeWarning> determineNoTimeEntries(Employee employee, List<ProjectEntry> projectEntries, List<FehlzeitType> absenceEntries) {
         NoEntryCalculator calculator = new NoEntryCalculator();
         final List<TimeWarning> warnings = new ArrayList<>();
 
-        final List<TimeWarning> calculatedWarnings = calculator.calculate(projectEntries, absenceEntries);
+        final List<TimeWarning> calculatedWarnings = calculator.calculate(employee, projectEntries, absenceEntries);
         calculatedWarnings.forEach(warning -> addToTimeWarnings(warnings, warning));
 
         warnings.sort(Comparator.comparing(ProjectEntryWarning::getDate));

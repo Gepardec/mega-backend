@@ -57,7 +57,7 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(new ArrayList<>());
-        when(warningCalculator.determineNoTimeEntries(Mockito.anyList(), Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculator.determineNoTimeEntries(Mockito.any(Employee.class), Mockito.anyList(), Mockito.anyList())).thenReturn(new ArrayList<>());
 
         assertThat(monthlyReportService.getMonthendReportForUser("0"))
                 .isNotNull();
@@ -68,7 +68,7 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(ArgumentMatchers.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(10));
-        when(warningCalculator.determineNoTimeEntries(Mockito.anyList(), Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculator.determineNoTimeEntries(Mockito.any(Employee.class), Mockito.anyList(), Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
 
