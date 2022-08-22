@@ -5,7 +5,6 @@ import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 
 import javax.enterprise.context.ApplicationScoped;
-import java.sql.Time;
 import java.util.Map;
 import java.util.function.Predicate;
 

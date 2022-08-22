@@ -1,7 +1,6 @@
 package com.gepardec.mega.rest.mapper;
 
 import javax.ws.rs.ext.ParamConverter;
-import java.time.LocalDate;
 import java.time.YearMonth;
 
 public class YearMonthParamConverter implements ParamConverter<YearMonth> {
