@@ -11,7 +11,6 @@ import com.gepardec.mega.domain.model.FinishedAndTotalComments;
 import com.gepardec.mega.domain.model.ProjectEmployees;
 import com.gepardec.mega.domain.model.ProjectState;
 import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.State;
 import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.rest.api.ManagementResource;
@@ -47,8 +46,6 @@ import java.util.stream.Collectors;
 public class ManagementResourceImpl implements ManagementResource {
 
     private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd";
-
-    private static final String BILLABLE_TIME_FORMAT = "HH:mm";
 
     @Inject
     EmployeeService employeeService;
@@ -276,6 +273,6 @@ public class ManagementResourceImpl implements ManagementResource {
                     }
                 })
                 .map(StepEntry::getState)
-                .anyMatch(state -> state.equals(EmployeeState.DONE)) ? com.gepardec.mega.domain.model.State.DONE : State.OPEN;
+                .anyMatch(state -> state.equals(EmployeeState.DONE)) ? com.gepardec.mega.domain.model.State.DONE : com.gepardec.mega.domain.model.State.OPEN;
     }
 }
