@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -144,6 +145,28 @@ class NoEntryCalculatorTest {
         List<TimeWarning> result = noEntryCalculator.calculate(createProjectEntryListForNovember(), createAbsenceListFromUUType());
 
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void calculate_whenDateInFuture_thenNoWarning() {
+        List<TimeWarning> result = noEntryCalculator.calculate(List.of(createProjectTimeEntryForFuture(LocalDate.now())), createAbsenceListFromUUType());
+        List<TimeWarning> resultsAfterToday = result.stream()
+                .filter(timeWarning -> timeWarning.getDate().isAfter(LocalDate.now()))
+                .collect(Collectors.toList());
+
+
+        assertThat(resultsAfterToday).isEmpty();
+    }
+
+    @Test
+    void calculate_whenDateToday_thenNoWarning() {
+        List<TimeWarning> result = noEntryCalculator.calculate(List.of(createProjectTimeEntryForFuture(LocalDate.now())), createAbsenceListFromUUType());
+        List<TimeWarning> resultsAfterToday = result.stream()
+                .filter(timeWarning -> timeWarning.getDate().isEqual(LocalDate.now()))
+                .collect(Collectors.toList());
+
+
+        assertThat(resultsAfterToday).isEmpty();
     }
 
     private List<FehlzeitType> createAbsenceListFromUBType() {
@@ -293,6 +316,13 @@ class NoEntryCalculatorTest {
         return IntStream.rangeClosed(1, 26 - amountOfMissingEntries)
                 .mapToObj(i -> createProjectTimeEntry(2, i))
                 .collect(Collectors.toList());
+    }
+
+    private ProjectTimeEntry createProjectTimeEntryForFuture(LocalDate date) {
+        return ProjectTimeEntry.builder()
+                .fromTime(LocalDateTime.of(date.with(TemporalAdjusters.lastDayOfMonth()), LocalTime.of(12, 0)))
+                .toTime(LocalDateTime.of(date.with(TemporalAdjusters.lastDayOfMonth()), LocalTime.of(8, 0)))
+                .build();
     }
 
     private List<ProjectEntry> createProjectEntryListForNovember() {
