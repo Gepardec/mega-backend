@@ -11,6 +11,7 @@ import de.provantis.zep.FehlzeitType;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
             return timeWarnings;
         }
 
+        List<LocalDate> futureDays = getFutureDays();
         List<LocalDate> businessDays = getBusinessDaysOfMonth(projectEntries.get(0).getDate().getYear(), projectEntries.get(0).getDate().getMonth().getValue());
         List<LocalDate> compensatoryDays = filterAbsenceTypesAndCompileLocalDateList(AbsenteeType.COMPENSATORY_DAYS.getType(), absenceEntries);
         List<LocalDate> vacationDays = filterAbsenceTypesAndCompileLocalDateList(AbsenteeType.VACATION_DAYS.getType(), absenceEntries);
@@ -57,6 +59,7 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
                 .filter(date -> !fatherMonthDays.contains(date))
                 .filter(date -> !paidSpecialLeaveDays.contains(date))
                 .filter(date -> !nonPaidVacationDays.contains(date))
+                .filter(date -> !futureDays.contains(date))
                 .map(this::createTimeWarning)
                 .distinct()
                 .collect(Collectors.toList());
@@ -67,6 +70,12 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
         return OfficeCalendarUtil.getWorkingDaysBetween(startDate, endDate);
+    }
+
+    private List<LocalDate> getFutureDays(){
+        LocalDate today = LocalDate.now();
+        return today.datesUntil(today.with(TemporalAdjusters.firstDayOfNextMonth()))
+                .collect(Collectors.toList());
     }
 
     private TimeWarning createTimeWarning(final LocalDate date) {
