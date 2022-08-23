@@ -9,6 +9,7 @@ import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import de.provantis.zep.FehlzeitType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -150,7 +151,7 @@ class NoEntryCalculatorTest {
 
     @Test
     void calculate_whenDateInFuture_thenNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(List.of(createProjectTimeEntryForFuture(LocalDate.now())), createAbsenceListFromUUType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), List.of(createProjectTimeEntryForFuture(LocalDate.now())), createAbsenceListFromUUType());
         List<TimeWarning> resultsAfterToday = result.stream()
                 .filter(timeWarning -> timeWarning.getDate().isAfter(LocalDate.now()))
                 .collect(Collectors.toList());
@@ -161,7 +162,7 @@ class NoEntryCalculatorTest {
 
     @Test
     void calculate_whenDateToday_thenNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(List.of(createProjectTimeEntryForFuture(LocalDate.now())), createAbsenceListFromUUType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), List.of(createProjectTimeEntryForFuture(LocalDate.now())), createAbsenceListFromUUType());
         List<TimeWarning> resultsAfterToday = result.stream()
                 .filter(timeWarning -> timeWarning.getDate().isEqual(LocalDate.now()))
                 .collect(Collectors.toList());
