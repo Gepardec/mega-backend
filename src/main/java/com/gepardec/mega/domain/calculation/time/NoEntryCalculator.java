@@ -1,6 +1,7 @@
 package com.gepardec.mega.domain.calculation.time;
 
 import com.gepardec.mega.domain.calculation.AbstractTimeWarningCalculationStrategy;
+import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
@@ -19,7 +20,7 @@ import java.util.stream.Stream;
 
 public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
 
-    public List<TimeWarning> calculate(@NotNull List<ProjectEntry> projectEntries, @NotNull List<FehlzeitType> absenceEntries) {
+    public List<TimeWarning> calculate(@NotNull Employee employee, @NotNull List<ProjectEntry> projectEntries, @NotNull List<FehlzeitType> absenceEntries) {
         if (projectEntries.isEmpty()) {
             TimeWarning timeWarning = new TimeWarning();
             timeWarning.getWarningTypes().add(TimeWarningType.EMPTY_ENTRY_LIST);
@@ -31,6 +32,8 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
 
         List<LocalDate> futureDays = getFutureDays();
         List<LocalDate> businessDays = getBusinessDaysOfMonth(projectEntries.get(0).getDate().getYear(), projectEntries.get(0).getDate().getMonth().getValue());
+
+        List<LocalDate> regularWorking0Days = getRegularWorkingHours0Dates(employee, projectEntries.get(0).getDate().getYear(), projectEntries.get(0).getDate().getMonth().getValue());
         List<LocalDate> compensatoryDays = filterAbsenceTypesAndCompileLocalDateList(AbsenteeType.COMPENSATORY_DAYS.getType(), absenceEntries);
         List<LocalDate> vacationDays = filterAbsenceTypesAndCompileLocalDateList(AbsenteeType.VACATION_DAYS.getType(), absenceEntries);
         List<LocalDate> sicknessDays = filterAbsenceTypesAndCompileLocalDateList(AbsenteeType.SICKNESS_DAYS.getType(), absenceEntries);
@@ -59,6 +62,7 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
                 .filter(date -> !fatherMonthDays.contains(date))
                 .filter(date -> !paidSpecialLeaveDays.contains(date))
                 .filter(date -> !nonPaidVacationDays.contains(date))
+                .filter(date -> !regularWorking0Days.contains(date))
                 .filter(date -> !futureDays.contains(date))
                 .map(this::createTimeWarning)
                 .distinct()
@@ -72,7 +76,27 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
         return OfficeCalendarUtil.getWorkingDaysBetween(startDate, endDate);
     }
 
-    private List<LocalDate> getFutureDays(){
+    private List<LocalDate> getRegularWorkingHours0Dates(Employee employee, int year, int month) {
+        List<LocalDate> allNonRegularWorkingHourDates = new ArrayList<>();
+
+        if (employee.getRegularWorkingHours() == null) {
+            return allNonRegularWorkingHourDates;
+        }
+
+        employee.getRegularWorkingHours().forEach((dayOfWeek, aDouble) -> {
+            if (aDouble == 0.0) {
+                LocalDate upCountingDay = LocalDate.of(year, month, 1).with(TemporalAdjusters.firstInMonth(dayOfWeek));
+
+                allNonRegularWorkingHourDates.add(upCountingDay);
+                while ((upCountingDay = upCountingDay.with(TemporalAdjusters.next(dayOfWeek))).getMonthValue() == month) {
+                    allNonRegularWorkingHourDates.add(upCountingDay);
+                }
+            }
+        });
+        return allNonRegularWorkingHourDates;
+    }
+
+    private List<LocalDate> getFutureDays() {
         LocalDate today = LocalDate.now();
         return today.datesUntil(today.with(TemporalAdjusters.firstDayOfNextMonth()))
                 .collect(Collectors.toList());

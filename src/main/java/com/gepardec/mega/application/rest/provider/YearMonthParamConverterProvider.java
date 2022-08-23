@@ -7,7 +7,6 @@ import javax.ws.rs.ext.ParamConverterProvider;
 import javax.ws.rs.ext.Provider;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.time.LocalDate;
 import java.time.YearMonth;
 
 @Provider

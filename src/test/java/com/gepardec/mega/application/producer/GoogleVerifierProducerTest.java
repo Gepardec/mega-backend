@@ -9,7 +9,6 @@ import com.google.api.client.json.gson.GsonFactory;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import org.junit.jupiter.api.Test;
-
 import javax.inject.Inject;
 
 import static org.assertj.core.api.Assertions.assertThat;

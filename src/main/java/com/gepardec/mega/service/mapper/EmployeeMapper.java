@@ -4,12 +4,17 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
 import de.provantis.zep.BeschaeftigungszeitType;
 import de.provantis.zep.MitarbeiterType;
+import de.provantis.zep.RegelarbeitszeitListeTypeTs;
+import de.provantis.zep.RegelarbeitszeitType;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @ApplicationScoped
 public class EmployeeMapper {
@@ -28,6 +33,7 @@ public class EmployeeMapper {
                 .releaseDate(getCorrectReleaseDate(mitarbeiterType))
                 .workDescription(mitarbeiterType.getPreisgruppe())
                 .language(mitarbeiterType.getSprache())
+                .regularWorkingHours(getRegularWorkinghours(mitarbeiterType.getRegelarbeitszeitListe()))
                 .active(hasEmployeeAndActiveEmployment(mitarbeiterType))
                 .build();
     }
@@ -43,6 +49,21 @@ public class EmployeeMapper {
         }
 
         return mitarbeiterType.getFreigabedatum();
+    }
+
+    private Map<DayOfWeek, Double> getRegularWorkinghours(RegelarbeitszeitListeTypeTs regelarbeitszeitListeTypeTs){
+        if(regelarbeitszeitListeTypeTs == null) return new HashMap<>();
+
+        List <RegelarbeitszeitType> regelarbeitszeitList = regelarbeitszeitListeTypeTs.getRegelarbeitszeit();
+        RegelarbeitszeitType regelarbeitszeitType = regelarbeitszeitList.get(regelarbeitszeitList.size()-1);
+
+        return new HashMap<>(Map.ofEntries(
+                Map.entry(DayOfWeek.MONDAY, regelarbeitszeitType.getMontag()),
+                Map.entry(DayOfWeek.TUESDAY, regelarbeitszeitType.getDienstag()),
+                Map.entry(DayOfWeek.WEDNESDAY, regelarbeitszeitType.getMittwoch()),
+                Map.entry(DayOfWeek.THURSDAY, regelarbeitszeitType.getDonnerstag()),
+                Map.entry(DayOfWeek.FRIDAY, regelarbeitszeitType.getFreitag())
+        ));
     }
 
     private boolean hasEmployeeAndActiveEmployment(final MitarbeiterType employee) {

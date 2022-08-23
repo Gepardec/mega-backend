@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.DayOfWeek;
+import java.util.Map;
+
 @Builder
 @Getter
 @Setter
@@ -32,6 +35,8 @@ public class Employee {
     private String workDescription;
 
     private String language;
+
+    private Map<DayOfWeek, Double> regularWorkingHours;
 
     private boolean active;
 }

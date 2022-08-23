@@ -27,7 +27,6 @@ import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -125,7 +124,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     private MonthlyReport buildMonthlyReport(Employee employee, List<ProjectEntry> projectEntries, List<ProjektzeitType> billableEntries, List<FehlzeitType> absenceEntries, Optional<EmployeeState> employeeCheckState) {
         final List<JourneyWarning> journeyWarnings = warningCalculator.determineJourneyWarnings(projectEntries);
         final List<TimeWarning> timeWarnings = warningCalculator.determineTimeWarnings(projectEntries);
-        timeWarnings.addAll(warningCalculator.determineNoTimeEntries(projectEntries, absenceEntries));
+        timeWarnings.addAll(warningCalculator.determineNoTimeEntries(employee, projectEntries, absenceEntries));
         timeWarnings.sort(Comparator.comparing(ProjectEntryWarning::getDate));
 
         final List<Comment> comments = Optional.ofNullable(employee)
