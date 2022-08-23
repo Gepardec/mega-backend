@@ -74,16 +74,19 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
         return OfficeCalendarUtil.getWorkingDaysBetween(startDate, endDate);
     }
 
-    private List<LocalDate> getRegularWorkingHours0Dates(Employee employee, int year, int month){
+    private List<LocalDate> getRegularWorkingHours0Dates(Employee employee, int year, int month) {
         List<LocalDate> allNonRegularWorkingHourDates = new ArrayList<>();
 
-        if(employee.getRegularWorkingHours() == null) return allNonRegularWorkingHourDates;
+        if (employee.getRegularWorkingHours() == null) {
+            return allNonRegularWorkingHourDates;
+        }
 
         employee.getRegularWorkingHours().forEach((dayOfWeek, aDouble) -> {
-            if(aDouble == 0.0){
+            if (aDouble == 0.0) {
                 LocalDate upCountingDay = LocalDate.of(year, month, 1).with(TemporalAdjusters.firstInMonth(dayOfWeek));
+
                 allNonRegularWorkingHourDates.add(upCountingDay);
-                while((upCountingDay = upCountingDay.with(TemporalAdjusters.next(dayOfWeek))).getMonthValue() == month){
+                while ((upCountingDay = upCountingDay.with(TemporalAdjusters.next(dayOfWeek))).getMonthValue() == month) {
                     allNonRegularWorkingHourDates.add(upCountingDay);
                 }
             }

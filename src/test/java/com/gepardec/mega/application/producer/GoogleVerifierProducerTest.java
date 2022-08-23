@@ -9,12 +9,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import org.junit.jupiter.api.Test;
-
 import javax.inject.Inject;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
