@@ -7,6 +7,8 @@ import de.provantis.zep.MitarbeiterType;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @ApplicationScoped
@@ -23,15 +25,24 @@ public class EmployeeMapper {
                 .firstname(mitarbeiterType.getVorname())
                 .lastname(mitarbeiterType.getNachname())
                 .salutation(mitarbeiterType.getAnrede())
-                .releaseDate(nullStringToNull(mitarbeiterType.getFreigabedatum()))
+                .releaseDate(getCorrectReleaseDate(mitarbeiterType))
                 .workDescription(mitarbeiterType.getPreisgruppe())
                 .language(mitarbeiterType.getSprache())
                 .active(hasEmployeeAndActiveEmployment(mitarbeiterType))
                 .build();
     }
 
-    private String nullStringToNull(String str) {
-        return "null".equalsIgnoreCase(str) ? null : str;
+    private String getCorrectReleaseDate(MitarbeiterType mitarbeiterType) {
+        boolean isReleaseDateNull = mitarbeiterType.getFreigabedatum() == null || mitarbeiterType.getFreigabedatum().equalsIgnoreCase("null");
+        boolean isCreatedDateNull = mitarbeiterType.getCreated() == null;
+        if (isReleaseDateNull) {
+            if (isCreatedDateNull) {
+                return null;
+            }
+            return LocalDateTime.parse(mitarbeiterType.getCreated(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).format(DateTimeFormatter.ISO_LOCAL_DATE);
+        }
+
+        return mitarbeiterType.getFreigabedatum();
     }
 
     private boolean hasEmployeeAndActiveEmployment(final MitarbeiterType employee) {
