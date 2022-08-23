@@ -30,6 +30,7 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
             return timeWarnings;
         }
 
+        List<LocalDate> futureDays = getFutureDays();
         List<LocalDate> businessDays = getBusinessDaysOfMonth(projectEntries.get(0).getDate().getYear(), projectEntries.get(0).getDate().getMonth().getValue());
 
         List<LocalDate> regularWorking0Days = getRegularWorkingHours0Dates(employee, projectEntries.get(0).getDate().getYear(), projectEntries.get(0).getDate().getMonth().getValue());
@@ -62,6 +63,7 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
                 .filter(date -> !paidSpecialLeaveDays.contains(date))
                 .filter(date -> !nonPaidVacationDays.contains(date))
                 .filter(date -> !regularWorking0Days.contains(date))
+                .filter(date -> !futureDays.contains(date))
                 .map(this::createTimeWarning)
                 .distinct()
                 .collect(Collectors.toList());
@@ -92,6 +94,12 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
             }
         });
         return allNonRegularWorkingHourDates;
+    }
+
+    private List<LocalDate> getFutureDays() {
+        LocalDate today = LocalDate.now();
+        return today.datesUntil(today.with(TemporalAdjusters.firstDayOfNextMonth()))
+                .collect(Collectors.toList());
     }
 
     private TimeWarning createTimeWarning(final LocalDate date) {

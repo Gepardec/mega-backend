@@ -122,7 +122,7 @@ class ZepServiceImplTest {
     @Test
     void getEmployee_releaseDateFromZepNullString_releaseDateMappedToNull() {
         MitarbeiterType mitarbeiter = createMitarbeiterType(0);
-        mitarbeiter.setFreigabedatum("NULL");
+        mitarbeiter.setFreigabedatum(null);
 
         when(zepSoapPortType.readMitarbeiter(any())).thenReturn(createReadMitarbeiterResponseType(
                 List.of(mitarbeiter)
