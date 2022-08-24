@@ -62,6 +62,7 @@ public class WorkerResourceImpl implements WorkerResource {
                     .journeyWarnings(Collections.emptyList())
                     .comments(Collections.emptyList())
                     .employeeCheckState(EmployeeState.OPEN)
+                    .internalCheckState(EmployeeState.OPEN)
                     .isAssigned(false)
                     .employeeProgresses(Collections.emptyList())
                     .otherChecksDone(false)
