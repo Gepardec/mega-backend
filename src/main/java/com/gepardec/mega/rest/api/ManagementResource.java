@@ -13,10 +13,10 @@ public interface ManagementResource {
     @GET
     @Path("/officemanagemententries/{year}/{month}")
     @Produces(MediaType.APPLICATION_JSON)
-    Response getAllOfficeManagementEntries(@PathParam("year") Integer year, @PathParam("month") Integer month);
+    Response getAllOfficeManagementEntries(@PathParam("year") Integer year, @PathParam("month") Integer month, @QueryParam("projectStateLogicSingle") boolean projectStateLogicSingle);
 
     @GET
     @Path("/projectmanagemententries/{year}/{month}")
     @Produces(MediaType.APPLICATION_JSON)
-    Response getAllProjectManagementEntries(@PathParam("year") Integer year, @PathParam("month") Integer month, @QueryParam("all") boolean allProjects);
+    Response getAllProjectManagementEntries(@PathParam("year") Integer year, @PathParam("month") Integer month, @QueryParam("all") boolean allProjects, @QueryParam("projectStateLogicSingle") boolean projectStateLogicSingle);
 }
