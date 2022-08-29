@@ -27,6 +27,16 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
                 .singleResultOptional();
     }
 
+    public Optional<StepEntry> findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes(LocalDate entryDate, String ownerAndAssigneeEmail) {
+        return find("#StepEntry.findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes",
+                Parameters
+                        .with("entryDate", entryDate)
+                        .and("ownerEmail", ownerAndAssigneeEmail)
+                        .and("assigneeEmail", ownerAndAssigneeEmail)
+                        .and("stepId", StepName.CONTROL_INTERNAL_TIMES.getId()))
+                .singleResultOptional();
+    }
+
     public List<StepEntry> findAllOwnedAndUnassignedStepEntriesForOtherChecks(LocalDate entryDate, String ownerEmail) {
         List<StepEntry> entries = find("#StepEntry.findAllOwnedAndUnassignedStepEntriesForOtherChecks",
                 Parameters

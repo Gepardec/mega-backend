@@ -110,7 +110,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 zepService.getProjectTimes(employee, date),
                 zepService.getBillableForEmployee(employee, date),
                 zepService.getAbsenceForEmployee(employee, date),
-                stepEntryService.findEmployeeCheckState(employee, date));
+                stepEntryService.findEmployeeCheckState(employee, date),
+                stepEntryService.findEmployeeInternalCheckState(employee, date));
     }
 
     @Override
@@ -121,7 +122,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         return stepEntryService.setOpenAndAssignedStepEntriesDone(employee, stepId, from, to);
     }
 
-    private MonthlyReport buildMonthlyReport(Employee employee, List<ProjectEntry> projectEntries, List<ProjektzeitType> billableEntries, List<FehlzeitType> absenceEntries, Optional<EmployeeState> employeeCheckState) {
+    private MonthlyReport buildMonthlyReport(Employee employee, List<ProjectEntry> projectEntries, List<ProjektzeitType> billableEntries, List<FehlzeitType> absenceEntries, Optional<EmployeeState> employeeCheckState, Optional<EmployeeState> internalCheckState) {
         final List<JourneyWarning> journeyWarnings = warningCalculator.determineJourneyWarnings(projectEntries);
         final List<TimeWarning> timeWarnings = warningCalculator.determineTimeWarnings(projectEntries);
         timeWarnings.addAll(warningCalculator.determineNoTimeEntries(employee, projectEntries, absenceEntries));
@@ -147,13 +148,13 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
 
-
         return MonthlyReport.builder()
                 .employee(employee)
                 .timeWarnings(mappedTimeWarnings)
                 .journeyWarnings(journeyWarnings)
                 .comments(comments)
                 .employeeCheckState(employeeCheckState.orElse(EmployeeState.OPEN))
+                .internalCheckState(internalCheckState.orElse(EmployeeState.OPEN))
                 .isAssigned(employeeCheckState.isPresent())
                 .employeeProgresses(pmProgressDtos)
                 .otherChecksDone(otherChecksDone)

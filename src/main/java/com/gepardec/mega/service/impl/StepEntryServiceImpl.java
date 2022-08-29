@@ -34,7 +34,7 @@ public class StepEntryServiceImpl implements StepEntryService {
 
     @Override
     public Optional<EmployeeState> findEmployeeCheckState(final Employee employee) {
-        if(employee != null){
+        if (employee != null) {
             return findEmployeeCheckState(employee, LocalDate.parse(employee.getReleaseDate()));
         }
         return Optional.empty();
@@ -46,6 +46,15 @@ public class StepEntryServiceImpl implements StepEntryService {
                 stepEntryRepository.findAllOwnedAndAssignedStepEntriesForEmployee(date, employee.getEmail());
 
         return stepEntries.map(StepEntry::getState);
+    }
+
+    @Override
+    public Optional<EmployeeState> findEmployeeInternalCheckState(Employee employee, LocalDate date) {
+        if (employee != null) {
+            return stepEntryRepository.findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes(date, employee.getEmail())
+                    .map(StepEntry::getState);
+        }
+        return Optional.empty();
     }
 
     @Override

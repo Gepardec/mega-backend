@@ -29,6 +29,8 @@ public class MonthlyReport {
 
     private EmployeeState employeeCheckState;
 
+    private EmployeeState internalCheckState;
+
     private boolean isAssigned;
 
     private List<PmProgressDto> employeeProgresses;
