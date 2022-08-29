@@ -20,7 +20,6 @@ import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
 import org.apache.commons.lang3.tuple.Pair;
-import org.checkerframework.checker.nullness.Opt;
 
 import javax.annotation.Nonnull;
 import javax.enterprise.context.RequestScoped;
