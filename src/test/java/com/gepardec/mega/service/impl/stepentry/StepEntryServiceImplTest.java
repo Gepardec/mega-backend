@@ -22,6 +22,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,6 +60,20 @@ class StepEntryServiceImplTest {
 
         Optional<EmployeeState> states = stepEntryService.findEmployeeCheckState(createEmployee());
         assertThat(states).isEmpty();
+    }
+
+    @Test
+    void findEmployeeInternalCheckState_whenNoEmployee_thenEmpty() {
+        Optional<EmployeeState> states = stepEntryService.findEmployeeInternalCheckState(null, LocalDate.now());
+        assertThat(states).isEmpty();
+    }
+
+    @Test
+    void findEmployeeInternalCheckState_whenEmployee_thenStep() {
+        when(stepEntryRepository.findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes(any(LocalDate.class), anyString())).thenReturn(Optional.of(createStepEntry(0L)));
+
+        Optional<EmployeeState> states = stepEntryService.findEmployeeInternalCheckState(createEmployee(), LocalDate.now());
+        assertThat(states).isPresent();
     }
 
     @Test
