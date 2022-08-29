@@ -50,5 +50,4 @@ public class ProjectManagementEntryDto {
     @JsonProperty
     private final Duration aggregatedNonBillableWorkTimeInSeconds;
 
-
 }

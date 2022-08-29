@@ -275,11 +275,10 @@ public class ManagementResourceImpl implements ManagementResource {
                 .map(StepEntry::getState)
                 .collect(Collectors.toList());
 
-
-        if(projectStateLogicSingle){
+        if (projectStateLogicSingle) {
             return collectedStates.stream()
                     .anyMatch(state -> state.equals(EmployeeState.OPEN)) ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;
-        }else{
+        } else {
             return collectedStates.stream()
                     .anyMatch(state -> state.equals(EmployeeState.DONE)) ? com.gepardec.mega.domain.model.State.DONE : com.gepardec.mega.domain.model.State.OPEN;
         }
