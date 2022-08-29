@@ -12,7 +12,6 @@ import com.gepardec.mega.rest.mapper.MapperManager;
 import com.gepardec.mega.rest.model.MonthlyReportDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
-import com.gepardec.mega.service.api.StepEntryService;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;

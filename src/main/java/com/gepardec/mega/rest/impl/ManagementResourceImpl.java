@@ -66,7 +66,7 @@ public class ManagementResourceImpl implements ManagementResource {
     ZepService zepService;
 
     @Override
-    public Response getAllOfficeManagementEntries(Integer year, Integer month) {
+    public Response getAllOfficeManagementEntries(Integer year, Integer month, boolean projectStateLogicSingle) {
         LocalDate from = LocalDate.of(year, month, 1);
         LocalDate to = LocalDate.of(year, month, 1).with(TemporalAdjusters.lastDayOfMonth());
 
@@ -93,7 +93,7 @@ public class ManagementResourceImpl implements ManagementResource {
                                     .build()
                     ));
 
-            ManagementEntryDto newManagementEntryDto = createManagementEntryForEmployee(employee, stepEntries, from, to, pmProgressDtos);
+            ManagementEntryDto newManagementEntryDto = createManagementEntryForEmployee(employee, stepEntries, from, to, pmProgressDtos, projectStateLogicSingle);
 
             if (newManagementEntryDto != null) {
                 officeManagementEntries.add(newManagementEntryDto);
@@ -105,7 +105,7 @@ public class ManagementResourceImpl implements ManagementResource {
     }
 
     @Override
-    public Response getAllProjectManagementEntries(Integer year, Integer month, boolean allProjects) {
+    public Response getAllProjectManagementEntries(Integer year, Integer month, boolean allProjects, boolean projectStateLogicSingle) {
         if (userContext == null || userContext.getUser() == null) {
             throw new IllegalStateException("User context does not exist or user is null.");
         }
@@ -126,7 +126,7 @@ public class ManagementResourceImpl implements ManagementResource {
         Map<String, Employee> employees = createEmployeeCache();
 
         for (ProjectEmployees currentProject : projectEmployees) {
-            List<ManagementEntryDto> entries = createManagementEntriesForProject(currentProject, employees, from, to);
+            List<ManagementEntryDto> entries = createManagementEntriesForProject(currentProject, employees, from, to, projectStateLogicSingle);
             List<ProjectEntry> projectEntries = projectEntryService.findByNameAndDate(currentProject.getProjectId(), from, to);
 
             if (!entries.isEmpty() && !projectEntries.isEmpty()) {
@@ -183,7 +183,7 @@ public class ManagementResourceImpl implements ManagementResource {
                 .collect(Collectors.toMap(Employee::getUserId, employee -> employee));
     }
 
-    private List<ManagementEntryDto> createManagementEntriesForProject(ProjectEmployees projectEmployees, Map<String, Employee> employees, LocalDate from, LocalDate to) {
+    private List<ManagementEntryDto> createManagementEntriesForProject(ProjectEmployees projectEmployees, Map<String, Employee> employees, LocalDate from, LocalDate to, boolean projectStateLogicSingle) {
         if (userContext == null || userContext.getUser() == null) {
             throw new IllegalStateException("User context does not exist or user is null.");
         }
@@ -197,7 +197,7 @@ public class ManagementResourceImpl implements ManagementResource {
                         employee, projectEmployees.getProjectId(), Objects.requireNonNull(userContext.getUser()).getEmail(), from, to
                 );
 
-                ManagementEntryDto entry = createManagementEntryForEmployee(employee, projectEmployees.getProjectId(), stepEntries, from, to, null);
+                ManagementEntryDto entry = createManagementEntryForEmployee(employee, projectEmployees.getProjectId(), stepEntries, from, to, null, projectStateLogicSingle);
 
                 if (entry != null) {
                     entries.add(entry);
@@ -208,11 +208,11 @@ public class ManagementResourceImpl implements ManagementResource {
         return entries;
     }
 
-    private ManagementEntryDto createManagementEntryForEmployee(Employee employee, List<StepEntry> stepEntries, LocalDate from, LocalDate to, List<PmProgressDto> pmProgressDtos) {
-        return createManagementEntryForEmployee(employee, null, stepEntries, from, to, pmProgressDtos);
+    private ManagementEntryDto createManagementEntryForEmployee(Employee employee, List<StepEntry> stepEntries, LocalDate from, LocalDate to, List<PmProgressDto> pmProgressDtos, boolean projectStateLogicSingle) {
+        return createManagementEntryForEmployee(employee, null, stepEntries, from, to, pmProgressDtos, projectStateLogicSingle);
     }
 
-    private ManagementEntryDto createManagementEntryForEmployee(Employee employee, String projectId, List<StepEntry> stepEntries, LocalDate from, LocalDate to, List<PmProgressDto> pmProgressDtos) {
+    private ManagementEntryDto createManagementEntryForEmployee(Employee employee, String projectId, List<StepEntry> stepEntries, LocalDate from, LocalDate to, List<PmProgressDto> pmProgressDtos, boolean projectStateLogicSingle) {
         FinishedAndTotalComments finishedAndTotalComments = commentService.cntFinishedAndTotalCommentsForEmployee(employee, from, to);
 
         List<ProjektzeitType> projektzeitTypes = zepService.getProjectTimesForEmployeePerProject(projectId, from);
@@ -222,7 +222,7 @@ public class ManagementResourceImpl implements ManagementResource {
                     .employee(employee)
                     .employeeCheckState(extractEmployeeCheckState(stepEntries))
                     .internalCheckState(extractInternalCheckState(stepEntries))
-                    .projectCheckState(extractStateForProject(stepEntries, projectId))
+                    .projectCheckState(extractStateForProject(stepEntries, projectId, projectStateLogicSingle))
                     .employeeProgresses(pmProgressDtos)
                     .finishedComments(finishedAndTotalComments.getFinishedComments())
                     .totalComments(finishedAndTotalComments.getTotalComments())
@@ -257,12 +257,12 @@ public class ManagementResourceImpl implements ManagementResource {
         return internalCheckStateOpen ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;
     }
 
-    private com.gepardec.mega.domain.model.State extractStateForProject(List<StepEntry> stepEntries, String projectId) {
+    private com.gepardec.mega.domain.model.State extractStateForProject(List<StepEntry> stepEntries, String projectId, boolean projectStateLogicSingle) {
         if (userContext == null || userContext.getUser() == null) {
             throw new IllegalStateException("User context does not exist or user is null.");
         }
 
-        return stepEntries
+        List<EmployeeState> collectedStates = stepEntries
                 .stream()
                 .filter(se -> {
                     if (StringUtils.isBlank(projectId)) {
@@ -273,6 +273,15 @@ public class ManagementResourceImpl implements ManagementResource {
                     }
                 })
                 .map(StepEntry::getState)
-                .anyMatch(state -> state.equals(EmployeeState.DONE)) ? com.gepardec.mega.domain.model.State.DONE : com.gepardec.mega.domain.model.State.OPEN;
+                .collect(Collectors.toList());
+
+        if (projectStateLogicSingle) {
+            return collectedStates.stream()
+                    .anyMatch(state -> state.equals(EmployeeState.OPEN)) ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;
+        } else {
+            return collectedStates.stream()
+                    .anyMatch(state -> state.equals(EmployeeState.DONE)) ? com.gepardec.mega.domain.model.State.DONE : com.gepardec.mega.domain.model.State.OPEN;
+        }
+
     }
 }

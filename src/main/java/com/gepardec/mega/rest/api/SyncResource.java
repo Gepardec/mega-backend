@@ -20,7 +20,6 @@ import java.time.YearMonth;
 @Produces(MediaType.APPLICATION_JSON)
 public interface SyncResource {
 
-
     @Operation(operationId = "syncProjects", description = "Syncs projects for a given amount of months.")
     @Parameter(name = "from",
             description = "If not given uses the current month. " +
