@@ -11,6 +11,7 @@ import com.gepardec.mega.domain.model.FinishedAndTotalComments;
 import com.gepardec.mega.domain.model.ProjectEmployees;
 import com.gepardec.mega.domain.model.ProjectState;
 import com.gepardec.mega.domain.model.Role;
+import com.gepardec.mega.domain.model.State;
 import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.rest.api.ManagementResource;
@@ -279,6 +280,9 @@ public class ManagementResourceImpl implements ManagementResource {
             return collectedStates.stream()
                     .anyMatch(state -> state.equals(EmployeeState.OPEN)) ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;
         } else {
+            if(collectedStates.isEmpty()) {
+                return State.DONE;
+            }
             return collectedStates.stream()
                     .anyMatch(state -> state.equals(EmployeeState.DONE)) ? com.gepardec.mega.domain.model.State.DONE : com.gepardec.mega.domain.model.State.OPEN;
         }
