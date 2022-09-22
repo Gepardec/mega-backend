@@ -268,7 +268,7 @@ class ManagementResourceTest {
         ManagementEntryDto entry = entrymmustermann.get();
         assertThat(entry.internalCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
         assertThat(entry.employeeCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
-        assertThat(entry.projectCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
+        assertThat(entry.projectCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.DONE);
         assertThat(entry.employee().getEmail()).isEqualTo(employee1.getEmail());
         assertThat(entry.employee().getReleaseDate()).isEqualTo(employee1.getReleaseDate());
         assertThat(entry.totalComments()).isEqualTo(3L);
@@ -349,7 +349,7 @@ class ManagementResourceTest {
         ManagementEntryDto entry = entrymmustermann.get();
         assertThat(entry.internalCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
         assertThat(entry.employeeCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
-        assertThat(entry.projectCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
+        assertThat(entry.projectCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.DONE);
         assertThat(entry.employee().getEmail()).isEqualTo(employee1.getEmail());
         assertThat(entry.employee().getReleaseDate()).isEqualTo(employee1.getReleaseDate());
         assertThat(entry.totalComments()).isEqualTo(3L);
@@ -434,7 +434,7 @@ class ManagementResourceTest {
         ManagementEntryDto entry = entrymmustermann.get();
         assertThat(entry.internalCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
         assertThat(entry.employeeCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
-        assertThat(entry.projectCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
+        assertThat(entry.projectCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.DONE);
         assertThat(entry.employee().getEmail()).isEqualTo(employee1.getEmail());
         assertThat(entry.employee().getReleaseDate()).isEqualTo(employee1.getReleaseDate());
         assertThat(entry.totalComments()).isEqualTo(3L);
