@@ -23,6 +23,9 @@ import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.quarkus.test.security.TestSecurity;
+import io.quarkus.test.security.jwt.Claim;
+import io.quarkus.test.security.jwt.JwtSecurity;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
@@ -42,6 +45,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
+@TestSecurity(user = "test")
+@JwtSecurity(claims = {
+        @Claim(key = "email", value = "test@gepardec.com")
+})
 class ManagementResourceTest {
 
     @InjectMock
@@ -64,6 +71,8 @@ class ManagementResourceTest {
     UserContext userContext;
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void getAllOfficeManagementEntries_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         when(userContext.getUser()).thenReturn(createUserForRole(Role.OFFICE_MANAGEMENT));
         given().contentType(ContentType.JSON)
@@ -177,6 +186,8 @@ class ManagementResourceTest {
     }
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void getAllProjectManagementEntries_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         when(userContext.getUser()).thenReturn(createUserForRole(Role.PROJECT_LEAD));
         given().contentType(ContentType.JSON)

@@ -26,13 +26,9 @@ public class UserContextProducer {
     @Produces
     @RequestScoped
     UserContext createUserContext() {
-        final User user = verifyAndLoadUser();
+        final User user = userService.findUserForEmail(email.getValue());
         return UserContext.builder()
                 .user(user)
                 .build();
-    }
-
-    private User verifyAndLoadUser() {
-        return userService.findUserForEmail(email.getValue());
     }
 }

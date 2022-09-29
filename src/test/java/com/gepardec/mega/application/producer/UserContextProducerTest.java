@@ -7,6 +7,9 @@ import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.service.api.UserService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.quarkus.test.security.TestSecurity;
+import io.quarkus.test.security.jwt.Claim;
+import io.quarkus.test.security.jwt.JwtSecurity;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -26,6 +29,10 @@ class UserContextProducerTest {
     UserContextProducer producer;
 
     @Test
+    @TestSecurity(user = "test")
+    @JwtSecurity(claims = {
+            @Claim(key = "email", value = "test@gepardec.com")
+    })
     void createUserContext_whenUserVerified_thenUserSetAndLogged() {
         // Given
         final User user = User.builder()
@@ -45,10 +52,5 @@ class UserContextProducerTest {
         // Then
         assertThat(userContext.getUser()).isNotNull();
         assertThat(userContext.getUser()).isEqualTo(user);
-    }
-
-    @Test
-    void createUserContext_whenSecurityContextIsEmpty_thenThrowsUnauthorizedException() {
-        assertThatThrownBy(() -> producer.createUserContext()).isInstanceOf(UnauthorizedException.class);
     }
 }

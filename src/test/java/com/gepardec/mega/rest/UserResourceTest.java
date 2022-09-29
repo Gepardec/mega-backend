@@ -5,6 +5,9 @@ import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.quarkus.test.security.TestSecurity;
+import io.quarkus.test.security.jwt.Claim;
+import io.quarkus.test.security.jwt.JwtSecurity;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
@@ -15,12 +18,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
+@TestSecurity(user = "test")
+@JwtSecurity(claims = {
+        @Claim(key = "email", value = "test@gepardec.com")
+})
 class UserResourceTest {
 
     @InjectMock
     private UserContext userContext;
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void get_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);

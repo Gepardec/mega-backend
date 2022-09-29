@@ -9,6 +9,9 @@ import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.quarkus.test.security.TestSecurity;
+import io.quarkus.test.security.jwt.Claim;
+import io.quarkus.test.security.jwt.JwtSecurity;
 import io.restassured.common.mapper.TypeRef;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -26,6 +29,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
+@TestSecurity(user = "test")
+@JwtSecurity(claims = {
+        @Claim(key = "email", value = "test@gepardec.com")
+})
 class EmployeeResourceTest {
 
     @Inject
@@ -39,6 +46,8 @@ class EmployeeResourceTest {
     private UserContext userContext;
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void list_whenUserNotLoggedAndInRoleOFFICE_MANAGEMENT_thenReturnsHttpStatusUNAUTHORIZED() {
         when(userContext.getUser()).thenReturn(createUserForRole(Role.OFFICE_MANAGEMENT));
 
@@ -47,6 +56,8 @@ class EmployeeResourceTest {
     }
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void list_whenUserNotLoggedAndInRolePROJECT_LEAD_thenReturnsHttpStatusUNAUTHORIZED() {
         when(userContext.getUser()).thenReturn(createUserForRole(Role.PROJECT_LEAD));
 

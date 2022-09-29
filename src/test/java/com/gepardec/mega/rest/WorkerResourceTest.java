@@ -13,6 +13,9 @@ import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.quarkus.test.security.TestSecurity;
+import io.quarkus.test.security.jwt.Claim;
+import io.quarkus.test.security.jwt.JwtSecurity;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -26,6 +29,10 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
+@TestSecurity(user = "test")
+@JwtSecurity(claims = {
+        @Claim(key = "email", value = "test@gepardec.com")
+})
 class WorkerResourceTest {
 
     @InjectMock
@@ -46,6 +53,8 @@ class WorkerResourceTest {
     }
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void monthlyReport_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);

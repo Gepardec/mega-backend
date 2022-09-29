@@ -11,6 +11,9 @@ import com.gepardec.mega.rest.model.NewCommentEntryDto;
 import com.gepardec.mega.service.api.CommentService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.quarkus.test.security.TestSecurity;
+import io.quarkus.test.security.jwt.Claim;
+import io.quarkus.test.security.jwt.JwtSecurity;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
@@ -28,6 +31,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
+@TestSecurity(user = "test")
+@JwtSecurity(claims = {
+        @Claim(key = "email", value = "test@gepardec.com")
+})
 class CommentResourceTest {
 
     @Inject
@@ -47,6 +54,8 @@ class CommentResourceTest {
     }
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void setDone_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
@@ -60,7 +69,6 @@ class CommentResourceTest {
         when(commentService.setDone(ArgumentMatchers.any(Comment.class))).thenReturn(1);
 
         final User user = createUserForRole(Role.EMPLOYEE);
-//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         Comment comment = Comment.builder()
@@ -88,6 +96,8 @@ class CommentResourceTest {
     }
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void getAllCommentsForEmployee_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
@@ -102,7 +112,6 @@ class CommentResourceTest {
     @Test
     void getAllCommentsForEmployee_whenInvalidEmail_thenReturnsHttpStatusBAD_REQUEST() {
         final User user = createUserForRole(Role.EMPLOYEE);
-//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         given().contentType(ContentType.JSON)
@@ -115,7 +124,6 @@ class CommentResourceTest {
     @Test
     void getAllCommentsForEmployee_whenEmailIsMissing_thenReturnsHttpStatusBAD_REQUEST() {
         final User user = createUserForRole(Role.EMPLOYEE);
-//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         given().contentType(ContentType.JSON)
@@ -127,7 +135,6 @@ class CommentResourceTest {
     @Test
     void getAllCommentsForEmployee_whenReleaseDateIsMissing_thenReturnsHttpStatusBAD_REQUEST() {
         final User user = createUserForRole(Role.EMPLOYEE);
-//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         given().contentType(ContentType.JSON)
@@ -139,7 +146,6 @@ class CommentResourceTest {
     @Test
     void getAllCommentsForEmployee_whenValid_thenReturnsListOfCommentsForEmployee() {
         final User user = createUserForRole(Role.EMPLOYEE);
-//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         Comment comment = Comment.builder().id(0L).message("Pausen eintragen!").authorEmail("no-reply@gepardec.com").state(EmployeeState.IN_PROGRESS).build();
@@ -158,6 +164,8 @@ class CommentResourceTest {
     }
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void newCommentForEmployee_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         given().contentType(ContentType.JSON)
                 .post("/comments")
@@ -167,7 +175,6 @@ class CommentResourceTest {
     @Test
     void newCommentForEmployee_whenInvalidRequest_thenReturnsHttpStatusBAD_REQUEST() {
         final User user = createUserForRole(Role.EMPLOYEE);
-//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         given().contentType(ContentType.JSON)
@@ -178,7 +185,6 @@ class CommentResourceTest {
     @Test
     void newCommentForEmployee_whenValid_thenReturnsCreatedComment() {
         final User user = createUserForRole(Role.EMPLOYEE);
-//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         when(commentService.createNewCommentForEmployee(
@@ -215,6 +221,8 @@ class CommentResourceTest {
     }
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void deleteComment_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         given().contentType(ContentType.JSON)
                 .delete("/comments/1")
@@ -224,7 +232,6 @@ class CommentResourceTest {
     @Test
     void deleteComment_whenValid_thenReturnsTrue() {
         final User user = createUserForRole(Role.EMPLOYEE);
-//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         when(commentService.deleteCommentWithId(ArgumentMatchers.anyLong()))
@@ -238,6 +245,8 @@ class CommentResourceTest {
     }
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void updateCommentForEmployee_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         given().contentType(ContentType.JSON)
                 .put("/comments")
@@ -247,7 +256,6 @@ class CommentResourceTest {
     @Test
     void updateCommentForEmployee_whenInvalidRequest_henReturnsHttpStatusBAD_REQUEST() {
         final User user = createUserForRole(Role.EMPLOYEE);
-//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         given().contentType(ContentType.JSON)
@@ -258,7 +266,6 @@ class CommentResourceTest {
     @Test
     void updateCommentForEmployee_whenValid_thenReturnsUpdatedComment() {
         final User user = createUserForRole(Role.EMPLOYEE);
-//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         Comment comment = Comment.builder().id(1L).message("Zeiten prüfen").build();
