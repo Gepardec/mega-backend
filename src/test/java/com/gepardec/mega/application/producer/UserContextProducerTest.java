@@ -2,7 +2,6 @@ package com.gepardec.mega.application.producer;
 
 import com.gepardec.mega.application.exception.UnauthorizedException;
 import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.SecurityContext;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.service.api.UserService;
@@ -21,9 +20,6 @@ import static org.mockito.Mockito.when;
 class UserContextProducerTest {
 
     @InjectMock
-    SecurityContext securityContext;
-
-    @InjectMock
     UserService userService;
 
     @Inject
@@ -40,7 +36,7 @@ class UserContextProducerTest {
                 .email("no-reply@gepardec.com")
                 .roles(Set.of(Role.EMPLOYEE))
                 .build();
-        when(securityContext.getEmail()).thenReturn("test@gepardec.com");
+//        when(securityContext.getEmail()).thenReturn("test@gepardec.com");
         when(userService.findUserForEmail("test@gepardec.com")).thenReturn(user);
 
         // When

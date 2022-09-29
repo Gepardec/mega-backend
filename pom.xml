@@ -23,7 +23,6 @@
 
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-io.version>2.11.0</commons-io.version>
-        <google-api-client.version>2.0.0</google-api-client.version>
         <guava.version>31.0.1-jre</guava.version>
 
         <quarkus-plugin.version>2.6.3.Final</quarkus-plugin.version>
@@ -94,6 +93,10 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-metrics</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-jwt</artifactId>
+        </dependency>
         <!-- Quarkus JPA-Extensions -->
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -161,11 +164,6 @@
             <groupId>com.sun.org.apache.xml.internal</groupId>
             <artifactId>resolver</artifactId>
             <version>${xml.resolver.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client</artifactId>
-            <version>${google-api-client.version}</version>
         </dependency>
         <dependency>
             <groupId>de.jollyday</groupId>

@@ -2,7 +2,6 @@ package com.gepardec.mega.rest;
 
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.SecurityContext;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.rest.model.EmployeeStepDto;
@@ -27,9 +26,6 @@ class StepEntryResourceTest {
 
     @InjectMock
     private UserContext userContext;
-
-    @InjectMock
-    private SecurityContext securityContext;
 
     @InjectMock
     private StepEntryService stepEntryService;
@@ -57,7 +53,7 @@ class StepEntryResourceTest {
         ).thenReturn(true);
 
         final User user = createUserForRole(Role.EMPLOYEE);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
+        //when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         EmployeeStepDto employeeStepDto = createEmployeeStep();

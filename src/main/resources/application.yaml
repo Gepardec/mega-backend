@@ -78,8 +78,16 @@ mega:
   budget-calculation-excel-url: "https://docs.google.com/spreadsheets/d/12T9Iiy0WRuinN5Zdw1AfeXYABPsxoVwL17sJKfky5JA"
 
   oauth:
-    issuer: "https://accounts.google.com"
-    scope: "openid profile email"
+    issuer: "http://localhost:8180/realms/gepardec"
+    scope: "openid profile email microprofile-jwt"
+
+mp:
+  jwt:
+    verify:
+      issuer: "${mega.oauth.issuer}"
+      audiences: "mega"
+      publickey:
+        location: "${mega.oauth.issuer}/protocol/openid-connect/certs"
 
 ## DEV Properties
 "%dev":
@@ -100,7 +108,7 @@ mega:
       soap-path: "/sync/soap.php?v=7"
 
     oauth:
-      client-id: "60018822787-gkagrsid8bugtlnts2eqfvtf4n6loefu.apps.googleusercontent.com"
+      client-id: "mega"
 
     mail:
       subject-prefix: "LOCAL: "

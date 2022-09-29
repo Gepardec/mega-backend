@@ -3,12 +3,10 @@ package com.gepardec.mega.rest;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.SecurityContext;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
-import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.MonthlyReportDto;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -36,8 +34,6 @@ class WorkerResourceTest {
     @InjectMock
     EmployeeService employeeService;
 
-    @InjectMock
-    SecurityContext securityContext;
 
     @InjectMock
     UserContext userContext;
@@ -61,7 +57,7 @@ class WorkerResourceTest {
     @Test
     void employeeMonthendReport_withReport_returnsReport() {
         User user = createUserForRole(Role.EMPLOYEE);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
+//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         Employee employee = createEmployeeForUser(user);

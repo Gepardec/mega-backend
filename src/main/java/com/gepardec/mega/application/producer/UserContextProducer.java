@@ -1,10 +1,12 @@
 package com.gepardec.mega.application.producer;
 
 import com.gepardec.mega.application.exception.UnauthorizedException;
-import com.gepardec.mega.domain.model.SecurityContext;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.service.api.UserService;
+import org.eclipse.microprofile.jwt.Claim;
+import org.eclipse.microprofile.jwt.ClaimValue;
+import org.eclipse.microprofile.jwt.Claims;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
@@ -15,7 +17,8 @@ import javax.inject.Inject;
 public class UserContextProducer {
 
     @Inject
-    SecurityContext securityContext;
+    @Claim(standard = Claims.email)
+    ClaimValue<String> email;
 
     @Inject
     UserService userService;
@@ -30,10 +33,6 @@ public class UserContextProducer {
     }
 
     private User verifyAndLoadUser() {
-        if (securityContext.getEmail() != null) {
-            return userService.findUserForEmail(securityContext.getEmail());
-        } else {
-            throw new UnauthorizedException("No security context provided");
-        }
+        return userService.findUserForEmail(email.getValue());
     }
 }

@@ -1,7 +1,6 @@
 package com.gepardec.mega.rest;
 
 import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.SecurityContext;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import io.quarkus.test.junit.QuarkusTest;
@@ -19,9 +18,6 @@ import static org.mockito.Mockito.when;
 class UserResourceTest {
 
     @InjectMock
-    private SecurityContext securityContext;
-
-    @InjectMock
     private UserContext userContext;
 
     @Test
@@ -36,7 +32,7 @@ class UserResourceTest {
     @Test
     void get_whenUserIsLogged_thenReturnsHttpStatusOK() {
         final User user = createUserForRole(Role.EMPLOYEE);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
+//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         given().get("/user")
@@ -46,7 +42,7 @@ class UserResourceTest {
     @Test
     void get_whenUserIsLogged_thenReturnsUser() {
         final User user = createUserForRole(Role.EMPLOYEE);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
+//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
         final User actual = given()
                 .get("/user")
