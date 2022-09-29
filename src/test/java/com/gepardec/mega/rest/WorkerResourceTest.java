@@ -66,7 +66,6 @@ class WorkerResourceTest {
     @Test
     void employeeMonthendReport_withReport_returnsReport() {
         User user = createUserForRole(Role.EMPLOYEE);
-//        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         Employee employee = createEmployeeForUser(user);
