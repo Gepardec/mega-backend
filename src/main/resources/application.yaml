@@ -109,7 +109,7 @@ mp:
       soap-path: "/sync/soap.php?v=7"
 
     oauth:
-      issuer: "https://gepardec-sso-dev.apps.steppe.gepaplexx.com"
+      issuer: "https://gepardec-sso-dev.apps.play.gepaplexx.com"
 
     mail:
       subject-prefix: "LOCAL: "
@@ -162,7 +162,7 @@ mp:
       soap-path: "/sync/soap.php?v=7"
 
     oauth:
-      issuer: "https://gepardec-sso-dev.apps.steppe.gepaplexx.com"
+      issuer: "https://gepardec-sso-dev.apps.play.gepaplexx.com"
 
     mail:
       subject-prefix: "UNIT-TEST: "
