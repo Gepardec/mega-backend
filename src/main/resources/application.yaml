@@ -162,7 +162,7 @@ mp:
       soap-path: "/sync/soap.php?v=7"
 
     oauth:
-      issuer: "https://gepardec-sso-test.apps.play.gepaplexx.com/realms/gepardec"
+      issuer: "https://gepardec-sso-dev.apps.play.gepaplexx.com/realms/gepardec"
 
     mail:
       subject-prefix: "UNIT-TEST: "
