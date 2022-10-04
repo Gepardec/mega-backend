@@ -74,7 +74,7 @@ mega:
 
   oauth:
     client-id: "mega"
-    issuer: "https://gepardec-sso.apps.steppe.gepaplexx.com"
+    issuer: "https://gepardec-sso-prod.apps.steppe.gepaplexx.com/realms/gepardec"
     scope: "openid profile email microprofile-jwt"
 
   excel-url: "https://docs.google.com/spreadsheets/d/1u1G_hNW8ePZqthzWJOEh3qOHc6Fy_R2TQwn5wCMsTt0/"
@@ -109,7 +109,7 @@ mp:
       soap-path: "/sync/soap.php?v=7"
 
     oauth:
-      issuer: "https://gepardec-sso-dev.apps.play.gepaplexx.com"
+      issuer: "https://gepardec-sso-dev.apps.play.gepaplexx.com/realms/gepardec"
 
     mail:
       subject-prefix: "LOCAL: "
@@ -162,7 +162,7 @@ mp:
       soap-path: "/sync/soap.php?v=7"
 
     oauth:
-      issuer: "https://gepardec-sso-dev.apps.play.gepaplexx.com"
+      issuer: "https://gepardec-sso-test.apps.play.gepaplexx.com/realms/gepardec"
 
     mail:
       subject-prefix: "UNIT-TEST: "
