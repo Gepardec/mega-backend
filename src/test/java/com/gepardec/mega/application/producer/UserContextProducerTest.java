@@ -1,6 +1,5 @@
 package com.gepardec.mega.application.producer;
 
-import com.gepardec.mega.application.exception.UnauthorizedException;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
@@ -16,7 +15,6 @@ import javax.inject.Inject;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
