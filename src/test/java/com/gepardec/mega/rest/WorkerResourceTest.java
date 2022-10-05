@@ -3,18 +3,19 @@ package com.gepardec.mega.rest;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.SecurityContext;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
-import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.MonthlyReportDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.quarkus.test.security.TestSecurity;
+import io.quarkus.test.security.jwt.Claim;
+import io.quarkus.test.security.jwt.JwtSecurity;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,10 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
+@TestSecurity(user = "test")
+@JwtSecurity(claims = {
+        @Claim(key = "email", value = "test@gepardec.com")
+})
 class WorkerResourceTest {
 
     @InjectMock
@@ -36,8 +41,6 @@ class WorkerResourceTest {
     @InjectMock
     EmployeeService employeeService;
 
-    @InjectMock
-    SecurityContext securityContext;
 
     @InjectMock
     UserContext userContext;
@@ -50,6 +53,8 @@ class WorkerResourceTest {
     }
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void monthlyReport_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
@@ -61,7 +66,6 @@ class WorkerResourceTest {
     @Test
     void employeeMonthendReport_withReport_returnsReport() {
         User user = createUserForRole(Role.EMPLOYEE);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         Employee employee = createEmployeeForUser(user);

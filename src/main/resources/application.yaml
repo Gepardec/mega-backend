@@ -72,14 +72,23 @@ mega:
   zep:
     admin-token: "${TOKEN}"
 
+  oauth:
+    client-id: "mega"
+    issuer: "https://gepardec-sso-prod.apps.steppe.gepaplexx.com/realms/gepardec"
+    scope: "openid profile email microprofile-jwt"
+
   excel-url: "https://docs.google.com/spreadsheets/d/1u1G_hNW8ePZqthzWJOEh3qOHc6Fy_R2TQwn5wCMsTt0/"
 
   # URL zum Planrechnung-Excel
   budget-calculation-excel-url: "https://docs.google.com/spreadsheets/d/12T9Iiy0WRuinN5Zdw1AfeXYABPsxoVwL17sJKfky5JA"
 
-  oauth:
-    issuer: "https://accounts.google.com"
-    scope: "openid profile email"
+mp:
+  jwt:
+    verify:
+      issuer: "${mega.oauth.issuer}"
+      audiences: "${mega.oauth.client-id}"
+      publickey:
+        location: "${mega.oauth.issuer}/protocol/openid-connect/certs"
 
 ## DEV Properties
 "%dev":
@@ -100,7 +109,7 @@ mega:
       soap-path: "/sync/soap.php?v=7"
 
     oauth:
-      client-id: "60018822787-gkagrsid8bugtlnts2eqfvtf4n6loefu.apps.googleusercontent.com"
+      issuer: "https://gepardec-sso-dev.apps.play.gepaplexx.com/realms/gepardec"
 
     mail:
       subject-prefix: "LOCAL: "
@@ -148,12 +157,12 @@ mega:
   mega:
     dash-url: "http://localhost:8080/index.html"
 
-    oauth:
-      client-id: "60018822787-4nlv6e1tit3q8ssfbe2e013790p939dt.apps.googleusercontent.com"
-
     zep:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
       soap-path: "/sync/soap.php?v=7"
+
+    oauth:
+      issuer: "https://gepardec-sso-dev.apps.play.gepaplexx.com/realms/gepardec"
 
     mail:
       subject-prefix: "UNIT-TEST: "
@@ -198,9 +207,6 @@ mega:
   mega:
     dash-url: "https://mega-zep-frontend-57-mega-dev.cloud.itandtel.at/index.html"
 
-    oauth:
-      client-id: "60018822787-4nlv6e1tit3q8ssfbe2e013790p939dt.apps.googleusercontent.com"
-
     zep:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
       soap-path: "/sync/soap.php?v=7"
@@ -242,9 +248,6 @@ mega:
   mega:
     dash-url: "https://mega-zep-frontend-57-mega-test.cloud.itandtel.at/index.html"
 
-    oauth:
-      client-id: "60018822787-361in5i8h2kaqfmj7ue0ocn5s4acf5ci.apps.googleusercontent.com"
-
     zep:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
       soap-path: "/sync/soap.php?v=7"
@@ -282,9 +285,6 @@ mega:
 
   mega:
     dash-url: "https://mega.gepardec.com/index.html"
-
-    oauth:
-      client-id: "60018822787-u23ip1l6n7gbql7mpsh560ffj56uagsr.apps.googleusercontent.com"
 
     zep:
       origin: "https://www.zep-online.de/zepgepardecservices"

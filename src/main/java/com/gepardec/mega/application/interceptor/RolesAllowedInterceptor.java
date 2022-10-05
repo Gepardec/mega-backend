@@ -9,13 +9,12 @@ import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
-import javax.ws.rs.Priorities;
 import java.util.Objects;
 import java.util.Set;
 
-@Priority(Priorities.AUTHENTICATION)
-@RolesAllowed
 @Interceptor
+@RolesAllowed
+@Priority(Interceptor.Priority.APPLICATION)
 public class RolesAllowedInterceptor {
 
     @Inject

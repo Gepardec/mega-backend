@@ -4,6 +4,7 @@ import com.gepardec.mega.application.configuration.ApplicationConfig;
 import com.gepardec.mega.rest.api.ApplicationInfoResource;
 import com.gepardec.mega.rest.model.ApplicationInfoDto;
 
+import javax.annotation.security.PermitAll;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -11,6 +12,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 @RequestScoped
+@PermitAll
 public class ApplicationInfoResourceImpl implements ApplicationInfoResource {
 
     @Inject

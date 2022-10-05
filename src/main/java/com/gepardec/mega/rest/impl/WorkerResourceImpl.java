@@ -1,7 +1,6 @@
 package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.application.interceptor.RolesAllowed;
-import com.gepardec.mega.application.interceptor.Secured;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
@@ -12,6 +11,7 @@ import com.gepardec.mega.rest.mapper.MapperManager;
 import com.gepardec.mega.rest.model.MonthlyReportDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
+import io.quarkus.security.Authenticated;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.Objects;
 
 @RequestScoped
+@Authenticated
 @RolesAllowed(Role.EMPLOYEE)
-@Secured
 public class WorkerResourceImpl implements WorkerResource {
 
     @Inject

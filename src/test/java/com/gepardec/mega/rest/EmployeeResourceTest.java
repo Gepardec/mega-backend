@@ -2,7 +2,6 @@ package com.gepardec.mega.rest;
 
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.SecurityContext;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.rest.mapper.MapperManager;
@@ -10,6 +9,9 @@ import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.quarkus.test.security.TestSecurity;
+import io.quarkus.test.security.jwt.Claim;
+import io.quarkus.test.security.jwt.JwtSecurity;
 import io.restassured.common.mapper.TypeRef;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -27,6 +29,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
+@TestSecurity(user = "test")
+@JwtSecurity(claims = {
+        @Claim(key = "email", value = "test@gepardec.com")
+})
 class EmployeeResourceTest {
 
     @Inject
@@ -35,13 +41,13 @@ class EmployeeResourceTest {
     @InjectMock
     EmployeeService employeeService;
 
-    @InjectMock
-    private SecurityContext securityContext;
 
     @InjectMock
     private UserContext userContext;
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void list_whenUserNotLoggedAndInRoleOFFICE_MANAGEMENT_thenReturnsHttpStatusUNAUTHORIZED() {
         when(userContext.getUser()).thenReturn(createUserForRole(Role.OFFICE_MANAGEMENT));
 
@@ -50,6 +56,8 @@ class EmployeeResourceTest {
     }
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void list_whenUserNotLoggedAndInRolePROJECT_LEAD_thenReturnsHttpStatusUNAUTHORIZED() {
         when(userContext.getUser()).thenReturn(createUserForRole(Role.PROJECT_LEAD));
 
@@ -60,7 +68,6 @@ class EmployeeResourceTest {
     @Test
     void list_whenUserLoggedAndInRoleEMPLOYEE_thenReturnsHttpStatusFORBIDDEN() {
         final User user = createUserForRole(Role.EMPLOYEE);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         given().get("/employees")
@@ -70,7 +77,6 @@ class EmployeeResourceTest {
     @Test
     void list_whenUserLoggedAndInRoleOFFICE_MANAGEMENT_thenReturnsHttpStatusOK() {
         final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
         final Employee userAsEmployee = createEmployeeForUser(user);
         when(employeeService.getEmployee(anyString())).thenReturn(userAsEmployee);
@@ -82,7 +88,6 @@ class EmployeeResourceTest {
     @Test
     void list_whenUserLoggedAndInRolePROJECT_LEAD_thenReturnsHttpStatusOK() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         given().get("/employees")
@@ -92,7 +97,6 @@ class EmployeeResourceTest {
     @Test
     void list_whenUserLoggedAndInRoleOFFICE_MANAGEMENT_thenReturnsEmployees() {
         final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
         final Employee userAsEmployee = createEmployeeForUser(user);
         when(employeeService.getAllActiveEmployees()).thenReturn(List.of(userAsEmployee));
@@ -125,7 +129,6 @@ class EmployeeResourceTest {
     @Test
     void update_whenEmptyBody_returnsHttpStatusBAD_REQUEST() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         given().contentType(MediaType.APPLICATION_JSON)
@@ -136,7 +139,6 @@ class EmployeeResourceTest {
     @Test
     void update_whenEmptyList_returnsHttpStatusBAD_REQUEST() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         given().contentType(MediaType.APPLICATION_JSON)
@@ -148,7 +150,6 @@ class EmployeeResourceTest {
     @Test
     void update_whenValidRequest_returnsHttpStatusOK() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
         final Employee employee = createEmployeeForUser(user);
 
@@ -161,7 +162,6 @@ class EmployeeResourceTest {
     @Test
     void update_whenValidRequestAndEmployeeServiceReturnsInvalidEmails_returnsInvalidEmails() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
         final Employee userAsEmployee = createEmployeeForUser(user);
         final List<String> expected = List.of("invalid1@gmail.com", "invalid2@gmail.com");

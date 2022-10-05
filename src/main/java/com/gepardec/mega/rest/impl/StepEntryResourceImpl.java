@@ -1,12 +1,12 @@
 package com.gepardec.mega.rest.impl;
 
-import com.gepardec.mega.application.interceptor.Secured;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.StepEntryResource;
 import com.gepardec.mega.rest.model.EmployeeStepDto;
 import com.gepardec.mega.rest.model.ProjectStepDto;
 import com.gepardec.mega.service.api.StepEntryService;
+import io.quarkus.security.Authenticated;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -14,7 +14,7 @@ import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 
 @RequestScoped
-@Secured
+@Authenticated
 public class StepEntryResourceImpl implements StepEntryResource {
 
     @Inject

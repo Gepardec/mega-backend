@@ -1,7 +1,6 @@
 package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.application.interceptor.RolesAllowed;
-import com.gepardec.mega.application.interceptor.Secured;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.project.ProjectEntry;
@@ -24,6 +23,7 @@ import com.gepardec.mega.service.api.ProjectEntryService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.ProjektzeitType;
+import io.quarkus.security.Authenticated;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.enterprise.context.RequestScoped;
@@ -42,7 +42,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequestScoped
-@Secured
+@Authenticated
 @RolesAllowed(value = {Role.PROJECT_LEAD, Role.OFFICE_MANAGEMENT})
 public class ManagementResourceImpl implements ManagementResource {
 

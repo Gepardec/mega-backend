@@ -1,6 +1,5 @@
 package com.gepardec.mega.rest.impl;
 
-import com.gepardec.mega.application.interceptor.Secured;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
@@ -9,6 +8,7 @@ import com.gepardec.mega.rest.mapper.MapperManager;
 import com.gepardec.mega.rest.model.CommentDto;
 import com.gepardec.mega.rest.model.NewCommentEntryDto;
 import com.gepardec.mega.service.api.CommentService;
+import io.quarkus.security.Authenticated;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -17,7 +17,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RequestScoped
-@Secured
+@Authenticated
 public class CommentResourceImpl implements CommentResource {
 
     @Inject

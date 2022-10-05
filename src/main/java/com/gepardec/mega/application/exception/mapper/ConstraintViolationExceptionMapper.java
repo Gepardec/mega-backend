@@ -1,7 +1,6 @@
 package com.gepardec.mega.application.exception.mapper;
 
 import com.gepardec.mega.domain.model.ValidationViolation;
-import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -30,7 +29,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
     @Override
     public Response toResponse(ConstraintViolationException exception) {
         logger.info("Constraint violation(s) on resource: '{}'", uriInfo.getPath());
-        return Response.status(HttpStatus.SC_BAD_REQUEST)
+        return Response.status(Response.Status.BAD_REQUEST)
                 .entity(createResponseEntityForConstraintViolationException(exception))
                 .build();
     }

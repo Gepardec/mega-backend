@@ -6,6 +6,7 @@ import com.gepardec.mega.application.configuration.ZepConfig;
 import com.gepardec.mega.rest.api.ConfigResource;
 import com.gepardec.mega.rest.model.ConfigDto;
 
+import javax.annotation.security.PermitAll;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -14,6 +15,7 @@ import javax.ws.rs.core.Response;
  * Provides configuration for the frontend.
  */
 @RequestScoped
+@PermitAll
 public class ConfigResourceImpl implements ConfigResource {
 
     @Inject

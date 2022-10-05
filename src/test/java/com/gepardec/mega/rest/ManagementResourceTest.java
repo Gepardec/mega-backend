@@ -10,7 +10,6 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.FinishedAndTotalComments;
 import com.gepardec.mega.domain.model.ProjectEmployees;
 import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.SecurityContext;
 import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
@@ -24,6 +23,9 @@ import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.quarkus.test.security.TestSecurity;
+import io.quarkus.test.security.jwt.Claim;
+import io.quarkus.test.security.jwt.JwtSecurity;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
@@ -43,6 +45,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
+@TestSecurity(user = "test")
+@JwtSecurity(claims = {
+        @Claim(key = "email", value = "test@gepardec.com")
+})
 class ManagementResourceTest {
 
     @InjectMock
@@ -60,13 +66,13 @@ class ManagementResourceTest {
     @InjectMock
     ZepService zepService;
 
-    @InjectMock
-    SecurityContext securityContext;
 
     @InjectMock
     UserContext userContext;
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void getAllOfficeManagementEntries_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         when(userContext.getUser()).thenReturn(createUserForRole(Role.OFFICE_MANAGEMENT));
         given().contentType(ContentType.JSON)
@@ -84,7 +90,6 @@ class ManagementResourceTest {
     @Test
     void getAllOfficeManagementEntries_whenValid_thenReturnsListOfEntries() {
         final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         when(employeeService.getAllActiveEmployees())
@@ -128,7 +133,6 @@ class ManagementResourceTest {
     @Test
     void getAllOfficeManagementEntries_whenNoActiveEmployeesFound_thenReturnsEmptyResultList() {
         final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         when(employeeService.getAllActiveEmployees()).thenReturn(List.of());
@@ -158,7 +162,6 @@ class ManagementResourceTest {
     @Test
     void getAllOfficeManagementEntries_whenNoStepEntriesFound_thenReturnsEmptyResultList() {
         final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         when(commentService.cntFinishedAndTotalCommentsForEmployee(
@@ -180,6 +183,8 @@ class ManagementResourceTest {
     }
 
     @Test
+    @TestSecurity
+    @JwtSecurity
     void getAllProjectManagementEntries_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         when(userContext.getUser()).thenReturn(createUserForRole(Role.PROJECT_LEAD));
         given().contentType(ContentType.JSON)
@@ -197,7 +202,6 @@ class ManagementResourceTest {
     @Test
     void getAllProjectManagementEntries_whenValid_thenReturnsListOfEntries() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         Employee employee1 = createEmployee("008", "no-reply@gepardec.com", "Max", "Mustermann");
@@ -278,7 +282,6 @@ class ManagementResourceTest {
     @Test
     void getProjectManagementEntries_whenProjectTimes_thenCorrectAggregatedWorkTimes() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         Employee employee1 = createEmployee("008", "no-reply@gepardec.com", "Max", "Mustermann");
@@ -363,7 +366,6 @@ class ManagementResourceTest {
     @Test
     void getProjectManagementEntries_whenNoProjectTimes_thenZeroAggregatedWorkTimes() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         Employee employee1 = createEmployee("008", "no-reply@gepardec.com", "Max", "Mustermann");
@@ -448,7 +450,6 @@ class ManagementResourceTest {
     @Test
     void getProjectManagementEntries_whenManagementEntryIsNull_thenNoNullPointerException() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         Employee employee1 = createEmployee("008", "no-reply@gepardec.com", "Max", "Mustermann");
@@ -503,7 +504,6 @@ class ManagementResourceTest {
     @Test
     void getAllProjectManagementEntries_whenNoProjectsFound_thenReturnsEmptyList() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
@@ -517,7 +517,6 @@ class ManagementResourceTest {
     @Test
     void getAllProjectManagementEntries_whenNoEmployeesAssignedToProject_thenReturnResultList() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         ProjectEmployees rgkkcc = createProject("ÖGK-RGKKCC-2020", List.of());
@@ -535,7 +534,6 @@ class ManagementResourceTest {
     @Test
     void getAllProjectManagementEntries_whenNoStepEntriesFound_thenReturnsResultList() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
-        when(securityContext.getEmail()).thenReturn(user.getEmail());
         when(userContext.getUser()).thenReturn(user);
 
         Employee employee1 = createEmployee("008", "no-reply@gepardec.com", "Max", "Mustermann");

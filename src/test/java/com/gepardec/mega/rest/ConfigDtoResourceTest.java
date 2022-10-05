@@ -4,6 +4,9 @@ import com.gepardec.mega.application.configuration.ApplicationConfig;
 import com.gepardec.mega.application.configuration.OAuthConfig;
 import com.gepardec.mega.application.configuration.ZepConfig;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
+import io.quarkus.test.security.jwt.Claim;
+import io.quarkus.test.security.jwt.JwtSecurity;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -14,6 +17,10 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
 @QuarkusTest
+@TestSecurity(user = "test")
+@JwtSecurity(claims = {
+        @Claim(key = "email", value = "test@gepardec.com")
+})
 class ConfigDtoResourceTest {
 
     @Inject
