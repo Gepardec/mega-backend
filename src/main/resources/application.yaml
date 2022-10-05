@@ -74,7 +74,7 @@ mega:
 
   oauth:
     client-id: "mega"
-    issuer: "https://gepardec-sso-prod.apps.steppe.gepaplexx.com/realms/gepardec"
+    issuer: "https://gepardec-sso.apps.steppe.gepaplexx.com/realms/gepardec"
     scope: "openid profile email microprofile-jwt"
 
   excel-url: "https://docs.google.com/spreadsheets/d/1u1G_hNW8ePZqthzWJOEh3qOHc6Fy_R2TQwn5wCMsTt0/"
