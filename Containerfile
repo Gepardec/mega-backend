@@ -1,4 +1,5 @@
 FROM openjdk:11.0-jre-slim
+ENV TZ="Europe/Vienna"
 
 WORKDIR /work/
 RUN chown :root /work \
