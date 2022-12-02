@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1669976988767-9
+      author: mega (generated)
+      changes:
+        - addUniqueConstraint:
+            columnNames: email, zep_id
+            constraintName: uidx_email_zep_id
+            tableName: employee_user
+  - changeSet:
+      id: 1669976988767-10
+      author: mega (generated)
+      changes:
+        - dropUniqueConstraint:
+            constraintName: uidx_email
+            tableName: employee_user
+  - changeSet:
+      id: 1669976988767-11
+      author: mega (generated)
+      changes:
+        - dropUniqueConstraint:
+            constraintName: uidx_zep_id
+            tableName: employee_user

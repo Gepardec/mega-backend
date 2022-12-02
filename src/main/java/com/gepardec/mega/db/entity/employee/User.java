@@ -36,8 +36,7 @@ import java.util.Set;
 @Entity
 @Table(name = "employee_user",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uidx_email", columnNames = {"email"}),
-                @UniqueConstraint(name = "uidx_zep_id", columnNames = {"zep_id"})
+                @UniqueConstraint(name = "uidx_email_zep_id", columnNames = {"email", "zep_id"})
         })
 @NamedQueries({
         @NamedQuery(name = "User.findActiveByEmail", query = "select u from User u where u.email = :email and u.active = true"),
