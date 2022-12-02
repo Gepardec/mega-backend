@@ -47,7 +47,7 @@ quarkus:
     port: 465
     ssl: true
     username: "service@gepardec.com"
-    password: "${MAILER_PASSWORD}"
+    password: "${MAILER_PASSWORD:default}"
 
   default-locale: "de"
   locales: 'en,de'
