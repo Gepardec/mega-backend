@@ -70,7 +70,7 @@ mega:
     eom-url: "https://sites.google.com/a/gepardec.com/internal/home/zeiterfassung-mit-zep/monatsende-kontrolle-von-arbeitszeiten"
 
   zep:
-    admin-token: "${TOKEN}"
+    admin-token: "${TOKEN:default}"
 
   oauth:
     client-id: "mega"
