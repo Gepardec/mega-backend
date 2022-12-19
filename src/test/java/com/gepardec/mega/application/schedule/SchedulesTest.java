@@ -1,6 +1,7 @@
 package com.gepardec.mega.application.schedule;
 
 import com.gepardec.mega.service.api.StepEntrySyncService;
+import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +14,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@QuarkusTest
 class SchedulesTest {
 
     Schedules schedules;
