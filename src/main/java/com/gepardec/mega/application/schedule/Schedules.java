@@ -9,7 +9,10 @@ import io.quarkus.scheduler.Scheduled;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
  * @author Thomas Herzog <herzog.thomas81@gmail.com>
@@ -17,6 +20,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Dependent
 public class Schedules {
+
+    private final Supplier<LocalDate> sysdateSupplier = LocalDate::now;
 
     // Documentation: https://docs.oracle.com/cd/E12058_01/doc/doc.1014/e12030/cron_expressions.htm
 
@@ -35,6 +40,7 @@ public class Schedules {
     @Inject
     ReminderEmailSender reminderEmailSender;
 
+
     @Scheduled(identity = "Sync ZEP-Employees with Users in the database every 30 minutes",
             every = "PT30M",
             delay = 15, delayUnit = TimeUnit.SECONDS)
@@ -45,7 +51,15 @@ public class Schedules {
 
     @Scheduled(identity = "Generate step entries on the second last day of a month",
             cron = "0 0 0 L-2 * ? *")
-    void generateStepEntries() {
+    void generateStepEntriesDefault() {
+        if (!Month.DECEMBER.equals(getSysdate().getMonth())) {
+            stepEntrySyncService.generateStepEntriesFromScheduler();
+        }
+    }
+
+    @Scheduled(identity = "Generate step entries on the 20th of December",
+            cron = "0 0 0 20 DEC ? *")
+    void generateStepEntriesDecember() {
         stepEntrySyncService.generateStepEntriesFromScheduler();
     }
 
@@ -66,5 +80,9 @@ public class Schedules {
             cron = "0 0 7 ? * MON-FRI")
     void sendReminder() {
         reminderEmailSender.sendReminder();
+    }
+
+    LocalDate getSysdate() {
+        return sysdateSupplier.get();
     }
 }
