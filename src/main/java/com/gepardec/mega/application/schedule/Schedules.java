@@ -54,8 +54,8 @@ public class Schedules {
         }
     }
 
-    @Scheduled(identity = "Generate step entries on the 20th of December at 01:00 PM",
-            cron = "0 0 13 20 DEC ? *")
+    @Scheduled(identity = "Generate step entries on the 20th of December",
+            cron = "0 0 0 20 DEC ? *")
     void generateStepEntriesDecember() {
         stepEntrySyncService.generateStepEntriesFromScheduler();
     }
