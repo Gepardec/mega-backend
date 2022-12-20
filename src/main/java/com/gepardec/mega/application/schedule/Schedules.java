@@ -12,7 +12,6 @@ import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 /**
  * @author Thomas Herzog <herzog.thomas81@gmail.com>
@@ -20,8 +19,6 @@ import java.util.function.Supplier;
  */
 @Dependent
 public class Schedules {
-
-    private final Supplier<LocalDate> sysdateSupplier = LocalDate::now;
 
     // Documentation: https://docs.oracle.com/cd/E12058_01/doc/doc.1014/e12030/cron_expressions.htm
 
@@ -57,8 +54,8 @@ public class Schedules {
         }
     }
 
-    @Scheduled(identity = "Generate step entries on the 20th of December",
-            cron = "0 0 0 20 DEC ? *")
+    @Scheduled(identity = "Generate step entries on the 20th of December at 01:00 PM",
+            cron = "0 0 13 20 DEC ? *")
     void generateStepEntriesDecember() {
         stepEntrySyncService.generateStepEntriesFromScheduler();
     }
@@ -83,6 +80,6 @@ public class Schedules {
     }
 
     LocalDate getSysdate() {
-        return sysdateSupplier.get();
+        return LocalDate.now();
     }
 }
