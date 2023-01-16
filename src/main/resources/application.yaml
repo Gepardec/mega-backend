@@ -80,7 +80,7 @@ mega:
   excel-url: "https://docs.google.com/spreadsheets/d/1u1G_hNW8ePZqthzWJOEh3qOHc6Fy_R2TQwn5wCMsTt0/"
 
   # URL zum Planrechnung-Excel
-  budget-calculation-excel-url: "https://docs.google.com/spreadsheets/d/12T9Iiy0WRuinN5Zdw1AfeXYABPsxoVwL17sJKfky5JA"
+  budget-calculation-excel-url: "https://docs.google.com/spreadsheets/d/1mmc1pvhr1Z_IbiMELtM98mFZ4-2uuSx6Sg_uZXRNpH0"
 
 mp:
   jwt:
