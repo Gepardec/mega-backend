@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 @QuarkusTest
 class MailSenderTest {
 
-    public static final String GOOGLE_DOCS_PLANRECHNUNGS_URL = "https://docs.google.com/spreadsheets/d/12T9Iiy0WRuinN5Zdw1AfeXYABPsxoVwL17sJKfky5JA";
+    public static final String GOOGLE_DOCS_PLANRECHNUNGS_URL = "https://docs.google.com/spreadsheets/d/1mmc1pvhr1Z_IbiMELtM98mFZ4-2uuSx6Sg_uZXRNpH0";
 
     @ConfigProperty(name = "quarkus.mailer.mock")
     boolean mailMockSetting;
