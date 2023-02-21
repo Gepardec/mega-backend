@@ -97,15 +97,20 @@ public class StepEntryServiceImpl implements StepEntryService {
 
     @Override
     public boolean setOpenAndAssignedStepEntriesDone(Employee employee, Long stepId, LocalDate from, LocalDate to) {
-        return stepEntryRepository.closeAssigned(from, to, employee.getEmail(), stepId) > 0;
+        return stepEntryRepository.updateStateAssigned(from, to, employee.getEmail(), stepId, EmployeeState.DONE) > 0;
     }
 
     @Override
-    public boolean closeStepEntryForEmployeeInProject(Employee employee, Long stepId, String project, String assigneeEmail, String currentMonthYear) {
+    public boolean updateStepEntryStateForEmployee(Employee employee, Long stepId, LocalDate from, LocalDate to, EmployeeState newState) {
+        return stepEntryRepository.updateStateAssigned(from, to, employee.getEmail(), stepId, newState) > 0;
+    }
+
+    @Override
+    public boolean updateStepEntryStateForEmployeeInProject(Employee employee, Long stepId, String project, String assigneeEmail, String currentMonthYear, EmployeeState newState) {
         LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(currentMonthYear);
         LocalDate toDate = DateUtils.getLastDayOfCurrentMonth(currentMonthYear);
 
-        return stepEntryRepository.closeAssigned(fromDate, toDate, employee.getEmail(), assigneeEmail, stepId, project) > 0;
+        return stepEntryRepository.updateStateAssigned(fromDate, toDate, employee.getEmail(), assigneeEmail, stepId, project, newState) > 0;
     }
 
     @Override

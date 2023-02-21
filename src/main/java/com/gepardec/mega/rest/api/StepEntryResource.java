@@ -1,6 +1,7 @@
 package com.gepardec.mega.rest.api;
 
 import com.gepardec.mega.rest.model.EmployeeStepDto;
+import com.gepardec.mega.rest.model.UpdateEmployeeStepDto;
 import com.gepardec.mega.rest.model.ProjectStepDto;
 
 import javax.validation.constraints.NotNull;
@@ -20,14 +21,14 @@ public interface StepEntryResource {
     Response close(@NotNull(message = "{stepEntryResource.parameter.notNull}") EmployeeStepDto employeeStepDto);
 
     @PUT
-    @Path("/closeforoffice")
+    @Path("/updateEmployeeStateForOffice")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    Response closeForOffice(@NotNull(message = "{stepEntryResource.parameter.notNull}") EmployeeStepDto employeeStepDto);
+    Response updateEmployeeStateForOffice(@NotNull(message = "{stepEntryResource.parameter.notNull}") UpdateEmployeeStepDto updateEmployeeStepDto);
 
     @PUT
-    @Path("/closeforproject")
+    @Path("/updateEmployeeStateForProject")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    Response close(@NotNull(message = "{stepEntryResource.parameter.notNull}") ProjectStepDto projectStepDto);
+    Response updateEmployeeStateForProject(@NotNull(message = "{stepEntryResource.parameter.notNull}") ProjectStepDto projectStepDto);
 }
