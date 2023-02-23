@@ -18,15 +18,12 @@ import lombok.extern.jackson.Jacksonized;
 @Accessors(fluent = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Jacksonized
-public class ProjectStepDto {
+public class UpdateEmployeeStepDto {
     @JsonProperty
     private final Long stepId;
 
     @JsonProperty
     private final Employee employee;
-
-    @JsonProperty
-    private final String projectName;
 
     @JsonProperty
     private final String currentMonthYear;

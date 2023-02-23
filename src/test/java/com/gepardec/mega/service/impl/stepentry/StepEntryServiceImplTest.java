@@ -22,8 +22,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -121,8 +120,9 @@ class StepEntryServiceImplTest {
 
     @Test
     void setOpenAndAssignedStepEntriesDone_when0_thenFalse() {
-        when(stepEntryRepository.closeAssigned(ArgumentMatchers.any(LocalDate.class),
-                ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyLong()))
+        when(stepEntryRepository.updateStateAssigned(ArgumentMatchers.any(LocalDate.class),
+                ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyLong(),
+                argThat(EmployeeState.DONE::equals)))
                 .thenReturn(0);
 
         Employee employee = createEmployee();
@@ -134,8 +134,9 @@ class StepEntryServiceImplTest {
 
     @Test
     void setOpenAndAssignedStepEntriesDone_when1_thenTrue() {
-        when(stepEntryRepository.closeAssigned(ArgumentMatchers.any(LocalDate.class),
-                ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyLong()))
+        when(stepEntryRepository.updateStateAssigned(ArgumentMatchers.any(LocalDate.class),
+                ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyLong(),
+                argThat(EmployeeState.DONE::equals)))
                 .thenReturn(1);
 
         Employee employee = createEmployee();

@@ -110,55 +110,55 @@ class StepEntryRepositoryTest {
     }
 
     @Test
-    void closeAssigned_whenMethodIsCalledWithCorrectParameters_thenClosesAssignedAndReturnsOne() {
+    void updateStateAssigned_whenMethodIsCalledWithCorrectParameters_thenClosesAssignedAndReturnsOne() {
         persistEntities();
 
-        int result = stepEntryRepository.closeAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, stepEntry.getStep().getId());
+        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, stepEntry.getStep().getId(), EmployeeState.DONE);
 
         assertThat(result).isEqualTo(1);
     }
 
     @Test
-    void closeAssigned_whenMethodIsCalledWithEmailWithNullValue_thenReturnsZeroIntegerAndDoesntCloseAssigned() {
+    void updateStateAssigned_whenMethodIsCalledWithEmailWithNullValue_thenReturnsZeroIntegerAndDoesntCloseAssigned() {
         persistEntities();
 
-        int result = stepEntryRepository.closeAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), null, stepEntry.getStep().getId());
+        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), null, stepEntry.getStep().getId(), EmployeeState.DONE);
 
         assertThat(result).isZero();
     }
 
     @Test
-    void closeAssigned_whenMethodIsCalledWithCorrectParameters_thenClosesAssignedAndReturnsIntegerOne() {
+    void updateStateAssigned_whenMethodIsCalledWithCorrectParameters_thenClosesAssignedAndReturnsIntegerOne() {
         persistEntities();
 
-        int result = stepEntryRepository.closeAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, EMAIL, stepEntry.getStep().getId(), project.getName());
+        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, EMAIL, stepEntry.getStep().getId(), project.getName(), EmployeeState.DONE);
 
         assertThat(result).isEqualTo(1);
     }
 
     @Test
-    void closeAssigned_whenMethodIsCalledWithEmptyProjectParameter_thenReturnsIntegerOne() {
+    void updateStateAssigned_whenMethodIsCalledWithEmptyProjectParameter_thenReturnsIntegerOne() {
         persistEntities();
 
-        int result = stepEntryRepository.closeAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, EMAIL, stepEntry.getStep().getId(), "");
+        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, EMAIL, stepEntry.getStep().getId(), "", EmployeeState.DONE);
 
         assertThat(result).isZero();
     }
 
     @Test
-    void closeAssigned_whenMethodIsCalledWithEmptyAssigneParameter_thenReturnsIntegerOne() {
+    void updateStateAssigned_whenMethodIsCalledWithEmptyAssigneParameter_thenReturnsIntegerOne() {
         persistEntities();
 
-        int result = stepEntryRepository.closeAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, "", stepEntry.getStep().getId(), project.getName());
+        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, "", stepEntry.getStep().getId(), project.getName(), EmployeeState.DONE);
 
         assertThat(result).isZero();
     }
 
     @Test
-    void closeAssigned_whenMethodIsCalledWithEmptyOwnerParameter_thenReturnsIntegerOne() {
+    void updateStateAssigned_whenMethodIsCalledWithEmptyOwnerParameter_thenReturnsIntegerOne() {
         persistEntities();
 
-        int result = stepEntryRepository.closeAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), "", EMAIL, stepEntry.getStep().getId(), project.getName());
+        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), "", EMAIL, stepEntry.getStep().getId(), project.getName(), EmployeeState.DONE);
 
         assertThat(result).isZero();
     }
