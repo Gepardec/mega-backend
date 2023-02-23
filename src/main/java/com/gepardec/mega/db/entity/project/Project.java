@@ -97,11 +97,6 @@ public class Project {
         projectEntry.setProject(this);
     }
 
-    public void removeProjectEntry(ProjectEntry projectEntry) {
-        projectEntries.remove(projectEntry);
-        projectEntry.setProject(null);
-    }
-
     public Long getId() {
         return id;
     }
