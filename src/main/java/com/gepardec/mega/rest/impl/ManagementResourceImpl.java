@@ -5,11 +5,27 @@ import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.project.ProjectEntry;
 import com.gepardec.mega.db.entity.project.ProjectStep;
-import com.gepardec.mega.domain.model.*;
+import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.FinishedAndTotalComments;
+import com.gepardec.mega.domain.model.Project;
+import com.gepardec.mega.domain.model.ProjectEmployees;
+import com.gepardec.mega.domain.model.ProjectFilter;
+import com.gepardec.mega.domain.model.ProjectState;
+import com.gepardec.mega.domain.model.Role;
+import com.gepardec.mega.domain.model.State;
+import com.gepardec.mega.domain.model.StepName;
+import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.ManagementResource;
-import com.gepardec.mega.rest.model.*;
-import com.gepardec.mega.service.api.*;
+import com.gepardec.mega.rest.model.CustomerProjectWithoutLeadsDto;
+import com.gepardec.mega.rest.model.ManagementEntryDto;
+import com.gepardec.mega.rest.model.PmProgressDto;
+import com.gepardec.mega.rest.model.ProjectManagementEntryDto;
+import com.gepardec.mega.service.api.CommentService;
+import com.gepardec.mega.service.api.EmployeeService;
+import com.gepardec.mega.service.api.ProjectEntryService;
+import com.gepardec.mega.service.api.ProjectService;
+import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.security.Authenticated;
@@ -119,7 +135,7 @@ public class ManagementResourceImpl implements ManagementResource {
             ProjectManagementEntryDto projectManagementEntryDto = loadProjectManagementEntryDto(currentProject, employees,
                     from, to, projectStateLogicSingle);
 
-            if(projectManagementEntryDto != null) {
+            if (projectManagementEntryDto != null) {
                 projectManagementEntries.add(projectManagementEntryDto);
             }
         }
@@ -144,6 +160,8 @@ public class ManagementResourceImpl implements ManagementResource {
                     .collect(Collectors.toList()));
 
             return ProjectManagementEntryDto.builder()
+                    // it is guaranteed that the same Project instance is obtained for every ProjectEntry
+                    .zepId(projectEntries.get(0).getProject().getZepId())
                     .projectName(currentProject.getProjectId())
                     .controlProjectState(ProjectState.byName(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_PROJECT).getState().name()))
                     .controlBillingState(ProjectState.byName((getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_BILLING).getState().name())))
@@ -153,8 +171,7 @@ public class ManagementResourceImpl implements ManagementResource {
                     .aggregatedBillableWorkTimeInSeconds(billable)
                     .aggregatedNonBillableWorkTimeInSeconds(nonBillable)
                     .build();
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -303,7 +320,7 @@ public class ManagementResourceImpl implements ManagementResource {
             return collectedStates.stream()
                     .anyMatch(state -> state.equals(EmployeeState.OPEN)) ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;
         } else {
-            if(collectedStates.isEmpty()) {
+            if (collectedStates.isEmpty()) {
                 return State.DONE;
             }
             return collectedStates.stream()

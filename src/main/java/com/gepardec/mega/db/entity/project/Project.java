@@ -33,6 +33,10 @@ public class Project {
     @SequenceGenerator(name = "projectIdGenerator", sequenceName = "sequence_project_id", allocationSize = 1)
     private Long id;
 
+    @NotNull
+    @Column(name = "zep_id")
+    private Integer zepId;
+
     /**
      * The name of the project
      */
@@ -86,7 +90,7 @@ public class Project {
 
     // needed to be consistent with the database
     public void addProjectEntry(ProjectEntry projectEntry) {
-        if(projectEntries == null){
+        if (projectEntries == null) {
             projectEntries = new HashSet<>();
         }
         projectEntries.add(projectEntry);
@@ -104,6 +108,14 @@ public class Project {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Integer getZepId() {
+        return zepId;
+    }
+
+    public void setZepId(Integer zepId) {
+        this.zepId = zepId;
     }
 
     public String getName() {
@@ -160,6 +172,9 @@ public class Project {
         if (!Objects.equals(id, project.id)) {
             return false;
         }
+        if (!Objects.equals(zepId, project.zepId)) {
+            return false;
+        }
         if (!Objects.equals(name, project.name)) {
             return false;
         }
@@ -172,6 +187,7 @@ public class Project {
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (zepId != null ? zepId.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (startDate != null ? startDate.hashCode() : 0);
         result = 31 * result + (endDate != null ? endDate.hashCode() : 0);

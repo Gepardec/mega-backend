@@ -38,5 +38,4 @@ public class Employee {
 
     private Map<DayOfWeek, Double> regularWorkingHours;
 
-    private boolean active;
 }

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1671779898131-9
+      author: mega (generated)
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                  name: zep_id
+                  type: int4
+            tableName: project

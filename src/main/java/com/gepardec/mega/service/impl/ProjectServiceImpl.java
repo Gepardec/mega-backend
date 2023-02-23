@@ -94,6 +94,7 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         projectEntity.setName(project.getName());
+        projectEntity.setZepId(project.getZepId());
         projectEntity.setStartDate(project.getStartDate());
         projectEntity.setEndDate(project.getEndDate());
 
