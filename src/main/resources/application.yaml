@@ -291,6 +291,10 @@ mp:
       origin: "https://www.zep-online.de/zepgepardecservices"
       soap-path: "/sync/soap.php?v=7"
 
+    endpoint:
+      test:
+        enable: false
+
     mail:
       employees:
         notification: true
