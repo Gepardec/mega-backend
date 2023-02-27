@@ -101,14 +101,34 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private boolean filterProject(final Project project, final List<ProjectFilter> projectFilters) {
+        validateProjectFilter(projectFilters);
+
         return projectFilters.stream()
                 .allMatch(projectFilter -> filterProject(project, projectFilter));
+    }
+
+    private void validateProjectFilter(List<ProjectFilter> projectFilters) {
+        if(projectFilters == null || projectFilters.size() < 2) {
+            return;
+        }
+
+        List<ProjectFilter> conflictingFilter = List.of(ProjectFilter.IS_LEADS_AVAILABLE, ProjectFilter.WITHOUT_LEADS);
+
+        if(new HashSet<>(projectFilters).containsAll(conflictingFilter)) {
+            String conflictingStr = conflictingFilter.stream()
+                    .map(Enum::name)
+                    .collect(Collectors.joining(" & ", "[", "]"));
+
+            throw new IllegalStateException("Conflicting ProjectFilter: " + conflictingStr);
+        }
     }
 
     private boolean filterProject(final Project project, final ProjectFilter projectFilter) {
         switch (projectFilter) {
             case IS_LEADS_AVAILABLE:
                 return !project.getLeads().isEmpty();
+            case WITHOUT_LEADS:
+                return project.getLeads().isEmpty();
             case IS_CUSTOMER_PROJECT:
                 return !project.getCategories().contains(INTERN_PROJECT_CATEGORY);
             default:

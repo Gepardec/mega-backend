@@ -19,4 +19,9 @@ public interface ManagementResource {
     @Path("/projectmanagemententries/{year}/{month}")
     @Produces(MediaType.APPLICATION_JSON)
     Response getAllProjectManagementEntries(@PathParam("year") Integer year, @PathParam("month") Integer month, @QueryParam("all") boolean allProjects, @QueryParam("projectStateLogicSingle") boolean projectStateLogicSingle);
+
+    @GET
+    @Path("/projectsWithoutLeads")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response getProjectsWithoutLeads();
 }

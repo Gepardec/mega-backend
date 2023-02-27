@@ -5,22 +5,11 @@ import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.project.ProjectEntry;
 import com.gepardec.mega.db.entity.project.ProjectStep;
-import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.model.FinishedAndTotalComments;
-import com.gepardec.mega.domain.model.ProjectEmployees;
-import com.gepardec.mega.domain.model.ProjectState;
-import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.State;
-import com.gepardec.mega.domain.model.StepName;
-import com.gepardec.mega.domain.model.UserContext;
+import com.gepardec.mega.domain.model.*;
+import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.ManagementResource;
-import com.gepardec.mega.rest.model.ManagementEntryDto;
-import com.gepardec.mega.rest.model.PmProgressDto;
-import com.gepardec.mega.rest.model.ProjectManagementEntryDto;
-import com.gepardec.mega.service.api.CommentService;
-import com.gepardec.mega.service.api.EmployeeService;
-import com.gepardec.mega.service.api.ProjectEntryService;
-import com.gepardec.mega.service.api.StepEntryService;
+import com.gepardec.mega.rest.model.*;
+import com.gepardec.mega.service.api.*;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.security.Authenticated;
@@ -65,6 +54,9 @@ public class ManagementResourceImpl implements ManagementResource {
 
     @Inject
     ZepService zepService;
+
+    @Inject
+    ProjectService projectService;
 
     @Override
     public Response getAllOfficeManagementEntries(Integer year, Integer month, boolean projectStateLogicSingle) {
@@ -155,6 +147,23 @@ public class ManagementResourceImpl implements ManagementResource {
         }
 
         return Response.ok(projectManagementEntries).build();
+    }
+
+    @Override
+    public Response getProjectsWithoutLeads() {
+        LocalDate firstDayOfMonth = DateUtils.getFirstDayOfCurrentMonth();
+        List<Project> customerProjectsWithoutLeads = projectService.getProjectsForMonthYear(firstDayOfMonth,
+                List.of(ProjectFilter.IS_CUSTOMER_PROJECT, ProjectFilter.WITHOUT_LEADS));
+
+        List<CustomerProjectWithoutLeadsDto> customerProjectsWithoutLeadsDto = customerProjectsWithoutLeads.stream()
+                .map(project -> CustomerProjectWithoutLeadsDto.builder()
+                        .projectName(project.getProjectId())
+                        .fetchDate(firstDayOfMonth)
+                        .comment("Dies Projekt hat keinen Projektleiter zugewiesen. Bitte hinzufügen!")
+                        .build())
+                .collect(Collectors.toList());
+
+        return Response.ok(customerProjectsWithoutLeadsDto).build();
     }
 
     private Duration calculateProjectDuration(List<String> entries) {
