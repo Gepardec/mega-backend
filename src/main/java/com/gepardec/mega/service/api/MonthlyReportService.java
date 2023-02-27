@@ -11,5 +11,4 @@ public interface MonthlyReportService {
 
     MonthlyReport getMonthendReportForUser(final String userId, LocalDate date);
 
-    boolean setOpenAndUnassignedStepEntriesDone(Employee employee, Long stepId);
 }
