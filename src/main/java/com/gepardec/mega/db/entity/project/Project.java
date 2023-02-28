@@ -33,7 +33,6 @@ public class Project {
     @SequenceGenerator(name = "projectIdGenerator", sequenceName = "sequence_project_id", allocationSize = 1)
     private Long id;
 
-    @NotNull
     @Column(name = "zep_id")
     private Integer zepId;
 

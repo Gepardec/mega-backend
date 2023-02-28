@@ -7,7 +7,7 @@ databaseChangeLog:
             columns:
               - column:
                   constraints:
-                    nullable: false
+                    nullable: true
                   name: zep_id
                   type: int4
             tableName: project
