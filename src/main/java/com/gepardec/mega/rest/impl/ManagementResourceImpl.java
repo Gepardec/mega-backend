@@ -195,6 +195,7 @@ public class ManagementResourceImpl implements ManagementResource {
                         .projectName(project.getProjectId())
                         .fetchDate(firstDayOfMonth)
                         .comment("Dies Projekt hat keinen Projektleiter zugewiesen. Bitte hinzufügen!")
+                        .zepId(project.getZepId())
                         .build())
                 .collect(Collectors.toList());
 
