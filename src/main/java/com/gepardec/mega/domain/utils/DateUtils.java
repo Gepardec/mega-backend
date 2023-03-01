@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -88,5 +89,17 @@ public final class DateUtils {
 
     public static String getDayByDate(LocalDate date) {
         return date.getDayOfWeek().getDisplayName(TextStyle.FULL, GERMAN_LOCALE);
+    }
+
+    public static LocalDate getFirstDayOfMonth(Integer year, Integer month) {
+        return LocalDate.of(year, month, 1);
+    }
+
+    public static LocalDate getLastDayOfMonth(Integer year, Integer month) {
+        return getFirstDayOfMonth(year, month).with(TemporalAdjusters.lastDayOfMonth());
+    }
+
+    public static LocalDate getFirstDayOfCurrentMonth() {
+        return LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
     }
 }
