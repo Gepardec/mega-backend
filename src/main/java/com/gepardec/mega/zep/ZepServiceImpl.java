@@ -312,6 +312,7 @@ public class ZepServiceImpl implements ZepService {
                         .with(TemporalAdjusters.lastDayOfYear());
 
         return Project.builder()
+                .zepId(projektType.getProjektId())
                 .projectId(projektType.getProjektNr())
                 .description(projektType.getBezeichnung())
                 .startDate(LocalDate.parse(projektType.getStartDatum()))

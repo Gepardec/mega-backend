@@ -15,6 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Project {
+    private Integer zepId;
+
     private String projectId;
 
     private String description;

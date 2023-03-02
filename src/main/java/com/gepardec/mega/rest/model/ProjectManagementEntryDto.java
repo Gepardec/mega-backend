@@ -23,6 +23,9 @@ import java.util.List;
 @Jacksonized
 public class ProjectManagementEntryDto {
     @JsonProperty
+    private final Integer zepId;
+
+    @JsonProperty
     private final String projectName;
 
     @JsonProperty

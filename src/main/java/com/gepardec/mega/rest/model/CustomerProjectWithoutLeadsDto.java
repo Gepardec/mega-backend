@@ -16,5 +16,6 @@ public class CustomerProjectWithoutLeadsDto {
     private final String projectName;
     private final String comment;
     private final LocalDate fetchDate;
+    private final Integer zepId;
 
 }

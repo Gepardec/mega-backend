@@ -110,6 +110,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
                 .collect(Collectors.toSet());
 
         projectEntity.setProjectLeads(mappedLeads);
+        projectEntity.setZepId(project.getZepId());
         projectEntity.setName(project.getProjectId());
         projectEntity.setStartDate(project.getStartDate());
         projectEntity.setEndDate(project.getEndDate());
