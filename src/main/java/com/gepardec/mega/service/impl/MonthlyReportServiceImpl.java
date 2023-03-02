@@ -114,14 +114,6 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 stepEntryService.findEmployeeInternalCheckState(employee, date));
     }
 
-    @Override
-    public boolean setOpenAndUnassignedStepEntriesDone(Employee employee, Long stepId) {
-        LocalDate from = getFirstDayOfFollowingMonth(employee.getReleaseDate());
-        LocalDate to = getLastDayOfFollowingMonth(employee.getReleaseDate());
-
-        return stepEntryService.setOpenAndAssignedStepEntriesDone(employee, stepId, from, to);
-    }
-
     private MonthlyReport buildMonthlyReport(Employee employee, List<ProjectEntry> projectEntries, List<ProjektzeitType> billableEntries, List<FehlzeitType> absenceEntries, Optional<EmployeeState> employeeCheckState, Optional<EmployeeState> internalCheckState) {
         final List<JourneyWarning> journeyWarnings = warningCalculator.determineJourneyWarnings(projectEntries);
         final List<TimeWarning> timeWarnings = warningCalculator.determineTimeWarnings(projectEntries);
