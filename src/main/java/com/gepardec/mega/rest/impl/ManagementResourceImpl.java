@@ -21,7 +21,6 @@ import javax.ws.rs.core.Response;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -60,8 +59,8 @@ public class ManagementResourceImpl implements ManagementResource {
 
     @Override
     public Response getAllOfficeManagementEntries(Integer year, Integer month, boolean projectStateLogicSingle) {
-        LocalDate from = LocalDate.of(year, month, 1);
-        LocalDate to = LocalDate.of(year, month, 1).with(TemporalAdjusters.lastDayOfMonth());
+        LocalDate from = DateUtils.getFirstDayOfMonth(year, month);
+        LocalDate to = DateUtils.getLastDayOfMonth(year, month);
 
         List<ManagementEntryDto> officeManagementEntries = new ArrayList<>();
         List<Employee> activeEmployees = employeeService.getAllActiveEmployees();
@@ -69,7 +68,7 @@ public class ManagementResourceImpl implements ManagementResource {
         for (Employee employee : activeEmployees) {
             List<StepEntry> stepEntries = stepEntryService.findAllStepEntriesForEmployee(employee, from, to);
 
-            String entryDate = LocalDate.of(year, month, 1).minusMonths(1).format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN));
+            String entryDate = DateUtils.getFirstDayOfMonth(year, month).minusMonths(1).format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN));
 
             List<StepEntry> allOwnedStepEntriesForPMProgress = stepEntryService.findAllOwnedAndUnassignedStepEntriesForPMProgress(employee.getEmail(), entryDate);
             List<PmProgressDto> pmProgressDtos = new ArrayList<>();
@@ -99,12 +98,10 @@ public class ManagementResourceImpl implements ManagementResource {
 
     @Override
     public Response getAllProjectManagementEntries(Integer year, Integer month, boolean allProjects, boolean projectStateLogicSingle) {
-        if (userContext == null || userContext.getUser() == null) {
-            throw new IllegalStateException("User context does not exist or user is null.");
-        }
+        validateUserContext();
 
-        LocalDate from = LocalDate.of(year, month, 1);
-        LocalDate to = LocalDate.of(year, month, 1).with(TemporalAdjusters.lastDayOfMonth());
+        LocalDate from = DateUtils.getFirstDayOfMonth(year, month);
+        LocalDate to = DateUtils.getLastDayOfMonth(year, month);
 
         List<ProjectEmployees> projectEmployees;
 
@@ -119,38 +116,59 @@ public class ManagementResourceImpl implements ManagementResource {
         Map<String, Employee> employees = createEmployeeCache();
 
         for (ProjectEmployees currentProject : projectEmployees) {
-            List<ManagementEntryDto> entries = createManagementEntriesForProject(currentProject, employees, from, to, projectStateLogicSingle);
-            List<ProjectEntry> projectEntries = projectEntryService.findByNameAndDate(currentProject.getProjectId(), from, to);
+            ProjectManagementEntryDto projectManagementEntryDto = loadProjectManagementEntryDto(currentProject, employees,
+                    from, to, projectStateLogicSingle);
 
-            if (!entries.isEmpty() && !projectEntries.isEmpty()) {
-
-                Duration billable = calculateProjectDuration(entries.stream()
-                        .map(ManagementEntryDto::billableTime)
-                        .collect(Collectors.toList()));
-
-                Duration nonBillable = calculateProjectDuration(entries.stream()
-                        .map(ManagementEntryDto::nonBillableTime)
-                        .collect(Collectors.toList()));
-
-                projectManagementEntries.add(ProjectManagementEntryDto.builder()
-                        .projectName(currentProject.getProjectId())
-                        .controlProjectState(ProjectState.byName(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_PROJECT).getState().name()))
-                        .controlBillingState(ProjectState.byName((getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_BILLING).getState().name())))
-                        .presetControlProjectState(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_PROJECT).isPreset())
-                        .presetControlBillingState(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_BILLING).isPreset())
-                        .entries(entries)
-                        .aggregatedBillableWorkTimeInSeconds(billable)
-                        .aggregatedNonBillableWorkTimeInSeconds(nonBillable)
-                        .build()
-                );
+            if(projectManagementEntryDto != null) {
+                projectManagementEntries.add(projectManagementEntryDto);
             }
         }
 
         return Response.ok(projectManagementEntries).build();
     }
 
+    private ProjectManagementEntryDto loadProjectManagementEntryDto(ProjectEmployees currentProject, Map<String,
+            Employee> employees, LocalDate from, LocalDate to, boolean projectStateLogicSingle) {
+
+        List<ManagementEntryDto> entries = createManagementEntriesForProject(currentProject, employees, from, to, projectStateLogicSingle);
+        List<ProjectEntry> projectEntries = projectEntryService.findByNameAndDate(currentProject.getProjectId(), from, to);
+
+        if (!entries.isEmpty() && !projectEntries.isEmpty()) {
+
+            Duration billable = calculateProjectDuration(entries.stream()
+                    .map(ManagementEntryDto::billableTime)
+                    .collect(Collectors.toList()));
+
+            Duration nonBillable = calculateProjectDuration(entries.stream()
+                    .map(ManagementEntryDto::nonBillableTime)
+                    .collect(Collectors.toList()));
+
+            return ProjectManagementEntryDto.builder()
+                    .projectName(currentProject.getProjectId())
+                    .controlProjectState(ProjectState.byName(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_PROJECT).getState().name()))
+                    .controlBillingState(ProjectState.byName((getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_BILLING).getState().name())))
+                    .presetControlProjectState(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_PROJECT).isPreset())
+                    .presetControlBillingState(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_BILLING).isPreset())
+                    .entries(entries)
+                    .aggregatedBillableWorkTimeInSeconds(billable)
+                    .aggregatedNonBillableWorkTimeInSeconds(nonBillable)
+                    .build();
+        }
+        else {
+            return null;
+        }
+    }
+
+    private void validateUserContext() {
+        if (userContext == null || userContext.getUser() == null) {
+            throw new IllegalStateException("User context does not exist or user is null.");
+        }
+    }
+
     @Override
     public Response getProjectsWithoutLeads() {
+        validateUserContext();
+
         LocalDate firstDayOfMonth = DateUtils.getFirstDayOfCurrentMonth();
         List<Project> customerProjectsWithoutLeads = projectService.getProjectsForMonthYear(firstDayOfMonth,
                 List.of(ProjectFilter.IS_CUSTOMER_PROJECT, ProjectFilter.WITHOUT_LEADS));
@@ -194,9 +212,7 @@ public class ManagementResourceImpl implements ManagementResource {
     }
 
     private List<ManagementEntryDto> createManagementEntriesForProject(ProjectEmployees projectEmployees, Map<String, Employee> employees, LocalDate from, LocalDate to, boolean projectStateLogicSingle) {
-        if (userContext == null || userContext.getUser() == null) {
-            throw new IllegalStateException("User context does not exist or user is null.");
-        }
+        validateUserContext();
 
         List<ManagementEntryDto> entries = new ArrayList<>();
 
@@ -268,9 +284,7 @@ public class ManagementResourceImpl implements ManagementResource {
     }
 
     private com.gepardec.mega.domain.model.State extractStateForProject(List<StepEntry> stepEntries, String projectId, boolean projectStateLogicSingle) {
-        if (userContext == null || userContext.getUser() == null) {
-            throw new IllegalStateException("User context does not exist or user is null.");
-        }
+        validateUserContext();
 
         List<EmployeeState> collectedStates = stepEntries
                 .stream()
