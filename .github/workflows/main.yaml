@@ -18,7 +18,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build and test project with Maven
-        run: mvn clean install -D skipTests=true --file pom.xml
+        run: mvn -B package -D skipTests --file pom.xml
 
   docker-build-and-push:
     runs-on: ubuntu-latest
