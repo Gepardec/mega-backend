@@ -25,8 +25,6 @@ jobs:
     needs:
       - build-and-test
     steps:
-      - uses: actions/checkout@v3
-        name: checkout
 
       - name: Set outputs
         id: vars
@@ -35,7 +33,7 @@ jobs:
       - uses: mr-smithers-excellent/docker-build-push@v5
         name: push-container-image
         with:
-          image: git-workflows
+          image: mega-backend
           registry: ghcr.io
           username: ${{ github.repository }}
           password: ${{ secrets.GHCR_TOKEN }}
