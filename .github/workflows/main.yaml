@@ -1,0 +1,60 @@
+name: Release Containerimage
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: checkout
+
+      - name: Cache the Maven packages to speed up build
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build and test project with Maven
+        run: mvn clean install --file pom.xml
+
+  docker-build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        name: checkout
+
+      - name: Set outputs
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - uses: mr-smithers-excellent/docker-build-push@v5
+        name: push-container-image
+        with:
+          image: git-workflows
+          registry: ghcr.io
+          username: ${{ github.repository }}
+          password: ${{ secrets.GHCR_TOKEN }}
+          dockerfile: Containerfile
+          # directory:  git-workflows
+          addLatest: true
+          tags: ${{ steps.vars.outputs.sha_short }},latest
+
+#  notify:
+#    name: Slack Notifications
+#    runs-on: ubuntu-latest
+#    if: ${{ failure() }}
+#    needs:
+#      - build-and-test
+#      - docker-build-and-push
+#    steps:
+#      - name: Notify Slack channel on failure
+#        uses: rtCamp/action-slack-notify@v2
+#        env:
+#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+#          SLACK_ICON: https://avatars.githubusercontent.com/u/74975412?s=200&v=4
+#          SLACK_USERNAME: ${{ github.repository }}
+#          SLACK_COLOR: '#ff0033'
+#          SLACK_FOOTER: ''
