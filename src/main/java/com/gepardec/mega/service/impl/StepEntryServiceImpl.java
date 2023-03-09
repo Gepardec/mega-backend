@@ -10,6 +10,7 @@ import com.gepardec.mega.domain.model.ProjectEmployees;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.StepEntryService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -35,17 +36,21 @@ public class StepEntryServiceImpl implements StepEntryService {
     @Override
     public Optional<EmployeeState> findEmployeeCheckState(final Employee employee) {
         if (employee != null) {
-            return findEmployeeCheckState(employee, LocalDate.parse(employee.getReleaseDate()));
+            return findEmployeeCheckState(employee, LocalDate.parse(employee.getReleaseDate())).map(Pair::getLeft);
         }
         return Optional.empty();
     }
 
+    /**
+     *
+     * @return Pair.left: state, pair.right: stateReason
+     */
     @Override
-    public Optional<EmployeeState> findEmployeeCheckState(final Employee employee, LocalDate date) {
+    public Optional<Pair<EmployeeState, String>> findEmployeeCheckState(final Employee employee, LocalDate date) {
         Optional<StepEntry> stepEntries =
                 stepEntryRepository.findAllOwnedAndAssignedStepEntriesForEmployee(date, employee.getEmail());
 
-        return stepEntries.map(StepEntry::getState);
+        return stepEntries.map(se -> Pair.of(se.getState(), se.getStateReason()));
     }
 
     @Override

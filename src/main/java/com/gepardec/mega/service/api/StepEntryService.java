@@ -4,13 +4,14 @@ import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.ProjectEmployees;
 import com.gepardec.mega.domain.model.StepEntry;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 public interface StepEntryService {
-    Optional<EmployeeState> findEmployeeCheckState(final Employee employee, LocalDate date);
+    Optional<Pair<EmployeeState, String>> findEmployeeCheckState(final Employee employee, LocalDate date);
 
     Optional<EmployeeState> findEmployeeCheckState(final Employee employee);
 
