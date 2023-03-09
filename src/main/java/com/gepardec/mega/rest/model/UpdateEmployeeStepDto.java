@@ -30,4 +30,7 @@ public class UpdateEmployeeStepDto {
 
     @JsonProperty
     private final EmployeeState newState;
+
+    @JsonProperty
+    private final String newStateReason;
 }

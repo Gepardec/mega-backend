@@ -85,6 +85,9 @@ public class StepEntry {
     @Column(name = "state")
     private EmployeeState employeeState;
 
+    @Column(name = "state_reason")
+    private String stateReason;
+
     /**
      * The owner of the step entry who is the user who is responsible for the validity of the entry
      */
@@ -203,6 +206,30 @@ public class StepEntry {
         this.project = project;
     }
 
+    public String getStateReason() {
+        return stateReason;
+    }
+
+    public void setStateReason(String stateReason) {
+        this.stateReason = stateReason;
+    }
+
+    @Override
+    public String toString() {
+        return "StepEntry{" +
+                "id=" + id +
+                ", creationDate=" + creationDate +
+                ", updatedDate=" + updatedDate +
+                ", date=" + date +
+                ", project='" + project + '\'' +
+                ", employeeState=" + employeeState +
+                ", stateReason='" + stateReason + '\'' +
+                ", owner=" + owner +
+                ", assignee=" + assignee +
+                ", step=" + step +
+                '}';
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -218,21 +245,6 @@ public class StepEntry {
     @Override
     public int hashCode() {
         return (id != null) ? Objects.hash(id) : super.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return "StepEntry{" +
-                "id=" + id +
-                ", creationDate=" + creationDate +
-                ", updatedDate=" + updatedDate +
-                ", date=" + date +
-                ", project='" + project + '\'' +
-                ", state=" + employeeState +
-                ", owner=" + owner +
-                ", assignee=" + assignee +
-                ", step=" + step +
-                '}';
     }
 
 }
