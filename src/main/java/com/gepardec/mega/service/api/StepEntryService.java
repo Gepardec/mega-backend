@@ -23,7 +23,7 @@ public interface StepEntryService {
     void addStepEntry(final StepEntry stepEntry);
 
     boolean setOpenAndAssignedStepEntriesDone(Employee employee, Long stepId, LocalDate from, LocalDate to);
-    boolean updateStepEntryStateForEmployee(Employee employee, Long stepId, LocalDate from, LocalDate to, EmployeeState newState);
+    boolean updateStepEntryStateForEmployee(Employee employee, Long stepId, LocalDate from, LocalDate to, EmployeeState newState, String reason);
     boolean updateStepEntryStateForEmployeeInProject(Employee employee, Long stepId, String project, String assigneeEmail, String currentMonthYear, EmployeeState employeeState);
 
     List<com.gepardec.mega.db.entity.employee.StepEntry> findAllStepEntriesForEmployee(Employee employee, LocalDate from, LocalDate to);
