@@ -159,9 +159,14 @@ public class ManagementResourceImpl implements ManagementResource {
                     .map(ManagementEntryDto::nonBillableTime)
                     .collect(Collectors.toList()));
 
+            // it is guaranteed that the same Project instance is obtained for every ProjectEntry
+            Integer zepId = Optional.ofNullable(projectEntries.get(0))
+                    .map(ProjectEntry::getProject)
+                    .map(com.gepardec.mega.db.entity.project.Project::getZepId)
+                    .orElse(null);
+
             return ProjectManagementEntryDto.builder()
-                    // it is guaranteed that the same Project instance is obtained for every ProjectEntry
-                    .zepId(projectEntries.get(0).getProject().getZepId())
+                    .zepId(zepId)
                     .projectName(currentProject.getProjectId())
                     .controlProjectState(ProjectState.byName(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_PROJECT).getState().name()))
                     .controlBillingState(ProjectState.byName((getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_BILLING).getState().name())))
