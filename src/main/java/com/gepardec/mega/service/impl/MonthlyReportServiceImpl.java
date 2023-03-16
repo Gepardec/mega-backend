@@ -34,8 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfFollowingMonth;
-import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfFollowingMonth;
+import static com.gepardec.mega.domain.utils.DateUtils.*;
 
 @RequestScoped
 public class MonthlyReportServiceImpl implements MonthlyReportService {
@@ -123,12 +122,10 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         timeWarnings.addAll(warningCalculator.determineNoTimeEntries(employee, projectEntries, absenceEntries));
         timeWarnings.sort(Comparator.comparing(ProjectEntryWarning::getDate));
 
-        final List<Comment> comments = Optional.ofNullable(employee)
-                .map(Employee::getReleaseDate)
-                .filter(this::checkReleaseDate)
-                .map(date -> Pair.of(getFirstDayOfFollowingMonth(date), getLastDayOfFollowingMonth(date)))
-                .map(pair -> commentService.findCommentsForEmployee(employee, pair.getLeft(), pair.getRight()))
-                .orElse(Collections.emptyList());
+        int year = currentMonthYear.getYear();
+        int month = currentMonthYear.getMonthValue();
+
+        List<Comment> comments = commentService.findCommentsForEmployee(employee, getFirstDayOfMonth(year, month), getLastDayOfMonth(year, month));
 
         final List<PmProgressDto> pmProgressDtos = Optional.ofNullable(employee)
                 .map(empl -> stepEntryService.findAllOwnedAndUnassignedStepEntriesForPMProgress(empl.getEmail(), empl.getReleaseDate()))
