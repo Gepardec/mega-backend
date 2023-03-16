@@ -1,0 +1,53 @@
+{
+  "build": {
+    "language": {
+      "name": "java",
+      "version": "openjdk-11"
+    },
+    "type": {
+      "name": "maven",
+      "version": "3.8.6",
+      "configuration": {
+        "args": "clean install",
+        "config": "pom.xml",
+        "config-path": "",
+        "options": ""
+      }
+    },
+    "static-code-analysis": {
+      "active": "true",
+      "type": {
+        "name": "sonarqube"
+      }
+    },
+    "integration-test": {
+      "active": "true",
+      "type": {
+        "name": "newman",
+        "configuration": {
+          "port": "8080",
+          "collection": "mega.postman_collection.json",
+          "collection-path": "http-client"
+        }
+      }
+    }
+  },
+  "image": {
+    "registry": "ghcr.io",
+    "repository": "gepaplexx",
+    "containerfile": "Containerfile"
+  },
+  "vulnerability-scan": {
+    "active": "true",
+    "type": {
+      "name": "trivy",
+      "configuration": {
+        "report-severity": "LOW,MEDIUM,HIGH,CRITICAL",
+        "fail": {
+          "active": "true",
+          "severity": "CRITICAL"
+        }
+      }
+    }
+  }
+}
