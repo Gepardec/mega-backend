@@ -1,5 +1,6 @@
 package com.gepardec.mega.db.entity.employee;
 
+import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Column;
@@ -39,6 +40,7 @@ import java.util.Objects;
         @NamedQuery(name = "StepEntry.findAllStepEntriesForPMInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId and s.assignee.email = :assigneEmail"),
         @NamedQuery(name = "StepEntry.findAllStepEntriesForAllPMInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId")
 })
+@ToString
 public class StepEntry {
 
     @Id
@@ -97,6 +99,7 @@ public class StepEntry {
             referencedColumnName = "id",
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_owner_employee_user_id", value = ConstraintMode.CONSTRAINT))
+    @ToString.Exclude
     private User owner;
 
     /**
@@ -108,6 +111,7 @@ public class StepEntry {
             referencedColumnName = "id",
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_assignee_employee_user_id", value = ConstraintMode.CONSTRAINT))
+    @ToString.Exclude
     private User assignee;
 
     /**
@@ -121,6 +125,7 @@ public class StepEntry {
             referencedColumnName = "id",
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_step_id", value = ConstraintMode.CONSTRAINT))
+    @ToString.Exclude
     private Step step;
 
     @PrePersist
@@ -212,22 +217,6 @@ public class StepEntry {
 
     public void setStateReason(String stateReason) {
         this.stateReason = stateReason;
-    }
-
-    @Override
-    public String toString() {
-        return "StepEntry{" +
-                "id=" + id +
-                ", creationDate=" + creationDate +
-                ", updatedDate=" + updatedDate +
-                ", date=" + date +
-                ", project='" + project + '\'' +
-                ", employeeState=" + employeeState +
-                ", stateReason='" + stateReason + '\'' +
-                ", owner=" + owner +
-                ", assignee=" + assignee +
-                ", step=" + step +
-                '}';
     }
 
     @Override
