@@ -205,7 +205,7 @@ public class ManagementResourceImpl implements ManagementResource {
                 .map(project -> CustomerProjectWithoutLeadsDto.builder()
                         .projectName(project.getProjectId())
                         .fetchDate(firstDayOfMonth)
-                        .comment("Dies Projekt hat keinen Projektleiter zugewiesen. Bitte hinzufügen!")
+                        .comment("Dieses Projekt hat keinen Projektleiter zugewiesen. Bitte in ZEP hinzufügen!")
                         .zepId(project.getZepId())
                         .build())
                 .collect(Collectors.toList());
