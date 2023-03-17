@@ -29,6 +29,8 @@ public class MonthlyReport {
 
     private EmployeeState employeeCheckState;
 
+    private String employeeCheckStateReason;
+
     private EmployeeState internalCheckState;
 
     private boolean isAssigned;

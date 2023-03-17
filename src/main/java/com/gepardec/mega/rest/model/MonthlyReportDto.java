@@ -38,6 +38,9 @@ public class MonthlyReportDto {
     private EmployeeState employeeCheckState;
 
     @JsonProperty
+    private String employeeCheckStateReason;
+
+    @JsonProperty
     private EmployeeState internalCheckState;
 
     @JsonProperty

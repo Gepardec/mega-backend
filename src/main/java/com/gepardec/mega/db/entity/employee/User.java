@@ -1,6 +1,7 @@
 package com.gepardec.mega.db.entity.employee;
 
 import com.gepardec.mega.domain.model.Role;
+import lombok.ToString;
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.Length;
 
@@ -43,6 +44,7 @@ import java.util.Set;
         @NamedQuery(name = "User.findActive", query = "select u from User u where u.active = true"),
         @NamedQuery(name = "User.findByRoles", query = "select distinct u from User u inner join u.roles role where u.active = true and role in (:roles)")
 })
+@ToString
 public class User {
 
     @Id
@@ -135,12 +137,14 @@ public class User {
      * The step entries the user is assigned to
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "assignee")
+    @ToString.Exclude
     private Set<StepEntry> assignedStepEntries = new HashSet<>(0);
 
     /**
      * The step entries the user owns
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
+    @ToString.Exclude
     private Set<StepEntry> ownedStepEntries = new HashSet<>(0);
 
     public User() {
@@ -291,20 +295,5 @@ public class User {
     @Override
     public int hashCode() {
         return (id != null) ? Objects.hash(id) : super.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", creationDate=" + creationDate +
-                ", updatedDate=" + updatedDate +
-                ", email='" + email + '\'' +
-                ", zepId='" + zepId + '\'' +
-                ", releaseDate=" + releaseDate +
-                ", active=" + active +
-                ", assignedStepEntries=" + assignedStepEntries +
-                ", ownedStepEntries=" + ownedStepEntries +
-                '}';
     }
 }

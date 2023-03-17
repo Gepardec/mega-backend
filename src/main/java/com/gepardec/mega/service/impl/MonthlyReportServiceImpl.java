@@ -114,7 +114,10 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 stepEntryService.findEmployeeInternalCheckState(employee, date));
     }
 
-    private MonthlyReport buildMonthlyReport(Employee employee, List<ProjectEntry> projectEntries, List<ProjektzeitType> billableEntries, List<FehlzeitType> absenceEntries, Optional<EmployeeState> employeeCheckState, Optional<EmployeeState> internalCheckState) {
+    private MonthlyReport buildMonthlyReport(Employee employee, List<ProjectEntry> projectEntries,
+                                             List<ProjektzeitType> billableEntries, List<FehlzeitType> absenceEntries,
+                                             Optional<Pair<EmployeeState, String>> employeeCheckState,
+                                             Optional<EmployeeState> internalCheckState) {
         final List<JourneyWarning> journeyWarnings = warningCalculator.determineJourneyWarnings(projectEntries);
         final List<TimeWarning> timeWarnings = warningCalculator.determineTimeWarnings(projectEntries);
         timeWarnings.addAll(warningCalculator.determineNoTimeEntries(employee, projectEntries, absenceEntries));
@@ -145,7 +148,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .timeWarnings(mappedTimeWarnings)
                 .journeyWarnings(journeyWarnings)
                 .comments(comments)
-                .employeeCheckState(employeeCheckState.orElse(EmployeeState.OPEN))
+                .employeeCheckState(employeeCheckState.map(Pair::getLeft).orElse(EmployeeState.OPEN))
+                .employeeCheckStateReason(employeeCheckState.map(Pair::getRight).orElse(null))
                 .internalCheckState(internalCheckState.orElse(EmployeeState.OPEN))
                 .isAssigned(employeeCheckState.isPresent())
                 .employeeProgresses(pmProgressDtos)

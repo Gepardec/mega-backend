@@ -30,6 +30,9 @@ public class ManagementEntryDto {
     private final State employeeCheckState;
 
     @JsonProperty
+    private final String employeeCheckStateReason;
+
+    @JsonProperty
     private final State internalCheckState;
 
     @JsonProperty

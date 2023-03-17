@@ -3,6 +3,7 @@ package com.gepardec.mega.rest.impl;
 import com.gepardec.mega.application.interceptor.RolesAllowed;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
+import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.entity.project.ProjectEntry;
 import com.gepardec.mega.db.entity.project.ProjectStep;
 import com.gepardec.mega.domain.model.Employee;
@@ -30,6 +31,8 @@ import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.security.Authenticated;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -72,6 +75,9 @@ public class ManagementResourceImpl implements ManagementResource {
 
     @Inject
     ProjectService projectService;
+
+    @Inject
+    Logger logger;
 
     @Override
     public Response getAllOfficeManagementEntries(Integer year, Integer month, boolean projectStateLogicSingle) {
@@ -199,7 +205,7 @@ public class ManagementResourceImpl implements ManagementResource {
                 .map(project -> CustomerProjectWithoutLeadsDto.builder()
                         .projectName(project.getProjectId())
                         .fetchDate(firstDayOfMonth)
-                        .comment("Dies Projekt hat keinen Projektleiter zugewiesen. Bitte hinzufügen!")
+                        .comment("Dieses Projekt hat keinen Projektleiter zugewiesen. Bitte in ZEP hinzufügen!")
                         .zepId(project.getZepId())
                         .build())
                 .collect(Collectors.toList());
@@ -267,9 +273,26 @@ public class ManagementResourceImpl implements ManagementResource {
         List<ProjektzeitType> projektzeitTypes = zepService.getProjectTimesForEmployeePerProject(projectId, from);
 
         if (!stepEntries.isEmpty()) {
+            Pair<State, String> employeeCheckStatePair = extractEmployeeCheckState(stepEntries);
+
+            State employeeCheckState;
+            String employeeCheckStateReason = null;
+
+            if(employeeCheckStatePair == null) {
+                // Wenn aus irgendeinem Grund kein CONTROL_TIMES Step gefunden wurde, ist der Mitarbeiter auf OPEN
+                employeeCheckState = State.OPEN;
+                Long userId = stepEntries.stream().findFirst().map(StepEntry::getOwner).map(User::getId).orElse(null);
+
+                logger.error(String.format("Für Mitarbeiter [ID: %s] wurde kein CONTROL_TIMES step gefunden.", userId));
+            } else {
+              employeeCheckState = employeeCheckStatePair.getLeft();
+              employeeCheckStateReason = employeeCheckStatePair.getRight();
+            }
+
             return ManagementEntryDto.builder()
                     .employee(employee)
-                    .employeeCheckState(extractEmployeeCheckState(stepEntries))
+                    .employeeCheckState(employeeCheckState)
+                    .employeeCheckStateReason(employeeCheckStateReason)
                     .internalCheckState(extractInternalCheckState(stepEntries))
                     .projectCheckState(extractStateForProject(stepEntries, projectId, projectStateLogicSingle))
                     .employeeProgresses(pmProgressDtos)
@@ -284,12 +307,30 @@ public class ManagementResourceImpl implements ManagementResource {
         return null;
     }
 
-    private com.gepardec.mega.domain.model.State extractEmployeeCheckState(List<StepEntry> stepEntries) {
-        boolean employeeCheckStateOpen = stepEntries.stream()
-                .filter(stepEntry -> StepName.CONTROL_TIMES.name().equalsIgnoreCase(stepEntry.getStep().getName()))
-                .anyMatch(stepEntry -> EmployeeState.OPEN.equals(stepEntry.getState()));
+    /**
+     *
+     * @return Pair.left: state, pair.right: stateReason
+     */
+    private Pair<State, String> extractEmployeeCheckState(List<StepEntry> stepEntries) {
 
-        return employeeCheckStateOpen ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;
+        return stepEntries.stream()
+                .filter(stepEntry -> StepName.CONTROL_TIMES.name().equalsIgnoreCase(stepEntry.getStep().getName()))
+                .findFirst()
+                .map(entry -> Pair.of(mapEmployeeStateToManagementState(entry.getState()), entry.getStateReason()))
+                .orElse(null);
+    }
+
+    private State mapEmployeeStateToManagementState(EmployeeState employeeState) {
+        switch (employeeState) {
+            case DONE:
+                return State.DONE;
+            case OPEN:
+                return State.OPEN;
+            case IN_PROGRESS:
+                return State.IN_PROGRESS;
+            default:
+                return null;
+        }
     }
 
     private com.gepardec.mega.domain.model.State extractInternalCheckState(List<StepEntry> stepEntries) {

@@ -95,6 +95,19 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
                         .and("ownerEmail", ownerEmail)
                         .and("stepId", stepId));
     }
+    @Transactional
+    public int updateStateAssignedWithReason(LocalDate startDate, LocalDate endDate, String ownerEmail, Long stepId, EmployeeState newState, String stateReason) {
+        return update("UPDATE StepEntry s SET s.employeeState = :employeeState, s.stateReason = :stateReason" +
+                        " WHERE s.id IN" +
+                        " (SELECT s.id FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.owner.email = :ownerEmail AND s.step.id = :stepId)",
+                Parameters
+                        .with("employeeState", newState)
+                        .and("stateReason", stateReason)
+                        .and("start", startDate)
+                        .and("end", endDate)
+                        .and("ownerEmail", ownerEmail)
+                        .and("stepId", stepId));
+    }
 
     @Transactional
     public int updateStateAssigned(LocalDate startDate, LocalDate endDate, String ownerEmail, String assigneeEmail, Long stepId, String project, EmployeeState newState) {
