@@ -22,6 +22,7 @@ import com.gepardec.mega.service.mapper.TimeWarningMapper;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.enterprise.context.RequestScoped;
@@ -29,10 +30,16 @@ import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.gepardec.mega.domain.utils.DateUtils.*;
+import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfMonth;
+import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfMonth;
 
 @RequestScoped
 public class MonthlyReportServiceImpl implements MonthlyReportService {
