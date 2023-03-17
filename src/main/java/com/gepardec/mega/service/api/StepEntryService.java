@@ -17,7 +17,7 @@ public interface StepEntryService {
 
     Optional<EmployeeState> findEmployeeInternalCheckState(final Employee employee, LocalDate date);
 
-    List<com.gepardec.mega.db.entity.employee.StepEntry> findAllOwnedAndUnassignedStepEntriesForOtherChecks(final Employee employee);
+    List<com.gepardec.mega.db.entity.employee.StepEntry> findAllOwnedAndUnassignedStepEntriesForOtherChecks(final Employee employee, LocalDate currentMonthYear);
 
     List<com.gepardec.mega.db.entity.employee.StepEntry> findAllOwnedAndUnassignedStepEntriesForPMProgress(final String email, final String date);
 

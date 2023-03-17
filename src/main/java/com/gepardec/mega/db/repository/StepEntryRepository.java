@@ -42,7 +42,7 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
                 Parameters
                         .with("entryDate", entryDate)
                         .and("ownerEmail", ownerEmail)
-                        .and("stepId", List.of(StepName.CONTROL_TIMES.getId(), StepName.ACCEPT_TIMES.getId())))
+                        .and("stepId", List.of(StepName.CONTROL_TIMES.getId(), StepName.ACCEPT_TIMES.getId(), StepName.CONTROL_EXTERNAL_TIMES.getId())))
                 .list();
 
         entries.addAll(find("#StepEntry.findAllOwnedAndAssignedStepEntriesForEmployee",

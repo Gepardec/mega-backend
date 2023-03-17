@@ -1,13 +1,16 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntryWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
+import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.PmProgressDto;
@@ -30,12 +33,13 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfFollowingMonth;
-import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfFollowingMonth;
+import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfMonth;
+import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfMonth;
 
 @RequestScoped
 public class MonthlyReportServiceImpl implements MonthlyReportService {
@@ -104,7 +108,9 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     @Override
     public MonthlyReport getMonthendReportForUser(String userId, LocalDate date) {
         Employee employee = zepService.getEmployee(userId);
-        currentMonthYear = date;
+
+        // Wenn kein date null, dann 1. Tag von aktuellen Monat (Logik wie bei StepEntryServiceImpl.parseReleaseDate)
+        currentMonthYear = Optional.ofNullable(date).orElse(DateUtils.getFirstDayOfCurrentMonth());
 
         return buildMonthlyReport(employee,
                 zepService.getProjectTimes(employee, date),
@@ -123,12 +129,10 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         timeWarnings.addAll(warningCalculator.determineNoTimeEntries(employee, projectEntries, absenceEntries));
         timeWarnings.sort(Comparator.comparing(ProjectEntryWarning::getDate));
 
-        final List<Comment> comments = Optional.ofNullable(employee)
-                .map(Employee::getReleaseDate)
-                .filter(this::checkReleaseDate)
-                .map(date -> Pair.of(getFirstDayOfFollowingMonth(date), getLastDayOfFollowingMonth(date)))
-                .map(pair -> commentService.findCommentsForEmployee(employee, pair.getLeft(), pair.getRight()))
-                .orElse(Collections.emptyList());
+        int year = currentMonthYear.getYear();
+        int month = currentMonthYear.getMonthValue();
+
+        List<Comment> comments = commentService.findCommentsForEmployee(employee, getFirstDayOfMonth(year, month), getLastDayOfMonth(year, month));
 
         final List<PmProgressDto> pmProgressDtos = Optional.ofNullable(employee)
                 .map(empl -> stepEntryService.findAllOwnedAndUnassignedStepEntriesForPMProgress(empl.getEmail(), empl.getReleaseDate()))
@@ -137,9 +141,21 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .map(PmProgressDto::ofStepEntry)
                 .collect(Collectors.toList());
 
-        final boolean otherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesForOtherChecks(employee)
-                .stream()
-                .allMatch(stepEntry -> stepEntry.getState() == EmployeeState.DONE);
+        List<StepEntry> allOwnedAndUnassignedStepEntriesForOtherChecks = stepEntryService.findAllOwnedAndUnassignedStepEntriesForOtherChecks(employee, currentMonthYear);
+
+        Map<String, List<StepEntry>> controlTimeEvidencesStepsByProjects = allOwnedAndUnassignedStepEntriesForOtherChecks.stream()
+                .filter(se -> StepName.CONTROL_TIME_EVIDENCES.name().equals(se.getStep().getName()))
+                .collect(Collectors.groupingBy(StepEntry::getProject));
+
+        // mind. 1 Projektleiter muss Employee auf Done gesetzt haben, bei Step 4 (Control Time Evidences)
+        boolean controlTimeEvidencesDone = controlTimeEvidencesStepsByProjects.entrySet().stream()
+                .allMatch(this::isAnyStepEntryDone);
+
+
+        final boolean otherChecksDone = controlTimeEvidencesDone &&
+                allOwnedAndUnassignedStepEntriesForOtherChecks.stream()
+                        .filter(se -> !StepName.CONTROL_TIME_EVIDENCES.name().equals(se.getStep().getName()))
+                        .allMatch(this::isStepEntryDone);
 
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
 
@@ -169,6 +185,14 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .nonPaidVacationDays(getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS))
                 .paidSickLeave(getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE))
                 .build();
+    }
+
+    private boolean isAnyStepEntryDone(Map.Entry<String, List<StepEntry>> entry) {
+        return entry.getValue().stream().anyMatch(this::isStepEntryDone);
+    }
+
+    private boolean isStepEntryDone(StepEntry stepEntry) {
+        return stepEntry.getState() == EmployeeState.DONE;
     }
 
     private int getAbsenceTimesForEmployee(@Nonnull List<FehlzeitType> fehlZeitTypeList, String absenceType) {
