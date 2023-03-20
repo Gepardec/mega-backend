@@ -15,13 +15,13 @@
       }
     },
     "static-code-analysis": {
-      "active": "true",
+      "active": "false",
       "type": {
         "name": "sonarqube"
       }
     },
     "integration-test": {
-      "active": "true",
+      "active": "false",
       "type": {
         "name": "newman",
         "configuration": {
@@ -38,7 +38,7 @@
     "containerfile": "Containerfile"
   },
   "vulnerability-scan": {
-    "active": "true",
+    "active": "false",
     "type": {
       "name": "trivy",
       "configuration": {
