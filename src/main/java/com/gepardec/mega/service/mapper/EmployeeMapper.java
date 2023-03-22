@@ -1,20 +1,17 @@
 package com.gepardec.mega.service.mapper;
 
+import com.gepardec.mega.domain.model.DateRange;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
-import de.provantis.zep.BeschaeftigungszeitType;
-import de.provantis.zep.MitarbeiterType;
-import de.provantis.zep.RegelarbeitszeitListeTypeTs;
-import de.provantis.zep.RegelarbeitszeitType;
+import de.provantis.zep.*;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class EmployeeMapper {
@@ -23,6 +20,16 @@ public class EmployeeMapper {
         if (mitarbeiterType == null) {
             return null;
         }
+
+
+        boolean active = hasEmployeeAndActiveEmployment(mitarbeiterType);
+        LocalDate exitDate = null;
+
+        if(!active) {
+            List<DateRange> employmentPeriods = getEmploymentPeriods(mitarbeiterType);
+            exitDate = determineNewestExitDateOfEmploymentPeriods(employmentPeriods);
+        }
+
         return Employee.builder()
                 .userId(mitarbeiterType.getUserId())
                 .email(mitarbeiterType.getEmail())
@@ -34,8 +41,33 @@ public class EmployeeMapper {
                 .workDescription(mitarbeiterType.getPreisgruppe())
                 .language(mitarbeiterType.getSprache())
                 .regularWorkingHours(getRegularWorkinghours(mitarbeiterType.getRegelarbeitszeitListe()))
-                .active(hasEmployeeAndActiveEmployment(mitarbeiterType))
+                .active(active)
+                .exitDate(exitDate)
                 .build();
+    }
+
+    public List<DateRange> getEmploymentPeriods(MitarbeiterType mitarbeiterType) {
+        return Optional.ofNullable(mitarbeiterType.getBeschaeftigungszeitListe())
+                .map(BeschaeftigungszeitListeType::getBeschaeftigungszeit)
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(range -> range.getStartdatum() != null && range.getEnddatum() != null)
+                .map(zeitraum -> DateRange.of(LocalDate.parse(zeitraum.getStartdatum()), LocalDate.parse(zeitraum.getEnddatum())))
+                .collect(Collectors.toList());
+    }
+
+    public LocalDate determineNewestExitDateOfEmploymentPeriods(List <DateRange> periods) {
+        final LocalDate MAX_DATE_EXCLUSIVE = LocalDate.now();
+
+        // vergangenes bis-Datum, das am nähsten zu JETZT liegt
+        Optional<LocalDate> exitDate = Optional.ofNullable(periods).orElse(Collections.emptyList())
+                .stream()
+                .map(DateRange::getTo)
+                .filter(to -> MAX_DATE_EXCLUSIVE.compareTo(to) > 0)
+                .max(LocalDate::compareTo);
+
+
+        return exitDate.orElse(null);
     }
 
     private String getCorrectReleaseDate(MitarbeiterType mitarbeiterType) {
