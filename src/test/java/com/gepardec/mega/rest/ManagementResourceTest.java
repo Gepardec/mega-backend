@@ -42,6 +42,7 @@ import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -92,7 +93,7 @@ class ManagementResourceTest {
         final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
         when(userContext.getUser()).thenReturn(user);
 
-        when(employeeService.getAllActiveEmployees())
+        when(employeeService.getAllEmployeesConsideringExitDate(any()))
                 .thenReturn(List.of(Employee.builder().releaseDate("2020-01-01").email("no-reply@gepardec.com").build()));
 
         List<StepEntry> entries = List.of(
@@ -135,7 +136,7 @@ class ManagementResourceTest {
         final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
         when(userContext.getUser()).thenReturn(user);
 
-        when(employeeService.getAllActiveEmployees()).thenReturn(List.of());
+        when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of());
 
         List<StepEntry> entries = List.of(
                 createStepEntryForStep(StepName.CONTROL_EXTERNAL_TIMES, EmployeeState.DONE),
@@ -171,7 +172,7 @@ class ManagementResourceTest {
         when(stepEntryService.findAllStepEntriesForEmployee(ArgumentMatchers.any(Employee.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class)))
                 .thenReturn(List.of());
 
-        when(employeeService.getAllActiveEmployees())
+        when(employeeService.getAllEmployeesConsideringExitDate(any()))
                 .thenReturn(List.of());
 
         List<ManagementEntryDto> result = given().contentType(ContentType.JSON)
@@ -213,7 +214,7 @@ class ManagementResourceTest {
         when(stepEntryService.getProjectEmployeesForPM(ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString()))
                 .thenReturn(List.of(rgkkcc, rgkkwc));
 
-        when(employeeService.getAllActiveEmployees()).thenReturn(List.of(employee1, employee2));
+        when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
 
         List<StepEntry> stepEntries = List.of(
                 createStepEntryForStep(StepName.CONTROL_EXTERNAL_TIMES, EmployeeState.DONE),
@@ -293,7 +294,7 @@ class ManagementResourceTest {
         when(stepEntryService.getProjectEmployeesForPM(ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString()))
                 .thenReturn(List.of(rgkkcc, rgkkwc));
 
-        when(employeeService.getAllActiveEmployees()).thenReturn(List.of(employee1, employee2));
+        when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
 
         List<StepEntry> stepEntries = List.of(
                 createStepEntryForStep(StepName.CONTROL_EXTERNAL_TIMES, EmployeeState.DONE),
@@ -377,7 +378,7 @@ class ManagementResourceTest {
         when(stepEntryService.getProjectEmployeesForPM(ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString()))
                 .thenReturn(List.of(rgkkcc, rgkkwc));
 
-        when(employeeService.getAllActiveEmployees()).thenReturn(List.of(employee1, employee2));
+        when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
 
         List<StepEntry> stepEntries = List.of(
                 createStepEntryForStep(StepName.CONTROL_EXTERNAL_TIMES, EmployeeState.DONE),
@@ -461,7 +462,7 @@ class ManagementResourceTest {
         when(stepEntryService.getProjectEmployeesForPM(ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString()))
                 .thenReturn(List.of(rgkkcc, rgkkwc));
 
-        when(employeeService.getAllActiveEmployees()).thenReturn(List.of(employee1, employee2));
+        when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
 
         List<StepEntry> stepEntries = List.of(
                 createStepEntryForStep(StepName.CONTROL_EXTERNAL_TIMES, EmployeeState.DONE),
