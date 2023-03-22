@@ -136,7 +136,7 @@ public class ManagementResourceImpl implements ManagementResource {
 
         List<ProjectManagementEntryDto> projectManagementEntries = new ArrayList<>();
 
-        Map<String, Employee> employees = createEmployeeCache();
+        Map<String, Employee> employees = createEmployeeCache(YearMonth.of(year, month));
 
         for (ProjectEmployees currentProject : projectEmployees) {
             ProjectManagementEntryDto projectManagementEntryDto = loadProjectManagementEntryDto(currentProject, employees,
@@ -236,8 +236,8 @@ public class ManagementResourceImpl implements ManagementResource {
                 .orElseThrow(() -> new IllegalArgumentException(String.format("No project entry found for project step '%s'", projectStep)));
     }
 
-    private Map<String, Employee> createEmployeeCache() {
-        return employeeService.getAllActiveEmployees().stream()
+    private Map<String, Employee> createEmployeeCache(YearMonth selectedYearMonth) {
+        return employeeService.getAllEmployeesConsideringExitDate(selectedYearMonth).stream()
                 .collect(Collectors.toMap(Employee::getUserId, employee -> employee));
     }
 
