@@ -39,6 +39,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,9 +86,9 @@ public class ManagementResourceImpl implements ManagementResource {
         LocalDate to = DateUtils.getLastDayOfMonth(year, month);
 
         List<ManagementEntryDto> officeManagementEntries = new ArrayList<>();
-        List<Employee> activeEmployees = employeeService.getAllActiveEmployees();
+        List<Employee> employees = employeeService.getAllEmployeesConsideringExitDate(YearMonth.of(year, month));
 
-        for (Employee employee : activeEmployees) {
+        for (Employee employee : employees) {
             List<StepEntry> stepEntries = stepEntryService.findAllStepEntriesForEmployee(employee, from, to);
 
             String entryDate = DateUtils.getFirstDayOfMonth(year, month).minusMonths(1).format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN));
