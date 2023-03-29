@@ -184,7 +184,7 @@ class EmployeeMapperTest {
         LocalDate _2023_01_25 = LocalDate.of(2023, 1, 25);
 
         @Test
-        void should_map_correctly() {
+        void getEmploymentPeriods_NoSpecialCases_MapCorrectly() {
 
             // Given
             List<Pair<LocalDate, LocalDate>> dateRangeInput = List.of(
@@ -215,7 +215,7 @@ class EmployeeMapperTest {
             assertThat(mapped).containsAll(expectedPeriods);
         }
         @Test
-        void should_ignoreRangeWithoutEnd() {
+        void getEmploymentPeriods_RangeWithEndInFuture_MapCorrectly() {
 
             // Given
             List<Pair<LocalDate, LocalDate>> dateRangeInput = List.of(
@@ -247,7 +247,7 @@ class EmployeeMapperTest {
         }
 
         @Test
-        void should_mapToEmptyList_when_beschaeftigungszeitListeIsNull() {
+        void getEmploymentPeriods_NullInput_MapToEmptyList() {
 
             // Given
             final MitarbeiterType employee = createEmployee(null);
@@ -290,7 +290,7 @@ class EmployeeMapperTest {
     class ExitDateOfEmploymentPeriods {
 
         @Test
-        void should_beNull_ifNoNull_isGiven() {
+        void determineNewestExitDateOfEmploymentPeriods_NullParameter_NoExitDate() {
 
             // Given
             List <Range<LocalDate>> periods = null;
@@ -303,7 +303,7 @@ class EmployeeMapperTest {
         }
 
         @Test
-        void should_beNull_ifEmptyList_isGiven() {
+        void determineNewestExitDateOfEmploymentPeriods_EmptyPeriodList_NoExitDate() {
 
             // Given
             List <Range<LocalDate>> periods = new ArrayList<>();
@@ -316,7 +316,7 @@ class EmployeeMapperTest {
         }
 
         @Test
-        void should_beNull_ifPeriodsInFuture() {
+        void determineNewestExitDateOfEmploymentPeriods_AllPeriodsInFuture_NoExitDate() {
 
             // Given
             LocalDate now = LocalDate.now();
@@ -335,7 +335,7 @@ class EmployeeMapperTest {
         }
 
         @Test
-        void should_determineTheClosestExitDate_when_multipleEmploymentsInThePast_areGiven() {
+        void determineNewestExitDateOfEmploymentPeriods_MultipleEmploymentsInThePast_ClosestExitDate() {
 
             // Given
             LocalDate now = LocalDate.now();
@@ -354,7 +354,7 @@ class EmployeeMapperTest {
         }
 
         @Test
-        void should_returnNull_ifEmployeeHasResignedButTerminationDateInFuture() {
+        void determineNewestExitDateOfEmploymentPeriods_EmployeeHasResignedButTerminationDateInFuture_NoExitDate() {
 
             // Given
             LocalDate now = LocalDate.now();
@@ -372,7 +372,7 @@ class EmployeeMapperTest {
         }
 
         @Test
-        void should_mapExitDate_correctly() {
+        void map_ListWithValidExitDate_CorrectlyMappedExitDate() {
 
             // Given
             LocalDate now = LocalDate.now();
