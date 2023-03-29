@@ -1,9 +1,9 @@
 package com.gepardec.mega.service.mapper;
 
-import com.gepardec.mega.domain.model.DateRange;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
 import de.provantis.zep.*;
+import org.apache.commons.lang3.Range;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.time.DayOfWeek;
@@ -26,7 +26,7 @@ public class EmployeeMapper {
         LocalDate exitDate = null;
 
         if(!active) {
-            List<DateRange> employmentPeriods = getEmploymentPeriods(mitarbeiterType);
+            List<Range<LocalDate>> employmentPeriods = getEmploymentPeriods(mitarbeiterType);
             exitDate = determineNewestExitDateOfEmploymentPeriods(employmentPeriods);
         }
 
@@ -46,28 +46,32 @@ public class EmployeeMapper {
                 .build();
     }
 
-    public List<DateRange> getEmploymentPeriods(MitarbeiterType mitarbeiterType) {
+    public List<Range<LocalDate>> getEmploymentPeriods(MitarbeiterType mitarbeiterType) {
         return Optional.ofNullable(mitarbeiterType.getBeschaeftigungszeitListe())
                 .map(BeschaeftigungszeitListeType::getBeschaeftigungszeit)
                 .stream()
                 .flatMap(Collection::stream)
                 .filter(range -> range.getStartdatum() != null && range.getEnddatum() != null)
-                .map(zeitraum -> DateRange.of(LocalDate.parse(zeitraum.getStartdatum()), LocalDate.parse(zeitraum.getEnddatum())))
+                .map(this::mapBeschaeftigungszeitTypeToRange)
                 .collect(Collectors.toList());
     }
 
-    public LocalDate determineNewestExitDateOfEmploymentPeriods(List <DateRange> periods) {
+    public LocalDate determineNewestExitDateOfEmploymentPeriods(List<Range<LocalDate>> periods) {
         final LocalDate MAX_DATE_EXCLUSIVE = LocalDate.now();
 
         // vergangenes bis-Datum, das am nähsten zu JETZT liegt
         Optional<LocalDate> exitDate = Optional.ofNullable(periods).orElse(Collections.emptyList())
                 .stream()
-                .map(DateRange::getTo)
+                .map(Range::getMaximum)
                 .filter(to -> MAX_DATE_EXCLUSIVE.compareTo(to) > 0)
                 .max(LocalDate::compareTo);
 
 
         return exitDate.orElse(null);
+    }
+
+    private Range<LocalDate> mapBeschaeftigungszeitTypeToRange(BeschaeftigungszeitType bt) {
+        return Range.between(LocalDate.parse(bt.getStartdatum()), LocalDate.parse(bt.getEnddatum()), LocalDate::compareTo);
     }
 
     private String getCorrectReleaseDate(MitarbeiterType mitarbeiterType) {

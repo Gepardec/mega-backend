@@ -1,12 +1,12 @@
 package com.gepardec.mega.service.impl.employee;
 
-import com.gepardec.mega.domain.model.DateRange;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
 import de.provantis.zep.BeschaeftigungszeitListeType;
 import de.provantis.zep.BeschaeftigungszeitType;
 import de.provantis.zep.MitarbeiterType;
+import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -203,12 +203,12 @@ class EmployeeMapperTest {
             final MitarbeiterType employee = createEmployee(beschaeftigungszeitListe);
 
             // When
-            List<DateRange> mapped = mapper.getEmploymentPeriods(employee);
+            List<Range<LocalDate>> mapped = mapper.getEmploymentPeriods(employee);
 
             // Then
-            List<DateRange> expectedPeriods = List.of(
-                    DateRange.of(_2023_01_01, _2023_01_25),
-                    DateRange.of(_2010_01_01, _2015_01_01)
+            List<Range<LocalDate>> expectedPeriods = List.of(
+                    createRange(_2023_01_01, _2023_01_25),
+                    createRange(_2010_01_01, _2015_01_01)
             );
 
             assertThat(mapped.size()).isEqualTo(expectedPeriods.size());
@@ -235,11 +235,11 @@ class EmployeeMapperTest {
             final MitarbeiterType employee = createEmployee(beschaeftigungszeitListe);
 
             // When
-            List<DateRange> mapped = mapper.getEmploymentPeriods(employee);
+            List<Range<LocalDate>> mapped = mapper.getEmploymentPeriods(employee);
 
             // Then
-            List<DateRange> expectedPeriods = List.of(
-                    DateRange.of(_2023_01_01, _2023_01_25)
+            List<Range<LocalDate>> expectedPeriods = List.of(
+                    createRange(_2023_01_01, _2023_01_25)
             );
 
             assertThat(mapped.size()).isEqualTo(expectedPeriods.size());
@@ -253,7 +253,7 @@ class EmployeeMapperTest {
             final MitarbeiterType employee = createEmployee(null);
 
             // When
-            List<DateRange> mapped = mapper.getEmploymentPeriods(employee);
+            List<Range<LocalDate>> mapped = mapper.getEmploymentPeriods(employee);
 
 
             assertThat(mapped).isNotNull();
@@ -293,7 +293,7 @@ class EmployeeMapperTest {
         void should_beNull_ifNoNull_isGiven() {
 
             // Given
-            List <DateRange> periods = null;
+            List <Range<LocalDate>> periods = null;
 
             // When
             LocalDate exitDate = mapper.determineNewestExitDateOfEmploymentPeriods(periods);
@@ -306,7 +306,7 @@ class EmployeeMapperTest {
         void should_beNull_ifEmptyList_isGiven() {
 
             // Given
-            List <DateRange> periods = new ArrayList<>();
+            List <Range<LocalDate>> periods = new ArrayList<>();
 
             // When
             LocalDate exitDate = mapper.determineNewestExitDateOfEmploymentPeriods(periods);
@@ -320,11 +320,11 @@ class EmployeeMapperTest {
 
             // Given
             LocalDate now = LocalDate.now();
-            List <DateRange> periods = new ArrayList<>();
+            List <Range<LocalDate>> periods = new ArrayList<>();
 
-            periods.add(DateRange.of(now.plusMonths(2), now.plusMonths(5)));
-            periods.add(DateRange.of(now.plusDays(2), now.plusMonths(5)));
-            periods.add(DateRange.of(now.plusYears(2), now.plusMonths(5)));
+            periods.add(createRange(now.plusMonths(2), now.plusMonths(5)));
+            periods.add(createRange(now.plusDays(2), now.plusMonths(5)));
+            periods.add(createRange(now.plusYears(2), now.plusMonths(5)));
 
 
             // When
@@ -340,11 +340,11 @@ class EmployeeMapperTest {
             // Given
             LocalDate now = LocalDate.now();
             LocalDate yesterday = now.minusDays(1);
-            List <DateRange> periods = new ArrayList<>();
+            List <Range<LocalDate>> periods = new ArrayList<>();
 
-            periods.add(DateRange.of(now.minusYears(10), now.minusYears(8)));
-            periods.add(DateRange.of(now.minusYears(1), yesterday));
-            periods.add(DateRange.of(now.minusYears(5), now.minusYears(4)));
+            periods.add(createRange(now.minusYears(10), now.minusYears(8)));
+            periods.add(createRange(now.minusYears(1), yesterday));
+            periods.add(createRange(now.minusYears(5), now.minusYears(4)));
 
             // When
             LocalDate exitDate = mapper.determineNewestExitDateOfEmploymentPeriods(periods);
@@ -360,9 +360,9 @@ class EmployeeMapperTest {
             LocalDate now = LocalDate.now();
             LocalDate firstDayOfWork = now.minusYears(1);
             LocalDate lastDayOfWork = now.plusMonths(2);
-            List <DateRange> periods = new ArrayList<>();
+            List <Range<LocalDate>> periods = new ArrayList<>();
 
-            periods.add(DateRange.of(firstDayOfWork, lastDayOfWork));
+            periods.add(createRange(firstDayOfWork, lastDayOfWork));
 
             // When
             LocalDate exitDate = mapper.determineNewestExitDateOfEmploymentPeriods(periods);
@@ -408,5 +408,9 @@ class EmployeeMapperTest {
         final BeschaeftigungszeitListeType beschaeftigungszeitListeType = new BeschaeftigungszeitListeType();
         beschaeftigungszeitListeType.getBeschaeftigungszeit().addAll(employments);
         return beschaeftigungszeitListeType;
+    }
+
+    private Range<LocalDate> createRange(LocalDate from, LocalDate to) {
+        return Range.between(from, to, LocalDate::compareTo);
     }
 }
