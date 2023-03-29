@@ -7,6 +7,7 @@ import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.ZepServiceException;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -116,13 +117,13 @@ class EmployeeServiceImplTest {
         YearMonth selectedYearMonth = YearMonth.of(selectedYear, selectedMonth);
         final List<Employee> employees = employeeService.getAllEmployeesConsideringExitDate(selectedYearMonth);
 
-        assertAll(
-                () -> assertThat(employees).isNotNull(),
-                () -> assertThat(getFirstnameList(employees)).containsAll(
-                        List.of(EMPLOYEE_0, EMPLOYEE_EXIT_SELECTED_MONTH, EMPLOYEE_EXIT_NEXT_MONTH)
-                ),
-                () -> assertThat(getFirstnameList(employees)).doesNotContain(EMPLOYEE_EXIT_LAST_MONTH)
-        );
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(employees).isNotNull();
+            softly.assertThat(getFirstnameList(employees)).containsAll(
+                    List.of(EMPLOYEE_0, EMPLOYEE_EXIT_SELECTED_MONTH, EMPLOYEE_EXIT_NEXT_MONTH)
+            );
+            softly.assertThat(getFirstnameList(employees)).doesNotContain(EMPLOYEE_EXIT_LAST_MONTH);
+        });
     }
 
     private List<String> getFirstnameList(List<Employee> employees) {
