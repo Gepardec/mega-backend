@@ -7,6 +7,7 @@ import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.ZepServiceException;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import org.assertj.core.api.SoftAssertions;
 import org.eclipse.microprofile.context.ManagedExecutor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,8 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -70,6 +73,65 @@ class EmployeeServiceImplTest {
                 () -> assertThat(employees.get(0).getUserId()).isEqualTo("0"),
                 () -> assertThat(employees.get(0).getFirstname()).isEqualTo("Max_0")
         );
+    }
+
+    @Test
+    void getAllEmployeesConsideringExitDate_() {
+        //GIVEN
+        int selectedYear = 2023;
+        int selectedMonth = 3;
+
+        final String EMPLOYEE_0 = "employee0";
+        final String EMPLOYEE_EXIT_SELECTED_MONTH = "employeeExitSelectedMonth";
+        final String EMPLOYEE_EXIT_NEXT_MONTH = "employeeExitNextMonth";
+        final String EMPLOYEE_EXIT_LAST_MONTH = "employeeExitLastMonth";
+
+        // Default case
+        final Employee employee0 = createEmployee(0);
+        employee0.setFirstname(EMPLOYEE_0);
+
+        // Employee hat 03/2023 gekündigt & 03/2023 ist in der gui selektiert, daher soll der PL/Office ihn sehen
+        final Employee employeeExitSelectedMonth = createEmployeeWithActive(1, false);
+        employeeExitSelectedMonth.setFirstname(EMPLOYEE_EXIT_SELECTED_MONTH);
+        employeeExitSelectedMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth, 1));
+
+        // Employee hat 04/2023 gekündigt & 03/2023 ist in der gui selektiert, d.h. im selektierten zeitraum (1 monat vorher)
+        // war er ja noch normal angestellt, daher soll der PL/Office ihn sehen
+        final Employee employeeExitNextMonth = createEmployeeWithActive(1, false);
+        employeeExitNextMonth.setFirstname(EMPLOYEE_EXIT_NEXT_MONTH);
+        employeeExitNextMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth + 1, 1));
+
+        // Employee hat 02/2023 gekündigt & 03/2023 ist in der gui selektiert, d.h. im selektierten zeitraum (1 monat nachher)
+        // war er nicht mehr angestellt und es gibt keine StepEntries, daher soll der PL/Office ihn NICHT sehen
+        final Employee employeeExitLastMonth = createEmployeeWithActive(1, false);
+        employeeExitLastMonth.setFirstname(EMPLOYEE_EXIT_LAST_MONTH);
+        employeeExitLastMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth - 1, 1));
+
+        Mockito.when(zepService.getEmployees()).thenReturn(List.of(
+                employee0,
+                employeeExitSelectedMonth,
+                employeeExitNextMonth,
+                employeeExitLastMonth
+        ));
+
+        YearMonth selectedYearMonth = YearMonth.of(selectedYear, selectedMonth);
+
+        //WHEN
+        final List<Employee> employees = employeeService.getAllEmployeesConsideringExitDate(selectedYearMonth);
+
+        //THEN
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(employees).isNotNull();
+            softly.assertThat(employees)
+                    .extracting(Employee::getFirstname)
+                    .containsExactlyInAnyOrder(
+                            EMPLOYEE_0,
+                            EMPLOYEE_EXIT_SELECTED_MONTH,
+                            EMPLOYEE_EXIT_NEXT_MONTH
+                    ).doesNotContain(
+                            EMPLOYEE_EXIT_LAST_MONTH
+                    );
+        });
     }
 
     @Test

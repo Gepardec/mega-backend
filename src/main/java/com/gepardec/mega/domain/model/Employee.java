@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.Map;
 
 @Builder
@@ -39,4 +40,10 @@ public class Employee {
     private Map<DayOfWeek, Double> regularWorkingHours;
 
     private boolean active;
+
+    /**
+     * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,
+     * wenn Mitarbeiter inaktiv ist.
+     */
+    private LocalDate exitDate;
 }

@@ -2,19 +2,25 @@ package com.gepardec.mega.service.mapper;
 
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
+import de.provantis.zep.BeschaeftigungszeitListeType;
 import de.provantis.zep.BeschaeftigungszeitType;
 import de.provantis.zep.MitarbeiterType;
 import de.provantis.zep.RegelarbeitszeitListeTypeTs;
 import de.provantis.zep.RegelarbeitszeitType;
+import org.apache.commons.lang3.Range;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class EmployeeMapper {
@@ -23,6 +29,16 @@ public class EmployeeMapper {
         if (mitarbeiterType == null) {
             return null;
         }
+
+
+        boolean active = hasEmployeeAndActiveEmployment(mitarbeiterType);
+        LocalDate exitDate = null;
+
+        if (!active) {
+            List<Range<LocalDate>> employmentPeriods = getEmploymentPeriods(mitarbeiterType);
+            exitDate = determineNewestExitDateOfEmploymentPeriods(employmentPeriods);
+        }
+
         return Employee.builder()
                 .userId(mitarbeiterType.getUserId())
                 .email(mitarbeiterType.getEmail())
@@ -34,8 +50,37 @@ public class EmployeeMapper {
                 .workDescription(mitarbeiterType.getPreisgruppe())
                 .language(mitarbeiterType.getSprache())
                 .regularWorkingHours(getRegularWorkinghours(mitarbeiterType.getRegelarbeitszeitListe()))
-                .active(hasEmployeeAndActiveEmployment(mitarbeiterType))
+                .active(active)
+                .exitDate(exitDate)
                 .build();
+    }
+
+    public List<Range<LocalDate>> getEmploymentPeriods(MitarbeiterType mitarbeiterType) {
+        return Optional.ofNullable(mitarbeiterType.getBeschaeftigungszeitListe())
+                .map(BeschaeftigungszeitListeType::getBeschaeftigungszeit)
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(range -> range.getStartdatum() != null && range.getEnddatum() != null)
+                .map(this::mapBeschaeftigungszeitTypeToRange)
+                .collect(Collectors.toList());
+    }
+
+    public LocalDate determineNewestExitDateOfEmploymentPeriods(List<Range<LocalDate>> periods) {
+        final LocalDate MAX_DATE_EXCLUSIVE = LocalDate.now();
+
+        // vergangenes bis-Datum, das am nähsten zu JETZT liegt
+        Optional<LocalDate> exitDate = Optional.ofNullable(periods).orElse(Collections.emptyList())
+                .stream()
+                .map(Range::getMaximum)
+                .filter(MAX_DATE_EXCLUSIVE::isAfter)
+                .max(LocalDate::compareTo);
+
+
+        return exitDate.orElse(null);
+    }
+
+    private Range<LocalDate> mapBeschaeftigungszeitTypeToRange(BeschaeftigungszeitType bt) {
+        return Range.between(LocalDate.parse(bt.getStartdatum()), LocalDate.parse(bt.getEnddatum()), LocalDate::compareTo);
     }
 
     private String getCorrectReleaseDate(MitarbeiterType mitarbeiterType) {
@@ -51,11 +96,13 @@ public class EmployeeMapper {
         return mitarbeiterType.getFreigabedatum();
     }
 
-    private Map<DayOfWeek, Double> getRegularWorkinghours(RegelarbeitszeitListeTypeTs regelarbeitszeitListeTypeTs){
-        if(regelarbeitszeitListeTypeTs == null) return new HashMap<>();
+    private Map<DayOfWeek, Double> getRegularWorkinghours(RegelarbeitszeitListeTypeTs regelarbeitszeitListeTypeTs) {
+        if (regelarbeitszeitListeTypeTs == null) {
+            return new HashMap<>();
+        }
 
-        List <RegelarbeitszeitType> regelarbeitszeitList = regelarbeitszeitListeTypeTs.getRegelarbeitszeit();
-        RegelarbeitszeitType regelarbeitszeitType = regelarbeitszeitList.get(regelarbeitszeitList.size()-1);
+        List<RegelarbeitszeitType> regelarbeitszeitList = regelarbeitszeitListeTypeTs.getRegelarbeitszeit();
+        RegelarbeitszeitType regelarbeitszeitType = regelarbeitszeitList.get(regelarbeitszeitList.size() - 1);
 
         return new HashMap<>(Map.ofEntries(
                 Map.entry(DayOfWeek.MONDAY, regelarbeitszeitType.getMontag()),

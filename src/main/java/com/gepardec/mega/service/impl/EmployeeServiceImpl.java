@@ -11,12 +11,15 @@ import org.slf4j.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -50,6 +53,15 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<Employee> getAllActiveEmployees() {
         return zepService.getEmployees().stream()
                 .filter(Employee::isActive)
+                .filter(employee -> Objects.nonNull(employee.getEmail()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Employee> getAllEmployeesConsideringExitDate(YearMonth selectedYearMonth) {
+
+        return zepService.getEmployees().stream()
+                .filter(checkEmployeeExitDate(selectedYearMonth))
                 .filter(employee -> Objects.nonNull(employee.getEmail()))
                 .collect(Collectors.toList());
     }
@@ -92,5 +104,23 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private List<String> getUserIds(final List<Employee> employees) {
         return employees.stream().map(Employee::getUserId).collect(Collectors.toList());
+    }
+
+    private Predicate<? super Employee> checkEmployeeExitDate(YearMonth selectedYearMonth) {
+        return employee -> {
+            LocalDate exitDate = employee.getExitDate();
+
+            if (employee.isActive() || exitDate == null || selectedYearMonth == null) {
+                return true;
+            }
+
+            YearMonth exitYearMonth = YearMonth.of(exitDate.getYear(), exitDate.getMonthValue());
+
+            // EXIT: 02/2023
+            // SELECTED: 01/2023 -> TRUE
+            // SELECTED: 02/2023 -> TRUE
+            // SELECTED: 03/2023 -> FALSE, employee doesn't exist anymore
+            return selectedYearMonth.compareTo(exitYearMonth) <= 0;
+        };
     }
 }

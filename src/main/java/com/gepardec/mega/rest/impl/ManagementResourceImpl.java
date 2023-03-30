@@ -39,6 +39,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,9 +86,9 @@ public class ManagementResourceImpl implements ManagementResource {
         LocalDate to = DateUtils.getLastDayOfMonth(year, month);
 
         List<ManagementEntryDto> officeManagementEntries = new ArrayList<>();
-        List<Employee> activeEmployees = employeeService.getAllActiveEmployees();
+        List<Employee> employees = employeeService.getAllEmployeesConsideringExitDate(YearMonth.of(year, month));
 
-        for (Employee employee : activeEmployees) {
+        for (Employee employee : employees) {
             List<StepEntry> stepEntries = stepEntryService.findAllStepEntriesForEmployee(employee, from, to);
 
             String entryDate = DateUtils.getFirstDayOfMonth(year, month).minusMonths(1).format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN));
@@ -135,7 +136,7 @@ public class ManagementResourceImpl implements ManagementResource {
 
         List<ProjectManagementEntryDto> projectManagementEntries = new ArrayList<>();
 
-        Map<String, Employee> employees = createEmployeeCache();
+        Map<String, Employee> employees = createEmployeeCache(YearMonth.of(year, month));
 
         for (ProjectEmployees currentProject : projectEmployees) {
             ProjectManagementEntryDto projectManagementEntryDto = loadProjectManagementEntryDto(currentProject, employees,
@@ -235,8 +236,8 @@ public class ManagementResourceImpl implements ManagementResource {
                 .orElseThrow(() -> new IllegalArgumentException(String.format("No project entry found for project step '%s'", projectStep)));
     }
 
-    private Map<String, Employee> createEmployeeCache() {
-        return employeeService.getAllActiveEmployees().stream()
+    private Map<String, Employee> createEmployeeCache(YearMonth selectedYearMonth) {
+        return employeeService.getAllEmployeesConsideringExitDate(selectedYearMonth).stream()
                 .collect(Collectors.toMap(Employee::getUserId, employee -> employee));
     }
 
@@ -278,15 +279,15 @@ public class ManagementResourceImpl implements ManagementResource {
             State employeeCheckState;
             String employeeCheckStateReason = null;
 
-            if(employeeCheckStatePair == null) {
+            if (employeeCheckStatePair == null) {
                 // Wenn aus irgendeinem Grund kein CONTROL_TIMES Step gefunden wurde, ist der Mitarbeiter auf OPEN
                 employeeCheckState = State.OPEN;
                 Long userId = stepEntries.stream().findFirst().map(StepEntry::getOwner).map(User::getId).orElse(null);
 
                 logger.error(String.format("Für Mitarbeiter [ID: %s] wurde kein CONTROL_TIMES step gefunden.", userId));
             } else {
-              employeeCheckState = employeeCheckStatePair.getLeft();
-              employeeCheckStateReason = employeeCheckStatePair.getRight();
+                employeeCheckState = employeeCheckStatePair.getLeft();
+                employeeCheckStateReason = employeeCheckStatePair.getRight();
             }
 
             return ManagementEntryDto.builder()
@@ -308,7 +309,6 @@ public class ManagementResourceImpl implements ManagementResource {
     }
 
     /**
-     *
      * @return Pair.left: state, pair.right: stateReason
      */
     private Pair<State, String> extractEmployeeCheckState(List<StepEntry> stepEntries) {
