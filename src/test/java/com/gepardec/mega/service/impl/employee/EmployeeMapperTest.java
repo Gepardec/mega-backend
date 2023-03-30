@@ -214,6 +214,7 @@ class EmployeeMapperTest {
             assertThat(mapped.size()).isEqualTo(expectedPeriods.size());
             assertThat(mapped).containsAll(expectedPeriods);
         }
+
         @Test
         void getEmploymentPeriods_RangeWithEndInFuture_MapCorrectly() {
 
@@ -293,7 +294,7 @@ class EmployeeMapperTest {
         void determineNewestExitDateOfEmploymentPeriods_NullParameter_NoExitDate() {
 
             // Given
-            List <Range<LocalDate>> periods = null;
+            List<Range<LocalDate>> periods = null;
 
             // When
             LocalDate exitDate = mapper.determineNewestExitDateOfEmploymentPeriods(periods);
@@ -306,7 +307,7 @@ class EmployeeMapperTest {
         void determineNewestExitDateOfEmploymentPeriods_EmptyPeriodList_NoExitDate() {
 
             // Given
-            List <Range<LocalDate>> periods = new ArrayList<>();
+            List<Range<LocalDate>> periods = new ArrayList<>();
 
             // When
             LocalDate exitDate = mapper.determineNewestExitDateOfEmploymentPeriods(periods);
@@ -320,7 +321,7 @@ class EmployeeMapperTest {
 
             // Given
             LocalDate now = LocalDate.now();
-            List <Range<LocalDate>> periods = new ArrayList<>();
+            List<Range<LocalDate>> periods = new ArrayList<>();
 
             periods.add(createRange(now.plusMonths(2), now.plusMonths(5)));
             periods.add(createRange(now.plusDays(2), now.plusMonths(5)));
@@ -340,7 +341,7 @@ class EmployeeMapperTest {
             // Given
             LocalDate now = LocalDate.now();
             LocalDate yesterday = now.minusDays(1);
-            List <Range<LocalDate>> periods = new ArrayList<>();
+            List<Range<LocalDate>> periods = new ArrayList<>();
 
             periods.add(createRange(now.minusYears(10), now.minusYears(8)));
             periods.add(createRange(now.minusYears(1), yesterday));
@@ -360,7 +361,7 @@ class EmployeeMapperTest {
             LocalDate now = LocalDate.now();
             LocalDate firstDayOfWork = now.minusYears(1);
             LocalDate lastDayOfWork = now.plusMonths(2);
-            List <Range<LocalDate>> periods = new ArrayList<>();
+            List<Range<LocalDate>> periods = new ArrayList<>();
 
             periods.add(createRange(firstDayOfWork, lastDayOfWork));
 

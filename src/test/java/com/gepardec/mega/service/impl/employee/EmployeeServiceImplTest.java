@@ -74,6 +74,7 @@ class EmployeeServiceImplTest {
                 () -> assertThat(employees.get(0).getFirstname()).isEqualTo("Max_0")
         );
     }
+
     @Test
     void testGetEmployeesConsideringExitDate() {
 
@@ -98,13 +99,13 @@ class EmployeeServiceImplTest {
         // war er ja noch normal angestellt, daher soll der PL/Office ihn sehen
         final Employee employeeExitNextMonth = createEmployeeWithActive(1, false);
         employeeExitNextMonth.setFirstname(EMPLOYEE_EXIT_NEXT_MONTH);
-        employeeExitNextMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth+1, 1));
+        employeeExitNextMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth + 1, 1));
 
         // Employee hat 02/2023 gekündigt & 03/2023 ist in der gui selektiert, d.h. im selektierten zeitraum (1 monat nachher)
         // war er nicht mehr angestellt und es gibt keine StepEntries, daher soll der PL/Office ihn NICHT sehen
         final Employee employeeExitLastMonth = createEmployeeWithActive(1, false);
         employeeExitLastMonth.setFirstname(EMPLOYEE_EXIT_LAST_MONTH);
-        employeeExitLastMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth-1, 1));
+        employeeExitLastMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth - 1, 1));
 
 
         Mockito.when(zepService.getEmployees()).thenReturn(List.of(

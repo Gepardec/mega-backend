@@ -16,6 +16,7 @@ public interface EmployeeService {
      * Wird für die GUI benötigt.
      * Wenn nur aktive Employees geliefert werden würden, dann könnte man die Zeiten von dem Employee
      * nicht mehr kontrollieren, oder die Historie sehen, sobald der Mitarbeiter nicht mehr in ZEP existiert.
+     *
      * @param selectedYearMonth ausgewählter Monat (von der GUI)
      * @return Aktive Employees und inaktive Employees, die aber lt. den Kriterien von oben noch angezeigt werden sollen
      */

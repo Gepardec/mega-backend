@@ -110,7 +110,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employee -> {
             LocalDate exitDate = employee.getExitDate();
 
-            if(employee.isActive() || exitDate == null || selectedYearMonth == null) {
+            if (employee.isActive() || exitDate == null || selectedYearMonth == null) {
                 return true;
             }
 

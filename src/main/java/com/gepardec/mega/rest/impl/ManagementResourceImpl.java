@@ -279,15 +279,15 @@ public class ManagementResourceImpl implements ManagementResource {
             State employeeCheckState;
             String employeeCheckStateReason = null;
 
-            if(employeeCheckStatePair == null) {
+            if (employeeCheckStatePair == null) {
                 // Wenn aus irgendeinem Grund kein CONTROL_TIMES Step gefunden wurde, ist der Mitarbeiter auf OPEN
                 employeeCheckState = State.OPEN;
                 Long userId = stepEntries.stream().findFirst().map(StepEntry::getOwner).map(User::getId).orElse(null);
 
                 logger.error(String.format("Für Mitarbeiter [ID: %s] wurde kein CONTROL_TIMES step gefunden.", userId));
             } else {
-              employeeCheckState = employeeCheckStatePair.getLeft();
-              employeeCheckStateReason = employeeCheckStatePair.getRight();
+                employeeCheckState = employeeCheckStatePair.getLeft();
+                employeeCheckStateReason = employeeCheckStatePair.getRight();
             }
 
             return ManagementEntryDto.builder()
@@ -309,7 +309,6 @@ public class ManagementResourceImpl implements ManagementResource {
     }
 
     /**
-     *
      * @return Pair.left: state, pair.right: stateReason
      */
     private Pair<State, String> extractEmployeeCheckState(List<StepEntry> stepEntries) {
