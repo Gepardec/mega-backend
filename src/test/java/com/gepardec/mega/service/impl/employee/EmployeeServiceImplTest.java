@@ -76,8 +76,8 @@ class EmployeeServiceImplTest {
     }
 
     @Test
-    void testGetEmployeesConsideringExitDate() {
-
+    void getAllEmployeesConsideringExitDate_() {
+        //GIVEN
         int selectedYear = 2023;
         int selectedMonth = 3;
 
@@ -107,7 +107,6 @@ class EmployeeServiceImplTest {
         employeeExitLastMonth.setFirstname(EMPLOYEE_EXIT_LAST_MONTH);
         employeeExitLastMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth - 1, 1));
 
-
         Mockito.when(zepService.getEmployees()).thenReturn(List.of(
                 employee0,
                 employeeExitSelectedMonth,
@@ -116,19 +115,23 @@ class EmployeeServiceImplTest {
         ));
 
         YearMonth selectedYearMonth = YearMonth.of(selectedYear, selectedMonth);
+
+        //WHEN
         final List<Employee> employees = employeeService.getAllEmployeesConsideringExitDate(selectedYearMonth);
 
+        //THEN
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(employees).isNotNull();
-            softly.assertThat(getFirstnameList(employees)).containsAll(
-                    List.of(EMPLOYEE_0, EMPLOYEE_EXIT_SELECTED_MONTH, EMPLOYEE_EXIT_NEXT_MONTH)
-            );
-            softly.assertThat(getFirstnameList(employees)).doesNotContain(EMPLOYEE_EXIT_LAST_MONTH);
+            softly.assertThat(employees)
+                    .extracting(Employee::getFirstname)
+                    .containsExactlyInAnyOrder(
+                            EMPLOYEE_0,
+                            EMPLOYEE_EXIT_SELECTED_MONTH,
+                            EMPLOYEE_EXIT_NEXT_MONTH
+                    ).doesNotContain(
+                            EMPLOYEE_EXIT_LAST_MONTH
+                    );
         });
-    }
-
-    private List<String> getFirstnameList(List<Employee> employees) {
-        return employees.stream().map(Employee::getFirstname).collect(Collectors.toList());
     }
 
     @Test
