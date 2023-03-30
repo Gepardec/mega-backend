@@ -63,7 +63,7 @@ public class EmployeeMapper {
         Optional<LocalDate> exitDate = Optional.ofNullable(periods).orElse(Collections.emptyList())
                 .stream()
                 .map(Range::getMaximum)
-                .filter(to -> MAX_DATE_EXCLUSIVE.compareTo(to) > 0)
+                .filter(MAX_DATE_EXCLUSIVE::isAfter)
                 .max(LocalDate::compareTo);
 
 
