@@ -13,8 +13,8 @@ public enum WorkingLocation {
     D("D"),
     P("P"),
     CH("Schweiz"),
-    UK("Großbritannien"),
-    NL("Niederlande");
+    UK("UK"),
+    NL("NL");
 
     private static final Map<String, WorkingLocation> zepOrtToWorkingLocation = Stream.of(WorkingLocation.values())
             .collect(Collectors.toMap(WorkingLocation::getZepOrt, Function.identity()));
