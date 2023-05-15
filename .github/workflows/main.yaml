@@ -20,9 +20,15 @@ jobs:
       - name: Build and test project with Maven
         run: mvn -B package -D skipTests --file pom.xml
 
+      - uses: nelonoel/branch-name@v1.0.1
+
       - name: Set outputs
         id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%dT%H:%M:%S')"
 
       - uses: mr-smithers-excellent/docker-build-push@v5
         name: push-container-image
@@ -35,6 +41,7 @@ jobs:
           # directory:  git-workflows
           addLatest: true
           tags: ${{ steps.vars.outputs.sha_short }},latest
+          buildArgs: BRANCH=${BRANCH_NAME},COMMIT=${{ steps.vars.outputs.sha_short }},VERSION=${{ steps.vars.outputs.sha_short }},TIMESTAMP=${{ steps.date.outputs.date }}
 
 #  notify:
 #    name: Slack Notifications
