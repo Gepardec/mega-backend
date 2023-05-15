@@ -67,11 +67,10 @@ mega:
     build:
       version: "${revision}"
       date: "${timestamp}"
-      number: "${build.number}"
 
     git:
-      branch: "${git.branch}"
-      commit: "${git.commit}"
+      branch: "${BRANCH:local}"
+      commit: "${COMMIT:local}"
 
   wiki:
     eom-url: "https://sites.google.com/a/gepardec.com/internal/home/zeiterfassung-mit-zep/monatsende-kontrolle-von-arbeitszeiten"
@@ -89,6 +88,8 @@ mega:
   budget-calculation-excel-url: "https://docs.google.com/spreadsheets/d/1mmc1pvhr1Z_IbiMELtM98mFZ4-2uuSx6Sg_uZXRNpH0"
 
   mail:
+    employees:
+      notification: false
     reminder:
       om:
         - "werner.bruckmueller@gepardec.com"
@@ -129,7 +130,6 @@ mp:
 
     mail:
       subject-prefix: "LOCAL: "
-
       employees:
         notification: true
 

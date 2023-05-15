@@ -26,10 +26,6 @@ public class ApplicationConfig {
     LocalDateTime buildDate;
 
     @Inject
-    @ConfigProperty(name = "mega.info.build.number")
-    Integer buildNumber;
-
-    @Inject
     @ConfigProperty(name = "mega.info.git.commit")
     String commit;
 
@@ -62,10 +58,6 @@ public class ApplicationConfig {
 
     public LocalDateTime getBuildDate() {
         return buildDate;
-    }
-
-    public Integer getBuildNumber() {
-        return buildNumber;
     }
 
     public String getCommit() {

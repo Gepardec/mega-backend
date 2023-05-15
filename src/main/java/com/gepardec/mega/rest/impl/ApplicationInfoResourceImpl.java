@@ -25,7 +25,6 @@ public class ApplicationInfoResourceImpl implements ApplicationInfoResource {
         final ApplicationInfoDto applicationInfoDto = ApplicationInfoDto.builder()
                 .version(applicationConfig.getVersion())
                 .buildDate(applicationConfig.getBuildDate())
-                .buildNumber(applicationConfig.getBuildNumber())
                 .commit(applicationConfig.getCommit())
                 .branch(applicationConfig.getBranch())
                 .startedAt(applicationConfig.getStartAt())

@@ -45,9 +45,6 @@
         <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
         <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
         <revision>3.4.0-SNAPSHOT</revision>
-        <git.commit>local</git.commit>
-        <git.branch>local</git.branch>
-        <build.number>0</build.number>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss</maven.build.timestamp.format>
     </properties>
