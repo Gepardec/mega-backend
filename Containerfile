@@ -21,7 +21,3 @@ ENV VERSION=$VERSION
 EXPOSE 8080
 
 CMD ["java","-jar","application.jar","-Dquarkus.http.host=0.0.0.0"]
-
-ailed to load config value of type class java.lang.String for: mega.zep.soap-path
-Failed to load config value of type java.util.List<java.lang.String> for: mega.mail.reminder.om
-Failed to load config value of type boolean for: mega.mail.employees.notification
