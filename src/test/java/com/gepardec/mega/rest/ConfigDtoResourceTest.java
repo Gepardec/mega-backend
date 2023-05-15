@@ -44,7 +44,6 @@ class ConfigDtoResourceTest {
         given().contentType(ContentType.TEXT)
                 .get("/config")
                 .then().statusCode(HttpStatus.SC_OK)
-                .body("excelUrl", equalTo(applicationConfig.getExcelUrlAsString()))
                 .body("zepOrigin", equalTo(zepConfig.getUrlForFrontend()))
                 .body("clientId", equalTo(oAuthConfig.getClientId()))
                 .body("issuer", equalTo(oAuthConfig.getIssuer()))

@@ -33,7 +33,4 @@ public class ZepConfig {
         return authorizationToken;
     }
 
-    public URL getOrigin() {
-        return origin;
-    }
 }
