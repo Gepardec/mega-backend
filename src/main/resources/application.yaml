@@ -74,7 +74,7 @@ mega:
 
   oauth:
     client-id: "mega"
-    issuer: "https://gepardec-sso.apps.steppe.gepaplexx.com/realms/gepardec"
+    issuer: "https://gepardec-sso.apps.c-gepa-play.gepa.vshnmanaged.net/realms/gepardec"
     scope: "openid profile email microprofile-jwt"
 
   # URL zum Planrechnung-Excel
@@ -107,7 +107,7 @@ mp:
       soap-path: "/sync/soap.php?v=7"
 
     oauth:
-      issuer: "https://gepardec-sso-dev.apps.play.gepaplexx.com/realms/gepardec"
+      issuer: "https://gepardec-sso-dev.apps.c-gepa-play.gepa.vshnmanaged.net/realms/gepardec"
 
     mail:
       subject-prefix: "LOCAL: "
@@ -120,19 +120,11 @@ mp:
           - "thomas.herzog@gepardec.com"
           - "werner.bruckmueller@gepardec.com"
           - "christoph.ruhsam@gepardec.com"
-          - "andreas.mayer@gepardec.com"
           - "armin.lang@gepardec.com"
           - "manuel.vilim@gepardec.com"
-          - "philipp.wurm@gepardec.com"
           - "oliver.tod@gepardec.com"
-          - "patrick.holzer@gepardec.com"
           - "robin.fischer@gepardec.com"
           - "alexandra.stummer@gepardec.com"
-          - "sandra.kepplinger@gepardec.com"
-          - "johannes.riegler@gepardec.com"
-          - "daniel.rasztovich@gepardec.com"
-          - "theresa.mueller@gepardec.com"
-          - "michael.leitner@gepardec.com"
           - "simon.bauer@gepardec.com"
 
 ## TEST Properties
@@ -161,17 +153,10 @@ mp:
       soap-path: "/sync/soap.php?v=7"
 
     oauth:
-      issuer: "https://gepardec-sso-dev.apps.play.gepaplexx.com/realms/gepardec"
+      issuer: "https://gepardec-sso-dev.apps.c-gepa-play.gepa.vshnmanaged.net/realms/gepardec"
 
     mail:
       subject-prefix: "UNIT-TEST: "
 
       employees:
         notification: true
-
-      reminder:
-        om:
-#          - "thomas.herzog@gepardec.com"
-#          - "philipp.wurm@gepardec.com"
-#          - "werner.bruckmueller@gepardec.com"
-          - "michael.leitner@gepardec.com"
