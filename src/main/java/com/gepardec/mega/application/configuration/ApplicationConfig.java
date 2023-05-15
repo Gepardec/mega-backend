@@ -14,10 +14,6 @@ import java.util.Locale;
 public class ApplicationConfig {
 
     @Inject
-    @ConfigProperty(name = "mega.excel-url")
-    URL excelUrl;
-
-    @Inject
     @ConfigProperty(name = "mega.budget-calculation-excel-url")
     URL budgetCalculationExcelUrl;
 
@@ -56,20 +52,8 @@ public class ApplicationConfig {
         startAt = LocalDateTime.now();
     }
 
-    public String getExcelUrlAsString() {
-        return excelUrl.toString();
-    }
-
-    public URL getExcelUrl() {
-        return excelUrl;
-    }
-
     public String getBudgetCalculationExcelUrlAsString() {
         return budgetCalculationExcelUrl.toString();
-    }
-
-    public URL getBudgetCalculationExcelUrl() {
-        return budgetCalculationExcelUrl;
     }
 
     public String getVersion() {
