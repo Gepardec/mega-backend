@@ -88,6 +88,18 @@ mega:
   # URL zum Planrechnung-Excel
   budget-calculation-excel-url: "https://docs.google.com/spreadsheets/d/1mmc1pvhr1Z_IbiMELtM98mFZ4-2uuSx6Sg_uZXRNpH0"
 
+  mail:
+    reminder:
+      om:
+        - "werner.bruckmueller@gepardec.com"
+        - "christoph.ruhsam@gepardec.com"
+        - "armin.lang@gepardec.com"
+        - "manuel.vilim@gepardec.com"
+        - "oliver.tod@gepardec.com"
+        - "robin.fischer@gepardec.com"
+        - "alexandra.stummer@gepardec.com"
+        - "simon.bauer@gepardec.com"
+
 mp:
   jwt:
     verify:
@@ -121,18 +133,6 @@ mp:
       employees:
         notification: true
 
-      reminder:
-        om:
-          - "thomas.herzog@gepardec.com"
-          - "werner.bruckmueller@gepardec.com"
-          - "christoph.ruhsam@gepardec.com"
-          - "armin.lang@gepardec.com"
-          - "manuel.vilim@gepardec.com"
-          - "oliver.tod@gepardec.com"
-          - "robin.fischer@gepardec.com"
-          - "alexandra.stummer@gepardec.com"
-          - "simon.bauer@gepardec.com"
-
 ## TEST Properties
 "%test":
   quarkus:
@@ -165,3 +165,5 @@ mp:
 
       employees:
         notification: true
+      reminder:
+        om: []

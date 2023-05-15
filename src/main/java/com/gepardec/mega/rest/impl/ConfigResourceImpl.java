@@ -1,6 +1,7 @@
 package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.application.configuration.ApplicationConfig;
+import com.gepardec.mega.application.configuration.NotificationConfig;
 import com.gepardec.mega.application.configuration.OAuthConfig;
 import com.gepardec.mega.application.configuration.ZepConfig;
 import com.gepardec.mega.rest.api.ConfigResource;
@@ -27,6 +28,9 @@ public class ConfigResourceImpl implements ConfigResource {
     @Inject
     ZepConfig zepConfig;
 
+    @Inject
+    NotificationConfig notificationConfig;
+
     @Override
     public Response get() {
         final ConfigDto configDto = ConfigDto.builder()
@@ -36,6 +40,9 @@ public class ConfigResourceImpl implements ConfigResource {
                 .issuer(oauthConfig.getIssuer())
                 .scope(oauthConfig.getScope())
                 .version(applicationConfig.getVersion())
+                .omMailAddresses(notificationConfig.getOmMailAddresses())
+                .subjectPrefix(notificationConfig.getSubjectPrefix())
+                .megaDashUrl(notificationConfig.getMegaDashUrl())
                 .build();
 
         return Response.ok(configDto).build();

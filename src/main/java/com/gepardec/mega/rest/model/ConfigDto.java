@@ -9,6 +9,8 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import lombok.extern.jackson.Jacksonized;
 
+import java.util.List;
+
 @Builder(builderClassName = "Builder")
 @Getter
 @ToString
@@ -37,4 +39,13 @@ public class ConfigDto {
 
     @JsonProperty
     private final String version;
+
+    @JsonProperty
+    private final List<String> omMailAddresses;
+
+    @JsonProperty
+    private final String subjectPrefix;
+
+    @JsonProperty
+    private final String megaDashUrl;
 }
