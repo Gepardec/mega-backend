@@ -55,6 +55,13 @@ quarkus:
   transaction-manager:
     default-transaction-timeout: "240s"
 
+  datasource:
+    db-kind: "postgresql"
+    username: "${DB_USER}"
+    password: "${DB_PASSWORD}"
+    jdbc:
+      url: "jdbc:postgresql://${DB_HOST}/mega"
+
 mega:
   info:
     build:
@@ -71,6 +78,7 @@ mega:
 
   zep:
     admin-token: "${TOKEN:default}"
+    soap-path: "/sync/soap.php?v=${SOAP_PATH_VERSION:7}"
 
   oauth:
     client-id: "mega"
@@ -94,7 +102,6 @@ mp:
     mailer:
       mock: true
     datasource:
-      db-kind: "postgresql"
       username: "mega"
       password: "mega"
       jdbc:
@@ -104,7 +111,6 @@ mp:
     dash-url: "http://localhost:4444/index.html"
     zep:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
-      soap-path: "/sync/soap.php?v=7"
 
     oauth:
       issuer: "https://gepardec-sso-dev.apps.c-gepa-play.gepa.vshnmanaged.net/realms/gepardec"
@@ -150,7 +156,6 @@ mp:
 
     zep:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
-      soap-path: "/sync/soap.php?v=7"
 
     oauth:
       issuer: "https://gepardec-sso-dev.apps.c-gepa-play.gepa.vshnmanaged.net/realms/gepardec"
