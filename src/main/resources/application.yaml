@@ -1,8 +1,5 @@
 # GLOBAL Properties
 quarkus:
-  package:
-    type: "uber-jar"
-
   scheduler:
     enabled: true
 
