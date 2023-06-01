@@ -1,13 +1,12 @@
-FROM openjdk:11.0-jre-slim
+FROM registry.access.redhat.com/ubi8/openjdk-11:latest
 ENV TZ="Europe/Vienna"
 
-WORKDIR /work/
-RUN chown :root /work \
-    && chmod "g+rwX" /work \
-    && chown :root /work
+USER jboss
 
-COPY target/*-runner.jar /work/application.jar
-# COPY target/lib/* /work/lib/
+COPY --chown=185 target/quarkus-app/lib/ /deployments/lib/
+COPY --chown=185 target/quarkus-app/*.jar /deployments/
+COPY --chown=185 target/quarkus-app/app/ /deployments/app/
+COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
 
 ARG BRANCH
 ARG COMMIT
@@ -19,5 +18,5 @@ ENV COMMIT=$COMMIT
 ENV VERSION=$VERSION
 
 EXPOSE 8080
-
-CMD ["java","-jar","application.jar","-Dquarkus.http.host=0.0.0.0"]
+ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
