@@ -161,6 +161,12 @@ mp:
       employees:
         notification: true
 
+## local-sso profile
+"%local-sso":
+  mega:
+    oauth:
+      issuer: "http://localhost:8180/realms/gepardec"
+
 ## TEST Properties
 "%test":
   quarkus:
