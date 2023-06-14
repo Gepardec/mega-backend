@@ -162,7 +162,7 @@ mp:
         notification: true
 
 ## local-sso profile
-"%local-sso":
+"%localsso":
   mega:
     oauth:
       issuer: "http://localhost:8180/realms/gepardec"
