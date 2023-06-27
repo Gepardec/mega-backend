@@ -11,17 +11,17 @@
         "args": "clean install",
         "config": "pom.xml",
         "config-path": "",
-        "options": ""
+        "options": "-DskipTests"
       }
     },
     "static-code-analysis": {
-      "active": "false",
+      "active": "true",
       "type": {
         "name": "sonarqube"
       }
     },
     "integration-test": {
-      "active": "false",
+      "active": "true",
       "type": {
         "name": "newman",
         "configuration": {
@@ -38,7 +38,7 @@
     "containerfile": "Containerfile"
   },
   "vulnerability-scan": {
-    "active": "false",
+    "active": "true",
     "type": {
       "name": "trivy",
       "configuration": {

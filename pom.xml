@@ -40,7 +40,7 @@
 
         <!-- Sonar configuration -->
         <sonar.projectKey>${project.artifactId}</sonar.projectKey>
-        <sonar.host.url>https://sonarqube.apps.play.gepaplexx.com</sonar.host.url>
+        <sonar.host.url>https://sonarqube.play.run.gepardec.com</sonar.host.url>
         <sonar.language>java</sonar.language>
         <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
         <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
