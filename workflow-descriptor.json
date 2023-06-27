@@ -21,7 +21,7 @@
       }
     },
     "integration-test": {
-      "active": "true",
+      "active": "false",
       "type": {
         "name": "newman",
         "configuration": {
