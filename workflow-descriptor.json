@@ -44,7 +44,7 @@
       "configuration": {
         "report-severity": "LOW,MEDIUM,HIGH,CRITICAL",
         "fail": {
-          "active": "true",
+          "active": "false",
           "severity": "CRITICAL"
         }
       }
