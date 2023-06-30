@@ -25,8 +25,8 @@
         <commons-io.version>2.11.0</commons-io.version>
         <guava.version>31.0.1-jre</guava.version>
 
-        <quarkus-plugin.version>2.6.3.Final</quarkus-plugin.version>
-        <quarkus.platform.version>3.0.0.CR2</quarkus.platform.version>
+        <quarkus-plugin.version>3.2.0.Final</quarkus-plugin.version>
+        <quarkus.platform.version>3.2.0.Final</quarkus.platform.version>
 
         <ws.rt.version>2.3.5</ws.rt.version>
         <xml.resolver.version>20050927</xml.resolver.version>
