@@ -123,7 +123,7 @@ mp:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
 
     oauth:
-      issuer: "https://gepardec-sso-dev.apps.c-gepa-play.gepa.vshnmanaged.net/realms/gepardec"
+      issuer: "https://gepardec-sso-dev.play.run.gepardec.com/realms/gepardec"
 
     mail:
       subject-prefix: "LOCAL: "
@@ -139,15 +139,19 @@ mp:
 
     mailer:
       mock: true
-
     datasource:
       db-kind: "h2"
+      username: mega
+      password: mega
       jdbc:
         url: 'jdbc:h2:mem:mega;MODE=PostgreSQL;INIT=create schema if not exists mega\;SET SCHEMA mega'
+
     hibernate-orm:
       database:
-        generation: "create"
-      sql-load-script: "db/import/import-projects.sql"
+        generation: drop-and-create
+    liquibase:
+      migrate-at-start: true
+
   mega:
     dash-url: "http://localhost:8080/index.html"
 
@@ -155,7 +159,7 @@ mp:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
 
     oauth:
-      issuer: "https://gepardec-sso-dev.apps.c-gepa-play.gepa.vshnmanaged.net/realms/gepardec"
+      issuer: "https://gepardec-sso-dev.play.run.geaprdec.com/realms/gepardec"
 
     mail:
       subject-prefix: "UNIT-TEST: "
@@ -163,4 +167,6 @@ mp:
       employees:
         notification: true
       reminder:
-        om: []
+        om:
+          - "blubb"
+          - "blah"

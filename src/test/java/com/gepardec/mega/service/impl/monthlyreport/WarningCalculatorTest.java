@@ -255,28 +255,6 @@ class WarningCalculatorTest {
 
 
 
-    /*
-    Comment disabled because:
-                   journeys grouped in days     ->      now grouped in months
-                   this allows journeys over multiple days
-                   this prevents to group multiple warnings on one day
-                    -without implementing 'complex' logic
-     */
-    @Disabled
-    @Test
-    void whenTwoProjectTimeEntryWithinJourneyWithWorkingLocationMain_thenOneWarning() {
-        final JourneyTimeEntry journeyTimeEntryOne = journeyTimeEntryFor(1, 7, 8, JourneyDirection.TO, WorkingLocation.A, Vehicle.OTHER_INACTIVE);
-        final ProjectEntry projectEntryTwo = projectTimeEntryFor(1, 8, 9, WorkingLocation.MAIN);
-        final ProjectEntry projectEntryThree = projectTimeEntryFor(1, 9, 10, WorkingLocation.MAIN);
-        final JourneyTimeEntry journeyTimeEntryFour = journeyTimeEntryFor(1, 10, 11, JourneyDirection.BACK, WorkingLocation.A, Vehicle.OTHER_INACTIVE);
-
-        final List<JourneyWarning> warnings = calculator
-                .determineJourneyWarnings(List.of(journeyTimeEntryOne, projectEntryTwo, projectEntryThree, journeyTimeEntryFour));
-
-        assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
-    }
 
     @Test
     void whenTwoProjectTimeEntryWithinTwoJourneys_thenNoWarning() {
