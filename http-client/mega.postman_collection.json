@@ -1,15 +1,16 @@
 {
 	"info": {
-		"_postman_id": "4e6ce6e5-ec5f-43cc-84ec-ee5e666953c4",
+		"_postman_id": "120b4182-530c-427c-80ff-507add82a277",
 		"name": "mega",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "7412098"
 	},
 	"item": [
 		{
 			"name": "sync",
 			"item": [
 				{
-					"name": "stepentries",
+					"name": "employees",
 					"event": [
 						{
 							"listen": "test",
@@ -18,7 +19,7 @@
 									"pm.test(\"stepentries\", function () {",
 									"    pm.response.to.have.status(200);",
 									"",
-									"    pm.expect(pm.response.text()).to.equal(\"OK\");",
+									"    pm.expect(pm.response.text()).to.equal(\"ok\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -29,20 +30,20 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{hostname}}/test/sync",
+							"raw": "{{hostname}}/sync/employees",
 							"host": [
 								"{{hostname}}"
 							],
 							"path": [
-								"test",
-								"sync"
+								"sync",
+								"employees"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "projectentries",
+					"name": "enterprise-entries",
 					"event": [
 						{
 							"listen": "test",
@@ -50,6 +51,7 @@
 								"exec": [
 									"pm.test(\"projectentries\", function () {",
 									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.text()).to.equal(\"true\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -60,12 +62,44 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{hostname}}/test/sync/projects",
+							"raw": "{{hostname}}/sync/enterprise-entries",
 							"host": [
 								"{{hostname}}"
 							],
 							"path": [
-								"test",
+								"sync",
+								"enterprise-entries"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "projects",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"projectentries\", function () {",
+									"    pm.response.to.have.status(200);",
+									"",
+									"    pm.expect(pm.response.text()).to.equal(\"true\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{hostname}}/sync/projects",
+							"host": [
+								"{{hostname}}"
+							],
+							"path": [
 								"sync",
 								"projects"
 							]
@@ -74,14 +108,16 @@
 					"response": []
 				},
 				{
-					"name": "enterpriseentries",
+					"name": "step-entries",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"projectentries\", function () {",
+									"pm.test(\"stepentries\", function () {",
 									"    pm.response.to.have.status(200);",
+									"",
+									"    pm.expect(pm.response.text()).to.equal(\"true\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -92,14 +128,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{hostname}}/test/sync/enterprise",
+							"raw": "{{hostname}}/sync/step-entries",
 							"host": [
 								"{{hostname}}"
 							],
 							"path": [
-								"test",
 								"sync",
-								"enterprise"
+								"step-entries"
 							]
 						}
 					},

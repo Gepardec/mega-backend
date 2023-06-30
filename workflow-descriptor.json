@@ -11,7 +11,7 @@
         "args": "clean install",
         "config": "pom.xml",
         "config-path": "",
-        "options": "-DskipTests"
+        "options": ""
       }
     },
     "static-code-analysis": {
@@ -21,7 +21,7 @@
       }
     },
     "integration-test": {
-      "active": "false",
+      "active": "true",
       "type": {
         "name": "newman",
         "configuration": {
@@ -44,7 +44,7 @@
       "configuration": {
         "report-severity": "LOW,MEDIUM,HIGH,CRITICAL",
         "fail": {
-          "active": "false",
+          "active": "true",
           "severity": "CRITICAL"
         }
       }
