@@ -121,9 +121,6 @@ public class User {
     @Column(name = "active")
     private Boolean active;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "stepEntry")
-    private Set<Comment> comments = new HashSet<>(0);
-
     @NotNull
     @Size(min = 1)
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
@@ -238,14 +235,6 @@ public class User {
 
     public void setActive(Boolean active) {
         this.active = active;
-    }
-
-    public Set<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(Set<Comment> comments) {
-        this.comments = comments;
     }
 
     public LocalDate getReleaseDate() {
