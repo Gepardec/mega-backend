@@ -4,10 +4,9 @@ import com.gepardec.mega.rest.api.ProjectEntryResource;
 import com.gepardec.mega.rest.model.ProjectEntryDto;
 import com.gepardec.mega.service.api.ProjectEntryService;
 import io.quarkus.security.Authenticated;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 
 @RequestScoped
 @Authenticated

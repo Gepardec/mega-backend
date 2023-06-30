@@ -1,14 +1,14 @@
 package com.gepardec.mega.application.producer;
 
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.InjectionPoint;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.OngoingStubbing;
 import org.slf4j.Logger;
 
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.InjectionPoint;
-import javax.inject.Inject;
 import java.lang.reflect.Member;
 
 import static org.assertj.core.api.Assertions.assertThat;

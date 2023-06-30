@@ -3,6 +3,7 @@ package com.gepardec.mega.notification.mail;
 import com.gepardec.mega.application.configuration.ApplicationConfig;
 import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;

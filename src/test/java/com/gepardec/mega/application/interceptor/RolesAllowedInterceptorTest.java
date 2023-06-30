@@ -3,6 +3,7 @@ package com.gepardec.mega.application.interceptor;
 import com.gepardec.mega.application.exception.ForbiddenException;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.UserContext;
+import jakarta.interceptor.InvocationContext;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.interceptor.InvocationContext;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
@@ -97,6 +97,7 @@ class RolesAllowedInterceptorTest {
     private static class TargetWithAnnotation {
 
     }
+
     private static class TargetNoAnnotation {
 
     }

@@ -3,8 +3,8 @@ package com.gepardec.mega.service.mapper;
 import com.gepardec.mega.domain.model.monthlyreport.MappedTimeWarningTypes;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
+import jakarta.enterprise.context.ApplicationScoped;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -15,7 +15,7 @@ public class TimeWarningPredicates {
         return predicateMap;
     }
 
-    private final Map<MappedTimeWarningTypes,Predicate<TimeWarning>> predicateMap = Map.ofEntries(
+    private final Map<MappedTimeWarningTypes, Predicate<TimeWarning>> predicateMap = Map.ofEntries(
             Map.entry(MappedTimeWarningTypes.MISSINGREST, missingRestPredicate),
             Map.entry(MappedTimeWarningTypes.MISSINGBREAK, missingBreakPredicate),
             Map.entry(MappedTimeWarningTypes.EXCESSWORK, excessWorkPredicate),
@@ -91,7 +91,7 @@ public class TimeWarningPredicates {
         return false;
     };
 
-      private static final Predicate<TimeWarning> weekendPredicate = w -> {
+    private static final Predicate<TimeWarning> weekendPredicate = w -> {
         if (w.getWarningTypes() != null) {
             return w.getWarningTypes().contains(TimeWarningType.WEEKEND);
         }

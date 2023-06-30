@@ -6,9 +6,9 @@ import com.gepardec.mega.service.api.ProjectSyncService;
 import com.gepardec.mega.service.api.StepEntrySyncService;
 import com.gepardec.mega.service.api.SyncService;
 import io.quarkus.scheduler.Scheduled;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.concurrent.TimeUnit;

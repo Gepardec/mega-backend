@@ -5,10 +5,9 @@ import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.rest.api.UserResource;
 import io.quarkus.security.Authenticated;
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 
 
 @RequestScoped

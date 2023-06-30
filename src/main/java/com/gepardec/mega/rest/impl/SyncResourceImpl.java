@@ -6,10 +6,10 @@ import com.gepardec.mega.service.api.ProjectSyncService;
 import com.gepardec.mega.service.api.StepEntrySyncService;
 import com.gepardec.mega.service.api.SyncService;
 import io.quarkus.arc.properties.IfBuildProperty;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import java.time.YearMonth;
 
 @RequestScoped

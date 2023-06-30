@@ -3,8 +3,8 @@ package com.gepardec.mega.service.mapper;
 import com.gepardec.mega.db.entity.enterprise.EnterpriseEntry;
 import com.gepardec.mega.domain.model.ProjectState;
 import com.gepardec.mega.rest.model.EnterpriseEntryDto;
+import jakarta.enterprise.context.ApplicationScoped;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.util.Optional;
 
 @ApplicationScoped

@@ -3,10 +3,10 @@ package com.gepardec.mega.service.impl;
 import com.gepardec.mega.db.repository.StepRepository;
 import com.gepardec.mega.domain.model.Step;
 import com.gepardec.mega.service.api.StepService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 

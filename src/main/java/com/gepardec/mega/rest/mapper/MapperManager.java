@@ -1,9 +1,9 @@
 package com.gepardec.mega.rest.mapper;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
 
 @ApplicationScoped

@@ -5,12 +5,12 @@ import com.sun.xml.ws.developer.JAXWSProperties;
 import de.provantis.zep.RequestHeaderType;
 import de.provantis.zep.ZepSoap;
 import de.provantis.zep.ZepSoapPortType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
+import jakarta.xml.ws.BindingProvider;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-import javax.xml.ws.BindingProvider;
 import java.util.concurrent.TimeUnit;
 
 @ApplicationScoped

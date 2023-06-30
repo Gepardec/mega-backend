@@ -1,8 +1,9 @@
 package com.gepardec.mega.application.producer;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Produces;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.inject.Produces;
+
 import java.util.Locale;
 import java.util.ResourceBundle;
 

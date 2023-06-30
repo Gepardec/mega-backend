@@ -4,9 +4,9 @@ import com.gepardec.mega.application.configuration.NotificationConfig;
 import com.gepardec.mega.application.producer.ResourceBundleProducer;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
