@@ -1,6 +1,7 @@
 package com.gepardec.mega.db.entity.employee;
 
 import com.gepardec.mega.domain.model.Role;
+import jakarta.persistence.Basic;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -24,7 +25,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.ToString;
-import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
@@ -96,7 +96,7 @@ public class User {
      * The locale of the user
      */
     @NotNull
-    @Type(type = "org.hibernate.type.LocaleType")
+    @Basic(optional = false)
     @Column(name = "locale", length = 10)
     private Locale locale;
 
