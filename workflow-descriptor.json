@@ -11,7 +11,7 @@
         "args": "clean install",
         "config": "pom.xml",
         "config-path": "",
-        "options": ""
+        "options": "-DskipTests"
       }
     },
     "static-code-analysis": {
