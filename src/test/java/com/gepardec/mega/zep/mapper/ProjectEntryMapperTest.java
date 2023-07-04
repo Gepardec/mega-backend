@@ -58,10 +58,15 @@ class ProjectEntryMapperTest {
     }
 
     @Test
-    void withOrtIsNotAWorkingLocation_thenThrowsIllegalArgumentException() {
+    void map_UnknownZepOrt_WorkingLocationOther() {
+        //Given
         ProjektzeitType projektzeitType = projektzeitTypeFor(Task.REISEN.name(), "unbekannt", JourneyDirection.TO.getDirection(), Vehicle.OTHER_INACTIVE.id);
 
-        assertThatThrownBy(() -> mapper.map(projektzeitType)).isInstanceOf(IllegalArgumentException.class);
+        //When
+        var result = mapper.map(projektzeitType);
+
+        //Then
+        assertThat(result.getWorkingLocation()).isEqualTo(WorkingLocation.OTHER);
     }
 
     @Test

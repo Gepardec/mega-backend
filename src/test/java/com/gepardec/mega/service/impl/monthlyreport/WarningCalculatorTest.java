@@ -261,8 +261,8 @@ class WarningCalculatorTest {
         final JourneyTimeEntry journeyTimeEntryOne = journeyTimeEntryFor(1, 7, 8, JourneyDirection.TO, WorkingLocation.A, Vehicle.OTHER_INACTIVE);
         final ProjectEntry projectEntryTwo = projectTimeEntryFor(1, 8, 9, WorkingLocation.A);
         final JourneyTimeEntry journeyTimeEntryThree = journeyTimeEntryFor(1, 9, 10, JourneyDirection.BACK, WorkingLocation.A, Vehicle.OTHER_INACTIVE);
-        final JourneyTimeEntry journeyTimeEntryFour = journeyTimeEntryFor(1, 10, 11, JourneyDirection.TO, WorkingLocation.P, Vehicle.OTHER_INACTIVE);
-        final ProjectEntry projectEntryFive = projectTimeEntryFor(1, 11, 12, WorkingLocation.P);
+        final JourneyTimeEntry journeyTimeEntryFour = journeyTimeEntryFor(1, 10, 11, JourneyDirection.TO, WorkingLocation.OTHER, Vehicle.OTHER_INACTIVE);
+        final ProjectEntry projectEntryFive = projectTimeEntryFor(1, 11, 12, WorkingLocation.OTHER);
         final JourneyTimeEntry journeyTimeEntrySix = journeyTimeEntryFor(1, 12, 13, JourneyDirection.BACK, WorkingLocation.A, Vehicle.OTHER_INACTIVE);
 
         final List<JourneyWarning> warnings = calculator

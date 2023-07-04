@@ -65,8 +65,7 @@ public class ProjectEntryMapper {
     }
 
     private WorkingLocation toWorkingLocation(final String ort) {
-        return WorkingLocation.fromZepOrt(ort)
-                .orElseThrow(() -> new IllegalArgumentException("Arbeitsort '" + ort + "' is not mapped in Enum WorkingLocation"));
+        return WorkingLocation.fromZepOrt(ort);
     }
 
     private LocalDateTime toLocalDateTime(String datum, String von) {

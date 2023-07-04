@@ -1,23 +1,11 @@
 package com.gepardec.mega.domain.model.monthlyreport;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum WorkingLocation {
     MAIN("- erste Tätigkeitsstätte -"),
     A("A"),
-    CZ("CZ"),
-    D("D"),
-    P("P"),
-    CH("Schweiz"),
-    UK("UK"),
-    NL("NL");
-
-    private static final Map<String, WorkingLocation> zepOrtToWorkingLocation = Stream.of(WorkingLocation.values())
-            .collect(Collectors.toMap(WorkingLocation::getZepOrt, Function.identity()));
+    OTHER("OTHER");
 
     public final String zepOrt;
 
@@ -25,8 +13,11 @@ public enum WorkingLocation {
         this.zepOrt = zepOrt;
     }
 
-    public static Optional<WorkingLocation> fromZepOrt(String zepOrt) {
-        return Optional.ofNullable(zepOrtToWorkingLocation.get(zepOrt));
+    public static WorkingLocation fromZepOrt(String zepOrt) {
+        return Stream.of(WorkingLocation.values())
+                .filter(workingLocation -> workingLocation.getZepOrt().equals(zepOrt))
+                .findAny()
+                .orElse(WorkingLocation.OTHER);
     }
 
     public String getZepOrt() {
