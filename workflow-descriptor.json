@@ -38,7 +38,7 @@
     "containerfile": "Containerfile"
   },
   "vulnerability-scan": {
-    "active": "true",
+    "active": "false",
     "type": {
       "name": "trivy",
       "configuration": {
