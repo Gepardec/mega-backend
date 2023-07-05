@@ -190,6 +190,17 @@
             <artifactId>jollyday</artifactId>
             <version>${jollyday.version}</version>
         </dependency>
+        <!--Required dependencies for Jollyday-->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.3.4</version>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
