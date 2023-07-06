@@ -1,8 +1,7 @@
 package com.gepardec.mega.service.mapper;
 
 import com.gepardec.mega.domain.model.User;
-
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class UserMapper {

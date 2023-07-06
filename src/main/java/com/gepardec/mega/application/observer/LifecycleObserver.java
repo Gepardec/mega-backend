@@ -2,6 +2,8 @@ package com.gepardec.mega.application.observer;
 
 import com.gepardec.mega.application.configuration.ApplicationConfig;
 import io.quarkus.runtime.StartupEvent;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.event.Observes;
 import liquibase.Contexts;
 import liquibase.Liquibase;
 import liquibase.database.jvm.JdbcConnection;
@@ -10,8 +12,6 @@ import liquibase.resource.ResourceAccessor;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 
-import javax.enterprise.context.Dependent;
-import javax.enterprise.event.Observes;
 import javax.sql.DataSource;
 
 /**

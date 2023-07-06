@@ -5,10 +5,10 @@ import com.gepardec.mega.application.configuration.NotificationConfig;
 import com.google.common.collect.Maps;
 import com.google.common.net.MediaType;
 import io.quarkus.mailer.Mailer;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;

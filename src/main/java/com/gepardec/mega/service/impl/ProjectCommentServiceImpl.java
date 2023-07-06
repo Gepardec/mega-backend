@@ -8,10 +8,10 @@ import com.gepardec.mega.domain.mapper.ProjectCommentMapper;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.model.ProjectCommentDto;
 import com.gepardec.mega.service.api.ProjectCommentService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityNotFoundException;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;

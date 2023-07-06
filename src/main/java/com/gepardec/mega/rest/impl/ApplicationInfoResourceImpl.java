@@ -3,11 +3,11 @@ package com.gepardec.mega.rest.impl;
 import com.gepardec.mega.application.configuration.ApplicationConfig;
 import com.gepardec.mega.rest.api.ApplicationInfoResource;
 import com.gepardec.mega.rest.model.ApplicationInfoDto;
+import jakarta.annotation.security.PermitAll;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 
-import javax.annotation.security.PermitAll;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import java.time.Duration;
 import java.time.LocalDateTime;
 

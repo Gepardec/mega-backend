@@ -3,6 +3,7 @@ package com.gepardec.mega.rest.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.domain.model.ProjectState;
+import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,7 +11,6 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 import lombok.extern.jackson.Jacksonized;
 
-import javax.annotation.Nullable;
 import java.time.Duration;
 import java.util.List;
 

@@ -9,12 +9,12 @@ import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.ProjectService;
 import com.gepardec.mega.service.api.SyncService;
 import com.gepardec.mega.service.mapper.SyncServiceMapper;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;

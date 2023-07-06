@@ -7,9 +7,9 @@ import com.gepardec.mega.domain.model.ProjectState;
 import com.gepardec.mega.domain.model.ProjectStep;
 import com.gepardec.mega.rest.model.ProjectEntryDto;
 import com.gepardec.mega.service.api.ProjectEntryService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;

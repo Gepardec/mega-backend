@@ -7,9 +7,9 @@ import de.provantis.zep.BeschaeftigungszeitType;
 import de.provantis.zep.MitarbeiterType;
 import de.provantis.zep.RegelarbeitszeitListeTypeTs;
 import de.provantis.zep.RegelarbeitszeitType;
+import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.Range;
 
-import javax.enterprise.context.ApplicationScoped;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

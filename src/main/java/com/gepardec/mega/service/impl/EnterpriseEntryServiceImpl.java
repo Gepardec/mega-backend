@@ -6,9 +6,9 @@ import com.gepardec.mega.db.repository.EnterpriseEntryRepository;
 import com.gepardec.mega.rest.model.EnterpriseEntryDto;
 import com.gepardec.mega.service.api.EnterpriseEntryService;
 import com.gepardec.mega.service.mapper.EnterpriseEntryMapper;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.Optional;
 

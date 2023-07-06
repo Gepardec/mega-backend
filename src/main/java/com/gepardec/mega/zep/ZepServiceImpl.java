@@ -34,14 +34,14 @@ import de.provantis.zep.UserIdListeType;
 import de.provantis.zep.ZepSoapPortType;
 import io.quarkus.cache.CacheInvalidate;
 import io.quarkus.cache.CacheResult;
+import jakarta.annotation.Nonnull;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.Logger;
 
-import javax.annotation.Nonnull;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;

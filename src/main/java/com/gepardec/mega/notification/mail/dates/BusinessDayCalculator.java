@@ -2,10 +2,10 @@ package com.gepardec.mega.notification.mail.dates;
 
 import com.gepardec.mega.notification.mail.Mail;
 import com.gepardec.mega.notification.mail.MailType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Arrays;

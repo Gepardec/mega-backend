@@ -2,11 +2,11 @@ package com.gepardec.mega.application.producer;
 
 import com.gepardec.mega.application.configuration.ApplicationConfig;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Locale;
 

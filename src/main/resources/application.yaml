@@ -118,6 +118,9 @@ mp:
       jdbc:
         url: "jdbc:postgresql://localhost:5432/mega"
 
+    http:
+      cors:
+        origins: "/.*/"
   mega:
     dash-url: "http://localhost:4444/index.html"
     zep:

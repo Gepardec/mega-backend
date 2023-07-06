@@ -8,9 +8,9 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectFilter;
 import com.gepardec.mega.service.api.ProjectService;
 import com.gepardec.mega.zep.ZepService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -109,13 +109,13 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private void validateProjectFilter(List<ProjectFilter> projectFilters) {
-        if(projectFilters == null || projectFilters.size() < 2) {
+        if (projectFilters == null || projectFilters.size() < 2) {
             return;
         }
 
         List<ProjectFilter> conflictingFilter = List.of(ProjectFilter.IS_LEADS_AVAILABLE, ProjectFilter.WITHOUT_LEADS);
 
-        if(new HashSet<>(projectFilters).containsAll(conflictingFilter)) {
+        if (new HashSet<>(projectFilters).containsAll(conflictingFilter)) {
             String conflictingStr = conflictingFilter.stream()
                     .map(Enum::name)
                     .collect(Collectors.joining(" & ", "[", "]"));
