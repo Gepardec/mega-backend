@@ -164,4 +164,39 @@ class CoreWorkingHoursCalculatorTest {
 
         assertThat(result).isEmpty();
     }
+
+    @Test
+    void whenJourneyDurationZero_outsideCoreWorkingTime_thenNoWarning() {
+        // Given
+        var entry = journeyTimeEntryFor(5, 5, Vehicle.CAR_ACTIVE);
+
+        // When
+        var result = calculator.calculate(List.of(entry));
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void whenJourneyDurationZero_insideCoreWorkingTime_thenNoWarning() {
+        // Given
+        var entry = journeyTimeEntryFor(11, 11, Vehicle.CAR_ACTIVE);
+
+        // When
+        var result = calculator.calculate(List.of(entry));
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+    @Test
+    void whenJourneyDurationNotZero_insideCoreWorkingTime_thenWarning() {
+        // Given
+        var entry = journeyTimeEntryFor(3, 0, 3, 30,  Vehicle.CAR_ACTIVE);
+
+        // When
+        var result = calculator.calculate(List.of(entry));
+
+        // Then
+        assertThat(result).hasSize(1);
+    }
 }

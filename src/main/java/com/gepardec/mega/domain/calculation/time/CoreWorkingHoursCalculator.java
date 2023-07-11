@@ -18,7 +18,6 @@ import java.util.Map;
 /**
  * This calculator calculates range between the earliest and latest project entry of a day.
  * Employees can not book times outside a regular working hour time range.
- * {@link com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry} are ignored for now, only {@link ProjectTimeEntry} are considered.
  */
 public class CoreWorkingHoursCalculator extends AbstractTimeWarningCalculationStrategy implements WarningCalculationStrategy<TimeWarning> {
 
@@ -37,7 +36,7 @@ public class CoreWorkingHoursCalculator extends AbstractTimeWarningCalculationSt
             Collections.reverse(reversedProjectEntries);
             final ProjectEntry startEntry = findFirstRelevantEntry(projectEntries);
             final ProjectEntry endEntry = findFirstRelevantEntry(reversedProjectEntries);
-            if (isEntryOutOfRange(startEntry, endEntry)) {
+            if (isEntryOutOfRange(startEntry, endEntry) && !isJourneyDurationZero(startEntry, endEntry)) {
                 warnings.add(createTimeWarning(startEntry));
             }
         }
@@ -52,8 +51,12 @@ public class CoreWorkingHoursCalculator extends AbstractTimeWarningCalculationSt
                 return timeEntry;
             }
         }
-
         return null;
+    }
+
+    private boolean isJourneyDurationZero(ProjectEntry startEntry, ProjectEntry endEntry) {
+        return startEntry.getDurationInHours() == 0 && isRelevantJourneyTimeEntry(startEntry)
+                || endEntry.getDurationInHours() == 0 && isRelevantProjectTimeEntry(endEntry);
     }
 
     private boolean isRelevantProjectTimeEntry(ProjectEntry projectEntry) {
