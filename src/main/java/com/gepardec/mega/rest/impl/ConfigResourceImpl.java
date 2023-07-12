@@ -6,11 +6,10 @@ import com.gepardec.mega.application.configuration.OAuthConfig;
 import com.gepardec.mega.application.configuration.ZepConfig;
 import com.gepardec.mega.rest.api.ConfigResource;
 import com.gepardec.mega.rest.model.ConfigDto;
-
-import javax.annotation.security.PermitAll;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
+import jakarta.annotation.security.PermitAll;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 
 /**
  * Provides configuration for the frontend.

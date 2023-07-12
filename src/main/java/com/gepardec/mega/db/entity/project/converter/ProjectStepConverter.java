@@ -1,9 +1,9 @@
 package com.gepardec.mega.db.entity.project.converter;
 
 import com.gepardec.mega.db.entity.project.ProjectStep;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 import java.util.stream.Stream;
 
 @Converter(autoApply = true)

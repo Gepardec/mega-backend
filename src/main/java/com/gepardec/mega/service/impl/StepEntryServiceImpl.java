@@ -9,13 +9,13 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.ProjectEmployees;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.StepEntryService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -42,7 +42,6 @@ public class StepEntryServiceImpl implements StepEntryService {
     }
 
     /**
-     *
      * @return Pair.left: state, pair.right: stateReason
      */
     @Override

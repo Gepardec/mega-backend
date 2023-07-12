@@ -3,12 +3,12 @@ package com.gepardec.mega.application.interceptor;
 import com.gepardec.mega.application.exception.ForbiddenException;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.UserContext;
+import jakarta.annotation.Priority;
+import jakarta.inject.Inject;
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
 
-import javax.annotation.Priority;
-import javax.inject.Inject;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
 import java.util.Objects;
 import java.util.Set;
 

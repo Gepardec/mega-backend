@@ -6,12 +6,12 @@ import com.gepardec.mega.db.repository.EnterpriseEntryRepository;
 import com.gepardec.mega.service.api.EnterpriseSyncService;
 import com.gepardec.mega.service.api.ProjectService;
 import com.gepardec.mega.service.api.UserService;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 
-import javax.enterprise.context.Dependent;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,8 +34,7 @@ public class EnterpriseSyncServiceImpl implements EnterpriseSyncService {
     EnterpriseEntryRepository enterpriseEntryRepository;
 
 
-
-    public boolean generateEnterpriseEntries(LocalDate date){
+    public boolean generateEnterpriseEntries(LocalDate date) {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -66,6 +65,7 @@ public class EnterpriseSyncServiceImpl implements EnterpriseSyncService {
 
         return enterpriseEntryRepository.findByDate(date).isPresent();
     }
+
     @Override
     public boolean generateEnterpriseEntries() {
         return generateEnterpriseEntries(LocalDate.now().minusMonths(1).withDayOfMonth(1));

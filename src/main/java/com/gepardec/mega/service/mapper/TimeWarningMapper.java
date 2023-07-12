@@ -5,9 +5,9 @@ import com.gepardec.mega.application.producer.ResourceBundleProducer;
 import com.gepardec.mega.domain.model.monthlyreport.MappedTimeWarningTypes;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +25,7 @@ public class TimeWarningMapper {
 
     @Inject
     TimeWarningPredicates timeWarningPredicates;
+
     public List<MappedTimeWarningDTO> map(List<TimeWarning> timeWarningList) {
         final HashMap<TimeWarning, ArrayList<MappedTimeWarningTypes>> timeWarningMapping = new HashMap<>();
         ResourceBundle templates = resourceBundleProducer.getWarningTemplateResourceBundle(applicationConfig.getDefaultLocale());
@@ -32,7 +33,7 @@ public class TimeWarningMapper {
         timeWarningPredicates.getPredicateMap().forEach((mappedTimeWarningTypes, timeWarningPredicate) -> {
             timeWarningList.stream()
                     .filter(timeWarningPredicate)
-                    .forEach(timeWarning -> appendMap(timeWarningMapping ,timeWarning, mappedTimeWarningTypes));
+                    .forEach(timeWarning -> appendMap(timeWarningMapping, timeWarning, mappedTimeWarningTypes));
         });
 
         final List<MappedTimeWarningDTO> mappedTimeWarningList = new ArrayList<>();

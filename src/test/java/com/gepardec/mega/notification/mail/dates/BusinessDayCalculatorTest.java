@@ -2,9 +2,9 @@ package com.gepardec.mega.notification.mail.dates;
 
 import com.gepardec.mega.notification.mail.Mail;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.Optional;
 

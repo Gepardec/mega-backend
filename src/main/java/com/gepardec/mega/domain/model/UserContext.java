@@ -1,12 +1,11 @@
 package com.gepardec.mega.domain.model;
 
+import jakarta.enterprise.inject.Vetoed;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.enterprise.inject.Vetoed;
 
 @Vetoed
 @Builder

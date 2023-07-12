@@ -1,8 +1,7 @@
 package com.gepardec.mega.domain.mapper;
 
 import com.gepardec.mega.domain.model.Comment;
-
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class CommentMapper {

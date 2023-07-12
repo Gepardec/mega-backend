@@ -8,10 +8,10 @@ import com.gepardec.mega.service.impl.ProjectServiceImpl;
 import com.gepardec.mega.zep.ZepService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;

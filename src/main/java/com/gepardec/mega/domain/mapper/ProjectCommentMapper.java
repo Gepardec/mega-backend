@@ -2,8 +2,7 @@ package com.gepardec.mega.domain.mapper;
 
 import com.gepardec.mega.db.entity.project.ProjectComment;
 import com.gepardec.mega.rest.model.ProjectCommentDto;
-
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class ProjectCommentMapper {

@@ -5,16 +5,15 @@ import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.StepName;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
 public class StepEntryRepository implements PanacheRepository<StepEntry> {
-
 
 
     public Optional<StepEntry> findAllOwnedAndAssignedStepEntriesForEmployee(LocalDate entryDate, String ownerAndAssigneeEmail) {
@@ -89,6 +88,7 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
     public int updateStateAssigned(LocalDate startDate, LocalDate endDate, String ownerEmail, Long stepId, EmployeeState newState) {
         return updateStateAssignedWithReason(startDate, endDate, ownerEmail, stepId, newState, null);
     }
+
     @Transactional
     public int updateStateAssignedWithReason(LocalDate startDate, LocalDate endDate, String ownerEmail, Long stepId, EmployeeState newState, String stateReason) {
         return update("UPDATE StepEntry s SET s.employeeState = :employeeState, s.stateReason = :stateReason" +

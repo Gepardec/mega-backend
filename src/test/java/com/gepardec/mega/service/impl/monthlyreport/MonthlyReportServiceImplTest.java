@@ -16,11 +16,11 @@ import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.FehlzeitType;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

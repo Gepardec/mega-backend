@@ -1,9 +1,9 @@
 package com.gepardec.mega.application.interceptor;
 
 import com.gepardec.mega.domain.model.Role;
+import jakarta.enterprise.util.Nonbinding;
+import jakarta.interceptor.InterceptorBinding;
 
-import javax.enterprise.util.Nonbinding;
-import javax.interceptor.InterceptorBinding;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
