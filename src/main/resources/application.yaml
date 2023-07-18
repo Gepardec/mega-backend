@@ -9,9 +9,7 @@ quarkus:
   http:
     cors:
       ~: true
-      origins:
-        - https://mega-frontend-hotfix-cors.play.run.gepardec.com
-        - https://gepardec-sso-dev.play.run.gepardec.com
+      origins: "/.*/"
       access-control-allow-credentials: true
     root-path: "/"
     non-application-root-path: "/"
