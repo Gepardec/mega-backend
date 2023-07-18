@@ -9,8 +9,8 @@ quarkus:
   http:
     cors:
       ~: true
+      origins: "/https://mega-frontend([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/,/https://gepardec-sso([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/"
       access-control-allow-credentials: true
-      origins: "https://mega-frontend([a-z0-9\\-_]+)\\.play\\.run\\.gepardec\\.com/"
     root-path: "/"
     non-application-root-path: "/"
     port: 8080
