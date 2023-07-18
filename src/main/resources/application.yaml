@@ -10,6 +10,7 @@ quarkus:
     cors:
       ~: true
       access-control-allow-credentials: true
+      origins: "https://mega-frontend([a-z0-9\\-_]+)\\.play\\.run\\.gepardec\\.com/"
     root-path: "/"
     non-application-root-path: "/"
     port: 8080
