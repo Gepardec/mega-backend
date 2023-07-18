@@ -9,7 +9,7 @@ quarkus:
   http:
     cors:
       ~: true
-      origins: "/https://([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/"  #,/https://([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/
+      origins: "/https://([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com"  #,/https://([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/
       access-control-allow-credentials: true
     root-path: "/"
     non-application-root-path: "/"
