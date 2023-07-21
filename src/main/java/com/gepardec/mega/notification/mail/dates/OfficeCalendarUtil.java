@@ -1,9 +1,9 @@
 package com.gepardec.mega.notification.mail.dates;
 
-import de.jollyday.Holiday;
-import de.jollyday.HolidayCalendar;
-import de.jollyday.HolidayManager;
-import de.jollyday.ManagerParameters;
+import de.focus_shift.Holiday;
+import de.focus_shift.HolidayCalendar;
+import de.focus_shift.HolidayManager;
+import de.focus_shift.ManagerParameters;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
