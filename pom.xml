@@ -31,7 +31,7 @@
         <ws.rt.version>4.0.0</ws.rt.version>
         <xml.resolver.version>20050927</xml.resolver.version>
         <lombok.version>1.18.22</lombok.version>
-        <jollyday.version>0.5.10</jollyday.version>
+        <focus-shift.version>0.16.0</focus-shift.version>
         <assertj.version>3.21.0</assertj.version>
         <orika-core.version>1.5.4</orika-core.version>
         <!-- application info -->
@@ -163,22 +163,10 @@
             <version>${xml.resolver.version}</version>
         </dependency>
         <dependency>
-            <groupId>de.jollyday</groupId>
-            <artifactId>jollyday</artifactId>
-            <version>${jollyday.version}</version>
+            <groupId>de.focus-shift</groupId>
+            <artifactId>jollyday-jaxb</artifactId>
+            <version>${focus-shift.version}</version>
         </dependency>
-        <!--Required dependencies for Jollyday-->
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>2.3.4</version>
-        </dependency>
-
         <!-- Test Dependencies -->
         <dependency>
             <groupId>io.rest-assured</groupId>

@@ -5,8 +5,7 @@ import com.gepardec.mega.domain.calculation.WarningCalculationStrategy;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
-import de.jollyday.HolidayCalendar;
-import de.jollyday.HolidayManager;
+import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,17 +17,12 @@ public class HolidayCalculator extends AbstractTimeWarningCalculationStrategy im
         List<TimeWarning> warnings = new ArrayList<>();
 
         projectEntries.forEach(entry -> {
-            if (isHoliday(entry.getDate())) {
+            if (OfficeCalendarUtil.isHoliday(entry.getDate())) {
                 warnings.add(createTimeWarning(entry.getDate()));
             }
         });
 
         return warnings;
-    }
-
-    private boolean isHoliday(LocalDate date) {
-        HolidayManager holidayManager = HolidayManager.getInstance(HolidayCalendar.AUSTRIA);
-        return holidayManager.isHoliday(date);
     }
 
     private TimeWarning createTimeWarning(final LocalDate date) {
