@@ -31,6 +31,7 @@
         <ws.rt.version>4.0.0</ws.rt.version>
         <xml.resolver.version>20050927</xml.resolver.version>
         <lombok.version>1.18.22</lombok.version>
+        <focus-shift.version>0.16.0</focus-shift.version>
         <assertj.version>3.21.0</assertj.version>
         <orika-core.version>1.5.4</orika-core.version>
         <!-- application info -->
@@ -164,7 +165,7 @@
         <dependency>
             <groupId>de.focus-shift</groupId>
             <artifactId>jollyday-jaxb</artifactId>
-            <version>0.16.0</version>
+            <version>${focus-shift.version}</version>
         </dependency>
         <!-- Test Dependencies -->
         <dependency>
