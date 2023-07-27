@@ -86,6 +86,9 @@ public class MonthlyReportDto {
     private int nonPaidVacationDays;
 
     @JsonProperty
+    private double vacationDayBalance;
+
+    @JsonProperty
     private String billableTime;
 
     @JsonProperty

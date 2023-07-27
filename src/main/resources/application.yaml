@@ -60,6 +60,10 @@ quarkus:
     jdbc:
       url: "${DB_JDBC_URL}"
 
+  rest-client:
+    employees-api:
+      url: "https://api.personio.de/v1"
+
 mega:
   info:
     build:

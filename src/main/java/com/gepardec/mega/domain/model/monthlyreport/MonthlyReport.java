@@ -63,7 +63,10 @@ public class MonthlyReport {
 
     private int paidSickLeave;
 
+    private double vacationDayBalance;
+
     private String billableTime;
 
     private String totalWorkingTime;
+
 }
