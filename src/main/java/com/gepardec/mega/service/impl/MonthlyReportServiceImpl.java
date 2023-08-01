@@ -68,8 +68,6 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     public static final String PAID_SICK_LEAVE = "KR";
 
-    private LocalDate currentMonthYear;
-
     @Inject
     ZepService zepService;
 
@@ -86,51 +84,34 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     TimeWarningMapper timeWarningMapper;
 
     @Override
-    public MonthlyReport getMonthendReportForUser(final String userId) {
-        final LocalDate date = Optional.ofNullable(zepService.getEmployee(userId))
-                .flatMap(emp -> Optional.ofNullable(emp.getReleaseDate()))
-                .filter(this::checkReleaseDate)
-                .map(releaseDate -> LocalDate.parse(Objects.requireNonNull(releaseDate)).plusMonths(1))
-                .orElse(null);
-
-        return getMonthendReportForUser(userId, date);
-    }
-
-    private boolean checkReleaseDate(String releaseDate) {
-        try {
-            LocalDate.parse(Objects.requireNonNull(releaseDate));
-            return true;
-        } catch (DateTimeParseException ex) {
-            return false;
-        }
-    }
-
-    @Override
-    public MonthlyReport getMonthendReportForUser(String userId, LocalDate date) {
-        Employee employee = zepService.getEmployee(userId);
-
-        // Wenn kein date null, dann 1. Tag von aktuellen Monat (Logik wie bei StepEntryServiceImpl.parseReleaseDate)
-        currentMonthYear = Optional.ofNullable(date).orElse(DateUtils.getFirstDayOfCurrentMonth());
-
-        return buildMonthlyReport(employee,
+    public MonthlyReport getMonthEndReportForUser(Employee employee, LocalDate date) {
+        return buildMonthlyReport(
+                employee,
+                date,
                 zepService.getProjectTimes(employee, date),
                 zepService.getBillableForEmployee(employee, date),
                 zepService.getAbsenceForEmployee(employee, date),
                 stepEntryService.findEmployeeCheckState(employee, date),
-                stepEntryService.findEmployeeInternalCheckState(employee, date));
+                stepEntryService.findEmployeeInternalCheckState(employee, date)
+        );
     }
 
-    private MonthlyReport buildMonthlyReport(Employee employee, List<ProjectEntry> projectEntries,
-                                             List<ProjektzeitType> billableEntries, List<FehlzeitType> absenceEntries,
-                                             Optional<Pair<EmployeeState, String>> employeeCheckState,
-                                             Optional<EmployeeState> internalCheckState) {
+    private MonthlyReport buildMonthlyReport(
+            Employee employee,
+            LocalDate date,
+            List<ProjectEntry> projectEntries,
+            List<ProjektzeitType> billableEntries,
+            List<FehlzeitType> absenceEntries,
+            Optional<Pair<EmployeeState, String>> employeeCheckState,
+            Optional<EmployeeState> internalCheckState
+    ) {
         final List<JourneyWarning> journeyWarnings = warningCalculator.determineJourneyWarnings(projectEntries);
         final List<TimeWarning> timeWarnings = warningCalculator.determineTimeWarnings(projectEntries);
         timeWarnings.addAll(warningCalculator.determineNoTimeEntries(employee, projectEntries, absenceEntries));
         timeWarnings.sort(Comparator.comparing(ProjectEntryWarning::getDate));
 
-        int year = currentMonthYear.getYear();
-        int month = currentMonthYear.getMonthValue();
+        int year = date.getYear();
+        int month = date.getMonthValue();
 
         List<Comment> comments = commentService.findCommentsForEmployee(employee, getFirstDayOfMonth(year, month), getLastDayOfMonth(year, month));
 
@@ -141,7 +122,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .map(PmProgressDto::ofStepEntry)
                 .collect(Collectors.toList());
 
-        List<StepEntry> allOwnedAndUnassignedStepEntriesForOtherChecks = stepEntryService.findAllOwnedAndUnassignedStepEntriesForOtherChecks(employee, currentMonthYear);
+        List<StepEntry> allOwnedAndUnassignedStepEntriesForOtherChecks = stepEntryService.findAllOwnedAndUnassignedStepEntriesForOtherChecks(employee, date);
 
         Map<String, List<StepEntry>> controlTimeEvidencesStepsByProjects = allOwnedAndUnassignedStepEntriesForOtherChecks.stream()
                 .filter(se -> StepName.CONTROL_TIME_EVIDENCES.name().equals(se.getStep().getName()))
@@ -172,18 +153,18 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .otherChecksDone(otherChecksDone)
                 .billableTime(zepService.getBillableTimesForEmployee(billableEntries, employee))
                 .totalWorkingTime(zepService.getTotalWorkingTimeForEmployee(billableEntries, employee))
-                .compensatoryDays(getAbsenceTimesForEmployee(absenceEntries, COMPENSATORY_DAYS))
-                .homeofficeDays(getAbsenceTimesForEmployee(absenceEntries, HOME_OFFICE_DAYS))
-                .vacationDays(getAbsenceTimesForEmployee(absenceEntries, VACATION_DAYS))
-                .nursingDays(getAbsenceTimesForEmployee(absenceEntries, NURSING_DAYS))
-                .maternityLeaveDays(getAbsenceTimesForEmployee(absenceEntries, MATERNITY_LEAVE_DAYS))
-                .externalTrainingDays(getAbsenceTimesForEmployee(absenceEntries, EXTERNAL_TRAINING_DAYS))
-                .conferenceDays(getAbsenceTimesForEmployee(absenceEntries, CONFERENCE_DAYS))
-                .maternityProtectionDays(getAbsenceTimesForEmployee(absenceEntries, MATERNITY_PROTECTION_DAYS))
-                .fatherMonthDays(getAbsenceTimesForEmployee(absenceEntries, FATHER_MONTH_DAYS))
-                .paidSpecialLeaveDays(getAbsenceTimesForEmployee(absenceEntries, PAID_SPECIAL_LEAVE_DAYS))
-                .nonPaidVacationDays(getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS))
-                .paidSickLeave(getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE))
+                .compensatoryDays(getAbsenceTimesForEmployee(absenceEntries, COMPENSATORY_DAYS, date))
+                .homeofficeDays(getAbsenceTimesForEmployee(absenceEntries, HOME_OFFICE_DAYS, date))
+                .vacationDays(getAbsenceTimesForEmployee(absenceEntries, VACATION_DAYS, date))
+                .nursingDays(getAbsenceTimesForEmployee(absenceEntries, NURSING_DAYS, date))
+                .maternityLeaveDays(getAbsenceTimesForEmployee(absenceEntries, MATERNITY_LEAVE_DAYS, date))
+                .externalTrainingDays(getAbsenceTimesForEmployee(absenceEntries, EXTERNAL_TRAINING_DAYS, date))
+                .conferenceDays(getAbsenceTimesForEmployee(absenceEntries, CONFERENCE_DAYS, date))
+                .maternityProtectionDays(getAbsenceTimesForEmployee(absenceEntries, MATERNITY_PROTECTION_DAYS, date))
+                .fatherMonthDays(getAbsenceTimesForEmployee(absenceEntries, FATHER_MONTH_DAYS, date))
+                .paidSpecialLeaveDays(getAbsenceTimesForEmployee(absenceEntries, PAID_SPECIAL_LEAVE_DAYS, date))
+                .nonPaidVacationDays(getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS, date))
+                .paidSickLeave(getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
                 .build();
     }
 
@@ -195,21 +176,21 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         return stepEntry.getState() == EmployeeState.DONE;
     }
 
-    private int getAbsenceTimesForEmployee(@Nonnull List<FehlzeitType> fehlZeitTypeList, String absenceType) {
+    private int getAbsenceTimesForEmployee(@Nonnull List<FehlzeitType> fehlZeitTypeList, String absenceType, LocalDate date) {
         return (int) fehlZeitTypeList.stream()
                 .filter(fzt -> fzt.getFehlgrund().equals(absenceType))
                 .filter(FehlzeitType::isGenehmigt)
-                .map(this::trimDurationToCurrentMonth)
+                .map(fehlzeitType -> trimDurationToCurrentMonth(fehlzeitType, date))
                 .mapToLong(ftl -> OfficeCalendarUtil.getWorkingDaysBetween(LocalDate.parse(ftl.getStartdatum()), LocalDate.parse(ftl.getEnddatum())).size())
                 .sum();
     }
 
-    private FehlzeitType trimDurationToCurrentMonth(FehlzeitType fehlzeit) {
-        if (LocalDate.parse(fehlzeit.getEnddatum()).getMonthValue() > currentMonthYear.getMonthValue()) {
-            fehlzeit.setEnddatum(currentMonthYear.with(TemporalAdjusters.lastDayOfMonth()).toString());
+    private FehlzeitType trimDurationToCurrentMonth(FehlzeitType fehlzeit, LocalDate date) {
+        if (LocalDate.parse(fehlzeit.getEnddatum()).getMonthValue() > date.getMonthValue()) {
+            fehlzeit.setEnddatum(date.with(TemporalAdjusters.lastDayOfMonth()).toString());
         }
-        if (LocalDate.parse(fehlzeit.getStartdatum()).getMonthValue() < currentMonthYear.getMonthValue()) {
-            fehlzeit.setStartdatum(currentMonthYear.with(TemporalAdjusters.firstDayOfMonth()).toString());
+        if (LocalDate.parse(fehlzeit.getStartdatum()).getMonthValue() < date.getMonthValue()) {
+            fehlzeit.setStartdatum(date.with(TemporalAdjusters.firstDayOfMonth()).toString());
         }
         return fehlzeit;
     }

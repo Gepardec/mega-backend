@@ -7,8 +7,5 @@ import java.time.LocalDate;
 
 public interface MonthlyReportService {
 
-    MonthlyReport getMonthendReportForUser(final String userId);
-
-    MonthlyReport getMonthendReportForUser(final String userId, LocalDate date);
-
+    MonthlyReport getMonthEndReportForUser(Employee employee, LocalDate date);
 }

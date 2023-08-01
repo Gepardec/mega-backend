@@ -17,7 +17,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -40,10 +39,19 @@ public class WorkerResourceImpl implements WorkerResource {
 
     @Override
     public Response monthlyReport() {
-        Employee employee = employeeService.getEmployee(Objects.requireNonNull(userContext.getUser()).getUserId());
+        LocalDate midOfMonth = LocalDate.now().withDayOfMonth(15);
+        LocalDate now = LocalDate.now();
+        Integer currentYear = now.getYear();
+        Integer currentMonth = now.getMonthValue();
+        Integer month;
 
-        LocalDate date = LocalDate.parse(employee.getReleaseDate()).with(TemporalAdjusters.firstDayOfNextMonth());
-        return monthlyReport(date.getYear(), date.getMonthValue());
+        if (now.isAfter(midOfMonth)) {
+            month = currentMonth;
+        } else {
+            month = currentMonth - 1;
+        }
+
+        return monthlyReport(currentYear, month);
     }
 
     @Override
@@ -52,7 +60,7 @@ public class WorkerResourceImpl implements WorkerResource {
 
         Employee employee = employeeService.getEmployee(Objects.requireNonNull(userContext.getUser()).getUserId());
 
-        MonthlyReport monthlyReport = monthlyReportService.getMonthendReportForUser(Objects.requireNonNull(employee).getUserId(), date);
+        MonthlyReport monthlyReport = monthlyReportService.getMonthEndReportForUser(employee, date);
 
         if (monthlyReport == null) {
             monthlyReport = MonthlyReport.builder()
