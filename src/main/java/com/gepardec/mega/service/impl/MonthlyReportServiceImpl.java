@@ -5,16 +5,13 @@ import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.StepName;
-import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
-import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
-import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
-import com.gepardec.mega.domain.model.monthlyreport.ProjectEntryWarning;
-import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
-import com.gepardec.mega.domain.utils.DateUtils;
+import com.gepardec.mega.domain.model.UserContext;
+import com.gepardec.mega.domain.model.monthlyreport.*;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.PmProgressDto;
 import com.gepardec.mega.service.api.CommentService;
+import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WarningCalculator;
@@ -28,14 +25,8 @@ import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfMonth;
@@ -45,27 +36,16 @@ import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfMonth;
 public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     public static final String COMPENSATORY_DAYS = "FA";
-
     public static final String HOME_OFFICE_DAYS = "HO";
-
     public static final String VACATION_DAYS = "UB";
-
     public static final String NURSING_DAYS = "PU";
-
     public static final String MATERNITY_LEAVE_DAYS = "KA";
-
     public static final String EXTERNAL_TRAINING_DAYS = "EW";
-
     public static final String CONFERENCE_DAYS = "KO";
-
     public static final String MATERNITY_PROTECTION_DAYS = "MU";
-
     public static final String FATHER_MONTH_DAYS = "PA";
-
     public static final String PAID_SPECIAL_LEAVE_DAYS = "SU";
-
     public static final String NON_PAID_VACATION_DAYS = "UU";
-
     public static final String PAID_SICK_LEAVE = "KR";
 
     @Inject
@@ -83,9 +63,47 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     @Inject
     TimeWarningMapper timeWarningMapper;
 
+    @Inject
+    UserContext userContext;
+
+    @Inject
+    EmployeeService employeeService;
+
     @Override
-    public MonthlyReport getMonthEndReportForUser(Employee employee, LocalDate date) {
-        return buildMonthlyReport(
+    public MonthlyReport getMonthEndReportForUser() {
+        Employee employee = employeeService.getEmployee(Objects.requireNonNull(userContext.getUser()).getUserId());
+
+        Integer currentYear = LocalDate.now().getYear();
+        Integer month = getCorrectMonthForEndReport(employee);
+
+        return getMonthEndReportForUser(currentYear, month, employee);
+    }
+
+    private Integer getCorrectMonthForEndReport(Employee employee) {
+        LocalDate midOfMonth = LocalDate.now().withDayOfMonth(15);
+        LocalDate now = LocalDate.now();
+        LocalDate previousMonth = now.withMonth(now.getMonth().minus(1).getValue());
+        Integer currentMonth = now.getMonthValue();
+        Integer month;
+
+        if (now.isAfter(midOfMonth) && isMonthCompletedForEmployee(employee, previousMonth)) {
+            month = currentMonth;
+        } else {
+            month = currentMonth - 1;
+        }
+
+        return month;
+    }
+
+    @Override
+    public MonthlyReport getMonthEndReportForUser(Integer year, Integer month, Employee employee) {
+        LocalDate date = LocalDate.of(year, month, 1);
+
+        if (employee == null) {
+            employee = employeeService.getEmployee(Objects.requireNonNull(userContext.getUser()).getUserId());
+        }
+
+        MonthlyReport monthlyReport = buildMonthlyReport(
                 employee,
                 date,
                 zepService.getProjectTimes(employee, date),
@@ -94,6 +112,56 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 stepEntryService.findEmployeeCheckState(employee, date),
                 stepEntryService.findEmployeeInternalCheckState(employee, date)
         );
+
+        if (monthlyReport == null) {
+            monthlyReport = MonthlyReport.builder()
+                    .employee(employee)
+                    .timeWarnings(Collections.emptyList())
+                    .journeyWarnings(Collections.emptyList())
+                    .comments(Collections.emptyList())
+                    .employeeCheckState(EmployeeState.OPEN)
+                    .internalCheckState(EmployeeState.OPEN)
+                    .isAssigned(false)
+                    .employeeProgresses(Collections.emptyList())
+                    .otherChecksDone(false)
+                    .billableTime("00:00")
+                    .totalWorkingTime("00:00")
+                    .compensatoryDays(0)
+                    .homeofficeDays(0)
+                    .vacationDays(0)
+                    .nursingDays(0)
+                    .maternityLeaveDays(0)
+                    .externalTrainingDays(0)
+                    .conferenceDays(0)
+                    .maternityProtectionDays(0)
+                    .fatherMonthDays(0)
+                    .paidSpecialLeaveDays(0)
+                    .nonPaidVacationDays(0)
+                    .paidSickLeave(0)
+                    .build();
+        }
+
+        return monthlyReport;
+    }
+
+    @Override
+    public boolean isMonthCompletedForEmployee(Employee employee, LocalDate date) {
+        List<StepEntry> allOwnedAndUnassignedStepEntriesForOtherChecks = stepEntryService.findAllOwnedAndUnassignedStepEntriesForOtherChecks(employee, date);
+
+        Map<String, List<StepEntry>> controlTimeEvidencesStepsByProjects = allOwnedAndUnassignedStepEntriesForOtherChecks.stream()
+                .filter(se -> StepName.CONTROL_TIME_EVIDENCES.name().equals(se.getStep().getName()))
+                .collect(Collectors.groupingBy(StepEntry::getProject));
+
+        // mind. 1 Projektleiter muss Employee auf Done gesetzt haben, bei Step 4 (Control Time Evidences)
+        boolean controlTimeEvidencesDone = controlTimeEvidencesStepsByProjects.entrySet().stream()
+                .allMatch(this::isAnyStepEntryDone);
+
+        final boolean otherChecksDone = controlTimeEvidencesDone &&
+                allOwnedAndUnassignedStepEntriesForOtherChecks.stream()
+                        .filter(se -> !StepName.CONTROL_TIME_EVIDENCES.name().equals(se.getStep().getName()))
+                        .allMatch(this::isStepEntryDone);
+
+        return otherChecksDone;
     }
 
     private MonthlyReport buildMonthlyReport(
@@ -122,22 +190,6 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .map(PmProgressDto::ofStepEntry)
                 .collect(Collectors.toList());
 
-        List<StepEntry> allOwnedAndUnassignedStepEntriesForOtherChecks = stepEntryService.findAllOwnedAndUnassignedStepEntriesForOtherChecks(employee, date);
-
-        Map<String, List<StepEntry>> controlTimeEvidencesStepsByProjects = allOwnedAndUnassignedStepEntriesForOtherChecks.stream()
-                .filter(se -> StepName.CONTROL_TIME_EVIDENCES.name().equals(se.getStep().getName()))
-                .collect(Collectors.groupingBy(StepEntry::getProject));
-
-        // mind. 1 Projektleiter muss Employee auf Done gesetzt haben, bei Step 4 (Control Time Evidences)
-        boolean controlTimeEvidencesDone = controlTimeEvidencesStepsByProjects.entrySet().stream()
-                .allMatch(this::isAnyStepEntryDone);
-
-
-        final boolean otherChecksDone = controlTimeEvidencesDone &&
-                allOwnedAndUnassignedStepEntriesForOtherChecks.stream()
-                        .filter(se -> !StepName.CONTROL_TIME_EVIDENCES.name().equals(se.getStep().getName()))
-                        .allMatch(this::isStepEntryDone);
-
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
 
         return MonthlyReport.builder()
@@ -150,7 +202,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .internalCheckState(internalCheckState.orElse(EmployeeState.OPEN))
                 .isAssigned(employeeCheckState.isPresent())
                 .employeeProgresses(pmProgressDtos)
-                .otherChecksDone(otherChecksDone)
+                .otherChecksDone(isMonthCompletedForEmployee(employee, date))
                 .billableTime(zepService.getBillableTimesForEmployee(billableEntries, employee))
                 .totalWorkingTime(zepService.getTotalWorkingTimeForEmployee(billableEntries, employee))
                 .compensatoryDays(getAbsenceTimesForEmployee(absenceEntries, COMPENSATORY_DAYS, date))
