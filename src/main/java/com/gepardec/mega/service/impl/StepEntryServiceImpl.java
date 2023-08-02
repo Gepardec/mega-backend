@@ -68,7 +68,7 @@ public class StepEntryServiceImpl implements StepEntryService {
 
     @Override
     public List<StepEntry> findAllOwnedAndUnassignedStepEntriesForPMProgress(String email, String date) {
-        LocalDate entryDate = parseReleaseDate(date);
+        LocalDate entryDate = parseStringDateToLocalDateFirstOfMonth(date);
 
         return stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForPMProgress(entryDate, email);
     }
@@ -186,12 +186,12 @@ public class StepEntryServiceImpl implements StepEntryService {
                 .collect(Collectors.toList());
     }
 
-    private LocalDate parseReleaseDate(String releaseDate) {
+    private LocalDate parseStringDateToLocalDateFirstOfMonth(String date) {
         LocalDate entryDate;
-        if (StringUtils.isBlank(releaseDate) || StringUtils.equalsIgnoreCase(releaseDate, "NULL")) {
+        if (StringUtils.isBlank(date) || StringUtils.equalsIgnoreCase(date, "NULL")) {
             entryDate = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
         } else {
-            entryDate = DateUtils.getFirstDayOfFollowingMonth(releaseDate);
+            entryDate = DateUtils.getFirstDayOfFollowingMonth(date);
         }
         return entryDate;
     }
