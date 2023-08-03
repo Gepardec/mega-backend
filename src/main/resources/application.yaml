@@ -19,6 +19,9 @@ quarkus:
     console:
       enable: true
       level: "ALL"
+  smallrye-metrics:
+    jaxrs:
+      enabled: true
 
   liquibase:
     change-log: "db/changelog-master.xml"
@@ -59,6 +62,8 @@ quarkus:
     password: "${DB_PASSWORD}"
     jdbc:
       url: "${DB_JDBC_URL}"
+    metrics:
+      enabled: true
 
   rest-client:
     personio-api-v1:
@@ -159,6 +164,9 @@ mp:
 ## TEST Properties
 "%test":
   quarkus:
+    log:
+      console:
+        format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
 
     scheduler:
       enabled: false
