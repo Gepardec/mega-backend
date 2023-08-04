@@ -28,11 +28,11 @@ public class EmployeeResourceImpl implements EmployeeResource {
     @Override
     public Response list() {
         final List<Employee> allActiveEmployees = employeeService.getAllActiveEmployees();
-        return Response.ok(mapper.mapAsList(allActiveEmployees, Employee.class, EmployeeDto.class)).build();
+        return Response.ok(mapper.mapAsList(allActiveEmployees, EmployeeDto.class)).build();
     }
 
     @Override
     public Response update(final List<EmployeeDto> employeesDto) {
-        return Response.ok(employeeService.updateEmployeesReleaseDate(mapper.mapAsList(employeesDto, EmployeeDto.class, Employee.class))).build();
+        return Response.ok(employeeService.updateEmployeesReleaseDate(mapper.mapAsList(employeesDto, Employee.class))).build();
     }
 }

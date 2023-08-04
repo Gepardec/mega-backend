@@ -1,33 +1,30 @@
 package com.gepardec.mega.rest.mapper;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class MapperManager {
 
-    private final MapperFactory mapperFactory;
+    private final ModelMapper modelMapper;
 
     public MapperManager() {
-        this.mapperFactory = new DefaultMapperFactory.Builder().build();
+        this.modelMapper = new ModelMapper();
+        this.modelMapper.getConfiguration()
+                .setMatchingStrategy(MatchingStrategies.STRICT);
     }
 
     public <T, V> V map(T obj, Class<V> type) {
-        this.mapperFactory.classMap(obj.getClass(), type)
-                .mapNulls(true)
-                .byDefault()
-                .register();
-        return mapperFactory.getMapperFacade().map(obj, type);
+        return modelMapper.map(obj, type);
     }
 
-    public <T, V, W> List<W> mapAsList(List<T> objects, Class<V> sourceType, Class<W> destinationType) {
-        this.mapperFactory.classMap(sourceType, destinationType)
-                .mapNulls(true)
-                .byDefault()
-                .register();
-        return mapperFactory.getMapperFacade().mapAsList(objects, destinationType);
+    public <T, V> List<V> mapAsList(List<T> objects, Class<V> type) {
+        return objects.stream()
+                .map(obj -> map(obj, type))
+                .collect(Collectors.toList());
     }
 }
