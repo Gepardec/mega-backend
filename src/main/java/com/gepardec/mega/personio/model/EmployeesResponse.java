@@ -1,14 +1,26 @@
 package com.gepardec.mega.personio.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.util.List;
 
-@NoArgsConstructor
-@Getter
 public class EmployeesResponse {
 
     private boolean success;
+
     private List<EmployeesResponseData> data;
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+    public List<EmployeesResponseData> getData() {
+        return data;
+    }
+
+    public void setData(List<EmployeesResponseData> data) {
+        this.data = data;
+    }
 }
