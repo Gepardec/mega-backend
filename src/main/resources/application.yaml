@@ -61,7 +61,7 @@ quarkus:
       url: "${DB_JDBC_URL}"
 
   rest-client:
-    employees-api:
+    personio-api-v1:
       url: "https://api.personio.de/v1"
 
 mega:
@@ -103,6 +103,10 @@ mega:
         - "alexandra.stummer@gepardec.com"
         - "simon.bauer@gepardec.com"
         - "paul.waldecker@gepardec.com"
+
+  personio:
+    token:
+      expires-in-minutes: 1200 # 20h - real token expires in 24h
 
 mp:
   jwt:
