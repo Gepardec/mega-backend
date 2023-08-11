@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 public class CommentMapper {
 
     public Comment mapDbCommentToDomainComment(com.gepardec.mega.db.entity.employee.Comment dbComment) {
-        Comment domainComment = Comment
+        return Comment
                 .builder()
                 .id(dbComment.getId())
                 .authorEmail(dbComment.getStepEntry().getAssignee().getEmail())
@@ -18,8 +18,5 @@ public class CommentMapper {
                 .message(dbComment.getMessage())
                 .state(dbComment.getState())
                 .build();
-
-        return domainComment;
     }
-
 }
