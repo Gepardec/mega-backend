@@ -1,6 +1,6 @@
 package com.gepardec.mega.personio.model;
 
-public class Data {
+public class AuthResponseData {
 
     private String token;
 

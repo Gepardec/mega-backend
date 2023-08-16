@@ -13,7 +13,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @Path("/company")
 @RegisterRestClient(configKey = "personio-api-v1")
 @RegisterClientHeaders(PersonioHeadersFactory.class)
-public interface EmployeesClient {
+public interface PersonioEmployeesClient {
 
     @GET
     @Path("/employees")

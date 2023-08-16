@@ -4,7 +4,7 @@ public class AuthResponse {
 
     private boolean success;
 
-    private Data data;
+    private AuthResponseData authResponseData;
 
     public boolean isSuccess() {
         return success;
@@ -14,11 +14,11 @@ public class AuthResponse {
         this.success = success;
     }
 
-    public Data getData() {
-        return data;
+    public AuthResponseData getData() {
+        return authResponseData;
     }
 
-    public void setData(Data data) {
-        this.data = data;
+    public void setData(AuthResponseData authResponseData) {
+        this.authResponseData = authResponseData;
     }
 }

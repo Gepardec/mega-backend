@@ -1,6 +1,6 @@
 package com.gepardec.mega.personio.service.impl;
 
-import com.gepardec.mega.personio.client.EmployeesClient;
+import com.gepardec.mega.personio.client.PersonioEmployeesClient;
 import com.gepardec.mega.personio.model.EmployeesResponse;
 import com.gepardec.mega.personio.service.api.PersonioService;
 import jakarta.enterprise.context.RequestScoped;
@@ -12,13 +12,13 @@ public class PersonioServiceImpl implements PersonioService {
 
     @Inject
     @RestClient
-    EmployeesClient employeesClient;
+    PersonioEmployeesClient personioEmployeesClient;
 
     @Override
     public double getVacationDayBalance(String email) {
-        EmployeesResponse employeesResponse = null;
+        EmployeesResponse employeesResponse;
         try {
-            employeesResponse = employeesClient.getByEmail(email);
+            employeesResponse = personioEmployeesClient.getByEmail(email);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
