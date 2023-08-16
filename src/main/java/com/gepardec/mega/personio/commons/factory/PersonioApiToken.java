@@ -1,4 +1,4 @@
-package com.gepardec.mega.personio.factory;
+package com.gepardec.mega.personio.commons.factory;
 
 import jakarta.enterprise.context.ApplicationScoped;
 

@@ -1,4 +1,4 @@
-package com.gepardec.mega.personio.factory;
+package com.gepardec.mega.personio.commons.factory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.enterprise.context.RequestScoped;

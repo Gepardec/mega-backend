@@ -1,4 +1,4 @@
-package com.gepardec.mega.personio.model;
+package com.gepardec.mega.personio.employees;
 
 public class TimeOffTypeAttributes {
 

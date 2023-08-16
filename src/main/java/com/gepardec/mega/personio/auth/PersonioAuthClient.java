@@ -1,7 +1,6 @@
-package com.gepardec.mega.personio.client;
+package com.gepardec.mega.personio.auth;
 
-import com.gepardec.mega.personio.factory.PersonioClientToken;
-import com.gepardec.mega.personio.model.AuthResponse;
+import com.gepardec.mega.personio.commons.factory.PersonioClientToken;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;

@@ -1,10 +1,10 @@
-package com.gepardec.mega.personio.model;
+package com.gepardec.mega.personio.employees;
 
-public class EmployeesResponseData {
+public class TimeOffType {
 
     private String type;
 
-    private PersonioEmployee attributes;
+    private TimeOffTypeAttributes attributes;
 
     public String getType() {
         return type;
@@ -14,11 +14,11 @@ public class EmployeesResponseData {
         this.type = type;
     }
 
-    public PersonioEmployee getAttributes() {
+    public TimeOffTypeAttributes getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(PersonioEmployee attributes) {
+    public void setAttributes(TimeOffTypeAttributes attributes) {
         this.attributes = attributes;
     }
 }

@@ -1,4 +1,4 @@
-package com.gepardec.mega.personio.model;
+package com.gepardec.mega.personio.auth;
 
 public class AuthResponse {
 

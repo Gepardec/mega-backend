@@ -1,8 +1,8 @@
-package com.gepardec.mega.personio.factory;
+package com.gepardec.mega.personio.commons.factory;
 
 import com.gepardec.mega.application.configuration.PersonioConfig;
-import com.gepardec.mega.personio.client.PersonioAuthClient;
-import com.gepardec.mega.personio.model.AuthResponse;
+import com.gepardec.mega.personio.auth.AuthResponse;
+import com.gepardec.mega.personio.auth.PersonioAuthClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.NotAuthorizedException;

@@ -1,14 +1,11 @@
-package com.gepardec.mega.personio.service.impl;
+package com.gepardec.mega.personio.employees;
 
-import com.gepardec.mega.personio.client.PersonioEmployeesClient;
-import com.gepardec.mega.personio.model.EmployeesResponse;
-import com.gepardec.mega.personio.service.api.PersonioService;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @RequestScoped
-public class PersonioServiceImpl implements PersonioService {
+public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
 
     @Inject
     @RestClient

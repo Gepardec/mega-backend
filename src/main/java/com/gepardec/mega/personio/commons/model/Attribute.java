@@ -1,4 +1,4 @@
-package com.gepardec.mega.personio.model;
+package com.gepardec.mega.personio.commons.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

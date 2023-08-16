@@ -1,6 +1,7 @@
-package com.gepardec.mega.personio.model;
+package com.gepardec.mega.personio.employees;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gepardec.mega.personio.commons.model.Attribute;
 
 import java.util.List;
 

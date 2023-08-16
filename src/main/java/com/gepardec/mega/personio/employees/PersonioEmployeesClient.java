@@ -1,7 +1,6 @@
-package com.gepardec.mega.personio.client;
+package com.gepardec.mega.personio.employees;
 
-import com.gepardec.mega.personio.factory.PersonioHeadersFactory;
-import com.gepardec.mega.personio.model.EmployeesResponse;
+import com.gepardec.mega.personio.commons.factory.PersonioHeadersFactory;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

@@ -12,7 +12,7 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectEntryWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
-import com.gepardec.mega.personio.service.api.PersonioService;
+import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.PmProgressDto;
 import com.gepardec.mega.service.api.CommentService;
@@ -87,7 +87,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     TimeWarningMapper timeWarningMapper;
 
     @Inject
-    PersonioService personioService;
+    PersonioEmployeesService personioEmployeesService;
 
     @Override
     public MonthlyReport getMonthendReportForUser(final String userId) {
@@ -188,7 +188,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .paidSpecialLeaveDays(getAbsenceTimesForEmployee(absenceEntries, PAID_SPECIAL_LEAVE_DAYS))
                 .nonPaidVacationDays(getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS))
                 .paidSickLeave(getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE))
-                .vacationDayBalance(personioService.getVacationDayBalance(employee.getEmail()))
+                .vacationDayBalance(personioEmployeesService.getVacationDayBalance(employee.getEmail()))
                 .build();
     }
 
