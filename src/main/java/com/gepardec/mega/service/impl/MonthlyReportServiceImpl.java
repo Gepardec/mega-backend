@@ -73,26 +73,24 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     public MonthlyReport getMonthEndReportForUser() {
         Employee employee = employeeService.getEmployee(Objects.requireNonNull(userContext.getUser()).getUserId());
 
-        Integer currentYear = LocalDate.now().getYear();
-        Integer month = getCorrectMonthForEndReport(employee);
+        LocalDate initialDate = getCorrectInitialDateForEndReport(employee);
 
-        return getMonthEndReportForUser(currentYear, month, employee);
+        MonthlyReport monthlyReport = getMonthEndReportForUser(initialDate.getYear(), initialDate.getMonthValue(), employee);
+        monthlyReport.setInitialDate(initialDate);
+
+        return monthlyReport;
     }
 
-    private Integer getCorrectMonthForEndReport(Employee employee) {
+    private LocalDate getCorrectInitialDateForEndReport(Employee employee) {
         LocalDate midOfMonth = LocalDate.now().withDayOfMonth(14);
         LocalDate now = LocalDate.now();
         LocalDate previousMonth = now.withMonth(now.getMonth().minus(1).getValue());
-        Integer currentMonth = now.getMonthValue();
-        Integer month;
 
         if (now.isAfter(midOfMonth) && isMonthCompletedForEmployee(employee, previousMonth)) {
-            month = currentMonth;
+            return now;
         } else {
-            month = currentMonth - 1;
+            return previousMonth;
         }
-
-        return month;
     }
 
     @Override
@@ -116,7 +114,6 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         if (monthlyReport == null) {
             monthlyReport = MonthlyReport.builder()
                     .employee(employee)
-                    .initialDate(date)
                     .timeWarnings(Collections.emptyList())
                     .journeyWarnings(Collections.emptyList())
                     .comments(Collections.emptyList())
@@ -195,7 +192,6 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
         return MonthlyReport.builder()
                 .employee(employee)
-                .initialDate(date)
                 .timeWarnings(mappedTimeWarnings)
                 .journeyWarnings(journeyWarnings)
                 .comments(comments)
