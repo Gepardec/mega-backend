@@ -116,6 +116,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         if (monthlyReport == null) {
             monthlyReport = MonthlyReport.builder()
                     .employee(employee)
+                    .initialDate(date)
                     .timeWarnings(Collections.emptyList())
                     .journeyWarnings(Collections.emptyList())
                     .comments(Collections.emptyList())
@@ -194,6 +195,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
         return MonthlyReport.builder()
                 .employee(employee)
+                .initialDate(date)
                 .timeWarnings(mappedTimeWarnings)
                 .journeyWarnings(journeyWarnings)
                 .comments(comments)
