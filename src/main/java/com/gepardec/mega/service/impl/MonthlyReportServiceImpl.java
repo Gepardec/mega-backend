@@ -84,7 +84,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     private LocalDate getCorrectInitialDateForEndReport(Employee employee) {
         LocalDate midOfMonth = LocalDate.now().withDayOfMonth(14);
         LocalDate now = LocalDate.now();
-        LocalDate previousMonth = now.withMonth(now.getMonth().minus(1).getValue());
+        LocalDate previousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
 
         if (now.isAfter(midOfMonth) && isMonthCompletedForEmployee(employee, previousMonth)) {
             return now;
