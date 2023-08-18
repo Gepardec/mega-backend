@@ -13,12 +13,7 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
 
     @Override
     public double getVacationDayBalance(String email) {
-        EmployeesResponse employeesResponse;
-        try {
-            employeesResponse = personioEmployeesClient.getByEmail(email);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        var employeesResponse = personioEmployeesClient.getByEmail(email);
         if (employeesResponse.isSuccess() && employeesResponse.getData().size() == 1) {
             return employeesResponse.getData().get(0).getAttributes().getVacationDayBalance().getValue();
         }

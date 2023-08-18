@@ -19,9 +19,7 @@ import java.util.Optional;
 public class PersonioHeadersFactory implements ClientHeadersFactory {
 
     public static final String X_PERSONIO_APP_ID = "X-Personio-App-ID";
-
     private static final String BEARER_PREFIX = "Bearer ";
-
     private static final String APP_ID = "GEPARDEC_MEGA";
 
     @Inject
