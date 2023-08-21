@@ -64,6 +64,14 @@ quarkus:
     personio-api-v1:
       url: "https://api.personio.de/v1"
 
+# disables the DefaultResponseExceptionMapper of the microprofile resteasy client
+microprofile:
+  rest:
+    client:
+      disable:
+        default:
+          mapper: true
+
 mega:
   info:
     build:

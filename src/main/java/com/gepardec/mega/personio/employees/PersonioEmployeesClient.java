@@ -7,6 +7,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
@@ -16,8 +17,16 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @RegisterClientHeaders(PersonioHeadersFactory.class)
 public interface PersonioEmployeesClient {
 
+    /**
+     * Fetches information about an employee based on the email address.
+     * Due to limitations of RESTEasy, a plain response object needs to be returned.
+     * This is because all responses from the Personio API contain a payload even when they have an error status code.
+     *
+     * @param email Email address of the employee.
+     * @return Response which is actually a {@code BaseResponse<List<EmployeesResponse>>}.
+     */
     @GET
     @Path("/employees")
     @Consumes(MediaType.APPLICATION_JSON)
-    EmployeesResponse getByEmail(@QueryParam("email") String email);
+    Response getByEmail(@QueryParam("email") String email);
 }

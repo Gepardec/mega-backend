@@ -1,26 +1,24 @@
 package com.gepardec.mega.personio.employees;
 
-import java.util.List;
-
 public class EmployeesResponse {
 
-    private boolean success;
+    private String type;
 
-    private List<EmployeesResponseData> data;
+    private PersonioEmployee attributes;
 
-    public boolean isSuccess() {
-        return success;
+    public String getType() {
+        return type;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public List<EmployeesResponseData> getData() {
-        return data;
+    public PersonioEmployee getAttributes() {
+        return attributes;
     }
 
-    public void setData(List<EmployeesResponseData> data) {
-        this.data = data;
+    public void setAttributes(PersonioEmployee attributes) {
+        this.attributes = attributes;
     }
 }
