@@ -71,7 +71,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     @Override
     public MonthlyReport getMonthEndReportForUser() {
-        Employee employee = employeeService.getEmployee(Objects.requireNonNull(userContext.getUser()).getUserId());
+        Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
 
         LocalDate initialDate = getCorrectInitialDateForEndReport(employee);
 
@@ -84,12 +84,12 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     private LocalDate getCorrectInitialDateForEndReport(Employee employee) {
         LocalDate midOfMonth = LocalDate.now().withDayOfMonth(14);
         LocalDate now = LocalDate.now();
-        LocalDate previousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
+        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
 
-        if (now.isAfter(midOfMonth) && isMonthCompletedForEmployee(employee, previousMonth)) {
+        if (now.isAfter(midOfMonth) && isMonthCompletedForEmployee(employee, firstOfPreviousMonth)) {
             return now;
         } else {
-            return previousMonth;
+            return firstOfPreviousMonth;
         }
     }
 
@@ -98,7 +98,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         LocalDate date = LocalDate.of(year, month, 1);
 
         if (employee == null) {
-            employee = employeeService.getEmployee(Objects.requireNonNull(userContext.getUser()).getUserId());
+            employee = employeeService.getEmployee(userContext.getUser().getUserId());
         }
 
         MonthlyReport monthlyReport = buildMonthlyReport(
