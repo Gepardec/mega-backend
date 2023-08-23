@@ -3,12 +3,12 @@ package com.gepardec.mega.personio.employees;
 import com.gepardec.mega.personio.commons.model.Attribute;
 import com.gepardec.mega.personio.commons.model.BaseResponse;
 import com.gepardec.mega.personio.commons.model.ErrorResponse;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -18,16 +18,17 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@QuarkusTest
 class PersonioEmployeesServiceImplTest {
 
-    @InjectMocks
+    @Inject
     PersonioEmployeesServiceImpl personioEmployeesService;
 
-    @Mock
+    @InjectMock
+    @RestClient
     PersonioEmployeesClient personioEmployeesClient;
 
-    @Mock
+    @InjectMock
     Logger logger;
 
     @Test
