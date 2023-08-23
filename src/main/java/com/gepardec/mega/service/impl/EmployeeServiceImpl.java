@@ -46,6 +46,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Employee getEmployee(String userId) {
+        Objects.requireNonNull(userId);
+
         return zepService.getEmployee(userId);
     }
 
