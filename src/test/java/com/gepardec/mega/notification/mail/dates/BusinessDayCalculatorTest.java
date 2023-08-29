@@ -25,34 +25,56 @@ class BusinessDayCalculatorTest {
     BusinessDayCalculator businessDayCalculator;
 
     @Test
-    void getRemindersForDate_firstDayOfMonthBusinessDay_shouldReturnUserCheckprojecttimes() {
-        assertRemindersEqual(List.of(EMPLOYEE_CHECK_PROJECTTIME), businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 10, 1)));
+    void getRemindersForDate_FirstDayOfMonthBusinessDay_EmptyList() {
+        assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 10, 1)));
     }
 
     @Test
-    void getRemindersForDate_firstDayOfMonthNoBusinessDay_shouldReturnEmptyValue() {
+    void getRemindersForDate_FirstDayOfMonthNoBusinessDay_EmptyList() {
         assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 1)));
     }
 
     @Test
-    void getRemindersForDate_forthDayOfMonthIsFirstBusinessDay_shouldReturnCheckprojecttimes() {
-        assertRemindersEqual(List.of(EMPLOYEE_CHECK_PROJECTTIME), businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 4)));
+    void getRemindersForDate_LastDayOfMonthBusinessDay_EmployeeCheckProjectTimeAndOmControlProjectTimes() {
+        //GIVEN
+        var currentDate = LocalDate.of(2023, 8, 31);
+
+        //WHEN
+        var actualReminders = businessDayCalculator.getRemindersForDate(currentDate);
+
+        //THEN
+        assertRemindersEqual(
+                List.of(EMPLOYEE_CHECK_PROJECTTIME, OM_CONTROL_PROJECTTIMES),
+                actualReminders
+        );
     }
 
     @Test
-    void getEventforDate_firstDayOfMonthIsWeekendDay_shouldReturnEmpty() {
-        assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 1)));
+    void getRemindersForDate_LastDayOfMonthNotBusinessDay_EmptyList() {
+        //GIVEN
+        var currentDate = LocalDate.of(2023, 4, 30); // = Sunday
+
+        //WHEN
+        var actualReminders = businessDayCalculator.getRemindersForDate(currentDate);
+
+        //THEN
+        assertRemindersEmpty(actualReminders);
     }
 
     @Test
-    void getRemindersForDate_lastDayOfMonthIsWeekDay_shouldReturnOmControlProjecttimes() {
-        assertRemindersEqual(List.of(OM_CONTROL_PROJECTTIMES), businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 4, 30)));
-    }
+    void getRemindersForDate_LastDayOfMonthNotBusinessDay_EmployeeCheckProjectTimeAndOmControlProjectTimesOnFriday() {
+        //GIVEN
+        // 2023-04-30 is a sunday => 2023-04-28 is last working day of the month
+        var currentDate = LocalDate.of(2023, 4, 28); // = Friday
 
-    @Test
-    void getRemindersForDate_lastDayOfMonthIsSaturday_shouldReturn_OmControlProjecttimesOnFriday() {
-        assertRemindersEqual(List.of(OM_CONTROL_PROJECTTIMES), businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 28)));
-        assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 29)));
+        //WHEN
+        var actualReminders = businessDayCalculator.getRemindersForDate(currentDate);
+
+        //THEN
+        assertRemindersEqual(
+                List.of(EMPLOYEE_CHECK_PROJECTTIME, OM_CONTROL_PROJECTTIMES),
+                actualReminders
+        );
     }
 
     @Test
@@ -73,7 +95,7 @@ class BusinessDayCalculatorTest {
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 1))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 2))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 3))),
-                () -> assertRemindersEqual(List.of(EMPLOYEE_CHECK_PROJECTTIME), businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 4))),
+                () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 4))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 5))),
                 () -> assertRemindersEqual(List.of(OM_CONTROL_EMPLOYEES_CONTENT), businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 6))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 7))),
@@ -98,7 +120,7 @@ class BusinessDayCalculatorTest {
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 26))),
                 () -> assertRemindersEqual(List.of(OM_SALARY), businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 27))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 28))),
-                () -> assertRemindersEqual(List.of(OM_CONTROL_PROJECTTIMES), businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 29))),
+                () -> assertRemindersEqual(List.of(EMPLOYEE_CHECK_PROJECTTIME, OM_CONTROL_PROJECTTIMES), businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 29))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 30)))
         );
     }
@@ -108,7 +130,7 @@ class BusinessDayCalculatorTest {
         assertAll(
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 1))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 2))),
-                () -> assertRemindersEqual(List.of(EMPLOYEE_CHECK_PROJECTTIME), businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 3))),
+                () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 3))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 4))),
                 () -> assertRemindersEqual(List.of(OM_CONTROL_EMPLOYEES_CONTENT), businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 5))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 6))),
@@ -133,7 +155,7 @@ class BusinessDayCalculatorTest {
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 25))),
                 () -> assertRemindersEqual(List.of(OM_SALARY), businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 26))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 27))),
-                () -> assertRemindersEqual(List.of(OM_CONTROL_PROJECTTIMES), businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 28))),
+                () -> assertRemindersEqual(List.of(EMPLOYEE_CHECK_PROJECTTIME, OM_CONTROL_PROJECTTIMES), businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 28))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 29)))
         );
     }

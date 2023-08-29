@@ -1,7 +1,7 @@
 package com.gepardec.mega.notification.mail;
 
 public enum Mail {
-    EMPLOYEE_CHECK_PROJECTTIME(1, MailType.WORKING_DAY_BASED, "emails/reminder-template.html"),
+    EMPLOYEE_CHECK_PROJECTTIME(-1, MailType.WORKING_DAY_BASED, "emails/reminder-template.html"),
     OM_CONTROL_EMPLOYEES_CONTENT(3, MailType.WORKING_DAY_BASED, "emails/reminder-template.html"),
     PL_PROJECT_CONTROLLING(5, MailType.WORKING_DAY_BASED, "emails/reminder-template.html"),
     OM_RELEASE(-5, MailType.WORKING_DAY_BASED, "emails/reminder-template.html"),
