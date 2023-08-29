@@ -13,7 +13,6 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.gepardec.mega.notification.mail.Mail.EMPLOYEE_CHECK_PROJECTTIME;
 import static com.gepardec.mega.notification.mail.Mail.OM_ADMINISTRATIVE;
@@ -46,9 +45,14 @@ public class ReminderEmailSender {
 
     public void sendReminder() {
         logger.info("Mail-Daemon-cron-job started at {}", DateUtils.today());
-        Optional<Mail> reminder = businessDayCalculator.getEventForDate(DateUtils.today());
-        if (reminder.isPresent()) {
-            switch (reminder.get()) {
+        var reminders = businessDayCalculator.getRemindersForDate(DateUtils.today());
+
+        if (reminders.isEmpty()) {
+            logger.info("No notification sent today");
+        }
+
+        reminders.forEach(reminder -> {
+            switch (reminder) {
                 case EMPLOYEE_CHECK_PROJECTTIME: {
                     sendReminderToUser();
                     break;
@@ -78,9 +82,7 @@ public class ReminderEmailSender {
                     break;
                 }
             }
-        } else {
-            logger.info("NO notification sent today");
-        }
+        });
     }
 
     void sendReminderToPl() {
