@@ -38,7 +38,7 @@ class MailSenderTest {
 
     public static Stream<Arguments> emailsWithSubject() {
         return Stream.of(
-                Arguments.of(Mail.EMPLOYEE_CHECK_PROJECTTIME, "UNIT-TEST: Friendly Reminder: Buchungen kontrollieren"),
+                Arguments.of(Mail.EMPLOYEE_CHECK_PROJECTTIME, "UNIT-TEST: Reminder: Buchungen bis heute Abend in MEGA bestätigen"),
                 Arguments.of(Mail.PL_PROJECT_CONTROLLING, "UNIT-TEST: Reminder: Projekte kontrollieren und abrechnen"),
                 Arguments.of(Mail.OM_CONTROL_EMPLOYEES_CONTENT, "UNIT-TEST: Reminder: Kontrolle Mitarbeiter"),
                 Arguments.of(Mail.OM_CONTROL_PROJECTTIMES, "UNIT-TEST: Reminder: Administrative Projektzeiten kontrollieren (Monatsende)"),

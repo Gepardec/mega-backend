@@ -97,7 +97,7 @@ class ReminderEmailSenderTest {
         reminderEmailSender.sendReminderToUser();
         assertAll(
                 () -> assertThat(mailbox.getTotalMessagesSent()).isEqualTo(1),
-                () -> assertThat(mailbox.getMessagesSentTo("no-reply@gepardec.com").get(0).getSubject()).isEqualTo("UNIT-TEST: Friendly Reminder: Buchungen kontrollieren")
+                () -> assertThat(mailbox.getMessagesSentTo("no-reply@gepardec.com").get(0).getSubject()).isEqualTo("UNIT-TEST: Reminder: Buchungen bis heute Abend in MEGA bestätigen")
         );
     }
 
