@@ -8,11 +8,14 @@ import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil.isWorkingDay;
@@ -24,19 +27,31 @@ public class BusinessDayCalculator {
     @Inject
     Logger logger;
 
-    public Optional<Mail> getEventForDate(LocalDate actualDate) {
+    public List<Mail> getRemindersForDate(LocalDate actualDate) {
         logger.info("starting getEventForDate with date {}", actualDate);
 
-        Map<LocalDate, Mail> reminderByDate = new HashMap<>(0);
+        Map<LocalDate, List<Mail>> remindersByDate = new HashMap<>(0);
         LocalDate firstWorkingDayOfMonth = calcFirstWorkingDayOfMonthForDate(actualDate);
 
         Arrays.stream(Mail.values())
-                .forEach(reminder -> reminderByDate.put(calcDateForReminder(firstWorkingDayOfMonth, reminder), reminder));
+                .forEach(reminder ->
+                        // create multi-value map for dates with multiple reminders
+                        remindersByDate.computeIfAbsent(
+                                        calcDateForReminder(firstWorkingDayOfMonth, reminder),
+                                        k -> new ArrayList<>()
+                                )
+                                .add(reminder)
+                );
 
-        Optional<Mail> relevantReminder = Optional.ofNullable(reminderByDate.get(actualDate));
-        relevantReminder.ifPresent(reminder -> logger.info("Reminder {} was calculated", reminder.name()));
+        var relevantReminders = remindersByDate.getOrDefault(actualDate, Collections.emptyList());
+        if (!relevantReminders.isEmpty()) {
+            logger.info(
+                    "Reminder(s) {} was/were calculated",
+                    relevantReminders.stream().map(Mail::name).collect(Collectors.joining(", "))
+            );
+        }
 
-        return relevantReminder;
+        return relevantReminders;
     }
 
     private LocalDate calcDateForReminder(LocalDate firstWorkingdayOfMonth, Mail mail) {
