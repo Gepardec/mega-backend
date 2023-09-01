@@ -9,6 +9,7 @@ import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
+import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.service.helper.WarningCalculator;
 import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
@@ -17,6 +18,7 @@ import de.provantis.zep.FehlzeitType;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -29,6 +31,7 @@ import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -40,8 +43,16 @@ class MonthlyReportServiceImplTest {
     @InjectMock
     WarningCalculator warningCalculator;
 
+    @InjectMock
+    PersonioEmployeesService personioEmployeesService;
+
     @Inject
     MonthlyReportServiceImpl monthlyReportService;
+
+    @BeforeEach
+    void setUp() {
+        when(personioEmployeesService.getVacationDayBalance(any())).thenReturn(0d);
+    }
 
     @Test
     void testGetMonthendReportForUser_MitarbeiterValid() {
