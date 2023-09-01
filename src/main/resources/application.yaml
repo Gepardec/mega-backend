@@ -113,6 +113,10 @@ mega:
         - "paul.waldecker@gepardec.com"
 
   personio:
+    api:
+      client:
+        id: "${PERSONIO_API_CLIENT_ID:default}"
+        secret: "${PERSONIO_API_CLIENT_SECRET:default}"
     token:
       expires-in-minutes: 1200 # 20h - real token expires in 24h
 

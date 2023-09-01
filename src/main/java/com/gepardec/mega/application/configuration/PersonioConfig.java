@@ -8,11 +8,11 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class PersonioConfig {
 
     @Inject
-    @ConfigProperty(name = "personio.api.client.secret")
+    @ConfigProperty(name = "mega.personio.api.client.secret")
     String clientSecret;
 
     @Inject
-    @ConfigProperty(name = "personio.api.client.id")
+    @ConfigProperty(name = "mega.personio.api.client.id")
     String clientId;
 
     @Inject
