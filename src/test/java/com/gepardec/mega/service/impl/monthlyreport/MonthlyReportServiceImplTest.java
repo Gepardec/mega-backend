@@ -1,24 +1,27 @@
 package com.gepardec.mega.service.impl.monthlyreport;
 
 import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
-import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
-import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
-import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
-import com.gepardec.mega.domain.model.monthlyreport.Task;
-import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
-import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
-import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
+import com.gepardec.mega.domain.model.Role;
+import com.gepardec.mega.domain.model.User;
+import com.gepardec.mega.domain.model.UserContext;
+import com.gepardec.mega.domain.model.monthlyreport.*;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
+import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.helper.WarningCalculator;
 import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.FehlzeitType;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import io.quarkus.test.security.TestSecurity;
+import io.quarkus.test.security.jwt.Claim;
+import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
@@ -26,12 +29,18 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
+@TestSecurity(user = "test")
+@JwtSecurity(claims = {
+        @Claim(key = "email", value = "test@gepardec.com")
+})
 class MonthlyReportServiceImplTest {
 
     @InjectMock
@@ -43,12 +52,36 @@ class MonthlyReportServiceImplTest {
     @Inject
     MonthlyReportServiceImpl monthlyReportService;
 
+    @InjectMock
+    EmployeeService employeeService;
+
+    @InjectMock
+    UserContext userContext;
+
+    MockedStatic<UserContext> mockStatic;
+
+    @BeforeEach
+    void init() {
+        mockStatic = Mockito.mockStatic(UserContext.class);
+
+        User user = createUserForRole(Role.EMPLOYEE);
+        when(userContext.getUser()).thenReturn(user);
+
+        Employee employee1 = createEmployeeForUser(user);
+        when(employeeService.getEmployee(anyString())).thenReturn(employee1);
+    }
+
+    @AfterEach
+    void close() {
+        mockStatic.close();
+    }
+
     @Test
     void testGetMonthendReportForUser_MitarbeiterValid() {
         final Employee employee = createEmployeeWithReleaseDate(0, "NULL");
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
 
-        assertThat(monthlyReportService.getMonthendReportForUser("0"))
+        assertThat(monthlyReportService.getMonthEndReportForUser())
                 .isNotNull();
     }
 
@@ -59,7 +92,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(new ArrayList<>());
         when(warningCalculator.determineNoTimeEntries(Mockito.any(Employee.class), Mockito.anyList(), Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        assertThat(monthlyReportService.getMonthendReportForUser("0"))
+        assertThat(monthlyReportService.getMonthEndReportForUser())
                 .isNotNull();
     }
 
@@ -70,7 +103,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(10));
         when(warningCalculator.determineNoTimeEntries(Mockito.any(Employee.class), Mockito.anyList(), Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
         assertThat(monthendReportForUser)
                 .isNotNull();
@@ -90,7 +123,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(new ArrayList<>());
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(createTimeWarningList());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
         assertThat(monthendReportForUser)
                 .isNotNull();
@@ -119,7 +152,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
         assertAll(
                 () -> assertThat(monthendReportForUser)
@@ -149,7 +182,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
         assertAll(
                 () -> assertThat(monthendReportForUser)
@@ -179,7 +212,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
         assertAll(
                 () -> assertThat(monthendReportForUser)
@@ -193,7 +226,6 @@ class MonthlyReportServiceImplTest {
                 () -> assertThat(monthendReportForUser.getExternalTrainingDays()).isEqualTo(2)
         );
     }
-
 
     @Test
     void getMonthendReportForUser_isUserIsValidAndHasConferenceAbsenceDays_thenReturnsReportWithCorrectAmountOfConferenceDays() {
@@ -210,7 +242,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
         assertAll(
                 () -> assertThat(monthendReportForUser)
@@ -224,7 +256,6 @@ class MonthlyReportServiceImplTest {
                 () -> assertThat(monthendReportForUser.getConferenceDays()).isEqualTo(2)
         );
     }
-
 
     @Test
     void getMonthendReportForUser_isUserIsValidAndHasMaternityProtectionAbsenceDays_thenReturnsReportWithCorrectAmountOfMaternityProtectionDays() {
@@ -241,7 +272,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
         List<MappedTimeWarningDTO> test = monthendReportForUser.getTimeWarnings();
 
@@ -273,7 +304,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
         assertAll(
                 () -> assertThat(monthendReportForUser)
@@ -303,7 +334,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
         assertAll(
                 () -> assertThat(monthendReportForUser)
@@ -333,7 +364,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
         assertAll(
                 () -> assertThat(monthendReportForUser)
@@ -356,7 +387,23 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createVacationAbsenceList());
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
+
+        assertAll(
+                () -> assertThat(monthendReportForUser).isNotNull(),
+                () -> assertThat(monthendReportForUser.getVacationDays()).isEqualTo(5)
+        );
+    }
+
+    @Test
+    void getMonthendReportForUser_WithYearAndMonth_isUserValidAndHasPaidVacationOverWeekendWhichExtendsOverMonthEnd_thenReturnsReportWithOnlyVacationDaysOnWorkdays() {
+        final Employee employee = createEmployeeForVacationTests(0);
+        when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
+        when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
+        when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createVacationAbsenceListWhichExtendsOverMonthEnd());
+        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
         assertAll(
                 () -> assertThat(monthendReportForUser).isNotNull(),
@@ -369,14 +416,39 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployeeForVacationTests(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
-        when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createVacationAbsenceListWhichExtendsOverMonthEnd());
+
+        List<FehlzeitType> absenceList = new ArrayList<>();
+
+        FehlzeitType vacationDaysAbsence = new FehlzeitType();
+        vacationDaysAbsence.setFehlgrund(AbsenteeType.VACATION_DAYS.getType());
+        vacationDaysAbsence.setGenehmigt(true);
+
+        LocalDate firstOfCurrentMonth = LocalDate.now();
+        LocalDate firstOfLastMonth = LocalDate.now().withMonth(firstOfCurrentMonth.getMonthValue() - 1);
+        LocalDate midOfMonth = LocalDate.now().withDayOfMonth(14);
+        LocalDate startDate;
+        LocalDate endDate;
+
+        if (firstOfCurrentMonth.isAfter(midOfMonth)) {
+            startDate = firstOfCurrentMonth.withDayOfMonth(1);
+            endDate = firstOfCurrentMonth.withDayOfMonth(10);
+        } else {
+            startDate = firstOfLastMonth.withDayOfMonth(1);
+            endDate = firstOfLastMonth.withDayOfMonth(10);
+        }
+
+        vacationDaysAbsence.setStartdatum(startDate.toString());
+        vacationDaysAbsence.setEnddatum(endDate.toString());
+        absenceList.add(vacationDaysAbsence);
+
+        when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser();
 
         assertAll(
                 () -> assertThat(monthendReportForUser).isNotNull(),
-                () -> assertThat(monthendReportForUser.getVacationDays()).isEqualTo(5)
+                () -> assertThat(monthendReportForUser.getVacationDays()).isGreaterThan(5)
         );
     }
 
@@ -388,7 +460,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createHomeOfficeListWhichExtendsOverWeekend());
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
         assertAll(
                 () -> assertThat(monthendReportForUser).isNotNull(),
@@ -405,7 +477,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createHomeOfficeListWhichExtendsOverMonth());
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
         assertAll(
                 () -> assertThat(monthendReportForUser).isNotNull(),
@@ -422,7 +494,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createTimeCompensationWhichExtendsOverWeekend());
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
         assertAll(
                 () -> assertThat(monthendReportForUser).isNotNull(),
@@ -439,7 +511,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createTimeCompensationWhichExtendsOverWeekendAndMonth());
         when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthendReportForUser("0");
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
         assertAll(
                 () -> assertThat(monthendReportForUser).isNotNull(),
@@ -595,5 +667,28 @@ class MonthlyReportServiceImplTest {
                 .build();
 
         return employee;
+    }
+
+    private Employee createEmployeeForUser(final User user) {
+        return Employee.builder()
+                .email(user.getEmail())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .title("Ing.")
+                .userId(user.getUserId())
+                .releaseDate("2020-01-01")
+                .active(true)
+                .build();
+    }
+
+    private User createUserForRole(final Role role) {
+        return User.builder()
+                .dbId(1)
+                .userId("1")
+                .email("max.mustermann@gepardec.com")
+                .firstname("Max")
+                .lastname("Mustermann")
+                .roles(Set.of(role))
+                .build();
     }
 }
