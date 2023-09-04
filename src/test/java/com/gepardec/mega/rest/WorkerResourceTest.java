@@ -1,6 +1,5 @@
 package com.gepardec.mega.rest;
 
-
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
@@ -37,30 +36,30 @@ import static org.mockito.Mockito.when;
 public class WorkerResourceTest {
 
     @InjectMock
-    private MonthlyReportService monthlyReportService;
+    MonthlyReportService monthlyReportService;
 
     @InjectMock
-    private EmployeeService employeeService;
+    EmployeeService employeeService;
 
     @InjectMock
-    private UserContext userContext;
+    UserContext userContext;
 
     @Test
-    public void monthlyReport_whenPOST_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
+    void monthlyReport_whenPOST_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
         given().contentType(ContentType.JSON)
                 .post("/worker/monthendreports")
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
     @Test
-    public void monthlyReport_whenPUT_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
+    void monthlyReport_whenPUT_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
         given().contentType(ContentType.JSON)
                 .put("/worker/monthendreports")
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
     @Test
-    public void monthlyReport_whenDELETE_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
+    void monthlyReport_whenDELETE_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
         given().contentType(ContentType.JSON)
                 .delete("/worker/monthendreports")
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
@@ -69,7 +68,7 @@ public class WorkerResourceTest {
     @Test
     @TestSecurity
     @JwtSecurity
-    public void monthlyReport_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
+    void monthlyReport_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
@@ -78,7 +77,7 @@ public class WorkerResourceTest {
     }
 
     @Test
-    public void monthlyReport_whenGET_thenReturnsMonthlyReport() {
+    void monthlyReport_whenGET_thenReturnsMonthlyReport() {
         User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
@@ -151,21 +150,21 @@ public class WorkerResourceTest {
     }
 
     @Test
-    public void monthlyReport_withYearMonth_whenPOST_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
+    void monthlyReport_withYearMonth_whenPOST_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
         given().contentType(ContentType.JSON)
                 .post("/worker/monthendreports/2023/08")
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
     @Test
-    public void monthlyReport_withYearMonth_whenPUT_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
+    void monthlyReport_withYearMonth_whenPUT_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
         given().contentType(ContentType.JSON)
                 .put("/worker/monthendreports/2023/08")
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
     @Test
-    public void monthlyReport_withYearMonth_whenDELETE_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
+    void monthlyReport_withYearMonth_whenDELETE_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
         given().contentType(ContentType.JSON)
                 .delete("/worker/monthendreports/2023/08")
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
@@ -174,7 +173,7 @@ public class WorkerResourceTest {
     @Test
     @TestSecurity
     @JwtSecurity
-    public void monthlyReport_withYearMonth_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
+    void monthlyReport_withYearMonth_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
@@ -183,7 +182,7 @@ public class WorkerResourceTest {
     }
 
     @Test
-    public void monthlyReport_withYearMonth_whenGET_thenReturnsMonthlyReport() {
+    void monthlyReport_withYearMonth_whenGET_thenReturnsMonthlyReport() {
         User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
