@@ -7,6 +7,7 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.*;
+import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.PmProgressDto;
@@ -73,7 +74,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     public MonthlyReport getMonthEndReportForUser() {
         Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
 
-        LocalDate initialDate = getCorrectInitialDateForEndReport(employee);
+        LocalDate initialDate = getCorrectInitialDateForMonthEndReport(employee);
 
         MonthlyReport monthlyReport = getMonthEndReportForUser(initialDate.getYear(), initialDate.getMonthValue(), employee);
         monthlyReport.setInitialDate(initialDate);
@@ -81,12 +82,12 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         return monthlyReport;
     }
 
-    private LocalDate getCorrectInitialDateForEndReport(Employee employee) {
-        LocalDate midOfMonth = LocalDate.now().withDayOfMonth(14);
+    private LocalDate getCorrectInitialDateForMonthEndReport(Employee employee) {
+        LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
         LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
 
-        if (now.isAfter(midOfMonth) && isMonthCompletedForEmployee(employee, firstOfPreviousMonth)) {
+        if (now.isAfter(midOfCurrentMonth) && isMonthCompletedForEmployee(employee, firstOfPreviousMonth)) {
             return now;
         } else {
             return firstOfPreviousMonth;
@@ -95,13 +96,13 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     @Override
     public MonthlyReport getMonthEndReportForUser(Integer year, Integer month, Employee employee) {
-        LocalDate date = LocalDate.of(year, month, 1);
+        LocalDate date = DateUtils.getFirstDayOfMonth(year, month);
 
         if (employee == null) {
             employee = employeeService.getEmployee(userContext.getUser().getUserId());
         }
 
-        MonthlyReport monthlyReport = buildMonthlyReport(
+        return buildMonthlyReport(
                 employee,
                 date,
                 zepService.getProjectTimes(employee, date),
@@ -110,36 +111,6 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 stepEntryService.findEmployeeCheckState(employee, date),
                 stepEntryService.findEmployeeInternalCheckState(employee, date)
         );
-
-        if (monthlyReport == null) {
-            monthlyReport = MonthlyReport.builder()
-                    .employee(employee)
-                    .timeWarnings(Collections.emptyList())
-                    .journeyWarnings(Collections.emptyList())
-                    .comments(Collections.emptyList())
-                    .employeeCheckState(EmployeeState.OPEN)
-                    .internalCheckState(EmployeeState.OPEN)
-                    .isAssigned(false)
-                    .employeeProgresses(Collections.emptyList())
-                    .otherChecksDone(false)
-                    .billableTime("00:00")
-                    .totalWorkingTime("00:00")
-                    .compensatoryDays(0)
-                    .homeofficeDays(0)
-                    .vacationDays(0)
-                    .nursingDays(0)
-                    .maternityLeaveDays(0)
-                    .externalTrainingDays(0)
-                    .conferenceDays(0)
-                    .maternityProtectionDays(0)
-                    .fatherMonthDays(0)
-                    .paidSpecialLeaveDays(0)
-                    .nonPaidVacationDays(0)
-                    .paidSickLeave(0)
-                    .build();
-        }
-
-        return monthlyReport;
     }
 
     @Override
@@ -154,12 +125,10 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         boolean controlTimeEvidencesDone = controlTimeEvidencesStepsByProjects.entrySet().stream()
                 .allMatch(this::isAnyStepEntryDone);
 
-        final boolean otherChecksDone = controlTimeEvidencesDone &&
+        return controlTimeEvidencesDone &&
                 allOwnedAndUnassignedStepEntriesForOtherChecks.stream()
                         .filter(se -> !StepName.CONTROL_TIME_EVIDENCES.name().equals(se.getStep().getName()))
                         .allMatch(this::isStepEntryDone);
-
-        return otherChecksDone;
     }
 
     private MonthlyReport buildMonthlyReport(

@@ -4,14 +4,7 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
-import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
-import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
-import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
-import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
-import com.gepardec.mega.domain.model.monthlyreport.Task;
-import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
-import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
-import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
+import com.gepardec.mega.domain.model.monthlyreport.*;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.helper.WarningCalculator;
@@ -60,15 +53,15 @@ class MonthlyReportServiceImplTest {
     MonthlyReportServiceImpl monthlyReportService;
 
     @InjectMock
-    private EmployeeService employeeService;
+    EmployeeService employeeService;
 
     @InjectMock
-    private UserContext userContext;
+    UserContext userContext;
 
-    private MockedStatic<UserContext> mockStatic;
+    MockedStatic<UserContext> mockStatic;
 
     @BeforeEach
-    public void init() {
+    void init() {
         mockStatic = Mockito.mockStatic(UserContext.class);
 
         User user = createUserForRole(Role.EMPLOYEE);
@@ -79,12 +72,12 @@ class MonthlyReportServiceImplTest {
     }
 
     @AfterEach
-    public void close() {
+    void close() {
         mockStatic.close();
     }
 
     @Test
-    public void testGetMonthendReportForUser_MitarbeiterValid() {
+    void testGetMonthendReportForUser_MitarbeiterValid() {
         final Employee employee = createEmployeeWithReleaseDate(0, "NULL");
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
 
@@ -93,7 +86,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void testGetMonthendReportForUser_MitarbeiterValid_ProjektzeitenValid() {
+    void testGetMonthendReportForUser_MitarbeiterValid_ProjektzeitenValid() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(new ArrayList<>());
@@ -104,7 +97,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void testGetMonthendReportForUser_MitarbeiterValid_ProjektzeitenValid_NoWarning() {
+    void testGetMonthendReportForUser_MitarbeiterValid_ProjektzeitenValid_NoWarning() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(ArgumentMatchers.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(10));
@@ -123,7 +116,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void testGetMonthendReportForUser_MitarbeiterValid_ProjektzeitenValid_Warning() {
+    void testGetMonthendReportForUser_MitarbeiterValid_ProjektzeitenValid_Warning() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
@@ -145,7 +138,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void getMonthendReportForUser_isUserIsValidAndHasNursingAbsenceDays_thenReturnsReportWithCorrectNursingDays() {
+    void getMonthendReportForUser_isUserIsValidAndHasNursingAbsenceDays_thenReturnsReportWithCorrectNursingDays() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
@@ -175,7 +168,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void getMonthendReportForUser_isUserIsValidAndHasMaternityLeaveAbsenceDays_thenReturnsReportWithCorrectAmountOfMaternityLeaveDays() {
+    void getMonthendReportForUser_isUserIsValidAndHasMaternityLeaveAbsenceDays_thenReturnsReportWithCorrectAmountOfMaternityLeaveDays() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
@@ -204,31 +197,8 @@ class MonthlyReportServiceImplTest {
         );
     }
 
-    private Employee createEmployeeForUser(final User user) {
-        return Employee.builder()
-                .email(user.getEmail())
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
-                .title("Ing.")
-                .userId(user.getUserId())
-                .releaseDate("2020-01-01")
-                .active(true)
-                .build();
-    }
-
-    private User createUserForRole(final Role role) {
-        return User.builder()
-                .dbId(1)
-                .userId("1")
-                .email("max.mustermann@gepardec.com")
-                .firstname("Max")
-                .lastname("Mustermann")
-                .roles(Set.of(role))
-                .build();
-    }
-
     @Test
-    public void getMonthendReportForUser_isUserIsValidAndHasExternalTrainingAbsenceDays_thenReturnsReportWithCorrectAmountOfExternalTrainingDays() {
+    void getMonthendReportForUser_isUserIsValidAndHasExternalTrainingAbsenceDays_thenReturnsReportWithCorrectAmountOfExternalTrainingDays() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
@@ -257,9 +227,8 @@ class MonthlyReportServiceImplTest {
         );
     }
 
-
     @Test
-    public void getMonthendReportForUser_isUserIsValidAndHasConferenceAbsenceDays_thenReturnsReportWithCorrectAmountOfConferenceDays() {
+    void getMonthendReportForUser_isUserIsValidAndHasConferenceAbsenceDays_thenReturnsReportWithCorrectAmountOfConferenceDays() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
@@ -289,7 +258,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void getMonthendReportForUser_isUserIsValidAndHasMaternityProtectionAbsenceDays_thenReturnsReportWithCorrectAmountOfMaternityProtectionDays() {
+    void getMonthendReportForUser_isUserIsValidAndHasMaternityProtectionAbsenceDays_thenReturnsReportWithCorrectAmountOfMaternityProtectionDays() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
@@ -321,7 +290,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void getMonthendReportForUser_isUserIsValidAndHasFatherMonthAbsenceDays_thenReturnsReportWithCorrectAmountOfFatherMonthDays() {
+    void getMonthendReportForUser_isUserIsValidAndHasFatherMonthAbsenceDays_thenReturnsReportWithCorrectAmountOfFatherMonthDays() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
@@ -351,7 +320,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void getMonthendReportForUser_isUserIsValidAndHasPaidSpecialLeaveAbsenceDays_thenReturnsReportWithCorrectAmountOfPaidSpecialLeaveDays() {
+    void getMonthendReportForUser_isUserIsValidAndHasPaidSpecialLeaveAbsenceDays_thenReturnsReportWithCorrectAmountOfPaidSpecialLeaveDays() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
@@ -381,7 +350,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void getMonthendReportForUser_isUserIsValidAndHasNonPaidVacationAbsenceDays_thenReturnsReportWithCorrectAmountOfNonPaidVacationDays() {
+    void getMonthendReportForUser_isUserIsValidAndHasNonPaidVacationAbsenceDays_thenReturnsReportWithCorrectAmountOfNonPaidVacationDays() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
@@ -411,7 +380,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void getMonthendReportForUser_isUserValidAndHasPaidVacationOverWeekend_thenReturnsReportWithOnlyVacationDaysOnWorkdays() {
+    void getMonthendReportForUser_isUserValidAndHasPaidVacationOverWeekend_thenReturnsReportWithOnlyVacationDaysOnWorkdays() {
         final Employee employee = createEmployeeForVacationTests(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
@@ -427,7 +396,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void getMonthendReportForUser_WithYearAndMonth_isUserValidAndHasPaidVacationOverWeekendWhichExtendsOverMonthEnd_thenReturnsReportWithOnlyVacationDaysOnWorkdays() {
+    void getMonthendReportForUser_WithYearAndMonth_isUserValidAndHasPaidVacationOverWeekendWhichExtendsOverMonthEnd_thenReturnsReportWithOnlyVacationDaysOnWorkdays() {
         final Employee employee = createEmployeeForVacationTests(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
@@ -443,7 +412,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void getMonthendReportForUser_isUserValidAndHasPaidVacationOverWeekendWhichExtendsOverMonthEnd_thenReturnsReportWithOnlyVacationDaysOnWorkdays() {
+    void getMonthendReportForUser_isUserValidAndHasPaidVacationOverWeekendWhichExtendsOverMonthEnd_thenReturnsReportWithOnlyVacationDaysOnWorkdays() {
         final Employee employee = createEmployeeForVacationTests(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
@@ -484,7 +453,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void getMonthendReportForUser_isUserValidAndHasHomeofficeOverWeekend_thenReturnsReportWithHomeOfficeOnWorkdays() {
+    void getMonthendReportForUser_isUserValidAndHasHomeofficeOverWeekend_thenReturnsReportWithHomeOfficeOnWorkdays() {
         final Employee employee = createEmployeeForVacationTests(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
@@ -501,7 +470,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void getMonthendReportForUser_isUserValidAndHasHomeofficeOverWeekendAndExtendsOverMonth_thenReturnsReportWithHomeOfficeOnWorkdays() {
+    void getMonthendReportForUser_isUserValidAndHasHomeofficeOverWeekendAndExtendsOverMonth_thenReturnsReportWithHomeOfficeOnWorkdays() {
         final Employee employee = createEmployeeForVacationTests(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
@@ -518,7 +487,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void getMonthendReportForUser_isUserValidAndHasTimeCompensationOverWeekend_thenReturnsReportWithCorrectTimeCompensationOnWorkdays() {
+    void getMonthendReportForUser_isUserValidAndHasTimeCompensationOverWeekend_thenReturnsReportWithCorrectTimeCompensationOnWorkdays() {
         final Employee employee = createEmployeeForVacationTests(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
@@ -535,7 +504,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    public void getMonthendReportForUser_isUserValidAndHasTimeCompensationOverWeekendAndExtendsOverMonth_thenReturnsReportWithCorrectTimeCompensationOnWorkdays() {
+    void getMonthendReportForUser_isUserValidAndHasTimeCompensationOverWeekendAndExtendsOverMonth_thenReturnsReportWithCorrectTimeCompensationOnWorkdays() {
         final Employee employee = createEmployeeForVacationTests(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
@@ -698,5 +667,28 @@ class MonthlyReportServiceImplTest {
                 .build();
 
         return employee;
+    }
+
+    private Employee createEmployeeForUser(final User user) {
+        return Employee.builder()
+                .email(user.getEmail())
+                .firstname(user.getFirstname())
+                .lastname(user.getLastname())
+                .title("Ing.")
+                .userId(user.getUserId())
+                .releaseDate("2020-01-01")
+                .active(true)
+                .build();
+    }
+
+    private User createUserForRole(final Role role) {
+        return User.builder()
+                .dbId(1)
+                .userId("1")
+                .email("max.mustermann@gepardec.com")
+                .firstname("Max")
+                .lastname("Mustermann")
+                .roles(Set.of(role))
+                .build();
     }
 }
