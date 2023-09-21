@@ -87,11 +87,15 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
 
-        if (now.isAfter(midOfCurrentMonth) && isMonthCompletedForEmployee(employee, firstOfPreviousMonth)) {
+        if (now.isAfter(midOfCurrentMonth) && isMonthControlledFromEmployee(employee, firstOfPreviousMonth)) {
             return now;
         } else {
             return firstOfPreviousMonth;
         }
+    }
+
+    private boolean isMonthControlledFromEmployee(Employee employee, LocalDate date) {
+        return stepEntryService.findEmployeeControlledStepEntry(employee, date).stream().allMatch(stepEntry -> stepEntry.getState().equals(EmployeeState.DONE));
     }
 
     @Override

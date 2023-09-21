@@ -53,6 +53,11 @@ public class StepEntryServiceImpl implements StepEntryService {
     }
 
     @Override
+    public Optional<StepEntry> findEmployeeControlledStepEntry(final Employee employee, LocalDate date) {
+        return stepEntryRepository.findAllOwnedAndAssignedStepEntriesForEmployee(date, employee.getEmail());
+    }
+
+    @Override
     public Optional<EmployeeState> findEmployeeInternalCheckState(Employee employee, LocalDate date) {
         if (employee != null) {
             return stepEntryRepository.findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes(date, employee.getEmail())
