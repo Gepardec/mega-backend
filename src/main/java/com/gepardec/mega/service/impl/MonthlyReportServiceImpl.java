@@ -6,7 +6,11 @@ import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.UserContext;
-import com.gepardec.mega.domain.model.monthlyreport.*;
+import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
+import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectEntryWarning;
+import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
@@ -27,7 +31,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfMonth;
@@ -95,7 +103,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     }
 
     private boolean isMonthConfirmedFromEmployee(Employee employee, LocalDate date) {
-        return stepEntryService.findEmployeeControlledStepEntry(employee, date).stream().allMatch(stepEntry -> EmployeeState.DONE.equals(stepEntry.getState()));
+        return stepEntryService.findControlTimesStepEntry(employee, date).stream()
+                .allMatch(stepEnry -> stepEnry.getState().equals(EmployeeState.DONE));
     }
 
     @Override

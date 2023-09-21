@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface StepEntryService {
     Optional<Pair<EmployeeState, String>> findEmployeeCheckState(final Employee employee, LocalDate date);
 
-    Optional<com.gepardec.mega.db.entity.employee.StepEntry> findEmployeeControlledStepEntry(final Employee employee, LocalDate date);
+    Optional<com.gepardec.mega.db.entity.employee.StepEntry> findControlTimesStepEntry(final Employee employee, LocalDate date);
 
     Optional<EmployeeState> findEmployeeCheckState(final Employee employee);
 
