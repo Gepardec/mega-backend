@@ -60,6 +60,18 @@ quarkus:
     jdbc:
       url: "${DB_JDBC_URL}"
 
+  rest-client:
+    personio-api-v1:
+      url: "https://api.personio.de/v1"
+
+# disables the DefaultResponseExceptionMapper of the microprofile resteasy client
+microprofile:
+  rest:
+    client:
+      disable:
+        default:
+          mapper: true
+
 mega:
   info:
     build:
@@ -100,6 +112,14 @@ mega:
         - "simon.bauer@gepardec.com"
         - "paul.waldecker@gepardec.com"
         - "paul.proemer@gepardec.com"
+
+  personio:
+    api:
+      client:
+        id: "${PERSONIO_API_CLIENT_ID:default}"
+        secret: "${PERSONIO_API_CLIENT_SECRET:default}"
+    token:
+      expires-in-minutes: 1200 # 20h - real token expires in 24h
 
 mp:
   jwt:

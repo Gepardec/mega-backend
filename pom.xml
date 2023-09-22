@@ -74,6 +74,14 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-config-yaml</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-client-jackson</artifactId>
+        </dependency>
         <!-- Quarkus MicroProfile-Extensions -->
         <dependency>
             <groupId>io.quarkus</groupId>

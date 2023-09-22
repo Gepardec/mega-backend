@@ -5,6 +5,7 @@ import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.*;
+import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.helper.WarningCalculator;
@@ -34,6 +35,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -48,6 +50,9 @@ class MonthlyReportServiceImplTest {
 
     @InjectMock
     WarningCalculator warningCalculator;
+
+    @InjectMock
+    PersonioEmployeesService personioEmployeesService;
 
     @Inject
     MonthlyReportServiceImpl monthlyReportService;
@@ -69,6 +74,8 @@ class MonthlyReportServiceImplTest {
 
         Employee employee1 = createEmployeeForUser(user);
         when(employeeService.getEmployee(anyString())).thenReturn(employee1);
+
+        when(personioEmployeesService.getVacationDayBalance(any())).thenReturn(0d);
     }
 
     @AfterEach
