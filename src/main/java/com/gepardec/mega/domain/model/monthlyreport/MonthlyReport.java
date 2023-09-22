@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Builder
@@ -20,6 +21,8 @@ import java.util.List;
 @AllArgsConstructor
 public class MonthlyReport {
     private Employee employee;
+
+    private LocalDate initialDate;
 
     private List<MappedTimeWarningDTO> timeWarnings;
 

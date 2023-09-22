@@ -47,9 +47,14 @@ public class StepEntryServiceImpl implements StepEntryService {
     @Override
     public Optional<Pair<EmployeeState, String>> findEmployeeCheckState(final Employee employee, LocalDate date) {
         Optional<StepEntry> stepEntries =
-                stepEntryRepository.findAllOwnedAndAssignedStepEntriesForEmployee(date, employee.getEmail());
+                stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(date, employee.getEmail());
 
         return stepEntries.map(se -> Pair.of(se.getState(), se.getStateReason()));
+    }
+
+    @Override
+    public Optional<StepEntry> findControlTimesStepEntry(final Employee employee, LocalDate date) {
+        return stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(date, employee.getEmail());
     }
 
     @Override
@@ -68,7 +73,7 @@ public class StepEntryServiceImpl implements StepEntryService {
 
     @Override
     public List<StepEntry> findAllOwnedAndUnassignedStepEntriesForPMProgress(String email, String date) {
-        LocalDate entryDate = parseReleaseDate(date);
+        LocalDate entryDate = parseStringDateToLocalDateFirstOfMonth(date);
 
         return stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForPMProgress(entryDate, email);
     }
@@ -186,12 +191,12 @@ public class StepEntryServiceImpl implements StepEntryService {
                 .collect(Collectors.toList());
     }
 
-    private LocalDate parseReleaseDate(String releaseDate) {
+    private LocalDate parseStringDateToLocalDateFirstOfMonth(String date) {
         LocalDate entryDate;
-        if (StringUtils.isBlank(releaseDate) || StringUtils.equalsIgnoreCase(releaseDate, "NULL")) {
+        if (StringUtils.isBlank(date) || StringUtils.equalsIgnoreCase(date, "NULL")) {
             entryDate = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
         } else {
-            entryDate = DateUtils.getFirstDayOfFollowingMonth(releaseDate);
+            entryDate = DateUtils.getFirstDayOfFollowingMonth(date);
         }
         return entryDate;
     }

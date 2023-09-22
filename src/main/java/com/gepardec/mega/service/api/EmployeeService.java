@@ -12,7 +12,7 @@ public interface EmployeeService {
     List<Employee> getAllActiveEmployees();
 
     /**
-     * Liefert auch inaktive Employees zurück, wenn deren exitdate >= selectedYearMonth ist
+     * Liefert auch inaktive Employees zurück, wenn deren exitdate >= selectedYearMonth ist.
      * Wird für die GUI benötigt.
      * Wenn nur aktive Employees geliefert werden würden, dann könnte man die Zeiten von dem Employee
      * nicht mehr kontrollieren, oder die Historie sehen, sobald der Mitarbeiter nicht mehr in ZEP existiert.

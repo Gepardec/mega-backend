@@ -2,6 +2,10 @@ package com.gepardec.mega.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
@@ -12,6 +16,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Jacksonized
@@ -24,6 +29,10 @@ import java.util.List;
 public class MonthlyReportDto {
     @JsonProperty
     private Employee employee;
+
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
+    private LocalDate initialDate;
 
     @JsonProperty
     private List<MappedTimeWarningDTO> timeWarnings;

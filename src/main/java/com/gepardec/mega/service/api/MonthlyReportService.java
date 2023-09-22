@@ -7,8 +7,9 @@ import java.time.LocalDate;
 
 public interface MonthlyReportService {
 
-    MonthlyReport getMonthendReportForUser(final String userId);
+    MonthlyReport getMonthEndReportForUser();
 
-    MonthlyReport getMonthendReportForUser(final String userId, LocalDate date);
+    MonthlyReport getMonthEndReportForUser(Integer year, Integer month, Employee employee);
 
+    boolean isMonthCompletedForEmployee(Employee employee, LocalDate date);
 }

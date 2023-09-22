@@ -16,7 +16,7 @@ import java.util.Optional;
 public class StepEntryRepository implements PanacheRepository<StepEntry> {
 
 
-    public Optional<StepEntry> findAllOwnedAndAssignedStepEntriesForEmployee(LocalDate entryDate, String ownerAndAssigneeEmail) {
+    public Optional<StepEntry> findControlTimesStepEntryByOwnerAndEntryDate(LocalDate entryDate, String ownerAndAssigneeEmail) {
         return find("#StepEntry.findAllOwnedAndAssignedStepEntriesForEmployee",
                 Parameters
                         .with("entryDate", entryDate)
