@@ -53,8 +53,8 @@ class StepEntryRepositoryTest {
     }
 
     @Test
-    void findAllOwnedAndAssignedStepEntriesForEmployee_whenNoStepEntriesExist_thenReturnsEmptyObject() {
-        Optional<StepEntry> result = stepEntryRepository.findAllOwnedAndAssignedStepEntriesForEmployee(localDateTime.toLocalDate(), EMAIL);
+    void findControlTimesStepEntryByOwnerAndEntryDate_whenNoStepEntriesExist_thenReturnsEmptyObject() {
+        Optional<StepEntry> result = stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(localDateTime.toLocalDate(), EMAIL);
 
         assertThat(result).isEmpty();
 

@@ -43,7 +43,7 @@ class StepEntryServiceImplTest {
         StepEntry stepEntry = createStepEntry(1L);
 
         Optional<StepEntry> stepEntries = Optional.of(stepEntry);
-        when(stepEntryRepository.findAllOwnedAndAssignedStepEntriesForEmployee(ArgumentMatchers.any(LocalDate.class),
+        when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.anyString())).thenReturn(stepEntries);
 
         Optional<EmployeeState> states = stepEntryService.findEmployeeCheckState(createEmployee());
