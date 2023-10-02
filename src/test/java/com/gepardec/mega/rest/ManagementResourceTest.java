@@ -97,7 +97,6 @@ class ManagementResourceTest {
                 .thenReturn(List.of(Employee.builder().releaseDate("2020-01-01").email("no-reply@gepardec.com").build()));
 
         List<StepEntry> entries = List.of(
-                createStepEntryForStep(StepName.CONTROL_EXTERNAL_TIMES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
                 createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
@@ -139,7 +138,6 @@ class ManagementResourceTest {
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of());
 
         List<StepEntry> entries = List.of(
-                createStepEntryForStep(StepName.CONTROL_EXTERNAL_TIMES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
                 createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
@@ -217,7 +215,6 @@ class ManagementResourceTest {
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
 
         List<StepEntry> stepEntries = List.of(
-                createStepEntryForStep(StepName.CONTROL_EXTERNAL_TIMES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
                 createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
@@ -297,7 +294,6 @@ class ManagementResourceTest {
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
 
         List<StepEntry> stepEntries = List.of(
-                createStepEntryForStep(StepName.CONTROL_EXTERNAL_TIMES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
                 createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
@@ -381,7 +377,6 @@ class ManagementResourceTest {
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
 
         List<StepEntry> stepEntries = List.of(
-                createStepEntryForStep(StepName.CONTROL_EXTERNAL_TIMES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
                 createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
@@ -465,7 +460,6 @@ class ManagementResourceTest {
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
 
         List<StepEntry> stepEntries = List.of(
-                createStepEntryForStep(StepName.CONTROL_EXTERNAL_TIMES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
                 createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
