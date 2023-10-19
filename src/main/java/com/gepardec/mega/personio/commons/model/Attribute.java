@@ -1,7 +1,9 @@
 package com.gepardec.mega.personio.commons.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Attribute<T> {
 
     private String label;

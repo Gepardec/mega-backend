@@ -1,5 +1,8 @@
 package com.gepardec.mega.personio.employees;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TimeOffTypeAttributes {
 
     private Integer id;

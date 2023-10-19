@@ -1,10 +1,12 @@
 package com.gepardec.mega.personio.employees;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.personio.commons.model.Attribute;
 
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PersonioEmployee {
 
     private Attribute<Integer> id;
