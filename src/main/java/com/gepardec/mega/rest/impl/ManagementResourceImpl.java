@@ -91,7 +91,7 @@ public class ManagementResourceImpl implements ManagementResource {
         for (Employee employee : employees) {
             List<StepEntry> stepEntries = stepEntryService.findAllStepEntriesForEmployee(employee, from, to);
 
-            String entryDate = DateUtils.getFirstDayOfMonth(year, month).minusMonths(1).format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN));
+            String entryDate = from.format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN));
 
             List<StepEntry> allOwnedStepEntriesForPMProgress = stepEntryService.findAllOwnedAndUnassignedStepEntriesForPMProgress(employee.getEmail(), entryDate);
             List<PmProgressDto> pmProgressDtos = new ArrayList<>();
