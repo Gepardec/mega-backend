@@ -67,8 +67,8 @@ public class StepEntryServiceImpl implements StepEntryService {
     }
 
     @Override
-    public List<StepEntry> findAllOwnedAndUnassignedStepEntriesForOtherChecks(Employee employee, LocalDate currentMonthYear) {
-        return stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForOtherChecks(currentMonthYear, employee.getEmail());
+    public List<StepEntry> findAllOwnedAndUnassignedStepEntriesExceptControlTimes(Employee employee, LocalDate currentMonthYear) {
+        return stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(currentMonthYear, employee.getEmail());
     }
 
     @Override

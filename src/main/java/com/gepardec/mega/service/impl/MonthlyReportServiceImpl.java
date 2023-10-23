@@ -132,7 +132,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     @Override
     public boolean isMonthCompletedForEmployee(Employee employee, LocalDate date) {
-        List<StepEntry> allOwnedAndUnassignedStepEntriesForOtherChecks = stepEntryService.findAllOwnedAndUnassignedStepEntriesForOtherChecks(employee, date);
+        List<StepEntry> allOwnedAndUnassignedStepEntriesForOtherChecks = stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(employee, date);
 
         Map<String, List<StepEntry>> controlTimeEvidencesStepsByProjects = allOwnedAndUnassignedStepEntriesForOtherChecks.stream()
                 .filter(se -> StepName.CONTROL_TIME_EVIDENCES.name().equals(se.getStep().getName()))

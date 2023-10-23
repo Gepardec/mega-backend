@@ -62,10 +62,10 @@ class StepEntryRepositoryTest {
     }
 
     @Test
-    void findAllOwnedAndUnassignedStepEntriesForOtherChecks_whenMethodIsCalledAndNoUnassignedStepEntriesExist_thenReturnsEmptyList() {
+    void findAllOwnedAndUnassignedStepEntriesExceptControlTimes_whenMethodIsCalledAndNoUnassignedStepEntriesExist_thenReturnsEmptyList() {
         persistEntities();
 
-        List<StepEntry> result = stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForOtherChecks(localDateTime.toLocalDate(), EMAIL);
+        List<StepEntry> result = stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(localDateTime.toLocalDate(), EMAIL);
 
         assertThat(result).isEmpty();
     }

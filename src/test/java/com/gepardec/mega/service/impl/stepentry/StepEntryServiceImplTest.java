@@ -56,7 +56,7 @@ class StepEntryServiceImplTest {
 
     @Test
     void findEmployeeCheckState_whenNoStepEntries_thenEmpty() {
-        when(stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForOtherChecks(ArgumentMatchers.any(LocalDate.class),
+        when(stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.anyString())).thenReturn(List.of());
 
         Optional<EmployeeState> states = stepEntryService.findEmployeeCheckState(createEmployee());
@@ -83,20 +83,20 @@ class StepEntryServiceImplTest {
         StepEntry stepEntry2 = createStepEntry(2L);
 
         List<StepEntry> stepEntries = List.of(stepEntry1, stepEntry2);
-        when(stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForOtherChecks(ArgumentMatchers.any(LocalDate.class),
+        when(stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.anyString())).thenReturn(stepEntries);
 
-        boolean areOtherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesForOtherChecks(createEmployee(), LocalDate.now())
+        boolean areOtherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(createEmployee(), LocalDate.now())
                 .stream().allMatch(stepEntry -> stepEntry.getState() == EmployeeState.DONE);
         assertThat(areOtherChecksDone).isFalse();
     }
 
     @Test
     void areOtherChecksDone_whenNoStepEntries_thenTrue() {
-        when(stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForOtherChecks(ArgumentMatchers.any(LocalDate.class),
+        when(stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.anyString())).thenReturn(List.of());
 
-        boolean areOtherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesForOtherChecks(createEmployee(), LocalDate.now())
+        boolean areOtherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(createEmployee(), LocalDate.now())
                 .stream().allMatch(stepEntry -> stepEntry.getState() == EmployeeState.DONE);
 
         assertThat(areOtherChecksDone).isTrue();
@@ -111,10 +111,10 @@ class StepEntryServiceImplTest {
         stepEntry2.setState(EmployeeState.DONE);
 
         List<StepEntry> stepEntries = List.of(stepEntry1, stepEntry2);
-        when(stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForOtherChecks(ArgumentMatchers.any(LocalDate.class),
+        when(stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.anyString())).thenReturn(stepEntries);
 
-        boolean areOtherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesForOtherChecks(createEmployee(), LocalDate.now())
+        boolean areOtherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(createEmployee(), LocalDate.now())
                 .stream().allMatch(stepEntry -> stepEntry.getState() == EmployeeState.DONE);
 
         assertThat(areOtherChecksDone).isTrue();

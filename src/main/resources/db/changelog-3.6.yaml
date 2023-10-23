@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: remove-obsolet-step-entries
+      author: MEGA-605
+      changes:
+        - delete:
+            tableName: step_entry
+            where: step_id = 3 or step_id = 5
+        - update:
+            tableName: step_entry
+            columns:
+              - column:
+                  name: step_id
+                  value: 3
+            where: step_id = 4
+        - update:
+            tableName: step
+            columns:
+              - column:
+                  name: name
+                  value: 'CONTROL_TIME_EVIDENCES'
+              - column:
+                  name: role
+                  value: 'PROJECT_LEAD'
+            where: id = 3
+        - delete:
+            tableName: step
+            where: id = 4 or id = 5
