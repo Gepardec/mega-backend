@@ -115,7 +115,7 @@ class StepEntryRepositoryTest {
 
         int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, stepEntry.getStep().getId(), EmployeeState.DONE);
 
-        assertThat(result).isEqualTo(1);
+        assertThat(result).isOne();
     }
 
     @Test
@@ -133,11 +133,11 @@ class StepEntryRepositoryTest {
 
         int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, stepEntry.getStep().getId(), project.getName(), EmployeeState.DONE);
 
-        assertThat(result).isEqualTo(1);
+        assertThat(result).isOne();
     }
 
     @Test
-    void updateStateAssigned_whenMethodIsCalledWithEmptyProjectParameter_thenReturnsIntegerOne() {
+    void updateStateAssigned_whenMethodIsCalledWithEmptyProjectParameter_thenReturnsZero() {
         persistEntities();
 
         int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, stepEntry.getStep().getId(), "", EmployeeState.DONE);
@@ -146,16 +146,7 @@ class StepEntryRepositoryTest {
     }
 
     @Test
-    void updateStateAssigned_whenMethodIsCalledWithEmptyAssigneParameter_thenReturnsIntegerOne() {
-        persistEntities();
-
-        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, stepEntry.getStep().getId(), project.getName(), EmployeeState.DONE);
-
-        assertThat(result).isOne();
-    }
-
-    @Test
-    void updateStateAssigned_whenMethodIsCalledWithEmptyOwnerParameter_thenReturnsIntegerOne() {
+    void updateStateAssigned_whenMethodIsCalledWithEmptyOwnerParameter_thenReturnsZero() {
         persistEntities();
 
         int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), "", stepEntry.getStep().getId(), project.getName(), EmployeeState.DONE);
