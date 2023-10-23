@@ -131,7 +131,7 @@ class StepEntryRepositoryTest {
     void updateStateAssigned_whenMethodIsCalledWithCorrectParameters_thenClosesAssignedAndReturnsIntegerOne() {
         persistEntities();
 
-        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, EMAIL, stepEntry.getStep().getId(), project.getName(), EmployeeState.DONE);
+        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, stepEntry.getStep().getId(), project.getName(), EmployeeState.DONE);
 
         assertThat(result).isEqualTo(1);
     }
@@ -140,7 +140,7 @@ class StepEntryRepositoryTest {
     void updateStateAssigned_whenMethodIsCalledWithEmptyProjectParameter_thenReturnsIntegerOne() {
         persistEntities();
 
-        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, EMAIL, stepEntry.getStep().getId(), "", EmployeeState.DONE);
+        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, stepEntry.getStep().getId(), "", EmployeeState.DONE);
 
         assertThat(result).isZero();
     }
@@ -149,16 +149,16 @@ class StepEntryRepositoryTest {
     void updateStateAssigned_whenMethodIsCalledWithEmptyAssigneParameter_thenReturnsIntegerOne() {
         persistEntities();
 
-        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, "", stepEntry.getStep().getId(), project.getName(), EmployeeState.DONE);
+        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, stepEntry.getStep().getId(), project.getName(), EmployeeState.DONE);
 
-        assertThat(result).isZero();
+        assertThat(result).isOne();
     }
 
     @Test
     void updateStateAssigned_whenMethodIsCalledWithEmptyOwnerParameter_thenReturnsIntegerOne() {
         persistEntities();
 
-        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), "", EMAIL, stepEntry.getStep().getId(), project.getName(), EmployeeState.DONE);
+        int result = stepEntryRepository.updateStateAssigned(localDateTime.toLocalDate(), localDateTime.toLocalDate(), "", stepEntry.getStep().getId(), project.getName(), EmployeeState.DONE);
 
         assertThat(result).isZero();
     }
