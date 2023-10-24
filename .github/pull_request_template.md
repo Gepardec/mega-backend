@@ -10,7 +10,9 @@
 - [ ] Inform dev after review through MEGA-PR (by reviewer) [Chat Space]
 - [ ] Version upgrade by dev [GitHub Issue Milestone + maven revision]
 - [ ] Merge to main by dev [GitHub]
-  - [ ] Moved to "Ready for deployment"
+  - [ ]  Re-add SNAPSHOT to version and push on main [maven revision]
+  - [ ]  Make sure all feature branches are deleted [frontend + backend]
+  - [ ]  Moved to "Ready for deployment"
 
 > Deployment
 - [ ] Integration and Unit tests on main environment passed [Workflow]
