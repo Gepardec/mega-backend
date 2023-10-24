@@ -29,7 +29,7 @@ public interface StepEntryService {
 
     boolean updateStepEntryStateForEmployee(Employee employee, Long stepId, LocalDate from, LocalDate to, EmployeeState newState, String reason);
 
-    boolean updateStepEntryStateForEmployeeInProject(Employee employee, Long stepId, String project, String assigneeEmail, String currentMonthYear, EmployeeState employeeState);
+    boolean updateStepEntryStateForEmployeeInProject(Employee employee, Long stepId, String project, String currentMonthYear, EmployeeState employeeState);
 
     List<com.gepardec.mega.db.entity.employee.StepEntry> findAllStepEntriesForEmployee(Employee employee, LocalDate from, LocalDate to);
 

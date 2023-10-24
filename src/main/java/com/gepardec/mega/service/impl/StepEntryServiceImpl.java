@@ -115,11 +115,11 @@ public class StepEntryServiceImpl implements StepEntryService {
     }
 
     @Override
-    public boolean updateStepEntryStateForEmployeeInProject(Employee employee, Long stepId, String project, String assigneeEmail, String currentMonthYear, EmployeeState newState) {
+    public boolean updateStepEntryStateForEmployeeInProject(Employee employee, Long stepId, String project, String currentMonthYear, EmployeeState newState) {
         LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(currentMonthYear);
         LocalDate toDate = DateUtils.getLastDayOfCurrentMonth(currentMonthYear);
 
-        return stepEntryRepository.updateStateAssigned(fromDate, toDate, employee.getEmail(), assigneeEmail, stepId, project, newState) > 0;
+        return stepEntryRepository.updateStateAssigned(fromDate, toDate, employee.getEmail(), stepId, project, newState) > 0;
     }
 
     @Override
