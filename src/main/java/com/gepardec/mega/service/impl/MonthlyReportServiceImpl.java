@@ -168,7 +168,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         List<Comment> comments = commentService.findCommentsForEmployee(employee, getFirstDayOfMonth(year, month), getLastDayOfMonth(year, month));
 
         final List<PmProgressDto> pmProgressDtos = Optional.ofNullable(employee)
-                .map(empl -> stepEntryService.findAllOwnedAndUnassignedStepEntriesForPMProgress(empl.getEmail(), date.toString()))
+                .map(empl -> stepEntryService.findAllOwnedAndUnassignedStepEntriesForPMProgress(empl.getEmail(), date))
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(PmProgressDto::ofStepEntry)
