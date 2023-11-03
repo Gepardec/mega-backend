@@ -34,6 +34,7 @@
         <focus-shift.version>0.16.0</focus-shift.version>
         <assertj.version>3.21.0</assertj.version>
         <basicjaxb-plugins.version>2.1.0</basicjaxb-plugins.version>
+        <jakarta.mail-api.version>2.1.2</jakarta.mail-api.version>
         <!-- application info -->
         <!-- !!! IMPORTANT !!!! -->
         <!-- remove -SNAPSHOT in release-branch but keep it in develop branch -->
@@ -218,6 +219,11 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+            <version>${jakarta.mail-api.version}</version>
         </dependency>
     </dependencies>
     <build>

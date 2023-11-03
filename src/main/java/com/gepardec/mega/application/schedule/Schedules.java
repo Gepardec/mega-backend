@@ -1,6 +1,7 @@
 package com.gepardec.mega.application.schedule;
 
 import com.gepardec.mega.notification.mail.ReminderEmailSender;
+import com.gepardec.mega.notification.mail.receiver.EmailReceiver;
 import com.gepardec.mega.service.api.EnterpriseSyncService;
 import com.gepardec.mega.service.api.ProjectSyncService;
 import com.gepardec.mega.service.api.StepEntrySyncService;
@@ -36,6 +37,9 @@ public class Schedules {
 
     @Inject
     ReminderEmailSender reminderEmailSender;
+
+    @Inject
+    EmailReceiver emailReceiver;
 
 
     @Scheduled(identity = "Sync ZEP-Employees with Users in the database every 30 minutes",
@@ -77,6 +81,12 @@ public class Schedules {
             cron = "0 0 7 ? * MON-FRI")
     void sendReminder() {
         reminderEmailSender.sendReminder();
+    }
+
+    @Scheduled(identity = "Receive E-Mails sent to employees from ZEP",
+            every = "PT10M")
+    void receiveMails() {
+        emailReceiver.retrieveEmailsAndSaveToComments();
     }
 
     LocalDate getSysdate() {

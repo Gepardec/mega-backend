@@ -23,6 +23,15 @@ public class UserRepository implements PanacheRepository<User> {
         return find("#User.findActiveByEmail", Parameters.with("email", email)).firstResultOptional();
     }
 
+    public Optional<User> findActiveByName(final String firstname, final String lastname) {
+        return find(
+                "#User.findActiveByName",
+                Parameters.with("firstname", firstname)
+                        .and("lastname", lastname)
+        )
+                .firstResultOptional();
+    }
+
     public List<User> findActive() {
         return find("#User.findActive").list();
     }

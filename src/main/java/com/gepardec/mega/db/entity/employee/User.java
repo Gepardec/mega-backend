@@ -41,6 +41,7 @@ import java.util.Set;
         })
 @NamedQueries({
         @NamedQuery(name = "User.findActiveByEmail", query = "select u from User u where u.email = :email and u.active = true"),
+        @NamedQuery(name = "User.findActiveByName", query = "select u from User u where u.firstname = :firstname and u.lastname = :lastname and u.active = true"),
         @NamedQuery(name = "User.findActive", query = "select u from User u where u.active = true"),
         @NamedQuery(name = "User.findByRoles", query = "select distinct u from User u inner join u.roles role where u.active = true and role in (:roles)")
 })

@@ -115,6 +115,14 @@ mega:
         - "paul.waldecker@gepardec.com"
         - "paul.proemer@gepardec.com"
 
+    receiver:
+      protocol: "imaps"
+      host: "imap.gmail.com"
+      port: 993
+      username: "service@gepardec.com"
+      password: "${MAILER_PASSWORD:default}"
+      sender: "nobody@provantis.de"
+
   personio:
     api:
       client:

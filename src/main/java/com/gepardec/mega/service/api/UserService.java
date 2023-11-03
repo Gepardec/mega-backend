@@ -9,6 +9,8 @@ public interface UserService {
 
     User findUserForEmail(String email);
 
+    User findByName(String firstname, String lastname);
+
     List<User> findActiveUsers();
 
     List<User> findByRoles(List<Role> roles);
