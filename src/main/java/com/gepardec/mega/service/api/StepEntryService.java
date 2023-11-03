@@ -21,7 +21,7 @@ public interface StepEntryService {
 
     List<com.gepardec.mega.db.entity.employee.StepEntry> findAllOwnedAndUnassignedStepEntriesExceptControlTimes(final Employee employee, LocalDate currentMonthYear);
 
-    List<com.gepardec.mega.db.entity.employee.StepEntry> findAllOwnedAndUnassignedStepEntriesForPMProgress(final String email, final String date);
+    List<com.gepardec.mega.db.entity.employee.StepEntry> findAllOwnedAndUnassignedStepEntriesForPMProgress(final String email, final LocalDate date);
 
     void addStepEntry(final StepEntry stepEntry);
 
