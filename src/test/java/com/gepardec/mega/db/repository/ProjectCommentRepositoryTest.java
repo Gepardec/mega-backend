@@ -21,14 +21,11 @@ class ProjectCommentRepositoryTest {
     private static final String COMMENT = "comment";
 
     private static final String NEW_COMMENT = "new comment";
-
-    private ProjectComment projectComment;
-
     @Inject
     ProjectCommentRepository projectCommentRepository;
-
     @Inject
     ProjectRepository projectRepository;
+    private ProjectComment projectComment;
 
     @BeforeEach
     void setUp() {

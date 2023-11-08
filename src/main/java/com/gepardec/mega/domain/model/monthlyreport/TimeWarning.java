@@ -120,7 +120,7 @@ public class TimeWarning implements ProjectEntryWarning {
         return Objects.hash(date, missingRestTime, missingBreakTime, excessWorkTime, warnings, warningTypes);
     }
 
-        @Override
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

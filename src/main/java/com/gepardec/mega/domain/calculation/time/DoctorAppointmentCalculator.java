@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DoctorAppointmentCalculator extends AbstractTimeWarningCalculationStrategy implements WarningCalculationStrategy<TimeWarning>{
+public class DoctorAppointmentCalculator extends AbstractTimeWarningCalculationStrategy implements WarningCalculationStrategy<TimeWarning> {
 
     private static final LocalTime START_HOUR_MORNING = LocalTime.of(8, 30);
-    private static final LocalTime END_HOUR_MORNING = LocalTime.of(12,0);
+    private static final LocalTime END_HOUR_MORNING = LocalTime.of(12, 0);
     private static final LocalTime START_HOUR_AFTERNOON = LocalTime.of(12, 30);
     private static final LocalTime END_HOUR_AFTERNOON = LocalTime.of(17, 0);
 
@@ -23,7 +23,7 @@ public class DoctorAppointmentCalculator extends AbstractTimeWarningCalculationS
 
     public List<TimeWarning> calculate(List<ProjectEntry> projectEntries) {
         final List<TimeWarning> warnings = new ArrayList<>();
-        final List<ProjectTimeEntry> projectTimeEntries =  projectEntries.stream()
+        final List<ProjectTimeEntry> projectTimeEntries = projectEntries.stream()
                 .filter(projectEntry -> projectEntry.getClass() == ProjectTimeEntry.class)
                 .map(ProjectTimeEntry.class::cast)
                 .collect(Collectors.toList());
@@ -31,20 +31,20 @@ public class DoctorAppointmentCalculator extends AbstractTimeWarningCalculationS
 
         LocalTime projectEntryFromTime, projectEntryToTime;
 
-        for(ProjectTimeEntry projectEntry: projectTimeEntries){
-            if(projectEntry.getProcess() == null || !projectEntry.getProcess().equals(DOCTOR_APPOINTMENT)) continue;
+        for (ProjectTimeEntry projectEntry : projectTimeEntries) {
+            if (projectEntry.getProcess() == null || !projectEntry.getProcess().equals(DOCTOR_APPOINTMENT)) continue;
 
             projectEntryFromTime = projectEntry.getFromTime().toLocalTime();
             projectEntryToTime = projectEntry.getToTime().toLocalTime();
 
-            if(projectEntryFromTime.isBefore(START_HOUR_MORNING)
-            || (projectEntryToTime.isAfter(END_HOUR_MORNING)
-                && projectEntryToTime.isBefore(START_HOUR_AFTERNOON))
-            || (projectEntryFromTime.isAfter(END_HOUR_MORNING)
-                && projectEntryFromTime.isBefore(START_HOUR_AFTERNOON))
-            || projectEntryToTime.isAfter(END_HOUR_AFTERNOON)
-            || (projectEntryFromTime.isBefore(END_HOUR_MORNING)
-                && projectEntryToTime.isAfter(START_HOUR_AFTERNOON))){
+            if (projectEntryFromTime.isBefore(START_HOUR_MORNING)
+                    || (projectEntryToTime.isAfter(END_HOUR_MORNING)
+                    && projectEntryToTime.isBefore(START_HOUR_AFTERNOON))
+                    || (projectEntryFromTime.isAfter(END_HOUR_MORNING)
+                    && projectEntryFromTime.isBefore(START_HOUR_AFTERNOON))
+                    || projectEntryToTime.isAfter(END_HOUR_AFTERNOON)
+                    || (projectEntryFromTime.isBefore(END_HOUR_MORNING)
+                    && projectEntryToTime.isAfter(START_HOUR_AFTERNOON))) {
                 warnings.add(createTimeWarning(projectEntry));
             }
         }
@@ -53,7 +53,7 @@ public class DoctorAppointmentCalculator extends AbstractTimeWarningCalculationS
     }
 
 
-    private TimeWarning createTimeWarning(ProjectTimeEntry absence){
+    private TimeWarning createTimeWarning(ProjectTimeEntry absence) {
         TimeWarning timeWarning = new TimeWarning();
         timeWarning.setDate(absence.getDate());
         timeWarning.getWarnings().add(DOCTOR_APPOINTMENT);

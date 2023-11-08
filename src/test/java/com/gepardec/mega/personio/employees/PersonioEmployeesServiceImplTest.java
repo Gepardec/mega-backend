@@ -31,6 +31,40 @@ class PersonioEmployeesServiceImplTest {
     @InjectMock
     Logger logger;
 
+    private static List<EmployeesResponse> createValidEmployeesResponseData() {
+        var data = new EmployeesResponse();
+        data.setAttributes(createPersonioEmployee());
+
+        return List.of(data);
+    }
+
+    private static List<EmployeesResponse> createInvalidEmployeesResponseData() {
+        var data1 = new EmployeesResponse();
+        data1.setAttributes(createPersonioEmployee());
+
+        var data2 = new EmployeesResponse();
+        data2.setAttributes(createPersonioEmployee());
+
+        return List.of(data1, data2);
+    }
+
+    private static PersonioEmployee createPersonioEmployee() {
+        var vacationDayBalance = new Attribute<Double>();
+        vacationDayBalance.setValue(10d);
+
+        var employee = new PersonioEmployee();
+        employee.setVacationDayBalance(vacationDayBalance);
+
+        return employee;
+    }
+
+    private static ErrorResponse createErrorResponse() {
+        var errorResponse = new ErrorResponse();
+        errorResponse.setMessage("Personio-Fehler");
+
+        return errorResponse;
+    }
+
     @Test
     void getVacationDayBalance_ValidResponse_Ten() {
         //GIVEN
@@ -85,39 +119,5 @@ class PersonioEmployeesServiceImplTest {
         verify(logger).info("Fehler bei Aufruf der Personio-Schnittstelle: {}", "Personio-Fehler");
 
         assertThat(result).isEqualTo(0d);
-    }
-
-    private static List<EmployeesResponse> createValidEmployeesResponseData() {
-        var data = new EmployeesResponse();
-        data.setAttributes(createPersonioEmployee());
-
-        return List.of(data);
-    }
-
-    private static List<EmployeesResponse> createInvalidEmployeesResponseData() {
-        var data1 = new EmployeesResponse();
-        data1.setAttributes(createPersonioEmployee());
-
-        var data2 = new EmployeesResponse();
-        data2.setAttributes(createPersonioEmployee());
-
-        return List.of(data1, data2);
-    }
-
-    private static PersonioEmployee createPersonioEmployee() {
-        var vacationDayBalance = new Attribute<Double>();
-        vacationDayBalance.setValue(10d);
-
-        var employee = new PersonioEmployee();
-        employee.setVacationDayBalance(vacationDayBalance);
-
-        return employee;
-    }
-
-    private static ErrorResponse createErrorResponse() {
-        var errorResponse = new ErrorResponse();
-        errorResponse.setMessage("Personio-Fehler");
-
-        return errorResponse;
     }
 }

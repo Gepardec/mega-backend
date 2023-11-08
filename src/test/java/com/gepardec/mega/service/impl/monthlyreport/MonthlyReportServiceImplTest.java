@@ -4,7 +4,14 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
-import com.gepardec.mega.domain.model.monthlyreport.*;
+import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
+import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
+import com.gepardec.mega.domain.model.monthlyreport.Task;
+import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
+import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
+import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -34,8 +41,8 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest

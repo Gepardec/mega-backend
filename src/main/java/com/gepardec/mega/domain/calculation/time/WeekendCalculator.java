@@ -26,7 +26,7 @@ public class WeekendCalculator extends AbstractTimeWarningCalculationStrategy im
 
             List<LocalDate> weekendDays = getWeekEndDaysOfMonth(year, month);
             projectTimeEntries.forEach(projectTimeEntry -> {
-                if(isWeekEndDay(projectTimeEntry.getDate(), weekendDays)) {
+                if (isWeekEndDay(projectTimeEntry.getDate(), weekendDays)) {
                     warnings.add(createTimeWarning(projectTimeEntry.getDate()));
                 }
             });

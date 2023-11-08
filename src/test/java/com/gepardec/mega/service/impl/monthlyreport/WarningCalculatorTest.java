@@ -8,11 +8,9 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
-import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.service.helper.WarningCalculator;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +37,7 @@ class WarningCalculatorTest {
     private static final Integer[] HOLIDAYS = {8, 25, 26};
 
     private static final Integer[] WEEKEND_DAYS = {5, 6, 12, 13, 19, 20, 26, 27};
-    
+
     private static String DOCTOR_APPOINTMENT = "Arztbesuch";
 
     @Mock
@@ -216,7 +214,7 @@ class WarningCalculatorTest {
 
     @Test
     void whenDoctorProcessNull_ThenNoWarning() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(15, 8, 30,15, 10, 5, WorkingLocation.MAIN, null);
+        final ProjectTimeEntry pte = projectTimeEntryFor(15, 8, 30, 15, 10, 5, WorkingLocation.MAIN, null);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
@@ -226,7 +224,7 @@ class WarningCalculatorTest {
 
     @Test
     void whenNotDoctor_ThenNoWarning() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(15, 7, 0,15, 10, 5, WorkingLocation.MAIN, "I'm not an Arztbesuch");
+        final ProjectTimeEntry pte = projectTimeEntryFor(15, 7, 0, 15, 10, 5, WorkingLocation.MAIN, "I'm not an Arztbesuch");
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
@@ -252,8 +250,6 @@ class WarningCalculatorTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
     }
-
-
 
 
     @Test
