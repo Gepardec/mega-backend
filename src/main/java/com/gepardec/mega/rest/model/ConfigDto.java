@@ -23,9 +23,6 @@ public class ConfigDto {
     private final String excelUrl;
 
     @JsonProperty
-    private final String budgetCalculationExcelUrl;
-
-    @JsonProperty
     private final String zepOrigin;
 
     @JsonProperty

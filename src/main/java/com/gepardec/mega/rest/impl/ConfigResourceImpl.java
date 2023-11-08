@@ -33,7 +33,6 @@ public class ConfigResourceImpl implements ConfigResource {
     @Override
     public Response get() {
         final ConfigDto configDto = ConfigDto.builder()
-                .budgetCalculationExcelUrl(applicationConfig.getBudgetCalculationExcelUrlAsString())
                 .zepOrigin(zepConfig.getUrlForFrontend())
                 .clientId(oauthConfig.getClientId())
                 .issuer(oauthConfig.getIssuer())

@@ -99,9 +99,6 @@ mega:
     issuer: "https://gepardec-sso.apps.c-gepa-play.gepa.vshnmanaged.net/realms/gepardec"
     scope: "openid profile email microprofile-jwt"
 
-  # URL zum Planrechnung-Excel
-  budget-calculation-excel-url: "https://docs.google.com/spreadsheets/d/1mmc1pvhr1Z_IbiMELtM98mFZ4-2uuSx6Sg_uZXRNpH0"
-
   mail:
     employees:
       notification: false
