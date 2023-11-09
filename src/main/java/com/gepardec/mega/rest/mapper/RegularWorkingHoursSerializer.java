@@ -46,3 +46,5 @@ public class RegularWorkingHoursSerializer extends StdSerializer<Map<DayOfWeek, 
         jsonGenerator.writeEndObject();
     }
 }
+
+//2 schinken, 1 salami, 1 Neuburger, 1 Schwarzwälder Schinken, 2 käse, 2 aufstrich

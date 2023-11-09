@@ -181,8 +181,6 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
 
-        workingTimeCalculator.getOvertimeforEmployee(employee, billableEntries);
-
         return MonthlyReport.builder()
                 .employee(employee)
                 .timeWarnings(mappedTimeWarnings)

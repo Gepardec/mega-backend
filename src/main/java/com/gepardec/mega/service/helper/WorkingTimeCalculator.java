@@ -41,7 +41,7 @@ public class WorkingTimeCalculator {
         return DurationFormatUtils.formatDuration(totalWorkingTimeForEmployee.toMillis(), BILLABLE_TIME_FORMAT);
     }
 
-    public String getOvertimeforEmployee(Employee employee, List<ProjektzeitType> billableEntries) {
+    public double getOvertimeforEmployee(Employee employee, List<ProjektzeitType> billableEntries) {
         Duration weeklyRegularWorkingHours = employee.getRegularWorkingHours().values().stream().reduce(Duration::plus).orElse(Duration.ZERO);
         Duration totalWorkingHours = getWorkingTimesForEmployee(billableEntries, employee, $ -> true);
 
@@ -52,7 +52,7 @@ public class WorkingTimeCalculator {
 //            overtime = Duration.ZERO;
 //        }
 
-        return DurationFormatUtils.formatDuration(overtime.toMillis(), BILLABLE_TIME_FORMAT);
+        return (double) (overtime.toMinutes() / 60);
     }
 
     private Duration getWorkingTimesForEmployee(List<ProjektzeitType> projektzeitTypeList, Employee employee, Predicate<ProjektzeitType> billableFilter) {

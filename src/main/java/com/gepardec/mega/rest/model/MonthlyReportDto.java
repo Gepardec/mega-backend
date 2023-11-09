@@ -107,5 +107,5 @@ public class MonthlyReportDto {
     private String paidSickLeave;
 
     @JsonProperty
-    private String overtime;
+    private double overtime;
 }
