@@ -181,7 +181,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
 
-//        getOvertimeforEmployee(employee, billableEntries);
+        workingTimeCalculator.getOvertimeforEmployee(employee, billableEntries);
 
         return MonthlyReport.builder()
                 .employee(employee)
@@ -196,19 +196,20 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .otherChecksDone(isMonthCompletedForEmployee(employee, date))
                 .billableTime(workingTimeCalculator.getBillableTimesForEmployee(billableEntries, employee))
                 .totalWorkingTime(workingTimeCalculator.getTotalWorkingTimeForEmployee(billableEntries, employee))
-                .compensatoryDays(getAbsenceTimesForEmployee(absenceEntries, COMPENSATORY_DAYS, date))
-                .homeofficeDays(getAbsenceTimesForEmployee(absenceEntries, HOME_OFFICE_DAYS, date))
-                .vacationDays(getAbsenceTimesForEmployee(absenceEntries, VACATION_DAYS, date))
-                .nursingDays(getAbsenceTimesForEmployee(absenceEntries, NURSING_DAYS, date))
-                .maternityLeaveDays(getAbsenceTimesForEmployee(absenceEntries, MATERNITY_LEAVE_DAYS, date))
-                .externalTrainingDays(getAbsenceTimesForEmployee(absenceEntries, EXTERNAL_TRAINING_DAYS, date))
-                .conferenceDays(getAbsenceTimesForEmployee(absenceEntries, CONFERENCE_DAYS, date))
-                .maternityProtectionDays(getAbsenceTimesForEmployee(absenceEntries, MATERNITY_PROTECTION_DAYS, date))
-                .fatherMonthDays(getAbsenceTimesForEmployee(absenceEntries, FATHER_MONTH_DAYS, date))
-                .paidSpecialLeaveDays(getAbsenceTimesForEmployee(absenceEntries, PAID_SPECIAL_LEAVE_DAYS, date))
-                .nonPaidVacationDays(getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS, date))
-                .paidSickLeave(getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
+                .compensatoryDays(workingTimeCalculator.getAbsenceTimesForEmployee(absenceEntries, COMPENSATORY_DAYS, date))
+                .homeofficeDays(workingTimeCalculator.getAbsenceTimesForEmployee(absenceEntries, HOME_OFFICE_DAYS, date))
+                .vacationDays(workingTimeCalculator.getAbsenceTimesForEmployee(absenceEntries, VACATION_DAYS, date))
+                .nursingDays(workingTimeCalculator.getAbsenceTimesForEmployee(absenceEntries, NURSING_DAYS, date))
+                .maternityLeaveDays(workingTimeCalculator.getAbsenceTimesForEmployee(absenceEntries, MATERNITY_LEAVE_DAYS, date))
+                .externalTrainingDays(workingTimeCalculator.getAbsenceTimesForEmployee(absenceEntries, EXTERNAL_TRAINING_DAYS, date))
+                .conferenceDays(workingTimeCalculator.getAbsenceTimesForEmployee(absenceEntries, CONFERENCE_DAYS, date))
+                .maternityProtectionDays(workingTimeCalculator.getAbsenceTimesForEmployee(absenceEntries, MATERNITY_PROTECTION_DAYS, date))
+                .fatherMonthDays(workingTimeCalculator.getAbsenceTimesForEmployee(absenceEntries, FATHER_MONTH_DAYS, date))
+                .paidSpecialLeaveDays(workingTimeCalculator.getAbsenceTimesForEmployee(absenceEntries, PAID_SPECIAL_LEAVE_DAYS, date))
+                .nonPaidVacationDays(workingTimeCalculator.getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS, date))
+                .paidSickLeave(workingTimeCalculator.getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
                 .vacationDayBalance(personioEmployeesService.getVacationDayBalance(employee.getEmail()))
+                .overtime(workingTimeCalculator.getOvertimeforEmployee(employee, billableEntries))
                 .build();
     }
 
@@ -220,36 +221,10 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         return stepEntry.getState() == EmployeeState.DONE;
     }
 
-    private int getAbsenceTimesForEmployee(@Nonnull List<FehlzeitType> fehlZeitTypeList, String absenceType, LocalDate date) {
-        return (int) fehlZeitTypeList.stream()
-                .filter(fzt -> fzt.getFehlgrund().equals(absenceType))
-                .filter(FehlzeitType::isGenehmigt)
-                .map(fehlzeitType -> trimDurationToCurrentMonth(fehlzeitType, date))
-                .mapToLong(ftl -> OfficeCalendarUtil.getWorkingDaysBetween(LocalDate.parse(ftl.getStartdatum()), LocalDate.parse(ftl.getEnddatum())).size())
-                .sum();
-    }
-
-    private Double getOvertimeforEmployee(Employee employee, List<ProjektzeitType> billableEntries){
-        Double weeklyRegularWorkingHours = employee.getRegularWorkingHours().values().stream().mapToDouble(Double::doubleValue).sum();
-        String totalWorkingHoursString = workingTimeCalculator.getTotalWorkingTimeForEmployee(billableEntries, employee);
-        Double totalWorkingHours = (double) (Duration.parse(totalWorkingHoursString).toMinutes() / 60);
-
-//        overtime = totalWorkingHours - weeklyRegularWorkingHours
-
-        System.out.println(weeklyRegularWorkingHours);
-        System.out.println(totalWorkingHours);
-
-        return 0.0;
-    }
 
 
-    private FehlzeitType trimDurationToCurrentMonth(FehlzeitType fehlzeit, LocalDate date) {
-        if (LocalDate.parse(fehlzeit.getEnddatum()).getMonthValue() > date.getMonthValue()) {
-            fehlzeit.setEnddatum(date.with(TemporalAdjusters.lastDayOfMonth()).toString());
-        }
-        if (LocalDate.parse(fehlzeit.getStartdatum()).getMonthValue() < date.getMonthValue()) {
-            fehlzeit.setStartdatum(date.with(TemporalAdjusters.firstDayOfMonth()).toString());
-        }
-        return fehlzeit;
-    }
+
+
+
+
 }

@@ -83,8 +83,8 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
             return allNonRegularWorkingHourDates;
         }
 
-        employee.getRegularWorkingHours().forEach((dayOfWeek, aDouble) -> {
-            if (aDouble == 0.0) {
+        employee.getRegularWorkingHours().forEach((dayOfWeek, regularHours) -> {
+            if (regularHours.isZero()) {
                 LocalDate upCountingDay = LocalDate.of(year, month, 1).with(TemporalAdjusters.firstInMonth(dayOfWeek));
 
                 allNonRegularWorkingHourDates.add(upCountingDay);

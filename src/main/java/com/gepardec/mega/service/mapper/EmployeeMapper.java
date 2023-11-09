@@ -11,6 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.Range;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -96,7 +97,7 @@ public class EmployeeMapper {
         return mitarbeiterType.getFreigabedatum();
     }
 
-    private Map<DayOfWeek, Double> getRegularWorkinghours(RegelarbeitszeitListeTypeTs regelarbeitszeitListeTypeTs) {
+    private Map<DayOfWeek, Duration> getRegularWorkinghours(RegelarbeitszeitListeTypeTs regelarbeitszeitListeTypeTs) {
         if (regelarbeitszeitListeTypeTs == null) {
             return new HashMap<>();
         }
@@ -105,11 +106,11 @@ public class EmployeeMapper {
         RegelarbeitszeitType regelarbeitszeitType = regelarbeitszeitList.get(regelarbeitszeitList.size() - 1);
 
         return new HashMap<>(Map.ofEntries(
-                Map.entry(DayOfWeek.MONDAY, regelarbeitszeitType.getMontag()),
-                Map.entry(DayOfWeek.TUESDAY, regelarbeitszeitType.getDienstag()),
-                Map.entry(DayOfWeek.WEDNESDAY, regelarbeitszeitType.getMittwoch()),
-                Map.entry(DayOfWeek.THURSDAY, regelarbeitszeitType.getDonnerstag()),
-                Map.entry(DayOfWeek.FRIDAY, regelarbeitszeitType.getFreitag())
+                Map.entry(DayOfWeek.MONDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getMontag() * 60))),
+                Map.entry(DayOfWeek.TUESDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getDienstag() * 60))),
+                Map.entry(DayOfWeek.WEDNESDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getMittwoch() * 60))),
+                Map.entry(DayOfWeek.THURSDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getDonnerstag() * 60))),
+                Map.entry(DayOfWeek.FRIDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getFreitag() * 60)))
         ));
     }
 

@@ -2,11 +2,19 @@ package com.gepardec.mega.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.gepardec.mega.rest.mapper.RegularWorkingHoursSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.jackson.Jacksonized;
+
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.Map;
 
 @Jacksonized
 @Builder
@@ -43,5 +51,17 @@ public class EmployeeDto {
     private String language;
 
     @JsonProperty
+    @JsonSerialize(using = RegularWorkingHoursSerializer.class)
+    private Map<DayOfWeek, Duration> regularWorkingHours;
+
+    @JsonProperty
     private boolean active;
+
+    /**
+     * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,
+     * wenn Mitarbeiter inaktiv ist.
+     */
+    @JsonProperty
+    private LocalDate exitDate;
 }
+

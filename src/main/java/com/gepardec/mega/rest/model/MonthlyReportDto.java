@@ -28,7 +28,7 @@ import java.util.List;
 
 public class MonthlyReportDto {
     @JsonProperty
-    private Employee employee;
+    private EmployeeDto employee;
 
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -105,4 +105,7 @@ public class MonthlyReportDto {
 
     @JsonProperty
     private String paidSickLeave;
+
+    @JsonProperty
+    private String overtime;
 }
