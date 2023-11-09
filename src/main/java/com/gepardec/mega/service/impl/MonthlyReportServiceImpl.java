@@ -21,6 +21,7 @@ import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WarningCalculator;
+import com.gepardec.mega.service.helper.WorkingTimeCalculator;
 import com.gepardec.mega.service.mapper.TimeWarningMapper;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.FehlzeitType;
@@ -30,6 +31,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
@@ -81,6 +83,9 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     @Inject
     PersonioEmployeesService personioEmployeesService;
+
+    @Inject
+    WorkingTimeCalculator workingTimeCalculator;
 
     @Override
     public MonthlyReport getMonthEndReportForUser() {
@@ -176,6 +181,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
 
+//        getOvertimeforEmployee(employee, billableEntries);
+
         return MonthlyReport.builder()
                 .employee(employee)
                 .timeWarnings(mappedTimeWarnings)
@@ -187,8 +194,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .isAssigned(employeeCheckState.isPresent())
                 .employeeProgresses(pmProgressDtos)
                 .otherChecksDone(isMonthCompletedForEmployee(employee, date))
-                .billableTime(zepService.getBillableTimesForEmployee(billableEntries, employee))
-                .totalWorkingTime(zepService.getTotalWorkingTimeForEmployee(billableEntries, employee))
+                .billableTime(workingTimeCalculator.getBillableTimesForEmployee(billableEntries, employee))
+                .totalWorkingTime(workingTimeCalculator.getTotalWorkingTimeForEmployee(billableEntries, employee))
                 .compensatoryDays(getAbsenceTimesForEmployee(absenceEntries, COMPENSATORY_DAYS, date))
                 .homeofficeDays(getAbsenceTimesForEmployee(absenceEntries, HOME_OFFICE_DAYS, date))
                 .vacationDays(getAbsenceTimesForEmployee(absenceEntries, VACATION_DAYS, date))
@@ -221,6 +228,20 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .mapToLong(ftl -> OfficeCalendarUtil.getWorkingDaysBetween(LocalDate.parse(ftl.getStartdatum()), LocalDate.parse(ftl.getEnddatum())).size())
                 .sum();
     }
+
+    private Double getOvertimeforEmployee(Employee employee, List<ProjektzeitType> billableEntries){
+        Double weeklyRegularWorkingHours = employee.getRegularWorkingHours().values().stream().mapToDouble(Double::doubleValue).sum();
+        String totalWorkingHoursString = workingTimeCalculator.getTotalWorkingTimeForEmployee(billableEntries, employee);
+        Double totalWorkingHours = (double) (Duration.parse(totalWorkingHoursString).toMinutes() / 60);
+
+//        overtime = totalWorkingHours - weeklyRegularWorkingHours
+
+        System.out.println(weeklyRegularWorkingHours);
+        System.out.println(totalWorkingHours);
+
+        return 0.0;
+    }
+
 
     private FehlzeitType trimDurationToCurrentMonth(FehlzeitType fehlzeit, LocalDate date) {
         if (LocalDate.parse(fehlzeit.getEnddatum()).getMonthValue() > date.getMonthValue()) {

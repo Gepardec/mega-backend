@@ -27,10 +27,4 @@ public interface ZepService {
     List<FehlzeitType> getAbsenceForEmployee(Employee employee, LocalDate date);
 
     List<ProjektzeitType> getBillableForEmployee(Employee employee, LocalDate date);
-
-    String getBillableTimesForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee);
-
-    String getInternalTimesForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee);
-
-    String getTotalWorkingTimeForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee);
 }

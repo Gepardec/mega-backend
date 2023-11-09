@@ -61,7 +61,7 @@ import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfCurrentMonth;
 @RequestScoped
 public class ZepServiceImpl implements ZepService {
 
-    private static final String BILLABLE_TIME_FORMAT = "HH:mm";
+
 
     private static final Range<Integer> PROJECT_LEAD_RANGE = Range.between(1, 2);
 
@@ -169,31 +169,7 @@ public class ZepServiceImpl implements ZepService {
         return Collections.emptyList();
     }
 
-    @Override
-    public String getInternalTimesForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
-        return getWorkingTimesForEmployee(projektzeitTypeList, employee, Predicate.not(ProjektzeitType::isIstFakturierbar));
-    }
 
-    @Override
-    public String getBillableTimesForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
-        return getWorkingTimesForEmployee(projektzeitTypeList, employee, ProjektzeitType::isIstFakturierbar);
-    }
-
-    @Override
-    public String getTotalWorkingTimeForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
-        return getWorkingTimesForEmployee(projektzeitTypeList, employee, $ -> true);
-    }
-
-    private String getWorkingTimesForEmployee(List<ProjektzeitType> projektzeitTypeList, Employee employee, Predicate<ProjektzeitType> billableFilter) {
-        Duration totalBillable = projektzeitTypeList.stream()
-                .filter(pzt -> pzt.getUserId().equals(employee.getUserId()))
-                .filter(billableFilter)
-                .map(pzt -> LocalTime.parse(pzt.getDauer()))
-                .map(lt -> Duration.between(LocalTime.MIN, lt))
-                .reduce(Duration.ZERO, Duration::plus);
-
-        return DurationFormatUtils.formatDuration(totalBillable.toMillis(), BILLABLE_TIME_FORMAT);
-    }
 
     @CacheResult(cacheName = "projectentry")
     @Override
