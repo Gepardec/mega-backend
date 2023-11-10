@@ -8,6 +8,7 @@ import io.quarkus.mailer.Mailer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,9 @@ public class MailSender {
     private static final String NEW_LINE_STRING = "\n";
 
     private static final String NEW_LINE_HTML = "<br>";
+
+    @Inject
+    Logger logger;
 
     @Inject
     NotificationHelper notificationHelper;
@@ -67,6 +71,7 @@ public class MailSender {
 
         mailer.send(io.quarkus.mailer.Mail.withHtml(eMail, subject, replacedContent)
                 .addInlineAttachment("logo.png", notificationHelper.readLogo(), MediaType.PNG.type(), "<LogoMEGAdash@gepardec.com>"));
+        logger.info("Notification {} sent to {}.", mail.name(), eMail);
     }
 
     private String replaceTextParameters(final String text, final Map<String, String> parameters) {

@@ -3,6 +3,9 @@ package com.gepardec.mega.notification.mail.receiver;
 import com.gepardec.mega.application.configuration.MailReceiverConfig;
 import com.gepardec.mega.domain.model.SourceSystem;
 import com.gepardec.mega.domain.model.StepName;
+import com.gepardec.mega.notification.mail.Mail;
+import com.gepardec.mega.notification.mail.MailParameter;
+import com.gepardec.mega.notification.mail.MailSender;
 import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.UserService;
 import jakarta.enterprise.context.Dependent;
@@ -20,6 +23,9 @@ import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -51,6 +57,11 @@ public class EmailReceiver {
     @Inject
     CommentService commentService;
 
+    @Inject
+    MailSender mailSender;
+
+    private MailMetadata mailMetadata;
+
     public void retrieveEmailsAndSaveToComments() {
         var properties = createMailProperties();
 
@@ -68,47 +79,54 @@ public class EmailReceiver {
             logger.info("Inbox opened.");
 
             var messages = inbox.search(bySenderAndUnseen());
-            logger.info("Found {} relevant messages.", messages.length);
+            logger.info("Found {} relevant message(s).", messages.length);
 
             for (Message message : messages) {
-                var multipartContent = (Multipart) message.getContent();
-                var content = multipartContent.getBodyPart(0).getContent().toString().strip();
-                var contentMap = Stream.of(content.split("\n"))
-                        .map(String::strip)
-                        .map(line -> toMapEntry(line.split(":")))
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                try {
+                    mailMetadata = new MailMetadata();
+                    var multipartContent = (Multipart) message.getContent();
+                    var content = multipartContent.getBodyPart(0).getContent().toString().strip();
+                    var contentMap = Stream.of(content.split("\n"))
+                            .map(String::strip)
+                            .map(line -> toMapEntry(line.split(":")))
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-                var zepNotificationMail = ZepNotificationMail.builder()
-                        .withTag(parseDate(message.getSubject()))
-                        .withNachricht(contentMap.get(NACHRICHT))
-                        .withZepId(contentMap.get(ZEP_ID))
-                        .withBuchungInfo(content.split("\n")[0].strip())
-                        .withMitarbeiterVorname(extractVorname(contentMap.get(MITARBEITER)))
-                        .withMitarbeiterNachname(extractNachname(contentMap.get(MITARBEITER)))
-                        .withProjekt(contentMap.get(PROJEKT))
-                        .withVorgang(contentMap.get(VORGANG))
-                        .withBemerkung(contentMap.get(BEMERKUNGEN))
-                        .build();
+                    var zepNotificationMail = ZepNotificationMail.builder()
+                            .withTag(parseDate(message.getSubject()))
+                            .withNachricht(contentMap.get(NACHRICHT))
+                            .withZepId(contentMap.get(ZEP_ID))
+                            .withBuchungInfo(content.split("\n")[0].strip())
+                            .withMitarbeiterVorname(extractVorname(contentMap.get(MITARBEITER)))
+                            .withMitarbeiterNachname(extractNachname(contentMap.get(MITARBEITER)))
+                            .withProjekt(contentMap.get(PROJEKT))
+                            .withVorgang(contentMap.get(VORGANG))
+                            .withBemerkung(contentMap.get(BEMERKUNGEN))
+                            .build();
 
-                var user = userService.findByName(
-                        zepNotificationMail.getMitarbeiterVorname(),
-                        zepNotificationMail.getMitarbeiterNachname()
-                );
+                    var user = userService.findByName(
+                            zepNotificationMail.getMitarbeiterVorname(),
+                            zepNotificationMail.getMitarbeiterNachname()
+                    );
 
-                var ersteller = userService.findByZepId(zepNotificationMail.getZepIdErsteller());
+                    var ersteller = userService.findByZepId(zepNotificationMail.getZepIdErsteller());
 
-                commentService.create(
-                        StepName.CONTROL_TIME_EVIDENCES.getId(),
-                        SourceSystem.ZEP,
-                        user.getEmail(),
-                        buildComment(zepNotificationMail),
-                        ersteller.getEmail(),
-                        zepNotificationMail.getProjekt(),
-                        zepNotificationMail.getTag().toString()
-                );
+                    mailMetadata.setOriginalRecipient(contentMap.get(MITARBEITER));
+                    mailMetadata.setRecipientFirstname(ersteller.getFirstname());
+                    mailMetadata.setRecipientEmail(ersteller.getEmail());
 
-                message.setFlag(Flags.Flag.SEEN, true);
+                    commentService.create(
+                            StepName.CONTROL_TIME_EVIDENCES.getId(),
+                            SourceSystem.ZEP,
+                            user.getEmail(),
+                            buildComment(zepNotificationMail),
+                            ersteller.getEmail(),
+                            zepNotificationMail.getProjekt(),
+                            zepNotificationMail.getTag().toString()
+                    );
+                } catch (Exception e) {
+                    handleMessageException(e);
+                }
             }
 
             inbox.close(false);
@@ -176,6 +194,24 @@ public class EmailReceiver {
 
     private static String extractVorname(String name) {
         return name != null ? name.split(",")[1].strip() : null;
+    }
+
+    private void handleMessageException(Exception e) {
+        logger.error("Error processing E-Mail: {}.", e.getMessage());
+
+        Map<String, String> mailParameter = new HashMap<>() {{
+            put(MailParameter.RECIPIENT, mailMetadata.getRecipientFirstname()); // employee who sent the comment
+            put(MailParameter.COMMENT, e.getMessage()); // error message
+        }};
+
+        mailSender.send(
+                Mail.ZEP_COMMENT_PROCESSING_ERROR,
+                mailMetadata.getRecipientEmail(), // recipient of this email
+                mailMetadata.getOriginalRecipient(), // employee that the comment was sent to
+                Locale.GERMAN,
+                mailParameter,
+                List.of(mailMetadata.getOriginalRecipient()) // employee name of original email for subject
+        );
     }
 }
 
