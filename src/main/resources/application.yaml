@@ -116,6 +116,7 @@ mega:
         - "paul.proemer@gepardec.com"
 
     receiver:
+      enabled: false
       protocol: "imaps"
       host: "imap.gmail.com"
       port: 993

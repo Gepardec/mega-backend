@@ -1,6 +1,6 @@
 package com.gepardec.mega.notification.mail.receiver;
 
-import com.gepardec.mega.application.configuration.MailReceiverConfig;
+import com.gepardec.mega.application.configuration.EmailReceiverConfig;
 import com.gepardec.mega.domain.model.SourceSystem;
 import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.notification.mail.Mail;
@@ -49,7 +49,7 @@ public class EmailReceiver {
     Logger logger;
 
     @Inject
-    MailReceiverConfig mailReceiverConfig;
+    EmailReceiverConfig emailReceiverConfig;
 
     @Inject
     UserService userService;
@@ -63,15 +63,20 @@ public class EmailReceiver {
     private MailMetadata mailMetadata;
 
     public void retrieveEmailsAndSaveToComments() {
+        if (!Boolean.TRUE.equals(emailReceiverConfig.isEnabled())) {
+            logger.info("E-Mail receiver is disabled.");
+            return;
+        }
+
         var properties = createMailProperties();
 
         try {
             var session = Session.getDefaultInstance(properties);
-            var store = session.getStore(mailReceiverConfig.getProtocol());
+            var store = session.getStore(emailReceiverConfig.getProtocol());
             store.connect(
-                    mailReceiverConfig.getHost(),
-                    mailReceiverConfig.getUsername(),
-                    mailReceiverConfig.getPassword()
+                    emailReceiverConfig.getHost(),
+                    emailReceiverConfig.getUsername(),
+                    emailReceiverConfig.getPassword()
             );
 
             var inbox = store.getFolder("inbox");
@@ -139,15 +144,15 @@ public class EmailReceiver {
 
     private Properties createMailProperties() {
         var properties = new Properties();
-        properties.put("mail.store.protocol", mailReceiverConfig.getProtocol());
-        properties.put("mail.imaps.host", mailReceiverConfig.getHost());
-        properties.put("mail.imaps.port", mailReceiverConfig.getPort());
+        properties.put("mail.store.protocol", emailReceiverConfig.getProtocol());
+        properties.put("mail.imaps.host", emailReceiverConfig.getHost());
+        properties.put("mail.imaps.port", emailReceiverConfig.getPort());
 
         return properties;
     }
 
     private SearchTerm bySenderAndUnseen() {
-        var senderTerm = new FromStringTerm(mailReceiverConfig.getSender());
+        var senderTerm = new FromStringTerm(emailReceiverConfig.getSender());
 
         var seen = new Flags(Flags.Flag.SEEN);
         var unseenFlagTerm = new FlagTerm(seen, false);

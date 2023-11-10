@@ -5,7 +5,11 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
-public class MailReceiverConfig {
+public class EmailReceiverConfig {
+
+    @Inject
+    @ConfigProperty(name = "mega.mail.receiver.enabled")
+    Boolean enabled;
 
     @Inject
     @ConfigProperty(name = "mega.mail.receiver.protocol")
@@ -30,6 +34,10 @@ public class MailReceiverConfig {
     @Inject
     @ConfigProperty(name = "mega.mail.receiver.sender")
     String sender;
+
+    public Boolean isEnabled() {
+        return enabled;
+    }
 
     public String getProtocol() {
         return protocol;
