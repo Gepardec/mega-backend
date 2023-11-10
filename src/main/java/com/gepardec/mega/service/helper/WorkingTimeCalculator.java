@@ -42,6 +42,10 @@ public class WorkingTimeCalculator {
     }
 
     public double getOvertimeforEmployee(Employee employee, List<ProjektzeitType> billableEntries) {
+        if (employee.getRegularWorkingHours() == null){
+            return 0.0;
+        }
+
         Duration weeklyRegularWorkingHours = employee.getRegularWorkingHours().values().stream().reduce(Duration::plus).orElse(Duration.ZERO);
         Duration totalWorkingHours = getWorkingTimesForEmployee(billableEntries, employee, $ -> true);
 
@@ -56,7 +60,6 @@ public class WorkingTimeCalculator {
     }
 
     private Duration getWorkingTimesForEmployee(List<ProjektzeitType> projektzeitTypeList, Employee employee, Predicate<ProjektzeitType> billableFilter) {
-
         return projektzeitTypeList.stream()
                 .filter(pzt -> pzt.getUserId().equals(employee.getUserId()))
                 .filter(billableFilter)

@@ -2,9 +2,10 @@ package com.gepardec.mega.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-import com.gepardec.mega.rest.mapper.RegularWorkingHoursSerializer;
+import com.gepardec.mega.application.jackson.serializer.RegularWorkingHoursDeserializer;
+import com.gepardec.mega.application.jackson.serializer.RegularWorkingHoursSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -52,6 +53,7 @@ public class EmployeeDto {
 
     @JsonProperty
     @JsonSerialize(using = RegularWorkingHoursSerializer.class)
+    @JsonDeserialize(using = RegularWorkingHoursDeserializer.class)
     private Map<DayOfWeek, Duration> regularWorkingHours;
 
     @JsonProperty

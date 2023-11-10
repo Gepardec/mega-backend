@@ -1,6 +1,7 @@
-package com.gepardec.mega.rest.mapper;
+package com.gepardec.mega.application.jackson.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.collect.Streams;
@@ -18,21 +19,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class RegularWorkingHoursSerializer extends StdSerializer<Map<DayOfWeek, Duration>> {
-
-    public RegularWorkingHoursSerializer() {
-        this(null);
-    }
-
-    protected RegularWorkingHoursSerializer(Class<Map<DayOfWeek, Duration>> t) {
-        super(t);
-    }
+public class RegularWorkingHoursSerializer extends JsonSerializer<Map<DayOfWeek, Duration>> {
 
     @Override
     public void serialize(Map<DayOfWeek, Duration> dayOfWeekDurationMap, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+
+        if(dayOfWeekDurationMap == null){
+            return;
+        }
+
         List<Pair<String,String>> transformedMap = dayOfWeekDurationMap.entrySet().stream().map(dayOfWeekDurationEntry -> {
-            // This will be a Json-Key and should not change based locale
-            String newKey = dayOfWeekDurationEntry.getKey().getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH);
+            String newKey = dayOfWeekDurationEntry.getKey().name();
             String newVal = DurationFormatUtils.formatDuration(dayOfWeekDurationEntry.getValue().toMillis(), "HH:mm");
             return Pair.of(newKey, newVal);
         }).collect(Collectors.toList());
@@ -46,5 +43,3 @@ public class RegularWorkingHoursSerializer extends StdSerializer<Map<DayOfWeek, 
         jsonGenerator.writeEndObject();
     }
 }
-
-//2 schinken, 1 salami, 1 Neuburger, 1 Schwarzwälder Schinken, 2 käse, 2 aufstrich

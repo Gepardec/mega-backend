@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
@@ -7,6 +8,8 @@ import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
+import com.gepardec.mega.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.MonthlyReportDto;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -16,7 +19,10 @@ import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.Claim;
 import io.quarkus.test.security.jwt.JwtSecurity;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.parsing.Parser;
+import jakarta.inject.Inject;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
@@ -43,6 +49,12 @@ public class WorkerResourceTest {
 
     @InjectMock
     UserContext userContext;
+
+    @InjectMock
+    EmployeeMapper mapper;
+
+    @Inject
+    ObjectMapper objectMapper;
 
     @Test
     void monthlyReport_whenPOST_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
@@ -131,7 +143,8 @@ public class WorkerResourceTest {
                 .get("/worker/monthendreports")
                 .as(MonthlyReportDto.class);
 
-        assertThat(actual.getEmployee()).isEqualTo(employee);
+
+        assertThat(actual.getEmployee()).isEqualTo(mapper.mapToDto(employee));
         assertThat(timeWarnings).isEqualTo(actual.getTimeWarnings());
         assertThat(journeyWarnings).isEqualTo(actual.getJourneyWarnings());
         assertThat(billableTime).isEqualTo(actual.getBillableTime());
@@ -205,6 +218,7 @@ public class WorkerResourceTest {
         int nonVacationDays = 0;
         String billableTime = "00:00";
         String totalWorkingTime = "00:00";
+        double overtime = 0.0;
 
         MonthlyReport expected = MonthlyReport.builder()
                 .employee(employee)
@@ -228,15 +242,19 @@ public class WorkerResourceTest {
                 .fatherMonthDays(fatherMonthDays)
                 .paidSpecialLeaveDays(paidSpecialLeaveDays)
                 .nonPaidVacationDays(nonVacationDays)
+                .overtime(overtime)
                 .build();
 
         when(monthlyReportService.getMonthEndReportForUser(2023, 8, null)).thenReturn(expected);
+
+
+        RestAssured.defaultParser = Parser.JSON;
 
         MonthlyReportDto actual = given().contentType(ContentType.JSON)
                 .get("/worker/monthendreports/2023/08")
                 .as(MonthlyReportDto.class);
 
-        assertThat(actual.getEmployee()).isEqualTo(employee);
+        assertThat(actual.getEmployee()).isEqualTo(mapper.mapToDto(employee));
         assertThat(timeWarnings).isEqualTo(actual.getTimeWarnings());
         assertThat(journeyWarnings).isEqualTo(actual.getJourneyWarnings());
         assertThat(billableTime).isEqualTo(actual.getBillableTime());

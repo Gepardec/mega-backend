@@ -4,7 +4,7 @@ import com.gepardec.mega.application.interceptor.RolesAllowed;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.rest.api.EmployeeResource;
-import com.gepardec.mega.rest.mapper.MapperManager;
+import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import io.quarkus.security.Authenticated;
@@ -20,7 +20,7 @@ import java.util.List;
 public class EmployeeResourceImpl implements EmployeeResource {
 
     @Inject
-    MapperManager mapper;
+    EmployeeMapper mapper;
 
     @Inject
     EmployeeService employeeService;
@@ -28,11 +28,11 @@ public class EmployeeResourceImpl implements EmployeeResource {
     @Override
     public Response list() {
         final List<Employee> allActiveEmployees = employeeService.getAllActiveEmployees();
-        return Response.ok(mapper.mapAsList(allActiveEmployees, EmployeeDto.class)).build();
+        return Response.ok(mapper.mapListToDto(allActiveEmployees)).build();
     }
 
     @Override
     public Response update(final List<EmployeeDto> employeesDto) {
-        return Response.ok(employeeService.updateEmployeesReleaseDate(mapper.mapAsList(employeesDto, Employee.class))).build();
+        return Response.ok(employeeService.updateEmployeesReleaseDate(mapper.mapListToDomain(employeesDto))).build();
     }
 }

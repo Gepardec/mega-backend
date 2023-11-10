@@ -13,6 +13,13 @@ public class JacksonObjectMapperContextResolver implements ContextResolver<Objec
 
     public JacksonObjectMapperContextResolver() {
         MAPPER = new ObjectMapper();
+
+//        MAPPER.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+//        SimpleModule regularWorkingHoursModule = new SimpleModule("RegularWorkingHoursModule");
+//        regularWorkingHoursModule.addSerializer((Class<Map<DayOfWeek, Duration>>) (Class) Map.class, new RegularWorkingHoursSerializer());
+//        regularWorkingHoursModule.addDeserializer((Class<Map<DayOfWeek, Duration>>) (Class) Map.class, new RegularWorkingHoursDeserializer());
+//        MAPPER.registerModule(regularWorkingHoursModule);
+
         MAPPER.registerModule(new JavaTimeModule());
         MAPPER.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }

@@ -25,7 +25,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-
 public class MonthlyReportDto {
     @JsonProperty
     private EmployeeDto employee;
@@ -104,7 +103,7 @@ public class MonthlyReportDto {
     private String totalWorkingTime;
 
     @JsonProperty
-    private String paidSickLeave;
+    private int paidSickLeave;
 
     @JsonProperty
     private double overtime;
