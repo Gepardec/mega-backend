@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 @ApplicationScoped
-public class WarningCalculator {
+public class WarningCalculatorsManager {
 
     private static final List<WarningCalculationStrategy<TimeWarning>> timeWarningCalculators = List.of(
             new ExceededMaximumWorkingHoursPerDayCalculator(),

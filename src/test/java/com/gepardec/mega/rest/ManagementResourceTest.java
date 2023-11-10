@@ -19,7 +19,7 @@ import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.ProjectEntryService;
 import com.gepardec.mega.service.api.StepEntryService;
-import com.gepardec.mega.service.helper.WorkingTimeCalculator;
+import com.gepardec.mega.service.helper.WorkingTimeFilterHelper;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.test.junit.QuarkusTest;
@@ -69,7 +69,7 @@ class ManagementResourceTest {
     ZepService zepService;
 
     @InjectMock
-    WorkingTimeCalculator workingTimeCalculator;
+    WorkingTimeFilterHelper workingTimeFilterHelper;
 
 
     @InjectMock
@@ -245,8 +245,8 @@ class ManagementResourceTest {
                 ArgumentMatchers.anyString(), ArgumentMatchers.any(LocalDate.class)
         )).thenReturn(getProjectTimeTypeList());
 
-        when(workingTimeCalculator.getBillableTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("02:00");
-        when(workingTimeCalculator.getInternalTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("02:00");
+        when(workingTimeFilterHelper.getBillableTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("02:00");
+        when(workingTimeFilterHelper.getInternalTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("02:00");
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
                 .get("/management/projectmanagemententries/2020/10")
@@ -324,8 +324,8 @@ class ManagementResourceTest {
                 ArgumentMatchers.anyString(), ArgumentMatchers.any(LocalDate.class)
         )).thenReturn(getProjectTimeTypeList());
 
-        when(workingTimeCalculator.getInternalTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("01:00");
-        when(workingTimeCalculator.getBillableTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("02:00");
+        when(workingTimeFilterHelper.getInternalTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("01:00");
+        when(workingTimeFilterHelper.getBillableTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("02:00");
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
                 .get("/management/projectmanagemententries/2020/09")
@@ -407,8 +407,8 @@ class ManagementResourceTest {
                 ArgumentMatchers.anyString(), ArgumentMatchers.any(LocalDate.class)
         )).thenReturn(getProjectTimeTypeList());
 
-        when(workingTimeCalculator.getBillableTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("00:00");
-        when(workingTimeCalculator.getInternalTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("00:00");
+        when(workingTimeFilterHelper.getBillableTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("00:00");
+        when(workingTimeFilterHelper.getInternalTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("00:00");
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
                 .get("/management/projectmanagemententries/2020/09")

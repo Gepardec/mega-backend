@@ -15,7 +15,7 @@ import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.service.api.EmployeeService;
-import com.gepardec.mega.service.helper.WarningCalculator;
+import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.FehlzeitType;
@@ -56,7 +56,7 @@ class MonthlyReportServiceImplTest {
     ZepService zepService;
 
     @InjectMock
-    WarningCalculator warningCalculator;
+    WarningCalculatorsManager warningCalculatorsManager;
 
     @InjectMock
     PersonioEmployeesService personioEmployeesService;
@@ -104,7 +104,7 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(new ArrayList<>());
-        when(warningCalculator.determineNoTimeEntries(Mockito.any(Employee.class), Mockito.anyList(), Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineNoTimeEntries(Mockito.any(Employee.class), Mockito.anyList(), Mockito.anyList())).thenReturn(new ArrayList<>());
 
         assertThat(monthlyReportService.getMonthEndReportForUser())
                 .isNotNull();
@@ -115,7 +115,7 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(ArgumentMatchers.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(10));
-        when(warningCalculator.determineNoTimeEntries(Mockito.any(Employee.class), Mockito.anyList(), Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineNoTimeEntries(Mockito.any(Employee.class), Mockito.anyList(), Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
@@ -135,7 +135,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(new ArrayList<>());
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(createTimeWarningList());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(createTimeWarningList());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
@@ -164,7 +164,7 @@ class MonthlyReportServiceImplTest {
         nursingDay.setStartdatum(LocalDate.of(2020, 2, 27).toString());
         absenceList.add(nursingDay);
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
@@ -194,7 +194,7 @@ class MonthlyReportServiceImplTest {
         maternityLeaveDay.setStartdatum(LocalDate.of(2020, 2, 27).toString());
         absenceList.add(maternityLeaveDay);
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
@@ -224,7 +224,7 @@ class MonthlyReportServiceImplTest {
         externalTrainingAbsence.setStartdatum(LocalDate.of(2020, 2, 27).toString());
         absenceList.add(externalTrainingAbsence);
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
@@ -254,7 +254,7 @@ class MonthlyReportServiceImplTest {
         conferenceDaysAbsence.setStartdatum(LocalDate.of(2020, 2, 27).toString());
         absenceList.add(conferenceDaysAbsence);
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
@@ -284,7 +284,7 @@ class MonthlyReportServiceImplTest {
         maternityProtectionDaysAbsence.setStartdatum(LocalDate.of(2020, 2, 27).toString());
         absenceList.add(maternityProtectionDaysAbsence);
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
@@ -316,7 +316,7 @@ class MonthlyReportServiceImplTest {
         fatherMonthDaysAbsence.setStartdatum(LocalDate.of(2020, 2, 27).toString());
         absenceList.add(fatherMonthDaysAbsence);
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
@@ -346,7 +346,7 @@ class MonthlyReportServiceImplTest {
         paidSpecialLeaveDaysAbsence.setStartdatum(LocalDate.of(2020, 2, 27).toString());
         absenceList.add(paidSpecialLeaveDaysAbsence);
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
@@ -376,7 +376,7 @@ class MonthlyReportServiceImplTest {
         nonPaidVacationDaysAbsence.setStartdatum(LocalDate.of(2020, 2, 27).toString());
         absenceList.add(nonPaidVacationDaysAbsence);
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 2, employee);
 
@@ -399,7 +399,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createVacationAbsenceList());
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
@@ -415,7 +415,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createVacationAbsenceListWhichExtendsOverMonthEnd());
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
@@ -456,7 +456,7 @@ class MonthlyReportServiceImplTest {
         absenceList.add(vacationDaysAbsence);
 
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(absenceList);
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser();
 
@@ -472,7 +472,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createHomeOfficeListWhichExtendsOverWeekend());
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
@@ -489,7 +489,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createHomeOfficeListWhichExtendsOverMonth());
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
@@ -506,7 +506,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createTimeCompensationWhichExtendsOverWeekend());
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 
@@ -523,7 +523,7 @@ class MonthlyReportServiceImplTest {
         when(zepService.getEmployee(Mockito.anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
         when(zepService.getAbsenceForEmployee(Mockito.any(Employee.class), Mockito.any(LocalDate.class))).thenReturn(createTimeCompensationWhichExtendsOverWeekendAndMonth());
-        when(warningCalculator.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
+        when(warningCalculatorsManager.determineTimeWarnings(Mockito.anyList())).thenReturn(new ArrayList<>());
 
         final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee);
 

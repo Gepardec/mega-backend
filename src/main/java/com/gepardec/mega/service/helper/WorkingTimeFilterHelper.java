@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @ApplicationScoped
-public class WorkingTimeCalculator {
+public class WorkingTimeFilterHelper {
 
     private static final String BILLABLE_TIME_FORMAT = "HH:mm";
 

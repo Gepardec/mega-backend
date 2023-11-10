@@ -4,19 +4,14 @@ package com.gepardec.mega.service.impl.monthlyreport;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
-import com.gepardec.mega.domain.model.UserContext;
-import com.gepardec.mega.service.helper.WorkingTimeCalculator;
-import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.service.helper.WorkingTimeFilterHelper;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
-
 import java.time.DayOfWeek;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,17 +20,17 @@ import java.util.Set;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @QuarkusTest
-public class WorkingTimeCalculatorTest {
+public class WorkingTimeFilterHelperTest {
 
     @Inject
-    WorkingTimeCalculator workingTimeCalculator;
+    WorkingTimeFilterHelper workingTimeFilterHelper;
 
     @Test
     void getInternalTimesForEmployee_RETURN_ONLY_INTERNAL() {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList();
-        String internalTimesForEmployee = workingTimeCalculator.getInternalTimesForEmployee(projektzeitTypes, employee);
+        String internalTimesForEmployee = workingTimeFilterHelper.getInternalTimesForEmployee(projektzeitTypes, employee);
         assertThat(internalTimesForEmployee).isEqualTo("08:00");
     }
 
@@ -45,7 +40,7 @@ public class WorkingTimeCalculatorTest {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList();
-        double overtimeforEmployee = workingTimeCalculator.getOvertimeforEmployee(employee, projektzeitTypes);
+        double overtimeforEmployee = workingTimeFilterHelper.getOvertimeforEmployee(employee, projektzeitTypes);
         assertThat(overtimeforEmployee).isEqualTo(12.0);
     }
 
@@ -91,10 +86,7 @@ public class WorkingTimeCalculatorTest {
     }
 
     private Employee createEmployee() {
-
-
         User user = User.builder().dbId(1).userId("1").email("max.mustermann@gpeardec.com").firstname("Max").lastname("Mustermann").roles(Set.of(Role.EMPLOYEE)).build();
-
         return Employee.builder().email(user.getEmail()).firstname(user.getFirstname()).lastname(user.getLastname()).title("Ing.").userId(user.getUserId()).releaseDate("2020-01-01").active(true).regularWorkingHours(Map.of(DayOfWeek.MONDAY, Duration.ofHours(4))).build();
     }
 }
