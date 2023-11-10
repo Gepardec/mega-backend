@@ -1,9 +1,7 @@
 package com.gepardec.mega.rest.mapper;
 
 import com.gepardec.mega.domain.model.Comment;
-import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.rest.model.CommentDto;
-import com.gepardec.mega.rest.model.MonthlyReportDto;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped

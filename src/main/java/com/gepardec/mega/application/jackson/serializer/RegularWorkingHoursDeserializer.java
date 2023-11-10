@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 import java.io.IOException;
 import java.time.DayOfWeek;
@@ -23,12 +22,11 @@ public class RegularWorkingHoursDeserializer extends JsonDeserializer<Map<DayOfW
     public Map<DayOfWeek, Duration> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
 
 
-
         Map<DayOfWeek, Duration> regularWorkingHours = new HashMap<DayOfWeek, Duration>();
 
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
-        if(node.asText().isEmpty()){
+        if (node.asText().isEmpty()) {
             return null;
         }
 

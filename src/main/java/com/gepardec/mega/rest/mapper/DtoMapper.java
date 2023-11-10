@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 abstract class DtoMapper<T, U> {
 
     public abstract U mapToDto(T object);
-    
+
     public abstract T mapToDomain(U object);
 
     public List<U> mapListToDto(List<T> objects) {
@@ -14,6 +14,7 @@ abstract class DtoMapper<T, U> {
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
+
     public List<T> mapListToDomain(List<U> objects) {
         return objects.stream()
                 .map(this::mapToDomain)

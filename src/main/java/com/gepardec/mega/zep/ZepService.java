@@ -5,7 +5,6 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
-import jakarta.annotation.Nonnull;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -30,54 +30,63 @@ public class TimeWarningPredicates {
         }
         return false;
     };
+
     private static final Predicate<TimeWarning> missingBreakPredicate = w -> {
         if (w.getMissingBreakTime() != null) {
             return w.getMissingBreakTime().compareTo(0.0) > 0;
         }
         return false;
     };
+
     private static final Predicate<TimeWarning> excessWorkPredicate = w -> {
         if (w.getExcessWorkTime() != null) {
             return w.getExcessWorkTime().compareTo(0.0) > 0;
         }
         return false;
     };
+
     private static final Predicate<TimeWarning> wrongDoctorAppointmentPredicate = w -> {
         if (w.getWarningTypes() != null) {
             return w.getWarningTypes().contains(TimeWarningType.WRONG_DOCTOR_APPOINTMENT);
         }
         return false;
     };
+
     private static final Predicate<TimeWarning> noTimeEntryPredicate = w -> {
         if (w.getWarningTypes() != null) {
             return w.getWarningTypes().contains(TimeWarningType.NO_TIME_ENTRY);
         }
         return false;
     };
+
     private static final Predicate<TimeWarning> outsideCorePredicate = w -> {
         if (w.getWarningTypes() != null) {
             return w.getWarningTypes().contains(TimeWarningType.OUTSIDE_CORE_WORKING_TIME);
         }
         return false;
     };
+
     private static final Predicate<TimeWarning> timeOverlapPredicate = w -> {
         if (w.getWarningTypes() != null) {
             return w.getWarningTypes().contains(TimeWarningType.TIME_OVERLAP);
         }
         return false;
     };
+
     private static final Predicate<TimeWarning> emptyEntryListPredicate = w -> {
         if (w.getWarningTypes() != null) {
             return w.getWarningTypes().contains(TimeWarningType.EMPTY_ENTRY_LIST);
         }
         return false;
     };
+
     private static final Predicate<TimeWarning> holidayPredicate = w -> {
         if (w.getWarningTypes() != null) {
             return w.getWarningTypes().contains(TimeWarningType.HOLIDAY);
         }
         return false;
     };
+
     private static final Predicate<TimeWarning> weekendPredicate = w -> {
         if (w.getWarningTypes() != null) {
             return w.getWarningTypes().contains(TimeWarningType.WEEKEND);

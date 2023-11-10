@@ -8,7 +8,6 @@ import com.gepardec.mega.service.helper.WorkingTimeFilterHelper;
 import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.test.junit.QuarkusTest;
-import jakarta.ejb.Local;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +36,7 @@ public class WorkingTimeFilterHelperTest {
      *
      * e.g. for counterAddWeek = 4
      * 38.5 * 4 = 154 total hours
-     * 8 * 4    = 32 non billable hours
+     * 8 * 4    = 32 non-billable hours
      * 30.5 * 4 = 122 billable hours
      */
 
@@ -50,6 +49,7 @@ public class WorkingTimeFilterHelperTest {
         String internalTimesForEmployee = workingTimeFilterHelper.getInternalTimesForEmployee(projektzeitTypes, employee);
         assertThat(internalTimesForEmployee).isEqualTo("32:00");
     }
+
     @Test
     void getBillableTimesForEmployeeTest() {
         Employee employee = createEmployee();
@@ -58,6 +58,7 @@ public class WorkingTimeFilterHelperTest {
         String internalTimesForEmployee = workingTimeFilterHelper.getBillableTimesForEmployee(projektzeitTypes, employee);
         assertThat(internalTimesForEmployee).isEqualTo("122:00");
     }
+
     @Test
     void getTotalWorkingTimeForEmployee() {
         Employee employee = createEmployee();
@@ -76,6 +77,7 @@ public class WorkingTimeFilterHelperTest {
         double overtimeforEmployee = workingTimeFilterHelper.getOvertimeforEmployee(employee, projektzeitTypes);
         assertThat(overtimeforEmployee).isEqualTo(38.5);
     }
+
     @Test
     void getInternalTimesForEmployee_RETURN_NEGATIVE_OVERTIME() {
         Employee employee = createEmployee();
@@ -84,6 +86,7 @@ public class WorkingTimeFilterHelperTest {
         double overtimeforEmployee = workingTimeFilterHelper.getOvertimeforEmployee(employee, projektzeitTypes);
         assertThat(overtimeforEmployee).isEqualTo(-38.5);
     }
+
     @Test
     void getAbsenceTimesForEmployee() {
         Employee employee = createEmployee();
@@ -144,7 +147,7 @@ public class WorkingTimeFilterHelperTest {
         return projektzeiten;
     }
 
-    private List<FehlzeitType> returnFehlzeitTypeList(){
+    private List<FehlzeitType> returnFehlzeitTypeList() {
         FehlzeitType fehlzeitType = new FehlzeitType();
         fehlzeitType.setStartdatum("2021-07-15");
         fehlzeitType.setEnddatum("2021-07-16");

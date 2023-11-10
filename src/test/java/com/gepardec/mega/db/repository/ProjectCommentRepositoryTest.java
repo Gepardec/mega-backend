@@ -25,6 +25,7 @@ class ProjectCommentRepositoryTest {
     ProjectCommentRepository projectCommentRepository;
     @Inject
     ProjectRepository projectRepository;
+    private ProjectComment projectComment;
 
     private ProjectComment projectComment;
 

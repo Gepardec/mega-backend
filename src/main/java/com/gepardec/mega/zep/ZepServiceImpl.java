@@ -34,17 +34,13 @@ import de.provantis.zep.UserIdListeType;
 import de.provantis.zep.ZepSoapPortType;
 import io.quarkus.cache.CacheInvalidate;
 import io.quarkus.cache.CacheResult;
-import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.Logger;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
@@ -52,7 +48,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
@@ -60,7 +55,6 @@ import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfCurrentMonth;
 
 @RequestScoped
 public class ZepServiceImpl implements ZepService {
-
 
 
     private static final Range<Integer> PROJECT_LEAD_RANGE = Range.between(1, 2);
@@ -168,7 +162,6 @@ public class ZepServiceImpl implements ZepService {
         }
         return Collections.emptyList();
     }
-
 
 
     @CacheResult(cacheName = "projectentry")

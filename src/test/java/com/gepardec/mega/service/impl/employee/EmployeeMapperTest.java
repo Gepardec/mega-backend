@@ -200,6 +200,23 @@ class EmployeeMapperTest {
         assertThat(actual.isActive()).isTrue();
     }
 
+    private BeschaeftigungszeitType createBeschaeftigungszeitType(final LocalDate start, final LocalDate end) {
+        final BeschaeftigungszeitType beschaeftigung = new BeschaeftigungszeitType();
+        beschaeftigung.setStartdatum((start != null) ? DateUtils.formatDate(start) : null);
+        beschaeftigung.setEnddatum((end != null) ? DateUtils.formatDate(end) : null);
+        return beschaeftigung;
+    }
+
+    private BeschaeftigungszeitListeType createBeschaeftigungszeitListeType(List<BeschaeftigungszeitType> employments) {
+        final BeschaeftigungszeitListeType beschaeftigungszeitListeType = new BeschaeftigungszeitListeType();
+        beschaeftigungszeitListeType.getBeschaeftigungszeit().addAll(employments);
+        return beschaeftigungszeitListeType;
+    }
+
+    private Range<LocalDate> createRange(LocalDate from, LocalDate to) {
+        return Range.between(from, to, LocalDate::compareTo);
+    }
+
     @Nested
     @DisplayName("Tests for EmploymentPeriods")
     class EmploymentPeriods {
@@ -422,22 +439,5 @@ class EmployeeMapperTest {
             // Then
             assertThat(mapped.getExitDate()).isEqualTo(yesterday);
         }
-    }
-
-    private BeschaeftigungszeitType createBeschaeftigungszeitType(final LocalDate start, final LocalDate end) {
-        final BeschaeftigungszeitType beschaeftigung = new BeschaeftigungszeitType();
-        beschaeftigung.setStartdatum((start != null) ? DateUtils.formatDate(start) : null);
-        beschaeftigung.setEnddatum((end != null) ? DateUtils.formatDate(end) : null);
-        return beschaeftigung;
-    }
-
-    private BeschaeftigungszeitListeType createBeschaeftigungszeitListeType(List<BeschaeftigungszeitType> employments) {
-        final BeschaeftigungszeitListeType beschaeftigungszeitListeType = new BeschaeftigungszeitListeType();
-        beschaeftigungszeitListeType.getBeschaeftigungszeit().addAll(employments);
-        return beschaeftigungszeitListeType;
-    }
-
-    private Range<LocalDate> createRange(LocalDate from, LocalDate to) {
-        return Range.between(from, to, LocalDate::compareTo);
     }
 }
