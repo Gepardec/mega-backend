@@ -5,7 +5,7 @@ import com.gepardec.mega.rest.model.EmployeeDto;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class EmployeeMapper extends DtoMapper<Employee, EmployeeDto> {
+public class EmployeeMapper implements DtoMapper<Employee, EmployeeDto> {
 
     @Override
     public EmployeeDto mapToDto(Employee object) {

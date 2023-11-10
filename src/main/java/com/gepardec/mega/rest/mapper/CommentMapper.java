@@ -5,7 +5,7 @@ import com.gepardec.mega.rest.model.CommentDto;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class CommentMapper extends DtoMapper<Comment, CommentDto> {
+public class CommentMapper implements DtoMapper<Comment, CommentDto> {
 
     @Override
     public CommentDto mapToDto(Comment object) {

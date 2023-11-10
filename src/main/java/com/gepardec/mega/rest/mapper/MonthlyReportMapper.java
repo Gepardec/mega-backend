@@ -6,7 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
-public class MonthlyReportMapper extends DtoMapper<MonthlyReport, MonthlyReportDto> {
+public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyReportDto> {
 
     @Inject
     EmployeeMapper employeeMapper;
