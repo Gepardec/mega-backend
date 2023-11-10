@@ -32,6 +32,8 @@ public class EmailReceiver {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
+    private static final String NACHRICHT = "Nachricht";
+    private static final String ZEP_ID = "User-ID";
     private static final String MITARBEITER = "Mitarbeiter";
     private static final String PROJEKT = "Projekt";
     private static final String VORGANG = "Vorgang";
@@ -79,6 +81,8 @@ public class EmailReceiver {
 
                 var zepNotificationMail = ZepNotificationMail.builder()
                         .withTag(parseDate(message.getSubject()))
+                        .withNachricht(contentMap.get(NACHRICHT))
+                        .withZepId(contentMap.get(ZEP_ID))
                         .withBuchungInfo(content.split("\n")[0].strip())
                         .withMitarbeiterVorname(extractVorname(contentMap.get(MITARBEITER)))
                         .withMitarbeiterNachname(extractNachname(contentMap.get(MITARBEITER)))
@@ -92,12 +96,14 @@ public class EmailReceiver {
                         zepNotificationMail.getMitarbeiterNachname()
                 );
 
+                var ersteller = userService.findByZepId(zepNotificationMail.getZepIdErsteller());
+
                 commentService.create(
                         StepName.CONTROL_TIME_EVIDENCES.getId(),
                         SourceSystem.ZEP,
                         user.getEmail(),
                         buildComment(zepNotificationMail),
-                        user.getEmail(),
+                        ersteller.getEmail(),
                         zepNotificationMail.getProjekt(),
                         zepNotificationMail.getTag().toString()
                 );
@@ -134,12 +140,13 @@ public class EmailReceiver {
     private static String buildComment(ZepNotificationMail mail) {
         return String.format(
                 "Deine Buchung vom %s im Projekt '%s' weist beim Vorgang '%s' %s " +
-                        "mit der Bemerkung '%s' einen Fehler auf. Bitte korrigieren!",
+                        "mit der Bemerkung '%s' einen Fehler auf. %s",
                 DATE_FORMATTER.format(mail.getTag()),
                 mail.getProjekt(),
                 mail.getVorgang(),
                 mail.getBuchungInfo(),
-                mail.getBemerkung()
+                mail.getBemerkung(),
+                mail.getNachricht()
         );
     }
 

@@ -7,6 +7,8 @@ import java.time.LocalDate;
 public class ZepNotificationMail {
 
     private final LocalDate tag;
+    private final String nachricht;
+    private final String zepIdErsteller;
     private final String mitarbeiterVorname;
     private final String mitarbeiterNachname;
     private final String buchungInfo;
@@ -16,6 +18,8 @@ public class ZepNotificationMail {
 
     private ZepNotificationMail(Builder source) {
         this.tag = source.tag;
+        this.nachricht = source.nachricht;
+        this.zepIdErsteller = source.zepId;
         this.mitarbeiterVorname = source.mitarbeiterVorname;
         this.mitarbeiterNachname = source.mitarbeiterNachname;
         this.buchungInfo = source.buchungInfo;
@@ -30,6 +34,14 @@ public class ZepNotificationMail {
 
     public LocalDate getTag() {
         return tag;
+    }
+
+    public String getNachricht() {
+        return nachricht;
+    }
+
+    public String getZepIdErsteller() {
+        return zepIdErsteller;
     }
 
     public String getMitarbeiterVorname() {
@@ -60,6 +72,8 @@ public class ZepNotificationMail {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("tag", tag)
+                .add("nachricht", nachricht)
+                .add("zepIdErsteller", zepIdErsteller)
                 .add("mitarbeiterVorname", mitarbeiterVorname)
                 .add("mitarbeiterNachname", mitarbeiterNachname)
                 .add("buchungInfo", buchungInfo)
@@ -72,6 +86,8 @@ public class ZepNotificationMail {
     public static final class Builder {
 
         private LocalDate tag;
+        private String nachricht;
+        private String zepId;
         private String mitarbeiterVorname;
         private String mitarbeiterNachname;
         private String buchungInfo;
@@ -81,6 +97,16 @@ public class ZepNotificationMail {
 
         public Builder withTag(LocalDate tag) {
             this.tag = tag;
+            return this;
+        }
+
+        public Builder withNachricht(String nachricht) {
+            this.nachricht = nachricht;
+            return this;
+        }
+
+        public Builder withZepId(String zepId) {
+            this.zepId = zepId;
             return this;
         }
 
