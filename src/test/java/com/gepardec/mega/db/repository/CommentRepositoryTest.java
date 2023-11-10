@@ -7,6 +7,7 @@ import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.entity.project.Project;
 import com.gepardec.mega.domain.model.Role;
+import com.gepardec.mega.domain.model.SourceSystem;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -169,6 +170,7 @@ class CommentRepositoryTest {
         initComment.setCreationDate(LocalDateTime.of(2021, 1, 18, 10, 10));
         initComment.setUpdatedDate(LOCALDATETIME);
         initComment.setStepEntry(stepEntry);
+        initComment.setSourceSystem(SourceSystem.MEGA);
 
         return initComment;
     }

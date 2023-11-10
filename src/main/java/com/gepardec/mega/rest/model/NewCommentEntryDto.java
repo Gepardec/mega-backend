@@ -2,7 +2,6 @@ package com.gepardec.mega.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.gepardec.mega.domain.model.Employee;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,7 +22,7 @@ public class NewCommentEntryDto {
     private final Long stepId;
 
     @JsonProperty
-    private final Employee employee;
+    private final String employeeEmail;
 
     @JsonProperty
     private final String comment;

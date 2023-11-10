@@ -44,6 +44,7 @@ import java.util.Set;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
@@ -71,7 +72,6 @@ class ManagementResourceTest {
 
     @InjectMock
     WorkingTimeUtil workingTimeUtil;
-
 
     @InjectMock
     UserContext userContext;
@@ -107,8 +107,8 @@ class ManagementResourceTest {
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
         );
 
-        when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
+        when(commentService.countFinishedAndTotalComments(
+                anyString(), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
         when(stepEntryService.findAllStepEntriesForEmployee(
@@ -148,8 +148,8 @@ class ManagementResourceTest {
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
         );
 
-        when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
+        when(commentService.countFinishedAndTotalComments(
+                anyString(), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
         when(stepEntryService.findAllStepEntriesForEmployee(any(Employee.class), any(LocalDate.class), any(LocalDate.class)))
@@ -168,8 +168,8 @@ class ManagementResourceTest {
         final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
         when(userContext.getUser()).thenReturn(user);
 
-        when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
+        when(commentService.countFinishedAndTotalComments(
+                anyString(), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
         when(stepEntryService.findAllStepEntriesForEmployee(any(Employee.class), any(LocalDate.class), any(LocalDate.class)))
@@ -230,8 +230,8 @@ class ManagementResourceTest {
                 createProjectEntryForStepWithStateAndPreset(ProjectStep.CONTROL_BILLING, State.DONE, false)
         );
 
-        when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
+        when(commentService.countFinishedAndTotalComments(
+                anyString(), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
         when(stepEntryService.findAllStepEntriesForEmployeeAndProject(
@@ -309,8 +309,8 @@ class ManagementResourceTest {
                 createProjectEntryForStepWithStateAndPreset(ProjectStep.CONTROL_BILLING, State.DONE, false)
         );
 
-        when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
+        when(commentService.countFinishedAndTotalComments(
+                anyString(), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
         when(stepEntryService.findAllStepEntriesForEmployeeAndProject(
@@ -392,8 +392,8 @@ class ManagementResourceTest {
                 createProjectEntryForStepWithStateAndPreset(ProjectStep.CONTROL_BILLING, State.DONE, false)
         );
 
-        when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
+        when(commentService.countFinishedAndTotalComments(
+                anyString(), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
         when(stepEntryService.findAllStepEntriesForEmployeeAndProject(
@@ -475,8 +475,8 @@ class ManagementResourceTest {
                 createProjectEntryForStepWithStateAndPreset(ProjectStep.CONTROL_BILLING, State.DONE, false)
         );
 
-        when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
+        when(commentService.countFinishedAndTotalComments(
+                anyString(), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
         when(stepEntryService.findAllStepEntriesForEmployeeAndProject(

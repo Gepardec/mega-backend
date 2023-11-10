@@ -17,6 +17,7 @@ public class CommentMapper {
                 .updateDate(dbComment.getUpdatedDate().toString())
                 .message(dbComment.getMessage())
                 .state(dbComment.getState())
+                .sourceSystem(dbComment.getSourceSystem())
                 .build();
     }
 }

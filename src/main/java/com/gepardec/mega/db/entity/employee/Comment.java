@@ -1,5 +1,6 @@
 package com.gepardec.mega.db.entity.employee;
 
+import com.gepardec.mega.domain.model.SourceSystem;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -71,6 +72,14 @@ public class Comment {
     private EmployeeState employeeState;
 
     /**
+     * The source sysstem of the comment
+     */
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source_system")
+    private SourceSystem sourceSystem;
+
+    /**
      * The step entry the comment is for
      *
      * @see StepEntry
@@ -139,6 +148,14 @@ public class Comment {
 
     public void setState(EmployeeState employeeState) {
         this.employeeState = employeeState;
+    }
+
+    public SourceSystem getSourceSystem() {
+        return sourceSystem;
+    }
+
+    public void setSourceSystem(SourceSystem sourceSystem) {
+        this.sourceSystem = sourceSystem;
     }
 
     @Override

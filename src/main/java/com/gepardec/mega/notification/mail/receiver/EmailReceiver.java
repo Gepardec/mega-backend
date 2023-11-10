@@ -1,9 +1,9 @@
 package com.gepardec.mega.notification.mail.receiver;
 
 import com.gepardec.mega.application.configuration.MailReceiverConfig;
+import com.gepardec.mega.domain.model.SourceSystem;
 import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.service.api.CommentService;
-import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.UserService;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -45,9 +45,6 @@ public class EmailReceiver {
 
     @Inject
     UserService userService;
-
-    @Inject
-    EmployeeService employeeService;
 
     @Inject
     CommentService commentService;
@@ -95,9 +92,10 @@ public class EmailReceiver {
                         zepNotificationMail.getMitarbeiterNachname()
                 );
 
-                commentService.createNewCommentForEmployee(
+                commentService.create(
                         StepName.CONTROL_TIME_EVIDENCES.getId(),
-                        employeeService.getEmployee(user.getUserId()),
+                        SourceSystem.ZEP,
+                        user.getEmail(),
                         buildComment(zepNotificationMail),
                         user.getEmail(),
                         zepNotificationMail.getProjekt(),

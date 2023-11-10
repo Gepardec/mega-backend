@@ -136,33 +136,47 @@ public class StepEntryServiceImpl implements StepEntryService {
     }
 
     @Override
-    public StepEntry findStepEntryForEmployeeAtStep(Long stepId, Employee employee, String assigneeEmail, String currentMonthYear) {
-        Objects.requireNonNull(employee, "Employee must not be null!");
+    public StepEntry findStepEntryForEmployeeAtStep(final Long stepId,
+                                                    final String employeeEmail,
+                                                    final String assigneeEmail,
+                                                    final String currentMonthYear) {
+        Objects.requireNonNull(employeeEmail, "'employeeEmail' must not be null!");
         LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(currentMonthYear);
         LocalDate toDate = DateUtils.getLastDayOfCurrentMonth(currentMonthYear);
-        Optional<StepEntry> stepEntry = stepEntryRepository.findStepEntryForEmployeeAtStepInRange(
-                fromDate, toDate, employee.getEmail(), stepId, assigneeEmail
-        );
-        if (stepEntry.isEmpty()) {
-            throw new IllegalStateException(String.format("No StepEntries found for Employee %s", employee.getEmail()));
-        }
 
-        return stepEntry.get();
+        return stepEntryRepository.findStepEntryForEmployeeAtStepInRange(
+                        fromDate,
+                        toDate,
+                        employeeEmail,
+                        stepId,
+                        assigneeEmail
+                )
+                .orElseThrow(() ->
+                        new IllegalStateException(String.format("No StepEntries found for Employee %s", employeeEmail))
+                );
     }
 
     @Override
-    public StepEntry findStepEntryForEmployeeAndProjectAtStep(Long stepId, Employee employee, String assigneeEmail, String project, String currentMonthYear) {
-        Objects.requireNonNull(employee, "Employee must not be null!");
+    public StepEntry findStepEntryForEmployeeAndProjectAtStep(final Long stepId,
+                                                              final String employeeEmail,
+                                                              final String assigneeEmail,
+                                                              final String project,
+                                                              final String currentMonthYear) {
+        Objects.requireNonNull(employeeEmail, "'employeeEmail' must not be null!");
         LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(currentMonthYear);
         LocalDate toDate = DateUtils.getLastDayOfCurrentMonth(currentMonthYear);
-        Optional<StepEntry> stepEntry = stepEntryRepository.findStepEntryForEmployeeAndProjectAtStepInRange(
-                fromDate, toDate, employee.getEmail(), stepId, assigneeEmail, project
-        );
-        if (stepEntry.isEmpty()) {
-            throw new IllegalStateException(String.format("No StepEntries found for Employee %s", employee.getEmail()));
-        }
 
-        return stepEntry.get();
+        return stepEntryRepository.findStepEntryForEmployeeAndProjectAtStepInRange(
+                        fromDate,
+                        toDate,
+                        employeeEmail,
+                        stepId,
+                        assigneeEmail,
+                        project
+                )
+                .orElseThrow(() ->
+                        new IllegalStateException(String.format("No StepEntries found for Employee %s", employeeEmail))
+                );
     }
 
     @Override
