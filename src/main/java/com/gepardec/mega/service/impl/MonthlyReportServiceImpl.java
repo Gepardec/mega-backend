@@ -177,8 +177,6 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
 
-        billableEntries.forEach(projektzeitType -> System.out.println(projektzeitType.getDauer()));
-
         return MonthlyReport.builder()
                 .employee(employee)
                 .timeWarnings(mappedTimeWarnings)

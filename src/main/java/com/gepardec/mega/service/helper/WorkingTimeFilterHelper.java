@@ -42,21 +42,15 @@ public class WorkingTimeFilterHelper {
     }
 
     public double getOvertimeforEmployee(Employee employee, List<ProjektzeitType> billableEntries) {
-        if (employee.getRegularWorkingHours() == null){
+        if (employee.getRegularWorkingHours() == null) {
             return 0.0;
         }
 
-        Duration weeklyRegularWorkingHours = employee.getRegularWorkingHours().values().stream().reduce(Duration::plus).orElse(Duration.ZERO);
+        Duration weeklyRegularWorkingHours = employee.getRegularWorkingHours().values().stream().reduce(Duration::plus).orElse(Duration.ZERO).multipliedBy(4);
         Duration totalWorkingHours = getWorkingTimesForEmployee(billableEntries, employee, $ -> true);
-
         Duration overtime = totalWorkingHours.minus(weeklyRegularWorkingHours);
 
-//        Anforderungsabhängig
-//        if (overtime.isNegative()){
-//            overtime = Duration.ZERO;
-//        }
-
-        return (double) (overtime.toMinutes() / 60);
+        return (double) overtime.toMinutes() / 60;
     }
 
     private Duration getWorkingTimesForEmployee(List<ProjektzeitType> projektzeitTypeList, Employee employee, Predicate<ProjektzeitType> billableFilter) {
@@ -72,6 +66,7 @@ public class WorkingTimeFilterHelper {
     // Calculator functions for FehlzeitType
 
     public int getAbsenceTimesForEmployee(@Nonnull List<FehlzeitType> fehlZeitTypeList, String absenceType, LocalDate date) {
+        System.out.println(fehlZeitTypeList);
         return (int) fehlZeitTypeList.stream()
                 .filter(fzt -> fzt.getFehlgrund().equals(absenceType))
                 .filter(FehlzeitType::isGenehmigt)
