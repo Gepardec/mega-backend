@@ -102,7 +102,10 @@ public class CommentServiceImpl implements CommentService {
         comment.setSourceSystem(sourceSystem);
 
         commentRepository.save(comment);
-        sendMail(Mail.COMMENT_CREATED, comment);
+
+        if (SourceSystem.MEGA.equals(comment.getSourceSystem())) {
+            sendMail(Mail.COMMENT_CREATED, comment);
+        }
 
         return commentMapper.mapDbCommentToDomainComment(comment);
     }
