@@ -4,7 +4,7 @@ package com.gepardec.mega.service.impl.monthlyreport;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
-import com.gepardec.mega.service.helper.WorkingTimeFilterHelper;
+import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.test.junit.QuarkusTest;
@@ -22,10 +22,10 @@ import java.util.Set;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @QuarkusTest
-public class WorkingTimeFilterHelperTest {
+public class WorkingTimeUtilTest {
 
     @Inject
-    WorkingTimeFilterHelper workingTimeFilterHelper;
+    WorkingTimeUtil workingTimeUtil;
 
     /* Info:
      * returnProjektzeiTypeList has defined entries for a 38.5h week
@@ -46,7 +46,7 @@ public class WorkingTimeFilterHelperTest {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(4);
-        String internalTimesForEmployee = workingTimeFilterHelper.getInternalTimesForEmployee(projektzeitTypes, employee);
+        String internalTimesForEmployee = workingTimeUtil.getInternalTimesForEmployee(projektzeitTypes, employee);
         assertThat(internalTimesForEmployee).isEqualTo("32:00");
     }
 
@@ -55,7 +55,7 @@ public class WorkingTimeFilterHelperTest {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(4);
-        String internalTimesForEmployee = workingTimeFilterHelper.getBillableTimesForEmployee(projektzeitTypes, employee);
+        String internalTimesForEmployee = workingTimeUtil.getBillableTimesForEmployee(projektzeitTypes, employee);
         assertThat(internalTimesForEmployee).isEqualTo("122:00");
     }
 
@@ -64,7 +64,7 @@ public class WorkingTimeFilterHelperTest {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(4);
-        String internalTimesForEmployee = workingTimeFilterHelper.getTotalWorkingTimeForEmployee(projektzeitTypes, employee);
+        String internalTimesForEmployee = workingTimeUtil.getTotalWorkingTimeForEmployee(projektzeitTypes, employee);
         assertThat(internalTimesForEmployee).isEqualTo("154:00");
     }
 
@@ -74,7 +74,7 @@ public class WorkingTimeFilterHelperTest {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(5);
-        double overtimeforEmployee = workingTimeFilterHelper.getOvertimeforEmployee(employee, projektzeitTypes);
+        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes);
         assertThat(overtimeforEmployee).isEqualTo(38.5);
     }
 
@@ -83,7 +83,7 @@ public class WorkingTimeFilterHelperTest {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(3);
-        double overtimeforEmployee = workingTimeFilterHelper.getOvertimeforEmployee(employee, projektzeitTypes);
+        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes);
         assertThat(overtimeforEmployee).isEqualTo(-38.5);
     }
 
@@ -92,7 +92,7 @@ public class WorkingTimeFilterHelperTest {
         Employee employee = createEmployee();
 
         List<FehlzeitType> fehlzeitTypes = returnFehlzeitTypeList();
-        int absenceTimesForEmployee = workingTimeFilterHelper.getAbsenceTimesForEmployee(fehlzeitTypes, "UB", LocalDate.of(2021, 7, 1));
+        int absenceTimesForEmployee = workingTimeUtil.getAbsenceTimesForEmployee(fehlzeitTypes, "UB", LocalDate.of(2021, 7, 1));
         assertThat(absenceTimesForEmployee).isEqualTo(2);
     }
 

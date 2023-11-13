@@ -27,7 +27,7 @@ import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.ProjectEntryService;
 import com.gepardec.mega.service.api.ProjectService;
 import com.gepardec.mega.service.api.StepEntryService;
-import com.gepardec.mega.service.helper.WorkingTimeFilterHelper;
+import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.security.Authenticated;
@@ -79,8 +79,7 @@ public class ManagementResourceImpl implements ManagementResource {
     ProjectService projectService;
 
     @Inject
-
-    WorkingTimeFilterHelper workingTimeFilterHelper;
+    WorkingTimeUtil workingTimeUtil;
 
     @Inject
     Logger logger;
@@ -305,8 +304,8 @@ public class ManagementResourceImpl implements ManagementResource {
                     .finishedComments(finishedAndTotalComments.getFinishedComments())
                     .totalComments(finishedAndTotalComments.getTotalComments())
                     .entryDate(stepEntries.get(0).getDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN)))
-                    .billableTime(workingTimeFilterHelper.getBillableTimesForEmployee(projektzeitTypes, employee))
-                    .nonBillableTime(workingTimeFilterHelper.getInternalTimesForEmployee(projektzeitTypes, employee))
+                    .billableTime(workingTimeUtil.getBillableTimesForEmployee(projektzeitTypes, employee))
+                    .nonBillableTime(workingTimeUtil.getInternalTimesForEmployee(projektzeitTypes, employee))
                     .build();
         }
 

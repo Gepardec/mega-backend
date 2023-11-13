@@ -11,6 +11,9 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
     @Inject
     EmployeeMapper employeeMapper;
 
+    @Inject
+    CommentMapper commentMapper;
+
     @Override
     public MonthlyReportDto mapToDto(MonthlyReport object) {
         return MonthlyReportDto.builder()
@@ -18,7 +21,7 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .initialDate(object.getInitialDate())
                 .timeWarnings(object.getTimeWarnings())
                 .journeyWarnings(object.getJourneyWarnings())
-                .comments(object.getComments()) //TODO: CommentDTO
+                .comments(commentMapper.mapListToDto(object.getComments()))
                 .employeeCheckState(object.getEmployeeCheckState())
                 .employeeCheckStateReason(object.getEmployeeCheckStateReason())
                 .internalCheckState(object.getInternalCheckState())
@@ -48,7 +51,7 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .initialDate(object.getInitialDate())
                 .timeWarnings(object.getTimeWarnings())
                 .journeyWarnings(object.getJourneyWarnings())
-                .comments(object.getComments())
+                .comments(commentMapper.mapListToDomain(object.getComments()))
                 .employeeCheckState(object.getEmployeeCheckState())
                 .employeeCheckStateReason(object.getEmployeeCheckStateReason())
                 .internalCheckState(object.getInternalCheckState())

@@ -20,7 +20,7 @@ import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WarningCalculatorsManager;
-import com.gepardec.mega.service.helper.WorkingTimeFilterHelper;
+import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.service.mapper.TimeWarningMapper;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.FehlzeitType;
@@ -81,7 +81,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     PersonioEmployeesService personioEmployeesService;
 
     @Inject
-    WorkingTimeFilterHelper workingTimeFilterHelper;
+    WorkingTimeUtil workingTimeUtil;
 
     @Override
     public MonthlyReport getMonthEndReportForUser() {
@@ -188,22 +188,22 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .isAssigned(employeeCheckState.isPresent())
                 .employeeProgresses(pmProgressDtos)
                 .otherChecksDone(isMonthCompletedForEmployee(employee, date))
-                .billableTime(workingTimeFilterHelper.getBillableTimesForEmployee(billableEntries, employee))
-                .totalWorkingTime(workingTimeFilterHelper.getTotalWorkingTimeForEmployee(billableEntries, employee))
-                .compensatoryDays(workingTimeFilterHelper.getAbsenceTimesForEmployee(absenceEntries, COMPENSATORY_DAYS, date))
-                .homeofficeDays(workingTimeFilterHelper.getAbsenceTimesForEmployee(absenceEntries, HOME_OFFICE_DAYS, date))
-                .vacationDays(workingTimeFilterHelper.getAbsenceTimesForEmployee(absenceEntries, VACATION_DAYS, date))
-                .nursingDays(workingTimeFilterHelper.getAbsenceTimesForEmployee(absenceEntries, NURSING_DAYS, date))
-                .maternityLeaveDays(workingTimeFilterHelper.getAbsenceTimesForEmployee(absenceEntries, MATERNITY_LEAVE_DAYS, date))
-                .externalTrainingDays(workingTimeFilterHelper.getAbsenceTimesForEmployee(absenceEntries, EXTERNAL_TRAINING_DAYS, date))
-                .conferenceDays(workingTimeFilterHelper.getAbsenceTimesForEmployee(absenceEntries, CONFERENCE_DAYS, date))
-                .maternityProtectionDays(workingTimeFilterHelper.getAbsenceTimesForEmployee(absenceEntries, MATERNITY_PROTECTION_DAYS, date))
-                .fatherMonthDays(workingTimeFilterHelper.getAbsenceTimesForEmployee(absenceEntries, FATHER_MONTH_DAYS, date))
-                .paidSpecialLeaveDays(workingTimeFilterHelper.getAbsenceTimesForEmployee(absenceEntries, PAID_SPECIAL_LEAVE_DAYS, date))
-                .nonPaidVacationDays(workingTimeFilterHelper.getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS, date))
-                .paidSickLeave(workingTimeFilterHelper.getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
+                .billableTime(workingTimeUtil.getBillableTimesForEmployee(billableEntries, employee))
+                .totalWorkingTime(workingTimeUtil.getTotalWorkingTimeForEmployee(billableEntries, employee))
+                .compensatoryDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, COMPENSATORY_DAYS, date))
+                .homeofficeDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, HOME_OFFICE_DAYS, date))
+                .vacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, VACATION_DAYS, date))
+                .nursingDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, NURSING_DAYS, date))
+                .maternityLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, MATERNITY_LEAVE_DAYS, date))
+                .externalTrainingDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, EXTERNAL_TRAINING_DAYS, date))
+                .conferenceDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, CONFERENCE_DAYS, date))
+                .maternityProtectionDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, MATERNITY_PROTECTION_DAYS, date))
+                .fatherMonthDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, FATHER_MONTH_DAYS, date))
+                .paidSpecialLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SPECIAL_LEAVE_DAYS, date))
+                .nonPaidVacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS, date))
+                .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
                 .vacationDayBalance(personioEmployeesService.getVacationDayBalance(employee.getEmail()))
-                .overtime(workingTimeFilterHelper.getOvertimeforEmployee(employee, billableEntries))
+                .overtime(workingTimeUtil.getOvertimeforEmployee(employee, billableEntries))
                 .build();
     }
 
@@ -214,6 +214,4 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     private boolean isStepEntryDone(StepEntry stepEntry) {
         return stepEntry.getState() == EmployeeState.DONE;
     }
-
-
 }

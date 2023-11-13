@@ -70,11 +70,7 @@ public class ZepServiceImpl implements ZepService {
     private final ProjectEntryMapper projectEntryMapper;
 
     @Inject
-    public ZepServiceImpl(final EmployeeMapper employeeMapper,
-                          final Logger logger,
-                          final ZepSoapPortType zepSoapPortType,
-                          final ZepSoapProvider zepSoapProvider,
-                          final ProjectEntryMapper projectEntryMapper) {
+    public ZepServiceImpl(final EmployeeMapper employeeMapper, final Logger logger, final ZepSoapPortType zepSoapPortType, final ZepSoapProvider zepSoapProvider, final ProjectEntryMapper projectEntryMapper) {
         this.employeeMapper = employeeMapper;
         this.logger = logger;
         this.zepSoapPortType = zepSoapPortType;
@@ -87,9 +83,7 @@ public class ZepServiceImpl implements ZepService {
         final ReadMitarbeiterSearchCriteriaType readMitarbeiterSearchCriteriaType = new ReadMitarbeiterSearchCriteriaType();
         readMitarbeiterSearchCriteriaType.setUserId(userId);
 
-        return getEmployeeInternal(readMitarbeiterSearchCriteriaType).stream()
-                .findFirst()
-                .orElse(null);
+        return getEmployeeInternal(readMitarbeiterSearchCriteriaType).stream().findFirst().orElse(null);
     }
 
     @CacheResult(cacheName = "employee")
@@ -113,10 +107,7 @@ public class ZepServiceImpl implements ZepService {
 
         final UpdateMitarbeiterResponseType updateMitarbeiterResponseType = zepSoapPortType.updateMitarbeiter(umrt);
 
-        String returnCode = Optional.ofNullable(updateMitarbeiterResponseType)
-                .flatMap(response -> Optional.ofNullable(response.getResponseHeader()))
-                .map(ResponseHeaderType::getReturnCode)
-                .orElse(null);
+        String returnCode = Optional.ofNullable(updateMitarbeiterResponseType).flatMap(response -> Optional.ofNullable(response.getResponseHeader())).map(ResponseHeaderType::getReturnCode).orElse(null);
 
         logger.info("finish update user {} with response {}", userId, returnCode);
 
@@ -140,9 +131,7 @@ public class ZepServiceImpl implements ZepService {
         fehlzeitenRequest.setReadFehlzeitSearchCriteria(searchCriteria.get());
         ReadFehlzeitResponseType fehlzeitResponseType = zepSoapPortType.readFehlzeit(fehlzeitenRequest);
 
-        if (fehlzeitResponseType != null
-                && fehlzeitResponseType.getFehlzeitListe() != null
-                && fehlzeitResponseType.getFehlzeitListe().getFehlzeit() != null) {
+        if (fehlzeitResponseType != null && fehlzeitResponseType.getFehlzeitListe() != null && fehlzeitResponseType.getFehlzeitListe().getFehlzeit() != null) {
             return fehlzeitResponseType.getFehlzeitListe().getFehlzeit();
         }
 
@@ -154,12 +143,10 @@ public class ZepServiceImpl implements ZepService {
     public List<ProjektzeitType> getBillableForEmployee(Employee employee, LocalDate date) {
         ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(employee, date, this::createProjectTimeSearchCriteria);
 
-        if (readProjektzeitenResponseType != null
-                && readProjektzeitenResponseType.getProjektzeitListe() != null
-                && readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten() != null) {
+        if (readProjektzeitenResponseType != null && readProjektzeitenResponseType.getProjektzeitListe() != null && readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten() != null) {
             return readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten();
-
         }
+
         return Collections.emptyList();
     }
 
@@ -169,11 +156,7 @@ public class ZepServiceImpl implements ZepService {
     public List<ProjectEntry> getProjectTimes(Employee employee, LocalDate date) {
         ReadProjektzeitenResponseType projectTimeResponse = readProjektzeitenWithSearchCriteria(employee, date, this::createProjectTimeSearchCriteria);
 
-        return Optional.ofNullable(projectTimeResponse)
-                .flatMap(projectTimes -> Optional.ofNullable(projectTimes.getProjektzeitListe()))
-                .stream()
-                .flatMap(projectTimes -> projectEntryMapper.mapList(projectTimes.getProjektzeiten()).stream())
-                .collect(Collectors.toList());
+        return Optional.ofNullable(projectTimeResponse).flatMap(projectTimes -> Optional.ofNullable(projectTimes.getProjektzeitListe())).stream().flatMap(projectTimes -> projectEntryMapper.mapList(projectTimes.getProjektzeiten()).stream()).collect(Collectors.toList());
     }
 
     @CacheResult(cacheName = "projektzeittype")
@@ -181,9 +164,7 @@ public class ZepServiceImpl implements ZepService {
     public List<ProjektzeitType> getProjectTimesForEmployeePerProject(String projectID, LocalDate curDate) {
         ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(projectID, curDate, this::createProjectTimesForEmployeePerProjectSearchCriteria);
 
-        if (readProjektzeitenResponseType != null
-                && readProjektzeitenResponseType.getProjektzeitListe() != null
-                && readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten() != null) {
+        if (readProjektzeitenResponseType != null && readProjektzeitenResponseType.getProjektzeitListe() != null && readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten() != null) {
             return readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten();
         }
 
@@ -196,10 +177,7 @@ public class ZepServiceImpl implements ZepService {
         final ReadProjekteResponseType readProjekteResponseType = getProjectsInternal(monthYear);
 
         ProjektListeType projektListe = readProjekteResponseType.getProjektListe();
-        return projektListe.getProjekt()
-                .stream()
-                .map(pt -> createProject(pt, monthYear))
-                .collect(Collectors.toList());
+        return projektListe.getProjekt().stream().map(pt -> createProject(pt, monthYear)).collect(Collectors.toList());
     }
 
     private <T, U, R> Optional<R> getSearchCriteria(final T par1, final U par2, final BiFunction<T, U, R> searchCriteriaFunction) {
@@ -274,30 +252,13 @@ public class ZepServiceImpl implements ZepService {
 
     private Project createProject(final ProjektType projektType, final LocalDate monthYear) {
         Optional<String> endDateString = Optional.ofNullable(projektType.getEndeDatum());
-        LocalDate endDate = endDateString.isPresent() ?
-                LocalDate.parse(endDateString.get()) :
-                LocalDate.now()
-                        .plusYears(5)
-                        .with(TemporalAdjusters.lastDayOfYear());
+        LocalDate endDate = endDateString.isPresent() ? LocalDate.parse(endDateString.get()) : LocalDate.now().plusYears(5).with(TemporalAdjusters.lastDayOfYear());
 
-        return Project.builder()
-                .zepId(projektType.getProjektId())
-                .projectId(projektType.getProjektNr())
-                .description(projektType.getBezeichnung())
-                .startDate(LocalDate.parse(projektType.getStartDatum()))
-                .endDate(endDate)
-                .employees(createProjectEmployees(projektType.getProjektmitarbeiterListe(), monthYear))
-                .leads(createProjectLeads(projektType.getProjektmitarbeiterListe(), monthYear))
-                .categories(createCategories(projektType))
-                .build();
+        return Project.builder().zepId(projektType.getProjektId()).projectId(projektType.getProjektNr()).description(projektType.getBezeichnung()).startDate(LocalDate.parse(projektType.getStartDatum())).endDate(endDate).employees(createProjectEmployees(projektType.getProjektmitarbeiterListe(), monthYear)).leads(createProjectLeads(projektType.getProjektmitarbeiterListe(), monthYear)).categories(createCategories(projektType)).build();
     }
 
     private List<String> createProjectEmployees(final ProjektMitarbeiterListeType projektMitarbeiterListeType, final LocalDate monthYear) {
-        return projektMitarbeiterListeType.getProjektmitarbeiter()
-                .stream()
-                .filter(e -> filterActiveEmployees(monthYear, e.getVon(), e.getBis()))
-                .map(ProjektMitarbeiterType::getUserId)
-                .collect(Collectors.toList());
+        return projektMitarbeiterListeType.getProjektmitarbeiter().stream().filter(e -> filterActiveEmployees(monthYear, e.getVon(), e.getBis())).map(ProjektMitarbeiterType::getUserId).collect(Collectors.toList());
     }
 
     private boolean filterActiveEmployees(final LocalDate monthYear, final String inProjectFrom, final String inProjectUntil) {
@@ -315,20 +276,11 @@ public class ZepServiceImpl implements ZepService {
     }
 
     private List<String> createProjectLeads(final ProjektMitarbeiterListeType projektMitarbeiterListeType, final LocalDate monthYear) {
-        return projektMitarbeiterListeType.getProjektmitarbeiter()
-                .stream()
-                .filter(e -> filterActiveEmployees(monthYear, e.getVon(), e.getBis()))
-                .filter(projektMitarbeiterType -> PROJECT_LEAD_RANGE.contains(projektMitarbeiterType.getIstProjektleiter()))
-                .map(ProjektMitarbeiterType::getUserId)
-                .collect(Collectors.toList());
+        return projektMitarbeiterListeType.getProjektmitarbeiter().stream().filter(e -> filterActiveEmployees(monthYear, e.getVon(), e.getBis())).filter(projektMitarbeiterType -> PROJECT_LEAD_RANGE.contains(projektMitarbeiterType.getIstProjektleiter())).map(ProjektMitarbeiterType::getUserId).collect(Collectors.toList());
     }
 
     private List<String> createCategories(final ProjektType projektType) {
-        return Optional.ofNullable(projektType.getKategorieListe()).orElse(new KategorieListeType())
-                .getKategorie()
-                .stream()
-                .map(KategorieType::getKurzform)
-                .collect(Collectors.toList());
+        return Optional.ofNullable(projektType.getKategorieListe()).orElse(new KategorieListeType()).getKategorie().stream().map(KategorieType::getKurzform).collect(Collectors.toList());
     }
 
     /**
@@ -344,11 +296,6 @@ public class ZepServiceImpl implements ZepService {
             readMitarbeiterRequestType.setReadMitarbeiterSearchCriteria(readMitarbeiterSearchCriteriaType);
         }
 
-        return Optional.ofNullable(zepSoapPortType.readMitarbeiter(readMitarbeiterRequestType))
-                .flatMap(readMitarbeiterResponse -> Optional.ofNullable(readMitarbeiterResponse.getMitarbeiterListe()))
-                .stream()
-                .flatMap(mitarbeiterListe -> mitarbeiterListe.getMitarbeiter().stream())
-                .map(employeeMapper::map)
-                .collect(Collectors.toList());
+        return Optional.ofNullable(zepSoapPortType.readMitarbeiter(readMitarbeiterRequestType)).flatMap(readMitarbeiterResponse -> Optional.ofNullable(readMitarbeiterResponse.getMitarbeiterListe())).stream().flatMap(mitarbeiterListe -> mitarbeiterListe.getMitarbeiter().stream()).map(employeeMapper::map).collect(Collectors.toList());
     }
 }

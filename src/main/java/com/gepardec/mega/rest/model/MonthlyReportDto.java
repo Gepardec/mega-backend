@@ -39,7 +39,7 @@ public class MonthlyReportDto {
     private List<JourneyWarning> journeyWarnings;
 
     @JsonProperty
-    private List<Comment> comments;
+    private List<CommentDto> comments;
 
     @JsonProperty
     private EmployeeState employeeCheckState;

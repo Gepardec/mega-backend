@@ -3,19 +3,19 @@ package com.gepardec.mega.rest.mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public interface DtoMapper<T, U> {
+public interface DtoMapper<D, T> {
 
-    U mapToDto(T object);
+    T mapToDto(D object);
 
-    T mapToDomain(U object);
+    D mapToDomain(T object);
 
-    default List<U> mapListToDto(List<T> objects) {
+    default List<T> mapListToDto(List<D> objects) {
         return objects.stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
-    default List<T> mapListToDomain(List<U> objects) {
+    default List<D> mapListToDomain(List<T> objects) {
         return objects.stream()
                 .map(this::mapToDomain)
                 .collect(Collectors.toList());

@@ -17,7 +17,6 @@ public class RegularWorkingHoursSerializer extends JsonSerializer<Map<DayOfWeek,
 
     @Override
     public void serialize(Map<DayOfWeek, Duration> dayOfWeekDurationMap, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-
         if (dayOfWeekDurationMap == null) {
             return;
         }

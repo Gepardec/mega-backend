@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @ApplicationScoped
-public class WorkingTimeFilterHelper {
+public class WorkingTimeUtil {
 
     private static final String BILLABLE_TIME_FORMAT = "HH:mm";
 
@@ -66,7 +66,6 @@ public class WorkingTimeFilterHelper {
     // Calculator functions for FehlzeitType
 
     public int getAbsenceTimesForEmployee(@Nonnull List<FehlzeitType> fehlZeitTypeList, String absenceType, LocalDate date) {
-        System.out.println(fehlZeitTypeList);
         return (int) fehlZeitTypeList.stream()
                 .filter(fzt -> fzt.getFehlgrund().equals(absenceType))
                 .filter(FehlzeitType::isGenehmigt)
