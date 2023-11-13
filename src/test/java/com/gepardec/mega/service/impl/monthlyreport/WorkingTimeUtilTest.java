@@ -74,7 +74,7 @@ public class WorkingTimeUtilTest {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(5);
-        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes);
+        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projektzeitTypes);
         assertThat(overtimeforEmployee).isEqualTo(38.5);
     }
 
@@ -83,7 +83,7 @@ public class WorkingTimeUtilTest {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(3);
-        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes);
+        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projektzeitTypes);
         assertThat(overtimeforEmployee).isEqualTo(-38.5);
     }
 

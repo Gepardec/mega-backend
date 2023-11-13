@@ -195,6 +195,7 @@ public class WorkerResourceTest {
 
     @Test
     void monthlyReport_withYearMonth_whenGET_thenReturnsMonthlyReport() {
+        //GIVEN
         User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
@@ -246,13 +247,12 @@ public class WorkerResourceTest {
 
         when(monthlyReportService.getMonthEndReportForUser(2023, 8, null)).thenReturn(expected);
 
-
-        RestAssured.defaultParser = Parser.JSON;
-
+        //WHEN
         MonthlyReportDto actual = given().contentType(ContentType.JSON)
                 .get("/worker/monthendreports/2023/08")
                 .as(MonthlyReportDto.class);
 
+        //THEN
         assertThat(actual.getEmployee()).isEqualTo(mapper.mapToDto(employee));
         assertThat(timeWarnings).isEqualTo(actual.getTimeWarnings());
         assertThat(journeyWarnings).isEqualTo(actual.getJourneyWarnings());
