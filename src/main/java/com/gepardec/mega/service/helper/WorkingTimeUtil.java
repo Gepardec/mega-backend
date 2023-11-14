@@ -32,13 +32,11 @@ public class WorkingTimeUtil {
         return DurationFormatUtils.formatDuration(internalTimesForEmployee.toMillis(), BILLABLE_TIME_FORMAT);
     }
 
-
     public String getBillableTimesForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
         Duration billableTimesForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, ProjektzeitType::isIstFakturierbar);
         return DurationFormatUtils.formatDuration(billableTimesForEmployee.toMillis(), BILLABLE_TIME_FORMAT);
 
     }
-
 
     public String getTotalWorkingTimeForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
         Duration totalWorkingTimeForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, $ -> true);
@@ -55,7 +53,7 @@ public class WorkingTimeUtil {
         int excessDays = lengthOfMonth - (7 * 4);
         LocalDate firstday = yearMonth.atDay(1);
 
-//      calculate regular working hours with hinsight of different month lengths
+//      Calculate regular working hours with hinsight of different month lengths
         Map<DayOfWeek, Duration> regularWorkingHours = employee.getRegularWorkingHours();
         Duration workingHoursInMonth = regularWorkingHours.values().stream().reduce(Duration::plus).orElse(Duration.ZERO).multipliedBy(4);
         for (int i = 0; i < excessDays; i++) {
@@ -75,7 +73,13 @@ public class WorkingTimeUtil {
 //      Remove fehlzeit days from regular working time in month
         List<DayOfWeek> fehlzeitDays = fehlzeitTypeList.stream().map(fehlzeitType -> {
             LocalDate startdate = LocalDate.parse(fehlzeitType.getStartdatum());
-            LocalDate enddate = LocalDate.parse(fehlzeitType.getEnddatum()).plusDays(1);
+            LocalDate enddate = LocalDate.parse(fehlzeitType.getEnddatum());
+
+            if (startdate.getMonth().getValue() < enddate.getMonth().getValue()) {
+                enddate = startdate.withDayOfMonth(startdate.lengthOfMonth());
+            }
+            enddate = enddate.plusDays(1);
+
             return startdate.datesUntil(enddate)
                     .map(LocalDate::getDayOfWeek)
                     .collect(Collectors.toList());
@@ -84,6 +88,10 @@ public class WorkingTimeUtil {
         for (DayOfWeek dayOfWeek : fehlzeitDays) {
             Duration holidayWorkingDuration = regularWorkingHours.get(dayOfWeek);
             workingHoursInMonth = workingHoursInMonth.minus(holidayWorkingDuration);
+        }
+
+        if (workingHoursInMonth.isNegative()) {
+            workingHoursInMonth = Duration.ZERO;
         }
 
         Duration totalWorkingHours = getWorkingTimesForEmployee(billableEntries, employee, $ -> true);
@@ -102,7 +110,6 @@ public class WorkingTimeUtil {
                 .map(lt -> Duration.between(LocalTime.MIN, lt))
                 .reduce(Duration.ZERO, Duration::plus);
     }
-
 
     // Calculator functions for FehlzeitType
 

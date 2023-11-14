@@ -15,6 +15,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,64 +28,82 @@ public class WorkingTimeUtilTest {
     @Inject
     WorkingTimeUtil workingTimeUtil;
 
-    /* Info:
-     * returnProjektzeiTypeList has defined entries for a 38.5h week
-     *  --> 8h are not billable (fakturierbar)
-     *  --> 30.5h are billable (fakturierbar)
-     *
-     * with counterAddWeek you can define how many weeks are added
-     *
-     * e.g. for counterAddWeek = 4
-     * 38.5 * 4 = 154 total hours
-     * 8 * 4    = 32 non-billable hours
-     * 30.5 * 4 = 122 billable hours
-     */
-
 
     @Test
     void getInternalTimesForEmployeeTest() {
         Employee employee = createEmployee();
 
-        List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(4);
+        List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(5);
         String internalTimesForEmployee = workingTimeUtil.getInternalTimesForEmployee(projektzeitTypes, employee);
-        assertThat(internalTimesForEmployee).isEqualTo("32:00");
+        assertThat(internalTimesForEmployee).isEqualTo("20:00");
     }
 
     @Test
     void getBillableTimesForEmployeeTest() {
         Employee employee = createEmployee();
 
-        List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(4);
+        List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(5);
         String internalTimesForEmployee = workingTimeUtil.getBillableTimesForEmployee(projektzeitTypes, employee);
-        assertThat(internalTimesForEmployee).isEqualTo("122:00");
+        assertThat(internalTimesForEmployee).isEqualTo("20:00");
     }
 
     @Test
     void getTotalWorkingTimeForEmployee() {
         Employee employee = createEmployee();
 
-        List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(4);
+        List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(5);
         String internalTimesForEmployee = workingTimeUtil.getTotalWorkingTimeForEmployee(projektzeitTypes, employee);
-        assertThat(internalTimesForEmployee).isEqualTo("154:00");
+        assertThat(internalTimesForEmployee).isEqualTo("40:00");
     }
 
 
     @Test
-    void getInternalTimesForEmployee_RETURN_POSITIVE_OVERTIME() {
+    void getOvertimeForEmployee_RETURN_POSITIVE_OVERTIME() {
         Employee employee = createEmployee();
 
-        List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(5);
-        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes, LocalDate.of(2023, 1, 1));
-        assertThat(overtimeforEmployee).isEqualTo(38.5);
+        List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(5);
+        List<FehlzeitType> fehlzeitTypes = List.of();
+
+        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
+        assertThat(overtimeforEmployee).isEqualTo(8.0);
     }
 
     @Test
-    void getInternalTimesForEmployee_RETURN_NEGATIVE_OVERTIME() {
+    void getOvertimeForEmployee_RETURN_NEGATIVE_OVERTIME() {
         Employee employee = createEmployee();
 
-        List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(3);
-        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes, LocalDate.of(2023, 1, 1));
-        assertThat(overtimeforEmployee).isEqualTo(-38.5);
+        List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(3);
+        List<FehlzeitType> fehlzeitTypes = List.of();
+
+        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
+        assertThat(overtimeforEmployee).isEqualTo(-8.);
+    }
+
+
+    @Test
+    void getOvertimeForEmployee_WITH_ABENCE() {
+        Employee employee = createEmployee();
+
+        List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(3);
+        List<FehlzeitType> fehlzeitTypes = returnFehlzeitTypeList();
+
+        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
+        assertThat(overtimeforEmployee).isEqualTo(0);
+    }
+
+    @Test
+    void getOvertimeForEmployee_WITH_HOLIDAY() {
+        Employee employee = createEmployee();
+        HashMap<DayOfWeek, Duration> regularWorkingHours = new HashMap<>(employee.getRegularWorkingHours());
+        regularWorkingHours.put(DayOfWeek.MONDAY, Duration.ofHours(0));
+        regularWorkingHours.put(DayOfWeek.THURSDAY, Duration.ofHours(8));
+        employee.setRegularWorkingHours(regularWorkingHours);
+
+        List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(3);
+        List<FehlzeitType> fehlzeitTypes = returnFehlzeitTypeList();
+
+        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 10, 1));
+        assertThat(overtimeforEmployee).isEqualTo(0);
     }
 
     @Test
@@ -92,65 +111,14 @@ public class WorkingTimeUtilTest {
         Employee employee = createEmployee();
 
         List<FehlzeitType> fehlzeitTypes = returnFehlzeitTypeList();
-        int absenceTimesForEmployee = workingTimeUtil.getAbsenceTimesForEmployee(fehlzeitTypes, "UB", LocalDate.of(2021, 7, 1));
+        int absenceTimesForEmployee = workingTimeUtil.getAbsenceTimesForEmployee(fehlzeitTypes, "UB", LocalDate.of(2023, 11, 6));
         assertThat(absenceTimesForEmployee).isEqualTo(2);
-    }
-
-
-    private List<ProjektzeitType> returnProjektzeitTypeList(int counterAddWeek) {
-
-        List<ProjektzeitType> projektzeiten = new ArrayList<>();
-
-        ProjektzeitType monday = new ProjektzeitType();
-        monday.setVon("8:00");
-        monday.setBis("16:30");
-        monday.setDauer("08:00");
-        monday.setUserId("1");
-        monday.setIstFakturierbar(false);
-
-        ProjektzeitType tuesday = new ProjektzeitType();
-        tuesday.setVon("8:00");
-        tuesday.setBis("16:30");
-        tuesday.setDauer("08:00");
-        tuesday.setUserId("1");
-        tuesday.setIstFakturierbar(true);
-
-        ProjektzeitType wednesday = new ProjektzeitType();
-        wednesday.setVon("8:00");
-        wednesday.setBis("16:30");
-        wednesday.setDauer("08:00");
-        wednesday.setUserId("1");
-        wednesday.setIstFakturierbar(true);
-
-        ProjektzeitType thursday = new ProjektzeitType();
-        thursday.setVon("8:00");
-        thursday.setBis("16:30");
-        thursday.setDauer("08:00");
-        thursday.setUserId("1");
-        thursday.setIstFakturierbar(true);
-
-        ProjektzeitType friday = new ProjektzeitType();
-        friday.setVon("8:00");
-        friday.setBis("14:30");
-        friday.setDauer("06:30");
-        friday.setUserId("1");
-        friday.setIstFakturierbar(true);
-
-        for (int i = 0; i < counterAddWeek; i++) {
-            projektzeiten.add(monday);
-            projektzeiten.add(tuesday);
-            projektzeiten.add(wednesday);
-            projektzeiten.add(thursday);
-            projektzeiten.add(friday);
-        }
-
-        return projektzeiten;
     }
 
     private List<FehlzeitType> returnFehlzeitTypeList() {
         FehlzeitType fehlzeitType = new FehlzeitType();
-        fehlzeitType.setStartdatum("2021-07-15");
-        fehlzeitType.setEnddatum("2021-07-16");
+        fehlzeitType.setStartdatum("2023-11-06");
+        fehlzeitType.setEnddatum("2023-11-07");
         fehlzeitType.setFehlgrund("UB");
         fehlzeitType.setUserId("1");
         fehlzeitType.setGenehmigt(true);
@@ -158,6 +126,31 @@ public class WorkingTimeUtilTest {
         return List.of(fehlzeitType);
     }
 
+
+    private List<ProjektzeitType> returnNormalDayProjektzeitTypes(int times) {
+        ProjektzeitType projektzeitType = new ProjektzeitType();
+        projektzeitType.setVon("8:00");
+        projektzeitType.setBis("12:00");
+        projektzeitType.setDauer("04:00");
+        projektzeitType.setUserId("1");
+        projektzeitType.setIstFakturierbar(false);
+
+        ProjektzeitType projektzeitTypeBilllable = new ProjektzeitType();
+        projektzeitTypeBilllable.setVon("12:00");
+        projektzeitTypeBilllable.setBis("16:00");
+        projektzeitTypeBilllable.setDauer("04:00");
+        projektzeitTypeBilllable.setUserId("1");
+        projektzeitTypeBilllable.setIstFakturierbar(true);
+
+
+        List<ProjektzeitType> projektzeitTypes = new ArrayList<>();
+
+        for (int i = 0; i < times; i++) {
+            projektzeitTypes.add(projektzeitTypeBilllable);
+            projektzeitTypes.add(projektzeitType);
+        }
+        return projektzeitTypes;
+    }
 
     private Employee createEmployee() {
         User user = User.builder()
@@ -178,11 +171,13 @@ public class WorkingTimeUtilTest {
                 .active(true)
                 .regularWorkingHours(Map.ofEntries(
                         Map.entry(DayOfWeek.MONDAY, Duration.ofHours(8)),
-                        Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(8)),
-                        Map.entry(DayOfWeek.WEDNESDAY, Duration.ofHours(8)),
-                        Map.entry(DayOfWeek.THURSDAY, Duration.ofHours(8)),
-                        Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(6).plusMinutes(30))
-                ))
+                        Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(0)),
+                        Map.entry(DayOfWeek.WEDNESDAY, Duration.ofHours(0)),
+                        Map.entry(DayOfWeek.THURSDAY, Duration.ofHours(0)),
+                        Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(0)),
+                        Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
+                        Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)))
+                )
                 .build();
     }
 }

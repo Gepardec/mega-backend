@@ -36,6 +36,7 @@ public class OfficeCalendarUtil {
     public static Stream<LocalDate> getHolidaysForYear(int year) {
         return HOLIDAY_MANAGER.getHolidays(year).stream().map(Holiday::getDate);
     }
+
     public static Stream<LocalDate> getHolidaysForMonth(YearMonth yearMonth) {
         LocalDate startDate = LocalDate.of(yearMonth.getYear(), yearMonth.getMonth(), 1);
         LocalDate endDate = startDate.withDayOfMonth(yearMonth.lengthOfMonth());
