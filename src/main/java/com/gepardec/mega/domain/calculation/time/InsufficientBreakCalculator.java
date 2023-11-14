@@ -34,7 +34,8 @@ public class InsufficientBreakCalculator extends AbstractTimeWarningCalculationS
         final List<TimeWarning> warnings = new ArrayList<>();
 
         final Predicate<ProjectEntry> filterTask = entry -> Task.isTask(entry.getTask());
-        final Predicate<ProjectEntry> filterActiveTravelTime = entry -> Task.isJourney(entry.getTask()) && JourneyTimeEntry.class.cast(entry).getVehicle().activeTraveler;
+        final Predicate<ProjectEntry> filterActiveTravelTime = entry -> Task.isJourney(entry.getTask()) && JourneyTimeEntry.class.cast(entry)
+                .getVehicle().activeTraveler;
 
         final Map<LocalDate, List<ProjectEntry>> groupedProjectTimeEntries = groupProjectEntriesByFromDate(projectTimes, List.of(filterTask.or(filterActiveTravelTime)));
 
@@ -59,7 +60,8 @@ public class InsufficientBreakCalculator extends AbstractTimeWarningCalculationS
             final ProjectEntry actualEntry = entriesPerDay.get(i);
             final ProjectEntry nextEntry = getNextEntryOrNull(i, entriesPerDay);
             if (nextEntry != null && actualEntry.getToTime().isBefore(nextEntry.getFromTime())) {
-                final BigDecimal currentBreakTime = BigDecimal.valueOf(Duration.between(actualEntry.getToTime(), nextEntry.getFromTime()).toMinutes())
+                final BigDecimal currentBreakTime = BigDecimal.valueOf(Duration.between(actualEntry.getToTime(), nextEntry.getFromTime())
+                                .toMinutes())
                         .setScale(2, RoundingMode.HALF_EVEN)
                         .divide(BigDecimal.valueOf(60), RoundingMode.HALF_EVEN);
                 breakTime = breakTime.add(currentBreakTime);
@@ -84,7 +86,10 @@ public class InsufficientBreakCalculator extends AbstractTimeWarningCalculationS
         TimeWarning timeWarning = new TimeWarning();
         timeWarning.setDate(date);
         timeWarning.setMissingBreakTime(
-                BigDecimal.valueOf(MIN_REQUIRED_BREAK_TIME).subtract(BigDecimal.valueOf(breakTime)).setScale(2, RoundingMode.HALF_EVEN).doubleValue());
+                BigDecimal.valueOf(MIN_REQUIRED_BREAK_TIME)
+                        .subtract(BigDecimal.valueOf(breakTime))
+                        .setScale(2, RoundingMode.HALF_EVEN)
+                        .doubleValue());
         return timeWarning;
     }
 }

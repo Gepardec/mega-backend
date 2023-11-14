@@ -85,13 +85,15 @@ public class EmployeeMapper {
     }
 
     private String getCorrectReleaseDate(MitarbeiterType mitarbeiterType) {
-        boolean isReleaseDateNull = mitarbeiterType.getFreigabedatum() == null || mitarbeiterType.getFreigabedatum().equalsIgnoreCase("null");
+        boolean isReleaseDateNull = mitarbeiterType.getFreigabedatum() == null || mitarbeiterType.getFreigabedatum()
+                .equalsIgnoreCase("null");
         boolean isCreatedDateNull = mitarbeiterType.getCreated() == null;
         if (isReleaseDateNull) {
             if (isCreatedDateNull) {
                 return null;
             }
-            return LocalDateTime.parse(mitarbeiterType.getCreated(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).format(DateTimeFormatter.ISO_LOCAL_DATE);
+            return LocalDateTime.parse(mitarbeiterType.getCreated(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                    .format(DateTimeFormatter.ISO_LOCAL_DATE);
         }
 
         return mitarbeiterType.getFreigabedatum();
@@ -120,7 +122,8 @@ public class EmployeeMapper {
         boolean active = false;
         if (employee.getBeschaeftigungszeitListe() != null) {
             final LocalDate now = LocalDate.now();
-            final List<BeschaeftigungszeitType> employments = employee.getBeschaeftigungszeitListe().getBeschaeftigungszeit();
+            final List<BeschaeftigungszeitType> employments = employee.getBeschaeftigungszeitListe()
+                    .getBeschaeftigungszeit();
             active = hasOpenEmployments(employments, now) || hasEmploymentEndInTheFuture(employments, now);
         }
 

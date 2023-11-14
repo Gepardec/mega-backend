@@ -21,11 +21,15 @@ public class RegularWorkingHoursSerializer extends JsonSerializer<Map<DayOfWeek,
             return;
         }
 
-        List<Pair<String, String>> transformedMap = dayOfWeekDurationMap.entrySet().stream().map(dayOfWeekDurationEntry -> {
-            String newKey = dayOfWeekDurationEntry.getKey().name();
-            String newVal = DurationFormatUtils.formatDuration(dayOfWeekDurationEntry.getValue().toMillis(), "HH:mm");
-            return Pair.of(newKey, newVal);
-        }).collect(Collectors.toList());
+        List<Pair<String, String>> transformedMap = dayOfWeekDurationMap.entrySet()
+                .stream()
+                .map(dayOfWeekDurationEntry -> {
+                    String newKey = dayOfWeekDurationEntry.getKey().name();
+                    String newVal = DurationFormatUtils.formatDuration(dayOfWeekDurationEntry.getValue()
+                            .toMillis(), "HH:mm");
+                    return Pair.of(newKey, newVal);
+                })
+                .collect(Collectors.toList());
 
         jsonGenerator.writeStartObject();
 

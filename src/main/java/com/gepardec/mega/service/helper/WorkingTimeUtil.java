@@ -55,7 +55,11 @@ public class WorkingTimeUtil {
 
 //      Calculate regular working hours with hinsight of different month lengths
         Map<DayOfWeek, Duration> regularWorkingHours = employee.getRegularWorkingHours();
-        Duration workingHoursInMonth = regularWorkingHours.values().stream().reduce(Duration::plus).orElse(Duration.ZERO).multipliedBy(4);
+        Duration workingHoursInMonth = regularWorkingHours.values()
+                .stream()
+                .reduce(Duration::plus)
+                .orElse(Duration.ZERO)
+                .multipliedBy(4);
         for (int i = 0; i < excessDays; i++) {
             Duration durationOfExcessDay = regularWorkingHours.get(firstday.getDayOfWeek());
             workingHoursInMonth = workingHoursInMonth.plus(durationOfExcessDay);
@@ -63,7 +67,9 @@ public class WorkingTimeUtil {
         }
 
 //      Remove holidays from regular working time in month
-        List<DayOfWeek> holidayDays = OfficeCalendarUtil.getHolidaysForMonth(yearMonth).map(LocalDate::getDayOfWeek).collect(Collectors.toList());
+        List<DayOfWeek> holidayDays = OfficeCalendarUtil.getHolidaysForMonth(yearMonth)
+                .map(LocalDate::getDayOfWeek)
+                .collect(Collectors.toList());
 
         for (DayOfWeek dayOfWeek : holidayDays) {
             Duration holidayWorkingDuration = regularWorkingHours.get(dayOfWeek);

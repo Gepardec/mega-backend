@@ -29,7 +29,8 @@ public class StepEntryResourceImpl implements StepEntryResource {
         LocalDate from = DateUtils.getFirstDayOfCurrentMonth(employeeStepDto.currentMonthYear());
         LocalDate to = DateUtils.getLastDayOfCurrentMonth(employeeStepDto.currentMonthYear());
 
-        return Response.ok(stepEntryService.setOpenAndAssignedStepEntriesDone(employeeStepDto.employee(), employeeStepDto.stepId(), from, to)).build();
+        return Response.ok(stepEntryService.setOpenAndAssignedStepEntriesDone(employeeStepDto.employee(), employeeStepDto.stepId(), from, to))
+                .build();
     }
 
     @Override
@@ -38,7 +39,8 @@ public class StepEntryResourceImpl implements StepEntryResource {
         LocalDate to = DateUtils.getLastDayOfCurrentMonth(updateEmployeeStepDto.currentMonthYear());
 
         return Response.ok(stepEntryService.updateStepEntryStateForEmployee(updateEmployeeStepDto.employee(),
-                updateEmployeeStepDto.stepId(), from, to, updateEmployeeStepDto.newState(), updateEmployeeStepDto.newStateReason())).build();
+                        updateEmployeeStepDto.stepId(), from, to, updateEmployeeStepDto.newState(), updateEmployeeStepDto.newStateReason()))
+                .build();
     }
 
     @Override

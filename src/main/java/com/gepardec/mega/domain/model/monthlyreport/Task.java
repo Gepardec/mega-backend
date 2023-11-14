@@ -14,7 +14,8 @@ public enum Task {
     REISEN,
     UNDEFINIERT;
 
-    private static final Map<String, Task> tasks = Stream.of(Task.values()).collect(toMap(Task::name, Function.identity()));
+    private static final Map<String, Task> tasks = Stream.of(Task.values())
+            .collect(toMap(Task::name, Function.identity()));
 
     public static boolean isJourney(Task task) {
         return task == REISEN;

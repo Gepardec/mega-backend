@@ -66,7 +66,9 @@ public class ProjectServiceImpl implements ProjectService {
 
         boolean noProjectEntriesExist = true;
         if (projectEntity.getProjectEntries() != null) {
-            noProjectEntriesExist = projectEntity.getProjectEntries().stream().noneMatch(pe -> pe.getDate().equals(selectedDate));
+            noProjectEntriesExist = projectEntity.getProjectEntries()
+                    .stream()
+                    .noneMatch(pe -> pe.getDate().equals(selectedDate));
         }
 
         if (noProjectEntriesExist) {

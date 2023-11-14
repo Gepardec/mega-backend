@@ -31,9 +31,13 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
         }
 
         List<LocalDate> futureDays = getFutureDays();
-        List<LocalDate> businessDays = getBusinessDaysOfMonth(projectEntries.get(0).getDate().getYear(), projectEntries.get(0).getDate().getMonth().getValue());
+        List<LocalDate> businessDays = getBusinessDaysOfMonth(projectEntries.get(0)
+                .getDate()
+                .getYear(), projectEntries.get(0).getDate().getMonth().getValue());
 
-        List<LocalDate> regularWorking0Days = getRegularWorkingHours0Dates(employee, projectEntries.get(0).getDate().getYear(), projectEntries.get(0).getDate().getMonth().getValue());
+        List<LocalDate> regularWorking0Days = getRegularWorkingHours0Dates(employee, projectEntries.get(0)
+                .getDate()
+                .getYear(), projectEntries.get(0).getDate().getMonth().getValue());
         List<LocalDate> compensatoryDays = filterAbsenceTypesAndCompileLocalDateList(AbsenteeType.COMPENSATORY_DAYS.getType(), absenceEntries);
         List<LocalDate> vacationDays = filterAbsenceTypesAndCompileLocalDateList(AbsenteeType.VACATION_DAYS.getType(), absenceEntries);
         List<LocalDate> sicknessDays = filterAbsenceTypesAndCompileLocalDateList(AbsenteeType.SICKNESS_DAYS.getType(), absenceEntries);

@@ -20,7 +20,8 @@ public abstract class AbstractTimeWarningCalculationStrategy {
                 projectEntryStream = projectEntryStream.filter(predicate);
             }
         }
-        return projectEntryStream.sorted(Comparator.comparing(ProjectEntry::getFromTime).thenComparing(ProjectEntry::getToTime))
+        return projectEntryStream.sorted(Comparator.comparing(ProjectEntry::getFromTime)
+                        .thenComparing(ProjectEntry::getToTime))
                 .collect(Collectors.groupingBy(ProjectEntry::getDate, LinkedHashMap::new, Collectors.toUnmodifiableList()));
     }
 

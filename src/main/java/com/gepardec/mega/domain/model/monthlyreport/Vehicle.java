@@ -11,7 +11,8 @@ public enum Vehicle {
     CAR_INACTIVE("Auto (PKW passiv)", false),
     OTHER_INACTIVE("", false);
 
-    private static final Map<String, Vehicle> idToVehicleMap = Stream.of(Vehicle.values()).collect(Collectors.toMap(Vehicle::getId, Function.identity()));
+    private static final Map<String, Vehicle> idToVehicleMap = Stream.of(Vehicle.values())
+            .collect(Collectors.toMap(Vehicle::getId, Function.identity()));
 
     public final String id;
 

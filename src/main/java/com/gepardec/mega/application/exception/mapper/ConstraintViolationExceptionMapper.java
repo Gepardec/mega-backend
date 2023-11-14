@@ -39,10 +39,15 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
         if (violations == null || violations.isEmpty()) {
             return List.of();
         }
-        return violations.stream().map(this::createValidationViolationForConstraintViolation).collect(Collectors.toList());
+        return violations.stream()
+                .map(this::createValidationViolationForConstraintViolation)
+                .collect(Collectors.toList());
     }
 
     private ValidationViolation createValidationViolationForConstraintViolation(final ConstraintViolation<?> violation) {
-        return ValidationViolation.builder().property(violation.getPropertyPath().toString()).message(violation.getMessage()).build();
+        return ValidationViolation.builder()
+                .property(violation.getPropertyPath().toString())
+                .message(violation.getMessage())
+                .build();
     }
 }

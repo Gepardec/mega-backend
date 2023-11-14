@@ -22,7 +22,8 @@ public class ExceededMaximumWorkingHoursPerDayCalculator extends AbstractTimeWar
         final List<TimeWarning> warnings = new ArrayList<>(0);
 
         final Predicate<ProjectEntry> filterTask = entry -> Task.isTask(entry.getTask());
-        final Predicate<ProjectEntry> filterActiveTravelTime = entry -> Task.isJourney(entry.getTask()) && JourneyTimeEntry.class.cast(entry).getVehicle().activeTraveler;
+        final Predicate<ProjectEntry> filterActiveTravelTime = entry -> Task.isJourney(entry.getTask()) && JourneyTimeEntry.class.cast(entry)
+                .getVehicle().activeTraveler;
 
         final Map<LocalDate, List<ProjectEntry>> groupedProjectTimeEntries = groupProjectEntriesByFromDate(projectTimeEntries, List.of(filterTask.or(filterActiveTravelTime)));
 
