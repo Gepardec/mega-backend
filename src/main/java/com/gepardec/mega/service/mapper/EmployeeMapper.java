@@ -110,7 +110,9 @@ public class EmployeeMapper {
                 Map.entry(DayOfWeek.TUESDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getDienstag() * 60))),
                 Map.entry(DayOfWeek.WEDNESDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getMittwoch() * 60))),
                 Map.entry(DayOfWeek.THURSDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getDonnerstag() * 60))),
-                Map.entry(DayOfWeek.FRIDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getFreitag() * 60)))
+                Map.entry(DayOfWeek.FRIDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getFreitag() * 60))),
+                Map.entry(DayOfWeek.SATURDAY, Duration.ofMinutes(0L)),
+                Map.entry(DayOfWeek.SUNDAY, Duration.ofMinutes(0L))
         ));
     }
 

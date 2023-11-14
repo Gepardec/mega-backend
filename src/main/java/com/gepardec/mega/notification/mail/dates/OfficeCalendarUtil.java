@@ -7,6 +7,7 @@ import de.focus_shift.ManagerParameters;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -35,4 +36,11 @@ public class OfficeCalendarUtil {
     public static Stream<LocalDate> getHolidaysForYear(int year) {
         return HOLIDAY_MANAGER.getHolidays(year).stream().map(Holiday::getDate);
     }
+    public static Stream<LocalDate> getHolidaysForMonth(YearMonth yearMonth) {
+        LocalDate startDate = LocalDate.of(yearMonth.getYear(), yearMonth.getMonth(), 1);
+        LocalDate endDate = startDate.withDayOfMonth(yearMonth.lengthOfMonth());
+        return HOLIDAY_MANAGER.getHolidays(startDate, endDate).stream().map(Holiday::getDate);
+    }
+
+
 }

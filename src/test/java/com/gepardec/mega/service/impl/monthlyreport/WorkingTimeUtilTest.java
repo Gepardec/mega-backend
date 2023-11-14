@@ -74,7 +74,7 @@ public class WorkingTimeUtilTest {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(5);
-        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projektzeitTypes);
+        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes, LocalDate.of(2023, 1, 1));
         assertThat(overtimeforEmployee).isEqualTo(38.5);
     }
 
@@ -83,7 +83,7 @@ public class WorkingTimeUtilTest {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnProjektzeitTypeList(3);
-        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projektzeitTypes);
+        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes, LocalDate.of(2023, 1, 1));
         assertThat(overtimeforEmployee).isEqualTo(-38.5);
     }
 

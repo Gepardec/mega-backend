@@ -203,7 +203,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .nonPaidVacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS, date))
                 .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
                 .vacationDayBalance(personioEmployeesService.getVacationDayBalance(employee.getEmail()))
-                .overtime(workingTimeUtil.getOvertimeForEmployee(employee, billableEntries))
+                .overtime(workingTimeUtil.getOvertimeforEmployee(employee, billableEntries, absenceEntries, date))
                 .build();
     }
 
