@@ -1,6 +1,6 @@
 package com.gepardec.mega.notification.mail.receiver;
 
-public class MailMetadata {
+public class MailSenderMetadata {
 
     private String originalRecipient;
     private String recipientEmail;

@@ -4,7 +4,7 @@ import com.google.common.base.MoreObjects;
 
 import java.time.LocalDate;
 
-public class ZepNotificationMail {
+public class ZepProjektzeitDetailsMail {
 
     private final LocalDate tag;
     private final String nachricht;
@@ -16,7 +16,7 @@ public class ZepNotificationMail {
     private final String vorgang;
     private final String bemerkung;
 
-    private ZepNotificationMail(Builder source) {
+    private ZepProjektzeitDetailsMail(Builder source) {
         this.tag = source.tag;
         this.nachricht = source.nachricht;
         this.zepIdErsteller = source.zepId;
@@ -66,6 +66,10 @@ public class ZepNotificationMail {
 
     public String getBemerkung() {
         return bemerkung;
+    }
+
+    public String getMitarbeiterName() {
+        return String.format("%s, %s", mitarbeiterNachname, mitarbeiterVorname);
     }
 
     @Override
@@ -140,8 +144,8 @@ public class ZepNotificationMail {
             return this;
         }
 
-        public ZepNotificationMail build() {
-            return new ZepNotificationMail(this);
+        public ZepProjektzeitDetailsMail build() {
+            return new ZepProjektzeitDetailsMail(this);
         }
     }
 }

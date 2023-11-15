@@ -1,7 +1,8 @@
 package com.gepardec.mega.application.schedule;
 
 import com.gepardec.mega.notification.mail.ReminderEmailSender;
-import com.gepardec.mega.notification.mail.receiver.EmailReceiver;
+import com.gepardec.mega.notification.mail.receiver.MailReceiver;
+import com.gepardec.mega.notification.mail.receiver.ZepMailToCommentService;
 import com.gepardec.mega.service.api.EnterpriseSyncService;
 import com.gepardec.mega.service.api.ProjectSyncService;
 import com.gepardec.mega.service.api.StepEntrySyncService;
@@ -39,7 +40,10 @@ public class Schedules {
     ReminderEmailSender reminderEmailSender;
 
     @Inject
-    EmailReceiver emailReceiver;
+    MailReceiver mailReceiver;
+
+    @Inject
+    ZepMailToCommentService zepMailToCommentService;
 
 
     @Scheduled(identity = "Sync ZEP-Employees with Users in the database every 30 minutes",
@@ -86,7 +90,7 @@ public class Schedules {
     @Scheduled(identity = "Receive E-Mails sent to employees from ZEP",
             every = "PT10M")
     void receiveMails() {
-        emailReceiver.retrieveEmailsAndSaveToComments();
+        mailReceiver.retrieveZepEmailsFromInbox().forEach(zepMailToCommentService::saveAsComment);
     }
 
     LocalDate getSysdate() {

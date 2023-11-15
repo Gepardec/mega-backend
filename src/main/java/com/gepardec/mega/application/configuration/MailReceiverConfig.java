@@ -5,7 +5,7 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
-public class EmailReceiverConfig {
+public class MailReceiverConfig {
 
     @Inject
     @ConfigProperty(name = "mega.mail.receiver.enabled")
