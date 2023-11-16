@@ -4,8 +4,9 @@ import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public interface ZepMailMapper<R> {
 
-    R convert(Message message) throws MessagingException, IOException;
+    Optional<R> convert(Message message) throws MessagingException, IOException;
 }

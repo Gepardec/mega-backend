@@ -1,13 +1,15 @@
 package com.gepardec.mega.notification.mail.receiver;
 
+import java.util.Optional;
+
 public class MailSenderMetadata {
 
     private String originalRecipient;
     private String recipientEmail;
     private String recipientFirstname;
 
-    public String getOriginalRecipient() {
-        return originalRecipient;
+    public Optional<String> getOriginalRecipient() {
+        return Optional.ofNullable(originalRecipient);
     }
 
     public void setOriginalRecipient(String originalRecipient) {

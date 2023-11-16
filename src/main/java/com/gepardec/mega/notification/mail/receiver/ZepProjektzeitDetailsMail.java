@@ -19,7 +19,7 @@ public class ZepProjektzeitDetailsMail {
     private ZepProjektzeitDetailsMail(Builder source) {
         this.tag = source.tag;
         this.nachricht = source.nachricht;
-        this.zepIdErsteller = source.zepId;
+        this.zepIdErsteller = source.zepIdErsteller;
         this.mitarbeiterVorname = source.mitarbeiterVorname;
         this.mitarbeiterNachname = source.mitarbeiterNachname;
         this.buchungInfo = source.buchungInfo;
@@ -91,7 +91,7 @@ public class ZepProjektzeitDetailsMail {
 
         private LocalDate tag;
         private String nachricht;
-        private String zepId;
+        private String zepIdErsteller;
         private String mitarbeiterVorname;
         private String mitarbeiterNachname;
         private String buchungInfo;
@@ -109,8 +109,8 @@ public class ZepProjektzeitDetailsMail {
             return this;
         }
 
-        public Builder withZepId(String zepId) {
-            this.zepId = zepId;
+        public Builder withZepIdErsteller(String zepIdErsteller) {
+            this.zepIdErsteller = zepIdErsteller;
             return this;
         }
 

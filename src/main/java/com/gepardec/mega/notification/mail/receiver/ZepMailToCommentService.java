@@ -22,6 +22,7 @@ import java.util.Map;
 public class ZepMailToCommentService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private static final String UNKNOWN = "unknown";
 
     @Inject
     Logger logger;
@@ -38,34 +39,37 @@ public class ZepMailToCommentService {
     @Inject
     MailSender mailSender;
 
-    private MailSenderMetadata mailSenderMetadata;
+    private MailSenderMetadata mailSenderMetadata = new MailSenderMetadata();
 
     public void saveAsComment(Message message) {
         try {
-            mailSenderMetadata = new MailSenderMetadata();
-            var zepProjektzeitDetailsMail = zepProjektzeitDetailsMailMapper.convert(message);
+            zepProjektzeitDetailsMailMapper.convert(message).ifPresent(
+                    zepProjektzeitDetailsMail -> {
+                        var ersteller = userService.findByZepId(zepProjektzeitDetailsMail.getZepIdErsteller());
+                        mailSenderMetadata = new MailSenderMetadata();
+                        mailSenderMetadata.setRecipientFirstname(ersteller.getFirstname());
+                        mailSenderMetadata.setRecipientEmail(ersteller.getEmail());
 
-            var empfaenger = userService.findByName(
-                    zepProjektzeitDetailsMail.getMitarbeiterVorname(),
-                    zepProjektzeitDetailsMail.getMitarbeiterNachname()
-            );
-            var ersteller = userService.findByZepId(zepProjektzeitDetailsMail.getZepIdErsteller());
+                        var empfaenger = userService.findByName(
+                                zepProjektzeitDetailsMail.getMitarbeiterVorname(),
+                                zepProjektzeitDetailsMail.getMitarbeiterNachname()
+                        );
 
-            mailSenderMetadata.setOriginalRecipient(zepProjektzeitDetailsMail.getMitarbeiterName());
-            mailSenderMetadata.setRecipientFirstname(ersteller.getFirstname());
-            mailSenderMetadata.setRecipientEmail(ersteller.getEmail());
+                        mailSenderMetadata.setOriginalRecipient(zepProjektzeitDetailsMail.getMitarbeiterName());
 
-            commentService.create(
-                    StepName.CONTROL_TIME_EVIDENCES.getId(),
-                    SourceSystem.ZEP,
-                    empfaenger.getEmail(),
-                    buildComment(zepProjektzeitDetailsMail),
-                    ersteller.getEmail(),
-                    zepProjektzeitDetailsMail.getProjekt(),
-                    zepProjektzeitDetailsMail.getTag().toString()
+                        commentService.create(
+                                StepName.CONTROL_TIME_EVIDENCES.getId(),
+                                SourceSystem.ZEP,
+                                empfaenger.getEmail(),
+                                buildComment(zepProjektzeitDetailsMail),
+                                ersteller.getEmail(),
+                                zepProjektzeitDetailsMail.getProjekt(),
+                                zepProjektzeitDetailsMail.getTag().toString()
+                        );
+                    }
             );
         } catch (Exception e) {
-            handleMessageException(e);
+            reportExceptionToErsteller(e);
         }
     }
 
@@ -82,21 +86,25 @@ public class ZepMailToCommentService {
         );
     }
 
-    private void handleMessageException(Exception e) {
-        logger.error("Error processing E-Mail: {}.", e.getMessage());
+    private void reportExceptionToErsteller(Exception e) {
+        if (mailSenderMetadata.getRecipientEmail() != null) {
+            logger.error("Error processing E-Mail: {}.", e.getMessage());
 
-        Map<String, String> mailParameter = new HashMap<>() {{
-            put(MailParameter.RECIPIENT, mailSenderMetadata.getRecipientFirstname()); // employee who sent the comment
-            put(MailParameter.COMMENT, e.getMessage()); // error message
-        }};
+            Map<String, String> mailParameter = new HashMap<>() {{
+                put(MailParameter.RECIPIENT, mailSenderMetadata.getRecipientFirstname()); // employee who sent the comment
+                put(MailParameter.COMMENT, e.getMessage()); // error message
+            }};
 
-        mailSender.send(
-                Mail.ZEP_COMMENT_PROCESSING_ERROR,
-                mailSenderMetadata.getRecipientEmail(), // recipient of this email
-                mailSenderMetadata.getOriginalRecipient(), // employee that the comment was sent to
-                Locale.GERMAN,
-                mailParameter,
-                List.of(mailSenderMetadata.getOriginalRecipient()) // employee name of original email for subject
-        );
+            mailSender.send(
+                    Mail.ZEP_COMMENT_PROCESSING_ERROR,
+                    mailSenderMetadata.getRecipientEmail(), // recipient of this email
+                    mailSenderMetadata.getOriginalRecipient().orElse(UNKNOWN), // employee that the comment was sent to
+                    Locale.GERMAN,
+                    mailParameter,
+                    List.of(mailSenderMetadata.getOriginalRecipient().orElse(UNKNOWN)) // employee name of original email for subject
+            );
+        } else {
+            logger.error("Recipient unknown, error cannot be reported.");
+        }
     }
 }
