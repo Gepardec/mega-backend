@@ -2,6 +2,9 @@ package com.gepardec.mega.notification.mail.receiver;
 
 import com.gepardec.mega.application.configuration.MailReceiverConfig;
 import com.sun.mail.imap.IMAPMessage;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
+import jakarta.inject.Inject;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -9,13 +12,7 @@ import jakarta.mail.Session;
 import jakarta.mail.Store;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.slf4j.Logger;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -26,20 +23,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@QuarkusTest
 class MailReceiverTest {
 
-    @Mock
+    @InjectMock
     Logger logger;
 
-    @Mock
+    @InjectMock
     MailReceiverConfig mailReceiverConfig;
 
-    @Mock
+    @InjectMock
     ZepMailToCommentService zepMailToCommentService;
 
-    @InjectMocks
+    @Inject
     MailReceiver testedObject;
 
     @BeforeEach

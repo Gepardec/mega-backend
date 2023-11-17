@@ -7,7 +7,7 @@ import com.gepardec.mega.notification.mail.MailParameter;
 import com.gepardec.mega.notification.mail.MailSender;
 import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.UserService;
-import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.mail.Message;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-@Dependent
+@RequestScoped
 public class ZepMailToCommentService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");

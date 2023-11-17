@@ -1,7 +1,7 @@
 package com.gepardec.mega.notification.mail.receiver;
 
 import com.gepardec.mega.application.configuration.MailReceiverConfig;
-import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.mail.Flags;
 import jakarta.mail.Folder;
@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import java.util.List;
 import java.util.Properties;
 
-@Dependent
+@RequestScoped
 public class MailReceiver {
 
     @Inject

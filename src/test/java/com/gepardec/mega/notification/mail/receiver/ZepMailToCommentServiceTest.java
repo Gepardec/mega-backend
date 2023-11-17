@@ -10,12 +10,11 @@ import com.gepardec.mega.notification.mail.MailSender;
 import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.UserService;
 import com.sun.mail.imap.IMAPMessage;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
+import jakarta.inject.Inject;
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -32,25 +31,25 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@QuarkusTest
 class ZepMailToCommentServiceTest {
 
-    @Mock
+    @InjectMock
     Logger logger;
 
-    @Mock
+    @InjectMock
     ZepProjektzeitDetailsMailMapper zepProjektzeitDetailsMailMapper;
 
-    @Mock
+    @InjectMock
     UserService userService;
 
-    @Mock
+    @InjectMock
     CommentService commentService;
 
-    @Mock
+    @InjectMock
     MailSender mailSender;
 
-    @InjectMocks
+    @Inject
     ZepMailToCommentService testedObject;
 
     @Test

@@ -1,6 +1,6 @@
 package com.gepardec.mega.notification.mail.receiver;
 
-import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Dependent
+@ApplicationScoped
 public class ZepProjektzeitDetailsMailMapper implements ZepMailMapper<ZepProjektzeitDetailsMail> {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");

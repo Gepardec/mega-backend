@@ -1,6 +1,9 @@
 package com.gepardec.mega.notification.mail.receiver;
 
 import com.sun.mail.imap.IMAPMessage;
+import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
+import jakarta.inject.Inject;
 import jakarta.mail.BodyPart;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -8,12 +11,6 @@ import jakarta.mail.Multipart;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -26,8 +23,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+@QuarkusTest
 class ZepProjektzeitDetailsMailMapperTest {
 
     private static final String SUBJECT = "Projektzeit Fr, 03.11.2023";
@@ -49,10 +45,10 @@ class ZepProjektzeitDetailsMailMapperTest {
             "Ort:\n" +
             "Bemerkungen: MEGA";
 
-    @Mock
+    @InjectMock
     Logger logger;
 
-    @InjectMocks
+    @Inject
     ZepProjektzeitDetailsMailMapper testedObject;
 
     private Message givenMessage;
