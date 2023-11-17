@@ -105,4 +105,7 @@ public class MonthlyReportDto {
 
     @JsonProperty
     private double overtime;
+
+    @JsonProperty
+    private boolean hasPrematureEmployeeCheck;
 }

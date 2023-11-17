@@ -17,9 +17,7 @@ import java.time.LocalDateTime;
 public class PrematureEmployeeCheck {
     private long id;
 
-    private long stepEntryId;
-
-    private User userId;
+    private User user;
 
     private LocalDate forMonth;
 

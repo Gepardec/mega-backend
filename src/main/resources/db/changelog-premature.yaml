@@ -1,0 +1,66 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1700130995809-5
+      author: michaelleitner (generated)
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: pk_premature_employee_check
+                  name: id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: for_month
+                  type: DATE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: creation_date
+                  type: TIMESTAMP
+              - column:
+                  constraints:
+                    nullable: false
+                  name: update_date
+                  type: TIMESTAMP
+            tableName: premature_employee_check
+  - changeSet:
+      id: 1700130995809-6
+      author: michaelleitner (generated)
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addUniqueConstraint:
+            columnNames: user_id, for_month
+            constraintName: uc_ac64e3b51e7c769de894bc8c3
+            tableName: premature_employee_check
+  - changeSet:
+      id: 1700130995809-7
+      author: michaelleitner (generated)
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addUniqueConstraint:
+            columnNames: user_id
+            constraintName: uc_premature_employee_check_user
+            tableName: premature_employee_check
+  - changeSet:
+      id: 1700130995809-8
+      author: michaelleitner (generated)
+      objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: premature_employee_check
+            constraintName: FK_PREMATURE_EMPLOYEE_CHECK_ON_USER
+            referencedColumnNames: id
+            referencedTableName: employee_user
+

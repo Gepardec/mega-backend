@@ -18,6 +18,7 @@ import com.gepardec.mega.rest.model.PmProgressDto;
 import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
+import com.gepardec.mega.service.api.PrematureEmployeeCheckService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
@@ -82,6 +83,9 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     @Inject
     WorkingTimeUtil workingTimeUtil;
+
+    @Inject
+    PrematureEmployeeCheckService prematureEmployeeCheckService;
 
     @Override
     public MonthlyReport getMonthEndReportForUser() {
@@ -204,6 +208,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
                 .vacationDayBalance(personioEmployeesService.getVacationDayBalance(employee.getEmail()))
                 .overtime(workingTimeUtil.getOvertimeForEmployee(employee, billableEntries, absenceEntries, date))
+                .hasPrematureEmployeeCheck(prematureEmployeeCheckService.hasUserPrematureEmployeeCheck(employee.getEmail()))
                 .build();
     }
 

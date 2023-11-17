@@ -73,4 +73,6 @@ public class MonthlyReport {
     private String totalWorkingTime;
 
     private double overtime;
+
+    private boolean hasPrematureEmployeeCheck;
 }

@@ -1,25 +1,35 @@
 package com.gepardec.mega.db.entity.employee;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
+@NoArgsConstructor
 @Entity
-@Table(name = "premature_employee_check")
+@Table(name = "premature_employee_check", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "for_month"}))
+@NamedQueries({
+        @NamedQuery(name = "PrematureEmployeeCheck.findByEmail", query = "select p from PrematureEmployeeCheck p where p.user.email = :email"),
+})
 public class PrematureEmployeeCheck {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PrematureEmployeeCheck_GEN")
@@ -28,11 +38,17 @@ public class PrematureEmployeeCheck {
     private Long id;
 
     /**
-     * The step-entry, which is prematurely checked.
+     * The user, whose check is prematurely done
      */
-    @OneToOne(cascade = CascadeType.ALL, optional = false, orphanRemoval = true)
-    @JoinColumn(name = "step_entry_id", nullable = false)
-    private StepEntry stepEntry;
+    @OneToOne(optional = false, orphanRemoval = true)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
+
+    /**
+     * Which month has been prematurely checked
+     */
+    @Column(name = "for_month", nullable = false, columnDefinition = "DATE")
+    private LocalDate forMonth;
 
 
     /**
@@ -49,6 +65,7 @@ public class PrematureEmployeeCheck {
     @Column(name = "update_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedDate;
 
+
     @PrePersist
     void onPersist() {
         creationDate = updatedDate = LocalDateTime.now();
@@ -60,8 +77,12 @@ public class PrematureEmployeeCheck {
     }
 
 
-    public void setStepEntry(StepEntry stepEntry) {
-        this.stepEntry = stepEntry;
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setForMonth(LocalDate forMonth) {
+        this.forMonth = forMonth;
     }
 
 }

@@ -9,7 +9,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.util.Set;
 
-// Represents the logged user in mega.
+// Represents the logged in user in mega.
 
 @Builder
 @Getter
