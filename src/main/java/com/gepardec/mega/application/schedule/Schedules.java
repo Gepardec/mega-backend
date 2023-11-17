@@ -82,8 +82,13 @@ public class Schedules {
         reminderEmailSender.sendReminder();
     }
 
-    @Scheduled(identity = "Receive E-Mails sent to employees from ZEP",
-            every = "PT10M")
+    /**
+     * At every 10th minute past every hour from 7 through 18 on every day-of-week from Monday through Friday.
+     */
+    @Scheduled(
+            identity = "Receive E-Mails sent to employees from ZEP",
+            cron = "0 10 7-18 ? * MON-FRI"
+    )
     void receiveMails() {
         mailReceiver.retrieveZepEmailsFromInbox();
     }
