@@ -5,7 +5,6 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.mail.Flags;
 import jakarta.mail.Folder;
-import jakarta.mail.Message;
 import jakarta.mail.Session;
 import jakarta.mail.search.AndTerm;
 import jakarta.mail.search.FlagTerm;
@@ -13,7 +12,6 @@ import jakarta.mail.search.FromStringTerm;
 import jakarta.mail.search.SearchTerm;
 import org.slf4j.Logger;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -26,10 +24,13 @@ public class MailReceiver {
     @Inject
     MailReceiverConfig mailReceiverConfig;
 
-    public List<Message> retrieveZepEmailsFromInbox() {
+    @Inject
+    ZepMailToCommentService zepMailToCommentService;
+
+    public void retrieveZepEmailsFromInbox() {
         if (!Boolean.TRUE.equals(mailReceiverConfig.isEnabled())) {
             logger.info("E-Mail receiver is disabled.");
-            return Collections.emptyList();
+            return;
         }
 
         var properties = createMailProperties();
@@ -47,17 +48,16 @@ public class MailReceiver {
             inbox.open(Folder.READ_WRITE);
             logger.info("Inbox opened.");
 
-            var messages = inbox.search(bySenderAndUnseen());
-            logger.info("Found {} relevant message(s).", messages.length);
+            var messages = List.of(inbox.search(bySenderAndUnseen()));
+            logger.info("Found {} relevant message(s).", messages.size());
+
+            messages.forEach(zepMailToCommentService::saveAsComment);
 
             inbox.close(false);
             store.close();
             logger.info("Inbox closed.");
-
-            return List.of(messages);
         } catch (Exception e) {
             logger.error("Error retrieving E-Mails from Mailbox: ", e);
-            return Collections.emptyList();
         }
     }
 

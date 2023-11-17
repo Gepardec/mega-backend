@@ -18,11 +18,11 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.slf4j.Logger;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +35,9 @@ class MailReceiverTest {
 
     @Mock
     MailReceiverConfig mailReceiverConfig;
+
+    @Mock
+    ZepMailToCommentService zepMailToCommentService;
 
     @InjectMocks
     MailReceiver testedObject;
@@ -52,8 +55,11 @@ class MailReceiverTest {
         when(mailReceiverConfig.isEnabled()).thenReturn(Boolean.FALSE);
 
         //WHEN
+        testedObject.retrieveZepEmailsFromInbox();
+
         //THEN
-        assertThat(testedObject.retrieveZepEmailsFromInbox()).isEmpty();
+        verify(logger).info("E-Mail receiver is disabled.");
+        verify(zepMailToCommentService, times(0)).saveAsComment(any());
     }
 
     @Test
@@ -74,8 +80,10 @@ class MailReceiverTest {
             mockedStatic.when(() -> Session.getDefaultInstance(any())).thenReturn(session);
 
             //WHEN
+            testedObject.retrieveZepEmailsFromInbox();
+
             //THEN
-            assertThat(testedObject.retrieveZepEmailsFromInbox()).hasSize(1);
+            verify(zepMailToCommentService).saveAsComment(any());
         }
     }
 
@@ -94,8 +102,10 @@ class MailReceiverTest {
             mockedStatic.when(() -> Session.getDefaultInstance(any())).thenReturn(session);
 
             //WHEN
+            testedObject.retrieveZepEmailsFromInbox();
+
             //THEN
-            assertThat(testedObject.retrieveZepEmailsFromInbox()).isEmpty();
+            verify(zepMailToCommentService, times(0)).saveAsComment(any());
             verify(logger).error(any(), any(Exception.class));
         }
     }

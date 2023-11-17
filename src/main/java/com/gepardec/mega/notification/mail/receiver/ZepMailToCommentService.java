@@ -66,6 +66,7 @@ public class ZepMailToCommentService {
                                 zepProjektzeitDetailsMail.getProjekt(),
                                 zepProjektzeitDetailsMail.getTag().toString()
                         );
+                        logger.info("E-Mail saved as comment.");
                     }
             );
         } catch (Exception e) {
