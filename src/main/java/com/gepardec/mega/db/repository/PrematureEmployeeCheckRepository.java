@@ -25,19 +25,9 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
     @Transactional
     public PrematureEmployeeCheck save(final PrematureEmployeeCheck prematureEmployeeCheck){
         this.persist(prematureEmployeeCheck);
+        // Flushing to trigger the ConstraintViolationException to be able to catch it
         this.flush();
         return prematureEmployeeCheck;
-
-//        try {
-//            this.persist(prematureEmployeeCheck);
-//            // For triggring the ConstraintViolationExcpetion
-//            this.flush();
-//            return prematureEmployeeCheck;
-//        } catch (ConstraintViolationException e) {
-//            logger.error(String.format("Tried to add a PrematureEmployeeCheck for %s in %s, but there already exists one", prematureEmployeeCheck.getUser()
-//                    .getEmail(), prematureEmployeeCheck.getForMonth()));
-//            return new PrematureEmployeeCheck();
-//        }
     }
 
     @Transactional

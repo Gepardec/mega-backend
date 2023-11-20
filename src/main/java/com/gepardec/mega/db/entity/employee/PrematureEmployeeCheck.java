@@ -85,4 +85,8 @@ public class PrematureEmployeeCheck {
         this.forMonth = forMonth;
     }
 
+    public void setId(Long id){
+        this.id = id;
+    }
+
 }

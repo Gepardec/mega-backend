@@ -5,6 +5,7 @@ import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.rest.model.PrematureEmployeeCheckDto;
 import com.gepardec.mega.rest.model.UserDto;
+import com.gepardec.mega.service.api.PrematureEmployeeCheckService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
@@ -20,6 +21,7 @@ import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -32,6 +34,9 @@ public class PrematureEmployeeCheckResourceTest {
 
     @InjectMock
     private UserContext userContext;
+
+    @InjectMock
+    private PrematureEmployeeCheckService prematureEmployeeCheckService;
 
 
     @Test
@@ -55,13 +60,15 @@ public class PrematureEmployeeCheckResourceTest {
                 .forMonth(localDate)
                 .build();
 
+        when(prematureEmployeeCheckService.addPrematureEmployeeCheck(any())).thenReturn(true);
 
-        Response post = given().contentType(ContentType.JSON)
+
+        Boolean addedPrematureEmployeeCheck = given().contentType(ContentType.JSON)
                 .body(prematureEmployeeCheckDto)
-                .post("/prematureemployeecheck");
+                .post("/prematureemployeecheck")
+                .as(Boolean.class);
 
-        System.out.println();
-//        assertThat(prematureemployeecheck).isTrue();
+        assertThat(addedPrematureEmployeeCheck).isTrue();
     }
 
 

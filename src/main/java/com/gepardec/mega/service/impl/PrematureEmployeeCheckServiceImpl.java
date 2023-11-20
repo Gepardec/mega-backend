@@ -32,17 +32,12 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
                 .orElseThrow());
         prematureEmployeeCheckDB.setForMonth(prematureEmployeeCheck.getForMonth().withDayOfMonth(1));
 
-
         com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck saved = prematureEmployeeCheckRepository.save(prematureEmployeeCheckDB);
 
-        if(saved.getId() != null){
-            logger.info(String.format("Added PrematureEmployeeCheck for %s in %s", saved.getUser().getEmail(), saved.getForMonth()));
-            return true;
-        }
+        logger.info(String.format("Added PrematureEmployeeCheck for %s in %s", saved.getUser()
+                .getEmail(), saved.getForMonth()));
 
-
-
-        return false;
+        return saved.getId() != null;
     }
 
     @Override
@@ -53,8 +48,8 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     }
 
     @Override
-    public boolean hasUserPrematureEmployeeCheck(String userId) {
-        List<PrematureEmployeeCheck> prematureEmployeeCheckForUserId = getPrematureEmployeeCheckForEmail(userId);
+    public boolean hasUserPrematureEmployeeCheck(String email) {
+        List<PrematureEmployeeCheck> prematureEmployeeCheckForUserId = getPrematureEmployeeCheckForEmail(email);
         return !prematureEmployeeCheckForUserId.isEmpty();
     }
 }
