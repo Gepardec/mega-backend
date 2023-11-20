@@ -15,7 +15,6 @@ import jakarta.ws.rs.core.Response;
 public interface PrematureEmployeeCheckResource {
 
     @POST
-    @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     Response add(@NotNull(message = "{stepEntryResource.parameter.notNull}") PrematureEmployeeCheckDto prematureEmployeeCheckDto);

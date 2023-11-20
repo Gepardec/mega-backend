@@ -20,8 +20,8 @@ public class PrematureEmployeeCheckResourceImpl implements PrematureEmployeeChec
 
     @Override
     public Response add(PrematureEmployeeCheckDto prematureEmployeeCheckDto) {
-        // TODO integrate with mapper
 
+        // TODO integrate with mapper
         UserDto userDto = prematureEmployeeCheckDto.getUser();
 
 

@@ -1,7 +1,7 @@
 databaseChangeLog:
   - changeSet:
       id: 1700130995809-5
-      author: michaelleitner (generated)
+      author: MEGA-684
       objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
       changes:
         - createTable:
@@ -36,16 +36,16 @@ databaseChangeLog:
             tableName: premature_employee_check
   - changeSet:
       id: 1700130995809-6
-      author: michaelleitner (generated)
+      author: MEGA-684
       objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
       changes:
         - addUniqueConstraint:
             columnNames: user_id, for_month
-            constraintName: uc_ac64e3b51e7c769de894bc8c3
+            constraintName: uc_premature_employee_check_userid_and_formonth
             tableName: premature_employee_check
   - changeSet:
       id: 1700130995809-7
-      author: michaelleitner (generated)
+      author: MEGA-684
       objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
       changes:
         - addUniqueConstraint:
@@ -54,7 +54,7 @@ databaseChangeLog:
             tableName: premature_employee_check
   - changeSet:
       id: 1700130995809-8
-      author: michaelleitner (generated)
+      author: MEGA-684
       objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
       changes:
         - addForeignKeyConstraint:

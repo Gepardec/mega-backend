@@ -7,6 +7,7 @@ import com.gepardec.mega.service.api.PrematureEmployeeCheckService;
 import com.gepardec.mega.service.mapper.PrematureEmployeeCheckMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.slf4j.Logger;
 
 import java.util.List;
 
@@ -21,6 +22,9 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     @Inject
     PrematureEmployeeCheckMapper prematureEmployeeCheckMapper;
 
+    @Inject
+    Logger logger;
+
     public boolean addPrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
 
         com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck prematureEmployeeCheckDB = new com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck();
@@ -31,7 +35,14 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
 
         com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck saved = prematureEmployeeCheckRepository.save(prematureEmployeeCheckDB);
 
-        return saved.getId() != null;
+        if(saved.getId() != null){
+            logger.info(String.format("Added PrematureEmployeeCheck for %s in %s", saved.getUser().getEmail(), saved.getForMonth()));
+            return true;
+        }
+
+
+
+        return false;
     }
 
     @Override
