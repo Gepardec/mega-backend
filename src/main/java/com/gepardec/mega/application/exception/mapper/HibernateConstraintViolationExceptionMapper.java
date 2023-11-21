@@ -8,7 +8,6 @@ import jakarta.ws.rs.ext.Provider;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 
-@ApplicationScoped
 @Provider
 public class HibernateConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
 

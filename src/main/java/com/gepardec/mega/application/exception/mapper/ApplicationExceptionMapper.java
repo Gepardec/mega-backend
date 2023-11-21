@@ -1,5 +1,6 @@
 package com.gepardec.mega.application.exception.mapper;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
