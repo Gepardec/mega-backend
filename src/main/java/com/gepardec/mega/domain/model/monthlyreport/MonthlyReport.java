@@ -36,8 +36,6 @@ public class MonthlyReport {
 
     private EmployeeState internalCheckState;
 
-    private boolean isAssigned;
-
     private List<PmProgressDto> employeeProgresses;
 
     private boolean otherChecksDone;

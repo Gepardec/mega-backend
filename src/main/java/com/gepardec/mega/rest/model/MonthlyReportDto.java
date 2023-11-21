@@ -50,9 +50,6 @@ public class MonthlyReportDto {
     private EmployeeState internalCheckState;
 
     @JsonProperty
-    private boolean isAssigned;
-
-    @JsonProperty
     private List<PmProgressDto> employeeProgresses;
 
     @JsonProperty
