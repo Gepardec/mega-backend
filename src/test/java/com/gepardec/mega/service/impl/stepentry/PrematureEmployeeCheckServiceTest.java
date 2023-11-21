@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +39,7 @@ public class PrematureEmployeeCheckServiceTest {
 
 
     @Test
-    public void addPrematureEmployeeCheck_RETURN_TRUE(){
+    public void addPrematureEmployeeCheck_RETURN_TRUE() {
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .user(createUserForRole(Role.EMPLOYEE))
                 .forMonth(LocalDate.of(2023, 10, 1))
@@ -53,7 +52,7 @@ public class PrematureEmployeeCheckServiceTest {
     }
 
     @Test
-    public void addPrematureEmployeeCheck_RETURN_FALSE(){
+    public void addPrematureEmployeeCheck_RETURN_FALSE() {
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .user(createUserForRole(Role.EMPLOYEE))
                 .forMonth(LocalDate.of(2023, 10, 1))
@@ -66,7 +65,7 @@ public class PrematureEmployeeCheckServiceTest {
     }
 
     @Test
-    public void getPrematureEmployeeCheckForEmail_RETURN_VALID(){
+    public void getPrematureEmployeeCheckForEmail_RETURN_VALID() {
         when(prematureEmployeeCheckRepository.getFromEmail(any())).thenReturn(List.of(createDBPrematureEmployeeCheck(1L)));
         when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of(createPrematureEmployeeCheck()));
 
@@ -76,7 +75,7 @@ public class PrematureEmployeeCheckServiceTest {
     }
 
     @Test
-    public void getPrematureEmployeeCheckForEmail_RETURN_EMPTY(){
+    public void getPrematureEmployeeCheckForEmail_RETURN_EMPTY() {
         when(prematureEmployeeCheckRepository.getFromEmail(any())).thenReturn(List.of());
         when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of());
 
@@ -86,7 +85,7 @@ public class PrematureEmployeeCheckServiceTest {
     }
 
     @Test
-    public void hasUerPrematureEmployeeCheck_RETURN_TRUE(){
+    public void hasUerPrematureEmployeeCheck_RETURN_TRUE() {
         when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of(createPrematureEmployeeCheck()));
 
         boolean b = prematureEmployeeCheckService.hasUserPrematureEmployeeCheck("max@mustermann.com");
@@ -94,13 +93,12 @@ public class PrematureEmployeeCheckServiceTest {
     }
 
     @Test
-    public void hasUerPrematureEmployeeCheck_RETURN_FALSE(){
+    public void hasUerPrematureEmployeeCheck_RETURN_FALSE() {
         when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of());
 
         boolean b = prematureEmployeeCheckService.hasUserPrematureEmployeeCheck("max@mustermann.com");
         assertThat(b).isFalse();
     }
-
 
 
     private User createUserForRole(final Role role) {
@@ -123,7 +121,7 @@ public class PrematureEmployeeCheckServiceTest {
         return user;
     }
 
-    private com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck createDBPrematureEmployeeCheck(Long id){
+    private com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck createDBPrematureEmployeeCheck(Long id) {
         com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck prematureEmployeeCheck = new com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck();
         prematureEmployeeCheck.setId(id);
         prematureEmployeeCheck.setUser(createDBUserForRole(Role.EMPLOYEE));
@@ -131,12 +129,12 @@ public class PrematureEmployeeCheckServiceTest {
         return prematureEmployeeCheck;
     }
 
-    private PrematureEmployeeCheck createPrematureEmployeeCheck(){
+    private PrematureEmployeeCheck createPrematureEmployeeCheck() {
         return PrematureEmployeeCheck.builder()
                 .id(1)
                 .creationDate(LocalDateTime.now())
                 .user(createUserForRole(Role.EMPLOYEE))
-                .forMonth(LocalDate.of(2023,10,1))
+                .forMonth(LocalDate.of(2023, 10, 1))
                 .build();
     }
 }

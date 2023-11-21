@@ -22,18 +22,18 @@ public class PrematureEmployeeCheckMapperTest {
 
 
     @Test
-    public void mapToDomain(){
+    public void mapToDomain() {
         PrematureEmployeeCheck prematureEmployeeCheck = prematureEmployeeCheckMapper.mapToDomain(createDBPrematureEmployeeCheck(1L));
 
         assertAll(
                 () -> assertThat(prematureEmployeeCheck.getId()).isEqualTo(1L),
-                () -> assertThat(prematureEmployeeCheck.getForMonth()).isEqualTo(LocalDate.of(2023,10,1)),
+                () -> assertThat(prematureEmployeeCheck.getForMonth()).isEqualTo(LocalDate.of(2023, 10, 1)),
                 () -> assertThat(prematureEmployeeCheck.getUser().getClass()).isEqualTo(User.class)
         );
     }
 
     @Test
-    public void mapListToDomain(){
+    public void mapListToDomain() {
         List<com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck> dbPrematureEmployeeCheck = List.of(createDBPrematureEmployeeCheck(1L), createDBPrematureEmployeeCheck(1L));
         List<PrematureEmployeeCheck> prematureEmployeeChecks = prematureEmployeeCheckMapper.mapListToDomain(dbPrematureEmployeeCheck);
 
@@ -49,7 +49,7 @@ public class PrematureEmployeeCheckMapperTest {
         return user;
     }
 
-    private com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck createDBPrematureEmployeeCheck(Long id){
+    private com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck createDBPrematureEmployeeCheck(Long id) {
         com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck prematureEmployeeCheck = new com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck();
         prematureEmployeeCheck.setId(id);
         prematureEmployeeCheck.setUser(createDBUserForRole(Role.EMPLOYEE));

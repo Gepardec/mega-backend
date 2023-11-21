@@ -1,8 +1,6 @@
 package com.gepardec.mega.db.repository;
 
-import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.User;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -32,25 +30,25 @@ public class PrematureEmployeeCheckRepositoryTest {
     private com.gepardec.mega.db.entity.employee.User user;
 
     @BeforeEach
-    public void initDependentEntities(){
+    public void initDependentEntities() {
         user = initializeUserObject();
     }
 
     @Test
-    public void addPrematureEmployeeCheck_RETURN_DB_ID(){
+    public void addPrematureEmployeeCheck_RETURN_DB_ID() {
         persistUser();
         com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck saved = prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
         assertThat(saved.getId()).isNotZero();
     }
 
     @Test
-    public void addSecondPrematureEmployeeCheck_RETURN_VIOLATIONEXCEPTION(){
+    public void addSecondPrematureEmployeeCheck_RETURN_VIOLATIONEXCEPTION() {
         persistUser();
         com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck saved = prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
         try {
             com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck saved2 = prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
             prematureEmployeeCheckRepository.flush();
-        }catch (ConstraintViolationException e){
+        } catch (ConstraintViolationException e) {
             System.out.println(e.getConstraintName());
             assertThat(e).isNotNull();
         }
@@ -58,12 +56,13 @@ public class PrematureEmployeeCheckRepositoryTest {
     }
 
     @Test
-    public void getFromEmail_RETURN_EMPTY(){
+    public void getFromEmail_RETURN_EMPTY() {
         List<com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck> fromEmail = prematureEmployeeCheckRepository.getFromEmail(EMAIL);
         assertThat(fromEmail.size()).isZero();
     }
+
     @Test
-    public void getFromEmail_RETURN_CONTENT(){
+    public void getFromEmail_RETURN_CONTENT() {
         persistUser();
         persistPrematureEmployeeCheck();
 
@@ -72,15 +71,16 @@ public class PrematureEmployeeCheckRepositoryTest {
     }
 
 
-    private void persistUser(){
+    private void persistUser() {
         userRepository.persistOrUpdate(user);
     }
-    private void persistPrematureEmployeeCheck(){
+
+    private void persistPrematureEmployeeCheck() {
         prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
     }
 
 
-    private com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck createDBPrematureEmployeeCheck(Long id){
+    private com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck createDBPrematureEmployeeCheck(Long id) {
         com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck prematureEmployeeCheck = new com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck();
         prematureEmployeeCheck.setId(id);
         prematureEmployeeCheck.setUser(this.user);

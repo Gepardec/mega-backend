@@ -1,4 +1,3 @@
-
 package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck;
@@ -8,7 +7,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -23,7 +21,7 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
     Logger logger;
 
     @Transactional
-    public PrematureEmployeeCheck save(final PrematureEmployeeCheck prematureEmployeeCheck){
+    public PrematureEmployeeCheck save(final PrematureEmployeeCheck prematureEmployeeCheck) {
         this.persist(prematureEmployeeCheck);
         // Flushing to trigger the ConstraintViolationException to be able to catch it
         this.flush();
