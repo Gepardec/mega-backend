@@ -11,6 +11,19 @@ import java.util.function.Predicate;
 @ApplicationScoped
 public class TimeWarningPredicates {
 
+    private final Map<MappedTimeWarningTypes, Predicate<TimeWarning>> predicateMap = Map.ofEntries(
+            Map.entry(MappedTimeWarningTypes.MISSINGREST, missingRestPredicate),
+            Map.entry(MappedTimeWarningTypes.MISSINGBREAK, missingBreakPredicate),
+            Map.entry(MappedTimeWarningTypes.EXCESSWORK, excessWorkPredicate),
+            Map.entry(MappedTimeWarningTypes.DOCTOR, wrongDoctorAppointmentPredicate),
+            Map.entry(MappedTimeWarningTypes.NO_TIME_ENTRY, noTimeEntryPredicate),
+            Map.entry(MappedTimeWarningTypes.TIME_OVERLAP, timeOverlapPredicate),
+            Map.entry(MappedTimeWarningTypes.OUTSIDE_CORE_WORKING_TIME, outsideCorePredicate),
+            Map.entry(MappedTimeWarningTypes.EMPTY_ENTRY_LIST, emptyEntryListPredicate),
+            Map.entry(MappedTimeWarningTypes.HOLIDAY, holidayPredicate),
+            Map.entry(MappedTimeWarningTypes.WEEKEND, weekendPredicate)
+    );
+
     private static final Predicate<TimeWarning> missingRestPredicate = w -> {
         if (w.getMissingRestTime() != null) {
             return w.getMissingRestTime().compareTo(0.0) > 0;
@@ -71,18 +84,6 @@ public class TimeWarningPredicates {
         }
         return false;
     };
-    private final Map<MappedTimeWarningTypes, Predicate<TimeWarning>> predicateMap = Map.ofEntries(
-            Map.entry(MappedTimeWarningTypes.MISSINGREST, missingRestPredicate),
-            Map.entry(MappedTimeWarningTypes.MISSINGBREAK, missingBreakPredicate),
-            Map.entry(MappedTimeWarningTypes.EXCESSWORK, excessWorkPredicate),
-            Map.entry(MappedTimeWarningTypes.DOCTOR, wrongDoctorAppointmentPredicate),
-            Map.entry(MappedTimeWarningTypes.NO_TIME_ENTRY, noTimeEntryPredicate),
-            Map.entry(MappedTimeWarningTypes.TIME_OVERLAP, timeOverlapPredicate),
-            Map.entry(MappedTimeWarningTypes.OUTSIDE_CORE_WORKING_TIME, outsideCorePredicate),
-            Map.entry(MappedTimeWarningTypes.EMPTY_ENTRY_LIST, emptyEntryListPredicate),
-            Map.entry(MappedTimeWarningTypes.HOLIDAY, holidayPredicate),
-            Map.entry(MappedTimeWarningTypes.WEEKEND, weekendPredicate)
-    );
 
     public Map<MappedTimeWarningTypes, Predicate<TimeWarning>> getPredicateMap() {
         return predicateMap;

@@ -56,7 +56,8 @@ class EmployeeMapperTest {
     @Test
     void map_whenEmployeeWasEmployedInThePastOnce_thenEmployeeIsInactive() {
         final MitarbeiterType employee = new MitarbeiterType();
-        final BeschaeftigungszeitType closedEmployment = createBeschaeftigungszeitType(LocalDate.now().minusDays(2), LocalDate.now().minusDays(1));
+        final BeschaeftigungszeitType closedEmployment = createBeschaeftigungszeitType(LocalDate.now()
+                .minusDays(2), LocalDate.now().minusDays(1));
         final BeschaeftigungszeitListeType employments = createBeschaeftigungszeitListeType(List.of(closedEmployment));
         employee.setBeschaeftigungszeitListe(employments);
 
@@ -67,9 +68,11 @@ class EmployeeMapperTest {
     @Test
     void map_whenEmployeeWasEmployedInThePastMultipleTimes_thenEmployeeIsInactive() {
         final MitarbeiterType employee = new MitarbeiterType();
-        final BeschaeftigungszeitType closedEmploymentOne = createBeschaeftigungszeitType(LocalDate.now().minusDays(10), LocalDate.now()
+        final BeschaeftigungszeitType closedEmploymentOne = createBeschaeftigungszeitType(LocalDate.now()
+                .minusDays(10), LocalDate.now()
                 .minusDays(8));
-        final BeschaeftigungszeitType closedEmploymentTwo = createBeschaeftigungszeitType(LocalDate.now().minusDays(7), LocalDate.now().minusDays(4));
+        final BeschaeftigungszeitType closedEmploymentTwo = createBeschaeftigungszeitType(LocalDate.now()
+                .minusDays(7), LocalDate.now().minusDays(4));
         final BeschaeftigungszeitListeType employments = createBeschaeftigungszeitListeType(List.of(closedEmploymentOne, closedEmploymentTwo));
         employee.setBeschaeftigungszeitListe(employments);
 
@@ -80,7 +83,8 @@ class EmployeeMapperTest {
     @Test
     void map_whenEmployeeWillBeEmployedInTheFutureWithOpenEnd_thenEmployeeIsInactive() {
         final MitarbeiterType employee = new MitarbeiterType();
-        final BeschaeftigungszeitType futureActiveEmployment = createBeschaeftigungszeitType(LocalDate.now().plusDays(1), null);
+        final BeschaeftigungszeitType futureActiveEmployment = createBeschaeftigungszeitType(LocalDate.now()
+                .plusDays(1), null);
         final BeschaeftigungszeitListeType employments = createBeschaeftigungszeitListeType(List.of(futureActiveEmployment));
         employee.setBeschaeftigungszeitListe(employments);
 
@@ -91,7 +95,8 @@ class EmployeeMapperTest {
     @Test
     void map_whenEmployeeWillBeEmployedInTheFutureWithFixedEnd_thenEmployeeIsInactive() {
         final MitarbeiterType employee = new MitarbeiterType();
-        final BeschaeftigungszeitType futureActiveEmployment = createBeschaeftigungszeitType(LocalDate.now().plusDays(1), LocalDate.now()
+        final BeschaeftigungszeitType futureActiveEmployment = createBeschaeftigungszeitType(LocalDate.now()
+                .plusDays(1), LocalDate.now()
                 .plusDays(2));
         final BeschaeftigungszeitListeType employments = createBeschaeftigungszeitListeType(List.of(futureActiveEmployment));
         employee.setBeschaeftigungszeitListe(employments);
@@ -115,7 +120,8 @@ class EmployeeMapperTest {
     @Test
     void map_whenEmployeeIsCurrentlyEmployedWithOpenEnd_thenEmployeeIsActive() {
         final MitarbeiterType employee = new MitarbeiterType();
-        final BeschaeftigungszeitType activeEmployment = createBeschaeftigungszeitType(LocalDate.now().minusDays(10), null);
+        final BeschaeftigungszeitType activeEmployment = createBeschaeftigungszeitType(LocalDate.now()
+                .minusDays(10), null);
         final BeschaeftigungszeitListeType employments = createBeschaeftigungszeitListeType(List.of(activeEmployment));
         employee.setBeschaeftigungszeitListe(employments);
 
@@ -126,7 +132,8 @@ class EmployeeMapperTest {
     @Test
     void map_whenEmployeeIsCurrentlyEmployedWithFixedEndDate_thenEmployeeIsActive() {
         final MitarbeiterType employee = new MitarbeiterType();
-        final BeschaeftigungszeitType activeEmployment = createBeschaeftigungszeitType(LocalDate.now().minusDays(10), LocalDate.now().plusDays(1));
+        final BeschaeftigungszeitType activeEmployment = createBeschaeftigungszeitType(LocalDate.now()
+                .minusDays(10), LocalDate.now().plusDays(1));
         final BeschaeftigungszeitListeType employments = createBeschaeftigungszeitListeType(List.of(activeEmployment));
         employee.setBeschaeftigungszeitListe(employments);
 
@@ -137,8 +144,10 @@ class EmployeeMapperTest {
     @Test
     void map_whenEmployeeWasEmployedInThePastAndIsCurrentlyEmployed_thenEmployeeIsActive() {
         final MitarbeiterType employee = new MitarbeiterType();
-        final BeschaeftigungszeitType closedEmployment = createBeschaeftigungszeitType(LocalDate.now().minusDays(10), LocalDate.now().minusDays(8));
-        final BeschaeftigungszeitType activeEmployment = createBeschaeftigungszeitType(LocalDate.now().minusDays(7), LocalDate.now().plusDays(1));
+        final BeschaeftigungszeitType closedEmployment = createBeschaeftigungszeitType(LocalDate.now()
+                .minusDays(10), LocalDate.now().minusDays(8));
+        final BeschaeftigungszeitType activeEmployment = createBeschaeftigungszeitType(LocalDate.now()
+                .minusDays(7), LocalDate.now().plusDays(1));
         final BeschaeftigungszeitListeType employments = createBeschaeftigungszeitListeType(List.of(closedEmployment, activeEmployment));
         employee.setBeschaeftigungszeitListe(employments);
 
@@ -148,7 +157,8 @@ class EmployeeMapperTest {
 
     @Test
     void map_whenEmployee_thenMappedProperly() {
-        final BeschaeftigungszeitType activeEmployment = createBeschaeftigungszeitType(LocalDate.now().minusDays(7), LocalDate.now().plusDays(1));
+        final BeschaeftigungszeitType activeEmployment = createBeschaeftigungszeitType(LocalDate.now()
+                .minusDays(7), LocalDate.now().plusDays(1));
         final BeschaeftigungszeitListeType employments = createBeschaeftigungszeitListeType(List.of(activeEmployment));
         final MitarbeiterType employee = new MitarbeiterType();
         employee.setEmail("no-reply@gepardec.com");
@@ -172,23 +182,6 @@ class EmployeeMapperTest {
         assertThat(actual.getWorkDescription()).isEqualTo(employee.getPreisgruppe());
         assertThat(actual.getReleaseDate()).isEqualTo(employee.getFreigabedatum());
         assertThat(actual.isActive()).isTrue();
-    }
-
-    private BeschaeftigungszeitType createBeschaeftigungszeitType(final LocalDate start, final LocalDate end) {
-        final BeschaeftigungszeitType beschaeftigung = new BeschaeftigungszeitType();
-        beschaeftigung.setStartdatum((start != null) ? DateUtils.formatDate(start) : null);
-        beschaeftigung.setEnddatum((end != null) ? DateUtils.formatDate(end) : null);
-        return beschaeftigung;
-    }
-
-    private BeschaeftigungszeitListeType createBeschaeftigungszeitListeType(List<BeschaeftigungszeitType> employments) {
-        final BeschaeftigungszeitListeType beschaeftigungszeitListeType = new BeschaeftigungszeitListeType();
-        beschaeftigungszeitListeType.getBeschaeftigungszeit().addAll(employments);
-        return beschaeftigungszeitListeType;
-    }
-
-    private Range<LocalDate> createRange(LocalDate from, LocalDate to) {
-        return Range.between(from, to, LocalDate::compareTo);
     }
 
     @Nested
@@ -413,5 +406,22 @@ class EmployeeMapperTest {
             // Then
             assertThat(mapped.getExitDate()).isEqualTo(yesterday);
         }
+    }
+
+    private BeschaeftigungszeitType createBeschaeftigungszeitType(final LocalDate start, final LocalDate end) {
+        final BeschaeftigungszeitType beschaeftigung = new BeschaeftigungszeitType();
+        beschaeftigung.setStartdatum((start != null) ? DateUtils.formatDate(start) : null);
+        beschaeftigung.setEnddatum((end != null) ? DateUtils.formatDate(end) : null);
+        return beschaeftigung;
+    }
+
+    private BeschaeftigungszeitListeType createBeschaeftigungszeitListeType(List<BeschaeftigungszeitType> employments) {
+        final BeschaeftigungszeitListeType beschaeftigungszeitListeType = new BeschaeftigungszeitListeType();
+        beschaeftigungszeitListeType.getBeschaeftigungszeit().addAll(employments);
+        return beschaeftigungszeitListeType;
+    }
+
+    private Range<LocalDate> createRange(LocalDate from, LocalDate to) {
+        return Range.between(from, to, LocalDate::compareTo);
     }
 }
