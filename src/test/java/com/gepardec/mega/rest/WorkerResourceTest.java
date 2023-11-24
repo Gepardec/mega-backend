@@ -18,9 +18,7 @@ import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.Claim;
 import io.quarkus.test.security.jwt.JwtSecurity;
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.parsing.Parser;
 import jakarta.inject.Inject;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -89,6 +87,7 @@ public class WorkerResourceTest {
 
     @Test
     void monthlyReport_whenGET_thenReturnsMonthlyReport() {
+        //GIVEN
         User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
@@ -138,11 +137,12 @@ public class WorkerResourceTest {
 
         when(monthlyReportService.getMonthEndReportForUser()).thenReturn(expected);
 
+        //WHEN
         MonthlyReportDto actual = given().contentType(ContentType.JSON)
                 .get("/worker/monthendreports")
                 .as(MonthlyReportDto.class);
 
-
+        //THEN
         assertThat(actual.getEmployee()).isEqualTo(mapper.mapToDto(employee));
         assertThat(timeWarnings).isEqualTo(actual.getTimeWarnings());
         assertThat(journeyWarnings).isEqualTo(actual.getJourneyWarnings());

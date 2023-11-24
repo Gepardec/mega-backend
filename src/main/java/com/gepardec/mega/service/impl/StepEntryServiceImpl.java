@@ -169,8 +169,12 @@ public class StepEntryServiceImpl implements StepEntryService {
     public List<ProjectEmployees> getProjectEmployeesForPM(final LocalDate from, final LocalDate to, String assigneEmail) {
         return stepEntryRepository.findAllStepEntriesForPMInRange(from, to, assigneEmail)
                 .stream()
-                .collect(Collectors.groupingBy(StepEntry::getProject, Collectors.mapping(s -> s.getOwner()
-                        .getZepId(), Collectors.toList())))
+                .collect(
+                        Collectors.groupingBy(
+                                StepEntry::getProject,
+                                Collectors.mapping(s -> s.getOwner().getZepId(), Collectors.toList())
+                        )
+                )
                 .entrySet()
                 .stream()
                 .map(e -> ProjectEmployees.builder().projectId(e.getKey()).employees(e.getValue()).build())
@@ -181,8 +185,12 @@ public class StepEntryServiceImpl implements StepEntryService {
     public List<ProjectEmployees> getAllProjectEmployeesForPM(LocalDate from, LocalDate to) {
         return stepEntryRepository.findAllStepEntriesForAllPMInRange(from, to)
                 .stream()
-                .collect(Collectors.groupingBy(StepEntry::getProject, Collectors.mapping(s -> s.getOwner()
-                        .getZepId(), Collectors.toList())))
+                .collect(
+                        Collectors.groupingBy(
+                                StepEntry::getProject,
+                                Collectors.mapping(s -> s.getOwner().getZepId(), Collectors.toList())
+                        )
+                )
                 .entrySet()
                 .stream()
                 .map(e -> ProjectEmployees.builder().projectId(e.getKey()).employees(e.getValue()).build())

@@ -20,8 +20,6 @@ public class RegularWorkingHoursDeserializer extends JsonDeserializer<Map<DayOfW
 
     @Override
     public Map<DayOfWeek, Duration> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
-
-
         Map<DayOfWeek, Duration> regularWorkingHours = new HashMap<DayOfWeek, Duration>();
 
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
@@ -44,7 +42,6 @@ public class RegularWorkingHoursDeserializer extends JsonDeserializer<Map<DayOfW
 
         return regularWorkingHours;
     }
-
 
     private Duration parsedStringToDuration(String billableTimeFormat) {
         LocalTime parsed = LocalTime.parse(billableTimeFormat, billableTimeFormatter);

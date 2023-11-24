@@ -77,5 +77,4 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .overtime(object.getOvertime())
                 .build();
     }
-
 }

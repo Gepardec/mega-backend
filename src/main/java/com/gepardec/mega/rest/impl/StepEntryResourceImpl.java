@@ -1,6 +1,5 @@
 package com.gepardec.mega.rest.impl;
 
-import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.StepEntryResource;
 import com.gepardec.mega.rest.model.EmployeeStepDto;
@@ -21,15 +20,19 @@ public class StepEntryResourceImpl implements StepEntryResource {
     @Inject
     StepEntryService stepEntryService;
 
-    @Inject
-    UserContext userContext;
-
     @Override
     public Response close(final EmployeeStepDto employeeStepDto) {
         LocalDate from = DateUtils.getFirstDayOfCurrentMonth(employeeStepDto.currentMonthYear());
         LocalDate to = DateUtils.getLastDayOfCurrentMonth(employeeStepDto.currentMonthYear());
 
-        return Response.ok(stepEntryService.setOpenAndAssignedStepEntriesDone(employeeStepDto.employee(), employeeStepDto.stepId(), from, to))
+        return Response.ok(
+                        stepEntryService.setOpenAndAssignedStepEntriesDone(
+                                employeeStepDto.employee(),
+                                employeeStepDto.stepId(),
+                                from,
+                                to
+                        )
+                )
                 .build();
     }
 
@@ -38,19 +41,29 @@ public class StepEntryResourceImpl implements StepEntryResource {
         LocalDate from = DateUtils.getFirstDayOfCurrentMonth(updateEmployeeStepDto.currentMonthYear());
         LocalDate to = DateUtils.getLastDayOfCurrentMonth(updateEmployeeStepDto.currentMonthYear());
 
-        return Response.ok(stepEntryService.updateStepEntryStateForEmployee(updateEmployeeStepDto.employee(),
-                        updateEmployeeStepDto.stepId(), from, to, updateEmployeeStepDto.newState(), updateEmployeeStepDto.newStateReason()))
+        return Response.ok(
+                        stepEntryService.updateStepEntryStateForEmployee(
+                                updateEmployeeStepDto.employee(),
+                                updateEmployeeStepDto.stepId(),
+                                from,
+                                to,
+                                updateEmployeeStepDto.newState(),
+                                updateEmployeeStepDto.newStateReason()
+                        )
+                )
                 .build();
     }
 
     @Override
     public Response updateEmployeeStateForProject(final ProjectStepDto projectStepDto) {
-        return Response.ok(stepEntryService.updateStepEntryStateForEmployeeInProject(
-                projectStepDto.employee(),
-                projectStepDto.stepId(),
-                projectStepDto.projectName(),
-                projectStepDto.currentMonthYear(),
-                projectStepDto.newState()
-        )).build();
+        return Response.ok(
+                stepEntryService.updateStepEntryStateForEmployeeInProject(
+                        projectStepDto.employee(),
+                        projectStepDto.stepId(),
+                        projectStepDto.projectName(),
+                        projectStepDto.currentMonthYear(),
+                        projectStepDto.newState()
+                )
+        ).build();
     }
 }

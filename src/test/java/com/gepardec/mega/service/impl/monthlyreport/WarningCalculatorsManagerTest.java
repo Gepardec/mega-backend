@@ -34,10 +34,8 @@ import static org.mockito.Mockito.when;
 class WarningCalculatorsManagerTest {
 
     private static final Integer[] HOLIDAYS = {8, 25, 26};
-
     private static final Integer[] WEEKEND_DAYS = {5, 6, 12, 13, 19, 20, 26, 27};
-
-    private static String DOCTOR_APPOINTMENT = "Arztbesuch";
+    private static final String DOCTOR_APPOINTMENT = "Arztbesuch";
 
     @Mock
     ResourceBundle messages;
@@ -249,7 +247,6 @@ class WarningCalculatorsManagerTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
     }
-
 
     @Test
     void whenTwoProjectTimeEntryWithinTwoJourneys_thenNoWarning() {

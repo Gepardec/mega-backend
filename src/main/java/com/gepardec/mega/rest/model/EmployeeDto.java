@@ -66,4 +66,3 @@ public class EmployeeDto {
     @JsonProperty
     private LocalDate exitDate;
 }
-

@@ -85,14 +85,17 @@ public class EmployeeMapper {
     }
 
     private String getCorrectReleaseDate(MitarbeiterType mitarbeiterType) {
-        boolean isReleaseDateNull = mitarbeiterType.getFreigabedatum() == null || mitarbeiterType.getFreigabedatum()
-                .equalsIgnoreCase("null");
+        boolean isReleaseDateNull = mitarbeiterType.getFreigabedatum() == null
+                || mitarbeiterType.getFreigabedatum().equalsIgnoreCase("null");
         boolean isCreatedDateNull = mitarbeiterType.getCreated() == null;
         if (isReleaseDateNull) {
             if (isCreatedDateNull) {
                 return null;
             }
-            return LocalDateTime.parse(mitarbeiterType.getCreated(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+            return LocalDateTime.parse(
+                            mitarbeiterType.getCreated(),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                    )
                     .format(DateTimeFormatter.ISO_LOCAL_DATE);
         }
 
@@ -107,6 +110,7 @@ public class EmployeeMapper {
         List<RegelarbeitszeitType> regelarbeitszeitList = regelarbeitszeitListeTypeTs.getRegelarbeitszeit();
         RegelarbeitszeitType regelarbeitszeitType = regelarbeitszeitList.get(regelarbeitszeitList.size() - 1);
 
+        //FIXME
         return new HashMap<>(Map.ofEntries(
                 Map.entry(DayOfWeek.MONDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getMontag() * 60))),
                 Map.entry(DayOfWeek.TUESDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getDienstag() * 60))),

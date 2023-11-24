@@ -135,8 +135,11 @@ public class ManagementResourceImpl implements ManagementResource {
         if (allProjects) {
             projectEmployees = stepEntryService.getAllProjectEmployeesForPM(from, to);
         } else {
-            projectEmployees = stepEntryService.getProjectEmployeesForPM(from, to, Objects.requireNonNull(userContext.getUser())
-                    .getEmail());
+            projectEmployees = stepEntryService.getProjectEmployeesForPM(
+                    from,
+                    to,
+                    Objects.requireNonNull(userContext.getUser()).getEmail()
+            );
         }
 
         List<ProjectManagementEntryDto> projectManagementEntries = new ArrayList<>();
@@ -180,12 +183,26 @@ public class ManagementResourceImpl implements ManagementResource {
             return ProjectManagementEntryDto.builder()
                     .zepId(zepId)
                     .projectName(currentProject.getProjectId())
-                    .controlProjectState(ProjectState.byName(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_PROJECT).getState()
-                            .name()))
-                    .controlBillingState(ProjectState.byName((getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_BILLING).getState()
-                            .name())))
-                    .presetControlProjectState(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_PROJECT).isPreset())
-                    .presetControlBillingState(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_BILLING).isPreset())
+                    .controlProjectState(
+                            ProjectState.byName(
+                                    getProjectEntryForProjectStep(
+                                            projectEntries,
+                                            ProjectStep.CONTROL_PROJECT).getState().name()
+                            )
+                    )
+                    .controlBillingState(
+                            ProjectState.byName(
+                                    getProjectEntryForProjectStep(
+                                            projectEntries,
+                                            ProjectStep.CONTROL_BILLING).getState().name()
+                            )
+                    )
+                    .presetControlProjectState(
+                            getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_PROJECT).isPreset()
+                    )
+                    .presetControlBillingState(
+                            getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_BILLING).isPreset()
+                    )
                     .entries(entries)
                     .aggregatedBillableWorkTimeInSeconds(billable)
                     .aggregatedNonBillableWorkTimeInSeconds(nonBillable)
@@ -257,8 +274,11 @@ public class ManagementResourceImpl implements ManagementResource {
             if (employees.containsKey(userId)) {
                 Employee employee = employees.get(userId);
                 List<StepEntry> stepEntries = stepEntryService.findAllStepEntriesForEmployeeAndProject(
-                        employee, projectEmployees.getProjectId(), Objects.requireNonNull(userContext.getUser())
-                                .getEmail(), from, to
+                        employee,
+                        projectEmployees.getProjectId(),
+                        Objects.requireNonNull(userContext.getUser()).getEmail(),
+                        from,
+                        to
                 );
 
                 ManagementEntryDto entry = createManagementEntryForEmployee(employee, projectEmployees.getProjectId(), stepEntries, from, to, null, projectStateLogicSingle);
@@ -349,8 +369,10 @@ public class ManagementResourceImpl implements ManagementResource {
         boolean internalCheckStateOpen = stepEntries.stream()
                 .filter(stepEntry ->
                         StepName.CONTROL_INTERNAL_TIMES.name().equalsIgnoreCase(stepEntry.getStep().getName())
-                                && StringUtils.equalsIgnoreCase(Objects.requireNonNull(userContext.getUser())
-                                .getEmail(), stepEntry.getAssignee().getEmail())
+                                && StringUtils.equalsIgnoreCase(
+                                Objects.requireNonNull(userContext.getUser()).getEmail(),
+                                stepEntry.getAssignee().getEmail()
+                        )
                 ).anyMatch(stepEntry -> EmployeeState.OPEN.equals(stepEntry.getState()));
 
         return internalCheckStateOpen ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;

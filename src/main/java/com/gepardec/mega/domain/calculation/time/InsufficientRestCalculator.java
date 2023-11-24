@@ -35,8 +35,9 @@ public class InsufficientRestCalculator extends AbstractTimeWarningCalculationSt
             final ProjectEntry currentEntry = filteredProjectTimeEntries.get(i);
             final ProjectEntry nextEntry = getNextEntryOrNull(i, filteredProjectTimeEntries);
             if (isNextProjectTimePresentAndOfNextDay(currentEntry, nextEntry)) {
-                final double restHours = BigDecimal.valueOf(Duration.between(currentEntry.getToTime(), nextEntry.getFromTime())
-                                .toMinutes())
+                final double restHours = BigDecimal.valueOf(
+                                Duration.between(currentEntry.getToTime(), nextEntry.getFromTime()).toMinutes()
+                        )
                         .setScale(2, RoundingMode.HALF_EVEN)
                         .divide(BigDecimal.valueOf(60), RoundingMode.HALF_EVEN)
                         .doubleValue();
@@ -51,8 +52,9 @@ public class InsufficientRestCalculator extends AbstractTimeWarningCalculationSt
 
     private List<ProjectEntry> filterForTaskAndSortByFromDate(final List<ProjectEntry> projectTimeEntries) {
         final Predicate<ProjectEntry> filterTask = entry -> Task.isTask(entry.getTask());
-        final Predicate<ProjectEntry> filterActiveTravelTime = entry -> Task.isJourney(entry.getTask()) && JourneyTimeEntry.class.cast(entry)
-                .getVehicle().activeTraveler;
+        final Predicate<ProjectEntry> filterActiveTravelTime =
+                entry -> Task.isJourney(entry.getTask())
+                        && ((JourneyTimeEntry) entry).getVehicle().activeTraveler;
 
         return projectTimeEntries.stream()
                 .filter(filterTask.or(filterActiveTravelTime))

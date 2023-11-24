@@ -70,7 +70,11 @@ public class ZepServiceImpl implements ZepService {
     private final ProjectEntryMapper projectEntryMapper;
 
     @Inject
-    public ZepServiceImpl(final EmployeeMapper employeeMapper, final Logger logger, final ZepSoapPortType zepSoapPortType, final ZepSoapProvider zepSoapProvider, final ProjectEntryMapper projectEntryMapper) {
+    public ZepServiceImpl(final EmployeeMapper employeeMapper,
+                          final Logger logger,
+                          final ZepSoapPortType zepSoapPortType,
+                          final ZepSoapProvider zepSoapProvider,
+                          final ProjectEntryMapper projectEntryMapper) {
         this.employeeMapper = employeeMapper;
         this.logger = logger;
         this.zepSoapPortType = zepSoapPortType;
@@ -134,8 +138,9 @@ public class ZepServiceImpl implements ZepService {
         fehlzeitenRequest.setReadFehlzeitSearchCriteria(searchCriteria.get());
         ReadFehlzeitResponseType fehlzeitResponseType = zepSoapPortType.readFehlzeit(fehlzeitenRequest);
 
-        if (fehlzeitResponseType != null && fehlzeitResponseType.getFehlzeitListe() != null && fehlzeitResponseType.getFehlzeitListe()
-                .getFehlzeit() != null) {
+        if (fehlzeitResponseType != null
+                && fehlzeitResponseType.getFehlzeitListe() != null
+                && fehlzeitResponseType.getFehlzeitListe().getFehlzeit() != null) {
             return fehlzeitResponseType.getFehlzeitListe().getFehlzeit();
         }
 
@@ -147,8 +152,9 @@ public class ZepServiceImpl implements ZepService {
     public List<ProjektzeitType> getBillableForEmployee(Employee employee, LocalDate date) {
         ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(employee, date, this::createProjectTimeSearchCriteria);
 
-        if (readProjektzeitenResponseType != null && readProjektzeitenResponseType.getProjektzeitListe() != null && readProjektzeitenResponseType.getProjektzeitListe()
-                .getProjektzeiten() != null) {
+        if (readProjektzeitenResponseType != null
+                && readProjektzeitenResponseType.getProjektzeitListe() != null
+                && readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten() != null) {
             return readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten();
         }
 
@@ -173,8 +179,9 @@ public class ZepServiceImpl implements ZepService {
     public List<ProjektzeitType> getProjectTimesForEmployeePerProject(String projectID, LocalDate curDate) {
         ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(projectID, curDate, this::createProjectTimesForEmployeePerProjectSearchCriteria);
 
-        if (readProjektzeitenResponseType != null && readProjektzeitenResponseType.getProjektzeitListe() != null && readProjektzeitenResponseType.getProjektzeitListe()
-                .getProjektzeiten() != null) {
+        if (readProjektzeitenResponseType != null
+                && readProjektzeitenResponseType.getProjektzeitListe() != null
+                && readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten() != null) {
             return readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten();
         }
 
@@ -187,7 +194,9 @@ public class ZepServiceImpl implements ZepService {
         final ReadProjekteResponseType readProjekteResponseType = getProjectsInternal(monthYear);
 
         ProjektListeType projektListe = readProjekteResponseType.getProjektListe();
-        return projektListe.getProjekt().stream().map(pt -> createProject(pt, monthYear)).collect(Collectors.toList());
+        return projektListe.getProjekt().stream()
+                .map(pt -> createProject(pt, monthYear))
+                .collect(Collectors.toList());
     }
 
     private <T, U, R> Optional<R> getSearchCriteria(final T par1, final U par2, final BiFunction<T, U, R> searchCriteriaFunction) {
@@ -262,9 +271,8 @@ public class ZepServiceImpl implements ZepService {
 
     private Project createProject(final ProjektType projektType, final LocalDate monthYear) {
         Optional<String> endDateString = Optional.ofNullable(projektType.getEndeDatum());
-        LocalDate endDate = endDateString.isPresent() ? LocalDate.parse(endDateString.get()) : LocalDate.now()
-                .plusYears(5)
-                .with(TemporalAdjusters.lastDayOfYear());
+        LocalDate endDate = endDateString.map(LocalDate::parse)
+                .orElseGet(() -> LocalDate.now().plusYears(5).with(TemporalAdjusters.lastDayOfYear()));
 
         return Project.builder()
                 .zepId(projektType.getProjektId())

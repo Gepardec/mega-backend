@@ -19,12 +19,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ProjectCommentRepositoryTest {
 
     private static final String COMMENT = "comment";
-
     private static final String NEW_COMMENT = "new comment";
+
     @Inject
     ProjectCommentRepository projectCommentRepository;
+
     @Inject
     ProjectRepository projectRepository;
+
     private ProjectComment projectComment;
 
     private ProjectComment projectComment;

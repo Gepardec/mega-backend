@@ -28,7 +28,6 @@ public class WorkingTimeUtilTest {
     @Inject
     WorkingTimeUtil workingTimeUtil;
 
-
     @Test
     void getInternalTimesForEmployeeTest() {
         Employee employee = createEmployee();
@@ -56,7 +55,6 @@ public class WorkingTimeUtilTest {
         assertThat(internalTimesForEmployee).isEqualTo("40:00");
     }
 
-
     @Test
     void getOvertimeForEmployee_RETURN_POSITIVE_OVERTIME() {
         Employee employee = createEmployee();
@@ -79,9 +77,8 @@ public class WorkingTimeUtilTest {
         assertThat(overtimeforEmployee).isEqualTo(-8.);
     }
 
-
     @Test
-    void getOvertimeForEmployee_WITH_ABENCE() {
+    void getOvertimeForEmployee_WITH_ABSENCE() {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(3);
@@ -125,7 +122,6 @@ public class WorkingTimeUtilTest {
 
         return List.of(fehlzeitType);
     }
-
 
     private List<ProjektzeitType> returnNormalDayProjektzeitTypes(int times) {
         ProjektzeitType projektzeitType = new ProjektzeitType();

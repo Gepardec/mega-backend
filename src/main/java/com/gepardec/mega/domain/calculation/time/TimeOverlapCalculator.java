@@ -33,12 +33,12 @@ public class TimeOverlapCalculator extends AbstractTimeWarningCalculationStrateg
     }
 
     private boolean isOverlapping(@NotNull ProjectEntry entryOne, @NotNull ProjectEntry entryTwo) {
-        if (entryOne.getToTime().equals(entryTwo.getFromTime()) || entryOne.getFromTime()
-                .equals(entryTwo.getToTime())) {
+        if (entryOne.getToTime().equals(entryTwo.getFromTime())
+                || entryOne.getFromTime().equals(entryTwo.getToTime())) {
             return false;
         } else {
-            return !(entryOne.getToTime().isBefore(entryTwo.getFromTime()) || entryOne.getFromTime()
-                    .isAfter(entryTwo.getToTime()));
+            return !(entryOne.getToTime().isBefore(entryTwo.getFromTime())
+                    || entryOne.getFromTime().isAfter(entryTwo.getToTime()));
         }
     }
 }

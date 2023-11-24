@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -61,7 +62,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public List<Employee> getAllEmployeesConsideringExitDate(YearMonth selectedYearMonth) {
-
         return zepService.getEmployees().stream()
                 .filter(checkEmployeeExitDate(selectedYearMonth))
                 .filter(employee -> Objects.nonNull(employee.getEmail()))
@@ -77,20 +77,19 @@ public class EmployeeServiceImpl implements EmployeeService {
     public List<String> updateEmployeesReleaseDate(List<Employee> employees) {
         final List<String> failedUserIds = new LinkedList<>();
 
-        Iterables.partition(Optional.ofNullable(employees)
-                        .orElseThrow(() -> new ZepServiceException("no employees to update")), employeeUpdateParallelExecutions)
-                .forEach((partition) -> {
+        Iterables.partition(
+                        Optional.ofNullable(employees)
+                                .orElseThrow(() -> new ZepServiceException("no employees to update")),
+                        employeeUpdateParallelExecutions
+                )
+                .forEach(partition -> {
                     try {
-                        CompletableFuture.allOf(partition.stream()
-                                .map((employee) -> CompletableFuture.runAsync(() -> updateEmployeeReleaseDate(employee.getUserId(), employee.getReleaseDate()), managedExecutor)
-                                        .handle((aVoid, throwable) -> {
-                                            Optional.ofNullable(throwable).ifPresent((t) -> {
-                                                logger.error(String.format("error updating %s", employee.getUserId()), t);
-                                                failedUserIds.add(employee.getUserId());
-                                            });
-                                            return null;
-                                        }))
-                                .toArray(CompletableFuture[]::new)).get();
+                        CompletableFuture.allOf(
+                                        partition.stream()
+                                                .map(asyncUpdateEmployeeReleaseDate(failedUserIds))
+                                                .toArray(CompletableFuture[]::new)
+                                )
+                                .get();
                     } catch (ExecutionException e) {
                         logger.error("error updating employees", e);
                         failedUserIds.addAll(getUserIds(partition));
@@ -102,6 +101,25 @@ public class EmployeeServiceImpl implements EmployeeService {
                 });
 
         return failedUserIds;
+    }
+
+    private Function<Employee, CompletableFuture<Object>> asyncUpdateEmployeeReleaseDate(final List<String> failedUserIds) {
+        return employee ->
+                CompletableFuture.runAsync(
+                                () -> updateEmployeeReleaseDate(
+                                        employee.getUserId(),
+                                        employee.getReleaseDate()
+                                ),
+                                managedExecutor
+                        )
+                        .handle((aVoid, throwable) -> {
+                                    Optional.ofNullable(throwable).ifPresent(t -> {
+                                        logger.error(String.format("error updating %s", employee.getUserId()), t);
+                                        failedUserIds.add(employee.getUserId());
+                                    });
+                                    return null;
+                                }
+                        );
     }
 
     private List<String> getUserIds(final List<Employee> employees) {

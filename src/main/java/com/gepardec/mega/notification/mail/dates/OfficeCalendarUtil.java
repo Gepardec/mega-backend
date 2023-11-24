@@ -42,6 +42,4 @@ public class OfficeCalendarUtil {
         LocalDate endDate = startDate.withDayOfMonth(yearMonth.lengthOfMonth());
         return HOLIDAY_MANAGER.getHolidays(startDate, endDate).stream().map(Holiday::getDate);
     }
-
-
 }

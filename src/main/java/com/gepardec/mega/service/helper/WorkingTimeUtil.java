@@ -53,6 +53,7 @@ public class WorkingTimeUtil {
         int excessDays = lengthOfMonth - (7 * 4);
         LocalDate firstday = yearMonth.atDay(1);
 
+        //FIXME
 //      Calculate regular working hours with hinsight of different month lengths
         Map<DayOfWeek, Duration> regularWorkingHours = employee.getRegularWorkingHours();
         Duration workingHoursInMonth = regularWorkingHours.values()

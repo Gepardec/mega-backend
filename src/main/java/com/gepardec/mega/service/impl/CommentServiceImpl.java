@@ -69,11 +69,11 @@ public class CommentServiceImpl implements CommentService {
                         from, to, employee.getEmail()
                 );
 
-        long finishedCommands = allComments.stream()
+        long finishedComments = allComments.stream()
                 .filter(comment -> EmployeeState.DONE.equals(comment.getState()))
                 .count();
         return FinishedAndTotalComments.builder()
-                .finishedComments(finishedCommands)
+                .finishedComments(finishedComments)
                 .totalComments((long) allComments.size())
                 .build();
     }
@@ -121,10 +121,12 @@ public class CommentServiceImpl implements CommentService {
     private void sendMail(Mail mail, com.gepardec.mega.db.entity.employee.Comment comment) {
         StepEntry stepEntry = comment.getStepEntry();
         String creator = comment.getStepEntry().getAssignee().getFirstname();
-        String recipient = Mail.COMMENT_CLOSED.equals(mail) ? stepEntry.getAssignee()
-                .getFirstname() : stepEntry.getOwner().getFirstname();
-        String recipientEmail = Mail.COMMENT_CLOSED.equals(mail) ? stepEntry.getAssignee()
-                .getEmail() : stepEntry.getOwner().getEmail();
+        String recipient = Mail.COMMENT_CLOSED.equals(mail)
+                ? stepEntry.getAssignee().getFirstname()
+                : stepEntry.getOwner().getFirstname();
+        String recipientEmail = Mail.COMMENT_CLOSED.equals(mail)
+                ? stepEntry.getAssignee().getEmail()
+                : stepEntry.getOwner().getEmail();
         Map<String, String> mailParameter = new HashMap<>() {{
             put(MailParameter.CREATOR, creator);
             put(MailParameter.RECIPIENT, recipient);
@@ -140,5 +142,4 @@ public class CommentServiceImpl implements CommentService {
                 List.of(creator)
         );
     }
-
 }

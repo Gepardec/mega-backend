@@ -64,8 +64,8 @@ public class InvalidWorkingLocationInJourneyCalculator implements WarningCalcula
     }
 
     private boolean isProjectEntryValidAfterJourneyToOrFurther(final ProjectEntry projectEntry, final WorkingLocation journeyBackWorkingLocation) {
-        return journeyBackWorkingLocation == null || projectEntry.getWorkingLocation()
-                .equals(journeyBackWorkingLocation);
+        return journeyBackWorkingLocation == null
+                || projectEntry.getWorkingLocation().equals(journeyBackWorkingLocation);
     }
 
     private boolean isProjectEntryValidAfterJourneyBack(final ProjectEntry projectEntry, final WorkingLocation journeyBackWorkingLocation) {
