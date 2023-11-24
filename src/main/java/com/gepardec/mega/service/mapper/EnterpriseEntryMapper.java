@@ -17,7 +17,13 @@ public class EnterpriseEntryMapper {
         return EnterpriseEntryDto.builder()
                 .creationDate(enterpriseEntry.get().getCreationDate())
                 .date(enterpriseEntry.get().getDate())
-                .chargeabilityExternalEmployeesRecorded(ProjectState.byName(enterpriseEntry.get().getChargeabilityExternalEmployeesRecorded().name()))
+                .chargeabilityExternalEmployeesRecorded(
+                        ProjectState.byName(
+                                enterpriseEntry.get()
+                                        .getChargeabilityExternalEmployeesRecorded()
+                                        .name()
+                        )
+                )
                 .payrollAccountingSent(ProjectState.byName(enterpriseEntry.get().getPayrollAccountingSent().name()))
                 .zepTimesReleased(ProjectState.byName(enterpriseEntry.get().getZepTimesReleased().name()))
                 .build();

@@ -4,7 +4,7 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
-import com.gepardec.mega.rest.mapper.MapperManager;
+import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import io.quarkus.test.junit.QuarkusTest;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 class EmployeeResourceTest {
 
     @Inject
-    MapperManager mapper;
+    EmployeeMapper mapper;
 
     @InjectMock
     EmployeeService employeeService;
@@ -107,7 +107,7 @@ class EmployeeResourceTest {
 
         assertThat(employees).hasSize(1);
         final EmployeeDto actual = employees.get(0);
-        assertThat(actual).isEqualTo(mapper.map(userAsEmployee, EmployeeDto.class));
+        assertThat(actual).isEqualTo(mapper.mapToDto(userAsEmployee));
     }
 
     @Test

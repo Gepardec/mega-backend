@@ -34,7 +34,8 @@ public class RolesAllowedInterceptor {
         if (isInRole(userContext.getUser().getRoles(), allowedRoles)) {
             return invocationContext.proceed();
         } else {
-            throw new ForbiddenException(String.format("User has insufficient role %s", userContext.getUser().getRoles()));
+            throw new ForbiddenException(String.format("User has insufficient role %s", userContext.getUser()
+                    .getRoles()));
         }
     }
 

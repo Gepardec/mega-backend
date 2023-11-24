@@ -11,6 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.Range;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -84,19 +85,24 @@ public class EmployeeMapper {
     }
 
     private String getCorrectReleaseDate(MitarbeiterType mitarbeiterType) {
-        boolean isReleaseDateNull = mitarbeiterType.getFreigabedatum() == null || mitarbeiterType.getFreigabedatum().equalsIgnoreCase("null");
+        boolean isReleaseDateNull = mitarbeiterType.getFreigabedatum() == null
+                || mitarbeiterType.getFreigabedatum().equalsIgnoreCase("null");
         boolean isCreatedDateNull = mitarbeiterType.getCreated() == null;
         if (isReleaseDateNull) {
             if (isCreatedDateNull) {
                 return null;
             }
-            return LocalDateTime.parse(mitarbeiterType.getCreated(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")).format(DateTimeFormatter.ISO_LOCAL_DATE);
+            return LocalDateTime.parse(
+                            mitarbeiterType.getCreated(),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                    )
+                    .format(DateTimeFormatter.ISO_LOCAL_DATE);
         }
 
         return mitarbeiterType.getFreigabedatum();
     }
 
-    private Map<DayOfWeek, Double> getRegularWorkinghours(RegelarbeitszeitListeTypeTs regelarbeitszeitListeTypeTs) {
+    private Map<DayOfWeek, Duration> getRegularWorkinghours(RegelarbeitszeitListeTypeTs regelarbeitszeitListeTypeTs) {
         if (regelarbeitszeitListeTypeTs == null) {
             return new HashMap<>();
         }
@@ -104,12 +110,15 @@ public class EmployeeMapper {
         List<RegelarbeitszeitType> regelarbeitszeitList = regelarbeitszeitListeTypeTs.getRegelarbeitszeit();
         RegelarbeitszeitType regelarbeitszeitType = regelarbeitszeitList.get(regelarbeitszeitList.size() - 1);
 
+        //FIXME
         return new HashMap<>(Map.ofEntries(
-                Map.entry(DayOfWeek.MONDAY, regelarbeitszeitType.getMontag()),
-                Map.entry(DayOfWeek.TUESDAY, regelarbeitszeitType.getDienstag()),
-                Map.entry(DayOfWeek.WEDNESDAY, regelarbeitszeitType.getMittwoch()),
-                Map.entry(DayOfWeek.THURSDAY, regelarbeitszeitType.getDonnerstag()),
-                Map.entry(DayOfWeek.FRIDAY, regelarbeitszeitType.getFreitag())
+                Map.entry(DayOfWeek.MONDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getMontag() * 60))),
+                Map.entry(DayOfWeek.TUESDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getDienstag() * 60))),
+                Map.entry(DayOfWeek.WEDNESDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getMittwoch() * 60))),
+                Map.entry(DayOfWeek.THURSDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getDonnerstag() * 60))),
+                Map.entry(DayOfWeek.FRIDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getFreitag() * 60))),
+                Map.entry(DayOfWeek.SATURDAY, Duration.ofMinutes(0L)),
+                Map.entry(DayOfWeek.SUNDAY, Duration.ofMinutes(0L))
         ));
     }
 
@@ -117,7 +126,8 @@ public class EmployeeMapper {
         boolean active = false;
         if (employee.getBeschaeftigungszeitListe() != null) {
             final LocalDate now = LocalDate.now();
-            final List<BeschaeftigungszeitType> employments = employee.getBeschaeftigungszeitListe().getBeschaeftigungszeit();
+            final List<BeschaeftigungszeitType> employments = employee.getBeschaeftigungszeitListe()
+                    .getBeschaeftigungszeit();
             active = hasOpenEmployments(employments, now) || hasEmploymentEndInTheFuture(employments, now);
         }
 

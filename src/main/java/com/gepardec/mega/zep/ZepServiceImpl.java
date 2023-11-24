@@ -34,17 +34,13 @@ import de.provantis.zep.UserIdListeType;
 import de.provantis.zep.ZepSoapPortType;
 import io.quarkus.cache.CacheInvalidate;
 import io.quarkus.cache.CacheResult;
-import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.Logger;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
@@ -52,7 +48,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
@@ -61,7 +56,6 @@ import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfCurrentMonth;
 @RequestScoped
 public class ZepServiceImpl implements ZepService {
 
-    private static final String BILLABLE_TIME_FORMAT = "HH:mm";
 
     private static final Range<Integer> PROJECT_LEAD_RANGE = Range.between(1, 2);
 
@@ -93,9 +87,7 @@ public class ZepServiceImpl implements ZepService {
         final ReadMitarbeiterSearchCriteriaType readMitarbeiterSearchCriteriaType = new ReadMitarbeiterSearchCriteriaType();
         readMitarbeiterSearchCriteriaType.setUserId(userId);
 
-        return getEmployeeInternal(readMitarbeiterSearchCriteriaType).stream()
-                .findFirst()
-                .orElse(null);
+        return getEmployeeInternal(readMitarbeiterSearchCriteriaType).stream().findFirst().orElse(null);
     }
 
     @CacheResult(cacheName = "employee")
@@ -131,7 +123,7 @@ public class ZepServiceImpl implements ZepService {
         }
     }
 
-    @CacheResult(cacheName = "fehlzeitentype")
+//    @CacheResult(cacheName = "fehlzeitentype")
     @Override
     public List<FehlzeitType> getAbsenceForEmployee(Employee employee, LocalDate date) {
         final ReadFehlzeitRequestType fehlzeitenRequest = new ReadFehlzeitRequestType();
@@ -155,7 +147,7 @@ public class ZepServiceImpl implements ZepService {
         return Collections.emptyList();
     }
 
-    @CacheResult(cacheName = "projektzeittype")
+//    @CacheResult(cacheName = "projektzeittype")
     @Override
     public List<ProjektzeitType> getBillableForEmployee(Employee employee, LocalDate date) {
         ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(employee, date, this::createProjectTimeSearchCriteria);
@@ -164,36 +156,11 @@ public class ZepServiceImpl implements ZepService {
                 && readProjektzeitenResponseType.getProjektzeitListe() != null
                 && readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten() != null) {
             return readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten();
-
         }
+
         return Collections.emptyList();
     }
 
-    @Override
-    public String getInternalTimesForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
-        return getWorkingTimesForEmployee(projektzeitTypeList, employee, Predicate.not(ProjektzeitType::isIstFakturierbar));
-    }
-
-    @Override
-    public String getBillableTimesForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
-        return getWorkingTimesForEmployee(projektzeitTypeList, employee, ProjektzeitType::isIstFakturierbar);
-    }
-
-    @Override
-    public String getTotalWorkingTimeForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
-        return getWorkingTimesForEmployee(projektzeitTypeList, employee, $ -> true);
-    }
-
-    private String getWorkingTimesForEmployee(List<ProjektzeitType> projektzeitTypeList, Employee employee, Predicate<ProjektzeitType> billableFilter) {
-        Duration totalBillable = projektzeitTypeList.stream()
-                .filter(pzt -> pzt.getUserId().equals(employee.getUserId()))
-                .filter(billableFilter)
-                .map(pzt -> LocalTime.parse(pzt.getDauer()))
-                .map(lt -> Duration.between(LocalTime.MIN, lt))
-                .reduce(Duration.ZERO, Duration::plus);
-
-        return DurationFormatUtils.formatDuration(totalBillable.toMillis(), BILLABLE_TIME_FORMAT);
-    }
 
     @CacheResult(cacheName = "projectentry")
     @Override
@@ -207,7 +174,7 @@ public class ZepServiceImpl implements ZepService {
                 .collect(Collectors.toList());
     }
 
-    @CacheResult(cacheName = "projektzeittype")
+//    @CacheResult(cacheName = "projektzeittype")
     @Override
     public List<ProjektzeitType> getProjectTimesForEmployeePerProject(String projectID, LocalDate curDate) {
         ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(projectID, curDate, this::createProjectTimesForEmployeePerProjectSearchCriteria);
@@ -227,8 +194,7 @@ public class ZepServiceImpl implements ZepService {
         final ReadProjekteResponseType readProjekteResponseType = getProjectsInternal(monthYear);
 
         ProjektListeType projektListe = readProjekteResponseType.getProjektListe();
-        return projektListe.getProjekt()
-                .stream()
+        return projektListe.getProjekt().stream()
                 .map(pt -> createProject(pt, monthYear))
                 .collect(Collectors.toList());
     }
@@ -305,11 +271,8 @@ public class ZepServiceImpl implements ZepService {
 
     private Project createProject(final ProjektType projektType, final LocalDate monthYear) {
         Optional<String> endDateString = Optional.ofNullable(projektType.getEndeDatum());
-        LocalDate endDate = endDateString.isPresent() ?
-                LocalDate.parse(endDateString.get()) :
-                LocalDate.now()
-                        .plusYears(5)
-                        .with(TemporalAdjusters.lastDayOfYear());
+        LocalDate endDate = endDateString.map(LocalDate::parse)
+                .orElseGet(() -> LocalDate.now().plusYears(5).with(TemporalAdjusters.lastDayOfYear()));
 
         return Project.builder()
                 .zepId(projektType.getProjektId())
@@ -355,7 +318,8 @@ public class ZepServiceImpl implements ZepService {
     }
 
     private List<String> createCategories(final ProjektType projektType) {
-        return Optional.ofNullable(projektType.getKategorieListe()).orElse(new KategorieListeType())
+        return Optional.ofNullable(projektType.getKategorieListe())
+                .orElse(new KategorieListeType())
                 .getKategorie()
                 .stream()
                 .map(KategorieType::getKurzform)

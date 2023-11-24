@@ -20,7 +20,10 @@ public class ProjectCommentResourceImpl implements ProjectCommentResource {
             String currentMonthYear,
             String projectName
     ) {
-        return Response.ok(projectCommentService.findForProjectNameWithCurrentYearMonth(projectName, currentMonthYear)).build();
+        return Response.ok(
+                        projectCommentService.findForProjectNameWithCurrentYearMonth(projectName, currentMonthYear)
+                )
+                .build();
     }
 
     @Override
@@ -30,6 +33,9 @@ public class ProjectCommentResourceImpl implements ProjectCommentResource {
 
     @Override
     public Response update(ProjectCommentDto projectCommentDto) {
-        return Response.ok(projectCommentService.update(projectCommentDto.getId(), projectCommentDto.getComment())).build();
+        return Response.ok(
+                        projectCommentService.update(projectCommentDto.getId(), projectCommentDto.getComment())
+                )
+                .build();
     }
 }

@@ -7,8 +7,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.domain.model.Comment;
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,10 +23,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-
 public class MonthlyReportDto {
     @JsonProperty
-    private Employee employee;
+    private EmployeeDto employee;
 
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -41,7 +38,7 @@ public class MonthlyReportDto {
     private List<JourneyWarning> journeyWarnings;
 
     @JsonProperty
-    private List<Comment> comments;
+    private List<CommentDto> comments;
 
     @JsonProperty
     private EmployeeState employeeCheckState;
@@ -104,5 +101,8 @@ public class MonthlyReportDto {
     private String totalWorkingTime;
 
     @JsonProperty
-    private String paidSickLeave;
+    private int paidSickLeave;
+
+    @JsonProperty
+    private double overtime;
 }

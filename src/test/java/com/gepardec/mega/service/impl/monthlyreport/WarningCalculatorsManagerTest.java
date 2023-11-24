@@ -10,7 +10,7 @@ import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
-import com.gepardec.mega.service.helper.WarningCalculator;
+import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,19 +32,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class WarningCalculatorTest {
+class WarningCalculatorsManagerTest {
 
     private static final Integer[] HOLIDAYS = {8, 25, 26};
-
     private static final Integer[] WEEKEND_DAYS = {5, 6, 12, 13, 19, 20, 26, 27};
-
-    private static String DOCTOR_APPOINTMENT = "Arztbesuch";
+    private static final String DOCTOR_APPOINTMENT = "Arztbesuch";
 
     @Mock
     ResourceBundle messages;
 
     @InjectMocks
-    WarningCalculator calculator;
+    WarningCalculatorsManager calculator;
 
     static Stream<Integer> holidaysStream() {
         return Stream.of(HOLIDAYS);
@@ -250,7 +248,6 @@ class WarningCalculatorTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
     }
-
 
     @Test
     void whenTwoProjectTimeEntryWithinTwoJourneys_thenNoWarning() {

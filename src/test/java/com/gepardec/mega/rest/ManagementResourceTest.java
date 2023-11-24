@@ -19,6 +19,7 @@ import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.ProjectEntryService;
 import com.gepardec.mega.service.api.StepEntryService;
+import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.test.junit.QuarkusTest;
@@ -43,6 +44,7 @@ import java.util.Set;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -66,6 +68,9 @@ class ManagementResourceTest {
 
     @InjectMock
     ZepService zepService;
+
+    @InjectMock
+    WorkingTimeUtil workingTimeUtil;
 
 
     @InjectMock
@@ -103,15 +108,15 @@ class ManagementResourceTest {
         );
 
         when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                ArgumentMatchers.any(Employee.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class))
+                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
         when(stepEntryService.findAllStepEntriesForEmployee(
-                ArgumentMatchers.any(Employee.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class))
+                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(entries);
 
         when(zepService.getProjectTimesForEmployeePerProject(
-                ArgumentMatchers.anyString(), ArgumentMatchers.any(LocalDate.class)
+                ArgumentMatchers.anyString(), any(LocalDate.class)
         )).thenReturn(Collections.emptyList());
 
         List<ManagementEntryDto> result = given().contentType(ContentType.JSON)
@@ -144,10 +149,10 @@ class ManagementResourceTest {
         );
 
         when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                ArgumentMatchers.any(Employee.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class))
+                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
-        when(stepEntryService.findAllStepEntriesForEmployee(ArgumentMatchers.any(Employee.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class)))
+        when(stepEntryService.findAllStepEntriesForEmployee(any(Employee.class), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(entries);
 
         List<ManagementEntryDto> result = given().contentType(ContentType.JSON)
@@ -164,10 +169,10 @@ class ManagementResourceTest {
         when(userContext.getUser()).thenReturn(user);
 
         when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                ArgumentMatchers.any(Employee.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class))
+                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
-        when(stepEntryService.findAllStepEntriesForEmployee(ArgumentMatchers.any(Employee.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class)))
+        when(stepEntryService.findAllStepEntriesForEmployee(any(Employee.class), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(List.of());
 
         when(employeeService.getAllEmployeesConsideringExitDate(any()))
@@ -209,7 +214,7 @@ class ManagementResourceTest {
         List<String> employees = List.of(employee1.getUserId(), employee2.getUserId());
         ProjectEmployees rgkkcc = createProject("ÖGK-RGKKCC-2020", employees);
         ProjectEmployees rgkkwc = createProject("ÖGK-RGKK2WC-2020", employees);
-        when(stepEntryService.getProjectEmployeesForPM(ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString()))
+        when(stepEntryService.getProjectEmployeesForPM(any(LocalDate.class), any(LocalDate.class), ArgumentMatchers.anyString()))
                 .thenReturn(List.of(rgkkcc, rgkkwc));
 
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
@@ -226,23 +231,23 @@ class ManagementResourceTest {
         );
 
         when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                ArgumentMatchers.any(Employee.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class))
+                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
         when(stepEntryService.findAllStepEntriesForEmployeeAndProject(
-                ArgumentMatchers.any(Employee.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
-                ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class))
+                any(Employee.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
+                any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(stepEntries);
 
-        when(projectEntryService.findByNameAndDate(ArgumentMatchers.anyString(), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class)))
+        when(projectEntryService.findByNameAndDate(ArgumentMatchers.anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(projectEntries);
 
         when(zepService.getProjectTimesForEmployeePerProject(
-                ArgumentMatchers.anyString(), ArgumentMatchers.any(LocalDate.class)
+                ArgumentMatchers.anyString(), any(LocalDate.class)
         )).thenReturn(getProjectTimeTypeList());
 
-        when(zepService.getBillableTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("02:00");
-        when(zepService.getInternalTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("02:00");
+        when(workingTimeUtil.getBillableTimesForEmployee(anyList(), any(Employee.class))).thenReturn("02:00");
+        when(workingTimeUtil.getInternalTimesForEmployee(anyList(), any(Employee.class))).thenReturn("02:00");
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
                 .get("/management/projectmanagemententries/2020/10")
@@ -288,7 +293,7 @@ class ManagementResourceTest {
         List<String> employees = List.of(employee1.getUserId(), employee2.getUserId());
         ProjectEmployees rgkkcc = createProject("ÖGK-RGKKCC-2020", employees);
         ProjectEmployees rgkkwc = createProject("ÖGK-RGKK2WC-2020", employees);
-        when(stepEntryService.getProjectEmployeesForPM(ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString()))
+        when(stepEntryService.getProjectEmployeesForPM(any(LocalDate.class), any(LocalDate.class), ArgumentMatchers.anyString()))
                 .thenReturn(List.of(rgkkcc, rgkkwc));
 
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
@@ -305,23 +310,23 @@ class ManagementResourceTest {
         );
 
         when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                ArgumentMatchers.any(Employee.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class))
+                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
         when(stepEntryService.findAllStepEntriesForEmployeeAndProject(
-                ArgumentMatchers.any(Employee.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
-                ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class))
+                any(Employee.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
+                any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(stepEntries);
 
-        when(projectEntryService.findByNameAndDate(ArgumentMatchers.anyString(), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class)))
+        when(projectEntryService.findByNameAndDate(ArgumentMatchers.anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(projectEntries);
 
         when(zepService.getProjectTimesForEmployeePerProject(
-                ArgumentMatchers.anyString(), ArgumentMatchers.any(LocalDate.class)
+                ArgumentMatchers.anyString(), any(LocalDate.class)
         )).thenReturn(getProjectTimeTypeList());
 
-        when(zepService.getInternalTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("01:00");
-        when(zepService.getBillableTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("02:00");
+        when(workingTimeUtil.getInternalTimesForEmployee(anyList(), any(Employee.class))).thenReturn("01:00");
+        when(workingTimeUtil.getBillableTimesForEmployee(anyList(), any(Employee.class))).thenReturn("02:00");
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
                 .get("/management/projectmanagemententries/2020/09")
@@ -371,7 +376,7 @@ class ManagementResourceTest {
         List<String> employees = List.of(employee1.getUserId(), employee2.getUserId());
         ProjectEmployees rgkkcc = createProject("ÖGK-RGKKCC-2020", employees);
         ProjectEmployees rgkkwc = createProject("ÖGK-RGKK2WC-2020", employees);
-        when(stepEntryService.getProjectEmployeesForPM(ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString()))
+        when(stepEntryService.getProjectEmployeesForPM(any(LocalDate.class), any(LocalDate.class), ArgumentMatchers.anyString()))
                 .thenReturn(List.of(rgkkcc, rgkkwc));
 
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
@@ -388,23 +393,23 @@ class ManagementResourceTest {
         );
 
         when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                ArgumentMatchers.any(Employee.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class))
+                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
         when(stepEntryService.findAllStepEntriesForEmployeeAndProject(
-                ArgumentMatchers.any(Employee.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
-                ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class))
+                any(Employee.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
+                any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(stepEntries);
 
-        when(projectEntryService.findByNameAndDate(ArgumentMatchers.anyString(), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class)))
+        when(projectEntryService.findByNameAndDate(ArgumentMatchers.anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(projectEntries);
 
         when(zepService.getProjectTimesForEmployeePerProject(
-                ArgumentMatchers.anyString(), ArgumentMatchers.any(LocalDate.class)
+                ArgumentMatchers.anyString(), any(LocalDate.class)
         )).thenReturn(getProjectTimeTypeList());
 
-        when(zepService.getBillableTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("00:00");
-        when(zepService.getInternalTimesForEmployee(ArgumentMatchers.anyList(), ArgumentMatchers.any(Employee.class))).thenReturn("00:00");
+        when(workingTimeUtil.getBillableTimesForEmployee(anyList(), any(Employee.class))).thenReturn("00:00");
+        when(workingTimeUtil.getInternalTimesForEmployee(anyList(), any(Employee.class))).thenReturn("00:00");
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
                 .get("/management/projectmanagemententries/2020/09")
@@ -454,7 +459,7 @@ class ManagementResourceTest {
         List<String> employees = List.of(employee1.getUserId(), employee2.getUserId());
         ProjectEmployees rgkkcc = createProject("ÖGK-RGKKCC-2020", employees);
         ProjectEmployees rgkkwc = createProject("ÖGK-RGKK2WC-2020", employees);
-        when(stepEntryService.getProjectEmployeesForPM(ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString()))
+        when(stepEntryService.getProjectEmployeesForPM(any(LocalDate.class), any(LocalDate.class), ArgumentMatchers.anyString()))
                 .thenReturn(List.of(rgkkcc, rgkkwc));
 
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
@@ -471,19 +476,19 @@ class ManagementResourceTest {
         );
 
         when(commentService.cntFinishedAndTotalCommentsForEmployee(
-                ArgumentMatchers.any(Employee.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class))
+                any(Employee.class), any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
 
         when(stepEntryService.findAllStepEntriesForEmployeeAndProject(
-                ArgumentMatchers.any(Employee.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
-                ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class))
+                any(Employee.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
+                any(LocalDate.class), any(LocalDate.class))
         ).thenReturn(stepEntries);
 
-        when(projectEntryService.findByNameAndDate(ArgumentMatchers.anyString(), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class)))
+        when(projectEntryService.findByNameAndDate(ArgumentMatchers.anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(projectEntries);
 
         when(zepService.getProjectTimesForEmployeePerProject(
-                ArgumentMatchers.anyString(), ArgumentMatchers.any(LocalDate.class)
+                ArgumentMatchers.anyString(), any(LocalDate.class)
         )).thenReturn(getProjectTimeTypeList());
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
@@ -515,7 +520,7 @@ class ManagementResourceTest {
         when(userContext.getUser()).thenReturn(user);
 
         ProjectEmployees rgkkcc = createProject("ÖGK-RGKKCC-2020", List.of());
-        when(stepEntryService.getProjectEmployeesForPM(ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString()))
+        when(stepEntryService.getProjectEmployeesForPM(any(LocalDate.class), any(LocalDate.class), ArgumentMatchers.anyString()))
                 .thenReturn(List.of(rgkkcc));
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
@@ -536,10 +541,10 @@ class ManagementResourceTest {
 
         List<String> employees = List.of(employee1.getUserId(), employee2.getUserId());
         ProjectEmployees rgkkcc = createProject("ÖGK-RGKKCC-2020", employees);
-        when(stepEntryService.getProjectEmployeesForPM(ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString()))
+        when(stepEntryService.getProjectEmployeesForPM(any(LocalDate.class), any(LocalDate.class), ArgumentMatchers.anyString()))
                 .thenReturn(List.of(rgkkcc));
 
-        when(stepEntryService.findAllStepEntriesForEmployee(ArgumentMatchers.any(Employee.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class)))
+        when(stepEntryService.findAllStepEntriesForEmployee(any(Employee.class), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(List.of());
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)

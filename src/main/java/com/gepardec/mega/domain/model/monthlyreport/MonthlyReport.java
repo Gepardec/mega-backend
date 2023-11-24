@@ -72,4 +72,5 @@ public class MonthlyReport {
 
     private String totalWorkingTime;
 
+    private double overtime;
 }

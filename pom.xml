@@ -34,7 +34,6 @@
         <focus-shift.version>0.16.0</focus-shift.version>
         <assertj.version>3.21.0</assertj.version>
         <basicjaxb-plugins.version>2.1.0</basicjaxb-plugins.version>
-        <modelmapper.version>3.1.1</modelmapper.version>
         <!-- application info -->
         <!-- !!! IMPORTANT !!!! -->
         <!-- remove -SNAPSHOT in release-branch but keep it in develop branch -->
@@ -45,7 +44,7 @@
         <sonar.language>java</sonar.language>
         <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
         <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
-        <revision>4.4.0</revision>
+        <revision>4.4.0-SNAPSHOT</revision>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss</maven.build.timestamp.format>
     </properties>
@@ -219,11 +218,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.modelmapper</groupId>
-            <artifactId>modelmapper</artifactId>
-            <version>${modelmapper.version}</version>
         </dependency>
     </dependencies>
     <build>

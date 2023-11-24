@@ -41,7 +41,9 @@ public class InvalidWorkingLocationInJourneyCalculator implements WarningCalcula
                         workingLocation = WorkingLocation.MAIN;
                     }
                     if (!isProjectEntryValid(projectEntry, workingLocation, journeyDirection)) {
-                        boolean existsWorkingLocationWarning = warnings.stream().anyMatch(it -> it.getWarningTypes().contains(JourneyWarningType.INVALID_WORKING_LOCATION));
+                        boolean existsWorkingLocationWarning = warnings.stream()
+                                .anyMatch(it -> it.getWarningTypes()
+                                        .contains(JourneyWarningType.INVALID_WORKING_LOCATION));
                         if (!existsWorkingLocationWarning) {
                             warnings.add(createJourneyWarningWithEnumType(projectEntry, JourneyWarningType.INVALID_WORKING_LOCATION));
                         }
@@ -62,14 +64,16 @@ public class InvalidWorkingLocationInJourneyCalculator implements WarningCalcula
     }
 
     private boolean isProjectEntryValidAfterJourneyToOrFurther(final ProjectEntry projectEntry, final WorkingLocation journeyBackWorkingLocation) {
-        return journeyBackWorkingLocation == null || projectEntry.getWorkingLocation().equals(journeyBackWorkingLocation);
+        return journeyBackWorkingLocation == null
+                || projectEntry.getWorkingLocation().equals(journeyBackWorkingLocation);
     }
 
     private boolean isProjectEntryValidAfterJourneyBack(final ProjectEntry projectEntry, final WorkingLocation journeyBackWorkingLocation) {
         final WorkingLocation workingLocation = projectEntry.getWorkingLocation();
         return (MAPPED_SUPPORTED_WORKING_LOCATIONS.containsKey(journeyBackWorkingLocation))
                 ? MAPPED_SUPPORTED_WORKING_LOCATIONS.get(journeyBackWorkingLocation).contains(workingLocation)
-                : journeyBackWorkingLocation == null || projectEntry.getWorkingLocation().equals(journeyBackWorkingLocation);
+                : journeyBackWorkingLocation == null || projectEntry.getWorkingLocation()
+                .equals(journeyBackWorkingLocation);
     }
 
     private boolean hasJourneyEntries(final List<ProjectEntry> projectEntries) {

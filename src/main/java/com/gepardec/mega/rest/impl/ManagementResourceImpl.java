@@ -27,6 +27,7 @@ import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.ProjectEntryService;
 import com.gepardec.mega.service.api.ProjectService;
 import com.gepardec.mega.service.api.StepEntryService;
+import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.security.Authenticated;
@@ -76,6 +77,9 @@ public class ManagementResourceImpl implements ManagementResource {
 
     @Inject
     ProjectService projectService;
+
+    @Inject
+    WorkingTimeUtil workingTimeUtil;
 
     @Inject
     Logger logger;
@@ -131,7 +135,11 @@ public class ManagementResourceImpl implements ManagementResource {
         if (allProjects) {
             projectEmployees = stepEntryService.getAllProjectEmployeesForPM(from, to);
         } else {
-            projectEmployees = stepEntryService.getProjectEmployeesForPM(from, to, Objects.requireNonNull(userContext.getUser()).getEmail());
+            projectEmployees = stepEntryService.getProjectEmployeesForPM(
+                    from,
+                    to,
+                    Objects.requireNonNull(userContext.getUser()).getEmail()
+            );
         }
 
         List<ProjectManagementEntryDto> projectManagementEntries = new ArrayList<>();
@@ -175,10 +183,26 @@ public class ManagementResourceImpl implements ManagementResource {
             return ProjectManagementEntryDto.builder()
                     .zepId(zepId)
                     .projectName(currentProject.getProjectId())
-                    .controlProjectState(ProjectState.byName(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_PROJECT).getState().name()))
-                    .controlBillingState(ProjectState.byName((getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_BILLING).getState().name())))
-                    .presetControlProjectState(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_PROJECT).isPreset())
-                    .presetControlBillingState(getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_BILLING).isPreset())
+                    .controlProjectState(
+                            ProjectState.byName(
+                                    getProjectEntryForProjectStep(
+                                            projectEntries,
+                                            ProjectStep.CONTROL_PROJECT).getState().name()
+                            )
+                    )
+                    .controlBillingState(
+                            ProjectState.byName(
+                                    getProjectEntryForProjectStep(
+                                            projectEntries,
+                                            ProjectStep.CONTROL_BILLING).getState().name()
+                            )
+                    )
+                    .presetControlProjectState(
+                            getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_PROJECT).isPreset()
+                    )
+                    .presetControlBillingState(
+                            getProjectEntryForProjectStep(projectEntries, ProjectStep.CONTROL_BILLING).isPreset()
+                    )
                     .entries(entries)
                     .aggregatedBillableWorkTimeInSeconds(billable)
                     .aggregatedNonBillableWorkTimeInSeconds(nonBillable)
@@ -250,7 +274,11 @@ public class ManagementResourceImpl implements ManagementResource {
             if (employees.containsKey(userId)) {
                 Employee employee = employees.get(userId);
                 List<StepEntry> stepEntries = stepEntryService.findAllStepEntriesForEmployeeAndProject(
-                        employee, projectEmployees.getProjectId(), Objects.requireNonNull(userContext.getUser()).getEmail(), from, to
+                        employee,
+                        projectEmployees.getProjectId(),
+                        Objects.requireNonNull(userContext.getUser()).getEmail(),
+                        from,
+                        to
                 );
 
                 ManagementEntryDto entry = createManagementEntryForEmployee(employee, projectEmployees.getProjectId(), stepEntries, from, to, null, projectStateLogicSingle);
@@ -300,8 +328,8 @@ public class ManagementResourceImpl implements ManagementResource {
                     .finishedComments(finishedAndTotalComments.getFinishedComments())
                     .totalComments(finishedAndTotalComments.getTotalComments())
                     .entryDate(stepEntries.get(0).getDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN)))
-                    .billableTime(zepService.getBillableTimesForEmployee(projektzeitTypes, employee))
-                    .nonBillableTime(zepService.getInternalTimesForEmployee(projektzeitTypes, employee))
+                    .billableTime(workingTimeUtil.getBillableTimesForEmployee(projektzeitTypes, employee))
+                    .nonBillableTime(workingTimeUtil.getInternalTimesForEmployee(projektzeitTypes, employee))
                     .build();
         }
 
@@ -341,7 +369,10 @@ public class ManagementResourceImpl implements ManagementResource {
         boolean internalCheckStateOpen = stepEntries.stream()
                 .filter(stepEntry ->
                         StepName.CONTROL_INTERNAL_TIMES.name().equalsIgnoreCase(stepEntry.getStep().getName())
-                                && StringUtils.equalsIgnoreCase(Objects.requireNonNull(userContext.getUser()).getEmail(), stepEntry.getAssignee().getEmail())
+                                && StringUtils.equalsIgnoreCase(
+                                Objects.requireNonNull(userContext.getUser()).getEmail(),
+                                stepEntry.getAssignee().getEmail()
+                        )
                 ).anyMatch(stepEntry -> EmployeeState.OPEN.equals(stepEntry.getState()));
 
         return internalCheckStateOpen ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;

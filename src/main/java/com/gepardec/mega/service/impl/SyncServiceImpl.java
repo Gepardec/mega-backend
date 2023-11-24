@@ -5,6 +5,7 @@ import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
+import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.ProjectService;
 import com.gepardec.mega.service.api.SyncService;
@@ -16,8 +17,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -56,7 +55,7 @@ public class SyncServiceImpl implements SyncService {
         stopWatch.start();
         log.info("Started user sync: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
 
-        final List<Project> projects = projectService.getProjectsForMonthYear(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()));
+        final List<Project> projects = projectService.getProjectsForMonthYear(DateUtils.getFirstDayOfCurrentMonth());
         log.info("Loaded projects (for employee generation): {}", projects.size());
 
         final List<Employee> employees = employeeService.getAllActiveEmployees();

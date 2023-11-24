@@ -4,7 +4,7 @@ import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.CommentResource;
-import com.gepardec.mega.rest.mapper.MapperManager;
+import com.gepardec.mega.rest.mapper.CommentMapper;
 import com.gepardec.mega.rest.model.CommentDto;
 import com.gepardec.mega.rest.model.NewCommentEntryDto;
 import com.gepardec.mega.service.api.CommentService;
@@ -21,14 +21,14 @@ import java.util.List;
 public class CommentResourceImpl implements CommentResource {
 
     @Inject
-    MapperManager mapper;
+    CommentMapper mapper;
 
     @Inject
     CommentService commentService;
 
     @Override
     public Response setDone(final CommentDto commentDto) {
-        return Response.ok(commentService.setDone(mapper.map(commentDto, com.gepardec.mega.domain.model.Comment.class))).build();
+        return Response.ok(commentService.setDone(mapper.mapToDomain(commentDto))).build();
     }
 
     @Override
@@ -36,8 +36,14 @@ public class CommentResourceImpl implements CommentResource {
         LocalDate from = DateUtils.getFirstDayOfCurrentMonth(currentMonthYear);
         LocalDate to = DateUtils.getLastDayOfCurrentMonth(currentMonthYear);
 
-        List<Comment> commentsForEmployee = commentService.findCommentsForEmployee(Employee.builder().email(employeeEmail).build(), from, to);
-        return Response.ok(mapper.mapAsList(commentsForEmployee, CommentDto.class)).build();
+        List<Comment> commentsForEmployee = commentService.findCommentsForEmployee(
+                Employee.builder()
+                        .email(employeeEmail)
+                        .build(),
+                from,
+                to
+        );
+        return Response.ok(mapper.mapListToDto(commentsForEmployee)).build();
     }
 
     @Override
@@ -51,7 +57,7 @@ public class CommentResourceImpl implements CommentResource {
                 newComment.currentMonthYear()
         );
 
-        return Response.ok(mapper.map(comment, CommentDto.class)).build();
+        return Response.ok(mapper.mapToDto(comment)).build();
     }
 
     @Override
@@ -63,6 +69,6 @@ public class CommentResourceImpl implements CommentResource {
     public Response updateCommentForEmployee(Comment comment) {
         Comment updatedComment = commentService.updateComment(comment.getId(), comment.getMessage());
 
-        return Response.ok(mapper.map(updatedComment, CommentDto.class)).build();
+        return Response.ok(mapper.mapToDto(updatedComment)).build();
     }
 }

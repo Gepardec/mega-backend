@@ -6,7 +6,7 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
-import com.gepardec.mega.rest.mapper.MapperManager;
+import com.gepardec.mega.rest.mapper.CommentMapper;
 import com.gepardec.mega.rest.model.CommentDto;
 import com.gepardec.mega.rest.model.NewCommentEntryDto;
 import com.gepardec.mega.service.api.CommentService;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 class CommentResourceTest {
 
     @Inject
-    MapperManager mapper;
+    CommentMapper mapper;
 
     @InjectMock
     UserContext userContext;
@@ -161,7 +161,7 @@ class CommentResourceTest {
                 });
 
         assertThat(comments).hasSize(1);
-        assertThat(comments.get(0)).isEqualTo(mapper.map(comment, CommentDto.class));
+        assertThat(comments.get(0)).isEqualTo(mapper.mapToDto(comment));
     }
 
     @Test
@@ -278,7 +278,7 @@ class CommentResourceTest {
                 .put("/comments")
                 .as(CommentDto.class);
 
-        assertThat(updatedComment).isEqualTo(mapper.map(comment, CommentDto.class));
+        assertThat(updatedComment).isEqualTo(mapper.mapToDto(comment));
     }
 
     private com.gepardec.mega.domain.model.User createUserForRole(final Role role) {

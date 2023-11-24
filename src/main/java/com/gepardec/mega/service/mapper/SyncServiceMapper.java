@@ -66,7 +66,9 @@ public class SyncServiceMapper {
     private Set<Role> determineRoles(final Employee employee, final List<Project> projects) {
         final boolean projectLead = projects.stream()
                 .anyMatch(project -> project.getLeads().contains(employee.getUserId()));
-        final boolean omEmployee = notificationConfig.getOmMailAddresses().stream().anyMatch(omEmail -> omEmail.equals(employee.getEmail()));
+        final boolean omEmployee = notificationConfig.getOmMailAddresses()
+                .stream()
+                .anyMatch(omEmail -> omEmail.equals(employee.getEmail()));
 
         final Set<Role> roles = new HashSet<>();
         // Everyone if employee
@@ -86,7 +88,8 @@ public class SyncServiceMapper {
             user.setLocale(defaultLocale);
         } else {
             try {
-                if (Stream.of(Locale.getISOLanguages()).noneMatch(language -> language.equals(employee.getLanguage()))) {
+                if (Stream.of(Locale.getISOLanguages())
+                        .noneMatch(language -> language.equals(employee.getLanguage()))) {
                     throw new IllegalArgumentException("Language is not a valid iso language");
                 }
                 user.setLocale(Locale.forLanguageTag(employee.getLanguage()));

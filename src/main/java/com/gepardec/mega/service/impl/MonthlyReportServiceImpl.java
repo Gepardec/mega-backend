@@ -12,7 +12,6 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntryWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.utils.DateUtils;
-import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.PmProgressDto;
@@ -20,18 +19,17 @@ import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.service.api.StepEntryService;
-import com.gepardec.mega.service.helper.WarningCalculator;
+import com.gepardec.mega.service.helper.WarningCalculatorsManager;
+import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.service.mapper.TimeWarningMapper;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
-import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -62,7 +60,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     ZepService zepService;
 
     @Inject
-    WarningCalculator warningCalculator;
+    WarningCalculatorsManager warningCalculatorsManager;
 
     @Inject
     CommentService commentService;
@@ -81,6 +79,9 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     @Inject
     PersonioEmployeesService personioEmployeesService;
+
+    @Inject
+    WorkingTimeUtil workingTimeUtil;
 
     @Override
     public MonthlyReport getMonthEndReportForUser() {
@@ -157,9 +158,9 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
             Optional<Pair<EmployeeState, String>> employeeCheckState,
             Optional<EmployeeState> internalCheckState
     ) {
-        final List<JourneyWarning> journeyWarnings = warningCalculator.determineJourneyWarnings(projectEntries);
-        final List<TimeWarning> timeWarnings = warningCalculator.determineTimeWarnings(projectEntries);
-        timeWarnings.addAll(warningCalculator.determineNoTimeEntries(employee, projectEntries, absenceEntries));
+        final List<JourneyWarning> journeyWarnings = warningCalculatorsManager.determineJourneyWarnings(projectEntries);
+        final List<TimeWarning> timeWarnings = warningCalculatorsManager.determineTimeWarnings(projectEntries);
+        timeWarnings.addAll(warningCalculatorsManager.determineNoTimeEntries(employee, projectEntries, absenceEntries));
         timeWarnings.sort(Comparator.comparing(ProjectEntryWarning::getDate));
 
         int year = date.getYear();
@@ -187,21 +188,22 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .isAssigned(employeeCheckState.isPresent())
                 .employeeProgresses(pmProgressDtos)
                 .otherChecksDone(isMonthCompletedForEmployee(employee, date))
-                .billableTime(zepService.getBillableTimesForEmployee(billableEntries, employee))
-                .totalWorkingTime(zepService.getTotalWorkingTimeForEmployee(billableEntries, employee))
-                .compensatoryDays(getAbsenceTimesForEmployee(absenceEntries, COMPENSATORY_DAYS, date))
-                .homeofficeDays(getAbsenceTimesForEmployee(absenceEntries, HOME_OFFICE_DAYS, date))
-                .vacationDays(getAbsenceTimesForEmployee(absenceEntries, VACATION_DAYS, date))
-                .nursingDays(getAbsenceTimesForEmployee(absenceEntries, NURSING_DAYS, date))
-                .maternityLeaveDays(getAbsenceTimesForEmployee(absenceEntries, MATERNITY_LEAVE_DAYS, date))
-                .externalTrainingDays(getAbsenceTimesForEmployee(absenceEntries, EXTERNAL_TRAINING_DAYS, date))
-                .conferenceDays(getAbsenceTimesForEmployee(absenceEntries, CONFERENCE_DAYS, date))
-                .maternityProtectionDays(getAbsenceTimesForEmployee(absenceEntries, MATERNITY_PROTECTION_DAYS, date))
-                .fatherMonthDays(getAbsenceTimesForEmployee(absenceEntries, FATHER_MONTH_DAYS, date))
-                .paidSpecialLeaveDays(getAbsenceTimesForEmployee(absenceEntries, PAID_SPECIAL_LEAVE_DAYS, date))
-                .nonPaidVacationDays(getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS, date))
-                .paidSickLeave(getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
+                .billableTime(workingTimeUtil.getBillableTimesForEmployee(billableEntries, employee))
+                .totalWorkingTime(workingTimeUtil.getTotalWorkingTimeForEmployee(billableEntries, employee))
+                .compensatoryDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, COMPENSATORY_DAYS, date))
+                .homeofficeDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, HOME_OFFICE_DAYS, date))
+                .vacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, VACATION_DAYS, date))
+                .nursingDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, NURSING_DAYS, date))
+                .maternityLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, MATERNITY_LEAVE_DAYS, date))
+                .externalTrainingDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, EXTERNAL_TRAINING_DAYS, date))
+                .conferenceDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, CONFERENCE_DAYS, date))
+                .maternityProtectionDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, MATERNITY_PROTECTION_DAYS, date))
+                .fatherMonthDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, FATHER_MONTH_DAYS, date))
+                .paidSpecialLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SPECIAL_LEAVE_DAYS, date))
+                .nonPaidVacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS, date))
+                .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
                 .vacationDayBalance(personioEmployeesService.getVacationDayBalance(employee.getEmail()))
+                .overtime(workingTimeUtil.getOvertimeForEmployee(employee, billableEntries, absenceEntries, date))
                 .build();
     }
 
@@ -211,24 +213,5 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     private boolean isStepEntryDone(StepEntry stepEntry) {
         return stepEntry.getState() == EmployeeState.DONE;
-    }
-
-    private int getAbsenceTimesForEmployee(@Nonnull List<FehlzeitType> fehlZeitTypeList, String absenceType, LocalDate date) {
-        return (int) fehlZeitTypeList.stream()
-                .filter(fzt -> fzt.getFehlgrund().equals(absenceType))
-                .filter(FehlzeitType::isGenehmigt)
-                .map(fehlzeitType -> trimDurationToCurrentMonth(fehlzeitType, date))
-                .mapToLong(ftl -> OfficeCalendarUtil.getWorkingDaysBetween(LocalDate.parse(ftl.getStartdatum()), LocalDate.parse(ftl.getEnddatum())).size())
-                .sum();
-    }
-
-    private FehlzeitType trimDurationToCurrentMonth(FehlzeitType fehlzeit, LocalDate date) {
-        if (LocalDate.parse(fehlzeit.getEnddatum()).getMonthValue() > date.getMonthValue()) {
-            fehlzeit.setEnddatum(date.with(TemporalAdjusters.lastDayOfMonth()).toString());
-        }
-        if (LocalDate.parse(fehlzeit.getStartdatum()).getMonthValue() < date.getMonthValue()) {
-            fehlzeit.setStartdatum(date.with(TemporalAdjusters.firstDayOfMonth()).toString());
-        }
-        return fehlzeit;
     }
 }

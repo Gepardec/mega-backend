@@ -5,7 +5,6 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
-import jakarta.annotation.Nonnull;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,10 +26,4 @@ public interface ZepService {
     List<FehlzeitType> getAbsenceForEmployee(Employee employee, LocalDate date);
 
     List<ProjektzeitType> getBillableForEmployee(Employee employee, LocalDate date);
-
-    String getBillableTimesForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee);
-
-    String getInternalTimesForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee);
-
-    String getTotalWorkingTimeForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee);
 }
