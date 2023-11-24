@@ -88,24 +88,13 @@ class MailSenderTest {
     }
 
     @Test
-    void send_projectControllingMailContainsPlanrechnungUrl() {
+    void send_projectControllingMailHasContent() {
         final String to = "no-reply@gmail.com";
         mailSender.send(Mail.PL_PROJECT_CONTROLLING, to, "Max", Locale.GERMAN);
         List<io.quarkus.mailer.Mail> sent = mailbox.getMessagesSentTo(to);
         assertAll(
-                () -> assertThat(sent).hasSize(1),
-                () -> assertThat(sent.get(0).getHtml()).contains(applicationConfig.getBudgetCalculationExcelUrlAsString())
+                () -> assertThat(sent).hasSize(1)
         );
     }
 
-    @Test
-    void send_projectControllingMailContainsCorrectGoogleDocsURL() {
-        final String to = "garfield.atHome@gmail.com";
-        mailSender.send(Mail.PL_PROJECT_CONTROLLING, to, "Jamal", Locale.GERMAN);
-        List<io.quarkus.mailer.Mail> sent = mailbox.getMessagesSentTo(to);
-        assertAll(
-                () -> assertThat(sent.size()).isEqualTo(1),
-                () -> assertThat(sent.get(0).getHtml()).contains(GOOGLE_DOCS_PLANRECHNUNGS_URL)
-        );
-    }
 }

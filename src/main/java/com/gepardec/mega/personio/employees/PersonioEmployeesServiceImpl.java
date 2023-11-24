@@ -22,7 +22,8 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
     @Override
     public double getVacationDayBalance(String email) {
         var response = personioEmployeesClient.getByEmail(email);
-        var employeesResponse = response.readEntity(new GenericType<BaseResponse<List<EmployeesResponse>>>(){});
+        var employeesResponse = response.readEntity(new GenericType<BaseResponse<List<EmployeesResponse>>>() {
+        });
         if (employeesResponse.isSuccess()) {
             if (employeesResponse.getData().size() == 1) {
                 return employeesResponse.getData().get(0).getAttributes().getVacationDayBalance().getValue();

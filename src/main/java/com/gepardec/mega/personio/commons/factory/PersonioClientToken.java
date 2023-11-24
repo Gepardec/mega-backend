@@ -16,12 +16,12 @@ public class PersonioClientToken {
         return clientId;
     }
 
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
     public void setClientId(String clientId) {
         this.clientId = clientId;
+    }
+
+    public String getClientSecret() {
+        return clientSecret;
     }
 
     public void setClientSecret(String clientSecret) {

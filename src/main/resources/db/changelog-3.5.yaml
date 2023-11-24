@@ -1,11 +1,11 @@
 databaseChangeLog:
-- changeSet:
-    id: 1678360568738-9
-    author: mega (generated)
-    changes:
-    - addColumn:
-        columns:
-        - column:
-            name: state_reason
-            type: varchar(500)
-        tableName: step_entry
+  - changeSet:
+      id: 1678360568738-9
+      author: mega (generated)
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: state_reason
+                  type: varchar(500)
+            tableName: step_entry

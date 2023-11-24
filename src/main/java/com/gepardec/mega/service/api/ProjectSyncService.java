@@ -5,5 +5,6 @@ import java.time.LocalDate;
 public interface ProjectSyncService {
 
     boolean generateProjects();
+
     boolean generateProjects(LocalDate date);
 }

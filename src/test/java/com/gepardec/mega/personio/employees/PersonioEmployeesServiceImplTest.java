@@ -31,6 +31,7 @@ class PersonioEmployeesServiceImplTest {
     @InjectMock
     Logger logger;
 
+
     @Test
     void getVacationDayBalance_ValidResponse_Ten() {
         //GIVEN

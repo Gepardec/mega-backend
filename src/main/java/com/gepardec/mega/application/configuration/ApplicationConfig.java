@@ -5,17 +5,12 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 
 @ApplicationScoped
 public class ApplicationConfig {
-
-    @Inject
-    @ConfigProperty(name = "mega.budget-calculation-excel-url")
-    URL budgetCalculationExcelUrl;
 
     @Inject
     @ConfigProperty(name = "mega.info.build.version")
@@ -46,10 +41,6 @@ public class ApplicationConfig {
     @PostConstruct
     public void init() {
         startAt = LocalDateTime.now();
-    }
-
-    public String getBudgetCalculationExcelUrlAsString() {
-        return budgetCalculationExcelUrl.toString();
     }
 
     public String getVersion() {
