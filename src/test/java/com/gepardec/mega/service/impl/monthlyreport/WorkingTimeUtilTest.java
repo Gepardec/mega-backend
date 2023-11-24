@@ -62,7 +62,7 @@ public class WorkingTimeUtilTest {
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(5);
         List<FehlzeitType> fehlzeitTypes = List.of();
 
-        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
+        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
         assertThat(overtimeforEmployee).isEqualTo(8.0);
     }
 
@@ -73,7 +73,7 @@ public class WorkingTimeUtilTest {
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(3);
         List<FehlzeitType> fehlzeitTypes = List.of();
 
-        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
+        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
         assertThat(overtimeforEmployee).isEqualTo(-8.);
     }
 
@@ -84,7 +84,7 @@ public class WorkingTimeUtilTest {
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(3);
         List<FehlzeitType> fehlzeitTypes = returnFehlzeitTypeList();
 
-        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
+        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
         assertThat(overtimeforEmployee).isEqualTo(0);
     }
 
@@ -99,7 +99,12 @@ public class WorkingTimeUtilTest {
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(3);
         List<FehlzeitType> fehlzeitTypes = returnFehlzeitTypeList();
 
-        double overtimeforEmployee = workingTimeUtil.getOvertimeforEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 10, 1));
+        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(
+                employee,
+                projektzeitTypes,
+                fehlzeitTypes,
+                LocalDate.of(2023, 10, 1)
+        );
         assertThat(overtimeforEmployee).isEqualTo(0);
     }
 

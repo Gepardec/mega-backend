@@ -29,8 +29,6 @@ class ProjectCommentRepositoryTest {
 
     private ProjectComment projectComment;
 
-    private ProjectComment projectComment;
-
     @BeforeEach
     void setUp() {
         projectComment = initializeProjectCommentObject();
