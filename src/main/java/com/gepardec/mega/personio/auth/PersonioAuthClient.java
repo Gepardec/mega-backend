@@ -16,7 +16,6 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 public interface PersonioAuthClient {
 
     @POST
-    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     AuthResponse authenticate(@RequestBody PersonioClientToken personioClientToken);
