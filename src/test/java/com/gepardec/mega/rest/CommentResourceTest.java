@@ -2,7 +2,6 @@ package com.gepardec.mega.rest;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.Comment;
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
@@ -29,6 +28,8 @@ import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -50,24 +51,24 @@ class CommentResourceTest {
     @Test
     void setCommentStatusDone_whenPOST_thenReturnsStatusMETHOD_NOT_ALLOWED() {
         given().contentType(ContentType.JSON)
-                .post("/comments/setdone")
+                .post("/comments/finish")
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
     @Test
     @TestSecurity
     @JwtSecurity
-    void setDone_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
+    void finish_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
-        given().contentType(ContentType.JSON).put("/comments/setdone")
+        given().contentType(ContentType.JSON).put("/comments/finish")
                 .then().assertThat().statusCode(HttpStatus.SC_UNAUTHORIZED);
     }
 
     @Test
-    void setDone_whenValid_thenReturnsUpdatedNumber() {
-        when(commentService.setDone(ArgumentMatchers.any(Comment.class))).thenReturn(1);
+    void finish_whenValid_thenReturnsUpdatedNumber() {
+        when(commentService.finish(any(Comment.class))).thenReturn(1);
 
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
@@ -81,7 +82,7 @@ class CommentResourceTest {
 
         final int updatedCount = given().contentType(ContentType.JSON)
                 .body(comment)
-                .put("/comments/setdone")
+                .put("/comments/finish")
                 .as(Integer.class);
 
         assertThat(updatedCount).isEqualTo(1);
@@ -150,7 +151,7 @@ class CommentResourceTest {
         when(userContext.getUser()).thenReturn(user);
 
         Comment comment = Comment.builder().id(0L).message("Pausen eintragen!").authorEmail("no-reply@gepardec.com").state(EmployeeState.IN_PROGRESS).build();
-        when(commentService.findCommentsForEmployee(ArgumentMatchers.any(Employee.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class)))
+        when(commentService.findCommentsForEmployee(anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(List.of(comment));
 
         List<CommentDto> comments = given().contentType(ContentType.JSON)
@@ -188,28 +189,32 @@ class CommentResourceTest {
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
-        when(commentService.createNewCommentForEmployee(
+        when(commentService.create(
                 ArgumentMatchers.anyLong(),
-                ArgumentMatchers.any(Employee.class),
-                ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyString()
+                any(),
+                anyString(),
+                anyString(),
+                anyString(),
+                anyString(),
+                anyString()
         )).thenReturn(Comment.builder().message("Pausen eintragen!").build());
 
-        Employee employee = Employee.builder().build();
         NewCommentEntryDto newCommentEntryDto = NewCommentEntryDto.builder()
                 .comment("Pausen eintragen!")
-                .employee(employee).stepId(2L)
+                .employeeEmail("max.mustermann@gepardec.com")
+                .stepId(2L)
                 .assigneeEmail("no-reply@gepardec.com")
                 .currentMonthYear("2020-10-01")
                 .project("")
                 .build();
+
+        //WHEN
         CommentDto createdComment = given().contentType(ContentType.JSON)
                 .body(newCommentEntryDto)
                 .post("/comments")
                 .as(CommentDto.class);
 
+        //THEN
         assertThat(createdComment).isNotNull();
         assertThat(createdComment.getMessage()).isEqualTo(newCommentEntryDto.comment());
     }
@@ -235,7 +240,7 @@ class CommentResourceTest {
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
-        when(commentService.deleteCommentWithId(ArgumentMatchers.anyLong()))
+        when(commentService.delete(ArgumentMatchers.anyLong()))
                 .thenReturn(Boolean.TRUE);
 
         Boolean result = given().contentType(ContentType.JSON)
@@ -270,7 +275,7 @@ class CommentResourceTest {
         when(userContext.getUser()).thenReturn(user);
 
         Comment comment = Comment.builder().id(1L).message("Zeiten prüfen").build();
-        when(commentService.updateComment(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString()))
+        when(commentService.update(ArgumentMatchers.anyLong(), anyString()))
                 .thenReturn(comment);
 
         CommentDto updatedComment = given().contentType(ContentType.JSON)

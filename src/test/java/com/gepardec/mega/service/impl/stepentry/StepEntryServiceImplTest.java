@@ -183,7 +183,7 @@ class StepEntryServiceImplTest {
     void findStepEntryForEmployeeAtStep_whenEmployeeIsNull_thenThrowsException() {
         assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAtStep(2L, null, "", ""))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessage("Employee must not be null!");
+                .hasMessage("'employeeEmail' must not be null!");
     }
 
     @Test
@@ -198,7 +198,7 @@ class StepEntryServiceImplTest {
 
         Employee employee = createEmployee();
 
-        assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAtStep(2L, employee, "", employee.getReleaseDate()))
+        assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAtStep(2L, employee.getEmail(), "", employee.getReleaseDate()))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No StepEntries found for Employee ");
     }
@@ -214,7 +214,7 @@ class StepEntryServiceImplTest {
         )).thenReturn(Optional.of(createStepEntry(1L)));
 
         Employee employee = createEmployee();
-        StepEntry stepEntry = stepEntryService.findStepEntryForEmployeeAtStep(2L, employee, "", employee.getReleaseDate());
+        StepEntry stepEntry = stepEntryService.findStepEntryForEmployeeAtStep(2L, employee.getEmail(), "", employee.getReleaseDate());
         assertThat(stepEntry).isNotNull();
         assertThat(stepEntry.getId()).isEqualTo(1L);
         assertThat(stepEntry.getProject()).isEqualTo("Liwest-EMS");

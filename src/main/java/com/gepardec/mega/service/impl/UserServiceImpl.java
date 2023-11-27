@@ -33,6 +33,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
+    public User findByName(String firstname, String lastname) {
+        var user = userRepository.findActiveByName(firstname, lastname)
+                .orElseThrow(() ->
+                        new ForbiddenException("User with name '" + firstname + " " + lastname +
+                                "' is either unknown or inactive")
+                );
+
+        return mapper.map(user);
+    }
+
+    @Override
+    @Transactional(Transactional.TxType.SUPPORTS)
+    public User findByZepId(String zepId) {
+        var user = userRepository.findByZepId(zepId)
+                .orElseThrow(() ->
+                        new ForbiddenException("User with zepId '" + zepId + "' is either unknown or inactive")
+                );
+
+        return mapper.map(user);
+    }
+
+    @Override
+    @Transactional(Transactional.TxType.SUPPORTS)
     public List<User> findActiveUsers() {
         final List<com.gepardec.mega.db.entity.employee.User> activeUsers = userRepository.findActive();
         return activeUsers.stream()

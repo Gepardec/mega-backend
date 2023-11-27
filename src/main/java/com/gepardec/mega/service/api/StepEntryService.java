@@ -35,9 +35,9 @@ public interface StepEntryService {
 
     List<com.gepardec.mega.db.entity.employee.StepEntry> findAllStepEntriesForEmployeeAndProject(Employee employee, String projectId, String assigneEmail, LocalDate from, LocalDate to);
 
-    com.gepardec.mega.db.entity.employee.StepEntry findStepEntryForEmployeeAtStep(Long stepId, Employee employee, String assigneeEmail, String currentMonthYear);
+    com.gepardec.mega.db.entity.employee.StepEntry findStepEntryForEmployeeAtStep(Long stepId, String employeeEmail, String assigneeEmail, String currentMonthYear);
 
-    com.gepardec.mega.db.entity.employee.StepEntry findStepEntryForEmployeeAndProjectAtStep(Long stepId, Employee employee, String assigneeEmail, String project, String currentMonthYear);
+    com.gepardec.mega.db.entity.employee.StepEntry findStepEntryForEmployeeAndProjectAtStep(Long stepId, String employeeEmail, String assigneeEmail, String project, String currentMonthYear);
 
     List<ProjectEmployees> getProjectEmployeesForPM(final LocalDate from, final LocalDate to, final String assigneEmail);
 

@@ -1,22 +1,23 @@
 package com.gepardec.mega.service.api;
 
 import com.gepardec.mega.domain.model.Comment;
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.FinishedAndTotalComments;
+import com.gepardec.mega.domain.model.SourceSystem;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public interface CommentService {
-    List<Comment> findCommentsForEmployee(final Employee employee, LocalDate from, LocalDate to);
+    List<Comment> findCommentsForEmployee(final String employeeEmail, LocalDate from, LocalDate to);
 
-    int setDone(final Comment comment);
+    int finish(final Comment comment);
 
-    FinishedAndTotalComments cntFinishedAndTotalCommentsForEmployee(final Employee employee, LocalDate from, LocalDate to);
+    FinishedAndTotalComments countFinishedAndTotalComments(final String employeeMail, LocalDate from, LocalDate to);
 
-    Comment createNewCommentForEmployee(Long stepId, Employee employee, String comment, String assigneeEmail, String project, String currentMonthYear);
+    Comment create(Long stepId, SourceSystem sourceSystem, String employeeEmail, String comment, String assigneeEmail,
+                   String project, String currentMonthYear);
 
-    boolean deleteCommentWithId(Long id);
+    boolean delete(Long id);
 
-    Comment updateComment(Long id, String message);
+    Comment update(Long id, String message);
 }

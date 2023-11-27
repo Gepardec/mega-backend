@@ -4,6 +4,7 @@ import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.domain.model.Role;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
+import io.quarkus.vertx.web.Param;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -21,6 +22,23 @@ public class UserRepository implements PanacheRepository<User> {
 
     public Optional<User> findActiveByEmail(final String email) {
         return find("#User.findActiveByEmail", Parameters.with("email", email)).firstResultOptional();
+    }
+
+    public Optional<User> findActiveByName(final String firstname, final String lastname) {
+        return find(
+                "#User.findActiveByName",
+                Parameters.with("firstname", firstname)
+                        .and("lastname", lastname)
+        )
+                .firstResultOptional();
+    }
+
+    public Optional<User> findByZepId(final String zepId) {
+        return find(
+                "#User.findActiveByZepId",
+                Parameters.with("zepId", zepId)
+        )
+                .firstResultOptional();
     }
 
     public List<User> findActive() {

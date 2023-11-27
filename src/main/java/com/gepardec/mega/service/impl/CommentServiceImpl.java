@@ -1,12 +1,11 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.repository.CommentRepository;
 import com.gepardec.mega.domain.mapper.CommentMapper;
 import com.gepardec.mega.domain.model.Comment;
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.FinishedAndTotalComments;
+import com.gepardec.mega.domain.model.SourceSystem;
 import com.gepardec.mega.notification.mail.Mail;
 import com.gepardec.mega.notification.mail.MailParameter;
 import com.gepardec.mega.notification.mail.MailSender;
@@ -42,31 +41,37 @@ public class CommentServiceImpl implements CommentService {
     StepEntryService stepEntryService;
 
     @Override
-    public List<Comment> findCommentsForEmployee(final Employee employee, LocalDate from, LocalDate to) {
-        List<com.gepardec.mega.db.entity.employee.Comment> dbComments =
-                commentRepository.findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail(from, to, employee.getEmail());
-
-        return dbComments
+    public List<Comment> findCommentsForEmployee(final String employeeEmail,
+                                                 final LocalDate from,
+                                                 final LocalDate to) {
+        return commentRepository.findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail(
+                        from,
+                        to,
+                        employeeEmail
+                )
                 .stream()
-                .map(commentMapper::mapDbCommentToDomainComment).collect(Collectors.toList());
+                .map(commentMapper::mapDbCommentToDomainComment)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public int setDone(final Comment comment) {
-        com.gepardec.mega.db.entity.employee.Comment commentDb = commentRepository.findById(comment.getId());
-        sendMail(Mail.COMMENT_CLOSED, commentDb);
+    public int finish(final Comment comment) {
+        var commentEntity = commentRepository.findById(comment.getId());
+        sendMail(Mail.COMMENT_CLOSED, commentEntity);
         return commentRepository.setStatusDone(comment.getId());
     }
 
     @Override
-    public FinishedAndTotalComments cntFinishedAndTotalCommentsForEmployee(Employee employee, LocalDate from, LocalDate to) {
-        Objects.requireNonNull(employee, "Employee must not be null!");
-        Objects.requireNonNull(from, "From date must not be null!");
-        Objects.requireNonNull(to, "To date must not be null!");
+    public FinishedAndTotalComments countFinishedAndTotalComments(final String employeeMail,
+                                                                  final LocalDate from,
+                                                                  final LocalDate to) {
+        Objects.requireNonNull(employeeMail, "'employeeMail' must not be null!");
+        Objects.requireNonNull(from, "'from' date must not be null!");
+        Objects.requireNonNull(to, "'to' date must not be null!");
 
-        List<com.gepardec.mega.db.entity.employee.Comment> allComments =
+        var allComments =
                 commentRepository.findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail(
-                        from, to, employee.getEmail()
+                        from, to, employeeMail
                 );
 
         long finishedComments = allComments.stream()
@@ -79,24 +84,38 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Comment createNewCommentForEmployee(Long stepId, Employee employee, String comment, String assigneeEmail, String project, String currentMonthYear) {
-        Objects.requireNonNull(employee);
-        StepEntry stepEntry = StringUtils.isBlank(project) ?
-                stepEntryService.findStepEntryForEmployeeAtStep(stepId, employee, assigneeEmail, currentMonthYear) :
-                stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employee, assigneeEmail, project, currentMonthYear);
-        com.gepardec.mega.db.entity.employee.Comment newComment = new com.gepardec.mega.db.entity.employee.Comment();
-        newComment.setMessage(comment);
-        newComment.setStepEntry(stepEntry);
-        commentRepository.save(newComment);
-        sendMail(Mail.COMMENT_CREATED, newComment);
-        return commentMapper.mapDbCommentToDomainComment(newComment);
+    public Comment create(final Long stepId,
+                          final SourceSystem sourceSystem,
+                          final String employeeEmail,
+                          final String message,
+                          final String assigneeEmail,
+                          final String project,
+                          final String currentMonthYear) {
+        Objects.requireNonNull(employeeEmail, "'employeeEmail' must not be null");
+        var stepEntry = StringUtils.isBlank(project)
+                ? stepEntryService.findStepEntryForEmployeeAtStep(stepId, employeeEmail, assigneeEmail, currentMonthYear)
+                : stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, currentMonthYear);
+
+        var comment = new com.gepardec.mega.db.entity.employee.Comment();
+        comment.setMessage(message);
+        comment.setStepEntry(stepEntry);
+        comment.setSourceSystem(sourceSystem);
+
+        commentRepository.save(comment);
+
+        if (SourceSystem.MEGA.equals(comment.getSourceSystem())) {
+            sendMail(Mail.COMMENT_CREATED, comment);
+        }
+
+        return commentMapper.mapDbCommentToDomainComment(comment);
     }
 
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
-    public boolean deleteCommentWithId(Long id) {
-        com.gepardec.mega.db.entity.employee.Comment comment = commentRepository.findById(id);
+    public boolean delete(final Long id) {
+        var comment = commentRepository.findById(id);
         boolean deleted = commentRepository.deleteComment(id);
+
         if (deleted) {
             sendMail(Mail.COMMENT_DELETED, comment);
         }
@@ -106,25 +125,27 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
-    public Comment updateComment(Long id, String message) {
-        com.gepardec.mega.db.entity.employee.Comment commentDb = commentRepository.findById(id);
-        if (commentDb == null) {
+    public Comment update(final Long id, final String message) {
+        var comment = commentRepository.findById(id);
+        if (comment == null) {
             throw new EntityNotFoundException(String.format("No entity found for id = %d", id));
         }
 
-        commentDb.setMessage(message);
-        commentRepository.update(commentDb);
-        sendMail(Mail.COMMENT_MODIFIED, commentDb);
-        return commentMapper.mapDbCommentToDomainComment(commentDb);
+        comment.setMessage(message);
+
+        commentRepository.update(comment);
+        sendMail(Mail.COMMENT_MODIFIED, comment);
+
+        return commentMapper.mapDbCommentToDomainComment(comment);
     }
 
     private void sendMail(Mail mail, com.gepardec.mega.db.entity.employee.Comment comment) {
-        StepEntry stepEntry = comment.getStepEntry();
-        String creator = comment.getStepEntry().getAssignee().getFirstname();
-        String recipient = Mail.COMMENT_CLOSED.equals(mail)
+        var stepEntry = comment.getStepEntry();
+        var creator = comment.getStepEntry().getAssignee().getFirstname();
+        var recipient = Mail.COMMENT_CLOSED.equals(mail)
                 ? stepEntry.getAssignee().getFirstname()
                 : stepEntry.getOwner().getFirstname();
-        String recipientEmail = Mail.COMMENT_CLOSED.equals(mail)
+        var recipientEmail = Mail.COMMENT_CLOSED.equals(mail)
                 ? stepEntry.getAssignee().getEmail()
                 : stepEntry.getOwner().getEmail();
         Map<String, String> mailParameter = new HashMap<>() {{

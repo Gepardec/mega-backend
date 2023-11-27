@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-source-system-column
+      author: MEGA-702
+      changes:
+        - addColumn:
+            tableName: comment
+            columns:
+              - column:
+                  name: source_system
+                  type: varchar(20)
+                  defaultValue: 'MEGA'
+                  constraints:
+                    nullable: false
+

@@ -25,4 +25,6 @@ public class Comment {
     private String updateDate;
 
     private EmployeeState state;
+
+    private SourceSystem sourceSystem;
 }

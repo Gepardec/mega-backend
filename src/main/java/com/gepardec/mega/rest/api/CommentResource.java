@@ -1,6 +1,5 @@
 package com.gepardec.mega.rest.api;
 
-import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.rest.model.CommentDto;
 import com.gepardec.mega.rest.model.NewCommentEntryDto;
 import jakarta.validation.constraints.Email;
@@ -22,8 +21,8 @@ public interface CommentResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/setdone")
-    Response setDone(@NotNull(message = "{commentResource.comment.notNull}") CommentDto commentDto);
+    @Path("/finish")
+    Response finish(@NotNull(message = "{commentResource.comment.notNull}") CommentDto commentDto);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -45,5 +44,5 @@ public interface CommentResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    Response updateCommentForEmployee(@NotNull(message = "{commentResource.comment.notNull}") Comment commentDto);
+    Response updateCommentForEmployee(@NotNull(message = "{commentResource.comment.notNull}") CommentDto commentDto);
 }

@@ -11,7 +11,8 @@ public enum Mail {
     COMMENT_CLOSED(MailType.MANUAL),
     COMMENT_CREATED(MailType.MANUAL),
     COMMENT_DELETED(MailType.MANUAL),
-    COMMENT_MODIFIED(MailType.MANUAL);
+    COMMENT_MODIFIED(MailType.MANUAL),
+    ZEP_COMMENT_PROCESSING_ERROR(MailType.MANUAL);
 
     private final Integer day;
 

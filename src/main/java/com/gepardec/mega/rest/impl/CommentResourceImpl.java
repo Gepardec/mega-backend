@@ -1,7 +1,7 @@
 package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.domain.model.Comment;
-import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.SourceSystem;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.CommentResource;
 import com.gepardec.mega.rest.mapper.CommentMapper;
@@ -27,8 +27,8 @@ public class CommentResourceImpl implements CommentResource {
     CommentService commentService;
 
     @Override
-    public Response setDone(final CommentDto commentDto) {
-        return Response.ok(commentService.setDone(mapper.mapToDomain(commentDto))).build();
+    public Response finish(final CommentDto commentDto) {
+        return Response.ok(commentService.finish(mapper.mapToDomain(commentDto))).build();
     }
 
     @Override
@@ -37,9 +37,7 @@ public class CommentResourceImpl implements CommentResource {
         LocalDate to = DateUtils.getLastDayOfCurrentMonth(currentMonthYear);
 
         List<Comment> commentsForEmployee = commentService.findCommentsForEmployee(
-                Employee.builder()
-                        .email(employeeEmail)
-                        .build(),
+                employeeEmail,
                 from,
                 to
         );
@@ -48,9 +46,10 @@ public class CommentResourceImpl implements CommentResource {
 
     @Override
     public Response newCommentForEmployee(NewCommentEntryDto newComment) {
-        Comment comment = commentService.createNewCommentForEmployee(
+        Comment comment = commentService.create(
                 newComment.stepId(),
-                newComment.employee(),
+                SourceSystem.MEGA,
+                newComment.employeeEmail(),
                 newComment.comment(),
                 newComment.assigneeEmail(),
                 newComment.project(),
@@ -62,12 +61,12 @@ public class CommentResourceImpl implements CommentResource {
 
     @Override
     public Response deleteComment(Long id) {
-        return Response.ok(commentService.deleteCommentWithId(id)).build();
+        return Response.ok(commentService.delete(id)).build();
     }
 
     @Override
-    public Response updateCommentForEmployee(Comment comment) {
-        Comment updatedComment = commentService.updateComment(comment.getId(), comment.getMessage());
+    public Response updateCommentForEmployee(CommentDto comment) {
+        Comment updatedComment = commentService.update(comment.getId(), comment.getMessage());
 
         return Response.ok(mapper.mapToDto(updatedComment)).build();
     }
