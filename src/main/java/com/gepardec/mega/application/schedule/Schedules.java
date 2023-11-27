@@ -87,7 +87,7 @@ public class Schedules {
      */
     @Scheduled(
             identity = "Receive E-Mails sent to employees from ZEP",
-            cron = "0 10 7-18 ? * MON-FRI"
+            cron = "0 */10 7-18 ? * MON-FRI"
     )
     void receiveMails() {
         mailReceiver.retrieveZepEmailsFromInbox();
