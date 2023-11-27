@@ -28,6 +28,10 @@ public class MailReceiver {
     ZepMailToCommentService zepMailToCommentService;
 
     public void retrieveZepEmailsFromInbox() {
+        if (mailReceiverConfig == null) {
+            logger.warn("No config property for enabling E-Mail receiver is set.");
+        }
+
         if (!Boolean.TRUE.equals(mailReceiverConfig.isEnabled())) {
             logger.info("E-Mail receiver is disabled.");
             return;
