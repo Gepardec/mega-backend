@@ -46,24 +46,9 @@ class MailReceiverTest {
     }
 
     @Test
-    void retrieveZepEmailsFromInbox_ReceiverDisabled_EmptyList() {
-        //GIVEN
-        when(mailReceiverConfig.isEnabled()).thenReturn(Boolean.FALSE);
-
-        //WHEN
-        testedObject.retrieveZepEmailsFromInbox();
-
-        //THEN
-        verify(logger).info("E-Mail receiver is disabled.");
-        verify(zepMailToCommentService, times(0)).saveAsComment(any());
-    }
-
-    @Test
     void retrieveZepEmailsFromInbox_Successful() throws MessagingException {
         //GIVEN
         try (var mockedStatic = Mockito.mockStatic(Session.class)) {
-            when(mailReceiverConfig.isEnabled()).thenReturn(true);
-
             var inbox = mock(Folder.class);
             when(inbox.search(any())).thenReturn(new Message[]{mock(IMAPMessage.class)});
 
@@ -87,8 +72,6 @@ class MailReceiverTest {
     void retrieveZepEmailsFromInbox_Exception_EmptyList() throws MessagingException {
         //GIVEN
         try (var mockedStatic = Mockito.mockStatic(Session.class)) {
-            when(mailReceiverConfig.isEnabled()).thenReturn(true);
-
             var store = mock(Store.class);
             doThrow(MessagingException.class).when(store).connect();
 

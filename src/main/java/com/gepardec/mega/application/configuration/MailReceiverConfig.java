@@ -8,10 +8,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 public class MailReceiverConfig {
 
     @Inject
-    @ConfigProperty(name = "mega.mail.receiver.enabled")
-    Boolean enabled;
-
-    @Inject
     @ConfigProperty(name = "mega.mail.receiver.protocol")
     String protocol;
 
@@ -34,10 +30,6 @@ public class MailReceiverConfig {
     @Inject
     @ConfigProperty(name = "mega.mail.receiver.sender")
     String sender;
-
-    public Boolean isEnabled() {
-        return enabled;
-    }
 
     public String getProtocol() {
         return protocol;

@@ -82,12 +82,9 @@ public class Schedules {
         reminderEmailSender.sendReminder();
     }
 
-    /**
-     * At every 10th minute past every hour from 7 through 18 on every day-of-week from Monday through Friday.
-     */
     @Scheduled(
             identity = "Receive E-Mails sent to employees from ZEP",
-            cron = "0 */10 7-18 ? * MON-FRI"
+            cron = "${mega.mail.receiver.cron-expr}"
     )
     void receiveMails() {
         mailReceiver.retrieveZepEmailsFromInbox();
