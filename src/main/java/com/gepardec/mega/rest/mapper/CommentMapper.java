@@ -16,6 +16,7 @@ public class CommentMapper implements DtoMapper<Comment, CommentDto> {
                 .authorName(object.getAuthorName())
                 .updateDate(object.getUpdateDate())
                 .state(object.getState())
+                .sourceSystem(object.getSourceSystem())
                 .build();
     }
 
@@ -28,6 +29,7 @@ public class CommentMapper implements DtoMapper<Comment, CommentDto> {
                 .authorName(object.getAuthorName())
                 .updateDate(object.getUpdateDate())
                 .state(object.getState())
+                .sourceSystem(object.getSourceSystem())
                 .build();
     }
 }
