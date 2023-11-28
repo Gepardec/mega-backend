@@ -7,6 +7,7 @@ public class MailSenderMetadata {
     private String originalRecipient;
     private String recipientEmail;
     private String recipientFirstname;
+    private String rawContent;
 
     public Optional<String> getOriginalRecipient() {
         return Optional.ofNullable(originalRecipient);
@@ -30,5 +31,13 @@ public class MailSenderMetadata {
 
     public void setRecipientFirstname(String recipientFirstname) {
         this.recipientFirstname = recipientFirstname;
+    }
+
+    public String getRawContent() {
+        return rawContent;
+    }
+
+    public void setRawContent(String rawContent) {
+        this.rawContent = rawContent;
     }
 }

@@ -26,18 +26,20 @@ import static org.mockito.Mockito.when;
 @QuarkusTest
 class ZepProjektzeitDetailsMailMapperTest {
 
-    private static final String SUBJECT = "Projektzeit Fr, 03.11.2023";
-    private static final String BODY_CONTENT = "von 11:15 bis 12:00 (0,75 Stunden)\n" +
+    private static final String SUBJECT = "Projektzeit Fr, 03.11.2023 von 11:15 bis 12:00 (0,75 Stunden)";
+    private static final String BODY_CONTENT = "\n" +
             "\n" +
             "\n" +
             "\n" +
-            "Nachricht: Projekt passt nicht, bitte anpassen!\n" +
+            "Projekt passt nicht, bitte anpassen!\n" +
             "\n" +
             "\n" +
+            "Hinweis: Kommentare sind in MEGA zu bestätigen.\n" +
+            "#METADATEN####################################\n" +
             "\n" +
             "Ersteller-ID: 001-mmustermann\n" +
             "Mitarbeiter: Mustermann, Max\n" +
-            "Projekt: Gepardec\n" +
+            "Projekt: Gepardec (Ein cooles Projekt)\n" +
             "Vorgang: Learning Friday\n" +
             "Ticket:\n" +
             "Teilaufgabe:\n" +
@@ -78,14 +80,16 @@ class ZepProjektzeitDetailsMailMapperTest {
         assertThat(result).isPresent();
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(result.get().getTag()).as("Tag").isEqualTo(LocalDate.of(2023, 11, 3));
+            softly.assertThat(result.get().getUhrzeitVon()).as("UhrzeitVon").isEqualTo("11:15");
+            softly.assertThat(result.get().getUhrzeitBis()).as("UhrzeitBis").isEqualTo("12:00");
             softly.assertThat(result.get().getNachricht()).as("Nachricht").isEqualTo("Projekt passt nicht, bitte anpassen!");
             softly.assertThat(result.get().getZepIdErsteller()).as("ZepIdErsteller").isEqualTo("001-mmustermann");
-            softly.assertThat(result.get().getBuchungInfo()).as("BuchungInfo").isEqualTo("von 11:15 bis 12:00 (0,75 Stunden)");
             softly.assertThat(result.get().getMitarbeiterVorname()).as("MitarbeiterVorname").isEqualTo("Max");
             softly.assertThat(result.get().getMitarbeiterNachname()).as("MitarbeiterNachname").isEqualTo("Mustermann");
             softly.assertThat(result.get().getProjekt()).as("Projekt").isEqualTo("Gepardec");
             softly.assertThat(result.get().getVorgang()).as("Vorgang").isEqualTo("Learning Friday");
             softly.assertThat(result.get().getBemerkung()).as("Bemerkung").isEqualTo("MEGA");
+            softly.assertThat(result.get().getRawContent()).as("RawContent").isEqualTo("Subject: " + SUBJECT + "\n" + "Body: " + BODY_CONTENT);
         });
     }
 

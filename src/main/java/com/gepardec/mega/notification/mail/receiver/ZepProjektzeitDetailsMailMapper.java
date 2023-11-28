@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Multipart;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -16,15 +17,16 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @ApplicationScoped
 public class ZepProjektzeitDetailsMailMapper implements ZepMailMapper<ZepProjektzeitDetailsMail> {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    private static final String SUBJECT_REGEX = "Projektzeit (.*)";
+    private static final String SUBJECT_REGEX = "Projektzeit (.*) von (.*) bis (.*) \\((.*)\\)";
+    private static final String PROJECT_NAME_REGEX = "(.*) \\(.*\\)";
 
-    private static final String NACHRICHT = "Nachricht";
+    private static final String HINT_LINE = "Hinweis:";
+    private static final String METADATA_MARKER = "#METADATEN####################################";
     private static final String ZEP_ID_ERSTELLER = "Ersteller-ID";
     private static final String MITARBEITER = "Mitarbeiter";
     private static final String PROJEKT = "Projekt";
@@ -38,25 +40,36 @@ public class ZepProjektzeitDetailsMailMapper implements ZepMailMapper<ZepProjekt
     public Optional<ZepProjektzeitDetailsMail> convert(Message message) throws MessagingException, IOException {
         var subject = message.getSubject();
         var multipartContent = (Multipart) message.getContent();
-        var content = multipartContent.getBodyPart(0).getContent().toString().strip();
-        var contentMap = Stream.of(content.split("\n"))
-                .map(String::strip)
+        var content = multipartContent.getBodyPart(0).getContent().toString();
+        var nachricht = content.lines()
+                .takeWhile(line -> !line.startsWith(METADATA_MARKER))
+                .filter(line -> !line.startsWith(HINT_LINE))
+                .filter(StringUtils::isNotBlank)
+                .reduce("", (result, line) -> result.concat(" ").concat(line))
+                .strip();
+
+        var metadataMap = content.lines()
+                .dropWhile(line -> !line.startsWith(METADATA_MARKER))
+                .skip(1) // skip the line with METADATA_MARKER
+                .filter(StringUtils::isNotBlank)
                 .map(line -> toMapEntry(line.split(":")))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        if (isSubjectValid(subject) && isBodyValid(contentMap)) {
+        if (isSubjectValid(subject) && isBodyValid(metadataMap)) {
             return Optional.of(
                     ZepProjektzeitDetailsMail.builder()
                             .withTag(parseDate(subject))
-                            .withNachricht(contentMap.get(NACHRICHT))
-                            .withZepIdErsteller(contentMap.get(ZEP_ID_ERSTELLER))
-                            .withBuchungInfo(content.split("\n")[0].strip())
-                            .withMitarbeiterVorname(extractVorname(contentMap.get(MITARBEITER)))
-                            .withMitarbeiterNachname(extractNachname(contentMap.get(MITARBEITER)))
-                            .withProjekt(contentMap.get(PROJEKT))
-                            .withVorgang(contentMap.get(VORGANG))
-                            .withBemerkung(contentMap.get(BEMERKUNGEN))
+                            .withUhrzeitVon(parseUhrzeitVon(subject))
+                            .withUhrzeitBis(parseUhrzeitBis(subject))
+                            .withNachricht(nachricht)
+                            .withZepIdErsteller(metadataMap.get(ZEP_ID_ERSTELLER))
+                            .withMitarbeiterVorname(extractVorname(metadataMap.get(MITARBEITER)))
+                            .withMitarbeiterNachname(extractNachname(metadataMap.get(MITARBEITER)))
+                            .withProjekt(extractProjekt(metadataMap.get(PROJEKT)))
+                            .withVorgang(metadataMap.get(VORGANG))
+                            .withBemerkung(metadataMap.get(BEMERKUNGEN))
+                            .withRawContent("Subject: " + subject + "\n" + "Body: " + content)
                             .build()
             );
         } else {
@@ -83,7 +96,6 @@ public class ZepProjektzeitDetailsMailMapper implements ZepMailMapper<ZepProjekt
     private boolean isBodyValid(Map<String, String> contentMap) {
         return contentMap.keySet().containsAll(
                 List.of(
-                        NACHRICHT,
                         ZEP_ID_ERSTELLER,
                         MITARBEITER,
                         PROJEKT,
@@ -111,5 +123,38 @@ public class ZepProjektzeitDetailsMailMapper implements ZepMailMapper<ZepProjekt
 
     private static String extractVorname(String name) {
         return name != null ? name.split(",")[1].strip() : null;
+    }
+
+    private static String parseUhrzeitVon(String subject) {
+        var pattern = Pattern.compile(SUBJECT_REGEX);
+        var matcher = pattern.matcher(subject);
+
+        if (matcher.find()) {
+            return matcher.group(2);
+        }
+
+        return null;
+    }
+
+    private static String parseUhrzeitBis(String subject) {
+        var pattern = Pattern.compile(SUBJECT_REGEX);
+        var matcher = pattern.matcher(subject);
+
+        if (matcher.find()) {
+            return matcher.group(3);
+        }
+
+        return null;
+    }
+
+    private static String extractProjekt(String projekt) {
+        var pattern = Pattern.compile(PROJECT_NAME_REGEX);
+        var matcher = pattern.matcher(projekt);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+
+        return projekt;
     }
 }

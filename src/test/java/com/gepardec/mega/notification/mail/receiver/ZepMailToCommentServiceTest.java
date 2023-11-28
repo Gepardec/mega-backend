@@ -1,6 +1,8 @@
 package com.gepardec.mega.notification.mail.receiver;
 
 import com.gepardec.mega.application.exception.ForbiddenException;
+import com.gepardec.mega.domain.model.BillabilityPreset;
+import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.SourceSystem;
 import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.User;
@@ -8,6 +10,7 @@ import com.gepardec.mega.notification.mail.Mail;
 import com.gepardec.mega.notification.mail.MailParameter;
 import com.gepardec.mega.notification.mail.MailSender;
 import com.gepardec.mega.service.api.CommentService;
+import com.gepardec.mega.service.api.ProjectService;
 import com.gepardec.mega.service.api.UserService;
 import com.sun.mail.imap.IMAPMessage;
 import io.quarkus.test.junit.QuarkusTest;
@@ -22,6 +25,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -44,6 +48,9 @@ class ZepMailToCommentServiceTest {
     UserService userService;
 
     @InjectMock
+    ProjectService projectService;
+
+    @InjectMock
     CommentService commentService;
 
     @InjectMock
@@ -53,11 +60,18 @@ class ZepMailToCommentServiceTest {
     ZepMailToCommentService testedObject;
 
     @Test
-    void saveAsComment_() throws MessagingException, IOException {
+    void saveAsComment_BillableProject_Successful() throws MessagingException, IOException {
         //GIVEN
         when(zepProjektzeitDetailsMailMapper.convert(any())).thenReturn(of(createZepProjektzeitDetailsMail()));
         when(userService.findByName(any(), any())).thenReturn(createEmpfaenger());
         when(userService.findByZepId(any())).thenReturn(createErsteller());
+        when(projectService.getProjectByName(any(), any())).thenReturn(
+                Optional.of(
+                        createValidProjectBuilder()
+                                .billabilityPreset(BillabilityPreset.BILLABLE)
+                                .build()
+                )
+        );
 
         //WHEN
         testedObject.saveAsComment(mock(IMAPMessage.class));
@@ -67,10 +81,42 @@ class ZepMailToCommentServiceTest {
                 StepName.CONTROL_TIME_EVIDENCES.getId(),
                 SourceSystem.ZEP,
                 "max.empfaengermann@gepardec.com",
-                "Deine Buchung vom 03.11.2023 im Projekt 'Gepardec' weist beim Vorgang 'Learning Friday' " +
-                        "von ? bis ? (hh:mm) mit der Bemerkung 'MEGA' einen Fehler auf. Falsche Buchung!",
+                "Buchung vom 03.11.2023 (11:15 - 12:00) im Projekt 'Gepardec' - 'Learning Friday' " +
+                        "mit dem Text 'MEGA' ist anzupassen.\n Falsche Buchung!",
                 "max.erstellermann@gepardec.com",
                 "Gepardec",
+                "2023-11-03"
+
+        );
+        verify(mailSender, times(0)).send(any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void saveAsComment_NotBillableProject_Successful() throws MessagingException, IOException {
+        //GIVEN
+        when(zepProjektzeitDetailsMailMapper.convert(any())).thenReturn(of(createZepProjektzeitDetailsMail()));
+        when(userService.findByName(any(), any())).thenReturn(createEmpfaenger());
+        when(userService.findByZepId(any())).thenReturn(createErsteller());
+        when(projectService.getProjectByName(any(), any())).thenReturn(
+                of(
+                        createValidProjectBuilder()
+                                .billabilityPreset(BillabilityPreset.NOT_BILLABLE)
+                                .build()
+                )
+        );
+
+        //WHEN
+        testedObject.saveAsComment(mock(IMAPMessage.class));
+
+        //THEN
+        verify(commentService, times(1)).create(
+                StepName.CONTROL_INTERNAL_TIMES.getId(),
+                SourceSystem.ZEP,
+                "max.empfaengermann@gepardec.com",
+                "Buchung vom 03.11.2023 (11:15 - 12:00) im Projekt 'Gepardec' - 'Learning Friday' " +
+                        "mit dem Text 'MEGA' ist anzupassen.\n Falsche Buchung!",
+                "max.erstellermann@gepardec.com",
+                null,
                 "2023-11-03"
 
         );
@@ -113,26 +159,29 @@ class ZepMailToCommentServiceTest {
                 new HashMap<>() {{
                     put(MailParameter.RECIPIENT, "Max"); // employee who sent the comment
                     put(MailParameter.COMMENT, null); // error message
+                    put(MailParameter.ORIGINAL_MAIL, "Subject: Test\nBody: Content"); // original E-Mail
                 }},
                 List.of("unknown")
         );
     }
 
-    private ZepProjektzeitDetailsMail createZepProjektzeitDetailsMail() {
+    private static ZepProjektzeitDetailsMail createZepProjektzeitDetailsMail() {
         return ZepProjektzeitDetailsMail.builder()
                 .withTag(LocalDate.of(2023, 11, 3))
+                .withUhrzeitVon("11:15")
+                .withUhrzeitBis("12:00")
                 .withZepIdErsteller("001-mempfaengermann")
                 .withMitarbeiterVorname("Max")
                 .withMitarbeiterNachname("Empfaengermann")
                 .withNachricht("Falsche Buchung!")
-                .withBuchungInfo("von ? bis ? (hh:mm)")
                 .withProjekt("Gepardec")
                 .withVorgang("Learning Friday")
                 .withBemerkung("MEGA")
+                .withRawContent("Subject: Test\nBody: Content")
                 .build();
     }
 
-    private User createEmpfaenger() {
+    private static User createEmpfaenger() {
         return User.builder()
                 .firstname("Max")
                 .lastname("Empfaengermann")
@@ -140,11 +189,15 @@ class ZepMailToCommentServiceTest {
                 .build();
     }
 
-    private User createErsteller() {
+    private static User createErsteller() {
         return User.builder()
                 .firstname("Max")
                 .lastname("Erstellermann")
                 .email("max.erstellermann@gepardec.com")
                 .build();
+    }
+
+    private static Project.ProjectBuilder createValidProjectBuilder() {
+        return Project.builder().projectId("Gepardec");
     }
 }

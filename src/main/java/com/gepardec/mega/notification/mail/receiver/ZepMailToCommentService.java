@@ -55,26 +55,31 @@ public class ZepMailToCommentService {
                         mailSenderMetadata = new MailSenderMetadata();
                         mailSenderMetadata.setRecipientFirstname(ersteller.getFirstname());
                         mailSenderMetadata.setRecipientEmail(ersteller.getEmail());
+                        mailSenderMetadata.setRawContent(zepProjektzeitDetailsMail.getRawContent());
 
                         var empfaenger = userService.findByName(
                                 zepProjektzeitDetailsMail.getMitarbeiterVorname(),
                                 zepProjektzeitDetailsMail.getMitarbeiterNachname()
                         );
+                        mailSenderMetadata.setOriginalRecipient(zepProjektzeitDetailsMail.getMitarbeiterName());
 
                         var project = projectService.getProjectByName(
                                 zepProjektzeitDetailsMail.getProjekt(),
                                 zepProjektzeitDetailsMail.getTag()
                         );
 
-                        mailSenderMetadata.setOriginalRecipient(zepProjektzeitDetailsMail.getMitarbeiterName());
+                        var projectBillable = project.map(Project::isBillable)
+                                .orElseThrow(projectNotFoundInZep(zepProjektzeitDetailsMail.getProjekt()));
 
                         commentService.create(
-                                StepName.CONTROL_TIME_EVIDENCES.getId(),
+                                projectBillable
+                                        ? StepName.CONTROL_TIME_EVIDENCES.getId()
+                                        : StepName.CONTROL_INTERNAL_TIMES.getId(),
                                 SourceSystem.ZEP,
                                 empfaenger.getEmail(),
                                 buildComment(zepProjektzeitDetailsMail),
                                 ersteller.getEmail(),
-                                project.map(Project::isBillable).orElseThrow(projectNotFoundInZep(zepProjektzeitDetailsMail.getProjekt()))
+                                projectBillable
                                         ? zepProjektzeitDetailsMail.getProjekt()
                                         : null,
                                 zepProjektzeitDetailsMail.getTag().toString()
@@ -93,12 +98,12 @@ public class ZepMailToCommentService {
 
     private static String buildComment(ZepProjektzeitDetailsMail mail) {
         return String.format(
-                "Deine Buchung vom %s im Projekt '%s' weist beim Vorgang '%s' %s " +
-                        "mit der Bemerkung '%s' einen Fehler auf. %s",
+                "Buchung vom %s (%s - %s) im Projekt '%s' - '%s' mit dem Text '%s' ist anzupassen.\n %s",
                 DATE_FORMATTER.format(mail.getTag()),
+                mail.getUhrzeitVon(),
+                mail.getUhrzeitBis(),
                 mail.getProjekt(),
                 mail.getVorgang(),
-                mail.getBuchungInfo(),
                 mail.getBemerkung(),
                 mail.getNachricht()
         );
@@ -111,6 +116,7 @@ public class ZepMailToCommentService {
             Map<String, String> mailParameter = new HashMap<>() {{
                 put(MailParameter.RECIPIENT, mailSenderMetadata.getRecipientFirstname()); // employee who sent the comment
                 put(MailParameter.COMMENT, e.getMessage()); // error message
+                put(MailParameter.ORIGINAL_MAIL, mailSenderMetadata.getRawContent()); // original E-Mail
             }};
 
             mailSender.send(

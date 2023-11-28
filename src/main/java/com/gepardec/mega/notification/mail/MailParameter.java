@@ -16,6 +16,8 @@ public class MailParameter {
 
     public static final String COMMENT = "$comment$";
 
+    public static final String ORIGINAL_MAIL = "$originalMail$";
+
     private MailParameter() {
     }
 }
