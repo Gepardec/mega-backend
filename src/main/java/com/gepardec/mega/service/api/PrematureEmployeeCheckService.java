@@ -7,7 +7,7 @@ import java.util.List;
 public interface PrematureEmployeeCheckService {
     boolean addPrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck);
 
-    List<PrematureEmployeeCheck> getPrematureEmployeeCheckForEmail(String email);
+    List<PrematureEmployeeCheck> getPrematureEmployeeChecksForEmail(String email);
 
     boolean hasUserPrematureEmployeeCheck(String email);
 }

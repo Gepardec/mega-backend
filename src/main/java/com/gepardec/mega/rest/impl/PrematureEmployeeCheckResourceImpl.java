@@ -37,8 +37,8 @@ public class PrematureEmployeeCheckResourceImpl implements PrematureEmployeeChec
                         .releaseDate(userDto.getReleaseDate()).build()).build();
 
 
-        boolean suceeded = prematureEmployeeCheckService.addPrematureEmployeeCheck(prematureEmployeeCheck);
+        boolean succeeded = prematureEmployeeCheckService.addPrematureEmployeeCheck(prematureEmployeeCheck);
 
-        return Response.ok(suceeded).build();
+        return Response.ok(succeeded).build();
     }
 }

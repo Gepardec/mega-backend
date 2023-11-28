@@ -1,5 +1,6 @@
 package com.gepardec.mega.service.impl;
 
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import com.gepardec.mega.db.repository.PrematureEmployeeCheckRepository;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
@@ -16,6 +17,7 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
 
     @Inject
     PrematureEmployeeCheckRepository prematureEmployeeCheckRepository;
+
     @Inject
     UserRepository userRepository;
 
@@ -27,29 +29,29 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
 
     public boolean addPrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
 
-        com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck prematureEmployeeCheckDB = new com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck();
-        prematureEmployeeCheckDB.setUser(userRepository.findActiveByEmail(prematureEmployeeCheck.getUser().getEmail())
+        PrematureEmployeeCheckEntity prematureEmployeeCheckEntityDB = new PrematureEmployeeCheckEntity();
+        prematureEmployeeCheckEntityDB.setUser(userRepository.findActiveByEmail(prematureEmployeeCheck.getUser().getEmail())
                 .orElseThrow());
-        prematureEmployeeCheckDB.setForMonth(prematureEmployeeCheck.getForMonth().withDayOfMonth(1));
+        prematureEmployeeCheckEntityDB.setForMonth(prematureEmployeeCheck.getForMonth().withDayOfMonth(1));
 
-        com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck saved = prematureEmployeeCheckRepository.save(prematureEmployeeCheckDB);
+        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(prematureEmployeeCheckEntityDB);
 
-        logger.info(String.format("Added PrematureEmployeeCheck for %s in %s", saved.getUser()
+        logger.info(String.format("PrematureEmployeeCheck created for %s in %s", saved.getUser()
                 .getEmail(), saved.getForMonth()));
 
         return saved.getId() != null;
     }
 
     @Override
-    public List<PrematureEmployeeCheck> getPrematureEmployeeCheckForEmail(String email) {
-        List<com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck> fromUserId = prematureEmployeeCheckRepository.getFromEmail(email);
+    public List<PrematureEmployeeCheck> getPrematureEmployeeChecksForEmail(String email) {
+        List<PrematureEmployeeCheckEntity> fromUserId = prematureEmployeeCheckRepository.findByEmail(email);
 
         return prematureEmployeeCheckMapper.mapListToDomain(fromUserId);
     }
 
     @Override
     public boolean hasUserPrematureEmployeeCheck(String email) {
-        List<PrematureEmployeeCheck> prematureEmployeeCheckForUserId = getPrematureEmployeeCheckForEmail(email);
+        List<PrematureEmployeeCheck> prematureEmployeeCheckForUserId = getPrematureEmployeeChecksForEmail(email);
         return !prematureEmployeeCheckForUserId.isEmpty();
     }
 }

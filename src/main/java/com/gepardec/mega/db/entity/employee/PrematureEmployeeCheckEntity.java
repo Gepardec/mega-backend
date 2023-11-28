@@ -15,20 +15,16 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Getter
-@NoArgsConstructor
 @Entity
 @Table(name = "premature_employee_check", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "for_month"}))
 @NamedQueries({
-        @NamedQuery(name = "PrematureEmployeeCheck.findByEmail", query = "select p from PrematureEmployeeCheck p where p.user.email = :email"),
+        @NamedQuery(name = "PrematureEmployeeCheck.findByEmail", query = "select p from PrematureEmployeeCheckEntity p where p.user.email = :email"),
 })
-public class PrematureEmployeeCheck {
+public class PrematureEmployeeCheckEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PrematureEmployeeCheck_GEN")
     @SequenceGenerator(name = "PrematureEmployeeCheck_GEN", sequenceName = "PrematureEmployeeCheck_SEQ")
@@ -87,4 +83,19 @@ public class PrematureEmployeeCheck {
         this.id = id;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public LocalDate getForMonth() {
+        return forMonth;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
 }

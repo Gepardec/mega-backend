@@ -1,6 +1,6 @@
 package com.gepardec.mega.db.repository;
 
-import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck;
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import java.util.List;
 
 @ApplicationScoped
-public class PrematureEmployeeCheckRepository implements PanacheRepository<PrematureEmployeeCheck> {
+public class PrematureEmployeeCheckRepository implements PanacheRepository<PrematureEmployeeCheckEntity> {
 
     @Inject
     EntityManager em;
@@ -21,16 +21,16 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
     Logger logger;
 
     @Transactional
-    public PrematureEmployeeCheck save(final PrematureEmployeeCheck prematureEmployeeCheck) {
-        this.persist(prematureEmployeeCheck);
+    public PrematureEmployeeCheckEntity save(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
+        this.persist(prematureEmployeeCheckEntity);
         // Flushing to trigger the ConstraintViolationException to be able to catch it
         this.flush();
-        return prematureEmployeeCheck;
+        return prematureEmployeeCheckEntity;
     }
 
     @Transactional
-    public PrematureEmployeeCheck update(final PrematureEmployeeCheck prematureEmployeeCheck) {
-        return em.merge(prematureEmployeeCheck);
+    public PrematureEmployeeCheckEntity update(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
+        return em.merge(prematureEmployeeCheckEntity);
     }
 
     @Transactional
@@ -38,7 +38,7 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
         return deleteById(id);
     }
 
-    public List<PrematureEmployeeCheck> getFromEmail(String email) {
+    public List<PrematureEmployeeCheckEntity> findByEmail(String email) {
         return find("#PrematureEmployeeCheck.findByEmail",
                 Parameters.with("email", email))
                 .list();

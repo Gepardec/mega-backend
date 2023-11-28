@@ -1,5 +1,6 @@
 package com.gepardec.mega.service.impl.stepentry;
 
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import com.gepardec.mega.db.repository.PrematureEmployeeCheckRepository;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -66,20 +67,20 @@ public class PrematureEmployeeCheckServiceTest {
 
     @Test
     public void getPrematureEmployeeCheckForEmail_RETURN_VALID() {
-        when(prematureEmployeeCheckRepository.getFromEmail(any())).thenReturn(List.of(createDBPrematureEmployeeCheck(1L)));
+        when(prematureEmployeeCheckRepository.findByEmail(any())).thenReturn(List.of(createDBPrematureEmployeeCheck(1L)));
         when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of(createPrematureEmployeeCheck()));
 
-        List<PrematureEmployeeCheck> prematureEmployeeCheckForEmail = prematureEmployeeCheckService.getPrematureEmployeeCheckForEmail("max@mustermann.com");
+        List<PrematureEmployeeCheck> prematureEmployeeCheckForEmail = prematureEmployeeCheckService.getPrematureEmployeeChecksForEmail("max@mustermann.com");
 
         assertThat(prematureEmployeeCheckForEmail.size()).isEqualTo(1);
     }
 
     @Test
     public void getPrematureEmployeeCheckForEmail_RETURN_EMPTY() {
-        when(prematureEmployeeCheckRepository.getFromEmail(any())).thenReturn(List.of());
+        when(prematureEmployeeCheckRepository.findByEmail(any())).thenReturn(List.of());
         when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of());
 
-        List<PrematureEmployeeCheck> prematureEmployeeCheckForEmail = prematureEmployeeCheckService.getPrematureEmployeeCheckForEmail("max@mustermann.com");
+        List<PrematureEmployeeCheck> prematureEmployeeCheckForEmail = prematureEmployeeCheckService.getPrematureEmployeeChecksForEmail("max@mustermann.com");
 
         assertThat(prematureEmployeeCheckForEmail.size()).isEqualTo(0);
     }
@@ -121,12 +122,12 @@ public class PrematureEmployeeCheckServiceTest {
         return user;
     }
 
-    private com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck createDBPrematureEmployeeCheck(Long id) {
-        com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck prematureEmployeeCheck = new com.gepardec.mega.db.entity.employee.PrematureEmployeeCheck();
-        prematureEmployeeCheck.setId(id);
-        prematureEmployeeCheck.setUser(createDBUserForRole(Role.EMPLOYEE));
-        prematureEmployeeCheck.setForMonth(LocalDate.of(2023, 10, 1));
-        return prematureEmployeeCheck;
+    private PrematureEmployeeCheckEntity createDBPrematureEmployeeCheck(Long id) {
+        PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
+        prematureEmployeeCheckEntity.setId(id);
+        prematureEmployeeCheckEntity.setUser(createDBUserForRole(Role.EMPLOYEE));
+        prematureEmployeeCheckEntity.setForMonth(LocalDate.of(2023, 10, 1));
+        return prematureEmployeeCheckEntity;
     }
 
     private PrematureEmployeeCheck createPrematureEmployeeCheck() {
