@@ -1,5 +1,6 @@
 package com.gepardec.mega.zep;
 
+import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
@@ -48,6 +49,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
@@ -199,6 +201,25 @@ public class ZepServiceImpl implements ZepService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Optional<Project> getProjectByName(final String projectName, final LocalDate monthYear) {
+        final var readProjekteSearchCriteriaType = new ReadProjekteSearchCriteriaType();
+        readProjekteSearchCriteriaType.setVon(DateTimeFormatter.ISO_LOCAL_DATE.format(monthYear.with(TemporalAdjusters.firstDayOfMonth())));
+        readProjekteSearchCriteriaType.setBis(DateTimeFormatter.ISO_LOCAL_DATE.format(monthYear.with(TemporalAdjusters.lastDayOfMonth())));
+        readProjekteSearchCriteriaType.setProjektNr(projectName);
+
+        final var readProjekteRequestType = new ReadProjekteRequestType();
+        readProjekteRequestType.setRequestHeader(zepSoapProvider.createRequestHeaderType());
+        readProjekteRequestType.setReadProjekteSearchCriteria(readProjekteSearchCriteriaType);
+
+        var projects = zepSoapPortType.readProjekte(readProjekteRequestType).getProjektListe().getProjekt();
+        if (projects.size() != 1) {
+            return Optional.empty();
+        }
+
+        return Optional.of(createProject(projects.get(0), monthYear));
+    }
+
     private <T, U, R> Optional<R> getSearchCriteria(final T par1, final U par2, final BiFunction<T, U, R> searchCriteriaFunction) {
         try {
             return Optional.of(searchCriteriaFunction.apply(par1, par2));
@@ -283,7 +304,15 @@ public class ZepServiceImpl implements ZepService {
                 .employees(createProjectEmployees(projektType.getProjektmitarbeiterListe(), monthYear))
                 .leads(createProjectLeads(projektType.getProjektmitarbeiterListe(), monthYear))
                 .categories(createCategories(projektType))
+                .billabilityPreset(
+                        BillabilityPreset.byZepId(projektType.getVoreinstFakturierbarkeit())
+                                .orElseThrow(billabilityNotDeterminable(projektType.getProjektNr()))
+                )
                 .build();
+    }
+
+    private static Supplier<IllegalArgumentException> billabilityNotDeterminable(String projectName) {
+        return () -> new IllegalArgumentException("BillabilityPreset could not be determined for project " + projectName);
     }
 
     private List<String> createProjectEmployees(final ProjektMitarbeiterListeType projektMitarbeiterListeType, final LocalDate monthYear) {

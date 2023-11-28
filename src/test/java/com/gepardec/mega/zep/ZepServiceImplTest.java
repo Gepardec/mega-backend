@@ -93,6 +93,7 @@ class ZepServiceImplTest {
         final ProjektType projektType = new ProjektType();
         projektType.setProjektNr("ÖGK-RGKKCC-2020");
         projektType.setStartDatum(LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        projektType.setVoreinstFakturierbarkeit(1);
         projektMitarbeiterListeType = new ProjektMitarbeiterListeType();
 
         projektType.setProjektmitarbeiterListe(projektMitarbeiterListeType);

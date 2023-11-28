@@ -8,6 +8,7 @@ import de.provantis.zep.ProjektzeitType;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface ZepService {
 
@@ -22,6 +23,8 @@ public interface ZepService {
     List<ProjektzeitType> getProjectTimesForEmployeePerProject(String project, LocalDate curDate);
 
     List<Project> getProjectsForMonthYear(final LocalDate monthYear);
+
+    Optional<Project> getProjectByName(final String projectName, final LocalDate monthYear);
 
     List<FehlzeitType> getAbsenceForEmployee(Employee employee, LocalDate date);
 

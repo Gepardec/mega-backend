@@ -45,6 +45,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public Optional<Project> getProjectByName(final String projectName, final LocalDate monthYear) {
+        return zepService.getProjectByName(projectName, monthYear);
+    }
+
+    @Override
     public void addProject(com.gepardec.mega.db.entity.project.Project project, LocalDate selectedDate) {
 
         com.gepardec.mega.db.entity.project.Project projectEntity = projectRepository.findByName(project.getName());

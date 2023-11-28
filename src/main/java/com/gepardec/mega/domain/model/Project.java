@@ -30,4 +30,10 @@ public class Project {
     private List<String> leads;
 
     private List<String> categories;
+
+    private BillabilityPreset billabilityPreset;
+
+    public boolean isBillable() {
+        return BillabilityPreset.isBillable(billabilityPreset);
+    }
 }
