@@ -2,6 +2,7 @@ package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.StepEntryResource;
+import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.model.EmployeeStepDto;
 import com.gepardec.mega.rest.model.ProjectStepDto;
 import com.gepardec.mega.rest.model.UpdateEmployeeStepDto;
@@ -20,6 +21,9 @@ public class StepEntryResourceImpl implements StepEntryResource {
     @Inject
     StepEntryService stepEntryService;
 
+    @Inject
+    EmployeeMapper employeeMapper;
+
     @Override
     public Response close(final EmployeeStepDto employeeStepDto) {
         LocalDate from = DateUtils.getFirstDayOfCurrentMonth(employeeStepDto.currentMonthYear());
@@ -27,7 +31,7 @@ public class StepEntryResourceImpl implements StepEntryResource {
 
         return Response.ok(
                         stepEntryService.setOpenAndAssignedStepEntriesDone(
-                                employeeStepDto.employee(),
+                                employeeMapper.mapToDomain(employeeStepDto.employee()),
                                 employeeStepDto.stepId(),
                                 from,
                                 to

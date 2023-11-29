@@ -2,7 +2,6 @@ package com.gepardec.mega.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.State;
 import jakarta.annotation.Nullable;
 import lombok.Builder;
@@ -24,7 +23,7 @@ import java.util.List;
 public class ManagementEntryDto {
 
     @JsonProperty
-    private final Employee employee;
+    private final EmployeeDto employee;
 
     @JsonProperty
     private final State employeeCheckState;
