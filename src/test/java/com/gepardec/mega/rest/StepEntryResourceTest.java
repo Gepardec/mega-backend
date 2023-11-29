@@ -4,6 +4,7 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
+import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.rest.model.EmployeeStepDto;
 import com.gepardec.mega.service.api.StepEntryService;
 import io.quarkus.test.junit.QuarkusTest;
@@ -88,7 +89,7 @@ class StepEntryResourceTest {
     }
 
     private EmployeeStepDto createEmployeeStep() {
-        Employee employee = Employee.builder()
+        var employee = EmployeeDto.builder()
                 .userId("1")
                 .email("max.mustermann@gpeardec.com")
                 .build();

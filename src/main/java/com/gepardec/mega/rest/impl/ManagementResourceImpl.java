@@ -18,6 +18,7 @@ import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.ManagementResource;
+import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.model.CustomerProjectWithoutLeadsDto;
 import com.gepardec.mega.rest.model.ManagementEntryDto;
 import com.gepardec.mega.rest.model.PmProgressDto;
@@ -80,6 +81,9 @@ public class ManagementResourceImpl implements ManagementResource {
 
     @Inject
     WorkingTimeUtil workingTimeUtil;
+
+    @Inject
+    EmployeeMapper employeeMapper;
 
     @Inject
     Logger logger;
@@ -319,7 +323,7 @@ public class ManagementResourceImpl implements ManagementResource {
             }
 
             return ManagementEntryDto.builder()
-                    .employee(employee)
+                    .employee(employeeMapper.mapToDto(employee))
                     .employeeCheckState(employeeCheckState)
                     .employeeCheckStateReason(employeeCheckStateReason)
                     .internalCheckState(extractInternalCheckState(stepEntries))
