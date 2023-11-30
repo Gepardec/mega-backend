@@ -18,10 +18,7 @@ public class EmployeeMapper implements DtoMapper<Employee, EmployeeDto> {
                 .salutation(object.getSalutation())
                 .releaseDate(object.getReleaseDate())
                 .workDescription(object.getWorkDescription())
-                .language(object.getLanguage())
-                .regularWorkingHours(object.getRegularWorkingHours())
                 .active(object.isActive())
-                .exitDate(object.getExitDate())
                 .build();
     }
 
@@ -36,10 +33,7 @@ public class EmployeeMapper implements DtoMapper<Employee, EmployeeDto> {
                 .salutation(object.getSalutation())
                 .releaseDate(object.getReleaseDate())
                 .workDescription(object.getWorkDescription())
-                .language(object.getLanguage())
-                .regularWorkingHours(object.getRegularWorkingHours())
                 .active(object.isActive())
-                .exitDate(object.getExitDate())
                 .build();
     }
 }

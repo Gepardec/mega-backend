@@ -110,16 +110,19 @@ public class EmployeeMapper {
         List<RegelarbeitszeitType> regelarbeitszeitList = regelarbeitszeitListeTypeTs.getRegelarbeitszeit();
         RegelarbeitszeitType regelarbeitszeitType = regelarbeitszeitList.get(regelarbeitszeitList.size() - 1);
 
-        //FIXME
         return new HashMap<>(Map.ofEntries(
-                Map.entry(DayOfWeek.MONDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getMontag() * 60))),
-                Map.entry(DayOfWeek.TUESDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getDienstag() * 60))),
-                Map.entry(DayOfWeek.WEDNESDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getMittwoch() * 60))),
-                Map.entry(DayOfWeek.THURSDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getDonnerstag() * 60))),
-                Map.entry(DayOfWeek.FRIDAY, Duration.ofMinutes((long) (regelarbeitszeitType.getFreitag() * 60))),
-                Map.entry(DayOfWeek.SATURDAY, Duration.ofMinutes(0L)),
-                Map.entry(DayOfWeek.SUNDAY, Duration.ofMinutes(0L))
+                Map.entry(DayOfWeek.MONDAY, toDuration((long) (regelarbeitszeitType.getMontag() * 60))),
+                Map.entry(DayOfWeek.TUESDAY, toDuration((long) (regelarbeitszeitType.getDienstag() * 60))),
+                Map.entry(DayOfWeek.WEDNESDAY, toDuration((long) (regelarbeitszeitType.getMittwoch() * 60))),
+                Map.entry(DayOfWeek.THURSDAY, toDuration((long) (regelarbeitszeitType.getDonnerstag() * 60))),
+                Map.entry(DayOfWeek.FRIDAY, toDuration((long) (regelarbeitszeitType.getFreitag() * 60))),
+                Map.entry(DayOfWeek.SATURDAY, toDuration(0L)),
+                Map.entry(DayOfWeek.SUNDAY, toDuration(0L))
         ));
+    }
+
+    private static Duration toDuration(long regelarbeitszeitStunden) {
+        return Duration.ofMinutes(Math.max(0L, regelarbeitszeitStunden));
     }
 
     private boolean hasEmployeeAndActiveEmployment(final MitarbeiterType employee) {
