@@ -33,6 +33,7 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
         prematureEmployeeCheckEntityDB.setUser(userRepository.findActiveByEmail(prematureEmployeeCheck.getUser().getEmail())
                 .orElseThrow());
         prematureEmployeeCheckEntityDB.setForMonth(prematureEmployeeCheck.getForMonth().withDayOfMonth(1));
+        prematureEmployeeCheckEntityDB.setReason(prematureEmployeeCheck.getReason());
 
         PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(prematureEmployeeCheckEntityDB);
 

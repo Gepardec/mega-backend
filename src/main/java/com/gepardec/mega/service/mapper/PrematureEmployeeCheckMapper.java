@@ -1,6 +1,7 @@
 package com.gepardec.mega.service.mapper;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -13,16 +14,17 @@ public class PrematureEmployeeCheckMapper {
     @Inject
     UserMapper userMapper;
 
-    public com.gepardec.mega.domain.model.PrematureEmployeeCheck mapToDomain(PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
-        return com.gepardec.mega.domain.model.PrematureEmployeeCheck.builder()
+    public PrematureEmployeeCheck mapToDomain(PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
+        return PrematureEmployeeCheck.builder()
                 .id(prematureEmployeeCheckEntity.getId())
                 .user(userMapper.map(prematureEmployeeCheckEntity.getUser()))
                 .forMonth(prematureEmployeeCheckEntity.getForMonth())
+                .reason(prematureEmployeeCheckEntity.getReason())
                 .creationDate(prematureEmployeeCheckEntity.getCreationDate())
                 .build();
     }
 
-    public List<com.gepardec.mega.domain.model.PrematureEmployeeCheck> mapListToDomain(List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntities) {
+    public List<PrematureEmployeeCheck> mapListToDomain(List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntities) {
         return prematureEmployeeCheckEntities.stream().map(this::mapToDomain).collect(Collectors.toList());
     }
 }

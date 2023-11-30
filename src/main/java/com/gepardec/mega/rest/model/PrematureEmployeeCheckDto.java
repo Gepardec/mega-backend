@@ -23,4 +23,7 @@ public class PrematureEmployeeCheckDto {
 
     @JsonProperty
     private LocalDate forMonth;
+
+    @JsonProperty
+    private String reason;
 }

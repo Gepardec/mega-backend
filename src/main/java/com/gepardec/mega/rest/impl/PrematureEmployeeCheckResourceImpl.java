@@ -27,6 +27,7 @@ public class PrematureEmployeeCheckResourceImpl implements PrematureEmployeeChec
 
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .forMonth(prematureEmployeeCheckDto.getForMonth())
+                .reason(prematureEmployeeCheckDto.getReason())
                 .user(User.builder()
                         .userId(userDto.getUserId())
                         .email(userDto.getEmail())

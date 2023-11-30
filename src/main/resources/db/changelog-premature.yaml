@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 1700130995809-5
+      id: create-premature-employee-check-table
       author: MEGA-684
       objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
       changes:
@@ -33,9 +33,14 @@ databaseChangeLog:
                     nullable: false
                   name: update_date
                   type: TIMESTAMP
+              - column:
+                  constraints:
+                    nullable: true
+                  name: reason
+                  type: varchar(500)
             tableName: premature_employee_check
   - changeSet:
-      id: 1700130995809-6
+      id: unique-constraint_premature-1
       author: MEGA-684
       objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
       changes:
@@ -44,7 +49,7 @@ databaseChangeLog:
             constraintName: uc_premature_employee_check_userid_and_formonth
             tableName: premature_employee_check
   - changeSet:
-      id: 1700130995809-7
+      id: unique-constraint_premature-2
       author: MEGA-684
       objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
       changes:
@@ -53,7 +58,7 @@ databaseChangeLog:
             constraintName: uc_premature_employee_check_user
             tableName: premature_employee_check
   - changeSet:
-      id: 1700130995809-8
+      id: foreignkey_premature
       author: MEGA-684
       objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS
       changes:

@@ -19,6 +19,8 @@ public class PrematureEmployeeCheck {
 
     private User user;
 
+    private String reason;
+
     private LocalDate forMonth;
 
     private LocalDateTime creationDate;

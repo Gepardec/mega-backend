@@ -44,6 +44,12 @@ public class PrematureEmployeeCheckEntity {
     @Column(name = "for_month", nullable = false, columnDefinition = "DATE")
     private LocalDate forMonth;
 
+    /*
+     * Reason why the employee can't check in time or other notifications for OM/PL
+     */
+    @Column(name = "reason", nullable = true)
+    private String reason;
+
 
     /**
      * The creation date of the step entry
@@ -81,6 +87,14 @@ public class PrematureEmployeeCheckEntity {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public String getReason() {
+        return reason;
     }
 
     public Long getId() {
