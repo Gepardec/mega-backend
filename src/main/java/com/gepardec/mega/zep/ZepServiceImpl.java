@@ -125,7 +125,7 @@ public class ZepServiceImpl implements ZepService {
         }
     }
 
-//    @CacheResult(cacheName = "fehlzeitentype")
+    @CacheResult(cacheName = "fehlzeitentype")
     @Override
     public List<FehlzeitType> getAbsenceForEmployee(Employee employee, LocalDate date) {
         final ReadFehlzeitRequestType fehlzeitenRequest = new ReadFehlzeitRequestType();
@@ -149,7 +149,7 @@ public class ZepServiceImpl implements ZepService {
         return Collections.emptyList();
     }
 
-//    @CacheResult(cacheName = "projektzeittype")
+    @CacheResult(cacheName = "projektzeittype")
     @Override
     public List<ProjektzeitType> getBillableForEmployee(Employee employee, LocalDate date) {
         ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(employee, date, this::createProjectTimeSearchCriteria);
@@ -176,7 +176,7 @@ public class ZepServiceImpl implements ZepService {
                 .collect(Collectors.toList());
     }
 
-//    @CacheResult(cacheName = "projektzeittype")
+    @CacheResult(cacheName = "projektzeittype")
     @Override
     public List<ProjektzeitType> getProjectTimesForEmployeePerProject(String projectID, LocalDate curDate) {
         ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(projectID, curDate, this::createProjectTimesForEmployeePerProjectSearchCriteria);
