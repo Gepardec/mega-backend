@@ -30,7 +30,8 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     public boolean addPrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
 
         PrematureEmployeeCheckEntity prematureEmployeeCheckEntityDB = new PrematureEmployeeCheckEntity();
-        prematureEmployeeCheckEntityDB.setUser(userRepository.findActiveByEmail(prematureEmployeeCheck.getUser().getEmail())
+        prematureEmployeeCheckEntityDB.setUser(userRepository.findActiveByEmail(prematureEmployeeCheck.getUser()
+                        .getEmail())
                 .orElseThrow());
         prematureEmployeeCheckEntityDB.setForMonth(prematureEmployeeCheck.getForMonth().withDayOfMonth(1));
         prematureEmployeeCheckEntityDB.setReason(prematureEmployeeCheck.getReason());

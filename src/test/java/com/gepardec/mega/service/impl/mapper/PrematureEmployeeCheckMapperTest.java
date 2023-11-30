@@ -33,9 +33,12 @@ public class PrematureEmployeeCheckMapperTest {
 //        Then
         assertAll(
                 () -> assertThat(prematureEmployeeCheck.getId()).isEqualTo(1L).as("checkIdMappedCorrectly"),
-                () -> assertThat(prematureEmployeeCheck.getForMonth()).isEqualTo(LocalDate.of(2023, 10, 1)).as("checkDateMappedCorrectly"),
-                () -> assertThat(prematureEmployeeCheck.getReason()).isEqualTo("reason").as("checkReasonMappedCorrectly"),
-                () -> assertThat(prematureEmployeeCheck.getUser().getClass()).isEqualTo(User.class).as("checkClassMappedCorrectly")
+                () -> assertThat(prematureEmployeeCheck.getForMonth()).isEqualTo(LocalDate.of(2023, 10, 1))
+                        .as("checkDateMappedCorrectly"),
+                () -> assertThat(prematureEmployeeCheck.getReason()).isEqualTo("reason")
+                        .as("checkReasonMappedCorrectly"),
+                () -> assertThat(prematureEmployeeCheck.getUser().getClass()).isEqualTo(User.class)
+                        .as("checkClassMappedCorrectly")
         );
     }
 
