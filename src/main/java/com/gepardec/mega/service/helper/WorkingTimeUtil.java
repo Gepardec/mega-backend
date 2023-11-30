@@ -7,6 +7,7 @@ import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.time.DayOfWeek;
@@ -31,7 +32,8 @@ public class WorkingTimeUtil {
     private static final List<String> BOOKABLE_ABSENCES = List.of(
             MonthlyReportServiceImpl.CONFERENCE_DAYS,
             MonthlyReportServiceImpl.EXTERNAL_TRAINING_DAYS,
-            MonthlyReportServiceImpl.HOME_OFFICE_DAYS
+            MonthlyReportServiceImpl.HOME_OFFICE_DAYS,
+            MonthlyReportServiceImpl.COMPENSATORY_DAYS // compensatory days must have an impact on the overtime balance
     );
 
 
