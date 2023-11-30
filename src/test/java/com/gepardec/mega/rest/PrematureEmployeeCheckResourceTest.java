@@ -41,15 +41,18 @@ public class PrematureEmployeeCheckResourceTest {
     @Test
     @TestSecurity
     @JwtSecurity
-    public void addNewPrematureEmployeeCheckUnauthorized_THEN_GET_STATUS_401() {
+    public void add_unauthorized_status401() {
+//        Given
         when(userContext.getUser()).thenReturn(createUserForRole(Role.EMPLOYEE));
 
+//        When & Then
         given().contentType(ContentType.JSON).post("/prematureemployeecheck")
                 .then().assertThat().statusCode(HttpStatus.SC_UNAUTHORIZED);
     }
 
     @Test
-    public void addNewPrematureEmployeeCheckAuthorized_THEN_RETURN_TRUE() {
+    public void add_authorized_success() {
+//        Given
         when(userContext.getUser()).thenReturn(createUserForRole(Role.EMPLOYEE));
 
         final UserDto user = createUserDtoForRole(Role.EMPLOYEE);
@@ -61,12 +64,13 @@ public class PrematureEmployeeCheckResourceTest {
 
         when(prematureEmployeeCheckService.addPrematureEmployeeCheck(any())).thenReturn(true);
 
-
+//        When
         Boolean addedPrematureEmployeeCheck = given().contentType(ContentType.JSON)
                 .body(prematureEmployeeCheckDto)
                 .post("/prematureemployeecheck")
                 .as(Boolean.class);
 
+//        Then
         assertThat(addedPrematureEmployeeCheck).isTrue();
     }
 

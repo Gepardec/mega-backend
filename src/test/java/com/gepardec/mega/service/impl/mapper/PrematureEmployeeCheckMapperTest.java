@@ -23,21 +23,31 @@ public class PrematureEmployeeCheckMapperTest {
 
 
     @Test
-    public void mapToDomain() {
-        PrematureEmployeeCheck prematureEmployeeCheck = prematureEmployeeCheckMapper.mapToDomain(createDBPrematureEmployeeCheck(1L));
+    public void mapToDomain_dbEntity_mappedCorrectly() {
+//        Given
+        PrematureEmployeeCheckEntity dbPrematureEmployeeCheck = createDBPrematureEmployeeCheck(1L);
 
+//        When
+        PrematureEmployeeCheck prematureEmployeeCheck = prematureEmployeeCheckMapper.mapToDomain(dbPrematureEmployeeCheck);
+
+//        Then
         assertAll(
                 () -> assertThat(prematureEmployeeCheck.getId()).isEqualTo(1L).as("checkIdMappedCorrectly"),
                 () -> assertThat(prematureEmployeeCheck.getForMonth()).isEqualTo(LocalDate.of(2023, 10, 1)).as("checkDateMappedCorrectly"),
+                () -> assertThat(prematureEmployeeCheck.getReason()).isEqualTo("reason").as("checkReasonMappedCorrectly"),
                 () -> assertThat(prematureEmployeeCheck.getUser().getClass()).isEqualTo(User.class).as("checkClassMappedCorrectly")
         );
     }
 
     @Test
-    public void mapListToDomain() {
+    public void mapListToDomain_dbEntityList_correctLength() {
+//        Given
         List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntity = List.of(createDBPrematureEmployeeCheck(1L), createDBPrematureEmployeeCheck(1L));
+
+//        When
         List<PrematureEmployeeCheck> prematureEmployeeChecks = prematureEmployeeCheckMapper.mapListToDomain(prematureEmployeeCheckEntity);
 
+//        Then
         assertThat(prematureEmployeeChecks.size()).isEqualTo(2);
     }
 
@@ -55,6 +65,7 @@ public class PrematureEmployeeCheckMapperTest {
         prematureEmployeeCheckEntity.setId(id);
         prematureEmployeeCheckEntity.setUser(createDBUserForRole(Role.EMPLOYEE));
         prematureEmployeeCheckEntity.setForMonth(LocalDate.of(2023, 10, 1));
+        prematureEmployeeCheckEntity.setReason("reason");
         return prematureEmployeeCheckEntity;
     }
 

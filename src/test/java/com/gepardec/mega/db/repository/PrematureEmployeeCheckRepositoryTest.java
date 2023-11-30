@@ -36,19 +36,29 @@ public class PrematureEmployeeCheckRepositoryTest {
     }
 
     @Test
-    public void addPrematureEmployeeCheck_RETURN_DB_ID() {
+    public void save_validEntry_returnDbId() {
+//        Given
         persistUser();
+
+//        When
         PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
+
+//        Then
         assertThat(saved.getId()).isNotZero();
     }
 
     @Test
-    public void addSecondPrematureEmployeeCheck_RETURN_VIOLATIONEXCEPTION() {
+    public void save_secondEntry_throwConstraintViolationException() {
+//        Given
         persistUser();
         PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
+
+//        When
         try {
             PrematureEmployeeCheckEntity saved2 = prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
             prematureEmployeeCheckRepository.flush();
+
+//            Then
         } catch (ConstraintViolationException e) {
             System.out.println(e.getConstraintName());
             assertThat(e).isNotNull();
@@ -57,17 +67,24 @@ public class PrematureEmployeeCheckRepositoryTest {
     }
 
     @Test
-    public void getFromEmail_RETURN_EMPTY() {
+    public void findByEmail_missingEntry_returnEmptyList() {
+//        When
         List<PrematureEmployeeCheckEntity> fromEmail = prematureEmployeeCheckRepository.findByEmail(EMAIL);
+
+//        Then
         assertThat(fromEmail.size()).isZero();
     }
 
     @Test
-    public void getFromEmail_RETURN_CONTENT() {
+    public void findByEmail_validEntries_returnList() {
+//        Given
         persistUser();
         persistPrematureEmployeeCheck();
 
+//        When
         List<PrematureEmployeeCheckEntity> fromEmail = prematureEmployeeCheckRepository.findByEmail(EMAIL);
+
+//        Then
         assertThat(fromEmail.size()).isEqualTo(1L);
     }
 

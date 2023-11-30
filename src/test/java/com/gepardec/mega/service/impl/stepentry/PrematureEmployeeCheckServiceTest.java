@@ -40,7 +40,8 @@ public class PrematureEmployeeCheckServiceTest {
 
 
     @Test
-    public void addPrematureEmployeeCheck_RETURN_TRUE() {
+    public void addPrematureEmployeeCheck_addValid_returnTrue() {
+//        Given
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .user(createUserForRole(Role.EMPLOYEE))
                 .forMonth(LocalDate.of(2023, 10, 1))
@@ -49,11 +50,13 @@ public class PrematureEmployeeCheckServiceTest {
         when(userRepository.findActiveByEmail(any())).thenReturn(Optional.of(createDBUserForRole(Role.EMPLOYEE)));
         when(prematureEmployeeCheckRepository.save(any())).thenReturn(createDBPrematureEmployeeCheck(1L));
 
+//        When & Then
         assertThat(prematureEmployeeCheckService.addPrematureEmployeeCheck(prematureEmployeeCheck)).isTrue();
     }
 
     @Test
-    public void addPrematureEmployeeCheck_RETURN_FALSE() {
+    public void addPrematureEmployeeCheck_dbFails_returnFalse() {
+//        Given
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .user(createUserForRole(Role.EMPLOYEE))
                 .forMonth(LocalDate.of(2023, 10, 1))
@@ -62,42 +65,57 @@ public class PrematureEmployeeCheckServiceTest {
         when(userRepository.findActiveByEmail(any())).thenReturn(Optional.of(createDBUserForRole(Role.EMPLOYEE)));
         when(prematureEmployeeCheckRepository.save(any())).thenReturn(createDBPrematureEmployeeCheck(null));
 
+//        When & Then
         assertThat(prematureEmployeeCheckService.addPrematureEmployeeCheck(prematureEmployeeCheck)).isFalse();
     }
 
     @Test
-    public void getPrematureEmployeeCheckForEmail_RETURN_VALID() {
+    public void getPrematureEmployeeCheckForEmail_withExistingEntry_returnListOfEntry() {
+//        Given
         when(prematureEmployeeCheckRepository.findByEmail(any())).thenReturn(List.of(createDBPrematureEmployeeCheck(1L)));
         when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of(createPrematureEmployeeCheck()));
 
+//        When
         List<PrematureEmployeeCheck> prematureEmployeeCheckForEmail = prematureEmployeeCheckService.getPrematureEmployeeChecksForEmail("max@mustermann.com");
 
+//        Then
         assertThat(prematureEmployeeCheckForEmail.size()).isEqualTo(1);
     }
 
     @Test
-    public void getPrematureEmployeeCheckForEmail_RETURN_EMPTY() {
+    public void getPrematureEmployeeCheckForEmail_noExistingEntries_returnEmptyList() {
+//        Given
         when(prematureEmployeeCheckRepository.findByEmail(any())).thenReturn(List.of());
         when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of());
 
+//        When
         List<PrematureEmployeeCheck> prematureEmployeeCheckForEmail = prematureEmployeeCheckService.getPrematureEmployeeChecksForEmail("max@mustermann.com");
 
+//        Then
         assertThat(prematureEmployeeCheckForEmail.size()).isEqualTo(0);
     }
 
     @Test
-    public void hasUerPrematureEmployeeCheck_RETURN_TRUE() {
+    public void hasUerPrematureEmployeeCheck_existingEntry_returnTrue() {
+//        Given
         when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of(createPrematureEmployeeCheck()));
 
+//        When
         boolean b = prematureEmployeeCheckService.hasUserPrematureEmployeeCheck("max@mustermann.com");
+
+//        Then
         assertThat(b).isTrue();
     }
 
     @Test
-    public void hasUerPrematureEmployeeCheck_RETURN_FALSE() {
+    public void hasUerPrematureEmployeeCheck_missingEntry_returnFalse() {
+//        Given
         when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of());
 
+//        When
         boolean b = prematureEmployeeCheckService.hasUserPrematureEmployeeCheck("max@mustermann.com");
+
+//        Then
         assertThat(b).isFalse();
     }
 
