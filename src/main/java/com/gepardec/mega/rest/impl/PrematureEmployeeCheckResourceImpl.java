@@ -3,6 +3,7 @@ package com.gepardec.mega.rest.impl;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.rest.api.PrematureEmployeeCheckResource;
+import com.gepardec.mega.rest.mapper.PrematureEmployeeCheckMapper;
 import com.gepardec.mega.rest.model.PrematureEmployeeCheckDto;
 import com.gepardec.mega.rest.model.UserDto;
 import com.gepardec.mega.service.api.PrematureEmployeeCheckService;
@@ -18,25 +19,12 @@ public class PrematureEmployeeCheckResourceImpl implements PrematureEmployeeChec
     @Inject
     PrematureEmployeeCheckService prematureEmployeeCheckService;
 
+    @Inject
+    PrematureEmployeeCheckMapper prematureEmployeeCheckMapper;
+
     @Override
     public Response add(PrematureEmployeeCheckDto prematureEmployeeCheckDto) {
-
-        // TODO integrate with mapper
-        UserDto userDto = prematureEmployeeCheckDto.getUser();
-
-
-        PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
-                .forMonth(prematureEmployeeCheckDto.getForMonth())
-                .reason(prematureEmployeeCheckDto.getReason())
-                .user(User.builder()
-                        .userId(userDto.getUserId())
-                        .email(userDto.getEmail())
-                        .firstname(userDto.getFirstname())
-                        .lastname(userDto.getLastname())
-                        .dbId(userDto.getDbId())
-                        .roles(userDto.getRoles())
-                        .releaseDate(userDto.getReleaseDate()).build()).build();
-
+        PrematureEmployeeCheck prematureEmployeeCheck = prematureEmployeeCheckMapper.mapToDomain(prematureEmployeeCheckDto);
 
         boolean succeeded = prematureEmployeeCheckService.addPrematureEmployeeCheck(prematureEmployeeCheck);
 

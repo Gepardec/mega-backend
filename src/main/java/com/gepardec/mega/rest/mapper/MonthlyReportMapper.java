@@ -25,7 +25,6 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .employeeCheckState(object.getEmployeeCheckState())
                 .employeeCheckStateReason(object.getEmployeeCheckStateReason())
                 .internalCheckState(object.getInternalCheckState())
-                .isAssigned(object.isAssigned())
                 .employeeProgresses(object.getEmployeeProgresses())
                 .otherChecksDone(object.isOtherChecksDone())
                 .vacationDays(object.getVacationDays())
@@ -41,6 +40,7 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .totalWorkingTime(object.getTotalWorkingTime())
                 .paidSickLeave(object.getPaidSickLeave())
                 .overtime(object.getOvertime())
+                .hasPrematureEmployeeCheck(object.isHasPrematureEmployeeCheck())
                 .build();
     }
 
@@ -55,7 +55,6 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .employeeCheckState(object.getEmployeeCheckState())
                 .employeeCheckStateReason(object.getEmployeeCheckStateReason())
                 .internalCheckState(object.getInternalCheckState())
-                .isAssigned(object.isAssigned())
                 .employeeProgresses(object.getEmployeeProgresses())
                 .otherChecksDone(object.isOtherChecksDone())
                 .vacationDays(object.getVacationDays())
@@ -75,6 +74,7 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .totalWorkingTime(object.getTotalWorkingTime())
                 .paidSickLeave(object.getPaidSickLeave())
                 .overtime(object.getOvertime())
+                .hasPrematureEmployeeCheck(object.isHasPrematureEmployeeCheck())
                 .build();
     }
 }
