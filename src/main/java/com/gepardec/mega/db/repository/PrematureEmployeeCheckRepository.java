@@ -9,6 +9,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @ApplicationScoped
@@ -38,6 +39,15 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
         return deleteById(id);
     }
 
+    @Transactional
+    public List<PrematureEmployeeCheckEntity> findAllForMonth(LocalDate forMonth) {
+        forMonth = forMonth.withDayOfMonth(1);
+        return find("#PrematureEmployeeCheck.findAllByMonth",
+                Parameters.with("forMonth", forMonth))
+                .list();
+    }
+
+    @Transactional
     public List<PrematureEmployeeCheckEntity> findByEmail(String email) {
         return find("#PrematureEmployeeCheck.findByEmail",
                 Parameters.with("email", email))

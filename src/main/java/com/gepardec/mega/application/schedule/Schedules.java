@@ -3,6 +3,7 @@ package com.gepardec.mega.application.schedule;
 import com.gepardec.mega.notification.mail.ReminderEmailSender;
 import com.gepardec.mega.notification.mail.receiver.MailReceiver;
 import com.gepardec.mega.service.api.EnterpriseSyncService;
+import com.gepardec.mega.service.api.PrematureEmployeeCheckSyncService;
 import com.gepardec.mega.service.api.ProjectSyncService;
 import com.gepardec.mega.service.api.StepEntrySyncService;
 import com.gepardec.mega.service.api.SyncService;
@@ -34,6 +35,9 @@ public class Schedules {
 
     @Inject
     EnterpriseSyncService enterpriseSyncService;
+
+    @Inject
+    PrematureEmployeeCheckSyncService prematureEmployeeCheckSyncService;
 
     @Inject
     ReminderEmailSender reminderEmailSender;
@@ -88,6 +92,12 @@ public class Schedules {
     )
     void receiveMails() {
         mailReceiver.retrieveZepEmailsFromInbox();
+    }
+
+    @Scheduled(identity = "Take existing PrematureEmployeeChecks and update StepEntries accordingly on the last day of a month at 00:00",
+            cron = "0 0 0 L * ? *")
+    void syncPrematureEmployeeChecksWithStepEntries(){
+        prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries();
     }
 
     LocalDate getSysdate() {
