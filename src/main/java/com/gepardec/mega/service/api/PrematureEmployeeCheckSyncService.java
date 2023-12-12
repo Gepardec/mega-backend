@@ -1,6 +1,8 @@
 package com.gepardec.mega.service.api;
 
+import java.time.YearMonth;
+
 public interface PrematureEmployeeCheckSyncService {
 
-    void syncPrematureEmployeeChecksWithStepEntries();
+    boolean syncPrematureEmployeeChecksWithStepEntries(YearMonth yearMonth);
 }

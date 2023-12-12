@@ -3,6 +3,7 @@ package com.gepardec.mega.domain.utils;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.TemporalAdjusters;
@@ -101,5 +102,10 @@ public final class DateUtils {
 
     public static LocalDate getFirstDayOfCurrentMonth() {
         return LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
+    }
+
+    public static YearMonth getCurrentYearMonth() {
+        LocalDate today = today();
+        return YearMonth.of(today().getYear(), today.getMonth());
     }
 }

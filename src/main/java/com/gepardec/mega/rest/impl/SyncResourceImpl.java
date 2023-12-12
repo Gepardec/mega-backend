@@ -1,7 +1,9 @@
 package com.gepardec.mega.rest.impl;
 
+import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.SyncResource;
 import com.gepardec.mega.service.api.EnterpriseSyncService;
+import com.gepardec.mega.service.api.PrematureEmployeeCheckSyncService;
 import com.gepardec.mega.service.api.ProjectSyncService;
 import com.gepardec.mega.service.api.StepEntrySyncService;
 import com.gepardec.mega.service.api.SyncService;
@@ -27,6 +29,9 @@ public class SyncResourceImpl implements SyncResource {
 
     @Inject
     EnterpriseSyncService enterpriseSyncService;
+
+    @Inject
+    PrematureEmployeeCheckSyncService prematureEmployeeCheckSyncService;
 
     @Override
     public Response syncProjects(YearMonth from, YearMonth to) {
@@ -84,6 +89,27 @@ public class SyncResourceImpl implements SyncResource {
         }
 
         return Response.ok(stepEntrySyncService.generateStepEntriesFromEndpoint(from)).build();
+    }
+
+    @Override
+    public Response syncPrematureEmployeeChecks(YearMonth from, YearMonth to) {
+        if (from == null) {
+            prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(DateUtils.getCurrentYearMonth());
+            return Response.ok().build();
+        }
+
+        if (to == null) {
+            prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(from);
+            return Response.ok().build();
+        }
+
+        while (from.isBefore(to)) {
+            stepEntrySyncService.generateStepEntriesFromEndpoint(from);
+            from = from.plusMonths(1);
+        }
+        stepEntrySyncService.generateStepEntriesFromEndpoint(from);
+
+        return Response.ok().build();
     }
 
     @Override

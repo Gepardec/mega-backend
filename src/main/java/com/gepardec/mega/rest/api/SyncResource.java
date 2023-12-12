@@ -73,6 +73,23 @@ public interface SyncResource {
     @GET
     Response generateStepEntries(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
 
+
+    @Operation(operationId = "syncPrematureEmployeeChecks", description = "Sync PrematureEmployeeChecks with existing StepEntries and updates these accordingly.")
+    @Parameter(name = "from",
+            description = "If not given uses the current month. " +
+                    "If given uses the parameter-date.",
+            in = ParameterIn.QUERY,
+            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+    @Parameter(name = "to",
+            description = "If not given uses the current month. " +
+                    "If 'from' is not given but 'to' is given, uses the current month. " +
+                    "If both are given uses the span between them.",
+            in = ParameterIn.QUERY,
+            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+    @Path("/prematureemployeecheck")
+    @GET
+    Response syncPrematureEmployeeChecks(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
+
     @Operation(operationId = "syncAll", description = "Runs a complete sync for a given amount of months inclusive step-generation.")
     @Parameter(name = "from",
             description = "If not given uses the current month. " +

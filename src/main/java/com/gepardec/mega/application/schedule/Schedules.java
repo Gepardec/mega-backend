@@ -1,5 +1,6 @@
 package com.gepardec.mega.application.schedule;
 
+import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.notification.mail.ReminderEmailSender;
 import com.gepardec.mega.notification.mail.receiver.MailReceiver;
 import com.gepardec.mega.service.api.EnterpriseSyncService;
@@ -97,7 +98,7 @@ public class Schedules {
     @Scheduled(identity = "Take existing PrematureEmployeeChecks and update StepEntries accordingly on the last day of a month at 00:00",
             cron = "0 0 0 L * ? *")
     void syncPrematureEmployeeChecksWithStepEntries(){
-        prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries();
+        prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(DateUtils.getCurrentYearMonth());
     }
 
     LocalDate getSysdate() {

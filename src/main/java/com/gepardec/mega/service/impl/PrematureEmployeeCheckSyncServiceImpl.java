@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -32,14 +33,15 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
     Logger logger;
 
     @Override
-    public void syncPrematureEmployeeChecksWithStepEntries() {
-        LocalDate currentMonth = LocalDate.now().withDayOfMonth(1);
-        List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntities = prematureEmployeeCheckRepository.findAllForMonth(currentMonth);
+    public boolean syncPrematureEmployeeChecksWithStepEntries(YearMonth yearMonth) {
+        boolean couldUpdateAllEntries = true;
+        LocalDate selectedMonth = yearMonth.atDay(1);
+        List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntities = prematureEmployeeCheckRepository.findAllForMonth(selectedMonth);
 
-        logger.info(String.format("Syncing %s PrematureEmployeeChecks with StepEntries for Month: %s", prematureEmployeeCheckEntities.size(), currentMonth));
+        logger.info(String.format("Syncing %s PrematureEmployeeChecks with StepEntries for Month: %s", prematureEmployeeCheckEntities.size(), selectedMonth));
 
         for (PrematureEmployeeCheckEntity pec : prematureEmployeeCheckEntities) {
-            Optional<StepEntry> optionalStepEntry = stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(currentMonth, pec.getUser()
+            Optional<StepEntry> optionalStepEntry = stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(selectedMonth, pec.getUser()
                     .getEmail());
 
             try {
@@ -47,8 +49,10 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
                 updateStepEntry(stepEntry, pec);
             } catch (NoSuchElementException e) {
                 logger.error(String.format("Could not find StepEntry for PrematureEmployeeCheck! StepEntries or PrematureEmployeeChecks must be malformed! (PrematureEmployeeCheck ID: %s)", pec.getId()));
+                couldUpdateAllEntries = false;
             }
         }
+        return couldUpdateAllEntries;
     }
 
 
@@ -59,7 +63,7 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
         Long stepId = StepName.CONTROL_TIMES.getId();
         EmployeeState newState = EmployeeState.DONE;
 
-        if (pec.getReason().isEmpty()) {
+        if (pec.getReason() == null || pec.getReason().isEmpty()) {
             stepEntryRepository.updateStateAssigned(startDate, endDate, ownerEmail, stepId, newState);
         } else {
             stepEntryRepository.updateStateAssignedWithReason(startDate, endDate, ownerEmail, stepId, newState, pec.getReason());
