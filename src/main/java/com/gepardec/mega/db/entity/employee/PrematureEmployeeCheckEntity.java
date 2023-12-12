@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 @NamedQueries({
         @NamedQuery(name = "PrematureEmployeeCheck.findByEmail", query = "select p from PrematureEmployeeCheckEntity p where p.user.email = :email"),
         @NamedQuery(name = "PrematureEmployeeCheck.findAllByMonth", query = "select p from PrematureEmployeeCheckEntity p where p.forMonth = :forMonth"),
+        @NamedQuery(name = "PrematureEmployeeCheck.deleteAllByMonth", query = "delete from PrematureEmployeeCheckEntity p  where p.forMonth = :forMonth"),
 })
 public class PrematureEmployeeCheckEntity {
     @Id

@@ -1,11 +1,11 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import com.gepardec.mega.db.entity.employee.StepEntry;
-import com.gepardec.mega.db.repository.PrematureEmployeeCheckRepository;
 import com.gepardec.mega.db.repository.StepEntryRepository;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.domain.model.StepName;
+import com.gepardec.mega.service.api.PrematureEmployeeCheckService;
 import com.gepardec.mega.service.api.PrematureEmployeeCheckSyncService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,10 +24,11 @@ import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeCheckSyncService {
 
     @Inject
-    PrematureEmployeeCheckRepository prematureEmployeeCheckRepository;
+    PrematureEmployeeCheckService prematureEmployeeCheckService;
 
     @Inject
     StepEntryRepository stepEntryRepository;
+
 
     @Inject
     Logger logger;
@@ -36,11 +37,11 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
     public boolean syncPrematureEmployeeChecksWithStepEntries(YearMonth yearMonth) {
         boolean couldUpdateAllEntries = true;
         LocalDate selectedMonth = yearMonth.atDay(1);
-        List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntities = prematureEmployeeCheckRepository.findAllForMonth(selectedMonth);
+        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = prematureEmployeeCheckService.findAllForMonth(selectedMonth);
 
         logger.info(String.format("Syncing %s PrematureEmployeeChecks with StepEntries for Month: %s", prematureEmployeeCheckEntities.size(), selectedMonth));
 
-        for (PrematureEmployeeCheckEntity pec : prematureEmployeeCheckEntities) {
+        for (PrematureEmployeeCheck pec : prematureEmployeeCheckEntities) {
             Optional<StepEntry> optionalStepEntry = stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(selectedMonth, pec.getUser()
                     .getEmail());
 
@@ -52,11 +53,13 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
                 couldUpdateAllEntries = false;
             }
         }
+
+        prematureEmployeeCheckService.deleteAllForMonth(selectedMonth);
         return couldUpdateAllEntries;
     }
 
 
-    private void updateStepEntry(StepEntry stepEntry, PrematureEmployeeCheckEntity pec) {
+    private void updateStepEntry(StepEntry stepEntry, PrematureEmployeeCheck pec) {
         LocalDate startDate = pec.getForMonth().with(firstDayOfMonth());
         LocalDate endDate = pec.getForMonth().with(lastDayOfMonth());
         String ownerEmail = pec.getUser().getEmail();

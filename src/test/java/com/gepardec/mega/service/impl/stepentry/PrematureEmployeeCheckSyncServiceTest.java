@@ -1,12 +1,12 @@
 package com.gepardec.mega.service.impl.stepentry;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import com.gepardec.mega.db.entity.employee.Step;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.employee.User;
-import com.gepardec.mega.db.repository.PrematureEmployeeCheckRepository;
 import com.gepardec.mega.db.repository.StepEntryRepository;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
+import com.gepardec.mega.service.api.PrematureEmployeeCheckService;
 import com.gepardec.mega.service.api.PrematureEmployeeCheckSyncService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
@@ -35,7 +35,7 @@ public class PrematureEmployeeCheckSyncServiceTest {
     StepEntryRepository stepEntryRepository;
 
     @InjectMock
-    PrematureEmployeeCheckRepository prematureEmployeeCheckRepository;
+    PrematureEmployeeCheckService prematureEmployeeCheckService;
 
 
     private final LocalDate testDate = LocalDate.of(2023, 11, 1);
@@ -44,10 +44,10 @@ public class PrematureEmployeeCheckSyncServiceTest {
     @Test
     void syncPrematureEmployeeChecksWithStepEntries_matchingStepEntryAndPrematureEmployeeCheck_invokeUpdateStepEntries1Time() {
 //        Given
-        List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntities = List.of(createPrematureEmployeeCheckEntity("test@test.com"));
+        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = List.of(createPrematureEmployeeCheck("test@test.com"));
         Optional<StepEntry> optionalStepEntry = Optional.of(createStepEntry());
 
-        when(prematureEmployeeCheckRepository.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
+        when(prematureEmployeeCheckService.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), any())).thenReturn(optionalStepEntry);
 
 //        When
@@ -55,16 +55,17 @@ public class PrematureEmployeeCheckSyncServiceTest {
 
 //        Then
         verify(stepEntryRepository, times(1)).updateStateAssigned(any(), any(), any(), any(), any());
+        verify(prematureEmployeeCheckService, times(1)).deleteAllForMonth(any());
         assertThat(updatedAllEntries).isTrue();
     }
 
     @Test
     void syncPrematureEmployeeChecksWithStepEntries_multipleMatchingStepEntryAndPrematureEmployeeCheck_invokeUpdateStepEntries3Times() {
 //        Given
-        List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntities = List.of(createPrematureEmployeeCheckEntity("test@test.com"), createPrematureEmployeeCheckEntity("test@test.com"), createPrematureEmployeeCheckEntity("test@test.com"));
+        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = List.of(createPrematureEmployeeCheck("test@test.com"), createPrematureEmployeeCheck("test@test.com"), createPrematureEmployeeCheck("test@test.com"));
         Optional<StepEntry> optionalStepEntry = Optional.of(createStepEntry());
 
-        when(prematureEmployeeCheckRepository.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
+        when(prematureEmployeeCheckService.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), any())).thenReturn(optionalStepEntry);
 
 //        When
@@ -72,15 +73,16 @@ public class PrematureEmployeeCheckSyncServiceTest {
 
 //        Then
         verify(stepEntryRepository, times(3)).updateStateAssigned(any(), any(), any(), any(), any());
+        verify(prematureEmployeeCheckService, times(1)).deleteAllForMonth(any());
         assertThat(updatedAllEntries).isTrue();
     }
 
     @Test
     void syncPrematureEmployeeChecksWithStepEntries_nonMatchingStepEntryAndPrematureEmployeeCheck_returnFalse() {
 //        Given
-        List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntities = List.of(createPrematureEmployeeCheckEntity("failing-test@test.com"));
+        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = List.of(createPrematureEmployeeCheck("failing-test@test.com"));
 
-        when(prematureEmployeeCheckRepository.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
+        when(prematureEmployeeCheckService.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), any())).thenReturn(Optional.empty());
 
 //        When
@@ -88,16 +90,17 @@ public class PrematureEmployeeCheckSyncServiceTest {
 
 //        Then
         verify(stepEntryRepository, times(0)).updateStateAssigned(any(), any(), any(), any(), any());
+        verify(prematureEmployeeCheckService, times(1)).deleteAllForMonth(any());
         assertThat(updatedAllEntries).isFalse();
     }
 
     @Test
     void syncPrematureEmployeeChecksWithStepEntries_mishedMatchingStepEntryAndPrematureEmployeeCheck_returnFalseAndInvocate2Times() {
 //        Given
-        List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntities = List.of(createPrematureEmployeeCheckEntity("failing-test@test.com"), createPrematureEmployeeCheckEntity("test@test.com"), createPrematureEmployeeCheckEntity("test@test.com"));
+        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = List.of(createPrematureEmployeeCheck("failing-test@test.com"), createPrematureEmployeeCheck("test@test.com"), createPrematureEmployeeCheck("test@test.com"));
         Optional<StepEntry> optionalStepEntry = Optional.of(createStepEntry());
 
-        when(prematureEmployeeCheckRepository.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
+        when(prematureEmployeeCheckService.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), any())).thenReturn(optionalStepEntry);
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), eq("failing-test@test.com"))).thenReturn(Optional.empty());
 
@@ -106,6 +109,7 @@ public class PrematureEmployeeCheckSyncServiceTest {
 
 //        Then
         verify(stepEntryRepository, times(2)).updateStateAssigned(any(), any(), any(), any(), any());
+        verify(prematureEmployeeCheckService, times(1)).deleteAllForMonth(any());
         assertThat(updatedAllEntries).isFalse();
     }
 
@@ -124,13 +128,15 @@ public class PrematureEmployeeCheckSyncServiceTest {
     }
 
 
-    private PrematureEmployeeCheckEntity createPrematureEmployeeCheckEntity(String email) {
-        PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
-        User user = new User();
+    private PrematureEmployeeCheck createPrematureEmployeeCheck(String email) {
+
+        com.gepardec.mega.domain.model.User user = new com.gepardec.mega.domain.model.User();
         user.setEmail(email);
-        prematureEmployeeCheckEntity.setUser(user);
-        prematureEmployeeCheckEntity.setForMonth(testDate);
-        return prematureEmployeeCheckEntity;
+
+        return PrematureEmployeeCheck.builder()
+                .user(user)
+                .forMonth(testDate)
+                .build();
     }
 
 }

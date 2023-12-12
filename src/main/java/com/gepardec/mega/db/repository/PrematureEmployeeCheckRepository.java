@@ -53,4 +53,10 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
                 Parameters.with("email", email))
                 .list();
     }
+
+    @Transactional
+    public long deleteByMonth(LocalDate forMonth) {
+        return delete("#PrematureEmployeeCheck.deleteAllByMonth",
+                Parameters.with("forMonth", forMonth));
+    }
 }
