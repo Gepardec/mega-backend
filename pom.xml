@@ -45,7 +45,7 @@
         <sonar.language>java</sonar.language>
         <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
         <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
-        <revision>4.4.2-SNAPSHOT</revision>
+        <revision>4.5.0-SNAPSHOT</revision>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss</maven.build.timestamp.format>
     </properties>
