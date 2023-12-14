@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class UserMapper implements DtoMapper<User, UserDto> {
+
     @Override
     public UserDto mapToDto(User object) {
         return UserDto.builder()

@@ -29,17 +29,20 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
 
     public boolean addPrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
 
-        PrematureEmployeeCheckEntity prematureEmployeeCheckEntityDB = new PrematureEmployeeCheckEntity();
-        prematureEmployeeCheckEntityDB.setUser(userRepository.findActiveByEmail(prematureEmployeeCheck.getUser()
-                        .getEmail())
-                .orElseThrow());
-        prematureEmployeeCheckEntityDB.setForMonth(prematureEmployeeCheck.getForMonth().withDayOfMonth(1));
-        prematureEmployeeCheckEntityDB.setReason(prematureEmployeeCheck.getReason());
+        PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
+        prematureEmployeeCheckEntity.setUser(
+                userRepository.findActiveByEmail(prematureEmployeeCheck.getUser().getEmail()).orElseThrow()
+        );
+        prematureEmployeeCheckEntity.setForMonth(prematureEmployeeCheck.getForMonth().withDayOfMonth(1));
+        prematureEmployeeCheckEntity.setReason(prematureEmployeeCheck.getReason());
 
-        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(prematureEmployeeCheckEntityDB);
+        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(prematureEmployeeCheckEntity);
 
-        logger.info(String.format("PrematureEmployeeCheck created for %s in %s", saved.getUser()
-                .getEmail(), saved.getForMonth()));
+        logger.info(
+                String.format("PrematureEmployeeCheck created for %s in %s",
+                        saved.getUser().getEmail(),
+                        saved.getForMonth())
+        );
 
         return saved.getId() != null;
     }
