@@ -103,11 +103,10 @@ public class SyncResourceImpl implements SyncResource {
             return Response.ok().build();
         }
 
-        while (from.isBefore(to)) {
-            stepEntrySyncService.generateStepEntriesFromEndpoint(from);
+        do {
+            prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(from);
             from = from.plusMonths(1);
-        }
-        stepEntrySyncService.generateStepEntriesFromEndpoint(from);
+        } while (from.compareTo(to) <= 0);
 
         return Response.ok().build();
     }
