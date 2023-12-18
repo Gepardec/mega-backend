@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
@@ -44,9 +43,11 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
         );
 
         for (PrematureEmployeeCheck pec : prematureEmployeeCheckEntities) {
-            try {
-                updateStepEntry(pec);
-            } catch (NoSuchElementException e) {
+            boolean couldUpdatePec = updateStepEntry(pec) != 0;
+
+            if (couldUpdatePec) {
+                prematureEmployeeCheckService.deleteById(pec.getId());
+            } else {
                 logger.error(
                         String.format("Could not find StepEntry for PrematureEmployeeCheck! " +
                                         "StepEntries or PrematureEmployeeChecks must be malformed! " +
@@ -57,11 +58,10 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
             }
         }
 
-        prematureEmployeeCheckService.deleteAllForMonth(selectedMonth);
         return allEntriesUpdated;
     }
 
-    private void updateStepEntry(PrematureEmployeeCheck pec) {
+    private int updateStepEntry(PrematureEmployeeCheck pec) {
         LocalDate startDate = pec.getForMonth().with(firstDayOfMonth());
         LocalDate endDate = pec.getForMonth().with(lastDayOfMonth());
         String ownerEmail = pec.getUser().getEmail();
@@ -69,9 +69,9 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
         EmployeeState newState = EmployeeState.DONE;
 
         if (StringUtils.isBlank(pec.getReason())) {
-            stepEntryRepository.updateStateAssigned(startDate, endDate, ownerEmail, stepId, newState);
+            return stepEntryRepository.updateStateAssigned(startDate, endDate, ownerEmail, stepId, newState);
         } else {
-            stepEntryRepository.updateStateAssignedWithReason(startDate, endDate, ownerEmail, stepId, newState, pec.getReason());
+            return stepEntryRepository.updateStateAssignedWithReason(startDate, endDate, ownerEmail, stepId, newState, pec.getReason());
         }
     }
 }

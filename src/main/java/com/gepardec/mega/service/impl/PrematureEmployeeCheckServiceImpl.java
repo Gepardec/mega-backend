@@ -71,4 +71,8 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     public long deleteAllForMonth(LocalDate localDate) {
         return prematureEmployeeCheckRepository.deleteByMonth(localDate);
     }
+    @Override
+    public boolean deleteById(Long id) {
+        return prematureEmployeeCheckRepository.delete(id);
+    }
 }

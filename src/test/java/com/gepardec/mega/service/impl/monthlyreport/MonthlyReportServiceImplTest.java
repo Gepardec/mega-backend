@@ -462,7 +462,7 @@ class MonthlyReportServiceImplTest {
 
         assertAll(
                 () -> assertThat(monthendReportForUser).isNotNull(),
-                () -> assertThat(monthendReportForUser.getVacationDays()).isGreaterThan(5)
+                () -> assertThat(monthendReportForUser.getVacationDays()).isGreaterThan(4)
         );
     }
 

@@ -36,7 +36,7 @@ public class PrematureEmployeeCheckEntity {
     /**
      * The user, whose check is prematurely done
      */
-    @OneToOne(optional = false, orphanRemoval = true)
+    @OneToOne(optional = false, orphanRemoval = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 

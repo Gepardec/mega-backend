@@ -15,4 +15,6 @@ public interface PrematureEmployeeCheckService {
     List<PrematureEmployeeCheck> findAllForMonth(LocalDate localDate);
 
     long deleteAllForMonth(LocalDate localDate);
+
+    boolean deleteById(Long id);
 }
