@@ -12,8 +12,6 @@ import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -57,14 +55,6 @@ public class Schedules {
     @Scheduled(identity = "Generate step entries on the second last day of a month",
             cron = "0 0 0 L-2 * ? *")
     void generateStepEntriesDefault() {
-        if (!Month.DECEMBER.equals(getSysdate().getMonth())) {
-            stepEntrySyncService.generateStepEntriesFromScheduler();
-        }
-    }
-
-    @Scheduled(identity = "Generate step entries on the 20th of December",
-            cron = "0 0 0 20 DEC ? *")
-    void generateStepEntriesDecember() {
         stepEntrySyncService.generateStepEntriesFromScheduler();
     }
 
@@ -97,11 +87,7 @@ public class Schedules {
 
     @Scheduled(identity = "Take existing PrematureEmployeeChecks and update StepEntries accordingly on the last day of a month at 00:00",
             cron = "0 0 0 L * ? *")
-    void syncPrematureEmployeeChecksWithStepEntries(){
+    void syncPrematureEmployeeChecksWithStepEntries() {
         prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(DateUtils.getCurrentYearMonth());
-    }
-
-    LocalDate getSysdate() {
-        return LocalDate.now();
     }
 }
