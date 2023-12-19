@@ -10,6 +10,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @ApplicationScoped
@@ -58,5 +59,20 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     public boolean hasUserPrematureEmployeeCheck(String email) {
         List<PrematureEmployeeCheck> prematureEmployeeCheckForUserId = getPrematureEmployeeChecksForEmail(email);
         return !prematureEmployeeCheckForUserId.isEmpty();
+    }
+
+    @Override
+    public List<PrematureEmployeeCheck> findAllForMonth(LocalDate localDate) {
+        List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntities = prematureEmployeeCheckRepository.findAllForMonth(localDate);
+        return prematureEmployeeCheckMapper.mapListToDomain(prematureEmployeeCheckEntities);
+    }
+
+    @Override
+    public long deleteAllForMonth(LocalDate localDate) {
+        return prematureEmployeeCheckRepository.deleteByMonth(localDate);
+    }
+    @Override
+    public boolean deleteById(Long id) {
+        return prematureEmployeeCheckRepository.delete(id);
     }
 }

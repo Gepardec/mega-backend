@@ -1,5 +1,13 @@
 databaseChangeLog:
   - changeSet:
+      id: create-sequence-for-premature-employee-check
+      author: MEGA-722
+      changes:
+        - createSequence:
+            incrementBy: 1
+            sequenceName: prematureemployeecheck_seq
+            startValue: 1
+  - changeSet:
       id: create-premature-employee-check-table
       author: MEGA-684
       objectQuotingStrategy: QUOTE_ONLY_RESERVED_WORDS

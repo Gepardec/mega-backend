@@ -1,8 +1,10 @@
 package com.gepardec.mega.application.schedule;
 
+import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.notification.mail.ReminderEmailSender;
 import com.gepardec.mega.notification.mail.receiver.MailReceiver;
 import com.gepardec.mega.service.api.EnterpriseSyncService;
+import com.gepardec.mega.service.api.PrematureEmployeeCheckSyncService;
 import com.gepardec.mega.service.api.ProjectSyncService;
 import com.gepardec.mega.service.api.StepEntrySyncService;
 import com.gepardec.mega.service.api.SyncService;
@@ -10,8 +12,6 @@ import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,6 +36,9 @@ public class Schedules {
     EnterpriseSyncService enterpriseSyncService;
 
     @Inject
+    PrematureEmployeeCheckSyncService prematureEmployeeCheckSyncService;
+
+    @Inject
     ReminderEmailSender reminderEmailSender;
 
     @Inject
@@ -52,14 +55,6 @@ public class Schedules {
     @Scheduled(identity = "Generate step entries on the second last day of a month",
             cron = "0 0 0 L-2 * ? *")
     void generateStepEntriesDefault() {
-        if (!Month.DECEMBER.equals(getSysdate().getMonth())) {
-            stepEntrySyncService.generateStepEntriesFromScheduler();
-        }
-    }
-
-    @Scheduled(identity = "Generate step entries on the 20th of December",
-            cron = "0 0 0 20 DEC ? *")
-    void generateStepEntriesDecember() {
         stepEntrySyncService.generateStepEntriesFromScheduler();
     }
 
@@ -90,7 +85,9 @@ public class Schedules {
         mailReceiver.retrieveZepEmailsFromInbox();
     }
 
-    LocalDate getSysdate() {
-        return LocalDate.now();
+    @Scheduled(identity = "Take existing PrematureEmployeeChecks and update StepEntries accordingly on the last day of a month at 00:00",
+            cron = "0 0 0 L-1 * ? *")
+    void syncPrematureEmployeeChecksWithStepEntries() {
+        prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(DateUtils.getCurrentYearMonth());
     }
 }
