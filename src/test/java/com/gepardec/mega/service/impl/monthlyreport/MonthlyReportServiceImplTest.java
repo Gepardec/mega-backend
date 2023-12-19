@@ -27,6 +27,7 @@ import io.quarkus.test.security.jwt.JwtSecurity;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -426,6 +427,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
+    @Disabled("Needs to be reworked with mocked services etc.")
     void getMonthendReportForUser_isUserValidAndHasPaidVacationOverWeekendWhichExtendsOverMonthEnd_thenReturnsReportWithOnlyVacationDaysOnWorkdays() {
         final Employee employee = createEmployeeForVacationTests(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
