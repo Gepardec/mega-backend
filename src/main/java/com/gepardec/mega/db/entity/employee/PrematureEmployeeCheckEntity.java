@@ -2,6 +2,8 @@ package com.gepardec.mega.db.entity.employee;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -67,6 +69,14 @@ public class PrematureEmployeeCheckEntity {
     @Column(name = "update_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedDate;
 
+    /**
+     * The state of the premature check (Done, In Progress). Is a requirement.
+     */
+    @NotNull
+    @Column(name = "state")
+    @Enumerated(EnumType.STRING)
+    private PrematureEmployeeCheckState state;
+
 
     @PrePersist
     void onPersist() {
@@ -93,6 +103,14 @@ public class PrematureEmployeeCheckEntity {
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public PrematureEmployeeCheckState getState() {
+        return state;
+    }
+
+    public void setState(PrematureEmployeeCheckState state) {
+        this.state = state;
     }
 
     public String getReason() {

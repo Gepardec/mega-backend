@@ -21,6 +21,7 @@ public class PrematureEmployeeCheckMapper {
                 .forMonth(prematureEmployeeCheckEntity.getForMonth())
                 .reason(prematureEmployeeCheckEntity.getReason())
                 .creationDate(prematureEmployeeCheckEntity.getCreationDate())
+                .state(prematureEmployeeCheckEntity.getState())
                 .build();
     }
 

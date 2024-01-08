@@ -2,6 +2,7 @@ package com.gepardec.mega.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,4 +27,7 @@ public class PrematureEmployeeCheckDto {
 
     @JsonProperty
     private String reason;
+
+    @JsonProperty
+    private PrematureEmployeeCheckState state;
 }

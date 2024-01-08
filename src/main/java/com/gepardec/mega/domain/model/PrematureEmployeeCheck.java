@@ -1,5 +1,6 @@
 package com.gepardec.mega.domain.model;
 
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,8 @@ public class PrematureEmployeeCheck {
     private User user;
 
     private String reason;
+
+    private PrematureEmployeeCheckState state;
 
     private LocalDate forMonth;
 
