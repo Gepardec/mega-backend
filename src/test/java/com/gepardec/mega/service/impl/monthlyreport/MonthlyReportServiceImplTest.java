@@ -438,7 +438,7 @@ class MonthlyReportServiceImplTest {
         vacationDaysAbsence.setGenehmigt(true);
 
         LocalDate firstOfCurrentMonth = LocalDate.now();
-        LocalDate firstOfLastMonth = LocalDate.now().withMonth(firstOfCurrentMonth.getMonthValue() - 1);
+        LocalDate firstOfLastMonth = LocalDate.now().withMonth(firstOfCurrentMonth.getMonthValue()).minusMonths(1);
         LocalDate midOfMonth = LocalDate.now().withDayOfMonth(14);
         LocalDate startDate;
         LocalDate endDate;
