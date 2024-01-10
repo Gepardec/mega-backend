@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "premature_employee_check", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "for_month"}))
 @NamedQueries({
-        @NamedQuery(name = "PrematureEmployeeCheck.findByEmail", query = "select p from PrematureEmployeeCheckEntity p where p.user.email = :email"),
+        @NamedQuery(name = "PrematureEmployeeCheck.findByEmailAndMonth", query = "select p from PrematureEmployeeCheckEntity p where p.user.email = :email and p.forMonth = :forMonth"),
         @NamedQuery(name = "PrematureEmployeeCheck.findAllByMonth", query = "select p from PrematureEmployeeCheckEntity p where p.forMonth = :forMonth"),
         @NamedQuery(name = "PrematureEmployeeCheck.deleteAllByMonth", query = "delete from PrematureEmployeeCheckEntity p  where p.forMonth = :forMonth"),
 })

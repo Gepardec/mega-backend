@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @ApplicationScoped
+@Transactional
 public class PrematureEmployeeCheckRepository implements PanacheRepository<PrematureEmployeeCheckEntity> {
 
     @Inject
@@ -21,25 +22,23 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
     @Inject
     Logger logger;
 
-    @Transactional
     public PrematureEmployeeCheckEntity save(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
-        this.persist(prematureEmployeeCheckEntity);
+        this.persistAndFlush(prematureEmployeeCheckEntity);
         // Flushing to trigger the ConstraintViolationException to be able to catch it
-        this.flush();
         return prematureEmployeeCheckEntity;
     }
 
-    @Transactional
+
     public PrematureEmployeeCheckEntity update(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
         return em.merge(prematureEmployeeCheckEntity);
     }
 
-    @Transactional
+
     public boolean delete(Long id) {
         return deleteById(id);
     }
 
-    @Transactional
+
     public List<PrematureEmployeeCheckEntity> findAllForMonth(LocalDate forMonth) {
         forMonth = forMonth.withDayOfMonth(1);
         return find("#PrematureEmployeeCheck.findAllByMonth",
@@ -47,14 +46,13 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
                 .list();
     }
 
-    @Transactional
-    public List<PrematureEmployeeCheckEntity> findByEmail(String email) {
-        return find("#PrematureEmployeeCheck.findByEmail",
-                Parameters.with("email", email))
-                .list();
+
+    public PrematureEmployeeCheckEntity findByEmailAndMonth(String email, LocalDate forMonth) {
+        return find("#PrematureEmployeeCheck.findByEmailAndMonth",
+                Parameters.with("email", email).and("forMonth", forMonth))
+                .firstResult();
     }
 
-    @Transactional
     public long deleteByMonth(LocalDate forMonth) {
         return delete("#PrematureEmployeeCheck.deleteAllByMonth",
                 Parameters.with("forMonth", forMonth));

@@ -1,6 +1,7 @@
 package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.domain.model.Role;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
@@ -28,6 +29,7 @@ public class PrematureEmployeeCheckRepositoryTest {
     UserRepository userRepository;
 
     private static final String EMAIL = "max.muster@gepardec.com";
+    private static final LocalDate DATE = LocalDate.of(2023, 10, 1);
     private com.gepardec.mega.db.entity.employee.User user;
 
     @BeforeEach
@@ -69,10 +71,10 @@ public class PrematureEmployeeCheckRepositoryTest {
     @Test
     public void findByEmail_missingEntry_returnEmptyList() {
 //        When
-        List<PrematureEmployeeCheckEntity> fromEmail = prematureEmployeeCheckRepository.findByEmail(EMAIL);
+        PrematureEmployeeCheckEntity byEmailAndMonth = prematureEmployeeCheckRepository.findByEmailAndMonth(EMAIL, DATE);
 
 //        Then
-        assertThat(fromEmail.size()).isZero();
+        assertThat(byEmailAndMonth).isNull();
     }
 
     @Test
@@ -82,10 +84,10 @@ public class PrematureEmployeeCheckRepositoryTest {
         persistPrematureEmployeeCheck();
 
 //        When
-        List<PrematureEmployeeCheckEntity> fromEmail = prematureEmployeeCheckRepository.findByEmail(EMAIL);
+        PrematureEmployeeCheckEntity byEmailAndMonth = prematureEmployeeCheckRepository.findByEmailAndMonth(EMAIL, DATE);
 
 //        Then
-        assertThat(fromEmail.size()).isEqualTo(1L);
+        assertThat(byEmailAndMonth.getState()).isEqualTo(PrematureEmployeeCheckState.DONE);
     }
 
 
@@ -102,7 +104,8 @@ public class PrematureEmployeeCheckRepositoryTest {
         PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
         prematureEmployeeCheckEntity.setId(id);
         prematureEmployeeCheckEntity.setUser(this.user);
-        prematureEmployeeCheckEntity.setForMonth(LocalDate.of(2023, 10, 1));
+        prematureEmployeeCheckEntity.setForMonth(DATE);
+        prematureEmployeeCheckEntity.setState(PrematureEmployeeCheckState.DONE);
         return prematureEmployeeCheckEntity;
     }
 

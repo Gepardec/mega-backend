@@ -207,7 +207,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
                 .vacationDayBalance(personioEmployeesService.getVacationDayBalance(employee.getEmail()))
                 .overtime(workingTimeUtil.getOvertimeForEmployee(employee, billableEntries, absenceEntries, date))
-                .hasPrematureEmployeeCheck(prematureEmployeeCheckService.hasUserPrematureEmployeeCheck(employee.getEmail()))
+                .prematureEmployeeCheckState(prematureEmployeeCheckService.getPrematureEmployeeCheckState(employee.getEmail(),date))
                 .build();
     }
 

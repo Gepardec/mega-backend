@@ -1,6 +1,7 @@
 package com.gepardec.mega.service.impl.stepentry;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.db.repository.PrematureEmployeeCheckRepository;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
@@ -45,10 +46,12 @@ public class PrematureEmployeeCheckServiceTest {
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .user(createUserForRole(Role.EMPLOYEE))
                 .forMonth(LocalDate.of(2023, 10, 1))
+                .state(PrematureEmployeeCheckState.DONE)
                 .build();
 
         when(userRepository.findActiveByEmail(any())).thenReturn(Optional.of(createDBUserForRole(Role.EMPLOYEE)));
         when(prematureEmployeeCheckRepository.save(any())).thenReturn(createDBPrematureEmployeeCheck(1L));
+        when(prematureEmployeeCheckMapper.mapToEntity(any())).thenReturn(createDBPrematureEmployeeCheck(null));
 
 //        When & Then
         assertThat(prematureEmployeeCheckService.addPrematureEmployeeCheck(prematureEmployeeCheck)).isTrue();
@@ -60,10 +63,12 @@ public class PrematureEmployeeCheckServiceTest {
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .user(createUserForRole(Role.EMPLOYEE))
                 .forMonth(LocalDate.of(2023, 10, 1))
+                .state(PrematureEmployeeCheckState.DONE)
                 .build();
 
         when(userRepository.findActiveByEmail(any())).thenReturn(Optional.of(createDBUserForRole(Role.EMPLOYEE)));
         when(prematureEmployeeCheckRepository.save(any())).thenReturn(createDBPrematureEmployeeCheck(null));
+        when(prematureEmployeeCheckMapper.mapToEntity(any())).thenReturn(createDBPrematureEmployeeCheck(null));
 
 //        When & Then
         assertThat(prematureEmployeeCheckService.addPrematureEmployeeCheck(prematureEmployeeCheck)).isFalse();
@@ -72,53 +77,28 @@ public class PrematureEmployeeCheckServiceTest {
     @Test
     public void getPrematureEmployeeCheckForEmail_withExistingEntry_returnListOfEntry() {
 //        Given
-        when(prematureEmployeeCheckRepository.findByEmail(any())).thenReturn(List.of(createDBPrematureEmployeeCheck(1L)));
+        when(prematureEmployeeCheckRepository.findByEmailAndMonth(any(), any())).thenReturn(createDBPrematureEmployeeCheck(1L));
         when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of(createPrematureEmployeeCheck()));
 
 //        When
-        List<PrematureEmployeeCheck> prematureEmployeeCheckForEmail = prematureEmployeeCheckService.getPrematureEmployeeChecksForEmail("max@mustermann.com");
+        PrematureEmployeeCheckState prematureEmployeeCheckState = prematureEmployeeCheckService.getPrematureEmployeeCheckState("max@mustermann.com", LocalDate.of(2023, 10, 1));
 
 //        Then
-        assertThat(prematureEmployeeCheckForEmail.size()).isEqualTo(1);
+        assertThat(prematureEmployeeCheckState).isEqualTo(PrematureEmployeeCheckState.DONE);
     }
 
     @Test
     public void getPrematureEmployeeCheckForEmail_noExistingEntries_returnEmptyList() {
 //        Given
-        when(prematureEmployeeCheckRepository.findByEmail(any())).thenReturn(List.of());
+        when(prematureEmployeeCheckRepository.findByEmailAndMonth(any(), any())).thenReturn(null);
         when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of());
 
 //        When
-        List<PrematureEmployeeCheck> prematureEmployeeCheckForEmail = prematureEmployeeCheckService.getPrematureEmployeeChecksForEmail("max@mustermann.com");
+        PrematureEmployeeCheckState prematureEmployeeCheckState = prematureEmployeeCheckService.getPrematureEmployeeCheckState("max@mustermann.com", LocalDate.of(2023, 10, 1));
 
 //        Then
-        assertThat(prematureEmployeeCheckForEmail.size()).isEqualTo(0);
+        assertThat(prematureEmployeeCheckState).isEqualTo(PrematureEmployeeCheckState.NO_PEC_MADE);
     }
-
-    @Test
-    public void hasUerPrematureEmployeeCheck_existingEntry_returnTrue() {
-//        Given
-        when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of(createPrematureEmployeeCheck()));
-
-//        When
-        boolean b = prematureEmployeeCheckService.hasUserPrematureEmployeeCheck("max@mustermann.com");
-
-//        Then
-        assertThat(b).isTrue();
-    }
-
-    @Test
-    public void hasUerPrematureEmployeeCheck_missingEntry_returnFalse() {
-//        Given
-        when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(List.of());
-
-//        When
-        boolean b = prematureEmployeeCheckService.hasUserPrematureEmployeeCheck("max@mustermann.com");
-
-//        Then
-        assertThat(b).isFalse();
-    }
-
 
     private User createUserForRole(final Role role) {
         return User.builder()
@@ -145,6 +125,7 @@ public class PrematureEmployeeCheckServiceTest {
         prematureEmployeeCheckEntity.setId(id);
         prematureEmployeeCheckEntity.setUser(createDBUserForRole(Role.EMPLOYEE));
         prematureEmployeeCheckEntity.setForMonth(LocalDate.of(2023, 10, 1));
+        prematureEmployeeCheckEntity.setState(PrematureEmployeeCheckState.DONE);
         return prematureEmployeeCheckEntity;
     }
 

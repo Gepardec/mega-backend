@@ -1,6 +1,7 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.db.repository.PrematureEmployeeCheckRepository;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
@@ -28,16 +29,15 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     @Inject
     Logger logger;
 
+    @Override
     public boolean addPrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
 
-        PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
+        PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = prematureEmployeeCheckMapper.mapToEntity(prematureEmployeeCheck);
         prematureEmployeeCheckEntity.setUser(
                 userRepository.findActiveByEmail(prematureEmployeeCheck.getUser().getEmail()).orElseThrow()
         );
-        prematureEmployeeCheckEntity.setForMonth(prematureEmployeeCheck.getForMonth().withDayOfMonth(1));
-        prematureEmployeeCheckEntity.setReason(prematureEmployeeCheck.getReason());
 
-        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(prematureEmployeeCheckEntity);
+        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.update(prematureEmployeeCheckEntity);
 
         logger.info(
                 String.format("PrematureEmployeeCheck created for %s in %s",
@@ -48,17 +48,21 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
         return saved.getId() != null;
     }
 
-    @Override
-    public List<PrematureEmployeeCheck> getPrematureEmployeeChecksForEmail(String email) {
-        List<PrematureEmployeeCheckEntity> fromUserId = prematureEmployeeCheckRepository.findByEmail(email);
+//    @Override
+//    public List<PrematureEmployeeCheck> getPrematureEmployeeChecksForEmail(String email) {
+//
+//        return prematureEmployeeCheckMapper.mapListToDomain(fromUserId);
+//    }
 
-        return prematureEmployeeCheckMapper.mapListToDomain(fromUserId);
-    }
-
     @Override
-    public boolean hasUserPrematureEmployeeCheck(String email) {
-        List<PrematureEmployeeCheck> prematureEmployeeCheckForUserId = getPrematureEmployeeChecksForEmail(email);
-        return !prematureEmployeeCheckForUserId.isEmpty();
+    public PrematureEmployeeCheckState getPrematureEmployeeCheckState(String email, LocalDate date) {
+        PrematureEmployeeCheckEntity prematureEmployeeCheck = prematureEmployeeCheckRepository.findByEmailAndMonth(email, date);
+
+        if (prematureEmployeeCheck == null) {
+            return PrematureEmployeeCheckState.NO_PEC_MADE;
+        }
+
+        return prematureEmployeeCheck.getState();
     }
 
     @Override

@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
         final com.gepardec.mega.db.entity.employee.User user = userRepository.findActiveByEmail(email)
                 .orElseThrow(() -> new ForbiddenException("User with email '" + email + "' is either unknown or inactive"));
 
-        return mapper.map(user);
+        return mapper.mapToDomain(user);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
                                 "' is either unknown or inactive")
                 );
 
-        return mapper.map(user);
+        return mapper.mapToDomain(user);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
                         new ForbiddenException("User with zepId '" + zepId + "' is either unknown or inactive")
                 );
 
-        return mapper.map(user);
+        return mapper.mapToDomain(user);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
     public List<User> findActiveUsers() {
         final List<com.gepardec.mega.db.entity.employee.User> activeUsers = userRepository.findActive();
         return activeUsers.stream()
-                .map(mapper::map)
+                .map(mapper::mapToDomain)
                 .collect(Collectors.toList());
     }
 
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
         }
 
         return userRepository.findByRoles(roles).stream()
-                .map(mapper::map)
+                .map(mapper::mapToDomain)
                 .collect(Collectors.toList());
     }
 }

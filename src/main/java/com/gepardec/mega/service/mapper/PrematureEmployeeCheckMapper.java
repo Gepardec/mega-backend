@@ -9,15 +9,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class PrematureEmployeeCheckMapper {
+public class PrematureEmployeeCheckMapper implements DomainMapper<PrematureEmployeeCheck, PrematureEmployeeCheckEntity> {
 
     @Inject
     UserMapper userMapper;
 
+    @Override
     public PrematureEmployeeCheck mapToDomain(PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
         return PrematureEmployeeCheck.builder()
                 .id(prematureEmployeeCheckEntity.getId())
-                .user(userMapper.map(prematureEmployeeCheckEntity.getUser()))
+                .user(userMapper.mapToDomain(prematureEmployeeCheckEntity.getUser()))
                 .forMonth(prematureEmployeeCheckEntity.getForMonth())
                 .reason(prematureEmployeeCheckEntity.getReason())
                 .creationDate(prematureEmployeeCheckEntity.getCreationDate())
@@ -25,7 +26,14 @@ public class PrematureEmployeeCheckMapper {
                 .build();
     }
 
-    public List<PrematureEmployeeCheck> mapListToDomain(List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntities) {
-        return prematureEmployeeCheckEntities.stream().map(this::mapToDomain).collect(Collectors.toList());
+    @Override
+    public PrematureEmployeeCheckEntity mapToEntity(PrematureEmployeeCheck prematureEmployeeCheck){
+        PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
+        prematureEmployeeCheckEntity.setId(prematureEmployeeCheck.getId());
+        prematureEmployeeCheckEntity.setUser(userMapper.mapToEntity(prematureEmployeeCheck.getUser()));
+        prematureEmployeeCheckEntity.setForMonth(prematureEmployeeCheck.getForMonth());
+        prematureEmployeeCheckEntity.setReason(prematureEmployeeCheck.getReason());
+        prematureEmployeeCheckEntity.setState(prematureEmployeeCheck.getState());
+        return prematureEmployeeCheckEntity;
     }
 }
