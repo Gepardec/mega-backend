@@ -9,7 +9,7 @@ import java.util.List;
 public interface PrematureEmployeeCheckService {
     boolean addPrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck);
 
-//    List<PrematureEmployeeCheck> getPrematureEmployeeChecksForEmail(String email);
+    String getPrematureEmployeeCheckReason(String email, LocalDate date);
 
     PrematureEmployeeCheckState getPrematureEmployeeCheckState(String email, LocalDate date);
 

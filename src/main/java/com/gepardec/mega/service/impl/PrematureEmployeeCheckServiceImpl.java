@@ -48,11 +48,17 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
         return saved.getId() != null;
     }
 
-//    @Override
-//    public List<PrematureEmployeeCheck> getPrematureEmployeeChecksForEmail(String email) {
-//
-//        return prematureEmployeeCheckMapper.mapListToDomain(fromUserId);
-//    }
+    @Override
+    public String getPrematureEmployeeCheckReason(String email, LocalDate date) {
+        PrematureEmployeeCheckEntity prematureEmployeeCheck = prematureEmployeeCheckRepository.findByEmailAndMonth(email, date);
+
+        if (prematureEmployeeCheck == null) {
+            return null;
+        }
+
+        return prematureEmployeeCheck.getReason();
+    }
+
 
     @Override
     public PrematureEmployeeCheckState getPrematureEmployeeCheckState(String email, LocalDate date) {

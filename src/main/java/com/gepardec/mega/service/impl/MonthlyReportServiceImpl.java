@@ -187,7 +187,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .journeyWarnings(journeyWarnings)
                 .comments(comments)
                 .employeeCheckState(employeeCheckState.map(Pair::getLeft).orElse(EmployeeState.PREMATURE_CHECK))
-                .employeeCheckStateReason(employeeCheckState.map(Pair::getRight).orElse(null))
+                .employeeCheckStateReason(employeeCheckState.map(Pair::getRight).orElse(prematureEmployeeCheckService.getPrematureEmployeeCheckReason(employee.getEmail(), date)))
                 .internalCheckState(internalCheckState.orElse(EmployeeState.OPEN))
                 .employeeProgresses(pmProgressDtos)
                 .otherChecksDone(isMonthCompletedForEmployee(employee, date))

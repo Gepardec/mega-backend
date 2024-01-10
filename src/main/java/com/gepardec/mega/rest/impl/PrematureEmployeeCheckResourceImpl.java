@@ -28,4 +28,14 @@ public class PrematureEmployeeCheckResourceImpl implements PrematureEmployeeChec
 
         return Response.ok(succeeded).build();
     }
+
+    @Override
+    public Response update(PrematureEmployeeCheckDto prematureEmployeeCheckDto) {
+        return null;
+    }
+
+    @Override
+    public Response delete(PrematureEmployeeCheckDto prematureEmployeeCheckDto) {
+        return null;
+    }
 }
