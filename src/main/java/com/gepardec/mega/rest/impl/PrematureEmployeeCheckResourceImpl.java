@@ -31,11 +31,11 @@ public class PrematureEmployeeCheckResourceImpl implements PrematureEmployeeChec
 
     @Override
     public Response update(PrematureEmployeeCheckDto prematureEmployeeCheckDto) {
-        return null;
+        PrematureEmployeeCheck prematureEmployeeCheck = prematureEmployeeCheckMapper.mapToDomain(prematureEmployeeCheckDto);
+
+        boolean succeeded = prematureEmployeeCheckService.updatePrematureEmployeeCheck(prematureEmployeeCheck);
+
+        return Response.ok(succeeded).build();
     }
 
-    @Override
-    public Response delete(PrematureEmployeeCheckDto prematureEmployeeCheckDto) {
-        return null;
-    }
 }

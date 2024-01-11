@@ -1,6 +1,7 @@
 package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
+import com.gepardec.mega.db.entity.employee.User;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,16 +21,23 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
     EntityManager em;
 
     @Inject
+    UserRepository userRepository;
+    @Inject
     Logger logger;
 
     public PrematureEmployeeCheckEntity save(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
-        this.persistAndFlush(prematureEmployeeCheckEntity);
-        // Flushing to trigger the ConstraintViolationException to be able to catch it
+        User user = userRepository.findActiveByEmail(prematureEmployeeCheckEntity.getUser().getEmail()).orElseThrow();
+        prematureEmployeeCheckEntity.setUser(user);
+        em.merge(prematureEmployeeCheckEntity);
+        em.flush();
+        // Flushing to trigger the ConstraintViolationExcepstion to be able to catch it
         return prematureEmployeeCheckEntity;
     }
 
 
     public PrematureEmployeeCheckEntity update(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
+        User user = userRepository.findActiveByEmail(prematureEmployeeCheckEntity.getUser().getEmail()).orElseThrow();
+        prematureEmployeeCheckEntity.setUser(user);
         return em.merge(prematureEmployeeCheckEntity);
     }
 

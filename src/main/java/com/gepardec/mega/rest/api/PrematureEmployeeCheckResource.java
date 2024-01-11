@@ -21,7 +21,4 @@ public interface PrematureEmployeeCheckResource {
 
     @PUT
     Response update(@NotNull(message = "{stepEntryResource.parameter.notNull}") PrematureEmployeeCheckDto prematureEmployeeCheckDto);
-
-    @DELETE
-    Response delete(@NotNull(message = "{stepEntryResource.parameter.notNull}") PrematureEmployeeCheckDto prematureEmployeeCheckDto);
 }

@@ -9,6 +9,8 @@ import java.util.List;
 public interface PrematureEmployeeCheckService {
     boolean addPrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck);
 
+    boolean updatePrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck);
+
     String getPrematureEmployeeCheckReason(String email, LocalDate date);
 
     PrematureEmployeeCheckState getPrematureEmployeeCheckState(String email, LocalDate date);

@@ -3,7 +3,6 @@ package com.gepardec.mega.service.impl;
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.db.repository.PrematureEmployeeCheckRepository;
-import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.service.api.PrematureEmployeeCheckService;
 import com.gepardec.mega.service.mapper.PrematureEmployeeCheckMapper;
@@ -20,8 +19,6 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     @Inject
     PrematureEmployeeCheckRepository prematureEmployeeCheckRepository;
 
-    @Inject
-    UserRepository userRepository;
 
     @Inject
     PrematureEmployeeCheckMapper prematureEmployeeCheckMapper;
@@ -33,19 +30,28 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     public boolean addPrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
 
         PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = prematureEmployeeCheckMapper.mapToEntity(prematureEmployeeCheck);
-        prematureEmployeeCheckEntity.setUser(
-                userRepository.findActiveByEmail(prematureEmployeeCheck.getUser().getEmail()).orElseThrow()
-        );
 
-        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.update(prematureEmployeeCheckEntity);
+        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(prematureEmployeeCheckEntity);
 
-        logger.info(
-                String.format("PrematureEmployeeCheck created for %s in %s",
-                        saved.getUser().getEmail(),
-                        saved.getForMonth())
-        );
+        logger.info(String.format("PrematureEmployeeCheck created for %s in %s", saved.getUser()
+                .getEmail(), saved.getForMonth()));
 
         return saved.getId() != null;
+    }
+
+    @Override
+    public boolean updatePrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
+
+        PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = prematureEmployeeCheckRepository.findByEmailAndMonth(prematureEmployeeCheck.getUser()
+                .getEmail(), prematureEmployeeCheck.getForMonth());
+        prematureEmployeeCheckEntity.setState(prematureEmployeeCheck.getState());
+        prematureEmployeeCheckEntity.setReason(prematureEmployeeCheck.getReason());
+
+        PrematureEmployeeCheckEntity updated = prematureEmployeeCheckRepository.update(prematureEmployeeCheckEntity);
+
+        logger.info(String.format("PrematureEmployeeCheck (id: %s) updated", updated.getId()));
+
+        return updated.getId() != null;
     }
 
     @Override
@@ -81,6 +87,7 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     public long deleteAllForMonth(LocalDate localDate) {
         return prematureEmployeeCheckRepository.deleteByMonth(localDate);
     }
+
     @Override
     public boolean deleteById(Long id) {
         return prematureEmployeeCheckRepository.delete(id);
