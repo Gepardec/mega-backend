@@ -1,4 +1,4 @@
-package com.gepardec.mega.service.mapper;
+package com.gepardec.mega.domain.mapper;
 
 import java.util.List;
 import java.util.stream.Collectors;

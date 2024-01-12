@@ -1,4 +1,4 @@
-package com.gepardec.mega.service.mapper;
+package com.gepardec.mega.domain.mapper;
 
 import com.gepardec.mega.domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;

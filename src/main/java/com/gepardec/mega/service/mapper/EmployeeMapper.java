@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class EmployeeMapper {
 
+    //TODO this is not a mapper, this is a util-service
+
     public Employee map(MitarbeiterType mitarbeiterType) {
         if (mitarbeiterType == null) {
             return null;

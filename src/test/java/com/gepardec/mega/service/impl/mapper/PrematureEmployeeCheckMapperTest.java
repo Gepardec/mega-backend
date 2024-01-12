@@ -4,7 +4,7 @@ import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
-import com.gepardec.mega.service.mapper.PrematureEmployeeCheckMapper;
+import com.gepardec.mega.domain.mapper.PrematureEmployeeCheckMapper;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;

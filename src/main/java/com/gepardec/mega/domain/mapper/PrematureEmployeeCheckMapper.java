@@ -1,12 +1,9 @@
-package com.gepardec.mega.service.mapper;
+package com.gepardec.mega.domain.mapper;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class PrematureEmployeeCheckMapper implements DomainMapper<PrematureEmployeeCheck, PrematureEmployeeCheckEntity> {

@@ -1,6 +1,7 @@
 package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.db.entity.employee.User;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
@@ -28,10 +29,10 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
     public PrematureEmployeeCheckEntity save(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
         User user = userRepository.findActiveByEmail(prematureEmployeeCheckEntity.getUser().getEmail()).orElseThrow();
         prematureEmployeeCheckEntity.setUser(user);
-        em.merge(prematureEmployeeCheckEntity);
+        PrematureEmployeeCheckEntity merge = em.merge(prematureEmployeeCheckEntity);
         em.flush();
         // Flushing to trigger the ConstraintViolationExcepstion to be able to catch it
-        return prematureEmployeeCheckEntity;
+        return merge;
     }
 
 
@@ -61,8 +62,8 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
                 .firstResult();
     }
 
-    public long deleteByMonth(LocalDate forMonth) {
-        return delete("#PrematureEmployeeCheck.deleteAllByMonth",
-                Parameters.with("forMonth", forMonth));
+    public long deleteByMonthAndStates(LocalDate forMonth, List<PrematureEmployeeCheckState> states) {
+        return delete("#PrematureEmployeeCheck.deleteAllByMonthAndStates",
+                Parameters.with("forMonth", forMonth).and("states", states));
     }
 }

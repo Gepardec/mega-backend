@@ -5,7 +5,7 @@ import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.service.api.UserService;
-import com.gepardec.mega.service.mapper.UserMapper;
+import com.gepardec.mega.domain.mapper.UserMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

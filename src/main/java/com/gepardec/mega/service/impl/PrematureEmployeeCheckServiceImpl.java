@@ -5,7 +5,7 @@ import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.db.repository.PrematureEmployeeCheckRepository;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.service.api.PrematureEmployeeCheckService;
-import com.gepardec.mega.service.mapper.PrematureEmployeeCheckMapper;
+import com.gepardec.mega.domain.mapper.PrematureEmployeeCheckMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -41,11 +41,14 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
 
     @Override
     public boolean updatePrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
-
         PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = prematureEmployeeCheckRepository.findByEmailAndMonth(prematureEmployeeCheck.getUser()
                 .getEmail(), prematureEmployeeCheck.getForMonth());
+
         prematureEmployeeCheckEntity.setState(prematureEmployeeCheck.getState());
-        prematureEmployeeCheckEntity.setReason(prematureEmployeeCheck.getReason());
+
+        if (prematureEmployeeCheck.getReason() != null) {
+            prematureEmployeeCheckEntity.setReason(prematureEmployeeCheck.getReason());
+        }
 
         PrematureEmployeeCheckEntity updated = prematureEmployeeCheckRepository.update(prematureEmployeeCheckEntity);
 
@@ -84,8 +87,8 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     }
 
     @Override
-    public long deleteAllForMonth(LocalDate localDate) {
-        return prematureEmployeeCheckRepository.deleteByMonth(localDate);
+    public long deleteAllForMonthWithState(LocalDate localDate, List<PrematureEmployeeCheckState> states) {
+        return prematureEmployeeCheckRepository.deleteByMonthAndStates(localDate, states);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.gepardec.mega.service.impl.stepentry;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.db.entity.employee.Step;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.employee.User;
@@ -155,6 +156,7 @@ public class PrematureEmployeeCheckSyncServiceTest {
                 .id(id)
                 .user(user)
                 .forMonth(testDate)
+                .state(PrematureEmployeeCheckState.DONE)
                 .build();
     }
 }

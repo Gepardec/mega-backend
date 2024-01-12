@@ -4,7 +4,7 @@ import com.gepardec.mega.db.entity.project.Project;
 import com.gepardec.mega.db.entity.project.ProjectComment;
 import com.gepardec.mega.db.repository.ProjectCommentRepository;
 import com.gepardec.mega.db.repository.ProjectRepository;
-import com.gepardec.mega.domain.mapper.ProjectCommentMapper;
+import com.gepardec.mega.rest.mapper.ProjectCommentMapper;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.model.ProjectCommentDto;
 import com.gepardec.mega.service.api.ProjectCommentService;
