@@ -24,7 +24,7 @@ public class PrematureEmployeeCheckMapper implements DomainMapper<PrematureEmplo
     }
 
     @Override
-    public PrematureEmployeeCheckEntity mapToEntity(PrematureEmployeeCheck prematureEmployeeCheck){
+    public PrematureEmployeeCheckEntity mapToEntity(PrematureEmployeeCheck prematureEmployeeCheck) {
         PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
         prematureEmployeeCheckEntity.setId(prematureEmployeeCheck.getId());
         prematureEmployeeCheckEntity.setUser(userMapper.mapToEntity(prematureEmployeeCheck.getUser()));
