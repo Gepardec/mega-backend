@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Builder
@@ -14,13 +15,11 @@ public class AbsenceTime {
 
     private Integer id;
     private String userId;
-    private String fromTime;
-    private String toTime;
+    private LocalDateTime fromTime;
+    private LocalDateTime toTime;
     private String reason;
     private Boolean isHalfADay;
     private Boolean accepted;
-    private String vonZeit;
-    private String bisZeit;
     private String comment;
     private String timezone;
     private Boolean suppressMails;

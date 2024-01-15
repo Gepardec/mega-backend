@@ -17,18 +17,18 @@ import static com.gepardec.mega.domain.utils.DateUtils.parseDateTime;
 @ApplicationScoped
 public class AbsenceTimeMapper {
 
-        public List<AbsenceTime> mapList(List<FehlzeitType> absenceTimes) {
+        public static List<AbsenceTime> mapList(List<FehlzeitType> absenceTimes) {
            if (absenceTimes == null)
                return null;
 
            return absenceTimes.stream()
-                   .map(this::map)
+                   .map(AbsenceTimeMapper::map)
                    .filter(Objects::nonNull)
                    .sorted(Comparator.comparing(AbsenceTime::getFromTime))
                    .collect(Collectors.toList());
         }
 
-        public AbsenceTime map(FehlzeitType fehlzeitType) {
+        public static AbsenceTime map(FehlzeitType fehlzeitType) {
             if (fehlzeitType == null) {
                 return null;
             }
@@ -41,7 +41,7 @@ public class AbsenceTimeMapper {
                     .id(fehlzeitType.getId())
                     .userId(fehlzeitType.getUserId())
                     .fromTime(startDate)
-                    .fromTime(endDate)
+                    .toTime(endDate)
                     .reason(fehlzeitType.getFehlgrund())
                     .isHalfADay(fehlzeitType.isIstHalberTag())
                     .accepted(fehlzeitType.isGenehmigt())
@@ -54,7 +54,7 @@ public class AbsenceTimeMapper {
                     .build();
         }
 
-        public Map<String, String> convertAttributesToMap(Attributes attributes) {
+        public static Map<String, String> convertAttributesToMap(Attributes attributes) {
             return attributes.getAttribute().stream()
                     .filter(Objects::nonNull)
                     .collect(Collectors.toMap(AttributeType::getName, AttributeType::getValue));

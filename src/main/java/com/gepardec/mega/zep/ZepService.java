@@ -1,5 +1,6 @@
 package com.gepardec.mega.zep;
 
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
@@ -26,7 +27,7 @@ public interface ZepService {
 
     Optional<Project> getProjectByName(final String projectName, final LocalDate monthYear);
 
-    List<FehlzeitType> getAbsenceForEmployee(Employee employee, LocalDate date);
+    List<AbsenceTime> getAbsenceForEmployee(Employee employee, LocalDate date);
 
     List<ProjektzeitType> getBillableForEmployee(Employee employee, LocalDate date);
 }
