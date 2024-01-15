@@ -2,21 +2,24 @@ package com.gepardec.mega.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import jakarta.xml.bind.annotation.XmlElement;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
 @Builder
 @Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AbsenceTime {
 
     private Integer id;
     private String userId;
-    private LocalDateTime fromTime;
-    private LocalDateTime toTime;
+    private LocalDate fromDate;
+    private LocalDate toDate;
+    private String fromTime;
+    private String toTime;
     private String reason;
     private Boolean isHalfADay;
     private Boolean accepted;

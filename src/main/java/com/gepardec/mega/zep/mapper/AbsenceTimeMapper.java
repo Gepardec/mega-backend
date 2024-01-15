@@ -5,6 +5,7 @@ import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.*;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -12,7 +13,10 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.Map;
 
+import static com.gepardec.mega.domain.utils.DateUtils.parseDate;
 import static com.gepardec.mega.domain.utils.DateUtils.parseDateTime;
+
+import de.provantis.zep.FehlzeitType;
 
 @ApplicationScoped
 public class AbsenceTimeMapper {
@@ -33,15 +37,17 @@ public class AbsenceTimeMapper {
                 return null;
             }
 
-            LocalDateTime startDate = parseDateTime(fehlzeitType.getStartdatum(), fehlzeitType.getVonZeit());
-            LocalDateTime endDate = parseDateTime(fehlzeitType.getEnddatum(), fehlzeitType.getBisZeit());
+            LocalDate startDate = parseDate(fehlzeitType.getStartdatum());
+            LocalDate endDate = parseDate(fehlzeitType.getEnddatum());
             Map<String, String> attributes = convertAttributesToMap(fehlzeitType.getAttributes());
 
             return AbsenceTime.builder()
                     .id(fehlzeitType.getId())
                     .userId(fehlzeitType.getUserId())
-                    .fromTime(startDate)
-                    .toTime(endDate)
+                    .fromDate(startDate)
+                    .toDate(endDate)
+                    .fromTime(fehlzeitType.getVonZeit())
+                    .toTime(fehlzeitType.getBisZeit())
                     .reason(fehlzeitType.getFehlgrund())
                     .isHalfADay(fehlzeitType.isIstHalberTag())
                     .accepted(fehlzeitType.isGenehmigt())
@@ -50,7 +56,7 @@ public class AbsenceTimeMapper {
                     .suppressMails(fehlzeitType.isMailversandUnterdruecken())
                     .created(fehlzeitType.getCreated())
                     .modified(fehlzeitType.getModified())
-                    .attributes()
+                    .attributes(attributes)
                     .build();
         }
 

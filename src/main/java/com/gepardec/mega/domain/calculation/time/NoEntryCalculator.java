@@ -1,13 +1,13 @@
 package com.gepardec.mega.domain.calculation.time;
 
 import com.gepardec.mega.domain.calculation.AbstractTimeWarningCalculationStrategy;
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
-import de.provantis.zep.FehlzeitType;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 
 public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
 
-    public List<TimeWarning> calculate(@NotNull Employee employee, @NotNull List<ProjectEntry> projectEntries, @NotNull List<FehlzeitType> absenceEntries) {
+    public List<TimeWarning> calculate(@NotNull Employee employee, @NotNull List<ProjectEntry> projectEntries, @NotNull List<AbsenceTime> absenceEntries) {
         if (projectEntries.isEmpty()) {
             TimeWarning timeWarning = new TimeWarning();
             timeWarning.getWarningTypes().add(TimeWarningType.EMPTY_ENTRY_LIST);
@@ -119,14 +119,14 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
         return timeWarning;
     }
 
-    private List<LocalDate> filterAbsenceTypesAndCompileLocalDateList(String type, List<FehlzeitType> absenceEntries) {
+    private List<LocalDate> filterAbsenceTypesAndCompileLocalDateList(String type, List<AbsenceTime> absenceEntries) {
         return absenceEntries.stream()
-                .filter(fzt -> fzt.getFehlgrund().equals(type))
+                .filter(fzt -> fzt.getReason().equals(type))
                 .flatMap(this::extractFehlzeitenDateRange)
                 .collect(Collectors.toList());
     }
 
-    private Stream<LocalDate> extractFehlzeitenDateRange(FehlzeitType fzt) {
-        return LocalDate.parse(fzt.getStartdatum()).datesUntil(LocalDate.parse(fzt.getEnddatum()).plusDays(1));
+    private Stream<LocalDate> extractFehlzeitenDateRange(AbsenceTime fzt) {
+        return fzt.getFromDate().datesUntil(fzt.getToDate().plusDays(1));
     }
 }

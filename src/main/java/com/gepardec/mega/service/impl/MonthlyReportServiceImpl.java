@@ -2,10 +2,7 @@ package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
-import com.gepardec.mega.domain.model.Comment;
-import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.model.StepName;
-import com.gepardec.mega.domain.model.UserContext;
+import com.gepardec.mega.domain.model.*;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
@@ -24,7 +21,6 @@ import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.service.mapper.TimeWarningMapper;
 import com.gepardec.mega.zep.ZepService;
-import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -158,7 +154,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
             LocalDate date,
             List<ProjectEntry> projectEntries,
             List<ProjektzeitType> billableEntries,
-            List<FehlzeitType> absenceEntries,
+            List<AbsenceTime> absenceEntries,
             Optional<Pair<EmployeeState, String>> employeeCheckState,
             Optional<EmployeeState> internalCheckState
     ) {

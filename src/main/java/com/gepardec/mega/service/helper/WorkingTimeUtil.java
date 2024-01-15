@@ -1,9 +1,9 @@
 package com.gepardec.mega.service.helper;
 
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
-import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -57,7 +57,7 @@ public class WorkingTimeUtil {
 
     public double getOvertimeForEmployee(Employee employee,
                                          List<ProjektzeitType> billableEntries,
-                                         List<FehlzeitType> fehlzeitTypeList,
+                                         List<AbsenceTime> fehlzeitTypeList,
                                          LocalDate date) {
         if (employee.getRegularWorkingHours() == null) {
             return 0.0;
@@ -65,7 +65,7 @@ public class WorkingTimeUtil {
 
         // In case there are absences that do not affect the current month, filter them out
         fehlzeitTypeList = fehlzeitTypeList.stream()
-                .filter(ftl -> DateUtils.parseDate(ftl.getStartdatum()).getMonthValue() == date.getMonthValue())
+                .filter(ftl -> ftl.getFromDate().getMonthValue() == date.getMonthValue())
                 .collect(Collectors.toList());
 
         //FIXME
@@ -107,28 +107,28 @@ public class WorkingTimeUtil {
                 .reduce(Duration.ZERO, Duration::plus);
     }
 
-    // Calculator functions for FehlzeitType
+    // Calculator functions for AbsenceTime
 
-    public int getAbsenceTimesForEmployee(@Nonnull List<FehlzeitType> fehlZeitTypeList, String absenceType, LocalDate date) {
+    public int getAbsenceTimesForEmployee(@Nonnull List<AbsenceTime> fehlZeitTypeList, String absenceType, LocalDate date) {
         return (int) fehlZeitTypeList.stream()
-                .filter(fzt -> fzt.getFehlgrund().equals(absenceType))
-                .filter(FehlzeitType::isGenehmigt)
+                .filter(fzt -> fzt.getReason().equals(absenceType))
+                .filter(AbsenceTime::getAccepted)
                 .map(fehlzeitType -> trimDurationToCurrentMonth(fehlzeitType, date))
                 .mapToLong(ftl ->
                         getWorkingDaysBetween(
-                                LocalDate.parse(ftl.getStartdatum()),
-                                LocalDate.parse(ftl.getEnddatum())
+                                ftl.getFromDate(),
+                                ftl.getToDate()
                         ).size()
                 )
                 .sum();
     }
 
-    public Map<DayOfWeek, Long> getAbsenceDaysCountMap(@Nonnull List<FehlzeitType> fehlZeitTypeList, LocalDate date) {
+    public Map<DayOfWeek, Long> getAbsenceDaysCountMap(@Nonnull List<AbsenceTime> fehlZeitTypeList, LocalDate date) {
         return fehlZeitTypeList.stream()
-                .filter(ftl -> !BOOKABLE_ABSENCES.contains(ftl.getFehlgrund()))
-                .filter(FehlzeitType::isGenehmigt)
+                .filter(ftl -> !BOOKABLE_ABSENCES.contains(ftl.getReason()))
+                .filter(AbsenceTime::getAccepted)
                 .map(fehlzeitType -> trimDurationToCurrentMonth(fehlzeitType, date))
-                .map(ftl -> getWorkingDaysBetween(LocalDate.parse(ftl.getStartdatum()), LocalDate.parse(ftl.getEnddatum())))
+                .map(ftl -> getWorkingDaysBetween(ftl.getFromDate(), ftl.getToDate()))
                 .flatMap(this::getDayOfWeeks)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
     }
@@ -137,12 +137,12 @@ public class WorkingTimeUtil {
         return dates.stream().map(LocalDate::getDayOfWeek);
     }
 
-    private FehlzeitType trimDurationToCurrentMonth(FehlzeitType fehlzeit, LocalDate date) {
-        if (LocalDate.parse(fehlzeit.getEnddatum()).getMonthValue() > date.getMonthValue()) {
-            fehlzeit.setEnddatum(date.with(TemporalAdjusters.lastDayOfMonth()).toString());
+    private AbsenceTime trimDurationToCurrentMonth(AbsenceTime fehlzeit, LocalDate date) {
+        if (fehlzeit.getToDate().getMonthValue() > date.getMonthValue()) {
+            fehlzeit.setToDate(date.with(TemporalAdjusters.lastDayOfMonth()));
         }
-        if (LocalDate.parse(fehlzeit.getStartdatum()).getMonthValue() < date.getMonthValue()) {
-            fehlzeit.setStartdatum(date.with(TemporalAdjusters.firstDayOfMonth()).toString());
+        if (fehlzeit.getFromDate().getMonthValue() < date.getMonthValue()) {
+            fehlzeit.setFromDate(date.with(TemporalAdjusters.firstDayOfMonth()));
         }
         return fehlzeit;
     }
