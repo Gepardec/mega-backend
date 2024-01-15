@@ -3,12 +3,14 @@ package com.gepardec.mega.domain.model;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlType;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Duration;
 import java.util.Map;
 
+@Builder
 @Getter
 @Setter
 public class ProjectTime {
