@@ -17,6 +17,8 @@ import static com.gepardec.mega.domain.utils.DateUtils.parseDate;
 import static com.gepardec.mega.domain.utils.DateUtils.parseDateTime;
 
 import de.provantis.zep.FehlzeitType;
+import de.provantis.zep.AttributesType;
+import de.provantis.zep.AttributeType;
 
 @ApplicationScoped
 public class AbsenceTimeMapper {
@@ -60,7 +62,7 @@ public class AbsenceTimeMapper {
                     .build();
         }
 
-        public static Map<String, String> convertAttributesToMap(Attributes attributes) {
+        public static Map<String, String> convertAttributesToMap(AttributesType attributes) {
             return attributes.getAttribute().stream()
                     .filter(Objects::nonNull)
                     .collect(Collectors.toMap(AttributeType::getName, AttributeType::getValue));

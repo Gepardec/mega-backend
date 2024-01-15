@@ -1,11 +1,11 @@
 package com.gepardec.mega.service.impl.monthlyreport;
 
 
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
-import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -60,7 +60,7 @@ public class WorkingTimeUtilTest {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(5);
-        List<FehlzeitType> fehlzeitTypes = List.of();
+        List<AbsenceTime> fehlzeitTypes = List.of();
 
         double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
         assertThat(overtimeforEmployee).isEqualTo(8.0);
@@ -71,7 +71,7 @@ public class WorkingTimeUtilTest {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(3);
-        List<FehlzeitType> fehlzeitTypes = List.of();
+        List<AbsenceTime> fehlzeitTypes = List.of();
 
         double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
         assertThat(overtimeforEmployee).isEqualTo(-8.);
@@ -82,7 +82,7 @@ public class WorkingTimeUtilTest {
         Employee employee = createEmployee();
 
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(3);
-        List<FehlzeitType> fehlzeitTypes = returnFehlzeitTypeList();
+        List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
 
         double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projektzeitTypes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
         assertThat(overtimeforEmployee).isEqualTo(0);
@@ -97,7 +97,7 @@ public class WorkingTimeUtilTest {
         employee.setRegularWorkingHours(regularWorkingHours);
 
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(3);
-        List<FehlzeitType> fehlzeitTypes = returnFehlzeitTypeList();
+        List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
 
         double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(
                 employee,
@@ -112,18 +112,18 @@ public class WorkingTimeUtilTest {
     void getAbsenceTimesForEmployee() {
         Employee employee = createEmployee();
 
-        List<FehlzeitType> fehlzeitTypes = returnFehlzeitTypeList();
+        List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
         int absenceTimesForEmployee = workingTimeUtil.getAbsenceTimesForEmployee(fehlzeitTypes, "UB", LocalDate.of(2023, 11, 6));
         assertThat(absenceTimesForEmployee).isEqualTo(2);
     }
 
-    private List<FehlzeitType> returnFehlzeitTypeList() {
-        FehlzeitType fehlzeitType = new FehlzeitType();
-        fehlzeitType.setStartdatum("2023-11-06");
-        fehlzeitType.setEnddatum("2023-11-07");
-        fehlzeitType.setFehlgrund("UB");
+    private List<AbsenceTime> returnFehlzeitTypeList() {
+        AbsenceTime fehlzeitType = new AbsenceTime();
+        fehlzeitType.setFromDate(LocalDate.of(2023, 11, 6));
+        fehlzeitType.setToDate(LocalDate.of(2023,11,7));
+        fehlzeitType.setReason("UB");
         fehlzeitType.setUserId("1");
-        fehlzeitType.setGenehmigt(true);
+        fehlzeitType.setAccepted(true);
 
         return List.of(fehlzeitType);
     }
