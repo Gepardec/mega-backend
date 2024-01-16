@@ -6,16 +6,7 @@ import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.entity.project.ProjectEntry;
 import com.gepardec.mega.db.entity.project.ProjectStep;
-import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.model.FinishedAndTotalComments;
-import com.gepardec.mega.domain.model.Project;
-import com.gepardec.mega.domain.model.ProjectEmployees;
-import com.gepardec.mega.domain.model.ProjectFilter;
-import com.gepardec.mega.domain.model.ProjectState;
-import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.State;
-import com.gepardec.mega.domain.model.StepName;
-import com.gepardec.mega.domain.model.UserContext;
+import com.gepardec.mega.domain.model.*;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.ManagementResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
@@ -303,7 +294,7 @@ public class ManagementResourceImpl implements ManagementResource {
     private ManagementEntryDto createManagementEntryForEmployee(Employee employee, String projectId, List<StepEntry> stepEntries, LocalDate from, LocalDate to, List<PmProgressDto> pmProgressDtos, boolean projectStateLogicSingle) {
         FinishedAndTotalComments finishedAndTotalComments = commentService.countFinishedAndTotalComments(employee.getEmail(), from, to);
 
-        List<ProjektzeitType> projektzeitTypes = zepService.getProjectTimesForEmployeePerProject(projectId, from);
+        List<ProjectTime> projectTime = zepService.getProjectTimesForEmployeePerProject(projectId, from);
 
         if (!stepEntries.isEmpty()) {
             Pair<State, String> employeeCheckStatePair = extractEmployeeCheckState(stepEntries);
@@ -332,8 +323,8 @@ public class ManagementResourceImpl implements ManagementResource {
                     .finishedComments(finishedAndTotalComments.getFinishedComments())
                     .totalComments(finishedAndTotalComments.getTotalComments())
                     .entryDate(stepEntries.get(0).getDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN)))
-                    .billableTime(workingTimeUtil.getBillableTimesForEmployee(projektzeitTypes, employee))
-                    .nonBillableTime(workingTimeUtil.getInternalTimesForEmployee(projektzeitTypes, employee))
+                    .billableTime(workingTimeUtil.getBillableTimesForEmployee(projectTime, employee))
+                    .nonBillableTime(workingTimeUtil.getInternalTimesForEmployee(projectTime, employee))
                     .build();
         }
 

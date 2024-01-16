@@ -153,7 +153,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
             Employee employee,
             LocalDate date,
             List<ProjectEntry> projectEntries,
-            List<ProjektzeitType> billableEntries,
+            List<ProjectTime> billableEntries,
             List<AbsenceTime> absenceEntries,
             Optional<Pair<EmployeeState, String>> employeeCheckState,
             Optional<EmployeeState> internalCheckState

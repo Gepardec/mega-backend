@@ -2,9 +2,9 @@ package com.gepardec.mega.service.helper;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
-import de.provantis.zep.ProjektzeitType;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.commons.collections4.MapUtils;
@@ -37,26 +37,26 @@ public class WorkingTimeUtil {
     );
 
 
-    // Calculator functions for ProjektzeitType
+    // Calculator functions for ProjectTime
 
-    public String getInternalTimesForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
-        Duration internalTimesForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, Predicate.not(ProjektzeitType::isIstFakturierbar));
+    public String getInternalTimesForEmployee(@Nonnull List<ProjectTime> projektzeitTypeList, @Nonnull Employee employee) {
+        Duration internalTimesForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, Predicate.not(ProjectTime::getIsBillable));
         return DurationFormatUtils.formatDuration(internalTimesForEmployee.toMillis(), BILLABLE_TIME_FORMAT);
     }
 
-    public String getBillableTimesForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
-        Duration billableTimesForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, ProjektzeitType::isIstFakturierbar);
+    public String getBillableTimesForEmployee(@Nonnull List<ProjectTime> projektzeitTypeList, @Nonnull Employee employee) {
+        Duration billableTimesForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, ProjectTime::getIsBillable);
         return DurationFormatUtils.formatDuration(billableTimesForEmployee.toMillis(), BILLABLE_TIME_FORMAT);
 
     }
 
-    public String getTotalWorkingTimeForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
+    public String getTotalWorkingTimeForEmployee(@Nonnull List<ProjectTime> projektzeitTypeList, @Nonnull Employee employee) {
         Duration totalWorkingTimeForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, $ -> true);
         return DurationFormatUtils.formatDuration(totalWorkingTimeForEmployee.toMillis(), BILLABLE_TIME_FORMAT);
     }
 
     public double getOvertimeForEmployee(Employee employee,
-                                         List<ProjektzeitType> billableEntries,
+                                         List<ProjectTime> billableEntries,
                                          List<AbsenceTime> fehlzeitTypeList,
                                          LocalDate date) {
         if (employee.getRegularWorkingHours() == null) {
@@ -96,13 +96,13 @@ public class WorkingTimeUtil {
         );
     }
 
-    private Duration getWorkingTimesForEmployee(List<ProjektzeitType> projektzeitTypeList,
+    private Duration getWorkingTimesForEmployee(List<ProjectTime> projektzeitTypeList,
                                                 Employee employee,
-                                                Predicate<ProjektzeitType> billableFilter) {
+                                                Predicate<ProjectTime> billableFilter) {
         return projektzeitTypeList.stream()
                 .filter(pzt -> pzt.getUserId().equals(employee.getUserId()))
                 .filter(billableFilter)
-                .map(pzt -> LocalTime.parse(pzt.getDauer()))
+                .map(pzt -> LocalTime.parse(pzt.getDuration()))
                 .map(lt -> Duration.between(LocalTime.MIN, lt))
                 .reduce(Duration.ZERO, Duration::plus);
     }
