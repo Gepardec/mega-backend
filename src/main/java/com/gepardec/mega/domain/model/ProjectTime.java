@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Map;
 
 @Builder
@@ -16,9 +18,9 @@ import java.util.Map;
 public class ProjectTime {
     private String id;
     private String userId;
-    private String date;
-    private String startTime;
-    private String endTime;
+    private LocalDate date;
+    private LocalTime startTime;
+    private LocalTime endTime;
     private String duration;
     private Boolean isBillable;
     private Boolean isLocationRelevantToProject;
