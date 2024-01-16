@@ -80,19 +80,20 @@ public class ProjectTimeMapperTest {
         ProjectTime pt = ProjectTimeMapper.map(pzt);
 
         String projectTimeDateString = pt.getDate().toString();
-        String projectTimeStartTimeString = pt.getStartTime().toString();
-        String projectTimeEndTimeString = pt.getEndTime().toString();
 
         assertThat(pt.getId()).isEqualTo(pzt.getId());
         assertThat(pt.getUserId()).isEqualTo(pzt.getUserId());
         assertThat(projectTimeDateString).isEqualTo(pzt.getDatum());
-        assertThat(projectTimeStartTimeString).isEqualTo(pzt.getVon());
-        assertThat(projectTimeEndTimeString).isEqualTo(pzt.getBis());
+        assertThat(pt.getStartTime()).isEqualTo(pzt.getVon());
+        assertThat(pt.getEndTime()).isEqualTo(pzt.getBis());
         assertThat(pt.getDuration()).isEqualTo(pzt.getDauer());
         assertThat(pt.getIsBillable()).isEqualTo(pzt.isIstFakturierbar());
         assertThat(pt.getIsLocationRelevantToProject()).isEqualTo(pzt.isIstOrtProjektRelevant());
         assertThat(pt.getLocation()).isEqualTo(pzt.getOrt());
         assertThat(pt.getComment()).isEqualTo(pzt.getBemerkung());
+        assertThat(pt.getProjectNr()).isEqualTo(pzt.getProjektNr());
+        assertThat(pt.getProcessNr()).isEqualTo(pzt.getVorgangNr());
+        assertThat(pt.getTask()).isEqualTo(pzt.getTaetigkeit());
         assertThat(pt.getStartLocation()).isEqualTo(pzt.getStart());
         assertThat(pt.getEndLocation()).isEqualTo(pzt.getZiel());
         assertThat(pt.getKm()).isEqualTo(pzt.getKm());
@@ -131,7 +132,7 @@ public class ProjectTimeMapperTest {
 
         ProjektzeitType[] fztArr = {pzt, pzt2};
         List<ProjektzeitType> pztList = List.of(fztArr);
-        List<ProjektzeitType> ptList = ProjectTimeMapper.mapList(pztList);
+        List<ProjectTime> ptList = ProjectTimeMapper.mapList(pztList);
 
         assertThat(ptList.get(0).getUserId()).isEqualTo(pztList.get(0).getUserId());
         assertThat(ptList.get(1).getUserId()).isEqualTo(pztList.get(1).getUserId());
@@ -139,10 +140,9 @@ public class ProjectTimeMapperTest {
 
     @Test
     void whenNullInList_thenFiltersNullElement() {
-        assertThat(ProjectTimeMapper.map(Collections.singletonList(null))).isEmpty();
+        assertThat(ProjectTimeMapper.mapList(Collections.singletonList(null))).isEmpty();
     }
 
 
 }
 
-}

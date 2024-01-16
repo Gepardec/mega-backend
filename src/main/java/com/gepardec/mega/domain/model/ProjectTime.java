@@ -19,8 +19,8 @@ public class ProjectTime {
     private String id;
     private String userId;
     private LocalDate date;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private String startTime;
+    private String endTime;
     private String duration;
     private Boolean isBillable;
     private Boolean isLocationRelevantToProject;
