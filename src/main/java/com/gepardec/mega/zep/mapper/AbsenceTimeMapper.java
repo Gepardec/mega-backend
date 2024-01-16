@@ -30,7 +30,7 @@ public class AbsenceTimeMapper {
            return absenceTimes.stream()
                    .map(AbsenceTimeMapper::map)
                    .filter(Objects::nonNull)
-                   .sorted(Comparator.comparing(AbsenceTime::getFromTime))
+                   .sorted(Comparator.comparing(AbsenceTime::getFromDate))
                    .collect(Collectors.toList());
         }
 
@@ -40,8 +40,10 @@ public class AbsenceTimeMapper {
             }
 
             LocalDate startDate = parseDate(fehlzeitType.getStartdatum());
-            LocalDate endDate = parseDate(fehlzeitType.getEnddatum());
-            Map<String, String> attributes = convertAttributesToMap(fehlzeitType.getAttributes());
+            LocalDate endDate = fehlzeitType.getEnddatum() == null ?
+                    null : parseDate(fehlzeitType.getEnddatum());
+            Map<String, String> attributes = fehlzeitType.getAttributes() == null ?
+                    null : convertAttributesToMap(fehlzeitType.getAttributes());
 
             return AbsenceTime.builder()
                     .id(fehlzeitType.getId())

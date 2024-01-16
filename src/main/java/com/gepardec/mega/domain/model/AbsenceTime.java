@@ -15,12 +15,12 @@ import java.util.Map;
 public class AbsenceTime {
 
     private Integer id;
-    private String userId;
-    private LocalDate fromDate;
+    @NonNull private String userId;
+    @NonNull private LocalDate fromDate;
     private LocalDate toDate;
     private String fromTime;
     private String toTime;
-    private String reason;
+    @NonNull private String reason;
     private Boolean isHalfADay;
     private Boolean accepted;
     private String comment;
