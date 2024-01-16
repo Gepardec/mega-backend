@@ -32,11 +32,9 @@ public class ProjectTimeMapper {
             if (projektzeitType == null)
                 return null;
 
-            LocalDate date = projektzeitType.getDatum() == null ?
-                    null : parseDate(projektzeitType.getDatum());
+            LocalDate date = MapperUtil.convertStringToDate(projektzeitType.getDatum());
 
-            Map<String, String> attributes = projektzeitType.getAttributes() == null ?
-                    null : convertAttributesToMap(projektzeitType.getAttributes());
+            Map<String, String> attributes = MapperUtil.convertAttributesToMap(projektzeitType.getAttributes());
 
 
             return ProjectTime.builder()
@@ -68,9 +66,4 @@ public class ProjectTimeMapper {
                     .build();
         }
 
-        public static Map<String, String> convertAttributesToMap(AttributesType attributes) {
-            return attributes.getAttribute().stream()
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(AttributeType::getName, AttributeType::getValue));
-        }
 }

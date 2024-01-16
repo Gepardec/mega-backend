@@ -95,17 +95,6 @@ public class AbsenceTimeMapperTest {
     }
 
     @Test
-    void withStartDateString_thenReturnsLocalDate() {
-        FehlzeitType fzt = new FehlzeitType();
-        fzt.setUserId("4");
-        fzt.setStartdatum("2002-11-23");
-        fzt.setFehlgrund("KA");
-        AbsenceTime at = AbsenceTimeMapper.map(fzt);
-        String absenceTimeDateString = at.getFromDate().toString();
-        assertThat(fzt.getStartdatum()).isEqualTo(absenceTimeDateString);
-    }
-
-    @Test
     void whenEmptyList_thenReturnsEmptyList() {
         assertThat(AbsenceTimeMapper.mapList(List.of())).isEmpty();
     }
