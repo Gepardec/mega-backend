@@ -93,6 +93,9 @@ mega:
   zep:
     admin-token: "${TOKEN:default}"
     soap-path: "/sync/soap.php?v=${SOAP_PATH_VERSION:7}"
+    rest_token: "Bearer ${TOKEN:default}}"
+
+
 
   oauth:
     client-id: "mega"
@@ -150,6 +153,9 @@ mp:
       password: "mega"
       jdbc:
         url: "jdbc:postgresql://localhost:5432/mega"
+    rest-client:
+      "com.gepardec.mega.zep.rest.service.ZepEmployeeRestService":
+        url: https://www.zep-online.de/zepgepardecservices_test/next/api/v1/
 
     http:
       cors:
@@ -176,6 +182,9 @@ mp:
 ## TEST Properties
 "%test":
   quarkus:
+    rest-client:
+      "com.gepardec.mega.zep.rest.service.ZepEmployeeRestService":
+        url: "https://www.zep-online.de/zepgepardecservices_test/next/api/v1/"
     log:
       console:
         format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
