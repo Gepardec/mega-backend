@@ -4,11 +4,10 @@ import com.gepardec.mega.application.configuration.ZepConfig;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 
-import com.gepardec.mega.zep.rest.service.ZepServiceRestImpl;
+import com.gepardec.mega.zep.rest.service.EmployeeService;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -25,7 +24,7 @@ public class ZepRestServiceTest {
 
 
     @Inject
-    ZepServiceRestImpl zepEmployeeService;
+    EmployeeService zepEmployeeService;
 
     @Test
     public void getEmployee() {
