@@ -21,6 +21,10 @@ public class ZepConfig {
     @Inject
     @ConfigProperty(name = "mega.zep.soap-path")
     String soapPath;
+    
+    public static String getRestBearerToken() {
+        return ConfigProvider.getConfig().getValue("mega.zep.rest_token", String.class);
+    }
 
     public String getUrlAsString() {
         return String.format("%s%s", origin.toString(), soapPath);
