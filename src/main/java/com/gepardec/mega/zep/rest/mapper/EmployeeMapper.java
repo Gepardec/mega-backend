@@ -11,6 +11,7 @@ import com.gepardec.mega.zep.rest.entity.ZepRights;
 import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import lombok.NonNull;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -62,11 +63,13 @@ public class EmployeeMapper {
 
     public static boolean getActiveOfZepEmploymentPeriods(ZepEmploymentPeriod[] zepEmploymentPeriods) {
 
-        DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-        List<ZepEmploymentPeriod> employmentPeriodsActive = Arrays.stream(zepEmploymentPeriods)
-                .filter(zepEmploymentPeriod -> zepEmploymentPeriod.getEndDate() == null)
-                .collect(Collectors.toList());
-        return !employmentPeriodsActive.isEmpty();
+        if (Arrays.stream(zepEmploymentPeriods).allMatch(Objects::isNull)) {
+            return false;
+        }
+
+        return Arrays.stream(zepEmploymentPeriods)
+                .anyMatch(zepEmploymentPeriod -> zepEmploymentPeriod.getEndDate() == null);
+
     }
 
 }
