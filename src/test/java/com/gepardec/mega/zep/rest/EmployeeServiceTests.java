@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-public class ZepRestServiceTest {
+public class EmployeeServiceTests {
 
     private WireMockServer wireMockServer;
 
