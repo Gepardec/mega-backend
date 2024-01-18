@@ -93,7 +93,7 @@ mega:
   zep:
     admin-token: "${TOKEN:default}"
     soap-path: "/sync/soap.php?v=${SOAP_PATH_VERSION:7}"
-    rest_token: "Bearer ${TOKEN:default}}"
+    rest_token: "${ZEP_REST_TOKEN:default}"
 
 
 
