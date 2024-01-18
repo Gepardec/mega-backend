@@ -50,4 +50,7 @@ public class ZepEmployee {
         private String creditorNumber;
         private Collection<String> categories;
         private int absencesCount;
+
+        @JsonIgnoreProperties
+        ZepEmploymentPeriod[] employmentPeriods;
 }

@@ -6,34 +6,40 @@ import com.gepardec.mega.zep.mapper.MapperUtil;
 import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
 import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 import com.gepardec.mega.zep.rest.entity.ZepEmployment;
+import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
 import com.gepardec.mega.zep.rest.entity.ZepRights;
+import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@ApplicationScoped
 public class EmployeeMapper {
 
-    public static List<Employee> mapList(List<ZepEmployee> zepEmployees) {
+    @Inject
+    EmploymentPeriodService employmentPeriodService;
+
+    public List<Employee> mapList(List<ZepEmployee> zepEmployees) {
         if (zepEmployees == null)
             return null;
 
         return zepEmployees.stream()
-                .map(EmployeeMapper::map)
+                .map(this::map)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
-    public static Employee map(ZepEmployee zepEmployee) {
+    public Employee map(ZepEmployee zepEmployee) {
         if (zepEmployee == null)
             return null;
 
-        boolean active = true;                         //TODO: Active check
+        boolean active = getActiveOfZepEmploymentPeriods(zepEmployee.getEmploymentPeriods());
 
         return Employee.builder()
             .userId(zepEmployee.getPersonalNumber())
@@ -52,6 +58,15 @@ public class EmployeeMapper {
          * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,
          * wenn Mitarbeiter inaktiv ist.
          */
+    }
+
+    public static boolean getActiveOfZepEmploymentPeriods(ZepEmploymentPeriod[] zepEmploymentPeriods) {
+
+        DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        List<ZepEmploymentPeriod> employmentPeriodsActive = Arrays.stream(zepEmploymentPeriods)
+                .filter(zepEmploymentPeriod -> zepEmploymentPeriod.getEndDate() == null)
+                .collect(Collectors.toList());
+        return !employmentPeriodsActive.isEmpty();
     }
 
 }

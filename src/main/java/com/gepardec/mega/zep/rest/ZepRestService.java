@@ -6,15 +6,26 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.zep.rest.service.EmployeeService;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 public class ZepRestService implements ZepService {
+
+    @Inject
+    EmployeeService employeeService;
+
+    @Inject
+    EmployeeMapper employeeMapper;
+
     @Override
     public Employee getEmployee(String userId) {
-        return null;
+        return employeeMapper.map(employeeService.getZepEmployeeById(userId));
     }
 
     @Override

@@ -154,7 +154,7 @@ mp:
       jdbc:
         url: "jdbc:postgresql://localhost:5432/mega"
     rest-client:
-      "com.gepardec.mega.zep.rest.service.ZepEmployeeRestService":
+      "com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient":
         url: https://www.zep-online.de/zepgepardecservices_test/next/api/v1/
 
     http:
@@ -183,7 +183,7 @@ mp:
 "%test":
   quarkus:
     rest-client:
-      "com.gepardec.mega.zep.rest.service.ZepEmployeeRestService":
+      "com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient":
         url: "https://www.zep-online.de/zepgepardecservices_test/next/api/v1/"
     log:
       console:
