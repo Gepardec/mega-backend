@@ -4,7 +4,7 @@ import com.gepardec.mega.application.configuration.ZepConfig;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 
-import com.gepardec.mega.zep.rest.service.ZepEmployeeService;
+import com.gepardec.mega.zep.rest.service.ZepServiceRestImpl;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -25,11 +25,11 @@ public class ZepRestServiceTest {
 
 
     @Inject
-    ZepEmployeeService zepEmployeeService;
+    ZepServiceRestImpl zepEmployeeService;
 
     @Test
     public void getEmployee() {
-        ZepEmployee employee = zepEmployeeService.getEmployeeByUsername("082-tmeindl");
+        ZepEmployee employee = zepEmployeeService.getZepEmployeeById("082-tmeindl");
         System.out.println(employee.getUsername());
     }
 
@@ -41,6 +41,12 @@ public class ZepRestServiceTest {
             assertThat(ZepEmployeeRestClient.getAuthHeaderValue()).isEqualTo("Bearer " + token);
         }
     }
+
+    @Test
+    public void getRegularWorkingTimesByUsername_returnValidZepWorkingTime(){
+
+    }
+
 }
 
 //    @RestClient
