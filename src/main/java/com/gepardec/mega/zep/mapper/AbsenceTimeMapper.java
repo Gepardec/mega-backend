@@ -24,8 +24,9 @@ import de.provantis.zep.AttributeType;
 public class AbsenceTimeMapper {
 
         public static List<AbsenceTime> mapList(List<FehlzeitType> absenceTimes) {
-           if (absenceTimes == null)
+           if (absenceTimes == null) {
                return null;
+           }
 
            return absenceTimes.stream()
                    .map(AbsenceTimeMapper::map)

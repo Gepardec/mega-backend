@@ -19,9 +19,9 @@ import static com.gepardec.mega.domain.utils.DateUtils.parseDate;
 public class ProjectTimeMapper {
 
         public static List<ProjectTime> mapList(List<ProjektzeitType> projectTimes) {
-           if (projectTimes == null)
+           if (projectTimes == null) {
                return null;
-
+           }
            return projectTimes.stream()
                    .map(ProjectTimeMapper::map)
                    .filter(Objects::nonNull)
@@ -29,9 +29,9 @@ public class ProjectTimeMapper {
         }
 
         public static ProjectTime map(ProjektzeitType projektzeitType) {
-            if (projektzeitType == null)
+            if (projektzeitType == null) {
                 return null;
-
+            }
             LocalDate date = MapperUtil.convertStringToDate(projektzeitType.getDatum());
 
             Map<String, String> attributes = MapperUtil.convertAttributesToMap(projektzeitType.getAttributes());
