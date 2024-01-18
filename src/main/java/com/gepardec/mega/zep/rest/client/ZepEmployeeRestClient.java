@@ -1,30 +1,32 @@
-package com.gepardec.mega.zep.rest.service;
+package com.gepardec.mega.zep.rest.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gepardec.mega.application.configuration.ZepConfig;
-import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.config.ConfigProvider;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import java.util.Set;
+import java.util.List;
 
 @Path("/employees")
-@RegisterRestClient //(baseUri="https://www.zep-online.de/zepgepardecservices_test/next/api/v1/")
+@RegisterRestClient
 @ClientHeaderParam(name = "Authorization", value = "{getAuthHeaderValue}")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public interface ZepEmployeeRestService {
+public interface ZepEmployeeRestClient {
     @GET
-    @Path("{username}")
-    Response getByUsername(@PathParam("username") String username);
+    Response getById(@QueryParam("personal_number") String id);
+    @GET
+    @Path("/{username}/employment-periods")
+    Response getEmploymentPeriodByUserName(@PathParam("username") String username);
+    @GET
+    @Path("/{username}/regular-working-times")
+    Response getRegularWorkingTimesByUsername(@PathParam("username") String username);
 
-    default String getAuthHeaderValue() {
+    static String getAuthHeaderValue() {
         return "Bearer " + ZepConfig.getRestBearerToken();
     }
 

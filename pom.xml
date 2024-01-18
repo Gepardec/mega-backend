@@ -225,6 +225,12 @@
             <artifactId>jakarta.mail-api</artifactId>
             <version>${jakarta.mail-api.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock</artifactId>
+            <scope>test</scope>
+            <version>3.3.1</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>

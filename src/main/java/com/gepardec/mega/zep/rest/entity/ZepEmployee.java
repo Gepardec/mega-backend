@@ -2,14 +2,15 @@ package com.gepardec.mega.zep.rest.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Collection;
 
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Builder
+@NoArgsConstructor @AllArgsConstructor
 public class ZepEmployee {
         private String username;
         private String firstname;

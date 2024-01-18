@@ -1,25 +1,45 @@
 package com.gepardec.mega.zep.rest;
 
+import com.gepardec.mega.application.configuration.ZepConfig;
+import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepEmployee;
-import com.gepardec.mega.zep.rest.resource.ZepEmployeeResource;
-import com.gepardec.mega.zep.rest.service.ZepEmployeeRestService;
+
+import com.gepardec.mega.zep.rest.service.ZepEmployeeService;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 public class ZepRestServiceTest {
 
+    private WireMockServer wireMockServer;
+
+//    @BeforeAll
+
+
 
     @Inject
-    ZepEmployeeResource zepEmployeeResource;
+    ZepEmployeeService zepEmployeeService;
 
     @Test
     public void getEmployee() {
-        ZepEmployee employee = zepEmployeeResource.username("082-tmeindl");
+        ZepEmployee employee = zepEmployeeService.getEmployeeByUsername("082-tmeindl");
         System.out.println(employee.getUsername());
+    }
+
+    @Test
+    public void bearerToken_thenReturnHeaderString() {
+        try (MockedStatic<ZepConfig> config = Mockito.mockStatic(ZepConfig.class)) {
+            config.when(ZepConfig::getRestBearerToken).thenReturn("bearerToken");
+            String token = ZepConfig.getRestBearerToken();
+            assertThat(ZepEmployeeRestClient.getAuthHeaderValue()).isEqualTo("Bearer " + token);
+        }
     }
 }
 
