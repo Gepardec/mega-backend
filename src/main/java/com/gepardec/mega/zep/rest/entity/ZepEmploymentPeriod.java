@@ -18,7 +18,7 @@ public class ZepEmploymentPeriod {
      private LocalDateTime endDate;
      private String note;
      @JsonProperty("annual_leave_entitlement")
-     private double annualLeaveEntitlement;
+     private Double annualLeaveEntitlement;
      @JsonProperty("beginning_of_year")
      private LocalDateTime beginningOfYear;
      @JsonProperty("period_holiday_entitlement")
@@ -26,7 +26,7 @@ public class ZepEmploymentPeriod {
      @JsonProperty("is_holiday_per_year")
      private boolean isHolidayPerYear;
      @JsonProperty("day_absent_in_hours")
-     private double dayAbsentInHours;
+     private Double dayAbsentInHours;
      private LocalDateTime created;
      private LocalDateTime modified;
 }
