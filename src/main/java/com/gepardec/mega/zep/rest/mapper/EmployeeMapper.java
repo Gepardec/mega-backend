@@ -59,6 +59,9 @@ public class EmployeeMapper {
     }
 
     public static boolean getActiveOfZepEmploymentPeriods(ZepEmploymentPeriod[] zepEmploymentPeriods) {
+        if (zepEmploymentPeriods == null) {
+            return false;
+        }
 
         if (Arrays.stream(zepEmploymentPeriods).allMatch(Objects::isNull)) {
             return false;

@@ -8,6 +8,8 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -145,25 +147,26 @@ public class EmployeeMapperTest {
     public void mapZepEmployeesToEmployees() {
         ZepEmployee[] zepEmployeesArr = {
                 ZepEmployee.builder()
-                        .username("001-blubb")
+                        .personalNumber("000")
                         .email("blubb@blah.com")
                         .build(),
                 ZepEmployee.builder()
-                        .username("002-foo")
+                        .personalNumber("001")
                         .email("foo@bar.com")
                         .build(),
                 ZepEmployee.builder()
-                        .username("003-bar")
+                        .personalNumber("002")
                         .email("bar@foo.com")
                         .build(),
         };
         List<ZepEmployee> zepEmployees = List.of(zepEmployeesArr);
 
         List<Employee> employees = EmployeeMapper.mapList(zepEmployees);
-        employees.forEach(employee -> zepEmployees
-                        .forEach(zepEmployee -> {
+        Iterator<ZepEmployee> zepEmployeesIterator = zepEmployees.iterator();
+        employees.forEach(employee -> {
+                            ZepEmployee zepEmployee = zepEmployeesIterator.next();
                             assertThat(employee.getUserId()).isEqualTo(zepEmployee.getPersonalNumber());
                             assertThat(employee.getEmail()).isEqualTo(zepEmployee.getEmail());
-                        }));
+                        });
     }
 }
