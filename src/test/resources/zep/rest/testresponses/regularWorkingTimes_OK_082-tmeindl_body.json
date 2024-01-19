@@ -1,0 +1,68 @@
+{
+  "data": [
+    {
+      "id": 155,
+      "employee_id": "082-tmeindl",
+      "start_date": null,
+      "monday": 8,
+      "tuesday": 8,
+      "wednesday": 8,
+      "thursday": 8,
+      "friday": 6.5,
+      "saturday": null,
+      "sunday": null,
+      "is_monthly": null,
+      "monthly_hours": null,
+      "max_hours_in_month": null,
+      "max_hours_in_week": null,
+      "holidayCalendar": {
+        "id": 1,
+        "name": "Standard",
+        "note": "default für neue Mitarbeiter und gilt auch immer dann wenn kein Mitarbeiter-Bezug vorliegt",
+        "country": "Österreich",
+        "region": null,
+        "created": "2018-08-21T16:30:53.000000Z",
+        "modified": "2023-11-13T20:18:48.000000Z"
+      },
+      "breakRegulationType": {
+        "id": 1,
+        "name": "Standard",
+        "created": "2015-04-27T18:46:08.000000Z",
+        "modified": "2015-04-27T16:46:08.000000Z"
+      }
+    }
+  ],
+  "links": {
+    "first": "http:\/\/www.zep-online.de\/zepgepardecservices_test\/next\/api\/v1\/employees\/082-tmeindl\/regular-working-times?page=1",
+    "last": "http:\/\/www.zep-online.de\/zepgepardecservices_test\/next\/api\/v1\/employees\/082-tmeindl\/regular-working-times?page=1",
+    "prev": null,
+    "next": null
+  },
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "links": [
+      {
+        "url": null,
+        "label": "&laquo; Previous",
+        "active": false
+      },
+      {
+        "url": "http:\/\/www.zep-online.de\/zepgepardecservices_test\/next\/api\/v1\/employees\/082-tmeindl\/regular-working-times?page=1",
+        "label": "1",
+        "active": true
+      },
+      {
+        "url": null,
+        "label": "Next &raquo;",
+        "active": false
+      }
+    ],
+    "path": "http:\/\/www.zep-online.de\/zepgepardecservices_test\/next\/api\/v1\/employees\/082-tmeindl\/regular-working-times",
+    "per_page": 15,
+    "to": 1,
+    "total": 1
+  }
+}
+
