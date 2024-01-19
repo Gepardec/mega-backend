@@ -16,16 +16,4 @@ public class ZepEmployeeRestClientTests {
     @Inject
     EmployeeService zepEmployeeService;
 
-    @Test
-    public void getRegularWorkingTime_validUser(){
-        ZepRegularWorkingTimes regularWorkingTimes = zepEmployeeService.getRegularWorkingTimesByUsername("082-tmeindl");
-        System.out.println(regularWorkingTimes.getEmployee_id());
-    }
-
-    @Test
-    public void getRegularWorkingTime_invalidUser(){
-        assertThrows(ZepServiceException.class, () -> {
-            zepEmployeeService.getRegularWorkingTimesByUsername("uff-wrong");
-        });
-    }
 }

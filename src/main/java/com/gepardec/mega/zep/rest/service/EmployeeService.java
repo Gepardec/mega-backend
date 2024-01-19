@@ -39,25 +39,7 @@ public class EmployeeService{
         }
     }
 
-    public ZepRegularWorkingTimes getRegularWorkingTimesByUsername(String username) {
-        try (Response resp = zepEmployeeRestClient.getRegularWorkingTimesByUsername(username)) {
 
-            if (resp.getStatus() == 404) {
-                throw new ZepServiceException("User not found");
-            }
-            String responseBodyAsString = resp.readEntity(String.class);
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(responseBodyAsString);
-
-            ZepRegularWorkingTimes workingTimes;
-            if ((workingTimes = objectMapper.treeToValue(jsonNode.get("data"), ZepRegularWorkingTimes[].class)[0]) == null) {
-                throw new ZepServiceException("No Data");
-            }
-            return workingTimes;
-        } catch (JsonProcessingException e) {
-            throw new ZepServiceException("Error parsing JSON", e);
-        }
-    }
 
 
 }
