@@ -7,11 +7,16 @@ import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 
 import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
 import com.gepardec.mega.zep.rest.service.EmployeeService;
+import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -25,11 +30,34 @@ import static org.mockito.Mockito.when;
 @QuarkusTest
 public class EmployeeServiceTests {
 
-    private WireMockServer wireMockServer;
 
+    @InjectMock
+    EmploymentPeriodService employmentPeriodService;
+
+    @RestClient
+    @InjectMock
+    ZepEmployeeRestClient zepEmployeeRestClient;
 
     @Inject
     EmployeeService zepEmployeeService;
+
+
+    @BeforeEach
+    public void setup(){
+
+
+
+    }
+//    @Test
+    public void testMock(){
+
+//        Response mockedResponse = Mockito.mock(Response.class);
+//        when(mockedResponse.readEntity(String.class)).thenReturn(responseBody);
+//
+//        ZepEmployeeRestClient mockedZepEmployeeRestClient = Mockito.mock(ZepEmployeeRestClient.class);
+//        when(mockedZepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString())).thenReturn(mockedResponse);
+//        zepEmployeeService.getZepEmployeeById("082-tmeindl");
+    }
 
 
     @Test
@@ -49,6 +77,11 @@ public class EmployeeServiceTests {
 
     @Test
     public void getRegularWorkingTimesByUsername_receiveValidWorkingTime_then_returnValidZepWorkingTime(){
+
+
+
+
+
         String responseBody = "{\n" +
                 "  \"data\": [\n" +
                 "    {\n" +
@@ -117,6 +150,11 @@ public class EmployeeServiceTests {
                 "  }\n" +
                 "}";
 
+        Response response = Response.ok().entity(responseBody).build();
+
+
+        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString())).thenReturn(response);
+
         ZepRegularWorkingTimes regularWorkingTimes = ZepRegularWorkingTimes.builder()
                 .id(155)
                 .employee_id("082-tmeindl")
@@ -134,13 +172,7 @@ public class EmployeeServiceTests {
                 .max_hours_in_week(null)
                 .build();
 
-        Response mockedResponse = Mockito.mock(Response.class);
-        when(mockedResponse.readEntity(String.class)).thenReturn(responseBody);
-
-        ZepEmployeeRestClient mockedZepEmployeeRestClient = Mockito.mock(ZepEmployeeRestClient.class);
-        when(mockedZepEmployeeRestClient.getRegularWorkingTimesByUsername("082-tmeindl")).thenReturn(mockedResponse);
-
-        ZepRegularWorkingTimes actual = zepEmployeeService.getRegularWorkingTimesByUsername("082-tmeindl");
+        ZepRegularWorkingTimes actual = zepEmployeeService.getRegularWorkingTimesByUsername("dfsfdsds");
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(regularWorkingTimes);
 

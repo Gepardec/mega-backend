@@ -3,12 +3,6 @@ package com.gepardec.mega.zep.rest.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gepardec.mega.domain.model.AbsenceTime;
-import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.model.Project;
-import com.gepardec.mega.domain.model.ProjectTime;
-import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
-import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepEmployee;
@@ -18,10 +12,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 public class EmployeeService{

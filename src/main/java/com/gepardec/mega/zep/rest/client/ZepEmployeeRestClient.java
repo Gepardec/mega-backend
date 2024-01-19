@@ -17,6 +17,7 @@ import java.util.List;
 @RegisterRestClient
 @ClientHeaderParam(name = "Authorization", value = "{getAuthHeaderValue}")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@ApplicationScoped
 public interface ZepEmployeeRestClient {
     @GET
     Response getById(@QueryParam("personal_number") String id);
