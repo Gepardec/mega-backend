@@ -23,20 +23,17 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class EmployeeMapper {
 
-    @Inject
-    EmploymentPeriodService employmentPeriodService;
-
-    public List<Employee> mapList(List<ZepEmployee> zepEmployees) {
+    public static List<Employee> mapList(List<ZepEmployee> zepEmployees) {
         if (zepEmployees == null)
             return null;
 
         return zepEmployees.stream()
-                .map(this::map)
+                .map(EmployeeMapper::map)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
-    public Employee map(ZepEmployee zepEmployee) {
+    public static Employee map(ZepEmployee zepEmployee) {
         if (zepEmployee == null)
             return null;
 
