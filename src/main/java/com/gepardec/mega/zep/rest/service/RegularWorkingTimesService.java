@@ -20,24 +20,24 @@ public class RegularWorkingTimesService {
         try (Response resp = zepEmployeeRestClient.getRegularWorkingTimesByUsername(username)) {
 
             if (resp.getStatus() == 404) {
-                throw new ZepServiceException("User not found");
+                throw new ZepServiceException("Error from ZEP endpoint /" + username + "/regular-working-times: 404 Not Found");
             }
+            if (resp.getStatus() == 401) {
+                throw new ZepServiceException("Error from ZEP endpoint /" + username + "/regular-working-times: 401 Not Authorized");
+            }
+
             String responseBodyAsString = resp.readEntity(String.class);
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(responseBodyAsString);
 
+            ZepRegularWorkingTimes workingTimes[] = objectMapper.treeToValue(jsonNode.get("data"), ZepRegularWorkingTimes[].class);
 
-            try {
-                ZepRegularWorkingTimes workingTimes[] = objectMapper.treeToValue(jsonNode.get("data"), ZepRegularWorkingTimes[].class);
-                if (workingTimes.length == 0) {
-                    throw new ZepServiceException("Data empty");
-                }
-                return workingTimes[0];
-            } catch (Exception e) {
-                throw new ZepServiceException("Error parsing the return data of /"+username+"/regular-working-times", e);
+            if (workingTimes.length == 0) {
+                throw new ZepServiceException("Data empty");
             }
+            return workingTimes[0];
         } catch (JsonProcessingException e) {
-            throw new ZepServiceException("Error parsing JSON", e);
+            throw new ZepServiceException("Error parsing the return data of /" + username + "/regular-working-times", e);
         }
     }
 }

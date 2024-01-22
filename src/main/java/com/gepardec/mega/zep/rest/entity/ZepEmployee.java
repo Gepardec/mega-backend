@@ -4,7 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.time.DayOfWeek;
+import java.time.Duration;
 import java.util.Collection;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -53,4 +56,7 @@ public class ZepEmployee {
 
         @JsonIgnoreProperties
         ZepEmploymentPeriod[] employmentPeriods;
+
+        @JsonIgnoreProperties
+        Map<DayOfWeek, Duration> regularWorkingHours;
 }

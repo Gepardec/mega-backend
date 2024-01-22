@@ -10,6 +10,7 @@ import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
 import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
 import com.gepardec.mega.zep.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.zep.rest.mapper.RegularWorkingHoursMapMapper;
 import com.gepardec.mega.zep.rest.service.EmployeeService;
 import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
 import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
@@ -36,10 +37,14 @@ public class ZepRestService implements ZepService {
 
     @Override
     public Employee getEmployee(String userId) {
-        ZepEmployee zepEmployee = employeeService.getZepEmployeeById(userId);
+        ZepEmployee zepEmployee = employeeService.getZepEmployeeByUsername(userId);
+
+        //get regular working times, convert them to a Map<DayOfWeek, Duration> and add them to the employee
         ZepRegularWorkingTimes zepRegularWorkingTimes = regularWorkingTimesService.getRegularWorkingTimesByUsername(userId);
+        zepEmployee.setRegularWorkingHours(RegularWorkingHoursMapMapper.map(zepRegularWorkingTimes));
+
         ZepEmploymentPeriod zepEmploymentPeriod[] = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(userId);
-        return employeeMapper.map(employeeService.getZepEmployeeById(userId));
+        return employeeMapper.map(zepEmployee);
     }
 
     @Override

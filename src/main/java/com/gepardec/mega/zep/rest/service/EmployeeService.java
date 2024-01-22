@@ -25,8 +25,8 @@ public class EmployeeService{
     @Inject
     EmploymentPeriodService employmentPeriodService;
 
-    public ZepEmployee getZepEmployeeById(String id) {
-        try (Response resp = zepEmployeeRestClient.getById(id)) {
+    public ZepEmployee getZepEmployeeByUsername(String id) {
+        try (Response resp = zepEmployeeRestClient.getByUsername(id)) {
             String output = resp.readEntity(String.class);
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(output);

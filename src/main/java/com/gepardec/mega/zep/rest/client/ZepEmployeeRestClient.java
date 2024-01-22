@@ -20,7 +20,12 @@ import java.util.List;
 @ApplicationScoped
 public interface ZepEmployeeRestClient {
     @GET
-    Response getById(@QueryParam("personal_number") String id);
+    Response getByPersonalNumber(@QueryParam("personal_number") String id);
+
+    @GET
+    @Path("/{username}")
+    Response getByUsername(@PathParam("username") String username);
+
     @GET
     @Path("/{username}/employment-periods")
     Response getEmploymentPeriodByUserName(@PathParam("username") String username);

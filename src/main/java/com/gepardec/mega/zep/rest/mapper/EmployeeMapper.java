@@ -4,10 +4,7 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.zep.mapper.MapperUtil;
 import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
-import com.gepardec.mega.zep.rest.entity.ZepEmployee;
-import com.gepardec.mega.zep.rest.entity.ZepEmployment;
-import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
-import com.gepardec.mega.zep.rest.entity.ZepRights;
+import com.gepardec.mega.zep.rest.entity.*;
 import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -49,7 +46,7 @@ public class EmployeeMapper {
             .releaseDate(zepEmployee.getReleaseDate())
             .workDescription(null) //TODO: klären was das ist (getPreisgruppe() in Employee Mapper)
             .language(zepEmployee.getLanguage())
-            .regularWorkingHours(null)
+            .regularWorkingHours(zepEmployee.getRegularWorkingHours())
             .active(active)
             .build();
         /**
@@ -69,7 +66,8 @@ public class EmployeeMapper {
 
         return Arrays.stream(zepEmploymentPeriods)
                 .anyMatch(zepEmploymentPeriod -> zepEmploymentPeriod.getEndDate() == null);
-
     }
+
+
 
 }

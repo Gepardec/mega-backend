@@ -91,6 +91,20 @@ public class RegularWorkingTimesServiceTests {
 
         assertThrows(ZepServiceException.class, () -> {
             System.out.println(regularWorkingTimesService.getRegularWorkingTimesByUsername("non-existing-user").getEmployee_id());
+            
         });
     }
+
+    @Test
+    public void getRegularWorkingTimesByUsername_receive401_then_ThrowException(){
+
+        Response response = Response.status(401).build();
+
+        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString())).thenReturn(response);
+
+        assertThrows(ZepServiceException.class, () -> {
+            System.out.println(regularWorkingTimesService.getRegularWorkingTimesByUsername("").getEmployee_id());
+        });
+    }
+
 }
