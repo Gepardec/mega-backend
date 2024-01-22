@@ -1,38 +1,15 @@
 package com.gepardec.mega.db.entity.employee;
 
 import com.gepardec.mega.domain.model.Role;
-import jakarta.persistence.Basic;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.NamedQueries;
-import jakarta.persistence.NamedQuery;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "employee_user",
@@ -46,7 +23,6 @@ import java.util.Set;
         @NamedQuery(name = "User.findActive", query = "select u from User u where u.active = true"),
         @NamedQuery(name = "User.findByRoles", query = "select distinct u from User u inner join u.roles role where u.active = true and role in (:roles)")
 })
-@ToString
 public class User {
 
     @Id
@@ -136,14 +112,12 @@ public class User {
      * The step entries the user is assigned to
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "assignee")
-    @ToString.Exclude
     private Set<StepEntry> assignedStepEntries = new HashSet<>(0);
 
     /**
      * The step entries the user owns
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
-    @ToString.Exclude
     private Set<StepEntry> ownedStepEntries = new HashSet<>(0);
 
     public User() {
@@ -269,6 +243,23 @@ public class User {
 
     public void setOwnedStepEntries(Set<StepEntry> ownedStepEntries) {
         this.ownedStepEntries = ownedStepEntries;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", User.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("creationDate=" + creationDate)
+                .add("updatedDate=" + updatedDate)
+                .add("email='" + email + "'")
+                .add("firstname='" + firstname + "'")
+                .add("lastname='" + lastname + "'")
+                .add("locale=" + locale)
+                .add("zepId='" + zepId + "'")
+                .add("releaseDate=" + releaseDate)
+                .add("active=" + active)
+                .add("roles=" + roles)
+                .toString();
     }
 
     @Override

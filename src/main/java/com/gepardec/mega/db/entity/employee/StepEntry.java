@@ -1,30 +1,13 @@
 package com.gepardec.mega.db.entity.employee;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.ConstraintMode;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedQueries;
-import jakarta.persistence.NamedQuery;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 @Entity
 @Table(name = "step_entry")
@@ -40,7 +23,6 @@ import java.util.Objects;
         @NamedQuery(name = "StepEntry.findAllStepEntriesForPMInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId and s.assignee.email = :assigneEmail"),
         @NamedQuery(name = "StepEntry.findAllStepEntriesForAllPMInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId")
 })
-@ToString
 public class StepEntry {
 
     @Id
@@ -99,7 +81,6 @@ public class StepEntry {
             referencedColumnName = "id",
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_owner_employee_user_id", value = ConstraintMode.CONSTRAINT))
-    @ToString.Exclude
     private User owner;
 
     /**
@@ -111,7 +92,6 @@ public class StepEntry {
             referencedColumnName = "id",
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_assignee_employee_user_id", value = ConstraintMode.CONSTRAINT))
-    @ToString.Exclude
     private User assignee;
 
     /**
@@ -125,7 +105,6 @@ public class StepEntry {
             referencedColumnName = "id",
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_step_id", value = ConstraintMode.CONSTRAINT))
-    @ToString.Exclude
     private Step step;
 
     @PrePersist
@@ -217,6 +196,19 @@ public class StepEntry {
 
     public void setStateReason(String stateReason) {
         this.stateReason = stateReason;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", StepEntry.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("creationDate=" + creationDate)
+                .add("updatedDate=" + updatedDate)
+                .add("date=" + date)
+                .add("project='" + project + "'")
+                .add("employeeState=" + employeeState)
+                .add("stateReason='" + stateReason + "'")
+                .toString();
     }
 
     @Override
