@@ -6,16 +6,7 @@ import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.entity.project.ProjectEntry;
 import com.gepardec.mega.db.entity.project.ProjectStep;
-import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.model.FinishedAndTotalComments;
-import com.gepardec.mega.domain.model.Project;
-import com.gepardec.mega.domain.model.ProjectEmployees;
-import com.gepardec.mega.domain.model.ProjectFilter;
-import com.gepardec.mega.domain.model.ProjectState;
-import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.State;
-import com.gepardec.mega.domain.model.StepName;
-import com.gepardec.mega.domain.model.UserContext;
+import com.gepardec.mega.domain.model.*;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.ManagementResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
@@ -23,11 +14,7 @@ import com.gepardec.mega.rest.model.CustomerProjectWithoutLeadsDto;
 import com.gepardec.mega.rest.model.ManagementEntryDto;
 import com.gepardec.mega.rest.model.PmProgressDto;
 import com.gepardec.mega.rest.model.ProjectManagementEntryDto;
-import com.gepardec.mega.service.api.CommentService;
-import com.gepardec.mega.service.api.EmployeeService;
-import com.gepardec.mega.service.api.ProjectEntryService;
-import com.gepardec.mega.service.api.ProjectService;
-import com.gepardec.mega.service.api.StepEntryService;
+import com.gepardec.mega.service.api.*;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.ProjektzeitType;
@@ -43,12 +30,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequestScoped
@@ -171,11 +153,11 @@ public class ManagementResourceImpl implements ManagementResource {
         if (!entries.isEmpty() && !projectEntries.isEmpty()) {
 
             Duration billable = calculateProjectDuration(entries.stream()
-                    .map(ManagementEntryDto::billableTime)
+                    .map(ManagementEntryDto::getBillableTime)
                     .collect(Collectors.toList()));
 
             Duration nonBillable = calculateProjectDuration(entries.stream()
-                    .map(ManagementEntryDto::nonBillableTime)
+                    .map(ManagementEntryDto::getNonBillableTime)
                     .collect(Collectors.toList()));
 
             // it is guaranteed that the same Project instance is obtained for every ProjectEntry

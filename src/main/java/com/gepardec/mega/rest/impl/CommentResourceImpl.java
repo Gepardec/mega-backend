@@ -47,13 +47,13 @@ public class CommentResourceImpl implements CommentResource {
     @Override
     public Response newCommentForEmployee(NewCommentEntryDto newComment) {
         Comment comment = commentService.create(
-                newComment.stepId(),
+                newComment.getStepId(),
                 SourceSystem.MEGA,
-                newComment.employeeEmail(),
-                newComment.comment(),
-                newComment.assigneeEmail(),
-                newComment.project(),
-                newComment.currentMonthYear()
+                newComment.getEmployeeEmail(),
+                newComment.getComment(),
+                newComment.getAssigneeEmail(),
+                newComment.getProject(),
+                newComment.getCurrentMonthYear()
         );
 
         return Response.ok(mapper.mapToDto(comment)).build();

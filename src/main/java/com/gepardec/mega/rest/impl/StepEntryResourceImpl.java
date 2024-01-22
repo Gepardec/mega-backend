@@ -26,13 +26,13 @@ public class StepEntryResourceImpl implements StepEntryResource {
 
     @Override
     public Response close(final EmployeeStepDto employeeStepDto) {
-        LocalDate from = DateUtils.getFirstDayOfCurrentMonth(employeeStepDto.currentMonthYear());
-        LocalDate to = DateUtils.getLastDayOfCurrentMonth(employeeStepDto.currentMonthYear());
+        LocalDate from = DateUtils.getFirstDayOfCurrentMonth(employeeStepDto.getCurrentMonthYear());
+        LocalDate to = DateUtils.getLastDayOfCurrentMonth(employeeStepDto.getCurrentMonthYear());
 
         return Response.ok(
                         stepEntryService.setOpenAndAssignedStepEntriesDone(
-                                employeeMapper.mapToDomain(employeeStepDto.employee()),
-                                employeeStepDto.stepId(),
+                                employeeMapper.mapToDomain(employeeStepDto.getEmployee()),
+                                employeeStepDto.getStepId(),
                                 from,
                                 to
                         )
@@ -42,17 +42,17 @@ public class StepEntryResourceImpl implements StepEntryResource {
 
     @Override
     public Response updateEmployeeStateForOffice(UpdateEmployeeStepDto updateEmployeeStepDto) {
-        LocalDate from = DateUtils.getFirstDayOfCurrentMonth(updateEmployeeStepDto.currentMonthYear());
-        LocalDate to = DateUtils.getLastDayOfCurrentMonth(updateEmployeeStepDto.currentMonthYear());
+        LocalDate from = DateUtils.getFirstDayOfCurrentMonth(updateEmployeeStepDto.getCurrentMonthYear());
+        LocalDate to = DateUtils.getLastDayOfCurrentMonth(updateEmployeeStepDto.getCurrentMonthYear());
 
         return Response.ok(
                         stepEntryService.updateStepEntryStateForEmployee(
-                                updateEmployeeStepDto.employee(),
-                                updateEmployeeStepDto.stepId(),
+                                updateEmployeeStepDto.getEmployee(),
+                                updateEmployeeStepDto.getStepId(),
                                 from,
                                 to,
-                                updateEmployeeStepDto.newState(),
-                                updateEmployeeStepDto.newStateReason()
+                                updateEmployeeStepDto.getNewState(),
+                                updateEmployeeStepDto.getNewStateReason()
                         )
                 )
                 .build();
@@ -62,11 +62,11 @@ public class StepEntryResourceImpl implements StepEntryResource {
     public Response updateEmployeeStateForProject(final ProjectStepDto projectStepDto) {
         return Response.ok(
                 stepEntryService.updateStepEntryStateForEmployeeInProject(
-                        projectStepDto.employee(),
-                        projectStepDto.stepId(),
-                        projectStepDto.projectName(),
-                        projectStepDto.currentMonthYear(),
-                        projectStepDto.newState()
+                        projectStepDto.getEmployee(),
+                        projectStepDto.getStepId(),
+                        projectStepDto.getProjectName(),
+                        projectStepDto.getCurrentMonthYear(),
+                        projectStepDto.getNewState()
                 )
         ).build();
     }
