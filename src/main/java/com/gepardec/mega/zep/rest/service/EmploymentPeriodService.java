@@ -24,6 +24,7 @@ public class EmploymentPeriodService {
     @RestClient
     ZepEmployeeRestClient zepEmployeeRestService;
 
+    //TODO: Pagination handling
     public ZepEmploymentPeriod[] getZepEmploymentPeriodsByEmployeeName(String employeeName) {
         try (Response resp = zepEmployeeRestService.getEmploymentPeriodByUserName(employeeName)) {
             String output = resp.readEntity(String.class);
