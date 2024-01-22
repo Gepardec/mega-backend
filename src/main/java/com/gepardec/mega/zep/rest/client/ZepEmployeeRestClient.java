@@ -19,6 +19,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApplicationScoped
 public interface ZepEmployeeRestClient {
+
     @GET
     Response getByPersonalNumber(@QueryParam("personal_number") String id);
 
@@ -29,9 +30,17 @@ public interface ZepEmployeeRestClient {
     @GET
     @Path("/{username}/employment-periods")
     Response getEmploymentPeriodByUserName(@PathParam("username") String username);
+
     @GET
     @Path("/{username}/regular-working-times")
     Response getRegularWorkingTimesByUsername(@PathParam("username") String username);
+
+    @GET
+    Response getAllEmployeesOfPage(@QueryParam("page") int page);
+
+    @GET
+    @Path("/{username}/absences")
+    Response getAbsencesByUsername(@PathParam("username") String username);
 
     static String getAuthHeaderValue() {
         return "Bearer " + ZepConfig.getRestBearerToken();

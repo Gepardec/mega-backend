@@ -52,7 +52,7 @@ public class AbsenceService {
             objectMapper.findAndRegisterModules();
             JsonNode jsonNode = objectMapper.readTree(output);
             String absenceText = (objectMapper.treeToValue(jsonNode.at("/data/absence_text"), String.class));
-            zepAbsence.setAbsenceText(absenceText);
+            zepAbsence.setAbsenceReason(absenceText);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
