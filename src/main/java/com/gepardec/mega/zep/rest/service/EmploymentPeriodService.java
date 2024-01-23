@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.JSR310DateTimeDeserializerBas
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.util.ZepRestUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
