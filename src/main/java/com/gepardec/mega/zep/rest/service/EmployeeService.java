@@ -10,8 +10,11 @@ import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
 import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
 import com.gepardec.mega.zep.util.ZepRestUtil;
+import io.smallrye.mutiny.Multi;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -27,20 +30,29 @@ public class EmployeeService{
     @Inject
     EmploymentPeriodService employmentPeriodService;
 
-    public ZepEmployee getZepEmployeeByUsername(String id) {
-        try (Response resp = zepEmployeeRestClient.getByUsername(id)) {
+    public ZepEmployee getZepEmployeeByUsername(String name) {
+        try (Response resp = zepEmployeeRestClient.getByUsername(name)) {
             String output = resp.readEntity(String.class);
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(output);
-            ZepEmployee employee = objectMapper.treeToValue(jsonNode.get("data"), ZepEmployee[].class)[0];
+            ZepEmployee employee = (ZepEmployee) ZepRestUtil.parseJson(output, "/data", ZepEmployee.class);
 
-            String name = employee.getUsername();
             ZepEmploymentPeriod[] employmentPeriods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(name);
             employee.setEmploymentPeriods(employmentPeriods);
 
             return employee;
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        }
+    }
+    public ZepEmployee getZepEmployeeByPersonalNumber(String personalNumber) {
+        MultivaluedMap<String, String> multivaluedMap = new MultivaluedHashMap<>();
+        multivaluedMap.addFirst("personal_number", personalNumber);
+        try (Response resp = zepEmployeeRestClient.getByPersonalNumber(multivaluedMap)) {
+            String output = resp.readEntity(String.class);
+            ZepEmployee employee = ((ZepEmployee[]) ZepRestUtil.parseJson(output, "/data", ZepEmployee[].class))[0];
+
+            String employeeName = employee.getUsername();
+            ZepEmploymentPeriod[] employmentPeriods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employeeName);
+            employee.setEmploymentPeriods(employmentPeriods);
+
+            return employee;
         }
     }
 
@@ -55,7 +67,7 @@ public class EmployeeService{
         String username = employee.getUsername();
         ZepEmploymentPeriod[] periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(username);
         employee.setEmploymentPeriods(periods);
-    }
+    }String[] categories = new String[0];
 
     private List<ZepEmployee> getPaginatedEmployees() {
         List<ZepEmployee> employees = new ArrayList<>();

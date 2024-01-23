@@ -1,10 +1,11 @@
 package com.gepardec.mega.zep.rest.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+@Builder
 @Getter
 @Setter
+@AllArgsConstructor @NoArgsConstructor
 public class ZepEmployment {
     private int id;
     private String name;

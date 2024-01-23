@@ -7,6 +7,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
@@ -21,7 +22,7 @@ import java.util.List;
 public interface ZepEmployeeRestClient {
 
     @GET
-    Response getByPersonalNumber(@QueryParam("personal_number") String id);
+    Response getByPersonalNumber(@QueryParam("personal_number")MultivaluedMap<String, String> personalNumber);
 
     @GET
     @Path("/{username}")

@@ -8,6 +8,8 @@ import lombok.*;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Map;
 
@@ -27,7 +29,7 @@ public class ZepEmployee {
         private String city;
         private String country;
         private String abbreviation;
-        private String salutation;
+        private ZepSalutation salutation;
         private String title;
         private String email;
         private String phone;
@@ -39,35 +41,35 @@ public class ZepEmployee {
         private String iban;
         private String bic;
         @JsonProperty("account_no")
-        private String accountNo;
+        private Integer accountNo;
         @JsonProperty("bank_name")
         private String bankName;
         @JsonProperty("bank_code")
         private String bankCode;
         private String currency;
         @JsonProperty("release_date")
-        private String releaseDate;
-        private String vat;
+        private LocalDateTime releaseDate;
+        private Double vat;
         @JsonProperty("price_group")
         private String priceGroup;
         private ZepEmployment employment;
         private ZepRights rights;
         @JsonProperty("department_id")
-        private String departmentId;
+        private Integer departmentId;
         private String language;
         @JsonProperty("personio_id")
-        private String personioId;
+        private Integer personioId;
         @JsonProperty("cost_bearer")
         private String costBearer;
         @JsonProperty("tax_id")
-        private String taxId;
-        private String created;
-        private String modified;
+        private Integer taxId;
+        private LocalDateTime created;
+        private LocalDateTime modified;
         @JsonProperty("creditor_number")
-        private String creditorNumber;
+        private Integer creditorNumber;
         private Collection<String> categories;
         @JsonProperty("absences_count")
-        private int absencesCount;
+        private Integer absencesCount;
 
         @JsonIgnoreProperties
         ZepEmploymentPeriod[] employmentPeriods;
