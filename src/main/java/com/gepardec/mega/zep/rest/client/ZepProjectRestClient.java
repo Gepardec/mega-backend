@@ -27,7 +27,7 @@ public interface ZepProjectRestClient {
 
     @GET
     @Path("{id}/employees")
-    Response getProjectEmployees(@PathParam("id") int projectId)
+    Response getProjectEmployees(@PathParam("id") int projectId);
 
     static String getAuthHeaderValue() {
         return "Bearer " + ZepConfig.getRestBearerToken();
