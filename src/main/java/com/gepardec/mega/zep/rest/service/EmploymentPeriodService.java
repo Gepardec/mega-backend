@@ -27,14 +27,9 @@ public class EmploymentPeriodService {
     //TODO: Pagination handling
     public ZepEmploymentPeriod[] getZepEmploymentPeriodsByEmployeeName(String employeeName) {
         try (Response resp = zepEmployeeRestService.getEmploymentPeriodByUserName(employeeName)) {
-            String output = resp.readEntity(String.class);
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.findAndRegisterModules();
-            JsonNode jsonNode = objectMapper.readTree(output);
-            return objectMapper.treeToValue(jsonNode.get("data"), ZepEmploymentPeriod[].class);
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            String json = resp.readEntity(String.class);
+            return (ZepEmploymentPeriod[]) ZepRestUtil.parseJson(json, "data", ZepEmploymentPeriod[].class);
         }
     }
+
 }

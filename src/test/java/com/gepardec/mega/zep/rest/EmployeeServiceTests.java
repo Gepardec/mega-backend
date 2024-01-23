@@ -44,7 +44,7 @@ public class EmployeeServiceTests {
 
     @Test
     public void getEmployee() {
-        ZepEmployee employee = zepEmployeeService.getZepEmployeeById("082-tmeindl");
+        ZepEmployee employee = zepEmployeeService.getZepEmployeeByUsername("082-tmeindl");
         System.out.println(employee.getUsername());
     }
 
