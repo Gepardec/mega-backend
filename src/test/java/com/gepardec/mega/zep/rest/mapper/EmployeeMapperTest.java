@@ -138,8 +138,8 @@ public class EmployeeMapperTest {
         assertThat(employee.getTitle()).isEqualTo(zepEmployee.getTitle());
         assertThat(employee.getFirstname()).isEqualTo(zepEmployee.getFirstname());
         assertThat(employee.getLastname()).isEqualTo(zepEmployee.getLastname());
-        assertThat(employee.getSalutation()).isEqualTo(zepEmployee.getSalutation());
-        assertThat(employee.getReleaseDate()).isEqualTo(zepEmployee.getReleaseDate());
+        assertThat(employee.getSalutation()).isEqualTo(zepEmployee.getSalutation().getName());
+        assertThat(employee.getReleaseDate()).isEqualTo(zepEmployee.getReleaseDate().toString());
         assertThat(employee.getLanguage()).isEqualTo(zepEmployee.getLanguage());
         assertThat(employee.isActive()).isEqualTo(employeeActive);
     }

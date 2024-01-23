@@ -22,7 +22,7 @@ import java.util.List;
 public interface ZepEmployeeRestClient {
 
     @GET
-    Response getByPersonalNumber(@QueryParam("personal_number")MultivaluedMap<String, String> personalNumber);
+    Response getByPersonalNumber(@QueryParam("personal_number") List<String> personalNumber);
 
     @GET
     @Path("/{username}")

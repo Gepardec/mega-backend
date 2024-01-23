@@ -42,9 +42,8 @@ public class EmployeeService{
         }
     }
     public ZepEmployee getZepEmployeeByPersonalNumber(String personalNumber) {
-        MultivaluedMap<String, String> multivaluedMap = new MultivaluedHashMap<>();
-        multivaluedMap.addFirst("personal_number", personalNumber);
-        try (Response resp = zepEmployeeRestClient.getByPersonalNumber(multivaluedMap)) {
+        List<String> params = List.of(personalNumber);
+        try (Response resp = zepEmployeeRestClient.getByPersonalNumber(params)) {
             String output = resp.readEntity(String.class);
             ZepEmployee employee = ((ZepEmployee[]) ZepRestUtil.parseJson(output, "/data", ZepEmployee[].class))[0];
 

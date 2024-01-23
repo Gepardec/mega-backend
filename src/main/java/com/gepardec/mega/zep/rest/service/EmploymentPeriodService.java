@@ -29,7 +29,7 @@ public class EmploymentPeriodService {
     public ZepEmploymentPeriod[] getZepEmploymentPeriodsByEmployeeName(String employeeName) {
         try (Response resp = zepEmployeeRestService.getEmploymentPeriodByUserName(employeeName)) {
             String json = resp.readEntity(String.class);
-            return (ZepEmploymentPeriod[]) ZepRestUtil.parseJson(json, "data", ZepEmploymentPeriod[].class);
+            return (ZepEmploymentPeriod[]) ZepRestUtil.parseJson(json, "/data", ZepEmploymentPeriod[].class);
         }
     }
 

@@ -36,14 +36,18 @@ public class EmployeeMapper {
 
         boolean active = getActiveOfZepEmploymentPeriods(zepEmployee.getEmploymentPeriods());
 
+        String salutation = zepEmployee.getSalutation() == null ?
+                null : zepEmployee.getSalutation().getName();
+        String releaseDate = zepEmployee.getReleaseDate() == null ?
+                null : zepEmployee.getReleaseDate().toString();
         return Employee.builder()
             .userId(zepEmployee.getPersonalNumber())
             .email(zepEmployee.getEmail())
             .title(zepEmployee.getTitle())
             .firstname(zepEmployee.getFirstname())
             .lastname(zepEmployee.getLastname())
-            .salutation(zepEmployee.getSalutation().getName())
-            .releaseDate(zepEmployee.getReleaseDate().toString())
+            .salutation(salutation)
+            .releaseDate(releaseDate)
             .workDescription(null) //TODO: klären was das ist (getPreisgruppe() in Employee Mapper)
             .language(zepEmployee.getLanguage())
             .regularWorkingHours(zepEmployee.getRegularWorkingHours())
