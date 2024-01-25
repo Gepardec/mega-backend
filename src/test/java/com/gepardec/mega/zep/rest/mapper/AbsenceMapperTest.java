@@ -23,6 +23,7 @@ public class AbsenceMapperTest {
 
     @Test
     public void mapZepAbsenceToAbsenceTime() {
+        AbsenceMapper absenceMapper = new AbsenceMapper();
         ZepAbsence zepAbsence = ZepAbsence.builder()
                 .id(1)
                 .employeeId("001")
@@ -38,7 +39,7 @@ public class AbsenceMapperTest {
                 .modified("05-01-2019T18:11:12.0000Z")
                 .build();
 
-        AbsenceTime absence = AbsenceMapper.map(zepAbsence);
+        AbsenceTime absence = absenceMapper.map(zepAbsence);
 
         assertThat(absence.getId()).isEqualTo(zepAbsence.getId());
         assertThat(absence.getUserId()).isEqualTo(zepAbsence.getEmployeeId());
@@ -53,6 +54,8 @@ public class AbsenceMapperTest {
 
     @Test
     public void mapZepAbsencesToAbsenceTimes() {
+        AbsenceMapper absenceMapper = new AbsenceMapper();
+
         ZepAbsence[] zepAbsencesArr = {
                 ZepAbsence.builder()
                         .id(1)
@@ -76,7 +79,7 @@ public class AbsenceMapperTest {
         };
         List<ZepAbsence> zepAbsences = List.of(zepAbsencesArr);
 
-        List<AbsenceTime> absences =  AbsenceMapper.mapList(zepAbsences);
+        List<AbsenceTime> absences =  absenceMapper.mapList(zepAbsences);
         Iterator<ZepAbsence> zepAbsencesIterator = zepAbsences.iterator();
         absences.forEach(absence -> {
             ZepAbsence zepAbsence = zepAbsencesIterator.next();

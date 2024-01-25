@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProjectMapperTest {
     @Test
     public void fullZepProject_thenFullProject() {
+        ProjectMapper projectMapper = new ProjectMapper();
         List<ZepProjectEmployee> zepProjectEmployees = List.of(
                 ZepProjectEmployee.builder()
                         .username("Anton")
@@ -96,7 +97,7 @@ public class ProjectMapperTest {
         LocalDate endDate = zepProject.getEndDate() == null ?
                 null : zepProject.getEndDate().toLocalDate();
 
-        Project project = ProjectMapper.map(zepProject);
+        Project project = projectMapper.map(zepProject);
         assertThat(project.getZepId()).isEqualTo(zepProject.getId());
         assertThat(project.getProjectId()).isEqualTo(zepProject.getName());
         assertThat(project.getStartDate()).isEqualTo(startDate);

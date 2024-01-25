@@ -12,18 +12,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class AttendanceMapper {
-    public static List<ProjectTime> mapList(List<ZepAttendance> zepAttendance) {
-        if (zepAttendance == null) {
-            return null;
-        }
-        return zepAttendance.stream()
-                .map(AttendanceMapper::map)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
+public class AttendanceMapper implements Mapper<ProjectTime, ZepAttendance> {
 
-    public static ProjectTime map(ZepAttendance zepAttendance) {
+    @Override
+    public ProjectTime map(ZepAttendance zepAttendance) {
         if (zepAttendance == null) {
             return null;
         }

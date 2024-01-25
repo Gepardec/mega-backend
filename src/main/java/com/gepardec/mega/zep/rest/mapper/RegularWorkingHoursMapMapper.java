@@ -8,9 +8,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class RegularWorkingHoursMapMapper {
+public class RegularWorkingHoursMapMapper implements Mapper<Map<DayOfWeek, Duration>, ZepRegularWorkingTimes> {
 
-    public static Map<DayOfWeek, Duration> map(ZepRegularWorkingTimes zepRegularWorkingTimes) {
+    @Override
+    public Map<DayOfWeek, Duration> map(ZepRegularWorkingTimes zepRegularWorkingTimes) {
         Map<DayOfWeek, Duration> regularWorkingHours = new HashMap<>();
 
         if (zepRegularWorkingTimes != null) {

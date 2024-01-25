@@ -99,6 +99,8 @@ public class EmployeeMapperTest {
 
     @Test
     public void mapZepEmployeeToEmployee() {
+        EmployeeMapper employeeMapper = new EmployeeMapper();
+
         ZepEmploymentPeriod[] employmentPeriods = {
                 ZepEmploymentPeriod.builder()
                         .startDate(LocalDateTime.of(2010,1,2, 23, 32, 48))
@@ -131,7 +133,7 @@ public class EmployeeMapperTest {
                 .employmentPeriods(employmentPeriods)
                 .build();
 
-        Employee employee = EmployeeMapper.map(zepEmployee);
+        Employee employee = employeeMapper.map(zepEmployee);
 
         assertThat(employee.getUserId()).isEqualTo(zepEmployee.getPersonalNumber());
         assertThat(employee.getEmail()).isEqualTo(zepEmployee.getEmail());
@@ -146,6 +148,8 @@ public class EmployeeMapperTest {
 
     @Test
     public void mapZepEmployeesToEmployees() {
+        EmployeeMapper employeeMapper = new EmployeeMapper();
+
         ZepEmployee[] zepEmployeesArr = {
                 ZepEmployee.builder()
                         .personalNumber("000")
@@ -162,7 +166,7 @@ public class EmployeeMapperTest {
         };
         List<ZepEmployee> zepEmployees = List.of(zepEmployeesArr);
 
-        List<Employee> employees = EmployeeMapper.mapList(zepEmployees);
+        List<Employee> employees = employeeMapper.mapList(zepEmployees);
         Iterator<ZepEmployee> zepEmployeesIterator = zepEmployees.iterator();
         employees.forEach(employee -> {
                             ZepEmployee zepEmployee = zepEmployeesIterator.next();

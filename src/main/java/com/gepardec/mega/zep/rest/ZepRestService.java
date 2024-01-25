@@ -40,8 +40,9 @@ public class ZepRestService implements ZepService {
         ZepEmployee zepEmployee = employeeService.getZepEmployeeByUsername(userId);
 
         //get regular working times, convert them to a Map<DayOfWeek, Duration> and add them to the employee
+        RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
         ZepRegularWorkingTimes zepRegularWorkingTimes = regularWorkingTimesService.getRegularWorkingTimesByUsername(userId);
-        zepEmployee.setRegularWorkingHours(RegularWorkingHoursMapMapper.map(zepRegularWorkingTimes));
+        zepEmployee.setRegularWorkingHours(regularWorkingHoursMapMapper.map(zepRegularWorkingTimes));
 
         ZepEmploymentPeriod zepEmploymentPeriod[] = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(userId);
         return employeeMapper.map(zepEmployee);

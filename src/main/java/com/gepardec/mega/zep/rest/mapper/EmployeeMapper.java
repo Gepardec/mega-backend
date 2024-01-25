@@ -18,19 +18,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class EmployeeMapper {
+public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
 
-    public static List<Employee> mapList(List<ZepEmployee> zepEmployees) {
-        if (zepEmployees == null)
-            return null;
-
-        return zepEmployees.stream()
-                .map(EmployeeMapper::map)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    public static Employee map(ZepEmployee zepEmployee) {
+    @Override
+    public Employee map(ZepEmployee zepEmployee) {
         if (zepEmployee == null)
             return null;
 

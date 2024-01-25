@@ -14,19 +14,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ProjectMapper {
+public class ProjectMapper implements Mapper<Project, ZepProject> {
 
-    public static List<Employee> mapList(List<ZepEmployee> zepEmployees) {
-        if (zepEmployees == null)
-            return null;
-
-        return zepEmployees.stream()
-                .map(EmployeeMapper::map)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    public static Project map(ZepProject zepProject) {
+    public Project map(ZepProject zepProject) {
         if (zepProject == null)
             return null;
 

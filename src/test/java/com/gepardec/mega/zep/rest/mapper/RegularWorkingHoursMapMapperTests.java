@@ -17,6 +17,7 @@ public class RegularWorkingHoursMapMapperTests {
 
     @Test
     public void mapZepRegularWorkingTimesToRegularWorkingHoursMap() {
+        RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
         ZepRegularWorkingTimes zepRegularWorkingTimes = ZepRegularWorkingTimes.builder()
                 .id(1)
                 .employee_id("001")
@@ -34,7 +35,7 @@ public class RegularWorkingHoursMapMapperTests {
                 .max_hours_in_week(40.0)
                 .build();
 
-        Map<DayOfWeek, Duration> regularWorkingHours = RegularWorkingHoursMapMapper.map(zepRegularWorkingTimes);
+        Map<DayOfWeek, Duration> regularWorkingHours = regularWorkingHoursMapMapper.map(zepRegularWorkingTimes);
 
         assertThat(regularWorkingHours.get(DayOfWeek.MONDAY)).isEqualTo(Duration.ofHours(8));
         assertThat(regularWorkingHours.get(DayOfWeek.TUESDAY)).isEqualTo(Duration.ofHours(8));
@@ -48,6 +49,8 @@ public class RegularWorkingHoursMapMapperTests {
 
     @Test
     public void mapZepRegularWorkingHoursToRegularWorkingHoursMap_NullMappedToZero() {
+        RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
+
         ZepRegularWorkingTimes zepRegularWorkingTimes = ZepRegularWorkingTimes.builder()
                 .id(1)
                 .employee_id("001")
@@ -65,7 +68,7 @@ public class RegularWorkingHoursMapMapperTests {
                 .max_hours_in_week(40.0)
                 .build();
 
-        Map<DayOfWeek, Duration> regularWorkingHours = RegularWorkingHoursMapMapper.map(zepRegularWorkingTimes);
+        Map<DayOfWeek, Duration> regularWorkingHours = regularWorkingHoursMapMapper.map(zepRegularWorkingTimes);
 
         assertThat(regularWorkingHours.get(DayOfWeek.MONDAY)).isEqualTo(Duration.ofHours(0));
         assertThat(regularWorkingHours.get(DayOfWeek.TUESDAY)).isEqualTo(Duration.ofHours(8));
@@ -78,9 +81,11 @@ public class RegularWorkingHoursMapMapperTests {
 
     @Test
     public void mapZepRegularWorkingHoursToRegularWorkingHoursMap_EmptyObjectMappedToZero() {
+        RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
+
         ZepRegularWorkingTimes zepRegularWorkingTimes = ZepRegularWorkingTimes.builder().build();
 
-        Map<DayOfWeek, Duration> regularWorkingHours = RegularWorkingHoursMapMapper.map(zepRegularWorkingTimes);
+        Map<DayOfWeek, Duration> regularWorkingHours = regularWorkingHoursMapMapper.map(zepRegularWorkingTimes);
 
         assertThat(regularWorkingHours.get(DayOfWeek.MONDAY)).isEqualTo(Duration.ofHours(0));
         assertThat(regularWorkingHours.get(DayOfWeek.TUESDAY)).isEqualTo(Duration.ofHours(0));

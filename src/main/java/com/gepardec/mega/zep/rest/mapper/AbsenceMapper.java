@@ -20,19 +20,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class AbsenceMapper {
+public class AbsenceMapper implements Mapper<AbsenceTime, ZepAbsence> {
 
-    public static List<AbsenceTime> mapList(List<ZepAbsence> zepAbsences) {
-        if (zepAbsences == null)
-            return null;
-
-        return zepAbsences.stream()
-                .map(AbsenceMapper::map)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    public static AbsenceTime map(ZepAbsence zepAbsence) {
+    @Override
+    public AbsenceTime map(ZepAbsence zepAbsence) {
         if (zepAbsence == null)
             return null;
 

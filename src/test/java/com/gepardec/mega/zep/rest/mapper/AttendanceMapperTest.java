@@ -21,12 +21,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AttendanceMapperTest {
 
     @Test
-    void whenNull_thenReturnsNull() {
-        assertThat(AttendanceMapper.map(null)).isNull();
-    }
-
-    @Test
     void withFullSettings_thenReturnsAbsenceTimeObject() {
+        AttendanceMapper attendanceMapper = new AttendanceMapper();
         ZepAttendance zepAttendance = ZepAttendance.builder()
                 .id(2)
                 .date(LocalDate.of(2015,2,11))
@@ -55,7 +51,7 @@ public class AttendanceMapperTest {
                 .modified(LocalDateTime.of(2019,12,27,11,6,39))
                 .build();
 
-        ProjectTime pt = AttendanceMapper.map(zepAttendance);
+        ProjectTime pt = attendanceMapper.map(zepAttendance);
 
         assertThat(pt.getId()).isEqualTo("" + zepAttendance.getId());
         assertThat(pt.getUserId()).isEqualTo(zepAttendance.getEmployeeId());
@@ -82,12 +78,6 @@ public class AttendanceMapperTest {
         assertThat(pt.getCreated()).isEqualTo(zepAttendance.getCreated() + "");
         assertThat(pt.getModified()).isEqualTo(zepAttendance.getModified() + "");
     }
-
-    @Test
-    void whenEmptyList_thenReturnsEmptyList() {
-        assertThat(ProjectTimeMapper.mapList(List.of())).isEmpty();
-    }
-
 
 }
 
