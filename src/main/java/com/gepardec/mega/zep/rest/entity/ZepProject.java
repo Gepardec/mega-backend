@@ -41,7 +41,7 @@ public class ZepProject {
       private String language;
       private String currency;
       private String url;
-      @JsonProperty("locationAddress")
+      @JsonProperty("location_address")
       private String locationAddress;
       @JsonProperty("location_city")
       private String locationCity;
@@ -101,8 +101,6 @@ public class ZepProject {
       @JsonIgnore
       private List<ZepProjectEmployee> employees;
 
-      @JsonIgnore
-      private List<String> leads;
 
       public List<ZepProjectEmployee> getEmployees() {
             return employees;
@@ -112,19 +110,13 @@ public class ZepProject {
             this.employees = employees;
       }
 
-      public List<String> getLeads() {
-            return leads;
-      }
-
-      public void setLeads(List<String> leads) {
-            this.leads = leads;
-      }
-
       public static ZepProjectBuilder builder() {
             return new ZepProjectBuilder();
       }
 
-      public ZepProject(Integer id, String name, String description, LocalDateTime startDate, LocalDateTime endDate, String status, String comments, String costObject, String costObjectIdentifier, LocalDateTime created, LocalDateTime modified, List<String> keywords, String referenceOrder, String referenceCommission, String referenceProcurement, String referenceObject, String language, String currency, String url, String locationAddress, String locationCity, String locationState, String locationCountry, String revenueAccount, String customerId, Integer customerContactId, String customerProjectReference, Integer customerBillingAddressId, Integer customerShippingAddressId, String hasMultipleCustomers, Integer departmentId, Integer billingType, Integer billingTasks, String planHours, String planHoursPerDay, Boolean planCanExceed, Double planWarningPercent, Double planWarningPercent2, Double planWarningPercent3, Double planWage, String planExpenses, String planExpensesTravel, Double planHoursDone, Double planHoursInvoiced, Integer tasksCount, Integer employeesCount, Integer activitiesCount) {
+      public ZepProject() {}
+
+      public ZepProject(Integer id, String name, String description, LocalDateTime startDate, LocalDateTime endDate, String status, String comments, String costObject, String costObjectIdentifier, LocalDateTime created, LocalDateTime modified, List<String> keywords, String referenceOrder, String referenceCommission, String referenceProcurement, String referenceObject, String language, String currency, String url, String locationAddress, String locationCity, String locationState, String locationCountry, String revenueAccount, String customerId, Integer customerContactId, String customerProjectReference, Integer customerBillingAddressId, Integer customerShippingAddressId, String hasMultipleCustomers, Integer departmentId, Integer billingType, Integer billingTasks, String planHours, String planHoursPerDay, Boolean planCanExceed, Double planWarningPercent, Double planWarningPercent2, Double planWarningPercent3, Double planWage, String planExpenses, String planExpensesTravel, Double planHoursDone, Double planHoursInvoiced, Integer tasksCount, Integer employeesCount, Integer activitiesCount, List<ZepProjectEmployee> employees) {
             this.id = id;
             this.name = name;
             this.description = description;
@@ -172,6 +164,7 @@ public class ZepProject {
             this.tasksCount = tasksCount;
             this.employeesCount = employeesCount;
             this.activitiesCount = activitiesCount;
+            this.employees = employees;
       }
 
       public Integer getId() {
@@ -549,4 +542,6 @@ public class ZepProject {
       public void setActivitiesCount(Integer activitiesCount) {
             this.activitiesCount = activitiesCount;
       }
+
+
 }

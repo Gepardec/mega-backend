@@ -9,6 +9,7 @@ import com.gepardec.mega.zep.util.ZepRestUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import java.util.List;
 @ApplicationScoped
 public class ProjectService {
 
-    @Inject
+    @RestClient
     ZepProjectRestClient zepProjectRestClient;
 
     public List<ZepProject> getProjectsForMonthYear(LocalDate monthYear) {
@@ -30,10 +31,15 @@ public class ProjectService {
     }
 
     private void setProjectEmployees(ZepProject zepProject) {
-        try (Response resp = zepProjectRestClient.getProjectEmployees(zepProject.getId())) {
+        List<ZepProjectEmployee> employees = this.getProjectEmployeesForId(zepProject.getId());
+        zepProject.setEmployees(employees);
+    }
+
+    List<ZepProjectEmployee> getProjectEmployeesForId(int projectId) {
+        try (Response resp = zepProjectRestClient.getProjectEmployees(projectId)) {
             String output = resp.readEntity(String.class);
             ZepProjectEmployee[] employees = (ZepProjectEmployee[]) ZepRestUtil.parseJson(output, "/data", ZepProjectEmployee[].class);
-            zepProject.setEmployees(List.of(employees));
+            return List.of(employees);
         }
     }
 

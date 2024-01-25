@@ -13,7 +13,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import java.time.LocalDate;
 
-@Path("/absences")
+@Path("/projects")
 @RegisterRestClient
 @ClientHeaderParam(name = "Authorization", value = "{getAuthHeaderValue}")
 @JsonIgnoreProperties(ignoreUnknown = true)
