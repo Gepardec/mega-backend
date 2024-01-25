@@ -11,15 +11,12 @@ import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Path("/attendances")
-@RegisterRestClient
+@RegisterRestClient(configKey = "zep")
 @ClientHeaderParam(name = "Authorization", value = "{getAuthHeaderValue}")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApplicationScoped
-public interface ZepAttendanceRestClient {
+public interface ZepAttendanceRestClient extends Authenticatable {
 
     @GET
     Response getAttendancesByUsername(@QueryParam("employee_id") String username, @QueryParam("page") int page);
-    static String getAuthHeaderValue() {
-        return "Bearer " + ZepConfig.getRestBearerToken();
-    }
 }

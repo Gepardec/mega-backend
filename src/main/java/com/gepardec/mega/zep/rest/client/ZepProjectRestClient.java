@@ -14,11 +14,11 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import java.time.LocalDate;
 
 @Path("/projects")
-@RegisterRestClient
+@RegisterRestClient(configKey = "zep")
 @ClientHeaderParam(name = "Authorization", value = "{getAuthHeaderValue}")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApplicationScoped
-public interface ZepProjectRestClient {
+public interface ZepProjectRestClient extends Authenticatable{
 
     @GET
     Response getProjects(@QueryParam("page") int page);
@@ -31,8 +31,4 @@ public interface ZepProjectRestClient {
     @GET
     @Path("{id}/employees")
     Response getProjectEmployees(@PathParam("id") int projectId);
-
-    static String getAuthHeaderValue() {
-        return "Bearer " + ZepConfig.getRestBearerToken();
-    }
 }

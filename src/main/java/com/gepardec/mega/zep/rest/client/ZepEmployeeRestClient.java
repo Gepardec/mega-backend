@@ -15,11 +15,11 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import java.util.List;
 
 @Path("/employees")
-@RegisterRestClient
+@RegisterRestClient(configKey = "zep")
 @ClientHeaderParam(name = "Authorization", value = "{getAuthHeaderValue}")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApplicationScoped
-public interface ZepEmployeeRestClient {
+public interface ZepEmployeeRestClient extends Authenticatable {
 
     @GET
     Response getByPersonalNumber(@QueryParam("personal_number") List<String> personalNumber);
@@ -42,9 +42,5 @@ public interface ZepEmployeeRestClient {
     @GET
     @Path("/{username}/absences")
     Response getAbsencesByUsername(@PathParam("username") String username);
-
-    static String getAuthHeaderValue() {
-        return "Bearer " + ZepConfig.getRestBearerToken();
-    }
 
 }
