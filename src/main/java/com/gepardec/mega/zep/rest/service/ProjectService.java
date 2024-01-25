@@ -13,7 +13,10 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ProjectService {
@@ -25,9 +28,17 @@ public class ProjectService {
         LocalDate firstOfMonth = DateUtils.getFirstDayOfMonth(monthYear.getYear(), monthYear.getMonthValue());
         LocalDate lastOfMonth = DateUtils.getLastDayOfMonth(monthYear.getYear(), monthYear.getMonthValue());
 
-        List<ZepProject> projects = getPaginatedProjects(firstOfMonth, lastOfMonth);
+        List<ZepProject> projects = getPaginatedProjectsByDate(firstOfMonth, lastOfMonth);
         projects.forEach(this::setProjectEmployees);
         return projects;
+    }
+
+    public Optional<ZepProject> getProjectByName(String name) {
+        ZepProject project = getProjectByNameOfPages(name, 1);
+        if (project != null) {
+            this.setProjectEmployees(project);
+        }
+        return Optional.ofNullable(project);
     }
 
     private void setProjectEmployees(ZepProject zepProject) {
@@ -43,7 +54,7 @@ public class ProjectService {
         }
     }
 
-    private List<ZepProject> getPaginatedProjects(LocalDate firstOfMonth, LocalDate lastOfMonth) {
+    private List<ZepProject> getPaginatedProjectsByDate(LocalDate firstOfMonth, LocalDate lastOfMonth) {
         List<ZepProject> projects = new ArrayList<>();
         int page = 1;
         fillWithProjects(projects, firstOfMonth, lastOfMonth, page);
@@ -64,4 +75,28 @@ public class ProjectService {
             fillWithProjects(projects, firstOfMonth, lastOfMonth, page + 1);
         }
     }
+    ZepProject getProjectByNameOfPages(String name, int page) {
+        String next = "";
+        ZepProject[] projectsArr = {};
+        try (Response resp = zepProjectRestClient.getProjects(page)) {
+            String output = resp.readEntity(String.class);
+            projectsArr = (ZepProject[]) ZepRestUtil.parseJson(output, "/data", ZepProject[].class);
+            next = (String) ZepRestUtil.parseJson(output, "/links/next", String.class);
+        }
+
+        List<ZepProject> projects = Arrays.stream(projectsArr).filter(
+                project -> project.getName().equals(name)
+        ).collect(Collectors.toList());
+
+        if (!projects.isEmpty()) {
+            return projects.get(0);
+        }
+
+        if (next != null) {
+            return getProjectByNameOfPages(name, page + 1);
+        }
+
+        return null;
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.gepardec.mega.zep.rest.service;
 
+import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 import com.gepardec.mega.zep.rest.entity.ZepProject;
@@ -19,6 +20,7 @@ import org.mockito.Spy;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -264,8 +266,101 @@ public class ProjectServiceTest {
 
         List<ZepProject> zepProjects = projectService.getProjectsForMonthYear(LocalDate.of(2024,1,25));
         assertThat(zepProjects).usingRecursiveComparison().isEqualTo(zepProjectsReference);
+    }
 
+    @Test
+    public void getProjectByName() {
+        List<String> responseJsons = List.of(
+                "{ \"data\": [{\"id\": 1, \"name\": \"mega\"}," +
+                        "{\"id\": 2, \"name\": \"gema\"}]," +
+                        "\"links\": {" +
+                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=2\" \n" +
+                        "} \n" +
+                        "}",
+                "{ \"data\": [{\"id\": 3, \"name\": \"EGA\"}," +
+                        "{\"id\": 4, \"name\": \"SUPERMEGA\"}]," +
+                        "\"links\": {" +
+                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=3\" \n" +
+                        "} \n" +
+                        "}",
+                "{ \"data\": [{\"id\": 5, \"name\": \"MEGA\"}," +
+                        "{\"id\": 6, \"name\": \"ega\"}]," +
+                        "\"links\": {" +
+                        "   \"next\": null \n" +
+                        "} \n" +
+                        "}"
+        );
 
+        String employeeResponseJson =
+                "{\"data\": [\n" +
+                        "    {\n" +
+                        "      \"username\": \"001-duser\"\n" +
+                        "    }],\n" +
+                        "  \"links\": {\n" +
+                        "    \"next\": null\n" +
+                        "  }\n" +
+                        "}";
+
+        when(zepProjectRestClient.getProjects( eq(1)))
+                .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
+        when(zepProjectRestClient.getProjects(eq(2)))
+                .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
+        when(zepProjectRestClient.getProjects(eq(3)))
+                .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
+
+        Response employeeResponse = Response.ok().entity(employeeResponseJson).build();
+        when(zepProjectRestClient.getProjectEmployees(anyInt())).thenReturn(employeeResponse);
+
+        Optional<ZepProject> project = projectService.getProjectByName("MEGA");
+        assertThat(project.get().getId()).isEqualTo(5);
+        assertThat(project.get().getEmployees().get(0).getUsername()).isEqualTo("001-duser");
+
+    }
+    @Test
+    public void getProjectByName_whenNoProjectOfName() {
+        List<String> responseJsons = List.of(
+                "{ \"data\": [{\"id\": 1, \"name\": \"mega\"}," +
+                        "{\"id\": 2, \"name\": \"gema\"}]," +
+                        "\"links\": {" +
+                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=2\" \n" +
+                        "} \n" +
+                        "}",
+                "{ \"data\": [{\"id\": 3, \"name\": \"EGA\"}," +
+                        "{\"id\": 4, \"name\": \"SUPERMEGA\"}]," +
+                        "\"links\": {" +
+                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=3\" \n" +
+                        "} \n" +
+                        "}",
+                "{ \"data\": [{\"id\": 5, \"name\": \"MEGA\"}," +
+                        "{\"id\": 6, \"name\": \"ega\"}]," +
+                        "\"links\": {" +
+                        "   \"next\": null \n" +
+                        "} \n" +
+                        "}"
+        );
+
+        String employeeResponseJson =
+                "{\"data\": [\n" +
+                        "    {\n" +
+                        "      \"username\": \"001-duser\"\n" +
+                        "    }],\n" +
+                        "  \"links\": {\n" +
+                        "    \"next\": null\n" +
+                        "  }\n" +
+                        "}";
+
+        when(zepProjectRestClient.getProjects( eq(1)))
+                .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
+        when(zepProjectRestClient.getProjects(eq(2)))
+                .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
+        when(zepProjectRestClient.getProjects(eq(3)))
+                .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
+
+        Response employeeResponse = Response.ok().entity(employeeResponseJson).build();
+        when(zepProjectRestClient.getProjectEmployees(anyInt())).thenReturn(employeeResponse);
+
+        Optional<ZepProject> project = projectService.getProjectByName("Coffee robot for office");
+        assertThat(project.isEmpty()).isTrue();
 
     }
 }
