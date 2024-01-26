@@ -26,15 +26,16 @@ public class Paginator {
                 }
             }
             String next = (String) ZepRestUtil.parseJson(responseBodyAsString, "/links/next", String.class);
-            if(next != null) {
+            if (next != null) {
                 System.out.println("Page: " + page);
                 result.addAll(retrieveAll(function, a, b, c, page + 1, resultClass));
             }
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return result;
+
     }
 }
 

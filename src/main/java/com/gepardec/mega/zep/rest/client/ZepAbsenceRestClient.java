@@ -16,7 +16,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @ClientHeaderParam(name = "Authorization", value = "{getAuthHeaderValue}")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApplicationScoped
-public interface ZepAbsenceRestClient extends Authenticatable{
+public interface ZepAbsenceRestClient extends Authenticatable {
 
     @GET
     @Path("{id}")
