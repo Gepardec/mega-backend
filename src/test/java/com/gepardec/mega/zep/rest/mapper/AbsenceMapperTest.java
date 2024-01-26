@@ -19,8 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @QuarkusTest
 public class AbsenceMapperTest {
 
-
-
     @Test
     public void mapZepAbsenceToAbsenceTime() {
         AbsenceMapper absenceMapper = new AbsenceMapper();

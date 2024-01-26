@@ -9,6 +9,7 @@ import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
 import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
+import com.gepardec.mega.zep.util.Paginator;
 import com.gepardec.mega.zep.util.ZepRestUtil;
 import io.smallrye.mutiny.Multi;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -56,7 +57,10 @@ public class EmployeeService{
     }
 
     public List<ZepEmployee> getZepEmployees() {
-        List<ZepEmployee> employees = this.getPaginatedEmployees();
+        List<ZepEmployee> employees = Paginator.retrieveAll(
+                (page) -> zepEmployeeRestClient.getAllEmployeesOfPage(page),
+                ZepEmployee.class);
+
         employees.forEach(this::setEmploymentPeriods);
 
         return employees;
@@ -66,31 +70,7 @@ public class EmployeeService{
         String username = employee.getUsername();
         ZepEmploymentPeriod[] periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(username);
         employee.setEmploymentPeriods(periods);
-    }String[] categories = new String[0];
-
-    private List<ZepEmployee> getPaginatedEmployees() {
-        List<ZepEmployee> employees = new ArrayList<>();
-        int page = 1;
-        fillWithEmployees(employees, page);
-        return employees;
     }
-
-    void fillWithEmployees(List<ZepEmployee> employees, int page) {
-        String next = "";
-        ZepEmployee[] employeesArr = {};
-        try (Response resp = zepEmployeeRestClient.getAllEmployeesOfPage(page)) {
-            String output = resp.readEntity(String.class);
-            employeesArr = (ZepEmployee[]) ZepRestUtil.parseJson(output, "/data", ZepEmployee[].class);
-            next = (String) ZepRestUtil.parseJson(output, "/links/next", String.class);
-        }
-
-        employees.addAll(List.of(employeesArr));
-        if (next != null) {
-            fillWithEmployees(employees, page + 1);
-        }
-    }
-
-
 
 
 }

@@ -167,34 +167,6 @@ public class EmployeeServiceTest {
                 assertThat(zepEmployee).usingRecursiveComparison().isEqualTo(referenceEmployee);
     }
 
-    @Test
-    public void fillWithEmployees() {
-        String[] pages = {
-                "{\"data\": [{\"personal_number\": 0}], " +
-                    "\"links\": {\"next\": \"http:\\/\\/www.zep-online.de\\/instance\\/next\\/api\\/v1\\/employees?page=2\"" +
-                        "}" +
-                "}",
-                "{\"data\": [{\"personal_number\": 1}]," +
-                        "\"links\": {\"next\": " +
-                        "\"http:\\/\\/www.zep-online.de\\/instance\\/next\\/api\\/v1\\/employees?page=3\"" +
-                        "}" +
-                "}",
-                "{\"data\": [{\"personal_number\": 2}]," +
-                 "\"links\": {\"next\": null}" +
-                "}",
-        };
-        for(int i = 0; i < 3; i++) {
-            Response response = Response.ok().entity(pages[i]).build();
-            when(zepEmployeeRestClient.getAllEmployeesOfPage(i + 1)).thenReturn(response);
-        }
-
-        List<ZepEmployee> zepEmployees = new ArrayList<>();
-        employeeService.fillWithEmployees(zepEmployees, 1);
-
-        IntStream.range(0,3)
-                .forEach(i -> assertThat(zepEmployees.get(i).getPersonalNumber()).isEqualTo("" + i));
-
-    }
 
     @Test
     public void getZepEmployees_whenEmployeesList() {

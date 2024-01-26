@@ -5,6 +5,7 @@ import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 import com.gepardec.mega.zep.rest.entity.ZepProject;
 import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
+import com.gepardec.mega.zep.util.Paginator;
 import com.gepardec.mega.zep.util.ZepRestUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -28,7 +29,10 @@ public class ProjectService {
         LocalDate firstOfMonth = DateUtils.getFirstDayOfMonth(monthYear.getYear(), monthYear.getMonthValue());
         LocalDate lastOfMonth = DateUtils.getLastDayOfMonth(monthYear.getYear(), monthYear.getMonthValue());
 
-        List<ZepProject> projects = getPaginatedProjectsByDate(firstOfMonth, lastOfMonth);
+        List<ZepProject> projects = Paginator.retrieveAll(
+                page -> zepProjectRestClient.getProjectByStartEnd(firstOfMonth, lastOfMonth, page),
+                ZepProject.class
+        );
         projects.forEach(this::setProjectEmployees);
         return projects;
     }
@@ -54,27 +58,8 @@ public class ProjectService {
         }
     }
 
-    private List<ZepProject> getPaginatedProjectsByDate(LocalDate firstOfMonth, LocalDate lastOfMonth) {
-        List<ZepProject> projects = new ArrayList<>();
-        int page = 1;
-        fillWithProjects(projects, firstOfMonth, lastOfMonth, page);
-        return projects;
-    }
 
-    void fillWithProjects(List<ZepProject> projects, LocalDate firstOfMonth, LocalDate lastOfMonth, int page) {
-        String next = "";
-        ZepProject[] projectsArr = {};
-        try (Response resp = zepProjectRestClient.getProjectByStartEnd(firstOfMonth, lastOfMonth, page)) {
-            String output = resp.readEntity(String.class);
-            projectsArr = (ZepProject[]) ZepRestUtil.parseJson(output, "/data", ZepProject[].class);
-            next = (String) ZepRestUtil.parseJson(output, "/links/next", String.class);
-        }
-
-        projects.addAll(List.of(projectsArr));
-        if (next != null) {
-            fillWithProjects(projects, firstOfMonth, lastOfMonth, page + 1);
-        }
-    }
+    //TODO: Add to Paginator
     ZepProject getProjectByNameOfPages(String name, int page) {
         String next = "";
         ZepProject[] projectsArr = {};
