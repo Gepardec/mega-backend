@@ -6,33 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-@Builder
-@Getter @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class ZepAbsence {
-
-    /**
-     * {
-     *   "data": {
-     *     "id": 1275,
-     *     "employee_id": "032-melBanna",
-     *     "type": "0",
-     *     "start_date": "2019-10-01",
-     *     "end_date": "2019-10-01",
-     *     "hours": null,
-     *     "from": null,
-     *     "to": null,
-     *     "note": "Kopfweh, Übelkeit",
-     *     "approved": true,
-     *     "timezone": "Europe\/Vienna",
-     *     "created": null,
-     *     "modified": null,
-     *     "absenceReason": null,
-     *     "leaveApprovalApplication": null
-     *   }
-     * }
-     */
 
     private Integer id;
     private String employeeId;
@@ -48,4 +22,140 @@ public class ZepAbsence {
     private String created;
     private String modified;
     private String absenceReason;
+
+    public ZepAbsence() {
+    }
+
+    public ZepAbsence(Integer id, String employeeId, String type, LocalDate startDate, LocalDate endDate, Double hours, LocalTime from, LocalTime to, String note, boolean approved, String timezone, String created, String modified, String absenceReason) {
+        this.id = id;
+        this.employeeId = employeeId;
+        this.type = type;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.hours = hours;
+        this.from = from;
+        this.to = to;
+        this.note = note;
+        this.approved = approved;
+        this.timezone = timezone;
+        this.created = created;
+        this.modified = modified;
+        this.absenceReason = absenceReason;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    public Double getHours() {
+        return hours;
+    }
+
+    public void setHours(Double hours) {
+        this.hours = hours;
+    }
+
+    public LocalTime getFrom() {
+        return from;
+    }
+
+    public void setFrom(LocalTime from) {
+        this.from = from;
+    }
+
+    public LocalTime getTo() {
+        return to;
+    }
+
+    public void setTo(LocalTime to) {
+        this.to = to;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public boolean isApproved() {
+        return approved;
+    }
+
+    public void setApproved(boolean approved) {
+        this.approved = approved;
+    }
+
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
+    }
+
+    public String getCreated() {
+        return created;
+    }
+
+    public void setCreated(String created) {
+        this.created = created;
+    }
+
+    public String getModified() {
+        return modified;
+    }
+
+    public void setModified(String modified) {
+        this.modified = modified;
+    }
+
+    public String getAbsenceReason() {
+        return absenceReason;
+    }
+
+    public void setAbsenceReason(String absenceReason) {
+        this.absenceReason = absenceReason;
+    }
+
+    public static ZepAbsenceBuilder builder() {
+        return new ZepAbsenceBuilder();
+    }
 }

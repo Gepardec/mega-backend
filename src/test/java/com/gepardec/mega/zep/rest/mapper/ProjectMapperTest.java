@@ -4,7 +4,7 @@ import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.zep.rest.entity.ZepProject;
 import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
-import com.gepardec.mega.zep.rest.entity.ZepProjectEmployeeType;
+import com.gepardec.mega.zep.rest.entity.ZepProjectEmployeeTypeBuilder;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
@@ -23,17 +23,17 @@ public class ProjectMapperTest {
                 ZepProjectEmployee.builder()
                         .username("Anton")
                         .lead(true)
-                        .type(new ZepProjectEmployeeType(1, "pm"))
+                        .type(new ZepProjectEmployeeTypeBuilder().id(1).name("pm").build())
                         .build(),
                 ZepProjectEmployee.builder()
                         .username("Berta")
                         .lead(false)
-                        .type(new ZepProjectEmployeeType(2, "engineer"))
+                        .type(new ZepProjectEmployeeTypeBuilder().id(2).name("engineer").build())
                         .build(),
                 ZepProjectEmployee.builder()
                         .username("Caesar")
                         .lead(false)
-                        .type(new ZepProjectEmployeeType(2, "engineer"))
+                        .type(new ZepProjectEmployeeTypeBuilder().id(2).name("engineer").build())
                         .build()
         );
         List<String> leads = List.of("Anton");

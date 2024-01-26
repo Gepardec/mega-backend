@@ -1,21 +1,14 @@
 package com.gepardec.mega.zep.rest.service;
 
-import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
-import com.gepardec.mega.zep.rest.entity.ZepEmployee;
-import com.gepardec.mega.zep.rest.entity.ZepProject;
-import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
-import com.gepardec.mega.zep.rest.entity.ZepProjectEmployeeType;
+import com.gepardec.mega.zep.rest.entity.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
-import io.quarkus.test.junit.mockito.InjectSpy;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.hibernate.type.AnyType;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -145,7 +138,7 @@ public class ProjectServiceTest {
         Response responseEmployees2 = Response.ok().entity(employeeResponseJson2).build();
         when(zepProjectRestClient.getProjectEmployees(eq(2))).thenReturn(responseEmployees2);
 
-        ZepProjectEmployeeType type = new ZepProjectEmployeeType(0, "Project member");
+        ZepProjectEmployeeType type = new ZepProjectEmployeeTypeBuilder().id(0).name("Project member").build();
         List<ZepProjectEmployee> projectEmployees1 = List.of(
                 ZepProjectEmployee.builder()
                         .username("001-duser")
