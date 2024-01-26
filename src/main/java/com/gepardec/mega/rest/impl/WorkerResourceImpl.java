@@ -31,7 +31,7 @@ public class WorkerResourceImpl implements WorkerResource {
 
     @Override
     public Response monthlyReport(Integer year, Integer month) {
-        MonthlyReport monthlyReport = monthlyReportService.getMonthEndReportForUser(year, month, null);
+        MonthlyReport monthlyReport = monthlyReportService.getMonthEndReportForUser(year, month, null, null);
 
         return Response.ok(mapper.mapToDto(monthlyReport)).build();
     }

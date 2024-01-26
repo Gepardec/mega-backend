@@ -50,7 +50,7 @@ class EmployeeServiceImplTest {
 
     @Test
     void testGetEmployee() {
-        Mockito.when(zepService.getEmployee(Mockito.any())).thenReturn(createEmployee(0));
+        Mockito.when(zepService.getEmployee(Mockito.any())).thenReturn(createEmployee(0).build());
 
         final Employee employee = employeeService.getEmployee("someuserid");
         assertThat(employee).isNotNull();
@@ -60,8 +60,8 @@ class EmployeeServiceImplTest {
 
     @Test
     void testGetEmployees() {
-        final Employee employee0 = createEmployee(0);
-        final Employee employee1 = createEmployeeWithActive(1, false);
+        final Employee employee0 = createEmployee(0).build();
+        final Employee employee1 = createEmployeeWithActive(1, false).build();
 
         Mockito.when(zepService.getEmployees()).thenReturn(List.of(employee0, employee1));
 
@@ -87,24 +87,20 @@ class EmployeeServiceImplTest {
         final String EMPLOYEE_EXIT_LAST_MONTH = "employeeExitLastMonth";
 
         // Default case
-        final Employee employee0 = createEmployee(0);
-        employee0.setFirstname(EMPLOYEE_0);
+        final Employee employee0 = createEmployee(0).firstname(EMPLOYEE_0).build();
 
         // Employee hat 03/2023 gekündigt & 03/2023 ist in der gui selektiert, daher soll der PL/Office ihn sehen
-        final Employee employeeExitSelectedMonth = createEmployeeWithActive(1, false);
-        employeeExitSelectedMonth.setFirstname(EMPLOYEE_EXIT_SELECTED_MONTH);
+        final Employee employeeExitSelectedMonth = createEmployeeWithActive(1, false).firstname(EMPLOYEE_EXIT_SELECTED_MONTH).build();
         employeeExitSelectedMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth, 1));
 
         // Employee hat 04/2023 gekündigt & 03/2023 ist in der gui selektiert, d.h. im selektierten zeitraum (1 monat vorher)
         // war er ja noch normal angestellt, daher soll der PL/Office ihn sehen
-        final Employee employeeExitNextMonth = createEmployeeWithActive(1, false);
-        employeeExitNextMonth.setFirstname(EMPLOYEE_EXIT_NEXT_MONTH);
+        final Employee employeeExitNextMonth = createEmployeeWithActive(1, false).firstname(EMPLOYEE_EXIT_NEXT_MONTH).build();
         employeeExitNextMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth + 1, 1));
 
         // Employee hat 02/2023 gekündigt & 03/2023 ist in der gui selektiert, d.h. im selektierten zeitraum (1 monat nachher)
         // war er nicht mehr angestellt und es gibt keine StepEntries, daher soll der PL/Office ihn NICHT sehen
-        final Employee employeeExitLastMonth = createEmployeeWithActive(1, false);
-        employeeExitLastMonth.setFirstname(EMPLOYEE_EXIT_LAST_MONTH);
+        final Employee employeeExitLastMonth = createEmployeeWithActive(1, false).firstname(EMPLOYEE_EXIT_LAST_MONTH).build();
         employeeExitLastMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth - 1, 1));
 
         Mockito.when(zepService.getEmployees()).thenReturn(List.of(
@@ -152,7 +148,7 @@ class EmployeeServiceImplTest {
             return null;
         }).when(managedExecutor).execute(Mockito.any());
 
-        final List<String> result = employeeService.updateEmployeesReleaseDate(List.of(createEmployee(0)));
+        final List<String> result = employeeService.updateEmployeesReleaseDate(List.of(createEmployee(0).build()));
 
         assertAll(
                 () -> assertThat(result).isNotNull(),
@@ -175,7 +171,7 @@ class EmployeeServiceImplTest {
             }
         }).when(managedExecutor).execute(Mockito.any());
 
-        final List<Employee> employees = IntStream.range(0, 40).mapToObj(this::createEmployee).collect(Collectors.toList());
+        final List<Employee> employees = IntStream.range(0, 40).mapToObj(i -> createEmployee(i).build()).collect(Collectors.toList());
 
         final List<String> result = employeeService.updateEmployeesReleaseDate(employees);
 
@@ -194,16 +190,16 @@ class EmployeeServiceImplTest {
             return null;
         }).when(managedExecutor).execute(Mockito.any());
 
-        final List<String> result = employeeService.updateEmployeesReleaseDate(List.of(createEmployee(0)));
+        final List<String> result = employeeService.updateEmployeesReleaseDate(List.of(createEmployee(0).build()));
 
         assertThat(result).isNotNull();
     }
 
-    private Employee createEmployee(final int userId) {
+    private Employee.Builder createEmployee(final int userId) {
         return createEmployeeWithActive(userId, true);
     }
 
-    private Employee createEmployeeWithActive(final int userId, boolean active) {
+    private Employee.Builder createEmployeeWithActive(final int userId, boolean active) {
         final String name = "Max_" + userId;
 
         return Employee.builder()
@@ -215,7 +211,6 @@ class EmployeeServiceImplTest {
                 .salutation("Herr")
                 .workDescription("ARCHITEKT")
                 .releaseDate("2020-01-01")
-                .active(active)
-                .build();
+                .active(active);
     }
 }

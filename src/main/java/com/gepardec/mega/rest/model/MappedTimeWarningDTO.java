@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,29 +15,25 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MappedTimeWarningDTO {
 
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    @JsonSerialize(using = LocalDateSerializer.class)
     @JsonProperty
-    private LocalDate date;
-
+    public final String description;
     @JsonProperty
-    public String description;
+    private final LocalDate date;
 
     @JsonIgnore
     public LocalDate getDate() {
         return date;
     }
 
-    public MappedTimeWarningDTO() {
+
+    @JsonCreator
+    public MappedTimeWarningDTO(Builder builder) {
+        this.date = builder.date;
+        this.description = builder.description;
     }
 
-    public MappedTimeWarningDTO(LocalDate date, String description) {
-        this.date = date;
-        this.description = description;
-    }
-
-    public static MappedTimeWarningDTOBuilder builder() {
-        return MappedTimeWarningDTOBuilder.aMappedTimeWarningDTO();
+    public static Builder builder() {
+        return Builder.aMappedTimeWarningDTO();
     }
 
     @Override
@@ -52,44 +49,37 @@ public class MappedTimeWarningDTO {
         return Objects.hash(getDate(), getDescription());
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public static final class MappedTimeWarningDTOBuilder {
+    public static final class Builder {
+        @JsonProperty
+        @JsonSerialize(using = LocalDateSerializer.class)
+        @JsonDeserialize(using = LocalDateDeserializer.class)
         private LocalDate date;
+        @JsonProperty
         private String description;
 
-        private MappedTimeWarningDTOBuilder() {
+        private Builder() {
         }
 
-        public static MappedTimeWarningDTOBuilder aMappedTimeWarningDTO() {
-            return new MappedTimeWarningDTOBuilder();
+        public static Builder aMappedTimeWarningDTO() {
+            return new Builder();
         }
 
-        public MappedTimeWarningDTOBuilder date(LocalDate date) {
+        public Builder date(LocalDate date) {
             this.date = date;
             return this;
         }
 
-        public MappedTimeWarningDTOBuilder description(String description) {
+        public Builder description(String description) {
             this.description = description;
             return this;
         }
 
         public MappedTimeWarningDTO build() {
-            MappedTimeWarningDTO mappedTimeWarningDTO = new MappedTimeWarningDTO();
-            mappedTimeWarningDTO.setDate(date);
-            mappedTimeWarningDTO.setDescription(description);
-            return mappedTimeWarningDTO;
+            return new MappedTimeWarningDTO(this);
         }
     }
 }

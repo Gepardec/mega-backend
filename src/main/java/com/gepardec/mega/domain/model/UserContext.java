@@ -4,46 +4,37 @@ import jakarta.enterprise.inject.Vetoed;
 
 @Vetoed
 public class UserContext {
-    private User user;
+    private final User user;
 
-    private UserContext() {
+    private UserContext(Builder builder) {
+        this.user = builder.user;
     }
 
-    public UserContext(User user) {
-        this.user = user;
-    }
-
-    public static UserContextBuilder builder() {
-        return UserContextBuilder.anUserContext();
+    public static Builder builder() {
+        return Builder.anUserContext();
     }
 
     public User getUser() {
         return user;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public static final class UserContextBuilder {
+    public static final class Builder {
         private User user;
 
-        private UserContextBuilder() {
+        private Builder() {
         }
 
-        public static UserContextBuilder anUserContext() {
-            return new UserContextBuilder();
+        public static Builder anUserContext() {
+            return new Builder();
         }
 
-        public UserContextBuilder user(User user) {
+        public Builder user(User user) {
             this.user = user;
             return this;
         }
 
         public UserContext build() {
-            UserContext userContext = new UserContext();
-            userContext.setUser(user);
-            return userContext;
+            return new UserContext(this);
         }
     }
 }

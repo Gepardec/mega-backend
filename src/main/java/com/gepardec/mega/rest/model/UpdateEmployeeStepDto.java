@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
@@ -9,74 +10,48 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateEmployeeStepDto {
-    @JsonProperty
-    private Long stepId;
 
-    @JsonProperty
-    private Employee employee;
+    private final Long stepId;
 
-    @JsonProperty
-    private String currentMonthYear;
+    private final Employee employee;
 
-    @JsonProperty
-    private EmployeeState newState;
+    private final String currentMonthYear;
 
-    @JsonProperty
-    private String newStateReason;
+    private final EmployeeState newState;
 
-    public UpdateEmployeeStepDto() {
+    private final String newStateReason;
+
+    @JsonCreator
+    public UpdateEmployeeStepDto(Builder builder) {
+        this.stepId = builder.stepId;
+        this.employee = builder.employee;
+        this.currentMonthYear = builder.currentMonthYear;
+        this.newState = builder.newState;
+        this.newStateReason = builder.newStateReason;
     }
 
-    public UpdateEmployeeStepDto(Long stepId, Employee employee, String currentMonthYear, EmployeeState newState, String newStateReason) {
-        this.stepId = stepId;
-        this.employee = employee;
-        this.currentMonthYear = currentMonthYear;
-        this.newState = newState;
-        this.newStateReason = newStateReason;
-    }
-
-    public static UpdateEmployeeStepDtoBuilder builder() {
-        return UpdateEmployeeStepDtoBuilder.anUpdateEmployeeStepDto();
+    public static Builder builder() {
+        return Builder.anUpdateEmployeeStepDto();
     }
 
     public Long getStepId() {
         return stepId;
     }
 
-    public void setStepId(Long stepId) {
-        this.stepId = stepId;
-    }
-
     public Employee getEmployee() {
         return employee;
-    }
-
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
     }
 
     public String getCurrentMonthYear() {
         return currentMonthYear;
     }
 
-    public void setCurrentMonthYear(String currentMonthYear) {
-        this.currentMonthYear = currentMonthYear;
-    }
-
     public EmployeeState getNewState() {
         return newState;
     }
 
-    public void setNewState(EmployeeState newState) {
-        this.newState = newState;
-    }
-
     public String getNewStateReason() {
         return newStateReason;
-    }
-
-    public void setNewStateReason(String newStateReason) {
-        this.newStateReason = newStateReason;
     }
 
     @Override
@@ -92,53 +67,47 @@ public class UpdateEmployeeStepDto {
         return Objects.hash(getStepId(), getEmployee(), getCurrentMonthYear(), getNewState(), getNewStateReason());
     }
 
-    public static final class UpdateEmployeeStepDtoBuilder {
-        private Long stepId;
-        private Employee employee;
-        private String currentMonthYear;
-        private EmployeeState newState;
-        private String newStateReason;
+    public static final class Builder {
+        @JsonProperty private Long stepId;
+        @JsonProperty private Employee employee;
+        @JsonProperty private String currentMonthYear;
+        @JsonProperty private EmployeeState newState;
+        @JsonProperty private String newStateReason;
 
-        private UpdateEmployeeStepDtoBuilder() {
+        private Builder() {
         }
 
-        public static UpdateEmployeeStepDtoBuilder anUpdateEmployeeStepDto() {
-            return new UpdateEmployeeStepDtoBuilder();
+        public static Builder anUpdateEmployeeStepDto() {
+            return new Builder();
         }
 
-        public UpdateEmployeeStepDtoBuilder stepId(Long stepId) {
+        public Builder stepId(Long stepId) {
             this.stepId = stepId;
             return this;
         }
 
-        public UpdateEmployeeStepDtoBuilder employee(Employee employee) {
+        public Builder employee(Employee employee) {
             this.employee = employee;
             return this;
         }
 
-        public UpdateEmployeeStepDtoBuilder currentMonthYear(String currentMonthYear) {
+        public Builder currentMonthYear(String currentMonthYear) {
             this.currentMonthYear = currentMonthYear;
             return this;
         }
 
-        public UpdateEmployeeStepDtoBuilder newState(EmployeeState newState) {
+        public Builder newState(EmployeeState newState) {
             this.newState = newState;
             return this;
         }
 
-        public UpdateEmployeeStepDtoBuilder newStateReason(String newStateReason) {
+        public Builder newStateReason(String newStateReason) {
             this.newStateReason = newStateReason;
             return this;
         }
 
         public UpdateEmployeeStepDto build() {
-            UpdateEmployeeStepDto updateEmployeeStepDto = new UpdateEmployeeStepDto();
-            updateEmployeeStepDto.setStepId(stepId);
-            updateEmployeeStepDto.setEmployee(employee);
-            updateEmployeeStepDto.setCurrentMonthYear(currentMonthYear);
-            updateEmployeeStepDto.setNewState(newState);
-            updateEmployeeStepDto.setNewStateReason(newStateReason);
-            return updateEmployeeStepDto;
+            return new UpdateEmployeeStepDto(this);
         }
     }
 }

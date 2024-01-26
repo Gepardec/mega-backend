@@ -93,8 +93,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
         LocalDate initialDate = getCorrectInitialDateForMonthEndReport(employee);
 
-        MonthlyReport monthlyReport = getMonthEndReportForUser(initialDate.getYear(), initialDate.getMonthValue(), employee);
-        monthlyReport.setInitialDate(initialDate);
+        MonthlyReport monthlyReport = getMonthEndReportForUser(initialDate.getYear(), initialDate.getMonthValue(), employee, initialDate);
 
         return monthlyReport;
     }
@@ -117,7 +116,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     }
 
     @Override
-    public MonthlyReport getMonthEndReportForUser(Integer year, Integer month, Employee employee) {
+    public MonthlyReport getMonthEndReportForUser(Integer year, Integer month, Employee employee, LocalDate initialDate) {
         LocalDate date = DateUtils.getFirstDayOfMonth(year, month);
 
         if (employee == null) {
@@ -131,7 +130,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 zepService.getBillableForEmployee(employee, date),
                 zepService.getAbsenceForEmployee(employee, date),
                 stepEntryService.findEmployeeCheckState(employee, date),
-                stepEntryService.findEmployeeInternalCheckState(employee, date)
+                stepEntryService.findEmployeeInternalCheckState(employee, date),
+                initialDate
         );
     }
 
@@ -160,7 +160,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
             List<ProjektzeitType> billableEntries,
             List<FehlzeitType> absenceEntries,
             Optional<Pair<EmployeeState, String>> employeeCheckState,
-            Optional<EmployeeState> internalCheckState
+            Optional<EmployeeState> internalCheckState,
+            LocalDate initialDate
     ) {
         final List<JourneyWarning> journeyWarnings = warningCalculatorsManager.determineJourneyWarnings(projectEntries);
         final List<TimeWarning> timeWarnings = warningCalculatorsManager.determineTimeWarnings(projectEntries);
@@ -208,6 +209,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .vacationDayBalance(personioEmployeesService.getVacationDayBalance(employee.getEmail()))
                 .overtime(workingTimeUtil.getOvertimeForEmployee(employee, billableEntries, absenceEntries, date))
                 .hasPrematureEmployeeCheck(prematureEmployeeCheckService.hasUserPrematureEmployeeCheck(employee.getEmail()))
+                .initialDate(initialDate)
                 .build();
     }
 

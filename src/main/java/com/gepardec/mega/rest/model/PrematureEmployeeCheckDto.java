@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -9,50 +10,33 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PrematureEmployeeCheckDto {
 
-    @JsonProperty
-    private UserDto user;
+    private final UserDto user;
 
-    @JsonProperty
-    private LocalDate forMonth;
+    private final LocalDate forMonth;
 
-    @JsonProperty
-    private String reason;
+    private final String reason;
 
-    public PrematureEmployeeCheckDto() {
+    @JsonCreator
+    public PrematureEmployeeCheckDto(Builder builder) {
+        this.user = builder.user;
+        this.forMonth = builder.forMonth;
+        this.reason = builder.reason;
     }
 
-    public PrematureEmployeeCheckDto(UserDto user, LocalDate forMonth, String reason) {
-        this.user = user;
-        this.forMonth = forMonth;
-        this.reason = reason;
-    }
-
-    public static PrematureEmployeeCheckDtoBuilder builder() {
-        return PrematureEmployeeCheckDtoBuilder.aPrematureEmployeeCheckDto();
+    public static Builder builder() {
+        return Builder.aPrematureEmployeeCheckDto();
     }
 
     public UserDto getUser() {
         return user;
     }
 
-    public void setUser(UserDto user) {
-        this.user = user;
-    }
-
     public LocalDate getForMonth() {
         return forMonth;
     }
 
-    public void setForMonth(LocalDate forMonth) {
-        this.forMonth = forMonth;
-    }
-
     public String getReason() {
         return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
     }
 
     @Override
@@ -68,39 +52,35 @@ public class PrematureEmployeeCheckDto {
         return Objects.hash(getUser(), getForMonth(), getReason());
     }
 
-    public static final class PrematureEmployeeCheckDtoBuilder {
-        private UserDto user;
-        private LocalDate forMonth;
-        private String reason;
+    public static final class Builder {
+        @JsonProperty private UserDto user;
+        @JsonProperty private LocalDate forMonth;
+        @JsonProperty private String reason;
 
-        private PrematureEmployeeCheckDtoBuilder() {
+        private Builder() {
         }
 
-        public static PrematureEmployeeCheckDtoBuilder aPrematureEmployeeCheckDto() {
-            return new PrematureEmployeeCheckDtoBuilder();
+        public static Builder aPrematureEmployeeCheckDto() {
+            return new Builder();
         }
 
-        public PrematureEmployeeCheckDtoBuilder user(UserDto user) {
+        public Builder user(UserDto user) {
             this.user = user;
             return this;
         }
 
-        public PrematureEmployeeCheckDtoBuilder forMonth(LocalDate forMonth) {
+        public Builder forMonth(LocalDate forMonth) {
             this.forMonth = forMonth;
             return this;
         }
 
-        public PrematureEmployeeCheckDtoBuilder reason(String reason) {
+        public Builder reason(String reason) {
             this.reason = reason;
             return this;
         }
 
         public PrematureEmployeeCheckDto build() {
-            PrematureEmployeeCheckDto prematureEmployeeCheckDto = new PrematureEmployeeCheckDto();
-            prematureEmployeeCheckDto.setUser(user);
-            prematureEmployeeCheckDto.setForMonth(forMonth);
-            prematureEmployeeCheckDto.setReason(reason);
-            return prematureEmployeeCheckDto;
+            return new PrematureEmployeeCheckDto(this);
         }
     }
 }

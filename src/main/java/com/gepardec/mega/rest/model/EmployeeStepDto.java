@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -7,26 +8,21 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EmployeeStepDto {
-    @JsonProperty
-    private Long stepId;
+    private final Long stepId;
 
-    @JsonProperty
-    private EmployeeDto employee;
+    private final EmployeeDto employee;
 
-    @JsonProperty
-    private String currentMonthYear;
+    private final String currentMonthYear;
 
-    public EmployeeStepDto() {
+    @JsonCreator
+    public EmployeeStepDto(Builder builder) {
+        this.stepId = builder.stepId;
+        this.employee = builder.employee;
+        this.currentMonthYear = builder.currentMonthYear;
     }
 
-    public EmployeeStepDto(Long stepId, EmployeeDto employee, String currentMonthYear) {
-        this.stepId = stepId;
-        this.employee = employee;
-        this.currentMonthYear = currentMonthYear;
-    }
-
-    public static EmployeeStepDtoBuilder builder() {
-        return EmployeeStepDtoBuilder.anEmployeeStepDto();
+    public static Builder builder() {
+        return Builder.anEmployeeStepDto();
     }
 
     @Override
@@ -46,59 +42,44 @@ public class EmployeeStepDto {
         return stepId;
     }
 
-    public void setStepId(Long stepId) {
-        this.stepId = stepId;
-    }
 
     public EmployeeDto getEmployee() {
         return employee;
-    }
-
-    public void setEmployee(EmployeeDto employee) {
-        this.employee = employee;
     }
 
     public String getCurrentMonthYear() {
         return currentMonthYear;
     }
 
-    public void setCurrentMonthYear(String currentMonthYear) {
-        this.currentMonthYear = currentMonthYear;
-    }
+    public static final class Builder {
+        @JsonProperty private Long stepId;
+        @JsonProperty private EmployeeDto employee;
+        @JsonProperty private String currentMonthYear;
 
-    public static final class EmployeeStepDtoBuilder {
-        private Long stepId;
-        private EmployeeDto employee;
-        private String currentMonthYear;
-
-        private EmployeeStepDtoBuilder() {
+        private Builder() {
         }
 
-        public static EmployeeStepDtoBuilder anEmployeeStepDto() {
-            return new EmployeeStepDtoBuilder();
+        public static Builder anEmployeeStepDto() {
+            return new Builder();
         }
 
-        public EmployeeStepDtoBuilder stepId(Long stepId) {
+        public Builder stepId(Long stepId) {
             this.stepId = stepId;
             return this;
         }
 
-        public EmployeeStepDtoBuilder employee(EmployeeDto employee) {
+        public Builder employee(EmployeeDto employee) {
             this.employee = employee;
             return this;
         }
 
-        public EmployeeStepDtoBuilder currentMonthYear(String currentMonthYear) {
+        public Builder currentMonthYear(String currentMonthYear) {
             this.currentMonthYear = currentMonthYear;
             return this;
         }
 
         public EmployeeStepDto build() {
-            EmployeeStepDto employeeStepDto = new EmployeeStepDto();
-            employeeStepDto.setStepId(stepId);
-            employeeStepDto.setEmployee(employee);
-            employeeStepDto.setCurrentMonthYear(currentMonthYear);
-            return employeeStepDto;
+           return new EmployeeStepDto(this);
         }
     }
 }

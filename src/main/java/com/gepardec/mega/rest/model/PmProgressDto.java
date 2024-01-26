@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
@@ -10,41 +11,31 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PmProgressDto {
-    @JsonProperty
-    @Nullable
-    private String project;
+    private final String project;
 
-    @JsonProperty
-    private String assigneeEmail;
+    private final String assigneeEmail;
 
-    @JsonProperty
-    @Nullable
-    private String firstname;
+    private final String firstname;
 
-    @JsonProperty
-    @Nullable
-    private String lastname;
+    private final String lastname;
 
-    @JsonProperty
-    private EmployeeState state;
+    private final EmployeeState state;
 
-    @JsonProperty
-    private Long stepId;
+    private final Long stepId;
 
-    public PmProgressDto() {
+
+    @JsonCreator
+    public PmProgressDto(Builder builder) {
+        this.project = builder.project;
+        this.assigneeEmail = builder.assigneeEmail;
+        this.firstname = builder.firstname;
+        this.lastname = builder.lastname;
+        this.state = builder.state;
+        this.stepId = builder.stepId;
     }
 
-    public PmProgressDto(@Nullable String project, String assigneeEmail, @Nullable String firstname, @Nullable String lastname, EmployeeState state, Long stepId) {
-        this.project = project;
-        this.assigneeEmail = assigneeEmail;
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.state = state;
-        this.stepId = stepId;
-    }
-
-    public static PmProgressDtoBuilder builder() {
-        return PmProgressDtoBuilder.aPmProgressDto();
+    public static Builder builder() {
+        return Builder.aPmProgressDto();
     }
 
     @Nullable
@@ -52,16 +43,8 @@ public class PmProgressDto {
         return project;
     }
 
-    public void setProject(@Nullable String project) {
-        this.project = project;
-    }
-
     public String getAssigneeEmail() {
         return assigneeEmail;
-    }
-
-    public void setAssigneeEmail(String assigneeEmail) {
-        this.assigneeEmail = assigneeEmail;
     }
 
     @Nullable
@@ -69,33 +52,17 @@ public class PmProgressDto {
         return firstname;
     }
 
-    public void setFirstname(@Nullable String firstname) {
-        this.firstname = firstname;
-    }
-
     @Nullable
     public String getLastname() {
         return lastname;
-    }
-
-    public void setLastname(@Nullable String lastname) {
-        this.lastname = lastname;
     }
 
     public EmployeeState getState() {
         return state;
     }
 
-    public void setState(EmployeeState state) {
-        this.state = state;
-    }
-
     public Long getStepId() {
         return stepId;
-    }
-
-    public void setStepId(Long stepId) {
-        this.stepId = stepId;
     }
 
     @Override
@@ -122,60 +89,53 @@ public class PmProgressDto {
                 .build();
     }
 
-    public static final class PmProgressDtoBuilder {
-        private String project;
-        private String assigneeEmail;
-        private String firstname;
-        private String lastname;
-        private EmployeeState state;
-        private Long stepId;
+    public static final class Builder {
+        @JsonProperty @Nullable private String project;
+        @JsonProperty private String assigneeEmail;
+        @JsonProperty @Nullable private String firstname;
+        @JsonProperty @Nullable private String lastname;
+        @JsonProperty private EmployeeState state;
+        @JsonProperty private Long stepId;
 
-        private PmProgressDtoBuilder() {
+        private Builder() {
         }
 
-        public static PmProgressDtoBuilder aPmProgressDto() {
-            return new PmProgressDtoBuilder();
+        public static Builder aPmProgressDto() {
+            return new Builder();
         }
 
-        public PmProgressDtoBuilder project(String project) {
+        public Builder project(String project) {
             this.project = project;
             return this;
         }
 
-        public PmProgressDtoBuilder assigneeEmail(String assigneeEmail) {
+        public Builder assigneeEmail(String assigneeEmail) {
             this.assigneeEmail = assigneeEmail;
             return this;
         }
 
-        public PmProgressDtoBuilder firstname(String firstname) {
+        public Builder firstname(String firstname) {
             this.firstname = firstname;
             return this;
         }
 
-        public PmProgressDtoBuilder lastname(String lastname) {
+        public Builder lastname(String lastname) {
             this.lastname = lastname;
             return this;
         }
 
-        public PmProgressDtoBuilder state(EmployeeState state) {
+        public Builder state(EmployeeState state) {
             this.state = state;
             return this;
         }
 
-        public PmProgressDtoBuilder stepId(Long stepId) {
+        public Builder stepId(Long stepId) {
             this.stepId = stepId;
             return this;
         }
 
         public PmProgressDto build() {
-            PmProgressDto pmProgressDto = new PmProgressDto();
-            pmProgressDto.setProject(project);
-            pmProgressDto.setAssigneeEmail(assigneeEmail);
-            pmProgressDto.setFirstname(firstname);
-            pmProgressDto.setLastname(lastname);
-            pmProgressDto.setState(state);
-            pmProgressDto.setStepId(stepId);
-            return pmProgressDto;
+           return new PmProgressDto(this);
         }
     }
 }

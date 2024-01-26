@@ -1,160 +1,126 @@
 package com.gepardec.mega.domain.model;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDate;
 import java.util.Set;
 
 // Represents the logged in user in mega.
 
 public class User {
-    private long dbId;
 
-    private String userId;
+    private final long dbId;
 
-    private String email;
+    private final String userId;
 
-    private String firstname;
+    private final String email;
 
-    private String lastname;
+    private final String firstname;
 
-    private LocalDate releaseDate;
+    private final String lastname;
 
-    private Set<Role> roles;
+    private final LocalDate releaseDate;
 
-    public User(long dbId, String userId, String email, String firstname, String lastname, LocalDate releaseDate, Set<Role> roles) {
-        this.dbId = dbId;
-        this.userId = userId;
-        this.email = email;
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.releaseDate = releaseDate;
-        this.roles = roles;
+    private final Set<Role> roles;
+
+    @JsonCreator
+    public User(Builder builder) {
+        this.dbId = builder.dbId;
+        this.userId = builder.userId;
+        this.email = builder.email;
+        this.firstname = builder.firstname;
+        this.lastname = builder.lastname;
+        this.releaseDate = builder.releaseDate;
+        this.roles = builder.roles;
     }
 
-    public User() {
-    }
-
-    public static UserBuilder builder() {
-        return UserBuilder.anUser();
+    public static Builder builder() {
+        return Builder.anUser();
     }
 
     public long getDbId() {
         return dbId;
     }
 
-    public void setDbId(long dbId) {
-        this.dbId = dbId;
-    }
-
     public String getUserId() {
         return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getFirstname() {
         return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
     }
 
     public String getLastname() {
         return lastname;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
     public LocalDate getReleaseDate() {
         return releaseDate;
-    }
-
-    public void setReleaseDate(LocalDate releaseDate) {
-        this.releaseDate = releaseDate;
     }
 
     public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
+    public static final class Builder {
+        @JsonProperty private long dbId;
+        @JsonProperty private String userId;
+        @JsonProperty private String email;
+        @JsonProperty private String firstname;
+        @JsonProperty private String lastname;
+        @JsonProperty private LocalDate releaseDate;
+        @JsonProperty private Set<Role> roles;
 
-    public static final class UserBuilder {
-        private long dbId;
-        private String userId;
-        private String email;
-        private String firstname;
-        private String lastname;
-        private LocalDate releaseDate;
-        private Set<Role> roles;
-
-        private UserBuilder() {
+        private Builder() {
         }
 
-        public static UserBuilder anUser() {
-            return new UserBuilder();
+        public static Builder anUser() {
+            return new Builder();
         }
 
-        public UserBuilder dbId(long dbId) {
+        public Builder dbId(long dbId) {
             this.dbId = dbId;
             return this;
         }
 
-        public UserBuilder userId(String userId) {
+        public Builder userId(String userId) {
             this.userId = userId;
             return this;
         }
 
-        public UserBuilder email(String email) {
+        public Builder email(String email) {
             this.email = email;
             return this;
         }
 
-        public UserBuilder firstname(String firstname) {
+        public Builder firstname(String firstname) {
             this.firstname = firstname;
             return this;
         }
 
-        public UserBuilder lastname(String lastname) {
+        public Builder lastname(String lastname) {
             this.lastname = lastname;
             return this;
         }
 
-        public UserBuilder releaseDate(LocalDate releaseDate) {
+        public Builder releaseDate(LocalDate releaseDate) {
             this.releaseDate = releaseDate;
             return this;
         }
 
-        public UserBuilder roles(Set<Role> roles) {
+        public Builder roles(Set<Role> roles) {
             this.roles = roles;
             return this;
         }
 
         public User build() {
-            User user = new User();
-            user.setDbId(dbId);
-            user.setUserId(userId);
-            user.setEmail(email);
-            user.setFirstname(firstname);
-            user.setLastname(lastname);
-            user.setReleaseDate(releaseDate);
-            user.setRoles(roles);
-            return user;
+            return new User(this);
         }
     }
 }

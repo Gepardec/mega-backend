@@ -148,8 +148,7 @@ public class PrematureEmployeeCheckSyncServiceTest {
     }
 
     private PrematureEmployeeCheck createPrematureEmployeeCheck(long id, String email) {
-        com.gepardec.mega.domain.model.User user = new com.gepardec.mega.domain.model.User();
-        user.setEmail(email);
+        com.gepardec.mega.domain.model.User user = com.gepardec.mega.domain.model.User.builder().email(email).build();
 
         return PrematureEmployeeCheck.builder()
                 .id(id)

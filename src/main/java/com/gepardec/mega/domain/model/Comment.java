@@ -4,94 +4,63 @@ import com.gepardec.mega.db.entity.employee.EmployeeState;
 
 public class Comment {
 
-    private Long id;
+    private final Long id;
 
-    private String message;
+    private final String message;
 
-    private String authorEmail;
+    private final String authorEmail;
 
-    private String authorName;
+    private final String authorName;
 
-    private String updateDate;
+    private final String updateDate;
 
-    private EmployeeState state;
+    private final EmployeeState state;
 
-    private SourceSystem sourceSystem;
+    private final SourceSystem sourceSystem;
 
-    public Comment() {
+    private Comment(Builder builder) {
+        this.id = builder.id;
+        this.message = builder.message;
+        this.authorEmail = builder.authorEmail;
+        this.authorName = builder.authorName;
+        this.updateDate = builder.updateDate;
+        this.state = builder.state;
+        this.sourceSystem = builder.sourceSystem;
     }
 
-    public Comment(Long id, String message, String authorEmail, String authorName, String updateDate, EmployeeState state, SourceSystem sourceSystem) {
-        this.id = id;
-        this.message = message;
-        this.authorEmail = authorEmail;
-        this.authorName = authorName;
-        this.updateDate = updateDate;
-        this.state = state;
-        this.sourceSystem = sourceSystem;
-    }
-
-    public static CommentBuilder builder() {
-        return CommentBuilder.aComment();
+    public static Builder builder() {
+        return Builder.aComment();
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getMessage() {
         return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public String getAuthorEmail() {
         return authorEmail;
     }
 
-    public void setAuthorEmail(String authorEmail) {
-        this.authorEmail = authorEmail;
-    }
-
     public String getAuthorName() {
         return authorName;
-    }
-
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
     }
 
     public String getUpdateDate() {
         return updateDate;
     }
 
-    public void setUpdateDate(String updateDate) {
-        this.updateDate = updateDate;
-    }
-
     public EmployeeState getState() {
         return state;
-    }
-
-    public void setState(EmployeeState state) {
-        this.state = state;
     }
 
     public SourceSystem getSourceSystem() {
         return sourceSystem;
     }
 
-    public void setSourceSystem(SourceSystem sourceSystem) {
-        this.sourceSystem = sourceSystem;
-    }
-
-    public static final class CommentBuilder {
+    public static final class Builder {
         private Long id;
         private String message;
         private String authorEmail;
@@ -100,58 +69,50 @@ public class Comment {
         private EmployeeState state;
         private SourceSystem sourceSystem;
 
-        private CommentBuilder() {
+        private Builder() {
         }
 
-        public static CommentBuilder aComment() {
-            return new CommentBuilder();
+        public static Builder aComment() {
+            return new Builder();
         }
 
-        public CommentBuilder id(Long id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }
 
-        public CommentBuilder message(String message) {
+        public Builder message(String message) {
             this.message = message;
             return this;
         }
 
-        public CommentBuilder authorEmail(String authorEmail) {
+        public Builder authorEmail(String authorEmail) {
             this.authorEmail = authorEmail;
             return this;
         }
 
-        public CommentBuilder authorName(String authorName) {
+        public Builder authorName(String authorName) {
             this.authorName = authorName;
             return this;
         }
 
-        public CommentBuilder updateDate(String updateDate) {
+        public Builder updateDate(String updateDate) {
             this.updateDate = updateDate;
             return this;
         }
 
-        public CommentBuilder state(EmployeeState state) {
+        public Builder state(EmployeeState state) {
             this.state = state;
             return this;
         }
 
-        public CommentBuilder sourceSystem(SourceSystem sourceSystem) {
+        public Builder sourceSystem(SourceSystem sourceSystem) {
             this.sourceSystem = sourceSystem;
             return this;
         }
 
         public Comment build() {
-            Comment comment = new Comment();
-            comment.setId(id);
-            comment.setMessage(message);
-            comment.setAuthorEmail(authorEmail);
-            comment.setAuthorName(authorName);
-            comment.setUpdateDate(updateDate);
-            comment.setState(state);
-            comment.setSourceSystem(sourceSystem);
-            return comment;
+            return new Comment(this);
         }
     }
 }

@@ -4,118 +4,90 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class PrematureEmployeeCheck {
-    private long id;
+    private final long id;
 
-    private User user;
+    private final User user;
 
-    private String reason;
+    private final String reason;
 
-    private LocalDate forMonth;
+    private final LocalDate forMonth;
 
-    private LocalDateTime creationDate;
+    private final LocalDateTime creationDate;
 
-    public PrematureEmployeeCheck() {
+
+    public PrematureEmployeeCheck(Builder builder) {
+        this.id = builder.id;
+        this.user = builder.user;
+        this.reason = builder.reason;
+        this.forMonth = builder.forMonth;
+        this.creationDate = builder.creationDate;
     }
 
-    public PrematureEmployeeCheck(long id, User user, String reason, LocalDate forMonth, LocalDateTime creationDate) {
-        this.id = id;
-        this.user = user;
-        this.reason = reason;
-        this.forMonth = forMonth;
-        this.creationDate = creationDate;
-    }
-
-    public static PrematureEmployeeCheckBuilder builder() {
-        return PrematureEmployeeCheckBuilder.aPrematureEmployeeCheck();
+    public static Builder builder() {
+        return Builder.aPrematureEmployeeCheck();
     }
 
     public long getId() {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public User getUser() {
         return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public String getReason() {
         return reason;
     }
 
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
-
     public LocalDate getForMonth() {
         return forMonth;
-    }
-
-    public void setForMonth(LocalDate forMonth) {
-        this.forMonth = forMonth;
     }
 
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    public static final class PrematureEmployeeCheckBuilder {
+    public static final class Builder {
         private long id;
         private User user;
         private String reason;
         private LocalDate forMonth;
         private LocalDateTime creationDate;
 
-        private PrematureEmployeeCheckBuilder() {
+        private Builder() {
         }
 
-        public static PrematureEmployeeCheckBuilder aPrematureEmployeeCheck() {
-            return new PrematureEmployeeCheckBuilder();
+        public static Builder aPrematureEmployeeCheck() {
+            return new Builder();
         }
 
-        public PrematureEmployeeCheckBuilder id(long id) {
+        public Builder id(long id) {
             this.id = id;
             return this;
         }
 
-        public PrematureEmployeeCheckBuilder user(User user) {
+        public Builder user(User user) {
             this.user = user;
             return this;
         }
 
-        public PrematureEmployeeCheckBuilder reason(String reason) {
+        public Builder reason(String reason) {
             this.reason = reason;
             return this;
         }
 
-        public PrematureEmployeeCheckBuilder forMonth(LocalDate forMonth) {
+        public Builder forMonth(LocalDate forMonth) {
             this.forMonth = forMonth;
             return this;
         }
 
-        public PrematureEmployeeCheckBuilder creationDate(LocalDateTime creationDate) {
+        public Builder creationDate(LocalDateTime creationDate) {
             this.creationDate = creationDate;
             return this;
         }
 
         public PrematureEmployeeCheck build() {
-            PrematureEmployeeCheck prematureEmployeeCheck = new PrematureEmployeeCheck();
-            prematureEmployeeCheck.setId(id);
-            prematureEmployeeCheck.setUser(user);
-            prematureEmployeeCheck.setReason(reason);
-            prematureEmployeeCheck.setForMonth(forMonth);
-            prematureEmployeeCheck.setCreationDate(creationDate);
-            return prematureEmployeeCheck;
+           return new PrematureEmployeeCheck(this);
         }
     }
 }

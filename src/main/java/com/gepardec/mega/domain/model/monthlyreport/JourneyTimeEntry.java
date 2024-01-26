@@ -3,84 +3,56 @@ package com.gepardec.mega.domain.model.monthlyreport;
 import java.time.LocalDateTime;
 
 public class JourneyTimeEntry implements ProjectEntry {
-    private LocalDateTime fromTime;
+    private final LocalDateTime fromTime;
 
-    private LocalDateTime toTime;
+    private final LocalDateTime toTime;
 
-    private Task task;
+    private final Task task;
 
-    private WorkingLocation workingLocation;
+    private final WorkingLocation workingLocation;
 
-    private JourneyDirection journeyDirection;
+    private final JourneyDirection journeyDirection;
 
-    private Vehicle vehicle;
+    private final Vehicle vehicle;
 
-    public JourneyTimeEntry() {
-
-    }
-
-    public JourneyTimeEntry(LocalDateTime fromTime, LocalDateTime toTime, Task task, WorkingLocation workingLocation, JourneyDirection journeyDirection, Vehicle vehicle) {
-        this.fromTime = fromTime;
-        this.toTime = toTime;
-        this.task = task;
-        this.workingLocation = workingLocation;
-        this.journeyDirection = journeyDirection;
-        this.vehicle = vehicle;
-    }
-
-    public static JourneyTimeEntryBuilder builder() {
-        return JourneyTimeEntryBuilder.aJourneyTimeEntry();
+    private JourneyTimeEntry(Builder builder) {
+        this.fromTime = builder.fromTime;
+        this.toTime = builder.toTime;
+        this.task = builder.task;
+        this.workingLocation = builder.workingLocation;
+        this.journeyDirection = builder.journeyDirection;
+        this.vehicle = builder.vehicle;
     }
 
     public LocalDateTime getFromTime() {
         return fromTime;
     }
 
-    public void setFromTime(LocalDateTime fromTime) {
-        this.fromTime = fromTime;
-    }
-
     public LocalDateTime getToTime() {
         return toTime;
-    }
-
-    public void setToTime(LocalDateTime toTime) {
-        this.toTime = toTime;
     }
 
     public Task getTask() {
         return task;
     }
 
-    public void setTask(Task task) {
-        this.task = task;
-    }
-
     public WorkingLocation getWorkingLocation() {
         return workingLocation;
-    }
-
-    public void setWorkingLocation(WorkingLocation workingLocation) {
-        this.workingLocation = workingLocation;
     }
 
     public JourneyDirection getJourneyDirection() {
         return journeyDirection;
     }
 
-    public void setJourneyDirection(JourneyDirection journeyDirection) {
-        this.journeyDirection = journeyDirection;
-    }
-
     public Vehicle getVehicle() {
         return vehicle;
     }
 
-    public void setVehicle(Vehicle vehicle) {
-        this.vehicle = vehicle;
+    public static Builder builder() {
+        return Builder.aJourneyTimeEntry();
     }
 
-    public static final class JourneyTimeEntryBuilder {
+    public static final class Builder {
         private LocalDateTime fromTime;
         private LocalDateTime toTime;
         private Task task;
@@ -88,52 +60,46 @@ public class JourneyTimeEntry implements ProjectEntry {
         private JourneyDirection journeyDirection;
         private Vehicle vehicle;
 
-        private JourneyTimeEntryBuilder() {
+        private Builder() {
+
         }
 
-        public static JourneyTimeEntryBuilder aJourneyTimeEntry() {
-            return new JourneyTimeEntryBuilder();
+        public static Builder aJourneyTimeEntry() {
+            return new Builder();
         }
 
-        public JourneyTimeEntryBuilder fromTime(LocalDateTime fromTime) {
+        public Builder fromTime(LocalDateTime fromTime) {
             this.fromTime = fromTime;
             return this;
         }
 
-        public JourneyTimeEntryBuilder toTime(LocalDateTime toTime) {
+        public Builder toTime(LocalDateTime toTime) {
             this.toTime = toTime;
             return this;
         }
 
-        public JourneyTimeEntryBuilder task(Task task) {
+        public Builder task(Task task) {
             this.task = task;
             return this;
         }
 
-        public JourneyTimeEntryBuilder workingLocation(WorkingLocation workingLocation) {
+        public Builder workingLocation(WorkingLocation workingLocation) {
             this.workingLocation = workingLocation;
             return this;
         }
 
-        public JourneyTimeEntryBuilder journeyDirection(JourneyDirection journeyDirection) {
+        public Builder journeyDirection(JourneyDirection journeyDirection) {
             this.journeyDirection = journeyDirection;
             return this;
         }
 
-        public JourneyTimeEntryBuilder vehicle(Vehicle vehicle) {
+        public Builder vehicle(Vehicle vehicle) {
             this.vehicle = vehicle;
             return this;
         }
 
         public JourneyTimeEntry build() {
-            JourneyTimeEntry journeyTimeEntry = new JourneyTimeEntry();
-            journeyTimeEntry.setFromTime(fromTime);
-            journeyTimeEntry.setToTime(toTime);
-            journeyTimeEntry.setTask(task);
-            journeyTimeEntry.setWorkingLocation(workingLocation);
-            journeyTimeEntry.setJourneyDirection(journeyDirection);
-            journeyTimeEntry.setVehicle(vehicle);
-            return journeyTimeEntry;
+           return new JourneyTimeEntry(this);
         }
     }
 }

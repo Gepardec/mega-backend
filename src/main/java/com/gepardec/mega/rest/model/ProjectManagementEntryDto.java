@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.domain.model.ProjectState;
@@ -11,70 +12,48 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectManagementEntryDto {
-    @JsonProperty
-    private Integer zepId;
 
-    @JsonProperty
-    private String projectName;
+    private final Integer zepId;
 
-    @JsonProperty
-    @Nullable
-    private ProjectState controlProjectState;
+    private final String projectName;
 
-    @JsonProperty
-    @Nullable
-    private ProjectState controlBillingState;
+    private final ProjectState controlProjectState;
 
-    @JsonProperty
-    @Nullable
-    private Boolean presetControlProjectState;
+    private final ProjectState controlBillingState;
 
-    @JsonProperty
-    @Nullable
-    private Boolean presetControlBillingState;
+    private final Boolean presetControlProjectState;
 
-    @JsonProperty
-    private List<ManagementEntryDto> entries;
+    private final Boolean presetControlBillingState;
 
-    @JsonProperty
-    private Duration aggregatedBillableWorkTimeInSeconds;
+    private final List<ManagementEntryDto> entries;
 
-    @JsonProperty
-    private Duration aggregatedNonBillableWorkTimeInSeconds;
+    private final Duration aggregatedBillableWorkTimeInSeconds;
 
-    public ProjectManagementEntryDto() {
+    private final Duration aggregatedNonBillableWorkTimeInSeconds;
+
+    @JsonCreator
+    public ProjectManagementEntryDto(Builder builder) {
+        this.zepId = builder.zepId;
+        this.projectName = builder.projectName;
+        this.controlProjectState = builder.controlProjectState;
+        this.controlBillingState = builder.controlBillingState;
+        this.presetControlProjectState = builder.presetControlProjectState;
+        this.presetControlBillingState = builder.presetControlBillingState;
+        this.entries = builder.entries;
+        this.aggregatedBillableWorkTimeInSeconds = builder.aggregatedBillableWorkTimeInSeconds;
+        this.aggregatedNonBillableWorkTimeInSeconds = builder.aggregatedNonBillableWorkTimeInSeconds;
     }
 
-    public ProjectManagementEntryDto(Integer zepId, String projectName, @Nullable ProjectState controlProjectState, @Nullable ProjectState controlBillingState, @Nullable Boolean presetControlProjectState, @Nullable Boolean presetControlBillingState, List<ManagementEntryDto> entries, Duration aggregatedBillableWorkTimeInSeconds, Duration aggregatedNonBillableWorkTimeInSeconds) {
-        this.zepId = zepId;
-        this.projectName = projectName;
-        this.controlProjectState = controlProjectState;
-        this.controlBillingState = controlBillingState;
-        this.presetControlProjectState = presetControlProjectState;
-        this.presetControlBillingState = presetControlBillingState;
-        this.entries = entries;
-        this.aggregatedBillableWorkTimeInSeconds = aggregatedBillableWorkTimeInSeconds;
-        this.aggregatedNonBillableWorkTimeInSeconds = aggregatedNonBillableWorkTimeInSeconds;
-    }
-
-    public static ProjectManagementEntryDtoBuilder builder() {
-        return ProjectManagementEntryDtoBuilder.aProjectManagementEntryDto();
+    public static Builder builder() {
+        return Builder.aProjectManagementEntryDto();
     }
 
     public Integer getZepId() {
         return zepId;
     }
 
-    public void setZepId(Integer zepId) {
-        this.zepId = zepId;
-    }
-
     public String getProjectName() {
         return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
     }
 
     @Nullable
@@ -82,17 +61,9 @@ public class ProjectManagementEntryDto {
         return controlProjectState;
     }
 
-    public void setControlProjectState(@Nullable ProjectState controlProjectState) {
-        this.controlProjectState = controlProjectState;
-    }
-
     @Nullable
     public ProjectState getControlBillingState() {
         return controlBillingState;
-    }
-
-    public void setControlBillingState(@Nullable ProjectState controlBillingState) {
-        this.controlBillingState = controlBillingState;
     }
 
     @Nullable
@@ -100,41 +71,22 @@ public class ProjectManagementEntryDto {
         return presetControlProjectState;
     }
 
-    public void setPresetControlProjectState(@Nullable Boolean presetControlProjectState) {
-        this.presetControlProjectState = presetControlProjectState;
-    }
-
     @Nullable
     public Boolean getPresetControlBillingState() {
         return presetControlBillingState;
-    }
-
-    public void setPresetControlBillingState(@Nullable Boolean presetControlBillingState) {
-        this.presetControlBillingState = presetControlBillingState;
     }
 
     public List<ManagementEntryDto> getEntries() {
         return entries;
     }
 
-    public void setEntries(List<ManagementEntryDto> entries) {
-        this.entries = entries;
-    }
 
     public Duration getAggregatedBillableWorkTimeInSeconds() {
         return aggregatedBillableWorkTimeInSeconds;
     }
 
-    public void setAggregatedBillableWorkTimeInSeconds(Duration aggregatedBillableWorkTimeInSeconds) {
-        this.aggregatedBillableWorkTimeInSeconds = aggregatedBillableWorkTimeInSeconds;
-    }
-
     public Duration getAggregatedNonBillableWorkTimeInSeconds() {
         return aggregatedNonBillableWorkTimeInSeconds;
-    }
-
-    public void setAggregatedNonBillableWorkTimeInSeconds(Duration aggregatedNonBillableWorkTimeInSeconds) {
-        this.aggregatedNonBillableWorkTimeInSeconds = aggregatedNonBillableWorkTimeInSeconds;
     }
 
     @Override
@@ -150,81 +102,71 @@ public class ProjectManagementEntryDto {
         return Objects.hash(getZepId(), getProjectName(), getControlProjectState(), getControlBillingState(), getPresetControlProjectState(), getPresetControlBillingState(), getEntries(), getAggregatedBillableWorkTimeInSeconds(), getAggregatedNonBillableWorkTimeInSeconds());
     }
 
-    public static final class ProjectManagementEntryDtoBuilder {
-        private Integer zepId;
-        private String projectName;
-        private ProjectState controlProjectState;
-        private ProjectState controlBillingState;
-        private Boolean presetControlProjectState;
-        private Boolean presetControlBillingState;
-        private List<ManagementEntryDto> entries;
-        private Duration aggregatedBillableWorkTimeInSeconds;
-        private Duration aggregatedNonBillableWorkTimeInSeconds;
+    public static final class Builder {
+       @JsonProperty private Integer zepId;
+       @JsonProperty private String projectName;
+       @JsonProperty @Nullable private ProjectState controlProjectState;
+       @JsonProperty @Nullable private ProjectState controlBillingState;
+       @JsonProperty @Nullable private Boolean presetControlProjectState;
+       @JsonProperty @Nullable private Boolean presetControlBillingState;
+       @JsonProperty private List<ManagementEntryDto> entries;
+       @JsonProperty private Duration aggregatedBillableWorkTimeInSeconds;
+       @JsonProperty private Duration aggregatedNonBillableWorkTimeInSeconds;
 
-        private ProjectManagementEntryDtoBuilder() {
+        private Builder() {
         }
 
-        public static ProjectManagementEntryDtoBuilder aProjectManagementEntryDto() {
-            return new ProjectManagementEntryDtoBuilder();
+        public static Builder aProjectManagementEntryDto() {
+            return new Builder();
         }
 
-        public ProjectManagementEntryDtoBuilder zepId(Integer zepId) {
+        public Builder zepId(Integer zepId) {
             this.zepId = zepId;
             return this;
         }
 
-        public ProjectManagementEntryDtoBuilder projectName(String projectName) {
+        public Builder projectName(String projectName) {
             this.projectName = projectName;
             return this;
         }
 
-        public ProjectManagementEntryDtoBuilder controlProjectState(ProjectState controlProjectState) {
+        public Builder controlProjectState(ProjectState controlProjectState) {
             this.controlProjectState = controlProjectState;
             return this;
         }
 
-        public ProjectManagementEntryDtoBuilder controlBillingState(ProjectState controlBillingState) {
+        public Builder controlBillingState(ProjectState controlBillingState) {
             this.controlBillingState = controlBillingState;
             return this;
         }
 
-        public ProjectManagementEntryDtoBuilder presetControlProjectState(Boolean presetControlProjectState) {
+        public Builder presetControlProjectState(Boolean presetControlProjectState) {
             this.presetControlProjectState = presetControlProjectState;
             return this;
         }
 
-        public ProjectManagementEntryDtoBuilder presetControlBillingState(Boolean presetControlBillingState) {
+        public Builder presetControlBillingState(Boolean presetControlBillingState) {
             this.presetControlBillingState = presetControlBillingState;
             return this;
         }
 
-        public ProjectManagementEntryDtoBuilder entries(List<ManagementEntryDto> entries) {
+        public Builder entries(List<ManagementEntryDto> entries) {
             this.entries = entries;
             return this;
         }
 
-        public ProjectManagementEntryDtoBuilder aggregatedBillableWorkTimeInSeconds(Duration aggregatedBillableWorkTimeInSeconds) {
+        public Builder aggregatedBillableWorkTimeInSeconds(Duration aggregatedBillableWorkTimeInSeconds) {
             this.aggregatedBillableWorkTimeInSeconds = aggregatedBillableWorkTimeInSeconds;
             return this;
         }
 
-        public ProjectManagementEntryDtoBuilder aggregatedNonBillableWorkTimeInSeconds(Duration aggregatedNonBillableWorkTimeInSeconds) {
+        public Builder aggregatedNonBillableWorkTimeInSeconds(Duration aggregatedNonBillableWorkTimeInSeconds) {
             this.aggregatedNonBillableWorkTimeInSeconds = aggregatedNonBillableWorkTimeInSeconds;
             return this;
         }
 
         public ProjectManagementEntryDto build() {
-            ProjectManagementEntryDto projectManagementEntryDto = new ProjectManagementEntryDto();
-            projectManagementEntryDto.setZepId(zepId);
-            projectManagementEntryDto.setProjectName(projectName);
-            projectManagementEntryDto.setControlProjectState(controlProjectState);
-            projectManagementEntryDto.setControlBillingState(controlBillingState);
-            projectManagementEntryDto.setPresetControlProjectState(presetControlProjectState);
-            projectManagementEntryDto.setPresetControlBillingState(presetControlBillingState);
-            projectManagementEntryDto.setEntries(entries);
-            projectManagementEntryDto.setAggregatedBillableWorkTimeInSeconds(aggregatedBillableWorkTimeInSeconds);
-            projectManagementEntryDto.setAggregatedNonBillableWorkTimeInSeconds(aggregatedNonBillableWorkTimeInSeconds);
-            return projectManagementEntryDto;
+            return new ProjectManagementEntryDto(this);
         }
     }
 }

@@ -9,7 +9,7 @@ public interface MonthlyReportService {
 
     MonthlyReport getMonthEndReportForUser();
 
-    MonthlyReport getMonthEndReportForUser(Integer year, Integer month, Employee employee);
+    MonthlyReport getMonthEndReportForUser(Integer year, Integer month, Employee employee, LocalDate initialDate);
 
     boolean isMonthCompletedForEmployee(Employee employee, LocalDate date);
 }

@@ -29,7 +29,7 @@ class ProjectServiceImplTest {
     @Inject
     ProjectServiceImpl projectService;
 
-    private Project.ProjectBuilder projectFor(final String id) {
+    private Project.Builder projectFor(final String id) {
         return Project.builder()
                 .projectId(id)
                 .description(String.format("Description of Project %s", id));

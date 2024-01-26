@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.domain.model.ProjectState;
@@ -10,34 +11,27 @@ import java.util.Objects;
 // TODO Discuss: Rename all rest pojos to DTO?
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectEntryDto {
-    @JsonProperty
-    private ProjectState state;
+    private final ProjectState state;
 
-    @JsonProperty
-    private boolean preset;
+    private final boolean preset;
 
-    @JsonProperty
-    private String projectName;
+    private final String projectName;
 
-    @JsonProperty
-    private ProjectStep step;
+    private final ProjectStep step;
 
-    @JsonProperty
-    private String currentMonthYear;
+    private final String currentMonthYear;
 
-    public ProjectEntryDto() {
+    @JsonCreator
+    public ProjectEntryDto(Builder builder) {
+        this.state = builder.state;
+        this.preset = builder.preset;
+        this.projectName = builder.projectName;
+        this.step = builder.step;
+        this.currentMonthYear = builder.currentMonthYear;
     }
 
-    public ProjectEntryDto(ProjectState state, boolean preset, String projectName, ProjectStep step, String currentMonthYear) {
-        this.state = state;
-        this.preset = preset;
-        this.projectName = projectName;
-        this.step = step;
-        this.currentMonthYear = currentMonthYear;
-    }
-
-    public static ProjectEntryDtoBuilder builder() {
-        return ProjectEntryDtoBuilder.aProjectEntryDto();
+    public static Builder builder() {
+        return Builder.aProjectEntryDto();
     }
 
     @Override
@@ -57,89 +51,63 @@ public class ProjectEntryDto {
         return state;
     }
 
-    public void setState(ProjectState state) {
-        this.state = state;
-    }
-
     public boolean isPreset() {
         return preset;
-    }
-
-    public void setPreset(boolean preset) {
-        this.preset = preset;
     }
 
     public String getProjectName() {
         return projectName;
     }
 
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
     public ProjectStep getStep() {
         return step;
-    }
-
-    public void setStep(ProjectStep step) {
-        this.step = step;
     }
 
     public String getCurrentMonthYear() {
         return currentMonthYear;
     }
 
-    public void setCurrentMonthYear(String currentMonthYear) {
-        this.currentMonthYear = currentMonthYear;
-    }
+    public static final class Builder {
+        @JsonProperty private ProjectState state;
+        @JsonProperty private boolean preset;
+        @JsonProperty private String projectName;
+        @JsonProperty private ProjectStep step;
+        @JsonProperty private String currentMonthYear;
 
-    public static final class ProjectEntryDtoBuilder {
-        private ProjectState state;
-        private boolean preset;
-        private String projectName;
-        private ProjectStep step;
-        private String currentMonthYear;
-
-        private ProjectEntryDtoBuilder() {
+        private Builder() {
         }
 
-        public static ProjectEntryDtoBuilder aProjectEntryDto() {
-            return new ProjectEntryDtoBuilder();
+        public static Builder aProjectEntryDto() {
+            return new Builder();
         }
 
-        public ProjectEntryDtoBuilder state(ProjectState state) {
+        public Builder state(ProjectState state) {
             this.state = state;
             return this;
         }
 
-        public ProjectEntryDtoBuilder preset(boolean preset) {
+        public Builder preset(boolean preset) {
             this.preset = preset;
             return this;
         }
 
-        public ProjectEntryDtoBuilder projectName(String projectName) {
+        public Builder projectName(String projectName) {
             this.projectName = projectName;
             return this;
         }
 
-        public ProjectEntryDtoBuilder step(ProjectStep step) {
+        public Builder step(ProjectStep step) {
             this.step = step;
             return this;
         }
 
-        public ProjectEntryDtoBuilder currentMonthYear(String currentMonthYear) {
+        public Builder currentMonthYear(String currentMonthYear) {
             this.currentMonthYear = currentMonthYear;
             return this;
         }
 
         public ProjectEntryDto build() {
-            ProjectEntryDto projectEntryDto = new ProjectEntryDto();
-            projectEntryDto.setState(state);
-            projectEntryDto.setPreset(preset);
-            projectEntryDto.setProjectName(projectName);
-            projectEntryDto.setStep(step);
-            projectEntryDto.setCurrentMonthYear(currentMonthYear);
-            return projectEntryDto;
+            return new ProjectEntryDto(this);
         }
     }
 }

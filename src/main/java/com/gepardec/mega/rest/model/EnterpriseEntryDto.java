@@ -1,6 +1,8 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.domain.model.ProjectState;
 
 import java.time.LocalDate;
@@ -10,29 +12,28 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EnterpriseEntryDto {
 
-    private ProjectState zepTimesReleased;
+    private final ProjectState zepTimesReleased;
 
-    private ProjectState chargeabilityExternalEmployeesRecorded;
+    private final ProjectState chargeabilityExternalEmployeesRecorded;
 
-    private ProjectState payrollAccountingSent;
+    private final ProjectState payrollAccountingSent;
 
-    private LocalDate date;
+    private final LocalDate date;
 
-    private LocalDateTime creationDate;
+    private final LocalDateTime creationDate;
 
-    public EnterpriseEntryDto() {
+
+    @JsonCreator
+    public EnterpriseEntryDto(Builder builder) {
+        this.zepTimesReleased = builder.zepTimesReleased;
+        this.chargeabilityExternalEmployeesRecorded = builder.chargeabilityExternalEmployeesRecorded;
+        this.payrollAccountingSent = builder.payrollAccountingSent;
+        this.date = builder.date;
+        this.creationDate = builder.creationDate;
     }
 
-    public EnterpriseEntryDto(ProjectState zepTimesReleased, ProjectState chargeabilityExternalEmployeesRecorded, ProjectState payrollAccountingSent, LocalDate date, LocalDateTime creationDate) {
-        this.zepTimesReleased = zepTimesReleased;
-        this.chargeabilityExternalEmployeesRecorded = chargeabilityExternalEmployeesRecorded;
-        this.payrollAccountingSent = payrollAccountingSent;
-        this.date = date;
-        this.creationDate = creationDate;
-    }
-
-    public static EnterpriseEntryDtoBuilder builder() {
-        return EnterpriseEntryDtoBuilder.anEnterpriseEntryDto();
+    public static Builder builder() {
+        return Builder.anEnterpriseEntryDto();
     }
 
     @Override
@@ -52,89 +53,63 @@ public class EnterpriseEntryDto {
         return zepTimesReleased;
     }
 
-    public void setZepTimesReleased(ProjectState zepTimesReleased) {
-        this.zepTimesReleased = zepTimesReleased;
-    }
-
     public ProjectState getChargeabilityExternalEmployeesRecorded() {
         return chargeabilityExternalEmployeesRecorded;
-    }
-
-    public void setChargeabilityExternalEmployeesRecorded(ProjectState chargeabilityExternalEmployeesRecorded) {
-        this.chargeabilityExternalEmployeesRecorded = chargeabilityExternalEmployeesRecorded;
     }
 
     public ProjectState getPayrollAccountingSent() {
         return payrollAccountingSent;
     }
 
-    public void setPayrollAccountingSent(ProjectState payrollAccountingSent) {
-        this.payrollAccountingSent = payrollAccountingSent;
-    }
-
     public LocalDate getDate() {
         return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
     }
 
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
-    }
+    public static final class Builder {
+        @JsonProperty private ProjectState zepTimesReleased;
+        @JsonProperty private ProjectState chargeabilityExternalEmployeesRecorded;
+        @JsonProperty private ProjectState payrollAccountingSent;
+        @JsonProperty private LocalDate date;
+        @JsonProperty private LocalDateTime creationDate;
 
-    public static final class EnterpriseEntryDtoBuilder {
-        private ProjectState zepTimesReleased;
-        private ProjectState chargeabilityExternalEmployeesRecorded;
-        private ProjectState payrollAccountingSent;
-        private LocalDate date;
-        private LocalDateTime creationDate;
-
-        private EnterpriseEntryDtoBuilder() {
+        private Builder() {
         }
 
-        public static EnterpriseEntryDtoBuilder anEnterpriseEntryDto() {
-            return new EnterpriseEntryDtoBuilder();
+        public static Builder anEnterpriseEntryDto() {
+            return new Builder();
         }
 
-        public EnterpriseEntryDtoBuilder zepTimesReleased(ProjectState zepTimesReleased) {
+        public Builder zepTimesReleased(ProjectState zepTimesReleased) {
             this.zepTimesReleased = zepTimesReleased;
             return this;
         }
 
-        public EnterpriseEntryDtoBuilder chargeabilityExternalEmployeesRecorded(ProjectState chargeabilityExternalEmployeesRecorded) {
+        public Builder chargeabilityExternalEmployeesRecorded(ProjectState chargeabilityExternalEmployeesRecorded) {
             this.chargeabilityExternalEmployeesRecorded = chargeabilityExternalEmployeesRecorded;
             return this;
         }
 
-        public EnterpriseEntryDtoBuilder payrollAccountingSent(ProjectState payrollAccountingSent) {
+        public Builder payrollAccountingSent(ProjectState payrollAccountingSent) {
             this.payrollAccountingSent = payrollAccountingSent;
             return this;
         }
 
-        public EnterpriseEntryDtoBuilder date(LocalDate date) {
+        public Builder date(LocalDate date) {
             this.date = date;
             return this;
         }
 
-        public EnterpriseEntryDtoBuilder creationDate(LocalDateTime creationDate) {
+        public Builder creationDate(LocalDateTime creationDate) {
             this.creationDate = creationDate;
             return this;
         }
 
         public EnterpriseEntryDto build() {
-            EnterpriseEntryDto enterpriseEntryDto = new EnterpriseEntryDto();
-            enterpriseEntryDto.setZepTimesReleased(zepTimesReleased);
-            enterpriseEntryDto.setChargeabilityExternalEmployeesRecorded(chargeabilityExternalEmployeesRecorded);
-            enterpriseEntryDto.setPayrollAccountingSent(payrollAccountingSent);
-            enterpriseEntryDto.setDate(date);
-            enterpriseEntryDto.setCreationDate(creationDate);
-            return enterpriseEntryDto;
+            return new EnterpriseEntryDto(this);
         }
     }
 }
