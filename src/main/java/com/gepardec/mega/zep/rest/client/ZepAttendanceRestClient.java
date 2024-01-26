@@ -7,6 +7,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
+import net.bytebuddy.asm.Advice;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
@@ -15,8 +16,12 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @ClientHeaderParam(name = "Authorization", value = "{getAuthHeaderValue}")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApplicationScoped
-public interface ZepAttendanceRestClient extends Authenticatable {
+public interface ZepAttendanceRestClient {
 
     @GET
-    Response getAttendancesByUsername(@QueryParam("employee_id") String username, @QueryParam("page") int page);
+    Response getAttendance(@QueryParam("start_date") String startDate, @QueryParam("end_date") String endDate, @QueryParam("employee_id") String username, @QueryParam("page") int page);
+
+    static String getAuthHeaderValue() {
+        return "Bearer " + ZepConfig.getRestBearerToken();
+    }
 }
