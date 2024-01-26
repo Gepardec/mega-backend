@@ -1,101 +1,77 @@
 package com.gepardec.mega.domain.model;
 
 public class Step {
-    private long dbId;
 
-    private String name;
+    private final long dbId;
 
-    private long ordinal;
+    private final String name;
 
-    private Role role;
+    private final long ordinal;
 
-    public Step() {
+    private final Role role;
 
+    public Step(Builder builder) {
+        this.dbId = builder.dbId;
+        this.name = builder.name;
+        this.ordinal = builder.ordinal;
+        this.role = builder.role;
     }
 
-    public Step(long dbId, String name, long ordinal, Role role) {
-        this.dbId = dbId;
-        this.name = name;
-        this.ordinal = ordinal;
-        this.role = role;
-    }
-
-    public static StepBuilder builder() {
-        return StepBuilder.aStep();
+    public static Builder builder() {
+        return Builder.aStep();
     }
 
     public long getDbId() {
         return dbId;
     }
 
-    public void setDbId(long dbId) {
-        this.dbId = dbId;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public long getOrdinal() {
         return ordinal;
     }
 
-    public void setOrdinal(long ordinal) {
-        this.ordinal = ordinal;
-    }
-
     public Role getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public static final class StepBuilder {
+    public static final class Builder {
         private long dbId;
         private String name;
         private long ordinal;
         private Role role;
 
-        private StepBuilder() {
+        private Builder() {
         }
 
-        public static StepBuilder aStep() {
-            return new StepBuilder();
+        public static Builder aStep() {
+            return new Builder();
         }
 
-        public StepBuilder dbId(long dbId) {
+        public Builder dbId(long dbId) {
             this.dbId = dbId;
             return this;
         }
 
-        public StepBuilder name(String name) {
+        public Builder name(String name) {
             this.name = name;
             return this;
         }
 
-        public StepBuilder ordinal(long ordinal) {
+        public Builder ordinal(long ordinal) {
             this.ordinal = ordinal;
             return this;
         }
 
-        public StepBuilder role(Role role) {
+        public Builder role(Role role) {
             this.role = role;
             return this;
         }
 
         public Step build() {
-            Step step = new Step();
-            step.setDbId(dbId);
-            step.setName(name);
-            step.setOrdinal(ordinal);
-            step.setRole(role);
-            return step;
+           return new Step(this);
         }
     }
 }

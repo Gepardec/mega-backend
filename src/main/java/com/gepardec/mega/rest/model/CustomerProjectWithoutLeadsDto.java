@@ -1,6 +1,8 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -8,24 +10,22 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CustomerProjectWithoutLeadsDto {
 
-    private String projectName;
-    private String comment;
-    private LocalDate fetchDate;
-    private Integer zepId;
+    private final String projectName;
+    private final String comment;
+    private final LocalDate fetchDate;
+    private final Integer zepId;
 
 
-    public CustomerProjectWithoutLeadsDto() {
+    @JsonCreator
+    public CustomerProjectWithoutLeadsDto(Builder builder) {
+        this.projectName = builder.projectName;
+        this.comment = builder.comment;
+        this.fetchDate = builder.fetchDate;
+        this.zepId = builder.zepId;
     }
 
-    public CustomerProjectWithoutLeadsDto(String projectName, String comment, LocalDate fetchDate, Integer zepId) {
-        this.projectName = projectName;
-        this.comment = comment;
-        this.fetchDate = fetchDate;
-        this.zepId = zepId;
-    }
-
-    public static CustomerProjectWithoutLeadsDtoBuilder builder() {
-        return CustomerProjectWithoutLeadsDtoBuilder.aCustomerProjectWithoutLeadsDto();
+    public static Builder builder() {
+        return Builder.aCustomerProjectWithoutLeadsDto();
     }
 
     @Override
@@ -45,74 +45,53 @@ public class CustomerProjectWithoutLeadsDto {
         return projectName;
     }
 
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
     public String getComment() {
         return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     public LocalDate getFetchDate() {
         return fetchDate;
     }
 
-    public void setFetchDate(LocalDate fetchDate) {
-        this.fetchDate = fetchDate;
-    }
-
     public Integer getZepId() {
         return zepId;
     }
 
-    public void setZepId(Integer zepId) {
-        this.zepId = zepId;
-    }
+    public static final class Builder {
+        @JsonProperty private String projectName;
+        @JsonProperty private String comment;
+        @JsonProperty private LocalDate fetchDate;
+        @JsonProperty private Integer zepId;
 
-    public static final class CustomerProjectWithoutLeadsDtoBuilder {
-        private String projectName;
-        private String comment;
-        private LocalDate fetchDate;
-        private Integer zepId;
-
-        private CustomerProjectWithoutLeadsDtoBuilder() {
+        private Builder() {
         }
 
-        public static CustomerProjectWithoutLeadsDtoBuilder aCustomerProjectWithoutLeadsDto() {
-            return new CustomerProjectWithoutLeadsDtoBuilder();
+        public static Builder aCustomerProjectWithoutLeadsDto() {
+            return new Builder();
         }
 
-        public CustomerProjectWithoutLeadsDtoBuilder projectName(String projectName) {
+        public Builder projectName(String projectName) {
             this.projectName = projectName;
             return this;
         }
 
-        public CustomerProjectWithoutLeadsDtoBuilder comment(String comment) {
+        public Builder comment(String comment) {
             this.comment = comment;
             return this;
         }
 
-        public CustomerProjectWithoutLeadsDtoBuilder fetchDate(LocalDate fetchDate) {
+        public Builder fetchDate(LocalDate fetchDate) {
             this.fetchDate = fetchDate;
             return this;
         }
 
-        public CustomerProjectWithoutLeadsDtoBuilder zepId(Integer zepId) {
+        public Builder zepId(Integer zepId) {
             this.zepId = zepId;
             return this;
         }
 
         public CustomerProjectWithoutLeadsDto build() {
-            CustomerProjectWithoutLeadsDto customerProjectWithoutLeadsDto = new CustomerProjectWithoutLeadsDto();
-            customerProjectWithoutLeadsDto.setProjectName(projectName);
-            customerProjectWithoutLeadsDto.setComment(comment);
-            customerProjectWithoutLeadsDto.setFetchDate(fetchDate);
-            customerProjectWithoutLeadsDto.setZepId(zepId);
-            return customerProjectWithoutLeadsDto;
+          return new CustomerProjectWithoutLeadsDto(this);
         }
     }
 }

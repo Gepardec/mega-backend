@@ -8,27 +8,27 @@ import java.util.Objects;
 
 public class Employee {
 
-    private String userId;
+    private final String userId;
 
-    private String email;
+    private final String email;
 
-    private String title;
+    private final String title;
 
-    private String firstname;
+    private final String firstname;
 
-    private String lastname;
+    private final String lastname;
 
-    private String salutation;
+    private final String salutation;
 
-    private String releaseDate;
+    private final String releaseDate;
 
-    private String workDescription;
+    private final String workDescription;
 
-    private String language;
+    private final String language;
 
-    private Map<DayOfWeek, Duration> regularWorkingHours;
+    private final Map<DayOfWeek, Duration> regularWorkingHours;
 
-    private boolean active;
+    private final boolean active;
 
     /**
      * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,
@@ -36,113 +36,68 @@ public class Employee {
      */
     private LocalDate exitDate;
 
-    public Employee() {
+    private Employee(Builder builder) {
+        this.userId = builder.userId;
+        this.email = builder.email;
+        this.title =builder. title;
+        this.firstname = builder.firstname;
+        this.lastname = builder.lastname;
+        this.salutation = builder.salutation;
+        this.releaseDate = builder.releaseDate;
+        this.workDescription = builder.workDescription;
+        this.language = builder.language;
+        this.regularWorkingHours = builder.regularWorkingHours;
+        this.active = builder.active;
+        this.exitDate = builder.exitDate;
     }
 
-    public Employee(String userId, String email, String title, String firstname, String lastname, String salutation, String releaseDate, String workDescription, String language, Map<DayOfWeek, Duration> regularWorkingHours, boolean active, LocalDate exitDate) {
-        this.userId = userId;
-        this.email = email;
-        this.title = title;
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.salutation = salutation;
-        this.releaseDate = releaseDate;
-        this.workDescription = workDescription;
-        this.language = language;
-        this.regularWorkingHours = regularWorkingHours;
-        this.active = active;
-        this.exitDate = exitDate;
-    }
-
-    public static EmployeeBuilder builder(){
-        return EmployeeBuilder.anEmployee();
+    public static Builder builder(){
+        return Builder.anEmployee();
     }
 
     public String getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {        this.userId = userId;
-    }
-
     public String getEmail() {
         return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getFirstname() {
         return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
     }
 
     public String getLastname() {
         return lastname;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
 
     public String getSalutation() {
         return salutation;
-    }
-
-    public void setSalutation(String salutation) {
-        this.salutation = salutation;
     }
 
     public String getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(String releaseDate) {
-        this.releaseDate = releaseDate;
-    }
-
     public String getWorkDescription() {
         return workDescription;
-    }
-
-    public void setWorkDescription(String workDescription) {
-        this.workDescription = workDescription;
     }
 
     public String getLanguage() {
         return language;
     }
 
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
     public Map<DayOfWeek, Duration> getRegularWorkingHours() {
         return regularWorkingHours;
     }
 
-    public void setRegularWorkingHours(Map<DayOfWeek, Duration> regularWorkingHours) {
-        this.regularWorkingHours = regularWorkingHours;
-    }
-
     public boolean isActive() {
         return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     public LocalDate getExitDate() {
@@ -167,7 +122,7 @@ public class Employee {
     }
 
 
-    public static final class EmployeeBuilder {
+    public static final class Builder {
         private String userId;
         private String email;
         private String title;
@@ -181,88 +136,75 @@ public class Employee {
         private boolean active;
         private LocalDate exitDate;
 
-        private EmployeeBuilder() {
+        private Builder() {
         }
 
-        public static EmployeeBuilder anEmployee() {
-            return new EmployeeBuilder();
+        public static Builder anEmployee() {
+            return new Builder();
         }
 
-        public EmployeeBuilder userId(String userId) {
+        public Builder userId(String userId) {
             this.userId = userId;
             return this;
         }
 
-        public EmployeeBuilder email(String email) {
+        public Builder email(String email) {
             this.email = email;
             return this;
         }
 
-        public EmployeeBuilder title(String title) {
+        public Builder title(String title) {
             this.title = title;
             return this;
         }
 
-        public EmployeeBuilder firstname(String firstname) {
+        public Builder firstname(String firstname) {
             this.firstname = firstname;
             return this;
         }
 
-        public EmployeeBuilder lastname(String lastname) {
+        public Builder lastname(String lastname) {
             this.lastname = lastname;
             return this;
         }
 
-        public EmployeeBuilder salutation(String salutation) {
+        public Builder salutation(String salutation) {
             this.salutation = salutation;
             return this;
         }
 
-        public EmployeeBuilder releaseDate(String releaseDate) {
+        public Builder releaseDate(String releaseDate) {
             this.releaseDate = releaseDate;
             return this;
         }
 
-        public EmployeeBuilder workDescription(String workDescription) {
+        public Builder workDescription(String workDescription) {
             this.workDescription = workDescription;
             return this;
         }
 
-        public EmployeeBuilder language(String language) {
+        public Builder language(String language) {
             this.language = language;
             return this;
         }
 
-        public EmployeeBuilder regularWorkingHours(Map<DayOfWeek, Duration> regularWorkingHours) {
+        public Builder regularWorkingHours(Map<DayOfWeek, Duration> regularWorkingHours) {
             this.regularWorkingHours = regularWorkingHours;
             return this;
         }
 
-        public EmployeeBuilder active(boolean active) {
+        public Builder active(boolean active) {
             this.active = active;
             return this;
         }
 
-        public EmployeeBuilder exitDate(LocalDate exitDate) {
+        public Builder exitDate(LocalDate exitDate) {
             this.exitDate = exitDate;
             return this;
         }
 
         public Employee build() {
-            Employee employee = new Employee();
-            employee.setUserId(userId);
-            employee.setEmail(email);
-            employee.setTitle(title);
-            employee.setFirstname(firstname);
-            employee.setLastname(lastname);
-            employee.setSalutation(salutation);
-            employee.setReleaseDate(releaseDate);
-            employee.setWorkDescription(workDescription);
-            employee.setLanguage(language);
-            employee.setRegularWorkingHours(regularWorkingHours);
-            employee.setActive(active);
-            employee.setExitDate(exitDate);
-            return employee;
+           return new Employee(this);
         }
     }
 }

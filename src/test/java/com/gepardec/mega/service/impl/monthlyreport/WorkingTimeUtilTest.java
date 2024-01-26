@@ -15,7 +15,6 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +29,7 @@ public class WorkingTimeUtilTest {
 
     @Test
     void getInternalTimesForEmployeeTest() {
-        Employee employee = createEmployee();
+        Employee employee = createEmployee().build();
 
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(5);
         String internalTimesForEmployee = workingTimeUtil.getInternalTimesForEmployee(projektzeitTypes, employee);
@@ -39,7 +38,7 @@ public class WorkingTimeUtilTest {
 
     @Test
     void getBillableTimesForEmployeeTest() {
-        Employee employee = createEmployee();
+        Employee employee = createEmployee().build();
 
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(5);
         String internalTimesForEmployee = workingTimeUtil.getBillableTimesForEmployee(projektzeitTypes, employee);
@@ -48,7 +47,7 @@ public class WorkingTimeUtilTest {
 
     @Test
     void getTotalWorkingTimeForEmployee() {
-        Employee employee = createEmployee();
+        Employee employee = createEmployee().build();
 
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(5);
         String internalTimesForEmployee = workingTimeUtil.getTotalWorkingTimeForEmployee(projektzeitTypes, employee);
@@ -57,7 +56,7 @@ public class WorkingTimeUtilTest {
 
     @Test
     void getOvertimeForEmployee_RETURN_POSITIVE_OVERTIME() {
-        Employee employee = createEmployee();
+        Employee employee = createEmployee().build();
 
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(5);
         List<FehlzeitType> fehlzeitTypes = List.of();
@@ -68,7 +67,7 @@ public class WorkingTimeUtilTest {
 
     @Test
     void getOvertimeForEmployee_RETURN_NEGATIVE_OVERTIME() {
-        Employee employee = createEmployee();
+        Employee employee = createEmployee().build();
 
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(3);
         List<FehlzeitType> fehlzeitTypes = List.of();
@@ -79,7 +78,7 @@ public class WorkingTimeUtilTest {
 
     @Test
     void getOvertimeForEmployee_WITH_ABSENCE() {
-        Employee employee = createEmployee();
+        Employee employee = createEmployee().build();
 
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(3);
         List<FehlzeitType> fehlzeitTypes = returnFehlzeitTypeList();
@@ -90,11 +89,15 @@ public class WorkingTimeUtilTest {
 
     @Test
     void getOvertimeForEmployee_WITH_HOLIDAY() {
-        Employee employee = createEmployee();
-        HashMap<DayOfWeek, Duration> regularWorkingHours = new HashMap<>(employee.getRegularWorkingHours());
-        regularWorkingHours.put(DayOfWeek.MONDAY, Duration.ofHours(0));
-        regularWorkingHours.put(DayOfWeek.THURSDAY, Duration.ofHours(8));
-        employee.setRegularWorkingHours(regularWorkingHours);
+        Map<DayOfWeek, Duration> regularWorkingHours = Map.ofEntries(
+                Map.entry(DayOfWeek.MONDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.WEDNESDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.THURSDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
+        Employee employee = createEmployee().regularWorkingHours(regularWorkingHours).build();
 
         List<ProjektzeitType> projektzeitTypes = returnNormalDayProjektzeitTypes(3);
         List<FehlzeitType> fehlzeitTypes = returnFehlzeitTypeList();
@@ -110,7 +113,7 @@ public class WorkingTimeUtilTest {
 
     @Test
     void getAbsenceTimesForEmployee() {
-        Employee employee = createEmployee();
+        Employee employee = createEmployee().build();
 
         List<FehlzeitType> fehlzeitTypes = returnFehlzeitTypeList();
         int absenceTimesForEmployee = workingTimeUtil.getAbsenceTimesForEmployee(fehlzeitTypes, "UB", LocalDate.of(2023, 11, 6));
@@ -153,7 +156,7 @@ public class WorkingTimeUtilTest {
         return projektzeitTypes;
     }
 
-    private Employee createEmployee() {
+    private Employee.Builder createEmployee() {
         User user = User.builder()
                 .dbId(1)
                 .userId("1")
@@ -178,7 +181,6 @@ public class WorkingTimeUtilTest {
                         Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(0)),
                         Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
                         Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)))
-                )
-                .build();
+                );
     }
 }

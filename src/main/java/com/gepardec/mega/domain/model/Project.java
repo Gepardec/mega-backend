@@ -4,120 +4,81 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class Project {
-    private Integer zepId;
+    private final Integer zepId;
 
-    private String projectId;
+    private final String projectId;
 
-    private String description;
+    private final String description;
 
-    private LocalDate startDate;
+    private final LocalDate startDate;
 
-    private LocalDate endDate;
+    private final LocalDate endDate;
 
-    private List<String> employees;
+    private final List<String> employees;
 
-    private List<String> leads;
+    private final List<String> leads;
 
-    private List<String> categories;
+    private final List<String> categories;
 
-    private BillabilityPreset billabilityPreset;
+    private final BillabilityPreset billabilityPreset;
+
+    public Project(Builder builder) {
+        this.zepId = builder.zepId;
+        this.projectId = builder.projectId;
+        this.description = builder.description;
+        this.startDate = builder.startDate;
+        this.endDate = builder.endDate;
+        this.employees = builder.employees;
+        this.leads = builder.leads;
+        this.categories = builder.categories;
+        this.billabilityPreset = builder.billabilityPreset;
+    }
 
     public boolean isBillable() {
         return BillabilityPreset.isBillable(billabilityPreset);
     }
 
-    public Project() {
-    }
-
-    public Project(Integer zepId, String projectId, String description, LocalDate startDate, LocalDate endDate, List<String> employees, List<String> leads, List<String> categories, BillabilityPreset billabilityPreset) {
-        this.zepId = zepId;
-        this.projectId = projectId;
-        this.description = description;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.employees = employees;
-        this.leads = leads;
-        this.categories = categories;
-        this.billabilityPreset = billabilityPreset;
-    }
-
-    public static ProjectBuilder builder() {
-        return ProjectBuilder.aProject();
+    public static Builder builder() {
+        return Builder.aProject();
     }
 
     public Integer getZepId() {
         return zepId;
     }
 
-    public void setZepId(Integer zepId) {
-        this.zepId = zepId;
-    }
-
     public String getProjectId() {
         return projectId;
-    }
-
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public LocalDate getStartDate() {
         return startDate;
-    }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
     }
 
     public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
-    }
-
     public List<String> getEmployees() {
         return employees;
-    }
-
-    public void setEmployees(List<String> employees) {
-        this.employees = employees;
     }
 
     public List<String> getLeads() {
         return leads;
     }
 
-    public void setLeads(List<String> leads) {
-        this.leads = leads;
-    }
-
     public List<String> getCategories() {
         return categories;
-    }
-
-    public void setCategories(List<String> categories) {
-        this.categories = categories;
     }
 
     public BillabilityPreset getBillabilityPreset() {
         return billabilityPreset;
     }
 
-    public void setBillabilityPreset(BillabilityPreset billabilityPreset) {
-        this.billabilityPreset = billabilityPreset;
-    }
-
-    public static final class ProjectBuilder {
+    public static final class Builder {
         private Integer zepId;
         private String projectId;
         private String description;
@@ -128,70 +89,60 @@ public class Project {
         private List<String> categories;
         private BillabilityPreset billabilityPreset;
 
-        private ProjectBuilder() {
+        private Builder() {
         }
 
-        public static ProjectBuilder aProject() {
-            return new ProjectBuilder();
+        public static Builder aProject() {
+            return new Builder();
         }
 
-        public ProjectBuilder zepId(Integer zepId) {
+        public Builder zepId(Integer zepId) {
             this.zepId = zepId;
             return this;
         }
 
-        public ProjectBuilder projectId(String projectId) {
+        public Builder projectId(String projectId) {
             this.projectId = projectId;
             return this;
         }
 
-        public ProjectBuilder description(String description) {
+        public Builder description(String description) {
             this.description = description;
             return this;
         }
 
-        public ProjectBuilder startDate(LocalDate startDate) {
+        public Builder startDate(LocalDate startDate) {
             this.startDate = startDate;
             return this;
         }
 
-        public ProjectBuilder endDate(LocalDate endDate) {
+        public Builder endDate(LocalDate endDate) {
             this.endDate = endDate;
             return this;
         }
 
-        public ProjectBuilder employees(List<String> employees) {
+        public Builder employees(List<String> employees) {
             this.employees = employees;
             return this;
         }
 
-        public ProjectBuilder leads(List<String> leads) {
+        public Builder leads(List<String> leads) {
             this.leads = leads;
             return this;
         }
 
-        public ProjectBuilder categories(List<String> categories) {
+        public Builder categories(List<String> categories) {
             this.categories = categories;
             return this;
         }
 
-        public ProjectBuilder billabilityPreset(BillabilityPreset billabilityPreset) {
+        public Builder billabilityPreset(BillabilityPreset billabilityPreset) {
             this.billabilityPreset = billabilityPreset;
             return this;
         }
 
         public Project build() {
-            Project project = new Project();
-            project.setZepId(zepId);
-            project.setProjectId(projectId);
-            project.setDescription(description);
-            project.setStartDate(startDate);
-            project.setEndDate(endDate);
-            project.setEmployees(employees);
-            project.setLeads(leads);
-            project.setCategories(categories);
-            project.setBillabilityPreset(billabilityPreset);
-            return project;
+            return new Project(this);
         }
     }
 }

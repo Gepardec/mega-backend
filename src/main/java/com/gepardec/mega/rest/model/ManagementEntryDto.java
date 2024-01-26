@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.domain.model.State;
@@ -11,59 +12,45 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ManagementEntryDto {
 
-    @JsonProperty
-    private EmployeeDto employee;
+    private final EmployeeDto employee;
 
-    @JsonProperty
-    private State employeeCheckState;
+    private final State employeeCheckState;
 
-    @JsonProperty
-    private String employeeCheckStateReason;
+    private final String employeeCheckStateReason;
 
-    @JsonProperty
-    private State internalCheckState;
+    private final State internalCheckState;
 
-    @JsonProperty
-    private State projectCheckState;
+    private final State projectCheckState;
 
-    @JsonProperty
-    @Nullable
-    private List<PmProgressDto> employeeProgresses;
+    private final List<PmProgressDto> employeeProgresses;
 
-    @JsonProperty
-    private long totalComments;
+    private final long totalComments;
 
-    @JsonProperty
-    private long finishedComments;
+    private final long finishedComments;
 
-    @JsonProperty
-    private String entryDate;
+    private final String entryDate;
 
-    @JsonProperty
-    private String billableTime;
+    private final String billableTime;
 
-    @JsonProperty
-    private String nonBillableTime;
+    private final String nonBillableTime;
 
-    public ManagementEntryDto() {
+    @JsonCreator
+    public ManagementEntryDto(Builder builder) {
+        this.employee = builder.employee;
+        this.employeeCheckState = builder.employeeCheckState;
+        this.employeeCheckStateReason = builder.employeeCheckStateReason;
+        this.internalCheckState = builder.internalCheckState;
+        this.projectCheckState = builder.projectCheckState;
+        this.employeeProgresses = builder.employeeProgresses;
+        this.totalComments = builder.totalComments;
+        this.finishedComments = builder.finishedComments;
+        this.entryDate = builder.entryDate;
+        this.billableTime = builder.billableTime;
+        this.nonBillableTime = builder.nonBillableTime;
     }
 
-    public ManagementEntryDto(EmployeeDto employee, State employeeCheckState, String employeeCheckStateReason, State internalCheckState, State projectCheckState, @Nullable List<PmProgressDto> employeeProgresses, long totalComments, long finishedComments, String entryDate, String billableTime, String nonBillableTime) {
-        this.employee = employee;
-        this.employeeCheckState = employeeCheckState;
-        this.employeeCheckStateReason = employeeCheckStateReason;
-        this.internalCheckState = internalCheckState;
-        this.projectCheckState = projectCheckState;
-        this.employeeProgresses = employeeProgresses;
-        this.totalComments = totalComments;
-        this.finishedComments = finishedComments;
-        this.entryDate = entryDate;
-        this.billableTime = billableTime;
-        this.nonBillableTime = nonBillableTime;
-    }
-
-    public static ManagementEntryDtoBuilder builder() {
-        return ManagementEntryDtoBuilder.aManagementEntryDto();
+    public static Builder builder() {
+        return Builder.aManagementEntryDto();
     }
 
     @Override
@@ -83,40 +70,20 @@ public class ManagementEntryDto {
         return employee;
     }
 
-    public void setEmployee(EmployeeDto employee) {
-        this.employee = employee;
-    }
-
     public State getEmployeeCheckState() {
         return employeeCheckState;
-    }
-
-    public void setEmployeeCheckState(State employeeCheckState) {
-        this.employeeCheckState = employeeCheckState;
     }
 
     public String getEmployeeCheckStateReason() {
         return employeeCheckStateReason;
     }
 
-    public void setEmployeeCheckStateReason(String employeeCheckStateReason) {
-        this.employeeCheckStateReason = employeeCheckStateReason;
-    }
-
     public State getInternalCheckState() {
         return internalCheckState;
     }
 
-    public void setInternalCheckState(State internalCheckState) {
-        this.internalCheckState = internalCheckState;
-    }
-
     public State getProjectCheckState() {
         return projectCheckState;
-    }
-
-    public void setProjectCheckState(State projectCheckState) {
-        this.projectCheckState = projectCheckState;
     }
 
     @Nullable
@@ -124,139 +91,116 @@ public class ManagementEntryDto {
         return employeeProgresses;
     }
 
-    public void setEmployeeProgresses(@Nullable List<PmProgressDto> employeeProgresses) {
-        this.employeeProgresses = employeeProgresses;
-    }
 
     public long getTotalComments() {
         return totalComments;
-    }
-
-    public void setTotalComments(long totalComments) {
-        this.totalComments = totalComments;
     }
 
     public long getFinishedComments() {
         return finishedComments;
     }
 
-    public void setFinishedComments(long finishedComments) {
-        this.finishedComments = finishedComments;
-    }
-
     public String getEntryDate() {
         return entryDate;
-    }
-
-    public void setEntryDate(String entryDate) {
-        this.entryDate = entryDate;
     }
 
     public String getBillableTime() {
         return billableTime;
     }
 
-    public void setBillableTime(String billableTime) {
-        this.billableTime = billableTime;
-    }
-
     public String getNonBillableTime() {
         return nonBillableTime;
     }
 
-    public void setNonBillableTime(String nonBillableTime) {
-        this.nonBillableTime = nonBillableTime;
-    }
-
-    public static final class ManagementEntryDtoBuilder {
+    public static final class Builder {
+        @JsonProperty
         private EmployeeDto employee;
+        @JsonProperty
         private State employeeCheckState;
+        @JsonProperty
         private String employeeCheckStateReason;
+        @JsonProperty
         private State internalCheckState;
+        @JsonProperty
         private State projectCheckState;
+        @JsonProperty
+        @Nullable
         private List<PmProgressDto> employeeProgresses;
+        @JsonProperty
         private long totalComments;
+        @JsonProperty
         private long finishedComments;
+        @JsonProperty
         private String entryDate;
+        @JsonProperty
         private String billableTime;
+        @JsonProperty
         private String nonBillableTime;
 
-        private ManagementEntryDtoBuilder() {
+        private Builder() {
         }
 
-        public static ManagementEntryDtoBuilder aManagementEntryDto() {
-            return new ManagementEntryDtoBuilder();
+        public static Builder aManagementEntryDto() {
+            return new Builder();
         }
 
-        public ManagementEntryDtoBuilder employee(EmployeeDto employee) {
+        public Builder employee(EmployeeDto employee) {
             this.employee = employee;
             return this;
         }
 
-        public ManagementEntryDtoBuilder employeeCheckState(State employeeCheckState) {
+        public Builder employeeCheckState(State employeeCheckState) {
             this.employeeCheckState = employeeCheckState;
             return this;
         }
 
-        public ManagementEntryDtoBuilder employeeCheckStateReason(String employeeCheckStateReason) {
+        public Builder employeeCheckStateReason(String employeeCheckStateReason) {
             this.employeeCheckStateReason = employeeCheckStateReason;
             return this;
         }
 
-        public ManagementEntryDtoBuilder internalCheckState(State internalCheckState) {
+        public Builder internalCheckState(State internalCheckState) {
             this.internalCheckState = internalCheckState;
             return this;
         }
 
-        public ManagementEntryDtoBuilder projectCheckState(State projectCheckState) {
+        public Builder projectCheckState(State projectCheckState) {
             this.projectCheckState = projectCheckState;
             return this;
         }
 
-        public ManagementEntryDtoBuilder employeeProgresses(List<PmProgressDto> employeeProgresses) {
+        public Builder employeeProgresses(List<PmProgressDto> employeeProgresses) {
             this.employeeProgresses = employeeProgresses;
             return this;
         }
 
-        public ManagementEntryDtoBuilder totalComments(long totalComments) {
+        public Builder totalComments(long totalComments) {
             this.totalComments = totalComments;
             return this;
         }
 
-        public ManagementEntryDtoBuilder finishedComments(long finishedComments) {
+        public Builder finishedComments(long finishedComments) {
             this.finishedComments = finishedComments;
             return this;
         }
 
-        public ManagementEntryDtoBuilder entryDate(String entryDate) {
+        public Builder entryDate(String entryDate) {
             this.entryDate = entryDate;
             return this;
         }
 
-        public ManagementEntryDtoBuilder billableTime(String billableTime) {
+        public Builder billableTime(String billableTime) {
             this.billableTime = billableTime;
             return this;
         }
 
-        public ManagementEntryDtoBuilder nonBillableTime(String nonBillableTime) {
+        public Builder nonBillableTime(String nonBillableTime) {
             this.nonBillableTime = nonBillableTime;
             return this;
         }
 
         public ManagementEntryDto build() {
-            ManagementEntryDto managementEntryDto = new ManagementEntryDto();
-            managementEntryDto.setEmployee(employee);
-            managementEntryDto.setEmployeeCheckState(employeeCheckState);
-            managementEntryDto.setEmployeeCheckStateReason(employeeCheckStateReason);
-            managementEntryDto.setInternalCheckState(internalCheckState);
-            managementEntryDto.setProjectCheckState(projectCheckState);
-            managementEntryDto.setEmployeeProgresses(employeeProgresses);
-            managementEntryDto.setTotalComments(totalComments);
-            managementEntryDto.setFinishedComments(finishedComments);
-            managementEntryDto.setEntryDate(entryDate);
-            managementEntryDto.setBillableTime(billableTime);
-            managementEntryDto.setNonBillableTime(nonBillableTime);
-            return managementEntryDto;
+            return new ManagementEntryDto(this);
         }
     }
 }

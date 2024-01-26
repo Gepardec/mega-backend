@@ -4,30 +4,26 @@ import java.time.LocalDateTime;
 
 public class ProjectTimeEntry implements ProjectEntry {
 
-    private LocalDateTime fromTime;
+    private final LocalDateTime fromTime;
 
-    private LocalDateTime toTime;
+    private final LocalDateTime toTime;
 
-    private Task task;
+    private final Task task;
 
-    private WorkingLocation workingLocation;
+    private final WorkingLocation workingLocation;
 
-    private String process;
+    private final String process;
 
-    public ProjectTimeEntry() {
-
+    public ProjectTimeEntry(Builder builder) {
+        this.fromTime = builder.fromTime;
+        this.toTime = builder.toTime;
+        this.task = builder.task;
+        this.workingLocation = builder.workingLocation;
+        this.process = builder.process;
     }
 
-    public ProjectTimeEntry(LocalDateTime fromTime, LocalDateTime toTime, Task task, WorkingLocation workingLocation, String process) {
-        this.fromTime = fromTime;
-        this.toTime = toTime;
-        this.task = task;
-        this.workingLocation = workingLocation;
-        this.process = process;
-    }
-
-    public static ProjectTimeEntryBuilder builder() {
-        return ProjectTimeEntryBuilder.aProjectTimeEntry();
+    public static Builder builder() {
+        return Builder.aProjectTimeEntry();
     }
 
     @Override
@@ -35,17 +31,9 @@ public class ProjectTimeEntry implements ProjectEntry {
         return fromTime;
     }
 
-    public void setFromTime(LocalDateTime fromTime) {
-        this.fromTime = fromTime;
-    }
-
     @Override
     public LocalDateTime getToTime() {
         return toTime;
-    }
-
-    public void setToTime(LocalDateTime toTime) {
-        this.toTime = toTime;
     }
 
     @Override
@@ -53,74 +41,56 @@ public class ProjectTimeEntry implements ProjectEntry {
         return task;
     }
 
-    public void setTask(Task task) {
-        this.task = task;
-    }
-
     @Override
     public WorkingLocation getWorkingLocation() {
         return workingLocation;
-    }
-
-    public void setWorkingLocation(WorkingLocation workingLocation) {
-        this.workingLocation = workingLocation;
     }
 
     public String getProcess() {
         return process;
     }
 
-    public void setProcess(String process) {
-        this.process = process;
-    }
-
-    public static final class ProjectTimeEntryBuilder {
+    public static final class Builder {
         private LocalDateTime fromTime;
         private LocalDateTime toTime;
         private Task task;
         private WorkingLocation workingLocation;
         private String process;
 
-        private ProjectTimeEntryBuilder() {
+        private Builder() {
         }
 
-        public static ProjectTimeEntryBuilder aProjectTimeEntry() {
-            return new ProjectTimeEntryBuilder();
+        public static Builder aProjectTimeEntry() {
+            return new Builder();
         }
 
-        public ProjectTimeEntryBuilder fromTime(LocalDateTime fromTime) {
+        public Builder fromTime(LocalDateTime fromTime) {
             this.fromTime = fromTime;
             return this;
         }
 
-        public ProjectTimeEntryBuilder toTime(LocalDateTime toTime) {
+        public Builder toTime(LocalDateTime toTime) {
             this.toTime = toTime;
             return this;
         }
 
-        public ProjectTimeEntryBuilder task(Task task) {
+        public Builder task(Task task) {
             this.task = task;
             return this;
         }
 
-        public ProjectTimeEntryBuilder workingLocation(WorkingLocation workingLocation) {
+        public Builder workingLocation(WorkingLocation workingLocation) {
             this.workingLocation = workingLocation;
             return this;
         }
 
-        public ProjectTimeEntryBuilder process(String process) {
+        public Builder process(String process) {
             this.process = process;
             return this;
         }
 
         public ProjectTimeEntry build() {
-            ProjectTimeEntry projectTimeEntry = new ProjectTimeEntry();
-            projectTimeEntry.setFromTime(fromTime);
-            projectTimeEntry.setToTime(toTime);
-            projectTimeEntry.setTask(task);
-            projectTimeEntry.setWorkingLocation(workingLocation);
-            projectTimeEntry.setProcess(process);
-            return projectTimeEntry;
+            return new ProjectTimeEntry(this);
         }
     }
 }

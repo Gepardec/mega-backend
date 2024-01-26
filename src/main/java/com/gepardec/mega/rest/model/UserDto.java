@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.domain.model.Role;
@@ -10,168 +11,124 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDto {
 
-    @JsonProperty
-    private long dbId;
+    private final long dbId;
 
-    @JsonProperty
-    private String userId;
+    private final String userId;
 
-    @JsonProperty
-    private String email;
+    private final String email;
 
-    @JsonProperty
-    private String firstname;
+    private final String firstname;
 
-    @JsonProperty
-    private String lastname;
+    private final String lastname;
 
-    @JsonProperty
-    private LocalDate releaseDate;
+    private final LocalDate releaseDate;
 
-    @JsonProperty
-    private Set<Role> roles;
+    private final Set<Role> roles;
 
-    public UserDto() {
+    @JsonCreator
+    public UserDto(Builder builder) {
+        this.dbId = builder.dbId;
+        this.userId = builder.userId;
+        this.email = builder.email;
+        this.firstname = builder.firstname;
+        this.lastname = builder.lastname;
+        this.releaseDate = builder.releaseDate;
+        this.roles = builder.roles;
     }
 
-    public UserDto(long dbId, String userId, String email, String firstname, String lastname, LocalDate releaseDate, Set<Role> roles) {
-        this.dbId = dbId;
-        this.userId = userId;
-        this.email = email;
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.releaseDate = releaseDate;
-        this.roles = roles;
-    }
-
-    public static UserDtoBuilder builder() {
-        return UserDtoBuilder.anUserDto();
+    public static Builder builder() {
+        return Builder.anUserDto();
     }
 
     public long getDbId() {
         return dbId;
     }
 
-    @JsonProperty
-    public void setDbId(long dbId) {
-        this.dbId = dbId;
-    }
 
     public String getUserId() {
         return userId;
-    }
-
-    @JsonProperty
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public String getEmail() {
         return email;
     }
 
-    @JsonProperty
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getFirstname() {
         return firstname;
-    }
-
-    @JsonProperty
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
     }
 
     public String getLastname() {
         return lastname;
     }
 
-    @JsonProperty
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
-    }
-
     public LocalDate getReleaseDate() {
         return releaseDate;
-    }
-
-    @JsonProperty
-    public void setReleaseDate(LocalDate releaseDate) {
-        this.releaseDate = releaseDate;
     }
 
     public Set<Role> getRoles() {
         return roles;
     }
 
-    @JsonProperty
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
-
-    public static final class UserDtoBuilder {
+    public static final class Builder {
+        @JsonProperty
         private long dbId;
+        @JsonProperty
         private String userId;
+        @JsonProperty
         private String email;
+        @JsonProperty
         private String firstname;
+        @JsonProperty
         private String lastname;
+        @JsonProperty
         private LocalDate releaseDate;
+        @JsonProperty
         private Set<Role> roles;
 
-        private UserDtoBuilder() {
+        private Builder() {
         }
 
-        public static UserDtoBuilder anUserDto() {
-            return new UserDtoBuilder();
+        public static Builder anUserDto() {
+            return new Builder();
         }
 
-        public UserDtoBuilder dbId(long dbId) {
+        public Builder dbId(long dbId) {
             this.dbId = dbId;
             return this;
         }
 
-        public UserDtoBuilder userId(String userId) {
+        public Builder userId(String userId) {
             this.userId = userId;
             return this;
         }
 
-        public UserDtoBuilder email(String email) {
+        public Builder email(String email) {
             this.email = email;
             return this;
         }
 
-        public UserDtoBuilder firstname(String firstname) {
+        public Builder firstname(String firstname) {
             this.firstname = firstname;
             return this;
         }
 
-        public UserDtoBuilder lastname(String lastname) {
+        public Builder lastname(String lastname) {
             this.lastname = lastname;
             return this;
         }
 
-        public UserDtoBuilder releaseDate(LocalDate releaseDate) {
+        public Builder releaseDate(LocalDate releaseDate) {
             this.releaseDate = releaseDate;
             return this;
         }
 
-        public UserDtoBuilder roles(Set<Role> roles) {
+        public Builder roles(Set<Role> roles) {
             this.roles = roles;
             return this;
         }
 
         public UserDto build() {
-            UserDto userDto = new UserDto();
-            userDto.setDbId(dbId);
-            userDto.setUserId(userId);
-            userDto.setEmail(email);
-            userDto.setFirstname(firstname);
-            userDto.setLastname(lastname);
-            userDto.setReleaseDate(releaseDate);
-            userDto.setRoles(roles);
-            return userDto;
+           return new UserDto(this);
         }
     }
 }

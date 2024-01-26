@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
@@ -10,161 +11,117 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CommentDto {
 
-    @JsonProperty
-    private Long id;
+    private final Long id;
 
-    @JsonProperty
-    private String message;
+    private final String message;
 
-    @JsonProperty
-    private String authorEmail;
+    private final String authorEmail;
 
-    @JsonProperty
-    private String authorName;
+    private final String authorName;
 
-    @JsonProperty
-    private String updateDate;
+    private final String updateDate;
 
-    @JsonProperty
-    private EmployeeState state;
+    private final EmployeeState state;
 
-    @JsonProperty
-    private SourceSystem sourceSystem;
+    private final SourceSystem sourceSystem;
 
-    public CommentDto() {
+    @JsonCreator
+    public CommentDto(Builder builder) {
+        this.id = builder.id;
+        this.message = builder.message;
+        this.authorEmail = builder.authorEmail;
+        this.authorName = builder.authorName;
+        this.updateDate = builder.updateDate;
+        this.state = builder.state;
+        this.sourceSystem = builder.sourceSystem;
     }
 
-    public CommentDto(Long id, String message, String authorEmail, String authorName, String updateDate, EmployeeState state, SourceSystem sourceSystem) {
-        this.id = id;
-        this.message = message;
-        this.authorEmail = authorEmail;
-        this.authorName = authorName;
-        this.updateDate = updateDate;
-        this.state = state;
-        this.sourceSystem = sourceSystem;
-    }
-
-    public static CommentDtoBuilder builder() {
-        return CommentDtoBuilder.aCommentDto();
+    public static Builder builder() {
+        return Builder.aCommentDto();
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getMessage() {
         return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public String getAuthorEmail() {
         return authorEmail;
     }
 
-    public void setAuthorEmail(String authorEmail) {
-        this.authorEmail = authorEmail;
-    }
-
     public String getAuthorName() {
         return authorName;
-    }
-
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
     }
 
     public String getUpdateDate() {
         return updateDate;
     }
 
-    public void setUpdateDate(String updateDate) {
-        this.updateDate = updateDate;
-    }
-
     public EmployeeState getState() {
         return state;
-    }
-
-    public void setState(EmployeeState state) {
-        this.state = state;
     }
 
     public SourceSystem getSourceSystem() {
         return sourceSystem;
     }
 
-    public void setSourceSystem(SourceSystem sourceSystem) {
-        this.sourceSystem = sourceSystem;
-    }
 
-    public static final class CommentDtoBuilder {
-        private Long id;
-        private String message;
-        private String authorEmail;
-        private String authorName;
-        private String updateDate;
-        private EmployeeState state;
-        private SourceSystem sourceSystem;
+    public static final class Builder {
+        @JsonProperty private Long id;
+        @JsonProperty private String message;
+        @JsonProperty private String authorEmail;
+        @JsonProperty private String authorName;
+        @JsonProperty private String updateDate;
+        @JsonProperty private EmployeeState state;
+        @JsonProperty private SourceSystem sourceSystem;
 
-        private CommentDtoBuilder() {
+        private Builder() {
         }
 
-        public static CommentDtoBuilder aCommentDto() {
-            return new CommentDtoBuilder();
+        public static Builder aCommentDto() {
+            return new Builder();
         }
 
-        public CommentDtoBuilder id(Long id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }
 
-        public CommentDtoBuilder message(String message) {
+        public Builder message(String message) {
             this.message = message;
             return this;
         }
 
-        public CommentDtoBuilder authorEmail(String authorEmail) {
+        public Builder authorEmail(String authorEmail) {
             this.authorEmail = authorEmail;
             return this;
         }
 
-        public CommentDtoBuilder authorName(String authorName) {
+        public Builder authorName(String authorName) {
             this.authorName = authorName;
             return this;
         }
 
-        public CommentDtoBuilder updateDate(String updateDate) {
+        public Builder updateDate(String updateDate) {
             this.updateDate = updateDate;
             return this;
         }
 
-        public CommentDtoBuilder state(EmployeeState state) {
+        public Builder state(EmployeeState state) {
             this.state = state;
             return this;
         }
 
-        public CommentDtoBuilder sourceSystem(SourceSystem sourceSystem) {
+        public Builder sourceSystem(SourceSystem sourceSystem) {
             this.sourceSystem = sourceSystem;
             return this;
         }
 
         public CommentDto build() {
-            CommentDto commentDto = new CommentDto();
-            commentDto.setId(id);
-            commentDto.setMessage(message);
-            commentDto.setAuthorEmail(authorEmail);
-            commentDto.setAuthorName(authorName);
-            commentDto.setUpdateDate(updateDate);
-            commentDto.setState(state);
-            commentDto.setSourceSystem(sourceSystem);
-            return commentDto;
+            return new CommentDto(this);
         }
 
     }

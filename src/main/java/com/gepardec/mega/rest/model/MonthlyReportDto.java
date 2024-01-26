@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -15,123 +16,94 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MonthlyReportDto {
-    @JsonProperty
-    private EmployeeDto employee;
 
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    @JsonSerialize(using = LocalDateSerializer.class)
-    private LocalDate initialDate;
+    private final EmployeeDto employee;
 
-    @JsonProperty
-    private List<MappedTimeWarningDTO> timeWarnings;
+    private final LocalDate initialDate;
 
-    @JsonProperty
-    private List<JourneyWarning> journeyWarnings;
+    private final List<MappedTimeWarningDTO> timeWarnings;
 
-    @JsonProperty
-    private List<CommentDto> comments;
+    private final List<JourneyWarning> journeyWarnings;
 
-    @JsonProperty
-    private EmployeeState employeeCheckState;
+    private final List<CommentDto> comments;
 
-    @JsonProperty
-    private String employeeCheckStateReason;
+    private final EmployeeState employeeCheckState;
 
-    @JsonProperty
-    private EmployeeState internalCheckState;
+    private final String employeeCheckStateReason;
 
-    @JsonProperty
-    private List<PmProgressDto> employeeProgresses;
+    private final EmployeeState internalCheckState;
 
-    @JsonProperty
-    private boolean otherChecksDone;
+    private final List<PmProgressDto> employeeProgresses;
 
-    @JsonProperty
-    private int vacationDays;
+    private final boolean otherChecksDone;
 
-    @JsonProperty
-    private int homeofficeDays;
+    private final int vacationDays;
 
-    @JsonProperty
-    private int compensatoryDays;
+    private final int homeofficeDays;
 
-    @JsonProperty
-    private int nursingDays;
+    private final int compensatoryDays;
 
-    @JsonProperty
-    private int maternityLeaveDays;
+    private final int nursingDays;
 
-    @JsonProperty
-    private int externalTrainingDays;
+    private final int maternityLeaveDays;
 
-    @JsonProperty
-    private int conferenceDays;
+    private final int externalTrainingDays;
 
-    @JsonProperty
-    private int maternityProtectionDays;
+    private final int conferenceDays;
 
-    @JsonProperty
-    private int fatherMonthDays;
+    private final int maternityProtectionDays;
 
-    @JsonProperty
-    private int paidSpecialLeaveDays;
+    private final int fatherMonthDays;
 
-    @JsonProperty
-    private int nonPaidVacationDays;
+    private final int paidSpecialLeaveDays;
 
-    @JsonProperty
-    private double vacationDayBalance;
+    private final int nonPaidVacationDays;
 
-    @JsonProperty
-    private String billableTime;
+    private final double vacationDayBalance;
 
-    @JsonProperty
-    private String totalWorkingTime;
+    private final String billableTime;
 
-    @JsonProperty
-    private int paidSickLeave;
+    private final String totalWorkingTime;
 
-    @JsonProperty
-    private double overtime;
+    private final int paidSickLeave;
 
-    @JsonProperty
-    private boolean hasPrematureEmployeeCheck;
+    private final double overtime;
 
-    public MonthlyReportDto() {
+    private final boolean hasPrematureEmployeeCheck;
+
+    @JsonCreator
+    public MonthlyReportDto(Builder builder) {
+        this.employee = builder.employee;
+        this.initialDate = builder.initialDate;
+        this.timeWarnings = builder.timeWarnings;
+        this.journeyWarnings = builder.journeyWarnings;
+        this.comments = builder.comments;
+        this.employeeCheckState = builder.employeeCheckState;
+        this.employeeCheckStateReason = builder.employeeCheckStateReason;
+        this.internalCheckState = builder.internalCheckState;
+        this.employeeProgresses = builder.employeeProgresses;
+        this.otherChecksDone = builder.otherChecksDone;
+        this.vacationDays = builder.vacationDays;
+        this.homeofficeDays = builder.homeofficeDays;
+        this.compensatoryDays = builder.compensatoryDays;
+        this.nursingDays = builder.nursingDays;
+        this.maternityLeaveDays = builder.maternityLeaveDays;
+        this.externalTrainingDays = builder.externalTrainingDays;
+        this.conferenceDays = builder.conferenceDays;
+        this.maternityProtectionDays = builder.maternityProtectionDays;
+        this.fatherMonthDays = builder.fatherMonthDays;
+        this.paidSpecialLeaveDays = builder.paidSpecialLeaveDays;
+        this.nonPaidVacationDays = builder.nonPaidVacationDays;
+        this.vacationDayBalance = builder.vacationDayBalance;
+        this.billableTime = builder.billableTime;
+        this.totalWorkingTime = builder.totalWorkingTime;
+        this.paidSickLeave = builder.paidSickLeave;
+        this.overtime = builder.overtime;
+        this.hasPrematureEmployeeCheck = builder.hasPrematureEmployeeCheck;
     }
 
-    public MonthlyReportDto(EmployeeDto employee, LocalDate initialDate, List<MappedTimeWarningDTO> timeWarnings, List<JourneyWarning> journeyWarnings, List<CommentDto> comments, EmployeeState employeeCheckState, String employeeCheckStateReason, EmployeeState internalCheckState, List<PmProgressDto> employeeProgresses, boolean otherChecksDone, int vacationDays, int homeofficeDays, int compensatoryDays, int nursingDays, int maternityLeaveDays, int externalTrainingDays, int conferenceDays, int maternityProtectionDays, int fatherMonthDays, int paidSpecialLeaveDays, int nonPaidVacationDays, double vacationDayBalance, String billableTime, String totalWorkingTime, int paidSickLeave, double overtime, boolean hasPrematureEmployeeCheck) {
-        this.employee = employee;
-        this.initialDate = initialDate;
-        this.timeWarnings = timeWarnings;
-        this.journeyWarnings = journeyWarnings;
-        this.comments = comments;
-        this.employeeCheckState = employeeCheckState;
-        this.employeeCheckStateReason = employeeCheckStateReason;
-        this.internalCheckState = internalCheckState;
-        this.employeeProgresses = employeeProgresses;
-        this.otherChecksDone = otherChecksDone;
-        this.vacationDays = vacationDays;
-        this.homeofficeDays = homeofficeDays;
-        this.compensatoryDays = compensatoryDays;
-        this.nursingDays = nursingDays;
-        this.maternityLeaveDays = maternityLeaveDays;
-        this.externalTrainingDays = externalTrainingDays;
-        this.conferenceDays = conferenceDays;
-        this.maternityProtectionDays = maternityProtectionDays;
-        this.fatherMonthDays = fatherMonthDays;
-        this.paidSpecialLeaveDays = paidSpecialLeaveDays;
-        this.nonPaidVacationDays = nonPaidVacationDays;
-        this.vacationDayBalance = vacationDayBalance;
-        this.billableTime = billableTime;
-        this.totalWorkingTime = totalWorkingTime;
-        this.paidSickLeave = paidSickLeave;
-        this.overtime = overtime;
-        this.hasPrematureEmployeeCheck = hasPrematureEmployeeCheck;
-    }
-
-    public static MonthlyReportDtoBuilder builder() {
-        return MonthlyReportDtoBuilder.aMonthlyReportDto();
+    public static Builder builder() {
+        return Builder.aMonthlyReportDto();
     }
 
     @Override
@@ -151,419 +123,312 @@ public class MonthlyReportDto {
         return employee;
     }
 
-    public void setEmployee(EmployeeDto employee) {
-        this.employee = employee;
-    }
-
     public LocalDate getInitialDate() {
         return initialDate;
-    }
-
-    public void setInitialDate(LocalDate initialDate) {
-        this.initialDate = initialDate;
     }
 
     public List<MappedTimeWarningDTO> getTimeWarnings() {
         return timeWarnings;
     }
 
-    public void setTimeWarnings(List<MappedTimeWarningDTO> timeWarnings) {
-        this.timeWarnings = timeWarnings;
-    }
-
     public List<JourneyWarning> getJourneyWarnings() {
         return journeyWarnings;
-    }
-
-    public void setJourneyWarnings(List<JourneyWarning> journeyWarnings) {
-        this.journeyWarnings = journeyWarnings;
     }
 
     public List<CommentDto> getComments() {
         return comments;
     }
 
-    public void setComments(List<CommentDto> comments) {
-        this.comments = comments;
-    }
-
     public EmployeeState getEmployeeCheckState() {
         return employeeCheckState;
-    }
-
-    public void setEmployeeCheckState(EmployeeState employeeCheckState) {
-        this.employeeCheckState = employeeCheckState;
     }
 
     public String getEmployeeCheckStateReason() {
         return employeeCheckStateReason;
     }
 
-    public void setEmployeeCheckStateReason(String employeeCheckStateReason) {
-        this.employeeCheckStateReason = employeeCheckStateReason;
-    }
-
     public EmployeeState getInternalCheckState() {
         return internalCheckState;
-    }
-
-    public void setInternalCheckState(EmployeeState internalCheckState) {
-        this.internalCheckState = internalCheckState;
     }
 
     public List<PmProgressDto> getEmployeeProgresses() {
         return employeeProgresses;
     }
 
-    public void setEmployeeProgresses(List<PmProgressDto> employeeProgresses) {
-        this.employeeProgresses = employeeProgresses;
-    }
-
     public boolean isOtherChecksDone() {
         return otherChecksDone;
-    }
-
-    public void setOtherChecksDone(boolean otherChecksDone) {
-        this.otherChecksDone = otherChecksDone;
     }
 
     public int getVacationDays() {
         return vacationDays;
     }
 
-    public void setVacationDays(int vacationDays) {
-        this.vacationDays = vacationDays;
-    }
-
     public int getHomeofficeDays() {
         return homeofficeDays;
-    }
-
-    public void setHomeofficeDays(int homeofficeDays) {
-        this.homeofficeDays = homeofficeDays;
     }
 
     public int getCompensatoryDays() {
         return compensatoryDays;
     }
 
-    public void setCompensatoryDays(int compensatoryDays) {
-        this.compensatoryDays = compensatoryDays;
-    }
-
     public int getNursingDays() {
         return nursingDays;
-    }
-
-    public void setNursingDays(int nursingDays) {
-        this.nursingDays = nursingDays;
     }
 
     public int getMaternityLeaveDays() {
         return maternityLeaveDays;
     }
 
-    public void setMaternityLeaveDays(int maternityLeaveDays) {
-        this.maternityLeaveDays = maternityLeaveDays;
-    }
-
     public int getExternalTrainingDays() {
         return externalTrainingDays;
-    }
-
-    public void setExternalTrainingDays(int externalTrainingDays) {
-        this.externalTrainingDays = externalTrainingDays;
     }
 
     public int getConferenceDays() {
         return conferenceDays;
     }
 
-    public void setConferenceDays(int conferenceDays) {
-        this.conferenceDays = conferenceDays;
-    }
-
     public int getMaternityProtectionDays() {
         return maternityProtectionDays;
-    }
-
-    public void setMaternityProtectionDays(int maternityProtectionDays) {
-        this.maternityProtectionDays = maternityProtectionDays;
     }
 
     public int getFatherMonthDays() {
         return fatherMonthDays;
     }
 
-    public void setFatherMonthDays(int fatherMonthDays) {
-        this.fatherMonthDays = fatherMonthDays;
-    }
-
     public int getPaidSpecialLeaveDays() {
         return paidSpecialLeaveDays;
-    }
-
-    public void setPaidSpecialLeaveDays(int paidSpecialLeaveDays) {
-        this.paidSpecialLeaveDays = paidSpecialLeaveDays;
     }
 
     public int getNonPaidVacationDays() {
         return nonPaidVacationDays;
     }
 
-    public void setNonPaidVacationDays(int nonPaidVacationDays) {
-        this.nonPaidVacationDays = nonPaidVacationDays;
-    }
-
     public double getVacationDayBalance() {
         return vacationDayBalance;
-    }
-
-    public void setVacationDayBalance(double vacationDayBalance) {
-        this.vacationDayBalance = vacationDayBalance;
     }
 
     public String getBillableTime() {
         return billableTime;
     }
 
-    public void setBillableTime(String billableTime) {
-        this.billableTime = billableTime;
-    }
-
     public String getTotalWorkingTime() {
         return totalWorkingTime;
-    }
-
-    public void setTotalWorkingTime(String totalWorkingTime) {
-        this.totalWorkingTime = totalWorkingTime;
     }
 
     public int getPaidSickLeave() {
         return paidSickLeave;
     }
 
-    public void setPaidSickLeave(int paidSickLeave) {
-        this.paidSickLeave = paidSickLeave;
-    }
-
     public double getOvertime() {
         return overtime;
-    }
-
-    public void setOvertime(double overtime) {
-        this.overtime = overtime;
     }
 
     public boolean isHasPrematureEmployeeCheck() {
         return hasPrematureEmployeeCheck;
     }
 
-    public void setHasPrematureEmployeeCheck(boolean hasPrematureEmployeeCheck) {
-        this.hasPrematureEmployeeCheck = hasPrematureEmployeeCheck;
-    }
-
-    public static final class MonthlyReportDtoBuilder {
+    public static final class Builder {
+        @JsonProperty
         private EmployeeDto employee;
+        @JsonDeserialize(using = LocalDateDeserializer.class)
+        @JsonSerialize(using = LocalDateSerializer.class)
+        @JsonProperty
         private LocalDate initialDate;
+        @JsonProperty
         private List<MappedTimeWarningDTO> timeWarnings;
+        @JsonProperty
         private List<JourneyWarning> journeyWarnings;
+        @JsonProperty
         private List<CommentDto> comments;
+        @JsonProperty
         private EmployeeState employeeCheckState;
+        @JsonProperty
         private String employeeCheckStateReason;
+        @JsonProperty
         private EmployeeState internalCheckState;
+        @JsonProperty
         private List<PmProgressDto> employeeProgresses;
+        @JsonProperty
         private boolean otherChecksDone;
+        @JsonProperty
         private int vacationDays;
+        @JsonProperty
         private int homeofficeDays;
+        @JsonProperty
         private int compensatoryDays;
+        @JsonProperty
         private int nursingDays;
+        @JsonProperty
         private int maternityLeaveDays;
+        @JsonProperty
         private int externalTrainingDays;
+        @JsonProperty
         private int conferenceDays;
+        @JsonProperty
         private int maternityProtectionDays;
+        @JsonProperty
         private int fatherMonthDays;
+        @JsonProperty
         private int paidSpecialLeaveDays;
+        @JsonProperty
         private int nonPaidVacationDays;
+        @JsonProperty
         private double vacationDayBalance;
+        @JsonProperty
         private String billableTime;
+        @JsonProperty
         private String totalWorkingTime;
+        @JsonProperty
         private int paidSickLeave;
+        @JsonProperty
         private double overtime;
+        @JsonProperty
         private boolean hasPrematureEmployeeCheck;
 
-        private MonthlyReportDtoBuilder() {
+        private Builder() {
         }
 
-        public static MonthlyReportDtoBuilder aMonthlyReportDto() {
-            return new MonthlyReportDtoBuilder();
+        public static Builder aMonthlyReportDto() {
+            return new Builder();
         }
 
-        public MonthlyReportDtoBuilder employee(EmployeeDto employee) {
+        public Builder employee(EmployeeDto employee) {
             this.employee = employee;
             return this;
         }
 
-        public MonthlyReportDtoBuilder initialDate(LocalDate initialDate) {
+        public Builder initialDate(LocalDate initialDate) {
             this.initialDate = initialDate;
             return this;
         }
 
-        public MonthlyReportDtoBuilder timeWarnings(List<MappedTimeWarningDTO> timeWarnings) {
+        public Builder timeWarnings(List<MappedTimeWarningDTO> timeWarnings) {
             this.timeWarnings = timeWarnings;
             return this;
         }
 
-        public MonthlyReportDtoBuilder journeyWarnings(List<JourneyWarning> journeyWarnings) {
+        public Builder journeyWarnings(List<JourneyWarning> journeyWarnings) {
             this.journeyWarnings = journeyWarnings;
             return this;
         }
 
-        public MonthlyReportDtoBuilder comments(List<CommentDto> comments) {
+        public Builder comments(List<CommentDto> comments) {
             this.comments = comments;
             return this;
         }
 
-        public MonthlyReportDtoBuilder employeeCheckState(EmployeeState employeeCheckState) {
+        public Builder employeeCheckState(EmployeeState employeeCheckState) {
             this.employeeCheckState = employeeCheckState;
             return this;
         }
 
-        public MonthlyReportDtoBuilder employeeCheckStateReason(String employeeCheckStateReason) {
+        public Builder employeeCheckStateReason(String employeeCheckStateReason) {
             this.employeeCheckStateReason = employeeCheckStateReason;
             return this;
         }
 
-        public MonthlyReportDtoBuilder internalCheckState(EmployeeState internalCheckState) {
+        public Builder internalCheckState(EmployeeState internalCheckState) {
             this.internalCheckState = internalCheckState;
             return this;
         }
 
-        public MonthlyReportDtoBuilder employeeProgresses(List<PmProgressDto> employeeProgresses) {
+        public Builder employeeProgresses(List<PmProgressDto> employeeProgresses) {
             this.employeeProgresses = employeeProgresses;
             return this;
         }
 
-        public MonthlyReportDtoBuilder otherChecksDone(boolean otherChecksDone) {
+        public Builder otherChecksDone(boolean otherChecksDone) {
             this.otherChecksDone = otherChecksDone;
             return this;
         }
 
-        public MonthlyReportDtoBuilder vacationDays(int vacationDays) {
+        public Builder vacationDays(int vacationDays) {
             this.vacationDays = vacationDays;
             return this;
         }
 
-        public MonthlyReportDtoBuilder homeofficeDays(int homeofficeDays) {
+        public Builder homeofficeDays(int homeofficeDays) {
             this.homeofficeDays = homeofficeDays;
             return this;
         }
 
-        public MonthlyReportDtoBuilder compensatoryDays(int compensatoryDays) {
+        public Builder compensatoryDays(int compensatoryDays) {
             this.compensatoryDays = compensatoryDays;
             return this;
         }
 
-        public MonthlyReportDtoBuilder nursingDays(int nursingDays) {
+        public Builder nursingDays(int nursingDays) {
             this.nursingDays = nursingDays;
             return this;
         }
 
-        public MonthlyReportDtoBuilder maternityLeaveDays(int maternityLeaveDays) {
+        public Builder maternityLeaveDays(int maternityLeaveDays) {
             this.maternityLeaveDays = maternityLeaveDays;
             return this;
         }
 
-        public MonthlyReportDtoBuilder externalTrainingDays(int externalTrainingDays) {
+        public Builder externalTrainingDays(int externalTrainingDays) {
             this.externalTrainingDays = externalTrainingDays;
             return this;
         }
 
-        public MonthlyReportDtoBuilder conferenceDays(int conferenceDays) {
+        public Builder conferenceDays(int conferenceDays) {
             this.conferenceDays = conferenceDays;
             return this;
         }
 
-        public MonthlyReportDtoBuilder maternityProtectionDays(int maternityProtectionDays) {
+        public Builder maternityProtectionDays(int maternityProtectionDays) {
             this.maternityProtectionDays = maternityProtectionDays;
             return this;
         }
 
-        public MonthlyReportDtoBuilder fatherMonthDays(int fatherMonthDays) {
+        public Builder fatherMonthDays(int fatherMonthDays) {
             this.fatherMonthDays = fatherMonthDays;
             return this;
         }
 
-        public MonthlyReportDtoBuilder paidSpecialLeaveDays(int paidSpecialLeaveDays) {
+        public Builder paidSpecialLeaveDays(int paidSpecialLeaveDays) {
             this.paidSpecialLeaveDays = paidSpecialLeaveDays;
             return this;
         }
 
-        public MonthlyReportDtoBuilder nonPaidVacationDays(int nonPaidVacationDays) {
+        public Builder nonPaidVacationDays(int nonPaidVacationDays) {
             this.nonPaidVacationDays = nonPaidVacationDays;
             return this;
         }
 
-        public MonthlyReportDtoBuilder vacationDayBalance(double vacationDayBalance) {
+        public Builder vacationDayBalance(double vacationDayBalance) {
             this.vacationDayBalance = vacationDayBalance;
             return this;
         }
 
-        public MonthlyReportDtoBuilder billableTime(String billableTime) {
+        public Builder billableTime(String billableTime) {
             this.billableTime = billableTime;
             return this;
         }
 
-        public MonthlyReportDtoBuilder totalWorkingTime(String totalWorkingTime) {
+        public Builder totalWorkingTime(String totalWorkingTime) {
             this.totalWorkingTime = totalWorkingTime;
             return this;
         }
 
-        public MonthlyReportDtoBuilder paidSickLeave(int paidSickLeave) {
+        public Builder paidSickLeave(int paidSickLeave) {
             this.paidSickLeave = paidSickLeave;
             return this;
         }
 
-        public MonthlyReportDtoBuilder overtime(double overtime) {
+        public Builder overtime(double overtime) {
             this.overtime = overtime;
             return this;
         }
 
-        public MonthlyReportDtoBuilder hasPrematureEmployeeCheck(boolean hasPrematureEmployeeCheck) {
+        public Builder hasPrematureEmployeeCheck(boolean hasPrematureEmployeeCheck) {
             this.hasPrematureEmployeeCheck = hasPrematureEmployeeCheck;
             return this;
         }
 
         public MonthlyReportDto build() {
-            MonthlyReportDto monthlyReportDto = new MonthlyReportDto();
-            monthlyReportDto.setEmployee(employee);
-            monthlyReportDto.setInitialDate(initialDate);
-            monthlyReportDto.setTimeWarnings(timeWarnings);
-            monthlyReportDto.setJourneyWarnings(journeyWarnings);
-            monthlyReportDto.setComments(comments);
-            monthlyReportDto.setEmployeeCheckState(employeeCheckState);
-            monthlyReportDto.setEmployeeCheckStateReason(employeeCheckStateReason);
-            monthlyReportDto.setInternalCheckState(internalCheckState);
-            monthlyReportDto.setEmployeeProgresses(employeeProgresses);
-            monthlyReportDto.setOtherChecksDone(otherChecksDone);
-            monthlyReportDto.setVacationDays(vacationDays);
-            monthlyReportDto.setHomeofficeDays(homeofficeDays);
-            monthlyReportDto.setCompensatoryDays(compensatoryDays);
-            monthlyReportDto.setNursingDays(nursingDays);
-            monthlyReportDto.setMaternityLeaveDays(maternityLeaveDays);
-            monthlyReportDto.setExternalTrainingDays(externalTrainingDays);
-            monthlyReportDto.setConferenceDays(conferenceDays);
-            monthlyReportDto.setMaternityProtectionDays(maternityProtectionDays);
-            monthlyReportDto.setFatherMonthDays(fatherMonthDays);
-            monthlyReportDto.setPaidSpecialLeaveDays(paidSpecialLeaveDays);
-            monthlyReportDto.setNonPaidVacationDays(nonPaidVacationDays);
-            monthlyReportDto.setVacationDayBalance(vacationDayBalance);
-            monthlyReportDto.setBillableTime(billableTime);
-            monthlyReportDto.setTotalWorkingTime(totalWorkingTime);
-            monthlyReportDto.setPaidSickLeave(paidSickLeave);
-            monthlyReportDto.setOvertime(overtime);
-            monthlyReportDto.setHasPrematureEmployeeCheck(hasPrematureEmployeeCheck);
-            return monthlyReportDto;
+            return new MonthlyReportDto(this);
         }
     }
 }

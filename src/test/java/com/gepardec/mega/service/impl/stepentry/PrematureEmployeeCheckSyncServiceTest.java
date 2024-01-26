@@ -1,7 +1,6 @@
 package com.gepardec.mega.service.impl.stepentry;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.db.entity.employee.Step;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.employee.User;
@@ -43,10 +42,10 @@ public class PrematureEmployeeCheckSyncServiceTest {
     @Test
     void syncPrematureEmployeeChecksWithStepEntries_matchingStepEntryAndPrematureEmployeeCheck_invokeUpdateStepEntries1Time() {
 //        Given
-        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = List.of(createValidPrematureEmployeeCheckBuilder(1, "test@test.com").build());
+        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = List.of(createPrematureEmployeeCheck(1,"test@test.com"));
         Optional<StepEntry> optionalStepEntry = Optional.of(createStepEntry());
 
-        when(stepEntryRepository.updateStateAssigned(any(), any(), eq("test@test.com"), any(), any())).thenReturn(1);
+        when(stepEntryRepository.updateStateAssigned(any(), any(), eq("test@test.com"), any(),any())).thenReturn(1);
         when(prematureEmployeeCheckService.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), any())).thenReturn(optionalStepEntry);
 
@@ -56,31 +55,7 @@ public class PrematureEmployeeCheckSyncServiceTest {
         );
 
 //        Then
-        verify(stepEntryRepository, times(1)).updateStateAssigned(any(), any(), any(), any(), eq(EmployeeState.DONE));
-        verify(prematureEmployeeCheckService, times(1)).deleteById(any());
-        assertThat(updatedAllEntries).isTrue();
-    }
-
-    @Test
-    void syncPrematureEmployeeChecksWithStepEntries_PrematureEmployeeCheckWithReason_invokeUpdateStepEntries1Time() {
-//        Given
-        var prematureEmployeeCheck = createValidPrematureEmployeeCheckBuilder(1, "test@test.com")
-                .reason("Reason")
-                .build();
-        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = List.of(prematureEmployeeCheck);
-        Optional<StepEntry> optionalStepEntry = Optional.of(createStepEntry());
-
-        when(stepEntryRepository.updateStateAssignedWithReason(any(), any(), eq("test@test.com"), any(), any(), any())).thenReturn(1);
-        when(prematureEmployeeCheckService.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
-        when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), any())).thenReturn(optionalStepEntry);
-
-//        When
-        boolean updatedAllEntries = prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(
-                YearMonth.of(testDate.getYear(), testDate.getMonth())
-        );
-
-//        Then
-        verify(stepEntryRepository, times(1)).updateStateAssignedWithReason(any(), any(), any(), any(), eq(EmployeeState.IN_PROGRESS), eq("Reason"));
+        verify(stepEntryRepository, times(1)).updateStateAssigned(any(), any(), any(), any(), any());
         verify(prematureEmployeeCheckService, times(1)).deleteById(any());
         assertThat(updatedAllEntries).isTrue();
     }
@@ -89,14 +64,14 @@ public class PrematureEmployeeCheckSyncServiceTest {
     void syncPrematureEmployeeChecksWithStepEntries_multipleMatchingStepEntryAndPrematureEmployeeCheck_invokeUpdateStepEntries3Times() {
 //        Given
         List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = List.of(
-                createValidPrematureEmployeeCheckBuilder(1, "test@test.com").build(),
-                createValidPrematureEmployeeCheckBuilder(1, "test@test.com").build(),
-                createValidPrematureEmployeeCheckBuilder(1, "test@test.com").build()
+                createPrematureEmployeeCheck(1,"test@test.com"),
+                createPrematureEmployeeCheck(1,"test@test.com"),
+                createPrematureEmployeeCheck(1,"test@test.com")
         );
         Optional<StepEntry> optionalStepEntry = Optional.of(createStepEntry());
 
         when(prematureEmployeeCheckService.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
-        when(stepEntryRepository.updateStateAssigned(any(), any(), eq("test@test.com"), any(), any())).thenReturn(1);
+        when(stepEntryRepository.updateStateAssigned(any(), any(), eq("test@test.com"), any(),any())).thenReturn(1);
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), any())).thenReturn(optionalStepEntry);
 
 //        When
@@ -113,10 +88,10 @@ public class PrematureEmployeeCheckSyncServiceTest {
     @Test
     void syncPrematureEmployeeChecksWithStepEntries_nonMatchingStepEntryAndPrematureEmployeeCheck_returnFalse() {
 //        Given
-        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = List.of(createValidPrematureEmployeeCheckBuilder(-1, "failing-test@test.com").build());
+        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = List.of(createPrematureEmployeeCheck(-1,"failing-test@test.com"));
 
         when(prematureEmployeeCheckService.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
-        when(stepEntryRepository.updateStateAssigned(any(), any(), eq("failing-test@test.com"), any(), any())).thenReturn(0);
+        when(stepEntryRepository.updateStateAssigned(any(), any(), eq("failing-test@test.com"), any(),any())).thenReturn(0);
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), any())).thenReturn(Optional.empty());
 
 //        When
@@ -134,15 +109,15 @@ public class PrematureEmployeeCheckSyncServiceTest {
     void syncPrematureEmployeeChecksWithStepEntries_mishedMatchingStepEntryAndPrematureEmployeeCheck_returnFalseAndInvocate2Times() {
 //        Given
         List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = List.of(
-                createValidPrematureEmployeeCheckBuilder(-1, "failing-test@test.com").build(),
-                createValidPrematureEmployeeCheckBuilder(1, "test@test.com").build(),
-                createValidPrematureEmployeeCheckBuilder(1, "test@test.com").build()
+                createPrematureEmployeeCheck(-1,"failing-test@test.com"),
+                createPrematureEmployeeCheck(1,"test@test.com"),
+                createPrematureEmployeeCheck(1,"test@test.com")
         );
         Optional<StepEntry> optionalStepEntry = Optional.of(createStepEntry());
 
         when(prematureEmployeeCheckService.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
-        when(stepEntryRepository.updateStateAssigned(any(), any(), eq("test@test.com"), any(), any())).thenReturn(1);
-        when(stepEntryRepository.updateStateAssigned(any(), any(), eq("failing-test@test.com"), any(), any())).thenReturn(0);
+        when(stepEntryRepository.updateStateAssigned(any(), any(), eq("test@test.com"), any(),any())).thenReturn(1);
+        when(stepEntryRepository.updateStateAssigned(any(), any(), eq("failing-test@test.com"), any(),any())).thenReturn(0);
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), any())).thenReturn(optionalStepEntry);
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), eq("failing-test@test.com"))).thenReturn(Optional.empty());
 
@@ -172,14 +147,13 @@ public class PrematureEmployeeCheckSyncServiceTest {
         return stepEntry;
     }
 
-    private PrematureEmployeeCheck.PrematureEmployeeCheckBuilder createValidPrematureEmployeeCheckBuilder(long id, String email) {
-        com.gepardec.mega.domain.model.User user = new com.gepardec.mega.domain.model.User();
-        user.setEmail(email);
+    private PrematureEmployeeCheck createPrematureEmployeeCheck(long id, String email) {
+        com.gepardec.mega.domain.model.User user = com.gepardec.mega.domain.model.User.builder().email(email).build();
 
         return PrematureEmployeeCheck.builder()
                 .id(id)
                 .user(user)
                 .forMonth(testDate)
-                .state(PrematureEmployeeCheckState.DONE);
+                .build();
     }
 }

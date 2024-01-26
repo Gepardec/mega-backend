@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -8,38 +9,30 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NewCommentEntryDto {
 
-    @JsonProperty
-    private Long stepId;
+    private final Long stepId;
 
-    @JsonProperty
-    private String employeeEmail;
+    private final String employeeEmail;
 
-    @JsonProperty
-    private String comment;
+    private final String comment;
 
-    @JsonProperty
-    private String assigneeEmail;
+    private final String assigneeEmail;
 
-    @JsonProperty
-    private String project;
+    private final String project;
 
-    @JsonProperty
-    private String currentMonthYear;
+    private final String currentMonthYear;
 
-    public NewCommentEntryDto() {
+    @JsonCreator
+    public NewCommentEntryDto(Builder builder) {
+        this.stepId = builder.stepId;
+        this.employeeEmail = builder.employeeEmail;
+        this.comment = builder.comment;
+        this.assigneeEmail = builder.assigneeEmail;
+        this.project = builder.project;
+        this.currentMonthYear = builder.currentMonthYear;
     }
 
-    public NewCommentEntryDto(Long stepId, String employeeEmail, String comment, String assigneeEmail, String project, String currentMonthYear) {
-        this.stepId = stepId;
-        this.employeeEmail = employeeEmail;
-        this.comment = comment;
-        this.assigneeEmail = assigneeEmail;
-        this.project = project;
-        this.currentMonthYear = currentMonthYear;
-    }
-
-    public static NewCommentEntryDtoBuilder builder() {
-        return NewCommentEntryDtoBuilder.aNewCommentEntryDto();
+    public static Builder builder() {
+        return Builder.aNewCommentEntryDto();
     }
 
     @Override
@@ -59,104 +52,73 @@ public class NewCommentEntryDto {
         return stepId;
     }
 
-    public void setStepId(Long stepId) {
-        this.stepId = stepId;
-    }
-
     public String getEmployeeEmail() {
         return employeeEmail;
-    }
-
-    public void setEmployeeEmail(String employeeEmail) {
-        this.employeeEmail = employeeEmail;
     }
 
     public String getComment() {
         return comment;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
     public String getAssigneeEmail() {
         return assigneeEmail;
-    }
-
-    public void setAssigneeEmail(String assigneeEmail) {
-        this.assigneeEmail = assigneeEmail;
     }
 
     public String getProject() {
         return project;
     }
 
-    public void setProject(String project) {
-        this.project = project;
-    }
-
     public String getCurrentMonthYear() {
         return currentMonthYear;
     }
 
-    public void setCurrentMonthYear(String currentMonthYear) {
-        this.currentMonthYear = currentMonthYear;
-    }
+    public static final class Builder {
+        @JsonProperty private Long stepId;
+        @JsonProperty private String employeeEmail;
+        @JsonProperty private String comment;
+        @JsonProperty private String assigneeEmail;
+        @JsonProperty private String project;
+        @JsonProperty private String currentMonthYear;
 
-    public static final class NewCommentEntryDtoBuilder {
-        private Long stepId;
-        private String employeeEmail;
-        private String comment;
-        private String assigneeEmail;
-        private String project;
-        private String currentMonthYear;
-
-        private NewCommentEntryDtoBuilder() {
+        private Builder() {
         }
 
-        public static NewCommentEntryDtoBuilder aNewCommentEntryDto() {
-            return new NewCommentEntryDtoBuilder();
+        public static Builder aNewCommentEntryDto() {
+            return new Builder();
         }
 
-        public NewCommentEntryDtoBuilder stepId(Long stepId) {
+        public Builder stepId(Long stepId) {
             this.stepId = stepId;
             return this;
         }
 
-        public NewCommentEntryDtoBuilder employeeEmail(String employeeEmail) {
+        public Builder employeeEmail(String employeeEmail) {
             this.employeeEmail = employeeEmail;
             return this;
         }
 
-        public NewCommentEntryDtoBuilder comment(String comment) {
+        public Builder comment(String comment) {
             this.comment = comment;
             return this;
         }
 
-        public NewCommentEntryDtoBuilder assigneeEmail(String assigneeEmail) {
+        public Builder assigneeEmail(String assigneeEmail) {
             this.assigneeEmail = assigneeEmail;
             return this;
         }
 
-        public NewCommentEntryDtoBuilder project(String project) {
+        public Builder project(String project) {
             this.project = project;
             return this;
         }
 
-        public NewCommentEntryDtoBuilder currentMonthYear(String currentMonthYear) {
+        public Builder currentMonthYear(String currentMonthYear) {
             this.currentMonthYear = currentMonthYear;
             return this;
         }
 
         public NewCommentEntryDto build() {
-            NewCommentEntryDto newCommentEntryDto = new NewCommentEntryDto();
-            newCommentEntryDto.setStepId(stepId);
-            newCommentEntryDto.setEmployeeEmail(employeeEmail);
-            newCommentEntryDto.setComment(comment);
-            newCommentEntryDto.setAssigneeEmail(assigneeEmail);
-            newCommentEntryDto.setProject(project);
-            newCommentEntryDto.setCurrentMonthYear(currentMonthYear);
-            return newCommentEntryDto;
+            return new NewCommentEntryDto(this);
         }
     }
 }

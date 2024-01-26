@@ -1,6 +1,8 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -8,26 +10,24 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectCommentDto {
 
-    private Long id;
+    private final Long id;
 
-    private String comment;
+    private final String comment;
 
-    private LocalDate date;
+    private final LocalDate date;
 
-    private String projectName;
+    private final String projectName;
 
-    public ProjectCommentDto() {
+    @JsonCreator
+    public ProjectCommentDto(Builder builder) {
+        this.id = builder.id;
+        this.comment = builder.comment;
+        this.date = builder.date;
+        this.projectName = builder.projectName;
     }
 
-    public ProjectCommentDto(Long id, String comment, LocalDate date, String projectName) {
-        this.id = id;
-        this.comment = comment;
-        this.date = date;
-        this.projectName = projectName;
-    }
-
-    public static ProjectCommentDtoBuilder builder() {
-        return ProjectCommentDtoBuilder.aProjectCommentDto();
+    public static Builder builder() {
+        return Builder.aProjectCommentDto();
     }
 
     @Override
@@ -47,74 +47,53 @@ public class ProjectCommentDto {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getComment() {
         return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
     public String getProjectName() {
         return projectName;
     }
 
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
+    public static final class Builder {
+        @JsonProperty private Long id;
+        @JsonProperty private String comment;
+        @JsonProperty private LocalDate date;
+        @JsonProperty private String projectName;
 
-    public static final class ProjectCommentDtoBuilder {
-        private Long id;
-        private String comment;
-        private LocalDate date;
-        private String projectName;
-
-        private ProjectCommentDtoBuilder() {
+        private Builder() {
         }
 
-        public static ProjectCommentDtoBuilder aProjectCommentDto() {
-            return new ProjectCommentDtoBuilder();
+        public static Builder aProjectCommentDto() {
+            return new Builder();
         }
 
-        public ProjectCommentDtoBuilder id(Long id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }
 
-        public ProjectCommentDtoBuilder comment(String comment) {
+        public Builder comment(String comment) {
             this.comment = comment;
             return this;
         }
 
-        public ProjectCommentDtoBuilder date(LocalDate date) {
+        public Builder date(LocalDate date) {
             this.date = date;
             return this;
         }
 
-        public ProjectCommentDtoBuilder projectName(String projectName) {
+        public Builder projectName(String projectName) {
             this.projectName = projectName;
             return this;
         }
 
         public ProjectCommentDto build() {
-            ProjectCommentDto projectCommentDto = new ProjectCommentDto();
-            projectCommentDto.setId(id);
-            projectCommentDto.setComment(comment);
-            projectCommentDto.setDate(date);
-            projectCommentDto.setProjectName(projectName);
-            return projectCommentDto;
+            return new ProjectCommentDto(this);
         }
     }
 }

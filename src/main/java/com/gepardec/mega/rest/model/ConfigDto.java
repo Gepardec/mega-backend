@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -8,122 +9,77 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConfigDto {
-    @JsonProperty
-    private String excelUrl;
 
-    @JsonProperty
-    private String zepOrigin;
+    private final String excelUrl;
 
-    @JsonProperty
-    private String clientId;
+    private final String zepOrigin;
 
-    @JsonProperty
-    private String issuer;
+    private final String clientId;
 
-    @JsonProperty
-    private String scope;
+    private final String issuer;
 
-    @JsonProperty
-    private String version;
+    private final String scope;
 
-    @JsonProperty
-    private List<String> omMailAddresses;
+    private final String version;
 
-    @JsonProperty
-    private String subjectPrefix;
+    private final List<String> omMailAddresses;
 
-    @JsonProperty
-    private String megaDashUrl;
+    private final String subjectPrefix;
 
-    public ConfigDto() {
+    private final String megaDashUrl;
+
+    @JsonCreator
+    public ConfigDto(Builder builder) {
+        this.excelUrl = builder.excelUrl;
+        this.zepOrigin = builder.zepOrigin;
+        this.clientId = builder.clientId;
+        this.issuer = builder.issuer;
+        this.scope = builder.scope;
+        this.version = builder.version;
+        this.omMailAddresses = builder.omMailAddresses;
+        this.subjectPrefix = builder.subjectPrefix;
+        this.megaDashUrl = builder.megaDashUrl;
     }
 
-    public ConfigDto(String excelUrl, String zepOrigin, String clientId, String issuer, String scope, String version, List<String> omMailAddresses, String subjectPrefix, String megaDashUrl) {
-        this.excelUrl = excelUrl;
-        this.zepOrigin = zepOrigin;
-        this.clientId = clientId;
-        this.issuer = issuer;
-        this.scope = scope;
-        this.version = version;
-        this.omMailAddresses = omMailAddresses;
-        this.subjectPrefix = subjectPrefix;
-        this.megaDashUrl = megaDashUrl;
-    }
-
-    public static ConfigDtoBuilder builder() {
-        return ConfigDtoBuilder.aConfigDto();
+    public static Builder builder() {
+        return Builder.aConfigDto();
     }
 
     public String getExcelUrl() {
         return excelUrl;
     }
 
-    public void setExcelUrl(String excelUrl) {
-        this.excelUrl = excelUrl;
-    }
 
     public String getZepOrigin() {
         return zepOrigin;
-    }
-
-    public void setZepOrigin(String zepOrigin) {
-        this.zepOrigin = zepOrigin;
     }
 
     public String getClientId() {
         return clientId;
     }
 
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
-
     public String getIssuer() {
         return issuer;
-    }
-
-    public void setIssuer(String issuer) {
-        this.issuer = issuer;
     }
 
     public String getScope() {
         return scope;
     }
 
-    public void setScope(String scope) {
-        this.scope = scope;
-    }
-
     public String getVersion() {
         return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 
     public List<String> getOmMailAddresses() {
         return omMailAddresses;
     }
 
-    public void setOmMailAddresses(List<String> omMailAddresses) {
-        this.omMailAddresses = omMailAddresses;
-    }
-
     public String getSubjectPrefix() {
         return subjectPrefix;
     }
 
-    public void setSubjectPrefix(String subjectPrefix) {
-        this.subjectPrefix = subjectPrefix;
-    }
-
     public String getMegaDashUrl() {
         return megaDashUrl;
-    }
-
-    public void setMegaDashUrl(String megaDashUrl) {
-        this.megaDashUrl = megaDashUrl;
     }
 
     @Override
@@ -139,81 +95,71 @@ public class ConfigDto {
         return Objects.hash(getExcelUrl(), getZepOrigin(), getClientId(), getIssuer(), getScope(), getVersion(), getOmMailAddresses(), getSubjectPrefix(), getMegaDashUrl());
     }
 
-    public static final class ConfigDtoBuilder {
-        private String excelUrl;
-        private String zepOrigin;
-        private String clientId;
-        private String issuer;
-        private String scope;
-        private String version;
-        private List<String> omMailAddresses;
-        private String subjectPrefix;
-        private String megaDashUrl;
+    public static final class Builder {
+        @JsonProperty private String excelUrl;
+        @JsonProperty private String zepOrigin;
+        @JsonProperty private String clientId;
+        @JsonProperty private String issuer;
+        @JsonProperty private String scope;
+        @JsonProperty private String version;
+        @JsonProperty private List<String> omMailAddresses;
+        @JsonProperty private String subjectPrefix;
+        @JsonProperty private String megaDashUrl;
 
-        private ConfigDtoBuilder() {
+        private Builder() {
         }
 
-        public static ConfigDtoBuilder aConfigDto() {
-            return new ConfigDtoBuilder();
+        public static Builder aConfigDto() {
+            return new Builder();
         }
 
-        public ConfigDtoBuilder excelUrl(String excelUrl) {
+        public Builder excelUrl(String excelUrl) {
             this.excelUrl = excelUrl;
             return this;
         }
 
-        public ConfigDtoBuilder zepOrigin(String zepOrigin) {
+        public Builder zepOrigin(String zepOrigin) {
             this.zepOrigin = zepOrigin;
             return this;
         }
 
-        public ConfigDtoBuilder clientId(String clientId) {
+        public Builder clientId(String clientId) {
             this.clientId = clientId;
             return this;
         }
 
-        public ConfigDtoBuilder issuer(String issuer) {
+        public Builder issuer(String issuer) {
             this.issuer = issuer;
             return this;
         }
 
-        public ConfigDtoBuilder scope(String scope) {
+        public Builder scope(String scope) {
             this.scope = scope;
             return this;
         }
 
-        public ConfigDtoBuilder version(String version) {
+        public Builder version(String version) {
             this.version = version;
             return this;
         }
 
-        public ConfigDtoBuilder omMailAddresses(List<String> omMailAddresses) {
+        public Builder omMailAddresses(List<String> omMailAddresses) {
             this.omMailAddresses = omMailAddresses;
             return this;
         }
 
-        public ConfigDtoBuilder subjectPrefix(String subjectPrefix) {
+        public Builder subjectPrefix(String subjectPrefix) {
             this.subjectPrefix = subjectPrefix;
             return this;
         }
 
-        public ConfigDtoBuilder megaDashUrl(String megaDashUrl) {
+        public Builder megaDashUrl(String megaDashUrl) {
             this.megaDashUrl = megaDashUrl;
             return this;
         }
 
         public ConfigDto build() {
-            ConfigDto configDto = new ConfigDto();
-            configDto.setExcelUrl(excelUrl);
-            configDto.setZepOrigin(zepOrigin);
-            configDto.setClientId(clientId);
-            configDto.setIssuer(issuer);
-            configDto.setScope(scope);
-            configDto.setVersion(version);
-            configDto.setOmMailAddresses(omMailAddresses);
-            configDto.setSubjectPrefix(subjectPrefix);
-            configDto.setMegaDashUrl(megaDashUrl);
-            return configDto;
+            return new ConfigDto(this);
         }
     }
 }
