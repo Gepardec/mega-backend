@@ -38,11 +38,13 @@ public class ProjectService {
     }
 
     public Optional<ZepProject> getProjectByName(String name) {
-        ZepProject project = getProjectByNameOfPages(name, 1);
-        if (project != null) {
-            this.setProjectEmployees(project);
-        }
-        return Optional.ofNullable(project);
+        Optional<ZepProject> optional =  Paginator.searchInAll(
+                page -> zepProjectRestClient.getProjects(page),
+                project -> project.getName().equals(name),
+                ZepProject.class
+        );
+        optional.ifPresent(this::setProjectEmployees);
+        return optional;
     }
 
     private void setProjectEmployees(ZepProject zepProject) {
@@ -56,32 +58,6 @@ public class ProjectService {
             ZepProjectEmployee[] employees = (ZepProjectEmployee[]) ZepRestUtil.parseJson(output, "/data", ZepProjectEmployee[].class);
             return List.of(employees);
         }
-    }
-
-
-    //TODO: Add to Paginator
-    ZepProject getProjectByNameOfPages(String name, int page) {
-        String next = "";
-        ZepProject[] projectsArr = {};
-        try (Response resp = zepProjectRestClient.getProjects(page)) {
-            String output = resp.readEntity(String.class);
-            projectsArr = (ZepProject[]) ZepRestUtil.parseJson(output, "/data", ZepProject[].class);
-            next = (String) ZepRestUtil.parseJson(output, "/links/next", String.class);
-        }
-
-        List<ZepProject> projects = Arrays.stream(projectsArr).filter(
-                project -> project.getName().equals(name)
-        ).collect(Collectors.toList());
-
-        if (!projects.isEmpty()) {
-            return projects.get(0);
-        }
-
-        if (next != null) {
-            return getProjectByNameOfPages(name, page + 1);
-        }
-
-        return null;
     }
 
 }

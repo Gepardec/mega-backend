@@ -11,14 +11,21 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Paginator {
+    public static <T> List<T> retrieveAll(Function<Integer, Response> pageSupplier, Class<T> elementClass) {
+        int page = 1;
+        return retrieveAll(pageSupplier, page, elementClass);
+    }
 
-    public static <T> List<T> retrieveAll(Function<Integer, Response> function, Integer page, Class<T> resultClass) {
-        String responseBodyAsString = responseBodyOf(function.apply(page));
+    private static <T> List<T> retrieveAll(Function<Integer, Response> pageSupplier, Integer page, Class<T> elementClass) {
+        String responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
 
-        Class<T[]> arrayClass = (Class<T[]>) Array.newInstance(resultClass, 0).getClass();
+        Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
         T[] data = arrayClass.cast(ZepRestUtil.parseJson(responseBodyAsString, "/data", arrayClass));
 
         List<T> result = new ArrayList<>(Arrays.asList(data));
@@ -27,21 +34,58 @@ public class Paginator {
 
         if (next != null) {
             System.out.println("Page: " + page);
-            result.addAll(retrieveAll(function, page + 1, resultClass));
+            result.addAll(retrieveAll(pageSupplier, page + 1, elementClass));
         }
         return result;
     }
 
-    public static <T> List<T> retrieveAll(Function<Integer, Response> function, Class<T> resultClass) {
+    public static <T> Optional<T> searchInAll(Function<Integer, Response> function,
+                                              Predicate<T> filter,
+                                              Class<T> elementClass) {
         int page = 1;
-        return retrieveAll(function, page, resultClass);
+        return searchInAll(function, filter, page, elementClass);
     }
 
-    public static String responseBodyOf(Response response) {
+    private static <T> Optional<T> searchInAll(Function<Integer, Response> pageSupplier,
+                                          Predicate<T> filter,
+                                          Integer page,
+                                          Class<T> elementClass) {
+
+        String responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
+
+        Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
+        T[] data = arrayClass.cast(ZepRestUtil.parseJson(responseBodyAsString, "/data", arrayClass));
+
+        Optional<T> current = filterList(Arrays.asList(data), filter);
+        if (current.isPresent()) {
+            return current;
+        }
+
+        String next = (String) ZepRestUtil.parseJson(responseBodyAsString, "/links/next", String.class);
+
+        if (next != null) {
+            System.out.println("Page: " + page);
+            return searchInAll(pageSupplier, filter, page + 1, elementClass);
+        }
+        return Optional.empty();
+    }
+
+
+
+    private static String responseBodyOf(Response response) {
         try (response) {
             return response.readEntity(String.class);
         }
     }
 
+    private static <T> Optional<T> filterList(List<T> list , Predicate<T> filter) {
+        return list.stream()
+                .filter(filter)
+                .findFirst();
+    }
+
+    private static <T> Class<T[]> convertClassToArrayClass(Class<T> targetClass) {
+        return (Class<T[]>) Array.newInstance(targetClass, 0).getClass();
+    }
 
 }
