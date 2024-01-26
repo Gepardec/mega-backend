@@ -39,7 +39,7 @@ class ZepProjektzeitDetailsMailMapperTest {
             "\n" +
             "Ersteller-ID: 001-mmustermann\n" +
             "Mitarbeiter: Mustermann, Max\n" +
-            "Projekt: Gepardec (Ein cooles Projekt)\n" +
+            "Projekt: Gepardec (Ein cooles Projekt (no Joke))\n" +
             "Vorgang: Learning Friday\n" +
             "Ticket:\n" +
             "Teilaufgabe:\n" +
