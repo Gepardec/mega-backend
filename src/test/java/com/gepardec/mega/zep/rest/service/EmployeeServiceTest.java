@@ -97,14 +97,13 @@ public class EmployeeServiceTest {
                 .build();
         when(zepEmployeeRestClient.getByPersonalNumber(any())).thenReturn(response);
 
-        ZepEmploymentPeriod[] zepEmploymentPeriods = {
+        List<ZepEmploymentPeriod> zepEmploymentPeriods = List.of(
                 ZepEmploymentPeriod.builder()
                         .employeeId("007")
                         .build(),
                 ZepEmploymentPeriod.builder()
                         .employeeId("007")
-                        .build(),
-        };
+                        .build());
         when(employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(anyString())).thenReturn(zepEmploymentPeriods);
 
         ZepEmployee referenceEmployee = ZepEmployee.builder()
@@ -194,7 +193,7 @@ public class EmployeeServiceTest {
             when(zepEmployeeRestClient.getAllEmployeesOfPage(i + 1)).thenReturn(responseEmployeePages);
         });
 
-        ZepEmploymentPeriod[] periods000 = {
+        var periods000 = List.of(
                 ZepEmploymentPeriod.builder()
                         .id(23)
                         .employeeId("000-duser")
@@ -206,9 +205,8 @@ public class EmployeeServiceTest {
                         .id(24)
                         .employeeId("000-duser")
                         .startDate(LocalDateTime.of(2019, 1, 11, 0, 0, 0))
-                        .build(),
-        };
-        ZepEmploymentPeriod[] periods001 = {
+                        .build());
+        var periods001 = List.of(
                 ZepEmploymentPeriod.builder()
                         .id(43)
                         .employeeId("001-tuser")
@@ -221,16 +219,14 @@ public class EmployeeServiceTest {
                         .employeeId("001-tuser")
                         .startDate(LocalDateTime.of(2019, 1, 11, 0, 0, 0))
                         .endDate(LocalDateTime.of(2019, 12, 31, 0, 0, 0))
-                        .build(),
-        };
-        ZepEmploymentPeriod[] periods007 = {
+                        .build());
+        var periods007 = List.of(
                 ZepEmploymentPeriod.builder()
                         .id(43)
                         .employeeId("007-jbond")
                         .startDate(LocalDateTime.of(2020, 8, 11, 0, 0, 0))
                         .note("Privatdetektiv")
-                        .build(),
-        };
+                        .build());
 
         List<String> employeeNames = List.of("000-duser", "001-tuser", "007-jbond");
         when(employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employeeNames.get(0))).thenReturn(periods000);
@@ -239,7 +235,7 @@ public class EmployeeServiceTest {
 
         List<ZepEmployee> employees = employeeService.getZepEmployees();
 
-        Iterator<ZepEmploymentPeriod[]> employmentPeriodsIterator = List.of(periods000, periods001, periods007).iterator();
+        Iterator<List<ZepEmploymentPeriod>> employmentPeriodsIterator = List.of(periods000, periods001, periods007).iterator();
 
         employees.stream()
                 .peek(employee-> assertThat(employeeNames.contains(employee.getUsername())).isTrue())

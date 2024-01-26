@@ -9,6 +9,7 @@ import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepAbsence;
 import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.util.Paginator;
 import com.gepardec.mega.zep.util.ZepRestUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
@@ -28,34 +29,24 @@ public class AbsenceService {
     @RestClient
     ZepAbsenceRestClient zepAbsenceRestClient;
 
-    //TODO: Pagination handling
     public ZepAbsence[] getZepAbsencesByEmployeeName(String employeeName) {
-        try (Response resp = zepEmployeeRestClient.getAbsencesByUsername(employeeName)) {
-            String output = resp.readEntity(String.class);
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.findAndRegisterModules();
-            JsonNode jsonNode = objectMapper.readTree(output);
-            ZepAbsence[] absences = objectMapper.treeToValue(jsonNode.get("data"), ZepAbsence[].class);
-            Arrays.stream(absences)
-                    .forEach(this::setZepAbsenceReason);
-            return absences;
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        return Paginator.retrieveAll(
+                page -> zepEmployeeRestClient.getAbsencesByUsername(employeeName, page),
+                ZepAbsence.class
+        ).toArray(ZepAbsence[]::new);
     }
-
-    public void setZepAbsenceReason(ZepAbsence zepAbsence) {
-        try (Response resp = zepAbsenceRestClient.getAbsenceById(zepAbsence.getId())) {
-            String output = resp.readEntity(String.class);
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.findAndRegisterModules();
-            JsonNode jsonNode = objectMapper.readTree(output);
-            String absenceText = (objectMapper.treeToValue(jsonNode.at("/data/absence_text"), String.class));
-            zepAbsence.setAbsenceReason(absenceText);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
+//
+//    public void setZepAbsenceReason(ZepAbsence zepAbsence) {
+//        try (Response resp = zepAbsenceRestClient.getAbsenceById(zepAbsence.getId())) {
+//            String output = resp.readEntity(String.class);
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            objectMapper.findAndRegisterModules();
+//            JsonNode jsonNode = objectMapper.readTree(output);
+//            String absenceText = (objectMapper.treeToValue(jsonNode.at("/data/absence_text"), String.class));
+//            zepAbsence.setAbsenceReason(absenceText);
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//    }
 }

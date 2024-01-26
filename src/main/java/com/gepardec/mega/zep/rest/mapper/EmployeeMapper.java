@@ -50,16 +50,16 @@ public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
          */
     }
 
-    public static boolean getActiveOfZepEmploymentPeriods(ZepEmploymentPeriod[] zepEmploymentPeriods) {
+    public static boolean getActiveOfZepEmploymentPeriods(List<ZepEmploymentPeriod> zepEmploymentPeriods) {
         if (zepEmploymentPeriods == null) {
             return false;
         }
 
-        if (Arrays.stream(zepEmploymentPeriods).allMatch(Objects::isNull)) {
+        if (zepEmploymentPeriods.stream().allMatch(Objects::isNull)) {
             return false;
         }
 
-        return Arrays.stream(zepEmploymentPeriods)
+        return zepEmploymentPeriods.stream()
                 .anyMatch(zepEmploymentPeriod -> zepEmploymentPeriod.getEndDate() == null);
     }
 

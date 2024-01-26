@@ -135,7 +135,7 @@ public class EmploymentPeriodServiceTest {
                 "}";
 
         Response response = Response.ok().entity(responseBody).build();
-        when(zepEmployeeRestClient.getEmploymentPeriodByUserName(Mockito.anyString())).thenReturn(response);
+        when(zepEmployeeRestClient.getEmploymentPeriodByUserName(Mockito.anyString(), Mockito.anyInt())).thenReturn(response);
 
         ZepEmploymentPeriod employmentPeriod1 = ZepEmploymentPeriod.builder()
                 .id(23)
@@ -180,8 +180,8 @@ public class EmploymentPeriodServiceTest {
                 .modified(LocalDateTime.of(2024, 1, 18, 12, 56, 26))
                 .build();
 
-        ZepEmploymentPeriod[] zepEmploymentPeriods = {employmentPeriod1, employmentPeriod2, employmentPeriod3};
-        ZepEmploymentPeriod[] zepEmploymentPeriodsActual = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName("000-duser");
+        var zepEmploymentPeriods = List.of(employmentPeriod1, employmentPeriod2, employmentPeriod3);
+        var zepEmploymentPeriodsActual = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName("000-duser");
 
         assertThat(zepEmploymentPeriodsActual).usingRecursiveComparison().isEqualTo(zepEmploymentPeriods);
     }

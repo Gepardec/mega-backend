@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.JSR310DateTimeDeserializerBas
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.util.Paginator;
 import com.gepardec.mega.zep.util.ZepRestUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
@@ -26,11 +27,11 @@ public class EmploymentPeriodService {
     ZepEmployeeRestClient zepEmployeeRestService;
 
     //TODO: Pagination handling
-    public ZepEmploymentPeriod[] getZepEmploymentPeriodsByEmployeeName(String employeeName) {
-        try (Response resp = zepEmployeeRestService.getEmploymentPeriodByUserName(employeeName)) {
-            String json = resp.readEntity(String.class);
-            return (ZepEmploymentPeriod[]) ZepRestUtil.parseJson(json, "/data", ZepEmploymentPeriod[].class);
-        }
+    public List<ZepEmploymentPeriod> getZepEmploymentPeriodsByEmployeeName(String employeeName) {
+        return Paginator.retrieveAll(
+                page -> zepEmployeeRestService.getEmploymentPeriodByUserName(employeeName, page),
+                ZepEmploymentPeriod.class
+        );
     }
 
 }

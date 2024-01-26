@@ -44,7 +44,7 @@ public class ZepRestService implements ZepService {
         ZepRegularWorkingTimes zepRegularWorkingTimes = regularWorkingTimesService.getRegularWorkingTimesByUsername(userId);
         zepEmployee.setRegularWorkingHours(regularWorkingHoursMapMapper.map(zepRegularWorkingTimes));
 
-        ZepEmploymentPeriod zepEmploymentPeriod[] = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(userId);
+        List<ZepEmploymentPeriod> zepEmploymentPeriods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(userId);
         return employeeMapper.map(zepEmployee);
     }
 

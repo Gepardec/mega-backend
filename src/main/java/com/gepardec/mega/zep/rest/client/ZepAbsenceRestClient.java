@@ -20,6 +20,6 @@ public interface ZepAbsenceRestClient extends Authenticatable {
 
     @GET
     @Path("{id}")
-    Response getAbsenceById(@PathParam("id") Integer id);
+    Response getAbsenceById(@PathParam("id") Integer id, @PathParam("page") Integer page);
 
 }

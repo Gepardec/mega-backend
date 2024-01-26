@@ -36,7 +36,7 @@ public class EmployeeService{
             String output = resp.readEntity(String.class);
             ZepEmployee employee = (ZepEmployee) ZepRestUtil.parseJson(output, "/data", ZepEmployee.class);
 
-            ZepEmploymentPeriod[] employmentPeriods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(name);
+            List<ZepEmploymentPeriod> employmentPeriods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(name);
             employee.setEmploymentPeriods(employmentPeriods);
 
             return employee;
@@ -49,7 +49,7 @@ public class EmployeeService{
             ZepEmployee employee = ((ZepEmployee[]) ZepRestUtil.parseJson(output, "/data", ZepEmployee[].class))[0];
 
             String employeeName = employee.getUsername();
-            ZepEmploymentPeriod[] employmentPeriods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employeeName);
+            List<ZepEmploymentPeriod> employmentPeriods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employeeName);
             employee.setEmploymentPeriods(employmentPeriods);
 
             return employee;
@@ -68,7 +68,7 @@ public class EmployeeService{
 
     private void setEmploymentPeriods(ZepEmployee employee) {
         String username = employee.getUsername();
-        ZepEmploymentPeriod[] periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(username);
+        List<ZepEmploymentPeriod> periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(username);
         employee.setEmploymentPeriods(periods);
     }
 

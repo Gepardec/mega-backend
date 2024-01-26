@@ -30,7 +30,7 @@ public interface ZepEmployeeRestClient extends Authenticatable {
 
     @GET
     @Path("/{username}/employment-periods")
-    Response getEmploymentPeriodByUserName(@PathParam("username") String username);
+    Response getEmploymentPeriodByUserName(@PathParam("username") String username, @QueryParam("page") Integer page);
 
     @GET
     @Path("/{username}/regular-working-times")
@@ -41,6 +41,6 @@ public interface ZepEmployeeRestClient extends Authenticatable {
 
     @GET
     @Path("/{username}/absences")
-    Response getAbsencesByUsername(@PathParam("username") String username);
+    Response getAbsencesByUsername(@PathParam("username") String username, @QueryParam("page") int page);
 
 }

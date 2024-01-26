@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class ZepEmployeeBuilder {
@@ -45,7 +46,7 @@ public class ZepEmployeeBuilder {
     private Integer creditorNumber;
     private Collection<String> categories;
     private Integer absencesCount;
-    private ZepEmploymentPeriod[] employmentPeriods;
+    private List<ZepEmploymentPeriod> employmentPeriods;
     private Map<DayOfWeek, Duration> regularWorkingHours;
 
     public ZepEmployeeBuilder username(String username) {
@@ -238,7 +239,7 @@ public class ZepEmployeeBuilder {
         return this;
     }
 
-    public ZepEmployeeBuilder employmentPeriods(ZepEmploymentPeriod[] employmentPeriods) {
+    public ZepEmployeeBuilder employmentPeriods(List<ZepEmploymentPeriod> employmentPeriods) {
         this.employmentPeriods = employmentPeriods;
         return this;
     }
