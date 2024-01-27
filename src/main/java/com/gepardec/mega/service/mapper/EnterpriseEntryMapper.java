@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class EnterpriseEntryMapper {
+    // TODO maps a database entity to a dto object -- there should be a domain entity
 
     public EnterpriseEntryDto map(final Optional<EnterpriseEntry> enterpriseEntry) {
         if (enterpriseEntry.isEmpty()) {

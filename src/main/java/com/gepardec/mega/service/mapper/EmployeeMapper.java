@@ -31,7 +31,6 @@ public class EmployeeMapper {
             return null;
         }
 
-
         boolean active = hasEmployeeAndActiveEmployment(mitarbeiterType);
         LocalDate exitDate = null;
 
@@ -56,7 +55,7 @@ public class EmployeeMapper {
                 .build();
     }
 
-    public List<Range<LocalDate>> getEmploymentPeriods(MitarbeiterType mitarbeiterType) {
+    List<Range<LocalDate>> getEmploymentPeriods(MitarbeiterType mitarbeiterType) {
         return Optional.ofNullable(mitarbeiterType.getBeschaeftigungszeitListe())
                 .map(BeschaeftigungszeitListeType::getBeschaeftigungszeit)
                 .stream()
@@ -66,7 +65,7 @@ public class EmployeeMapper {
                 .collect(Collectors.toList());
     }
 
-    public LocalDate determineNewestExitDateOfEmploymentPeriods(List<Range<LocalDate>> periods) {
+    LocalDate determineNewestExitDateOfEmploymentPeriods(List<Range<LocalDate>> periods) {
         final LocalDate MAX_DATE_EXCLUSIVE = LocalDate.now();
 
         // vergangenes bis-Datum, das am nähsten zu JETZT liegt

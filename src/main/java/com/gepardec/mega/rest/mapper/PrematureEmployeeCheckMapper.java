@@ -17,15 +17,18 @@ public class PrematureEmployeeCheckMapper implements DtoMapper<PrematureEmployee
                 .user(userMapper.mapToDto(object.getUser()))
                 .forMonth(object.getForMonth())
                 .reason(object.getReason())
+                .state(object.getState())
                 .build();
     }
 
     @Override
     public PrematureEmployeeCheck mapToDomain(PrematureEmployeeCheckDto object) {
         return PrematureEmployeeCheck.builder()
+                .id(object.getId())
                 .user(userMapper.mapToDomain(object.getUser()))
                 .forMonth(object.getForMonth())
                 .reason(object.getReason())
+                .state(object.getState())
                 .build();
     }
 }

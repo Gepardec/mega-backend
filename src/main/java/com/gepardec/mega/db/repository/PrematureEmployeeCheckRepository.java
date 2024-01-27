@@ -1,45 +1,34 @@
 package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
+@Transactional
 public class PrematureEmployeeCheckRepository implements PanacheRepository<PrematureEmployeeCheckEntity> {
 
-    @Inject
-    EntityManager em;
-
-    @Inject
-    Logger logger;
-
-    @Transactional
-    public PrematureEmployeeCheckEntity save(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
-        this.persist(prematureEmployeeCheckEntity);
+    public PrematureEmployeeCheckEntity create(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
         // Flushing to trigger the ConstraintViolationException to be able to catch it
-        this.flush();
+        persistAndFlush(prematureEmployeeCheckEntity);
         return prematureEmployeeCheckEntity;
     }
 
-    @Transactional
     public PrematureEmployeeCheckEntity update(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
-        return em.merge(prematureEmployeeCheckEntity);
+        return getEntityManager().merge(prematureEmployeeCheckEntity);
     }
 
-    @Transactional
     public boolean delete(Long id) {
         return deleteById(id);
     }
 
-    @Transactional
     public List<PrematureEmployeeCheckEntity> findAllForMonth(LocalDate forMonth) {
         forMonth = forMonth.withDayOfMonth(1);
         return find("#PrematureEmployeeCheck.findAllByMonth",
@@ -47,16 +36,14 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
                 .list();
     }
 
-    @Transactional
-    public List<PrematureEmployeeCheckEntity> findByEmail(String email) {
-        return find("#PrematureEmployeeCheck.findByEmail",
-                Parameters.with("email", email))
-                .list();
+    public Optional<PrematureEmployeeCheckEntity> findByEmailAndMonth(String email, LocalDate forMonth) {
+        return find("#PrematureEmployeeCheck.findByEmailAndMonth",
+                Parameters.with("email", email).and("forMonth", forMonth))
+                .firstResultOptional();
     }
 
-    @Transactional
-    public long deleteByMonth(LocalDate forMonth) {
-        return delete("#PrematureEmployeeCheck.deleteAllByMonth",
-                Parameters.with("forMonth", forMonth));
+    public long deleteByMonthAndStates(LocalDate forMonth, List<PrematureEmployeeCheckState> states) {
+        return delete("#PrematureEmployeeCheck.deleteAllByMonthAndStates",
+                Parameters.with("forMonth", forMonth).and("states", states));
     }
 }

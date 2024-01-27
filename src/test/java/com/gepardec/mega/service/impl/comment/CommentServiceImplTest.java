@@ -73,7 +73,7 @@ class CommentServiceImplTest {
         when(commentRepository.findById(ArgumentMatchers.anyLong())).thenReturn(createComment(1L, EmployeeState.IN_PROGRESS));
         when(commentRepository.setStatusDone(ArgumentMatchers.anyLong())).thenReturn(0);
 
-        int updatedCount = commentService.finish(commentMapper.mapDbCommentToDomainComment(createComment(1L, EmployeeState.IN_PROGRESS)));
+        int updatedCount = commentService.finish(commentMapper.mapToDomain(createComment(1L, EmployeeState.IN_PROGRESS)));
         assertThat(updatedCount).isZero();
     }
 

@@ -1,6 +1,7 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.db.repository.StepEntryRepository;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.domain.model.StepName;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
@@ -34,7 +36,10 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
     public boolean syncPrematureEmployeeChecksWithStepEntries(YearMonth yearMonth) {
         boolean allEntriesUpdated = true;
         LocalDate selectedMonth = yearMonth.atDay(1);
-        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = prematureEmployeeCheckService.findAllForMonth(selectedMonth);
+        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = prematureEmployeeCheckService.findAllForMonth(selectedMonth)
+                .stream()
+                .filter(pec -> pec.getState().equals(PrematureEmployeeCheckState.DONE))
+                .collect(Collectors.toList());
 
         logger.info(
                 String.format("Syncing %s PrematureEmployeeChecks with StepEntries for Month: %s",
@@ -57,6 +62,8 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
                 allEntriesUpdated = false;
             }
         }
+
+        prematureEmployeeCheckService.deleteAllForMonthWithState(selectedMonth, List.of(PrematureEmployeeCheckState.CANCELLED, PrematureEmployeeCheckState.IN_PROGRESS));
 
         return allEntriesUpdated;
     }

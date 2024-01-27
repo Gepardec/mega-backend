@@ -150,7 +150,6 @@ mp:
       password: "mega"
       jdbc:
         url: "jdbc:postgresql://localhost:5432/mega"
-
     http:
       cors:
         origins: "/.*/"

@@ -4,6 +4,7 @@ import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
@@ -180,6 +181,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .collect(Collectors.toList());
 
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
+        var prematureEmployeeCheck = prematureEmployeeCheckService.findByEmailAndMonth(employee.getEmail(), date);
 
         return MonthlyReport.builder()
                 .employee(employee)
@@ -187,7 +189,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .journeyWarnings(journeyWarnings)
                 .comments(comments)
                 .employeeCheckState(employeeCheckState.map(Pair::getLeft).orElse(EmployeeState.PREMATURE_CHECK))
-                .employeeCheckStateReason(employeeCheckState.map(Pair::getRight).orElse(null))
+                .employeeCheckStateReason(employeeCheckState.map(Pair::getRight).orElse(prematureEmployeeCheck.map(PrematureEmployeeCheck::getReason).orElse(null)))
                 .internalCheckState(internalCheckState.orElse(EmployeeState.OPEN))
                 .employeeProgresses(pmProgressDtos)
                 .otherChecksDone(isMonthCompletedForEmployee(employee, date))
@@ -207,7 +209,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
                 .vacationDayBalance(personioEmployeesService.getVacationDayBalance(employee.getEmail()))
                 .overtime(workingTimeUtil.getOvertimeForEmployee(employee, billableEntries, absenceEntries, date))
-                .hasPrematureEmployeeCheck(prematureEmployeeCheckService.hasUserPrematureEmployeeCheck(employee.getEmail()))
+                .prematureEmployeeCheck(prematureEmployeeCheck.orElse(null))
                 .build();
     }
 

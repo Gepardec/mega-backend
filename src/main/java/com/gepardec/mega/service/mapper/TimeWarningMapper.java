@@ -17,6 +17,7 @@ import java.util.ResourceBundle;
 @ApplicationScoped
 public class TimeWarningMapper {
 
+    //TODO this is not a mapper, this is a util-service
     @Inject
     ResourceBundleProducer resourceBundleProducer;
 
