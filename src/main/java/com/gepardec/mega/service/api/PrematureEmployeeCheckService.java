@@ -5,15 +5,15 @@ import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface PrematureEmployeeCheckService {
-    boolean addPrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck);
 
-    boolean updatePrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck);
+    Optional<PrematureEmployeeCheck> findByEmailAndMonth(String email, LocalDate date);
 
-    String getPrematureEmployeeCheckReason(String email, LocalDate date);
+    boolean create(PrematureEmployeeCheck prematureEmployeeCheck);
 
-    PrematureEmployeeCheckState getPrematureEmployeeCheckState(String email, LocalDate date);
+    boolean update(PrematureEmployeeCheck prematureEmployeeCheck);
 
     List<PrematureEmployeeCheck> findAllForMonth(LocalDate localDate);
 

@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Builder
 @Getter
@@ -16,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PrematureEmployeeCheck {
-    private long id;
+    private Long id;
 
     private User user;
 
@@ -25,6 +24,4 @@ public class PrematureEmployeeCheck {
     private PrematureEmployeeCheckState state;
 
     private LocalDate forMonth;
-
-    private LocalDateTime creationDate;
 }

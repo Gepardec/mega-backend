@@ -18,7 +18,6 @@ public class PrematureEmployeeCheckMapper implements DomainMapper<PrematureEmplo
                 .user(userMapper.mapToDomain(prematureEmployeeCheckEntity.getUser()))
                 .forMonth(prematureEmployeeCheckEntity.getForMonth())
                 .reason(prematureEmployeeCheckEntity.getReason())
-                .creationDate(prematureEmployeeCheckEntity.getCreationDate())
                 .state(prematureEmployeeCheckEntity.getState())
                 .build();
     }
@@ -31,6 +30,18 @@ public class PrematureEmployeeCheckMapper implements DomainMapper<PrematureEmplo
         prematureEmployeeCheckEntity.setForMonth(prematureEmployeeCheck.getForMonth());
         prematureEmployeeCheckEntity.setReason(prematureEmployeeCheck.getReason());
         prematureEmployeeCheckEntity.setState(prematureEmployeeCheck.getState());
+
         return prematureEmployeeCheckEntity;
+    }
+
+    public PrematureEmployeeCheckEntity mapToEntity(PrematureEmployeeCheck domain, PrematureEmployeeCheckEntity persistentEntity) {
+        persistentEntity.setUser(userMapper.mapToEntity(domain.getUser()));
+        persistentEntity.setForMonth(domain.getForMonth());
+        if (domain.getReason() != null) {
+            persistentEntity.setReason(domain.getReason());
+        }
+        persistentEntity.setState(domain.getState());
+
+        return persistentEntity;
     }
 }

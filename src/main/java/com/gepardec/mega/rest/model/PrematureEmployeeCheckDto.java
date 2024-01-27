@@ -20,6 +20,9 @@ import java.time.LocalDate;
 public class PrematureEmployeeCheckDto {
 
     @JsonProperty
+    private Long id;
+
+    @JsonProperty
     private UserDto user;
 
     @JsonProperty

@@ -1,9 +1,9 @@
 package com.gepardec.mega.domain.model.monthlyreport;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.PmProgressDto;
 import lombok.AllArgsConstructor;
@@ -73,5 +73,5 @@ public class MonthlyReport {
 
     private double overtime;
 
-    private PrematureEmployeeCheckState prematureEmployeeCheckState;
+    private PrematureEmployeeCheck prematureEmployeeCheck;
 }

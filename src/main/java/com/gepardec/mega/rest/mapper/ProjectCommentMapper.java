@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class ProjectCommentMapper implements DtoMapper<ProjectComment, ProjectCommentDto> {
+
     @Override
     public ProjectComment mapToDomain(ProjectCommentDto object) {
         ProjectComment projectComment = new ProjectComment();

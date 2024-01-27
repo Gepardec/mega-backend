@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -105,5 +105,5 @@ public class MonthlyReportDto {
     private double overtime;
 
     @JsonProperty
-    private PrematureEmployeeCheckState prematureEmployeeCheckState;
+    private PrematureEmployeeCheck prematureEmployeeCheck;
 }

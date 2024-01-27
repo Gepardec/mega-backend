@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheckService {
@@ -27,63 +28,39 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     Logger logger;
 
     @Override
-    public boolean addPrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
+    public Optional<PrematureEmployeeCheck> findByEmailAndMonth(String email, LocalDate date) {
+        return prematureEmployeeCheckRepository.findByEmailAndMonth(email, date)
+                .map(prematureEmployeeCheckMapper::mapToDomain);
+    }
 
-        PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = prematureEmployeeCheckMapper.mapToEntity(prematureEmployeeCheck);
+    @Override
+    public boolean create(PrematureEmployeeCheck prematureEmployeeCheck) {
+        var prematureEmployeeCheckEntity = prematureEmployeeCheckMapper.mapToEntity(prematureEmployeeCheck);
 
-        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(prematureEmployeeCheckEntity);
-
-        logger.info(String.format("PrematureEmployeeCheck created for %s in %s", saved.getUser()
-                .getEmail(), saved.getForMonth()));
+        var saved = prematureEmployeeCheckRepository.create(prematureEmployeeCheckEntity);
+        logger.info("PrematureEmployeeCheck created for {} in {}", saved.getUser().getEmail(), saved.getForMonth());
 
         return saved.getId() != null;
     }
 
     @Override
-    public boolean updatePrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
-        PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = prematureEmployeeCheckRepository.findByEmailAndMonth(prematureEmployeeCheck.getUser()
-                .getEmail(), prematureEmployeeCheck.getForMonth());
-
-        prematureEmployeeCheckEntity.setState(prematureEmployeeCheck.getState());
-
-        if (prematureEmployeeCheck.getReason() != null) {
-            prematureEmployeeCheckEntity.setReason(prematureEmployeeCheck.getReason());
-        }
+    public boolean update(PrematureEmployeeCheck prematureEmployeeCheck) {
+        var prematureEmployeeCheckEntity = prematureEmployeeCheckMapper.mapToEntity(
+                prematureEmployeeCheck,
+                prematureEmployeeCheckRepository.findById(prematureEmployeeCheck.getId())
+        );
 
         PrematureEmployeeCheckEntity updated = prematureEmployeeCheckRepository.update(prematureEmployeeCheckEntity);
-
-        logger.info(String.format("PrematureEmployeeCheck (id: %s) updated", updated.getId()));
+        logger.info("PrematureEmployeeCheck (id: {}) updated", updated.getId());
 
         return updated.getId() != null;
     }
 
     @Override
-    public String getPrematureEmployeeCheckReason(String email, LocalDate date) {
-        PrematureEmployeeCheckEntity prematureEmployeeCheck = prematureEmployeeCheckRepository.findByEmailAndMonth(email, date);
-
-        if (prematureEmployeeCheck == null) {
-            return null;
-        }
-
-        return prematureEmployeeCheck.getReason();
-    }
-
-
-    @Override
-    public PrematureEmployeeCheckState getPrematureEmployeeCheckState(String email, LocalDate date) {
-        PrematureEmployeeCheckEntity prematureEmployeeCheck = prematureEmployeeCheckRepository.findByEmailAndMonth(email, date);
-
-        if (prematureEmployeeCheck == null) {
-            return PrematureEmployeeCheckState.NO_PEC_MADE;
-        }
-
-        return prematureEmployeeCheck.getState();
-    }
-
-    @Override
     public List<PrematureEmployeeCheck> findAllForMonth(LocalDate localDate) {
-        List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntities = prematureEmployeeCheckRepository.findAllForMonth(localDate);
-        return prematureEmployeeCheckMapper.mapListToDomain(prematureEmployeeCheckEntities);
+        return prematureEmployeeCheckMapper.mapListToDomain(
+                prematureEmployeeCheckRepository.findAllForMonth(localDate)
+        );
     }
 
     @Override

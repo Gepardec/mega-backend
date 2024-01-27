@@ -2,51 +2,32 @@ package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
-import com.gepardec.mega.db.entity.employee.User;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 @Transactional
 public class PrematureEmployeeCheckRepository implements PanacheRepository<PrematureEmployeeCheckEntity> {
 
-    @Inject
-    EntityManager em;
-
-    @Inject
-    UserRepository userRepository;
-    @Inject
-    Logger logger;
-
-    public PrematureEmployeeCheckEntity save(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
-        User user = userRepository.findActiveByEmail(prematureEmployeeCheckEntity.getUser().getEmail()).orElseThrow();
-        prematureEmployeeCheckEntity.setUser(user);
-        PrematureEmployeeCheckEntity merge = em.merge(prematureEmployeeCheckEntity);
-        em.flush();
-        // Flushing to trigger the ConstraintViolationExcepstion to be able to catch it
-        return merge;
+    public PrematureEmployeeCheckEntity create(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
+        // Flushing to trigger the ConstraintViolationException to be able to catch it
+        persistAndFlush(prematureEmployeeCheckEntity);
+        return prematureEmployeeCheckEntity;
     }
-
 
     public PrematureEmployeeCheckEntity update(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
-        User user = userRepository.findActiveByEmail(prematureEmployeeCheckEntity.getUser().getEmail()).orElseThrow();
-        prematureEmployeeCheckEntity.setUser(user);
-        return em.merge(prematureEmployeeCheckEntity);
+        return getEntityManager().merge(prematureEmployeeCheckEntity);
     }
-
 
     public boolean delete(Long id) {
         return deleteById(id);
     }
-
 
     public List<PrematureEmployeeCheckEntity> findAllForMonth(LocalDate forMonth) {
         forMonth = forMonth.withDayOfMonth(1);
@@ -55,11 +36,10 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
                 .list();
     }
 
-
-    public PrematureEmployeeCheckEntity findByEmailAndMonth(String email, LocalDate forMonth) {
+    public Optional<PrematureEmployeeCheckEntity> findByEmailAndMonth(String email, LocalDate forMonth) {
         return find("#PrematureEmployeeCheck.findByEmailAndMonth",
                 Parameters.with("email", email).and("forMonth", forMonth))
-                .firstResult();
+                .firstResultOptional();
     }
 
     public long deleteByMonthAndStates(LocalDate forMonth, List<PrematureEmployeeCheckState> states) {

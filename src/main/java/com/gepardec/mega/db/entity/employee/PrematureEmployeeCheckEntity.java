@@ -88,21 +88,52 @@ public class PrematureEmployeeCheckEntity {
         updatedDate = LocalDateTime.now();
     }
 
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public void setForMonth(LocalDate forMonth) {
-        this.forMonth = forMonth;
+    public Long getId() {
+        return id;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public LocalDate getForMonth() {
+        return forMonth;
+    }
+
+    public void setForMonth(LocalDate forMonth) {
+        this.forMonth = forMonth;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public LocalDateTime getUpdatedDate() {
+        return updatedDate;
+    }
+
+    public void setUpdatedDate(LocalDateTime updatedDate) {
+        this.updatedDate = updatedDate;
     }
 
     public PrematureEmployeeCheckState getState() {
@@ -111,25 +142,5 @@ public class PrematureEmployeeCheckEntity {
 
     public void setState(PrematureEmployeeCheckState state) {
         this.state = state;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public LocalDate getForMonth() {
-        return forMonth;
-    }
-
-    public LocalDateTime getCreationDate() {
-        return creationDate;
     }
 }

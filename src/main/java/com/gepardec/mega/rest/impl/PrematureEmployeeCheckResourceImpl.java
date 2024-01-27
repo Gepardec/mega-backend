@@ -21,10 +21,10 @@ public class PrematureEmployeeCheckResourceImpl implements PrematureEmployeeChec
     PrematureEmployeeCheckMapper prematureEmployeeCheckMapper;
 
     @Override
-    public Response add(PrematureEmployeeCheckDto prematureEmployeeCheckDto) {
+    public Response create(PrematureEmployeeCheckDto prematureEmployeeCheckDto) {
         PrematureEmployeeCheck prematureEmployeeCheck = prematureEmployeeCheckMapper.mapToDomain(prematureEmployeeCheckDto);
 
-        boolean succeeded = prematureEmployeeCheckService.addPrematureEmployeeCheck(prematureEmployeeCheck);
+        boolean succeeded = prematureEmployeeCheckService.create(prematureEmployeeCheck);
 
         return Response.ok(succeeded).build();
     }
@@ -33,7 +33,7 @@ public class PrematureEmployeeCheckResourceImpl implements PrematureEmployeeChec
     public Response update(PrematureEmployeeCheckDto prematureEmployeeCheckDto) {
         PrematureEmployeeCheck prematureEmployeeCheck = prematureEmployeeCheckMapper.mapToDomain(prematureEmployeeCheckDto);
 
-        boolean succeeded = prematureEmployeeCheckService.updatePrematureEmployeeCheck(prematureEmployeeCheck);
+        boolean succeeded = prematureEmployeeCheckService.update(prematureEmployeeCheck);
 
         return Response.ok(succeeded).build();
     }

@@ -42,7 +42,7 @@ public class PrematureEmployeeCheckRepositoryTest {
         persistUser();
 
 //        When
-        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
+        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck(null));
 
 //        Then
         assertThat(saved.getId()).isNotZero();
@@ -52,11 +52,11 @@ public class PrematureEmployeeCheckRepositoryTest {
     public void save_secondEntry_throwConstraintViolationException() {
 //        Given
         persistUser();
-        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
+        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck(null));
 
 //        When
         try {
-            PrematureEmployeeCheckEntity saved2 = prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
+            PrematureEmployeeCheckEntity saved2 = prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck(null));
             prematureEmployeeCheckRepository.flush();
 
 //            Then
@@ -70,10 +70,10 @@ public class PrematureEmployeeCheckRepositoryTest {
     @Test
     public void findByEmail_missingEntry_returnEmptyList() {
 //        When
-        PrematureEmployeeCheckEntity byEmailAndMonth = prematureEmployeeCheckRepository.findByEmailAndMonth(EMAIL, DATE);
+        var byEmailAndMonth = prematureEmployeeCheckRepository.findByEmailAndMonth(EMAIL, DATE);
 
 //        Then
-        assertThat(byEmailAndMonth).isNull();
+        assertThat(byEmailAndMonth).isEmpty();
     }
 
     @Test
@@ -83,10 +83,13 @@ public class PrematureEmployeeCheckRepositoryTest {
         persistPrematureEmployeeCheck();
 
 //        When
-        PrematureEmployeeCheckEntity byEmailAndMonth = prematureEmployeeCheckRepository.findByEmailAndMonth(EMAIL, DATE);
+        var byEmailAndMonth = prematureEmployeeCheckRepository.findByEmailAndMonth(EMAIL, DATE);
 
 //        Then
-        assertThat(byEmailAndMonth.getState()).isEqualTo(PrematureEmployeeCheckState.DONE);
+        assertThat(byEmailAndMonth).isPresent()
+                .get()
+                .extracting(PrematureEmployeeCheckEntity::getState)
+                .isEqualTo(PrematureEmployeeCheckState.DONE);
     }
 
 
@@ -95,7 +98,7 @@ public class PrematureEmployeeCheckRepositoryTest {
     }
 
     private void persistPrematureEmployeeCheck() {
-        prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
+        prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck(null));
     }
 
 

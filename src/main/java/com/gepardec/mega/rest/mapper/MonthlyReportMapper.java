@@ -40,7 +40,7 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .totalWorkingTime(object.getTotalWorkingTime())
                 .paidSickLeave(object.getPaidSickLeave())
                 .overtime(object.getOvertime())
-                .prematureEmployeeCheckState(object.getPrematureEmployeeCheckState())
+                .prematureEmployeeCheck(object.getPrematureEmployeeCheck())
                 .build();
     }
 
@@ -74,7 +74,7 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .totalWorkingTime(object.getTotalWorkingTime())
                 .paidSickLeave(object.getPaidSickLeave())
                 .overtime(object.getOvertime())
-                .prematureEmployeeCheckState(object.getPrematureEmployeeCheckState())
+                .prematureEmployeeCheck(object.getPrematureEmployeeCheck())
                 .build();
     }
 }

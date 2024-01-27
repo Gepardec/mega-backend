@@ -16,7 +16,7 @@ import jakarta.ws.rs.core.Response;
 public interface PrematureEmployeeCheckResource {
 
     @POST
-    Response add(@NotNull(message = "{stepEntryResource.parameter.notNull}") PrematureEmployeeCheckDto prematureEmployeeCheckDto);
+    Response create(@NotNull(message = "{stepEntryResource.parameter.notNull}") PrematureEmployeeCheckDto prematureEmployeeCheckDto);
 
     @PUT
     Response update(@NotNull(message = "{stepEntryResource.parameter.notNull}") PrematureEmployeeCheckDto prematureEmployeeCheckDto);
