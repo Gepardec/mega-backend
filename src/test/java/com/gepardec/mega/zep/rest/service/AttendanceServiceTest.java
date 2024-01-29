@@ -246,7 +246,10 @@ public class AttendanceServiceTest {
         assertThat( startDateCaptor.getValue()).isEqualTo("2021-01-01");
         assertThat(endDateCaptor.getValue()).isEqualTo("2021-01-31");
         assertThat(usernameCaptor.getValue()).isEqualTo("username");
+
+        mockedPaginator.close();
     }
+
 
 
 }
