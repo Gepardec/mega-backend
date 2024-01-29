@@ -28,7 +28,7 @@ public class Paginator {
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
         T[] data = arrayClass.cast(ZepRestUtil
                 .parseJson(responseBodyAsString, "/data", arrayClass)
-                .orElse((T[]) Array.newInstance(arrayClass, 0)));
+                .orElse((T[]) Array.newInstance(elementClass, 0)));
 
         List<T> result = new ArrayList<>(Arrays.asList(data));
 
@@ -57,7 +57,7 @@ public class Paginator {
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
         T[] data = arrayClass.cast(ZepRestUtil.parseJson(responseBodyAsString, "/data", arrayClass)
-                .orElse((T[]) Array.newInstance(arrayClass, 0)));
+                .orElse((T[]) Array.newInstance(elementClass, 0)));
 
         Optional<T> current = filterList(Arrays.asList(data), filter);
         if (current.isPresent()) {
@@ -75,7 +75,7 @@ public class Paginator {
 
 
 
-    private static String responseBodyOf(Response response) {
+     private static String responseBodyOf(Response response) {
         try (response) {
             return response.readEntity(String.class);
         }
@@ -93,5 +93,9 @@ public class Paginator {
     private static <T> Class<T[]> convertClassToArrayClass(Class<T> targetClass) {
         return (Class<T[]>) Array.newInstance(targetClass, 0).getClass();
     }
+    private static <T> Class<T[]> getEmptyArrayOf(Class<T> targetClass) {
+        return (Class<T[]>) Array.newInstance(targetClass, 0).getClass();
+    }
+
 
 }
