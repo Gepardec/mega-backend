@@ -22,7 +22,15 @@ public class ZepRestUtil {
                 throw new RuntimeException("No Node found at JSON-Path: " + path);
             }
 
-            return Optional.ofNullable(objectMapper.treeToValue(jsonNode, resultClass));
+            if (jsonNode.isNull()) {
+                return Optional.empty();
+            }
+
+            if ((jsonNode.isArray() || jsonNode.isObject()) && jsonNode.isEmpty()) {
+                return Optional.empty();
+            }
+
+            return Optional.of(objectMapper.treeToValue(jsonNode, resultClass));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
