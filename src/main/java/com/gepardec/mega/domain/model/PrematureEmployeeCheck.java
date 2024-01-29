@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class PrematureEmployeeCheck {
-    private final long id;
+    private final Long id;
 
     private final User user;
 
@@ -27,7 +27,7 @@ public class PrematureEmployeeCheck {
         return Builder.aPrematureEmployeeCheck();
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -48,7 +48,7 @@ public class PrematureEmployeeCheck {
     }
 
     public static final class Builder {
-        private long id;
+        private Long id;
         private User user;
         private String reason;
         private LocalDate forMonth;
@@ -61,7 +61,7 @@ public class PrematureEmployeeCheck {
             return new Builder();
         }
 
-        public Builder id(long id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }
