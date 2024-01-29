@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 
 import java.time.LocalDate;
@@ -69,7 +70,7 @@ public class MonthlyReportDto {
 
     private final double overtime;
 
-    private final boolean hasPrematureEmployeeCheck;
+    private final PrematureEmployeeCheck prematureEmployeeCheck;
 
     @JsonCreator
     public MonthlyReportDto(Builder builder) {
@@ -99,7 +100,7 @@ public class MonthlyReportDto {
         this.totalWorkingTime = builder.totalWorkingTime;
         this.paidSickLeave = builder.paidSickLeave;
         this.overtime = builder.overtime;
-        this.hasPrematureEmployeeCheck = builder.hasPrematureEmployeeCheck;
+        this.prematureEmployeeCheck = builder.prematureEmployeeCheck;
     }
 
     public static Builder builder() {
@@ -111,12 +112,12 @@ public class MonthlyReportDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MonthlyReportDto that = (MonthlyReportDto) o;
-        return isOtherChecksDone() == that.isOtherChecksDone() && getVacationDays() == that.getVacationDays() && getHomeofficeDays() == that.getHomeofficeDays() && getCompensatoryDays() == that.getCompensatoryDays() && getNursingDays() == that.getNursingDays() && getMaternityLeaveDays() == that.getMaternityLeaveDays() && getExternalTrainingDays() == that.getExternalTrainingDays() && getConferenceDays() == that.getConferenceDays() && getMaternityProtectionDays() == that.getMaternityProtectionDays() && getFatherMonthDays() == that.getFatherMonthDays() && getPaidSpecialLeaveDays() == that.getPaidSpecialLeaveDays() && getNonPaidVacationDays() == that.getNonPaidVacationDays() && Double.compare(getVacationDayBalance(), that.getVacationDayBalance()) == 0 && getPaidSickLeave() == that.getPaidSickLeave() && Double.compare(getOvertime(), that.getOvertime()) == 0 && isHasPrematureEmployeeCheck() == that.isHasPrematureEmployeeCheck() && Objects.equals(getEmployee(), that.getEmployee()) && Objects.equals(getInitialDate(), that.getInitialDate()) && Objects.equals(getTimeWarnings(), that.getTimeWarnings()) && Objects.equals(getJourneyWarnings(), that.getJourneyWarnings()) && Objects.equals(getComments(), that.getComments()) && getEmployeeCheckState() == that.getEmployeeCheckState() && Objects.equals(getEmployeeCheckStateReason(), that.getEmployeeCheckStateReason()) && getInternalCheckState() == that.getInternalCheckState() && Objects.equals(getEmployeeProgresses(), that.getEmployeeProgresses()) && Objects.equals(getBillableTime(), that.getBillableTime()) && Objects.equals(getTotalWorkingTime(), that.getTotalWorkingTime());
+        return isOtherChecksDone() == that.isOtherChecksDone() && getVacationDays() == that.getVacationDays() && getHomeofficeDays() == that.getHomeofficeDays() && getCompensatoryDays() == that.getCompensatoryDays() && getNursingDays() == that.getNursingDays() && getMaternityLeaveDays() == that.getMaternityLeaveDays() && getExternalTrainingDays() == that.getExternalTrainingDays() && getConferenceDays() == that.getConferenceDays() && getMaternityProtectionDays() == that.getMaternityProtectionDays() && getFatherMonthDays() == that.getFatherMonthDays() && getPaidSpecialLeaveDays() == that.getPaidSpecialLeaveDays() && getNonPaidVacationDays() == that.getNonPaidVacationDays() && Double.compare(getVacationDayBalance(), that.getVacationDayBalance()) == 0 && getPaidSickLeave() == that.getPaidSickLeave() && Double.compare(getOvertime(), that.getOvertime()) == 0 && getPrematureEmployeeCheck() == that.getPrematureEmployeeCheck() && Objects.equals(getEmployee(), that.getEmployee()) && Objects.equals(getInitialDate(), that.getInitialDate()) && Objects.equals(getTimeWarnings(), that.getTimeWarnings()) && Objects.equals(getJourneyWarnings(), that.getJourneyWarnings()) && Objects.equals(getComments(), that.getComments()) && getEmployeeCheckState() == that.getEmployeeCheckState() && Objects.equals(getEmployeeCheckStateReason(), that.getEmployeeCheckStateReason()) && getInternalCheckState() == that.getInternalCheckState() && Objects.equals(getEmployeeProgresses(), that.getEmployeeProgresses()) && Objects.equals(getBillableTime(), that.getBillableTime()) && Objects.equals(getTotalWorkingTime(), that.getTotalWorkingTime());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getEmployee(), getInitialDate(), getTimeWarnings(), getJourneyWarnings(), getComments(), getEmployeeCheckState(), getEmployeeCheckStateReason(), getInternalCheckState(), getEmployeeProgresses(), isOtherChecksDone(), getVacationDays(), getHomeofficeDays(), getCompensatoryDays(), getNursingDays(), getMaternityLeaveDays(), getExternalTrainingDays(), getConferenceDays(), getMaternityProtectionDays(), getFatherMonthDays(), getPaidSpecialLeaveDays(), getNonPaidVacationDays(), getVacationDayBalance(), getBillableTime(), getTotalWorkingTime(), getPaidSickLeave(), getOvertime(), isHasPrematureEmployeeCheck());
+        return Objects.hash(getEmployee(), getInitialDate(), getTimeWarnings(), getJourneyWarnings(), getComments(), getEmployeeCheckState(), getEmployeeCheckStateReason(), getInternalCheckState(), getEmployeeProgresses(), isOtherChecksDone(), getVacationDays(), getHomeofficeDays(), getCompensatoryDays(), getNursingDays(), getMaternityLeaveDays(), getExternalTrainingDays(), getConferenceDays(), getMaternityProtectionDays(), getFatherMonthDays(), getPaidSpecialLeaveDays(), getNonPaidVacationDays(), getVacationDayBalance(), getBillableTime(), getTotalWorkingTime(), getPaidSickLeave(), getOvertime(), getPrematureEmployeeCheck());
     }
 
     public EmployeeDto getEmployee() {
@@ -223,8 +224,8 @@ public class MonthlyReportDto {
         return overtime;
     }
 
-    public boolean isHasPrematureEmployeeCheck() {
-        return hasPrematureEmployeeCheck;
+    public PrematureEmployeeCheck getPrematureEmployeeCheck() {
+        return prematureEmployeeCheck;
     }
 
     public static final class Builder {
@@ -283,7 +284,7 @@ public class MonthlyReportDto {
         @JsonProperty
         private double overtime;
         @JsonProperty
-        private boolean hasPrematureEmployeeCheck;
+        private PrematureEmployeeCheck prematureEmployeeCheck;
 
         private Builder() {
         }
@@ -422,13 +423,14 @@ public class MonthlyReportDto {
             return this;
         }
 
-        public Builder hasPrematureEmployeeCheck(boolean hasPrematureEmployeeCheck) {
-            this.hasPrematureEmployeeCheck = hasPrematureEmployeeCheck;
+        public Builder prematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
+            this.prematureEmployeeCheck = prematureEmployeeCheck;
             return this;
         }
 
         public MonthlyReportDto build() {
             return new MonthlyReportDto(this);
         }
+
     }
 }

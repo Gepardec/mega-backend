@@ -62,7 +62,7 @@ public class PrematureEmployeeCheckResourceTest {
                 .forMonth(localDate)
                 .build();
 
-        when(prematureEmployeeCheckService.addPrematureEmployeeCheck(any())).thenReturn(true);
+        when(prematureEmployeeCheckService.create(any())).thenReturn(true);
 
 //        When
         Boolean addedPrematureEmployeeCheck = given().contentType(ContentType.JSON)

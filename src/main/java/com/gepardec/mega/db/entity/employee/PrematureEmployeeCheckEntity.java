@@ -2,6 +2,8 @@ package com.gepardec.mega.db.entity.employee;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,9 +24,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "premature_employee_check", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "for_month"}))
 @NamedQueries({
-        @NamedQuery(name = "PrematureEmployeeCheck.findByEmail", query = "select p from PrematureEmployeeCheckEntity p where p.user.email = :email"),
+        @NamedQuery(name = "PrematureEmployeeCheck.findByEmailAndMonth", query = "select p from PrematureEmployeeCheckEntity p where p.user.email = :email and p.forMonth = :forMonth"),
         @NamedQuery(name = "PrematureEmployeeCheck.findAllByMonth", query = "select p from PrematureEmployeeCheckEntity p where p.forMonth = :forMonth"),
-        @NamedQuery(name = "PrematureEmployeeCheck.deleteAllByMonth", query = "delete from PrematureEmployeeCheckEntity p  where p.forMonth = :forMonth"),
+        @NamedQuery(name = "PrematureEmployeeCheck.deleteAllByMonthAndStates", query = "delete from PrematureEmployeeCheckEntity p  where p.forMonth = :forMonth and p.state in :states")
 })
 public class PrematureEmployeeCheckEntity {
     @Id
@@ -67,6 +69,14 @@ public class PrematureEmployeeCheckEntity {
     @Column(name = "update_date", columnDefinition = "TIMESTAMP")
     private LocalDateTime updatedDate;
 
+    /**
+     * The state of the premature check (Done, In Progress). Is a requirement.
+     */
+    @NotNull
+    @Column(name = "state")
+    @Enumerated(EnumType.STRING)
+    private PrematureEmployeeCheckState state;
+
 
     @PrePersist
     void onPersist() {
@@ -78,40 +88,59 @@ public class PrematureEmployeeCheckEntity {
         updatedDate = LocalDateTime.now();
     }
 
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public void setForMonth(LocalDate forMonth) {
-        this.forMonth = forMonth;
+    public Long getId() {
+        return id;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
     public User getUser() {
         return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public LocalDate getForMonth() {
         return forMonth;
     }
 
+    public void setForMonth(LocalDate forMonth) {
+        this.forMonth = forMonth;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
     public LocalDateTime getCreationDate() {
         return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public LocalDateTime getUpdatedDate() {
+        return updatedDate;
+    }
+
+    public void setUpdatedDate(LocalDateTime updatedDate) {
+        this.updatedDate = updatedDate;
+    }
+
+    public PrematureEmployeeCheckState getState() {
+        return state;
+    }
+
+    public void setState(PrematureEmployeeCheckState state) {
+        this.state = state;
     }
 }

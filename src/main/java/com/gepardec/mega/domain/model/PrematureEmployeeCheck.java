@@ -1,5 +1,7 @@
 package com.gepardec.mega.domain.model;
 
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -14,6 +16,7 @@ public class PrematureEmployeeCheck {
 
     private final LocalDateTime creationDate;
 
+    private final PrematureEmployeeCheckState state;
 
     public PrematureEmployeeCheck(Builder builder) {
         this.id = builder.id;
@@ -21,6 +24,7 @@ public class PrematureEmployeeCheck {
         this.reason = builder.reason;
         this.forMonth = builder.forMonth;
         this.creationDate = builder.creationDate;
+        this.state = builder.state;
     }
 
     public static Builder builder() {
@@ -47,12 +51,17 @@ public class PrematureEmployeeCheck {
         return creationDate;
     }
 
+    public PrematureEmployeeCheckState getState() {
+        return state;
+    }
+
     public static final class Builder {
         private long id;
         private User user;
         private String reason;
         private LocalDate forMonth;
         private LocalDateTime creationDate;
+        private PrematureEmployeeCheckState state;
 
         private Builder() {
         }
@@ -83,6 +92,11 @@ public class PrematureEmployeeCheck {
 
         public Builder creationDate(LocalDateTime creationDate) {
             this.creationDate = creationDate;
+            return this;
+        }
+
+        public Builder prematureEmployeeCheckState(PrematureEmployeeCheckState state){
+            this.state = state;
             return this;
         }
 

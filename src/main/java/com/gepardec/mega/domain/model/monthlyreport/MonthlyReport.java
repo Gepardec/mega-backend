@@ -3,6 +3,7 @@ package com.gepardec.mega.domain.model.monthlyreport;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.PmProgressDto;
 
@@ -62,7 +63,7 @@ public class MonthlyReport {
 
     private final double overtime;
 
-    private final boolean hasPrematureEmployeeCheck;
+    private final PrematureEmployeeCheck prematureEmployeeCheck;
 
     private MonthlyReport(Builder builder) {
         this.employee = builder.employee;
@@ -91,7 +92,7 @@ public class MonthlyReport {
         this.billableTime = builder.billableTime;
         this.totalWorkingTime = builder.totalWorkingTime;
         this.overtime = builder.overtime;
-        this.hasPrematureEmployeeCheck = builder.hasPrematureEmployeeCheck;
+        this.prematureEmployeeCheck = builder.prematureEmployeeCheck;
     }
 
 
@@ -207,8 +208,8 @@ public class MonthlyReport {
         return overtime;
     }
 
-    public boolean isHasPrematureEmployeeCheck() {
-        return hasPrematureEmployeeCheck;
+    public PrematureEmployeeCheck getPrematureEmployeeCheck() {
+        return prematureEmployeeCheck;
     }
 
     public static final class Builder {
@@ -238,7 +239,7 @@ public class MonthlyReport {
         private String billableTime;
         private String totalWorkingTime;
         private double overtime;
-        private boolean hasPrematureEmployeeCheck;
+        private PrematureEmployeeCheck prematureEmployeeCheck;
 
         private Builder() {
         }
@@ -377,8 +378,8 @@ public class MonthlyReport {
             return this;
         }
 
-        public Builder hasPrematureEmployeeCheck(boolean hasPrematureEmployeeCheck) {
-            this.hasPrematureEmployeeCheck = hasPrematureEmployeeCheck;
+        public Builder prematureEmployeeCheck (PrematureEmployeeCheck prematureEmployeeCheck) {
+            this.prematureEmployeeCheck = prematureEmployeeCheck;
             return this;
         }
 

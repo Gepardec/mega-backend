@@ -50,7 +50,7 @@ public class CommentServiceImpl implements CommentService {
                         employeeEmail
                 )
                 .stream()
-                .map(commentMapper::mapDbCommentToDomainComment)
+                .map(commentMapper::mapToDomain)
                 .collect(Collectors.toList());
     }
 
@@ -107,7 +107,7 @@ public class CommentServiceImpl implements CommentService {
             sendMail(Mail.COMMENT_CREATED, comment);
         }
 
-        return commentMapper.mapDbCommentToDomainComment(comment);
+        return commentMapper.mapToDomain(comment);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.update(comment);
         sendMail(Mail.COMMENT_MODIFIED, comment);
 
-        return commentMapper.mapDbCommentToDomainComment(comment);
+        return commentMapper.mapToDomain(comment);
     }
 
     private void sendMail(Mail mail, com.gepardec.mega.db.entity.employee.Comment comment) {

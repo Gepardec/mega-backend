@@ -1,6 +1,7 @@
 package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.domain.model.Role;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -28,6 +28,7 @@ public class PrematureEmployeeCheckRepositoryTest {
     UserRepository userRepository;
 
     private static final String EMAIL = "max.muster@gepardec.com";
+    private static final LocalDate DATE = LocalDate.of(2023, 10, 1);
     private com.gepardec.mega.db.entity.employee.User user;
 
     @BeforeEach
@@ -41,7 +42,7 @@ public class PrematureEmployeeCheckRepositoryTest {
         persistUser();
 
 //        When
-        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
+        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck(null));
 
 //        Then
         assertThat(saved.getId()).isNotZero();
@@ -51,11 +52,11 @@ public class PrematureEmployeeCheckRepositoryTest {
     public void save_secondEntry_throwConstraintViolationException() {
 //        Given
         persistUser();
-        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
+        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck(null));
 
 //        When
         try {
-            PrematureEmployeeCheckEntity saved2 = prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
+            PrematureEmployeeCheckEntity saved2 = prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck(null));
             prematureEmployeeCheckRepository.flush();
 
 //            Then
@@ -69,10 +70,10 @@ public class PrematureEmployeeCheckRepositoryTest {
     @Test
     public void findByEmail_missingEntry_returnEmptyList() {
 //        When
-        List<PrematureEmployeeCheckEntity> fromEmail = prematureEmployeeCheckRepository.findByEmail(EMAIL);
+        var byEmailAndMonth = prematureEmployeeCheckRepository.findByEmailAndMonth(EMAIL, DATE);
 
 //        Then
-        assertThat(fromEmail.size()).isZero();
+        assertThat(byEmailAndMonth).isEmpty();
     }
 
     @Test
@@ -82,10 +83,13 @@ public class PrematureEmployeeCheckRepositoryTest {
         persistPrematureEmployeeCheck();
 
 //        When
-        List<PrematureEmployeeCheckEntity> fromEmail = prematureEmployeeCheckRepository.findByEmail(EMAIL);
+        var byEmailAndMonth = prematureEmployeeCheckRepository.findByEmailAndMonth(EMAIL, DATE);
 
 //        Then
-        assertThat(fromEmail.size()).isEqualTo(1L);
+        assertThat(byEmailAndMonth).isPresent()
+                .get()
+                .extracting(PrematureEmployeeCheckEntity::getState)
+                .isEqualTo(PrematureEmployeeCheckState.DONE);
     }
 
 
@@ -94,7 +98,7 @@ public class PrematureEmployeeCheckRepositoryTest {
     }
 
     private void persistPrematureEmployeeCheck() {
-        prematureEmployeeCheckRepository.save(createDBPrematureEmployeeCheck(null));
+        prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck(null));
     }
 
 
@@ -102,7 +106,8 @@ public class PrematureEmployeeCheckRepositoryTest {
         PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
         prematureEmployeeCheckEntity.setId(id);
         prematureEmployeeCheckEntity.setUser(this.user);
-        prematureEmployeeCheckEntity.setForMonth(LocalDate.of(2023, 10, 1));
+        prematureEmployeeCheckEntity.setForMonth(DATE);
+        prematureEmployeeCheckEntity.setState(PrematureEmployeeCheckState.DONE);
         return prematureEmployeeCheckEntity;
     }
 

@@ -1,17 +1,18 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.db.repository.PrematureEmployeeCheckRepository;
-import com.gepardec.mega.db.repository.UserRepository;
+import com.gepardec.mega.domain.mapper.PrematureEmployeeCheckMapper;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.service.api.PrematureEmployeeCheckService;
-import com.gepardec.mega.service.mapper.PrematureEmployeeCheckMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheckService {
@@ -19,8 +20,6 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     @Inject
     PrematureEmployeeCheckRepository prematureEmployeeCheckRepository;
 
-    @Inject
-    UserRepository userRepository;
 
     @Inject
     PrematureEmployeeCheckMapper prematureEmployeeCheckMapper;
@@ -28,49 +27,47 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     @Inject
     Logger logger;
 
-    public boolean addPrematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
+    @Override
+    public Optional<PrematureEmployeeCheck> findByEmailAndMonth(String email, LocalDate date) {
+        return prematureEmployeeCheckRepository.findByEmailAndMonth(email, date)
+                .map(prematureEmployeeCheckMapper::mapToDomain);
+    }
 
-        PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
-        prematureEmployeeCheckEntity.setUser(
-                userRepository.findActiveByEmail(prematureEmployeeCheck.getUser().getEmail()).orElseThrow()
-        );
-        prematureEmployeeCheckEntity.setForMonth(prematureEmployeeCheck.getForMonth().withDayOfMonth(1));
-        prematureEmployeeCheckEntity.setReason(prematureEmployeeCheck.getReason());
+    @Override
+    public boolean create(PrematureEmployeeCheck prematureEmployeeCheck) {
+        var prematureEmployeeCheckEntity = prematureEmployeeCheckMapper.mapToEntity(prematureEmployeeCheck);
 
-        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.save(prematureEmployeeCheckEntity);
-
-        logger.info(
-                String.format("PrematureEmployeeCheck created for %s in %s",
-                        saved.getUser().getEmail(),
-                        saved.getForMonth())
-        );
+        var saved = prematureEmployeeCheckRepository.create(prematureEmployeeCheckEntity);
+        logger.info("PrematureEmployeeCheck created for {} in {}", saved.getUser().getEmail(), saved.getForMonth());
 
         return saved.getId() != null;
     }
 
     @Override
-    public List<PrematureEmployeeCheck> getPrematureEmployeeChecksForEmail(String email) {
-        List<PrematureEmployeeCheckEntity> fromUserId = prematureEmployeeCheckRepository.findByEmail(email);
+    public boolean update(PrematureEmployeeCheck prematureEmployeeCheck) {
+        var prematureEmployeeCheckEntity = prematureEmployeeCheckMapper.mapToEntity(
+                prematureEmployeeCheck,
+                prematureEmployeeCheckRepository.findById(prematureEmployeeCheck.getId())
+        );
 
-        return prematureEmployeeCheckMapper.mapListToDomain(fromUserId);
-    }
+        PrematureEmployeeCheckEntity updated = prematureEmployeeCheckRepository.update(prematureEmployeeCheckEntity);
+        logger.info("PrematureEmployeeCheck (id: {}) updated", updated.getId());
 
-    @Override
-    public boolean hasUserPrematureEmployeeCheck(String email) {
-        List<PrematureEmployeeCheck> prematureEmployeeCheckForUserId = getPrematureEmployeeChecksForEmail(email);
-        return !prematureEmployeeCheckForUserId.isEmpty();
+        return updated.getId() != null;
     }
 
     @Override
     public List<PrematureEmployeeCheck> findAllForMonth(LocalDate localDate) {
-        List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntities = prematureEmployeeCheckRepository.findAllForMonth(localDate);
-        return prematureEmployeeCheckMapper.mapListToDomain(prematureEmployeeCheckEntities);
+        return prematureEmployeeCheckMapper.mapListToDomain(
+                prematureEmployeeCheckRepository.findAllForMonth(localDate)
+        );
     }
 
     @Override
-    public long deleteAllForMonth(LocalDate localDate) {
-        return prematureEmployeeCheckRepository.deleteByMonth(localDate);
+    public long deleteAllForMonthWithState(LocalDate localDate, List<PrematureEmployeeCheckState> states) {
+        return prematureEmployeeCheckRepository.deleteByMonthAndStates(localDate, states);
     }
+
     @Override
     public boolean deleteById(Long id) {
         return prematureEmployeeCheckRepository.delete(id);
