@@ -3,21 +3,28 @@ package com.gepardec.mega.zep.rest.service;
 import com.gepardec.mega.zep.rest.client.ZepAttendanceRestClient;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepAttendance;
+import com.gepardec.mega.zep.util.Paginator;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @QuarkusTest
 public class AttendanceServiceTest {
@@ -92,7 +99,8 @@ public class AttendanceServiceTest {
         Response resp = Response.ok().entity(responseJson).build();
         when(zepAttendanceRestClient.getAttendancesByUsername(anyString(), anyInt())).thenReturn(resp);
         
-        List<ZepAttendance> attendancesReference = List.of(ZepAttendance.builder()
+        List<ZepAttendance> attendancesReference = List.of(
+            ZepAttendance.builder()
                 .id(1)
                 .date(LocalDate.of(2018,12,11))
                 .from(LocalTime.of(8,0,0))
@@ -119,8 +127,7 @@ public class AttendanceServiceTest {
                 .created(LocalDateTime.of(2014,12,1,7,54,24))
                 .modified(LocalDateTime.of(2019,4,15,10,6,39))
                 .build(),
-
-        ZepAttendance.builder()
+            ZepAttendance.builder()
                 .id(2)
                 .date(LocalDate.of(2015,2,11))
                 .from(LocalTime.of(9,0,0))
@@ -212,4 +219,34 @@ public class AttendanceServiceTest {
         List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUser("001-duser");
         assertThat(attendances.isEmpty()).isTrue();
     }
+
+    @Test
+    public void extractCorrectMonthFromGivenDate() {
+        ArgumentCaptor<String> startDateCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> endDateCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> usernameCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Function> functionCaptor = ArgumentCaptor.forClass(Function.class);
+
+        //Mock the paginator
+        MockedStatic<Paginator> mockedPaginator = mockStatic(Paginator.class);
+        mockedPaginator.when(() -> Paginator.retrieveAll(any(), any()))
+                .thenReturn(new ArrayList<>());
+
+        //Call the Method under test
+        attendanceService.getAttendanceForUserAndMonth("username", LocalDate.of(2021, 1, 10));
+
+        //Retrieve the function called in the method under test
+        mockedPaginator.verify(() -> Paginator.retrieveAll(functionCaptor.capture(), any()));
+        Function<Integer, Response> function = functionCaptor.getValue();
+        //Run the Function
+        function.apply(1);
+
+        //Verify the function retrieved has been called with the right parameters
+        verify(zepAttendanceRestClient).getAttendance(startDateCaptor.capture(), endDateCaptor.capture(), usernameCaptor.capture(), eq(1));
+        assert startDateCaptor.getValue().equals("2021-01-01");
+        assert endDateCaptor.getValue().equals("2021-01-31");
+        assert usernameCaptor.getValue().equals("username");
+    }
+
+
 }
