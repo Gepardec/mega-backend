@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class RegularWorkingTimesServiceTests {
+public class RegularWorkingTimesServiceTest {
 
 
     @RestClient

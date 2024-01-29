@@ -36,6 +36,7 @@ public class ZepRestService implements ZepService {
     @Inject
     EmployeeMapper employeeMapper;
 
+
     @Override
     public Employee getEmployee(String userId) {
         Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByUsername(userId);
@@ -76,6 +77,9 @@ public class ZepRestService implements ZepService {
 
     @Override
     public List<ProjectEntry> getProjectTimes(Employee employee, LocalDate date) {
+        List<ZepAttendance> zepAttendances = attendanceService.getAttendanceForUserAndMonth(employee.getUserId(), date);
+
+
         return null;
     }
 

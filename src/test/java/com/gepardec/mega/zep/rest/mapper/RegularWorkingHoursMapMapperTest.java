@@ -11,7 +11,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-public class RegularWorkingHoursMapMapperTests {
+public class RegularWorkingHoursMapMapperTest {
 
 
 

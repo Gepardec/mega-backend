@@ -221,7 +221,7 @@ public class AttendanceServiceTest {
     }
 
     @Test
-    public void extractCorrectMonthFromGivenDate() {
+    public void extractCorrectMonthFromGivenDate_thenCallPaginator() {
         ArgumentCaptor<String> startDateCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> endDateCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> usernameCaptor = ArgumentCaptor.forClass(String.class);
@@ -243,9 +243,9 @@ public class AttendanceServiceTest {
 
         //Verify the function retrieved has been called with the right parameters
         verify(zepAttendanceRestClient).getAttendance(startDateCaptor.capture(), endDateCaptor.capture(), usernameCaptor.capture(), eq(1));
-        assert startDateCaptor.getValue().equals("2021-01-01");
-        assert endDateCaptor.getValue().equals("2021-01-31");
-        assert usernameCaptor.getValue().equals("username");
+        assertThat( startDateCaptor.getValue()).isEqualTo("2021-01-01");
+        assertThat(endDateCaptor.getValue()).isEqualTo("2021-01-31");
+        assertThat(usernameCaptor.getValue()).isEqualTo("username");
     }
 
 
