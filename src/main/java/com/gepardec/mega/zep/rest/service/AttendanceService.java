@@ -34,7 +34,8 @@ public class AttendanceService {
     }
 
 
-    public List<ZepAttendance> getAttendance(String username, LocalDate date) {
+    //Return the attendances for a user for a given month. The month in which the date is located determines the month to be queried.
+    public List<ZepAttendance> getAttendanceForUserAndMonth(String username, LocalDate date) {
         String startDate = date.withDayOfMonth(1).toString();
         String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
         return Paginator.retrieveAll(

@@ -76,6 +76,9 @@ public class Paginator {
         try (response) {
             return response.readEntity(String.class);
         }
+        catch (Exception e) {
+            throw new ZepServiceException("Error while reading response body",e);
+        }
     }
 
     private static <T> Optional<T> filterList(List<T> list , Predicate<T> filter) {
