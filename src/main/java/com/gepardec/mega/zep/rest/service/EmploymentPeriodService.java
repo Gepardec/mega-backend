@@ -26,7 +26,6 @@ public class EmploymentPeriodService {
     @RestClient
     ZepEmployeeRestClient zepEmployeeRestService;
 
-    //TODO: Pagination handling
     public List<ZepEmploymentPeriod> getZepEmploymentPeriodsByEmployeeName(String employeeName) {
         return Paginator.retrieveAll(
                 page -> zepEmployeeRestService.getEmploymentPeriodByUserName(employeeName, page),
