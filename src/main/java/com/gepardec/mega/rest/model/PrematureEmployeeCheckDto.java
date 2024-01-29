@@ -50,7 +50,7 @@ public class PrematureEmployeeCheckDto {
         return id;
     }
 
-    public PrematureEmployeeCheckState getPrematureEmployeeCheckState() {
+    public PrematureEmployeeCheckState getState() {
         return state;
     }
 
@@ -101,7 +101,7 @@ public class PrematureEmployeeCheckDto {
             return this;
         }
 
-        public Builder prematureEmployeeCheckState(PrematureEmployeeCheckState state) {
+        public Builder state(PrematureEmployeeCheckState state) {
             this.state = state;
             return this;
         }
