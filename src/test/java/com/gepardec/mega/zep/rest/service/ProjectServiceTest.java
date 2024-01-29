@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import static java.lang.Thread.yield;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
@@ -199,10 +200,9 @@ public class ProjectServiceTest {
                 .tasksCount(1)
                 .employeesCount(1)
                 .activitiesCount(0)
-                .employees(projectEmployees1)
                 .build();
 
-        ZepProject referenceZepProject2 = ZepProject.builder().id(2).employees(projectEmployees2).build();
+        ZepProject referenceZepProject2 = ZepProject.builder().id(2).build();
 
         List<ZepProject> zepProject = projectService.getProjectsForMonthYear(LocalDate.of(2020, 1, 1));
         assertThat(zepProject.get(0)).usingRecursiveComparison().isEqualTo(referenceZepProject);
@@ -235,26 +235,26 @@ public class ProjectServiceTest {
                 .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
         when(zepProjectRestClient.getProjectByStartEnd(Mockito.any(), Mockito.any(), eq(3)))
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
-
-        String employeeResponseJson =
-                "{\"data\": [\n" +
-                "    {\n" +
-                "      \"username\": \"001-duser\"\n" +
-                "    }],\n" +
-                "  \"links\": {\n" +
-                "    \"next\": null\n" +
-                "  }\n" +
-                "}";
-
-        IntStream.range(1, 4).forEach(
-                i -> when(zepProjectRestClient.getProjectEmployees(eq(i)))
-                    .thenReturn(Response.ok().entity(employeeResponseJson).build()));
+//
+//        String employeeResponseJson =
+//                "{\"data\": [\n" +
+//                "    {\n" +
+//                "      \"username\": \"001-duser\"\n" +
+//                "    }],\n" +
+//                "  \"links\": {\n" +
+//                "    \"next\": null\n" +
+//                "  }\n" +
+//                "}";
+//
+//        IntStream.range(1, 4).forEach(
+//                i -> when(zepProjectRestClient.getProjectEmployees(eq(i)))
+//                    .thenReturn(Response.ok().entity(employeeResponseJson).build()));
 
         List<ZepProjectEmployee> zepProjectEmployees = List.of(ZepProjectEmployee.builder().username("001-duser").build());
         List<ZepProject> zepProjectsReference = List.of(
-                ZepProject.builder().id(1).employees(zepProjectEmployees).build(),
-                ZepProject.builder().id(2).employees(zepProjectEmployees).build(),
-                ZepProject.builder().id(3).employees(zepProjectEmployees).build()
+                ZepProject.builder().id(1).build(),
+                ZepProject.builder().id(2).build(),
+                ZepProject.builder().id(3).build()
         );
 
         List<ZepProject> zepProjects = projectService.getProjectsForMonthYear(LocalDate.of(2024,1,25));
@@ -284,15 +284,15 @@ public class ProjectServiceTest {
                         "}"
         );
 
-        String employeeResponseJson =
-                "{\"data\": [\n" +
-                        "    {\n" +
-                        "      \"username\": \"001-duser\"\n" +
-                        "    }],\n" +
-                        "  \"links\": {\n" +
-                        "    \"next\": null\n" +
-                        "  }\n" +
-                        "}";
+//        String employeeResponseJson =
+//                "{\"data\": [\n" +
+//                        "    {\n" +
+//                        "      \"username\": \"001-duser\"\n" +
+//                        "    }],\n" +
+//                        "  \"links\": {\n" +
+//                        "    \"next\": null\n" +
+//                        "  }\n" +
+//                        "}";
 
         when(zepProjectRestClient.getProjects( eq(1)))
                 .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
@@ -301,13 +301,9 @@ public class ProjectServiceTest {
         when(zepProjectRestClient.getProjects(eq(3)))
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
 
-        Response employeeResponse = Response.ok().entity(employeeResponseJson).build();
-        when(zepProjectRestClient.getProjectEmployees(anyInt())).thenReturn(employeeResponse);
 
         Optional<ZepProject> project = projectService.getProjectByName("MEGA");
         assertThat(project.get().getId()).isEqualTo(5);
-        assertThat(project.get().getEmployees().get(0).getUsername()).isEqualTo("001-duser");
-
     }
     @Test
     public void getProjectByName_whenNoProjectOfName() {

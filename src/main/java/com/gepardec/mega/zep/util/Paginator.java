@@ -26,13 +26,15 @@ public class Paginator {
         String responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
-        T[] data = arrayClass.cast(ZepRestUtil.parseJson(responseBodyAsString, "/data", arrayClass));
+        T[] data = arrayClass.cast(ZepRestUtil
+                .parseJson(responseBodyAsString, "/data", arrayClass)
+                .orElse((T[]) Array.newInstance(arrayClass, 0)));
 
         List<T> result = new ArrayList<>(Arrays.asList(data));
 
-        String next = (String) ZepRestUtil.parseJson(responseBodyAsString, "/links/next", String.class);
+        Optional<String> next = ZepRestUtil.parseJson(responseBodyAsString, "/links/next", String.class);
 
-        if (next != null) {
+        if (next.isPresent()) {
             System.out.println("Page: " + page);
             result.addAll(retrieveAll(pageSupplier, page + 1, elementClass));
         }
@@ -54,16 +56,17 @@ public class Paginator {
         String responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
-        T[] data = arrayClass.cast(ZepRestUtil.parseJson(responseBodyAsString, "/data", arrayClass));
+        T[] data = arrayClass.cast(ZepRestUtil.parseJson(responseBodyAsString, "/data", arrayClass)
+                .orElse((T[]) Array.newInstance(arrayClass, 0)));
 
         Optional<T> current = filterList(Arrays.asList(data), filter);
         if (current.isPresent()) {
             return current;
         }
 
-        String next = (String) ZepRestUtil.parseJson(responseBodyAsString, "/links/next", String.class);
+        Optional<String> next = ZepRestUtil.parseJson(responseBodyAsString, "/links/next", String.class);
 
-        if (next != null) {
+        if (next.isPresent()) {
             System.out.println("Page: " + page);
             return searchInAll(pageSupplier, filter, page + 1, elementClass);
         }

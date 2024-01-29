@@ -29,34 +29,26 @@ public class ProjectService {
         LocalDate firstOfMonth = DateUtils.getFirstDayOfMonth(monthYear.getYear(), monthYear.getMonthValue());
         LocalDate lastOfMonth = DateUtils.getLastDayOfMonth(monthYear.getYear(), monthYear.getMonthValue());
 
-        List<ZepProject> projects = Paginator.retrieveAll(
+        return Paginator.retrieveAll(
                 page -> zepProjectRestClient.getProjectByStartEnd(firstOfMonth, lastOfMonth, page),
                 ZepProject.class
         );
-        projects.forEach(this::setProjectEmployees);
-        return projects;
     }
 
     public Optional<ZepProject> getProjectByName(String name) {
-        Optional<ZepProject> optional =  Paginator.searchInAll(
+        return Paginator.searchInAll(
                 page -> zepProjectRestClient.getProjects(page),
                 project -> project.getName().equals(name),
                 ZepProject.class
         );
-        optional.ifPresent(this::setProjectEmployees);
-        return optional;
     }
 
-    private void setProjectEmployees(ZepProject zepProject) {
-        List<ZepProjectEmployee> employees = this.getProjectEmployeesForId(zepProject.getId());
-        zepProject.setEmployees(employees);
-    }
 
-    List<ZepProjectEmployee> getProjectEmployeesForId(int projectId) {
+    public List<ZepProjectEmployee> getProjectEmployeesForId(int projectId) {
         try (Response resp = zepProjectRestClient.getProjectEmployees(projectId)) {
             String output = resp.readEntity(String.class);
-            ZepProjectEmployee[] employees = (ZepProjectEmployee[]) ZepRestUtil.parseJson(output, "/data", ZepProjectEmployee[].class);
-            return List.of(employees);
+            Optional<ZepProjectEmployee[]> projectEmployees = ZepRestUtil.parseJson(output, "/data", ZepProjectEmployee[].class);
+            return Arrays.asList(projectEmployees.orElse(new ZepProjectEmployee[0]));
         }
     }
 

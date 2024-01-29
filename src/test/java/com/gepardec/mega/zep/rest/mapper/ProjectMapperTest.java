@@ -36,8 +36,6 @@ public class ProjectMapperTest {
                         .type(new ZepProjectEmployeeTypeBuilder().id(2).name("engineer").build())
                         .build()
         );
-        List<String> leads = List.of("Anton");
-        List<String> employees = List.of("Anton", "Berta", "Caesar");
 
 
         int billabilityZepId = BillabilityPreset.BILLABLE.getZepId();
@@ -89,7 +87,6 @@ public class ProjectMapperTest {
                 .tasksCount(4)
                 .employeesCount(4)
                 .activitiesCount(0)
-                .employees(zepProjectEmployees)
                 .build();
 
         LocalDate startDate = zepProject.getStartDate() == null ?
@@ -103,8 +100,5 @@ public class ProjectMapperTest {
         assertThat(project.getStartDate()).isEqualTo(startDate);
         assertThat(project.getEndDate()).isEqualTo(endDate);
         assertThat(project.getBillabilityPreset().getZepId()).isEqualTo(billabilityZepId);
-        assertThat(project.getEmployees()).usingRecursiveComparison().isEqualTo(employees);
-        assertThat(project.getLeads()).usingRecursiveComparison().isEqualTo(leads);
-
     }
 }

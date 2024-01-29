@@ -19,8 +19,10 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class EmployeeService{
@@ -31,46 +33,28 @@ public class EmployeeService{
     @Inject
     EmploymentPeriodService employmentPeriodService;
 
-    public ZepEmployee getZepEmployeeByUsername(String name) {
+    public Optional<ZepEmployee> getZepEmployeeByUsername(String name) {
         try (Response resp = zepEmployeeRestClient.getByUsername(name)) {
             String output = resp.readEntity(String.class);
-            ZepEmployee employee = (ZepEmployee) ZepRestUtil.parseJson(output, "/data", ZepEmployee.class);
+            return ZepRestUtil.parseJson(output, "/data", ZepEmployee.class);
 
-            List<ZepEmploymentPeriod> employmentPeriods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(name);
-            employee.setEmploymentPeriods(employmentPeriods);
-
-            return employee;
         }
     }
-    public ZepEmployee getZepEmployeeByPersonalNumber(String personalNumber) {
+    public Optional<ZepEmployee> getZepEmployeeByPersonalNumber(String personalNumber) {
         List<String> params = List.of(personalNumber);
         try (Response resp = zepEmployeeRestClient.getByPersonalNumber(params)) {
             String output = resp.readEntity(String.class);
-            ZepEmployee employee = ((ZepEmployee[]) ZepRestUtil.parseJson(output, "/data", ZepEmployee[].class))[0];
+            Optional<ZepEmployee[]> employees = ZepRestUtil.parseJson(output, "/data", ZepEmployee[].class);
 
-            String employeeName = employee.getUsername();
-            List<ZepEmploymentPeriod> employmentPeriods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employeeName);
-            employee.setEmploymentPeriods(employmentPeriods);
+            return employees.map(zepEmployees -> zepEmployees[0]);
 
-            return employee;
         }
     }
 
     public List<ZepEmployee> getZepEmployees() {
-        List<ZepEmployee> employees = Paginator.retrieveAll(
+        return Paginator.retrieveAll(
                 (page) -> zepEmployeeRestClient.getAllEmployeesOfPage(page),
                 ZepEmployee.class);
-
-        employees.forEach(this::setEmploymentPeriods);
-
-        return employees;
     }
-
-    private void setEmploymentPeriods(ZepEmployee employee) {
-        String username = employee.getUsername();
-        List<ZepEmploymentPeriod> periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(username);
-        employee.setEmploymentPeriods(periods);
-    }
-
 
 }

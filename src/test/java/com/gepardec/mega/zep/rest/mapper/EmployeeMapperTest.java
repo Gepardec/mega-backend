@@ -84,23 +84,23 @@ public class EmployeeMapperTest {
     public void mapZepEmployeeToEmployee() {
         EmployeeMapper employeeMapper = new EmployeeMapper();
 
-        List<ZepEmploymentPeriod> employmentPeriods = List.of(
-                ZepEmploymentPeriod.builder()
-                        .startDate(LocalDateTime.of(2010,1,2, 23, 32, 48))
-                        .endDate(LocalDateTime.of(2022, 11, 3, 12, 1, 23))
-                        .id(10)
-                        .build(),
-                ZepEmploymentPeriod.builder()
-                        .startDate(LocalDateTime.of(2022,12,22, 23, 32, 48))
-                        .endDate(LocalDateTime.of(2023, 2, 24, 8, 4, 2))
-                        .id(11)
-                        .build(),
-                ZepEmploymentPeriod.builder()
-                        .startDate(LocalDateTime.of(2024,1,2, 14, 52, 43))
-                        .endDate(null)
-                        .id(12)
-                        .build()
-        );
+//    List<ZepEmploymentPeriod> employmentPeriods = List.of(
+//            ZepEmploymentPeriod.builder()
+//                    .startDate(LocalDateTime.of(2010,1,2, 23, 32, 48))
+//                    .endDate(LocalDateTime.of(2022, 11, 3, 12, 1, 23))
+//                    .id(10)
+//                    .build(),
+//            ZepEmploymentPeriod.builder()
+//                    .startDate(LocalDateTime.of(2022,12,22, 23, 32, 48))
+//                    .endDate(LocalDateTime.of(2023, 2, 24, 8, 4, 2))
+//                    .id(11)
+//                    .build(),
+//            ZepEmploymentPeriod.builder()
+//                    .startDate(LocalDateTime.of(2024,1,2, 14, 52, 43))
+//                    .endDate(null)
+//                    .id(12)
+//                    .build()
+//    );
         boolean employeeActive = true;
 
             //TODO: Add regularWorkingHours + workDescription
@@ -113,7 +113,6 @@ public class EmployeeMapperTest {
                 .salutation(ZepSalutation.builder().name("Mr.").build())
                 .releaseDate(LocalDateTime.of(2022, 12,1, 0, 0, 0))
                 .language("German")
-                .employmentPeriods(employmentPeriods)
                 .build();
 
         Employee employee = employeeMapper.map(zepEmployee);
@@ -126,7 +125,6 @@ public class EmployeeMapperTest {
         assertThat(employee.getSalutation()).isEqualTo(zepEmployee.getSalutation().getName());
         assertThat(employee.getReleaseDate()).isEqualTo(zepEmployee.getReleaseDate().toString());
         assertThat(employee.getLanguage()).isEqualTo(zepEmployee.getLanguage());
-        assertThat(employee.isActive()).isEqualTo(employeeActive);
     }
 
     @Test

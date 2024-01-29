@@ -98,17 +98,6 @@ public class ZepProject {
       @JsonProperty("activities_count")
       private Integer activitiesCount;
 
-      @JsonIgnore
-      private List<ZepProjectEmployee> employees;
-
-
-      public List<ZepProjectEmployee> getEmployees() {
-            return employees;
-      }
-
-      public void setEmployees(List<ZepProjectEmployee> employees) {
-            this.employees = employees;
-      }
 
       public static ZepProjectBuilder builder() {
             return new ZepProjectBuilder();
@@ -116,7 +105,7 @@ public class ZepProject {
 
       public ZepProject() {}
 
-      public ZepProject(Integer id, String name, String description, LocalDateTime startDate, LocalDateTime endDate, String status, String comments, String costObject, String costObjectIdentifier, LocalDateTime created, LocalDateTime modified, List<String> keywords, String referenceOrder, String referenceCommission, String referenceProcurement, String referenceObject, String language, String currency, String url, String locationAddress, String locationCity, String locationState, String locationCountry, String revenueAccount, String customerId, Integer customerContactId, String customerProjectReference, Integer customerBillingAddressId, Integer customerShippingAddressId, String hasMultipleCustomers, Integer departmentId, Integer billingType, Integer billingTasks, String planHours, String planHoursPerDay, Boolean planCanExceed, Double planWarningPercent, Double planWarningPercent2, Double planWarningPercent3, Double planWage, String planExpenses, String planExpensesTravel, Double planHoursDone, Double planHoursInvoiced, Integer tasksCount, Integer employeesCount, Integer activitiesCount, List<ZepProjectEmployee> employees) {
+      public ZepProject(Integer id, String name, String description, LocalDateTime startDate, LocalDateTime endDate, String status, String comments, String costObject, String costObjectIdentifier, LocalDateTime created, LocalDateTime modified, List<String> keywords, String referenceOrder, String referenceCommission, String referenceProcurement, String referenceObject, String language, String currency, String url, String locationAddress, String locationCity, String locationState, String locationCountry, String revenueAccount, String customerId, Integer customerContactId, String customerProjectReference, Integer customerBillingAddressId, Integer customerShippingAddressId, String hasMultipleCustomers, Integer departmentId, Integer billingType, Integer billingTasks, String planHours, String planHoursPerDay, Boolean planCanExceed, Double planWarningPercent, Double planWarningPercent2, Double planWarningPercent3, Double planWage, String planExpenses, String planExpensesTravel, Double planHoursDone, Double planHoursInvoiced, Integer tasksCount, Integer employeesCount, Integer activitiesCount) {
             this.id = id;
             this.name = name;
             this.description = description;
@@ -164,7 +153,6 @@ public class ZepProject {
             this.tasksCount = tasksCount;
             this.employeesCount = employeesCount;
             this.activitiesCount = activitiesCount;
-            this.employees = employees;
       }
 
       public Integer getId() {

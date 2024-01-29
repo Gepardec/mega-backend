@@ -46,8 +46,6 @@ public class ZepEmployeeBuilder {
     private Integer creditorNumber;
     private Collection<String> categories;
     private Integer absencesCount;
-    private List<ZepEmploymentPeriod> employmentPeriods;
-    private Map<DayOfWeek, Duration> regularWorkingHours;
 
     public ZepEmployeeBuilder username(String username) {
         this.username = username;
@@ -239,17 +237,8 @@ public class ZepEmployeeBuilder {
         return this;
     }
 
-    public ZepEmployeeBuilder employmentPeriods(List<ZepEmploymentPeriod> employmentPeriods) {
-        this.employmentPeriods = employmentPeriods;
-        return this;
-    }
-
-    public ZepEmployeeBuilder regularWorkingHours(Map<DayOfWeek, Duration> regularWorkingHours) {
-        this.regularWorkingHours = regularWorkingHours;
-        return this;
-    }
 
     public ZepEmployee build() {
-        return new ZepEmployee(username, firstname, lastname, personalNumber, street, zip, city, country, abbreviation, salutation, title, email, phone, mobile, fax, privatePhone, birthdate, iban, bic, accountNo, bankName, bankCode, currency, releaseDate, vat, priceGroup, employment, rights, departmentId, language, personioId, costBearer, taxId, created, modified, creditorNumber, categories, absencesCount, employmentPeriods, regularWorkingHours);
+        return new ZepEmployee(username, firstname, lastname, personalNumber, street, zip, city, country, abbreviation, salutation, title, email, phone, mobile, fax, privatePhone, birthdate, iban, bic, accountNo, bankName, bankCode, currency, releaseDate, vat, priceGroup, employment, rights, departmentId, language, personioId, costBearer, taxId, created, modified, creditorNumber, categories, absencesCount);
     }
 }

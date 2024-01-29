@@ -52,8 +52,6 @@ public class ZepProjectBuilder {
     private Integer employeesCount;
     private Integer activitiesCount;
 
-    private List<ZepProjectEmployee> employees;
-
     public ZepProjectBuilder id(Integer id) {
         this.id = id;
         return this;
@@ -289,12 +287,8 @@ public class ZepProjectBuilder {
         return this;
     }
 
-    public ZepProjectBuilder employees(List<ZepProjectEmployee> employees) {
-        this.employees = employees;
-        return this;
-    }
 
     public ZepProject build() {
-        return new ZepProject(id, name, description, startDate, endDate, status, comments, costObject, costObjectIdentifier, created, modified, keywords, referenceOrder, referenceCommission, referenceProcurement, referenceObject, language, currency, url, locationAddress, locationCity, locationState, locationCountry, revenueAccount, customerId, customerContactId, customerProjectReference, customerBillingAddressId, customerShippingAddressId, hasMultipleCustomers, departmentId, billingType, billingTasks, planHours, planHoursPerDay, planCanExceed, planWarningPercent, planWarningPercent2, planWarningPercent3, planWage, planExpenses, planExpensesTravel, planHoursDone, planHoursInvoiced, tasksCount, employeesCount, activitiesCount, employees);
+        return new ZepProject(id, name, description, startDate, endDate, status, comments, costObject, costObjectIdentifier, created, modified, keywords, referenceOrder, referenceCommission, referenceProcurement, referenceObject, language, currency, url, locationAddress, locationCity, locationState, locationCountry, revenueAccount, customerId, customerContactId, customerProjectReference, customerBillingAddressId, customerShippingAddressId, hasMultipleCustomers, departmentId, billingType, billingTasks, planHours, planHoursPerDay, planCanExceed, planWarningPercent, planWarningPercent2, planWarningPercent3, planWage, planExpenses, planExpensesTravel, planHoursDone, planHoursInvoiced, tasksCount, employeesCount, activitiesCount);
     }
 }

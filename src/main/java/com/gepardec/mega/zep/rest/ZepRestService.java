@@ -7,15 +7,14 @@ import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.rest.entity.*;
-import com.gepardec.mega.zep.rest.mapper.AttendanceMapper;
-import com.gepardec.mega.zep.rest.mapper.EmployeeMapper;
-import com.gepardec.mega.zep.rest.mapper.ProjectMapper;
-import com.gepardec.mega.zep.rest.mapper.RegularWorkingHoursMapMapper;
+import com.gepardec.mega.zep.rest.mapper.*;
 import com.gepardec.mega.zep.rest.service.*;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MultivaluedMap;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +38,10 @@ public class ZepRestService implements ZepService {
 
     @Override
     public Employee getEmployee(String userId) {
-        ZepEmployee zepEmployee = employeeService.getZepEmployeeByUsername(userId);
+        Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByUsername(userId);
+        if (zepEmployee.isEmpty()) {
+            return null;
+        }
 
         List<ZepEmploymentPeriod> period = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(userId);
         boolean active = employeeMapper.getActiveOfZepEmploymentPeriods(period);
@@ -47,7 +49,7 @@ public class ZepRestService implements ZepService {
         var regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
         ZepRegularWorkingTimes zepRegularWorkingTimes = regularWorkingTimesService.getRegularWorkingTimesByUsername(userId);
 
-        Employee employee = employeeMapper.map(zepEmployee);
+        Employee employee = employeeMapper.map(zepEmployee.get());
         employee.setActive(active);
         employee.setRegularWorkingHours(regularWorkingHoursMapMapper.map(zepRegularWorkingTimes));
         return employee;
@@ -84,9 +86,19 @@ public class ZepRestService implements ZepService {
 
     @Override
     public List<Project> getProjectsForMonthYear(LocalDate monthYear) {
-        List<ZepProject> zepProjects = projectService.getProjectsForMonthYear(monthYear);
         var projectMapper = new ProjectMapper();
-        return projectMapper.mapList(zepProjects);
+        var projectEmployeesMapper = new ProjectEmployeesMapper();
+
+        List<ZepProject> zepProjects = projectService.getProjectsForMonthYear(monthYear);
+        List<Project> projects = projectMapper.mapList(zepProjects);
+        projects.forEach(project -> {
+            List<ZepProjectEmployee> zepProjectEmployees = projectService.getProjectEmployeesForId(project.getZepId());
+            MultivaluedMap<String, String> projectEmployeesMap = projectEmployeesMapper.map(zepProjectEmployees);
+            project.setEmployees(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.USER, new ArrayList<>()));
+            project.setLeads(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.LEAD, new ArrayList<>()));
+        });
+
+        return projects;
     }
 
     @Override

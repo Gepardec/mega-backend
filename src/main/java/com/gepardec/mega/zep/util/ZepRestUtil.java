@@ -9,27 +9,20 @@ import jakarta.ws.rs.core.Response;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.Optional;
 
 public class ZepRestUtil {
-    public static Object parseJson (String json, String path, Class<?> resultClass) {
-        return parseJson(json, path, resultClass, false);
-    }
-    public static Object parseJson (String json, String path, Class<?> resultClass, boolean listConversion) {
+    public static <T> Optional<T> parseJson (String json, String path, Class<T> resultClass) {
         var objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules();
 
         try {
             JsonNode jsonNode = objectMapper.readTree(json).at(path);
             if (jsonNode.isMissingNode()) {
-                throw new RuntimeException("No Node found at " + path);
+                throw new RuntimeException("No Node found at JSON-Path: " + path);
             }
-            Object value = objectMapper.treeToValue(jsonNode, resultClass);
 
-            if(listConversion)
-                if (value instanceof Object[])
-                    return List.of(value);
-
-            return value;
+            return Optional.ofNullable(objectMapper.treeToValue(jsonNode, resultClass));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

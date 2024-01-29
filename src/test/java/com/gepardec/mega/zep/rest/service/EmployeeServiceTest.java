@@ -157,13 +157,12 @@ public class EmployeeServiceTest {
                 .creditorNumber(null)
                 .categories(new ArrayList<>())
                 .absencesCount(7)
-                .employmentPeriods(zepEmploymentPeriods)
                 .build();
 
 
-                ZepEmployee zepEmployee = employeeService.getZepEmployeeByPersonalNumber("007");
+                Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByPersonalNumber("007");
 
-                assertThat(zepEmployee).usingRecursiveComparison().isEqualTo(referenceEmployee);
+                assertThat(zepEmployee.get()).usingRecursiveComparison().isEqualTo(referenceEmployee);
     }
 
 
@@ -235,14 +234,7 @@ public class EmployeeServiceTest {
 
         List<ZepEmployee> employees = employeeService.getZepEmployees();
 
-        Iterator<List<ZepEmploymentPeriod>> employmentPeriodsIterator = List.of(periods000, periods001, periods007).iterator();
-
-        employees.stream()
-                .peek(employee-> assertThat(employeeNames.contains(employee.getUsername())).isTrue())
-                .map(ZepEmployee::getEmploymentPeriods)
-                .forEach(employmentPeriods -> {
-                    assertThat(employmentPeriods).usingRecursiveComparison().isEqualTo(employmentPeriodsIterator.next());
-                });
+        employees.forEach(employee-> assertThat(employeeNames.contains(employee.getUsername())).isTrue());
     }
 
 

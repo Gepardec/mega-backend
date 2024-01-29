@@ -67,16 +67,10 @@ public class ZepEmployee {
         @JsonProperty("absences_count")
         private Integer absencesCount;
 
-        @JsonIgnoreProperties
-        List<ZepEmploymentPeriod> employmentPeriods;
-
-        @JsonIgnoreProperties
-        Map<DayOfWeek, Duration> regularWorkingHours;
-
         public ZepEmployee() {
         }
 
-        public ZepEmployee(String username, String firstname, String lastname, String personalNumber, String street, String zip, String city, String country, String abbreviation, ZepSalutation salutation, String title, String email, String phone, String mobile, String fax, String privatePhone, String birthdate, String iban, String bic, Integer accountNo, String bankName, String bankCode, String currency, LocalDateTime releaseDate, Double vat, String priceGroup, ZepEmployment employment, ZepRights rights, Integer departmentId, String language, Integer personioId, String costBearer, Integer taxId, LocalDateTime created, LocalDateTime modified, Integer creditorNumber, Collection<String> categories, Integer absencesCount, List<ZepEmploymentPeriod> employmentPeriods, Map<DayOfWeek, Duration> regularWorkingHours) {
+        public ZepEmployee(String username, String firstname, String lastname, String personalNumber, String street, String zip, String city, String country, String abbreviation, ZepSalutation salutation, String title, String email, String phone, String mobile, String fax, String privatePhone, String birthdate, String iban, String bic, Integer accountNo, String bankName, String bankCode, String currency, LocalDateTime releaseDate, Double vat, String priceGroup, ZepEmployment employment, ZepRights rights, Integer departmentId, String language, Integer personioId, String costBearer, Integer taxId, LocalDateTime created, LocalDateTime modified, Integer creditorNumber, Collection<String> categories, Integer absencesCount) {
                 this.username = username;
                 this.firstname = firstname;
                 this.lastname = lastname;
@@ -115,8 +109,6 @@ public class ZepEmployee {
                 this.creditorNumber = creditorNumber;
                 this.categories = categories;
                 this.absencesCount = absencesCount;
-                this.employmentPeriods = employmentPeriods;
-                this.regularWorkingHours = regularWorkingHours;
         }
 
         public String getUsername() {
@@ -423,21 +415,6 @@ public class ZepEmployee {
                 this.absencesCount = absencesCount;
         }
 
-        public List<ZepEmploymentPeriod> getEmploymentPeriods() {
-                return employmentPeriods;
-        }
-
-        public void setEmploymentPeriods(List<ZepEmploymentPeriod> employmentPeriods) {
-                this.employmentPeriods = employmentPeriods;
-        }
-
-        public Map<DayOfWeek, Duration> getRegularWorkingHours() {
-                return regularWorkingHours;
-        }
-
-        public void setRegularWorkingHours(Map<DayOfWeek, Duration> regularWorkingHours) {
-                this.regularWorkingHours = regularWorkingHours;
-        }
 
         public static ZepEmployeeBuilder builder() {
                 return new ZepEmployeeBuilder();

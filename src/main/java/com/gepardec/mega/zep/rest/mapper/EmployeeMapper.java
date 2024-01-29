@@ -25,8 +25,6 @@ public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
         if (zepEmployee == null)
             return null;
 
-        boolean active = getActiveOfZepEmploymentPeriods(zepEmployee.getEmploymentPeriods());
-
         String salutation = zepEmployee.getSalutation() == null ?
                 null : zepEmployee.getSalutation().getName();
         String releaseDate = zepEmployee.getReleaseDate() == null ?
@@ -41,8 +39,6 @@ public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
             .releaseDate(releaseDate)
             .workDescription(null) //TODO: klären was das ist (getPreisgruppe() in Employee Mapper)
             .language(zepEmployee.getLanguage())
-            .regularWorkingHours(zepEmployee.getRegularWorkingHours())
-            .active(active)
             .build();
         /**
          * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,

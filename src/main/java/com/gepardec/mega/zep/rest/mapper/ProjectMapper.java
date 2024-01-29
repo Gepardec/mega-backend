@@ -28,8 +28,6 @@ public class ProjectMapper implements Mapper<Project, ZepProject> {
         List<String> employees = new ArrayList<>();
         List<String> leads = new ArrayList<>();
 
-        fillEmployeesLeadLists(employees, leads, zepProject);
-
         BillabilityPreset billabilityPreset = null;
         if (BillabilityPreset.byZepId(zepProject.getBillingType()).isPresent()) {
             billabilityPreset = BillabilityPreset.byZepId(zepProject.getBillingType()).get();
@@ -50,12 +48,4 @@ public class ProjectMapper implements Mapper<Project, ZepProject> {
          */
     }
 
-    public static void fillEmployeesLeadLists(List<String> employees, List<String> leads, ZepProject project) {
-        project.getEmployees().forEach(employee -> {
-            employees.add(employee.getUsername());
-            if (employee.isLead()) {
-                leads.add(employee.getUsername());
-            }
-        });
-    }
 }
