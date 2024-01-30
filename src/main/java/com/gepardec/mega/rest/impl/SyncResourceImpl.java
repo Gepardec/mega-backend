@@ -12,6 +12,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 
 @RequestScoped
@@ -60,7 +61,7 @@ public class SyncResourceImpl implements SyncResource {
     @Override
     public Response generateEnterpriseEntries(YearMonth from, YearMonth to) {
         if (from == null) {
-            return Response.ok(enterpriseSyncService.generateEnterpriseEntries()).build();
+            return Response.ok(enterpriseSyncService.generateEnterpriseEntries(LocalDate.now().withDayOfMonth(1))).build();
         }
         if (to == null) {
             return Response.ok(enterpriseSyncService.generateEnterpriseEntries(from.atDay(1))).build();
