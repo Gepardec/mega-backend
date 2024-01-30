@@ -29,8 +29,10 @@ public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
                 null : zepEmployee.getSalutation().getName();
         String releaseDate = zepEmployee.getReleaseDate() == null ?
                 null : zepEmployee.getReleaseDate().toString();
+        String language = zepEmployee.getLanguage() == null ?
+                null : zepEmployee.getLanguage().getName();
         return Employee.builder()
-            .userId(zepEmployee.getPersonalNumber())
+            .userId(zepEmployee.getUsername())
             .email(zepEmployee.getEmail())
             .title(zepEmployee.getTitle())
             .firstname(zepEmployee.getFirstname())
@@ -38,7 +40,7 @@ public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
             .salutation(salutation)
             .releaseDate(releaseDate)
             .workDescription(null) //TODO: klären was das ist (getPreisgruppe() in Employee Mapper)
-            .language(zepEmployee.getLanguage())
+            .language(language)
             .build();
         /**
          * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,

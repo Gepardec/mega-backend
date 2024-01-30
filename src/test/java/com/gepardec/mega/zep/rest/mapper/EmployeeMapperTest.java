@@ -3,6 +3,7 @@ package com.gepardec.mega.zep.rest.mapper;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.rest.entity.ZepLanguage;
 import com.gepardec.mega.zep.rest.entity.ZepSalutation;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -112,7 +113,7 @@ public class EmployeeMapperTest {
                 .lastname("User")
                 .salutation(ZepSalutation.builder().name("Mr.").build())
                 .releaseDate(LocalDateTime.of(2022, 12,1, 0, 0, 0))
-                .language("German")
+                .language(new ZepLanguage("de", "German"))
                 .build();
 
         Employee employee = employeeMapper.map(zepEmployee);

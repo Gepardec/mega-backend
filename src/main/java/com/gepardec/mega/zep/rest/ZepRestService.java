@@ -6,10 +6,16 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.ZepServiceSoapImpl;
 import com.gepardec.mega.zep.rest.entity.*;
 import com.gepardec.mega.zep.rest.mapper.*;
 import com.gepardec.mega.zep.rest.service.*;
+import jakarta.ejb.LocalBean;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.enterprise.inject.Typed;
+import jakarta.enterprise.inject.Vetoed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedMap;
 
@@ -18,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
+@ApplicationScoped
+@Typed(ZepRestService.class)
 public class ZepRestService implements ZepService {
 
     @Inject
@@ -39,7 +48,7 @@ public class ZepRestService implements ZepService {
 
     @Override
     public Employee getEmployee(String userId) {
-        Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByUsername(userId);
+        Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByPersonalNumber(userId);
         if (zepEmployee.isEmpty()) {
             return null;
         }
@@ -52,6 +61,7 @@ public class ZepRestService implements ZepService {
 
         Employee employee = employeeMapper.map(zepEmployee.get());
         employee.setActive(active);
+        System.out.println("Employee: " + employee.getUserId() + " is active: " + employee.isActive());
         employee.setRegularWorkingHours(regularWorkingHoursMapMapper.map(zepRegularWorkingTimes));
         return employee;
     }

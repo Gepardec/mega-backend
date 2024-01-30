@@ -37,7 +37,7 @@ public class ZepEmployeeBuilder {
     private ZepEmployment employment;
     private ZepRights rights;
     private Integer departmentId;
-    private String language;
+    private ZepLanguage language;
     private Integer personioId;
     private String costBearer;
     private Integer taxId;
@@ -192,7 +192,7 @@ public class ZepEmployeeBuilder {
         return this;
     }
 
-    public ZepEmployeeBuilder language(String language) {
+    public ZepEmployeeBuilder language(ZepLanguage language) {
         this.language = language;
         return this;
     }

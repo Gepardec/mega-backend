@@ -148,8 +148,8 @@ public class EmploymentPeriodServiceTest {
                 .periodHolidayEntitlement(2)
                 .isHolidayPerYear(false)
                 .dayAbsentInHours(null)
-                .created(LocalDateTime.of(2017, 7, 26, 13, 39, 22))
-                .modified(LocalDateTime.of(2020, 11, 21, 8, 35, 23))
+                .created("2017-07-26T13:39:22.000000Z")
+                .modified("2020-11-21T08:35:23.000000Z")
                 .build();
         ZepEmploymentPeriod employmentPeriod2 = ZepEmploymentPeriod.builder()
                 .id(42)
@@ -162,8 +162,8 @@ public class EmploymentPeriodServiceTest {
                 .periodHolidayEntitlement(25)
                 .isHolidayPerYear(false)
                 .dayAbsentInHours(null)
-                .created(LocalDateTime.of(2018, 12, 27, 17, 18, 38))
-                .modified(LocalDateTime.of(2020, 11, 21, 8, 35, 23))
+                .created("2018-12-27T17:18:38.000000Z")
+                .modified("2020-11-21T08:35:23.000000Z")
                 .build();
         ZepEmploymentPeriod employmentPeriod3 = ZepEmploymentPeriod.builder()
                 .id(129)
@@ -176,8 +176,8 @@ public class EmploymentPeriodServiceTest {
                 .periodHolidayEntitlement(0)
                 .isHolidayPerYear(true)
                 .dayAbsentInHours(0.0)
-                .created(LocalDateTime.of(2020, 11, 21, 8, 35, 23))
-                .modified(LocalDateTime.of(2024, 1, 18, 12, 56, 26))
+                .created("2020-11-21T08:35:23.000000Z")
+                .modified("2124-01-18T12:56:26.000000Z")
                 .build();
 
         var zepEmploymentPeriods = List.of(employmentPeriod1, employmentPeriod2, employmentPeriod3);

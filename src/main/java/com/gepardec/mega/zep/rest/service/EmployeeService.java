@@ -42,7 +42,7 @@ public class EmployeeService{
     }
     public Optional<ZepEmployee> getZepEmployeeByPersonalNumber(String personalNumber) {
         List<String> params = List.of(personalNumber);
-        try (Response resp = zepEmployeeRestClient.getByPersonalNumber(params)) {
+        try (Response resp = zepEmployeeRestClient.getByPersonalNumber(personalNumber)) {
             String output = resp.readEntity(String.class);
             Optional<ZepEmployee[]> employees = ZepRestUtil.parseJson(output, "/data", ZepEmployee[].class);
 

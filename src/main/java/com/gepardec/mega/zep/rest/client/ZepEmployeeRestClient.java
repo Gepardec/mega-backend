@@ -22,7 +22,7 @@ import java.util.List;
 public interface ZepEmployeeRestClient extends Authenticatable {
 
     @GET
-    Response getByPersonalNumber(@QueryParam("personal_number") List<String> personalNumber);
+    Response getByPersonalNumber(@QueryParam("personal_number") String personalNumber);
 
     @GET
     @Path("/{username}")

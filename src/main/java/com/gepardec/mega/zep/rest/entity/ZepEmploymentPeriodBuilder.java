@@ -13,8 +13,8 @@ public class ZepEmploymentPeriodBuilder {
     private double periodHolidayEntitlement;
     private boolean isHolidayPerYear;
     private Double dayAbsentInHours;
-    private LocalDateTime created;
-    private LocalDateTime modified;
+    private String created;
+    private String modified;
 
     public ZepEmploymentPeriodBuilder id(int id) {
         this.id = id;
@@ -66,12 +66,12 @@ public class ZepEmploymentPeriodBuilder {
         return this;
     }
 
-    public ZepEmploymentPeriodBuilder created(LocalDateTime created) {
+    public ZepEmploymentPeriodBuilder created(String created) {
         this.created = created;
         return this;
     }
 
-    public ZepEmploymentPeriodBuilder modified(LocalDateTime modified) {
+    public ZepEmploymentPeriodBuilder modified(String modified) {
         this.modified = modified;
         return this;
     }

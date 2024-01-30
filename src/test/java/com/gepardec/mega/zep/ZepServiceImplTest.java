@@ -55,7 +55,7 @@ class ZepServiceImplTest {
     @Inject
     Logger logger;
 
-    ZepServiceImpl zepService;
+    ZepServiceSoapImpl zepService;
 
     private ProjektMitarbeiterListeType projektMitarbeiterListeType;
 
@@ -86,7 +86,7 @@ class ZepServiceImplTest {
     void setUp() {
         zepSoapPortType = mock(ZepSoapPortType.class);
 
-        zepService = new ZepServiceImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper);
+        zepService = new ZepServiceSoapImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper);
 
         final ReadProjekteResponseType readProjekteResponseType = new ReadProjekteResponseType();
         final ProjektListeType projektListeType = new ProjektListeType();

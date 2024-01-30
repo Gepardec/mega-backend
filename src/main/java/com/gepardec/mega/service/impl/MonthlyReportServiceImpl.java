@@ -120,6 +120,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
             employee = employeeService.getEmployee(userContext.getUser().getUserId());
         }
 
+
         return buildMonthlyReport(
                 employee,
                 date,

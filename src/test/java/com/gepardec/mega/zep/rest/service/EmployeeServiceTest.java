@@ -148,7 +148,7 @@ public class EmployeeServiceTest {
                     .build()
                 )
                 .departmentId(7)
-                .language("English")
+                .language(new ZepLanguage("en", "English"))
                 .personioId(7)
                 .costBearer(null)
                 .taxId(null)

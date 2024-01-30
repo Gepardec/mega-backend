@@ -52,7 +52,7 @@ public class ZepEmployee {
         private ZepRights rights;
         @JsonProperty("department_id")
         private Integer departmentId;
-        private String language;
+        private ZepLanguage language;
         @JsonProperty("personio_id")
         private Integer personioId;
         @JsonProperty("cost_bearer")
@@ -70,7 +70,7 @@ public class ZepEmployee {
         public ZepEmployee() {
         }
 
-        public ZepEmployee(String username, String firstname, String lastname, String personalNumber, String street, String zip, String city, String country, String abbreviation, ZepSalutation salutation, String title, String email, String phone, String mobile, String fax, String privatePhone, String birthdate, String iban, String bic, Integer accountNo, String bankName, String bankCode, String currency, LocalDateTime releaseDate, Double vat, String priceGroup, ZepEmployment employment, ZepRights rights, Integer departmentId, String language, Integer personioId, String costBearer, Integer taxId, LocalDateTime created, LocalDateTime modified, Integer creditorNumber, Collection<String> categories, Integer absencesCount) {
+        public ZepEmployee(String username, String firstname, String lastname, String personalNumber, String street, String zip, String city, String country, String abbreviation, ZepSalutation salutation, String title, String email, String phone, String mobile, String fax, String privatePhone, String birthdate, String iban, String bic, Integer accountNo, String bankName, String bankCode, String currency, LocalDateTime releaseDate, Double vat, String priceGroup, ZepEmployment employment, ZepRights rights, Integer departmentId, ZepLanguage language, Integer personioId, String costBearer, Integer taxId, LocalDateTime created, LocalDateTime modified, Integer creditorNumber, Collection<String> categories, Integer absencesCount) {
                 this.username = username;
                 this.firstname = firstname;
                 this.lastname = lastname;
@@ -343,11 +343,11 @@ public class ZepEmployee {
                 this.departmentId = departmentId;
         }
 
-        public String getLanguage() {
+        public ZepLanguage getLanguage() {
                 return language;
         }
 
-        public void setLanguage(String language) {
+        public void setLanguage(ZepLanguage language) {
                 this.language = language;
         }
 

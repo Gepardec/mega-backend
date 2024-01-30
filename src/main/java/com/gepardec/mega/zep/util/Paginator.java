@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gepardec.mega.zep.ZepServiceException;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
@@ -24,6 +25,7 @@ public class Paginator {
 
     private static <T> List<T> retrieveAll(Function<Integer, Response> pageSupplier, Integer page, Class<T> elementClass) {
         String responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
+        System.out.println(responseBodyAsString);
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
         T[] data = arrayClass.cast(ZepRestUtil

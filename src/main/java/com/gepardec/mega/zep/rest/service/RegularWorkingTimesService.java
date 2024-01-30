@@ -28,6 +28,7 @@ public class RegularWorkingTimesService {
 
             String responseBodyAsString = resp.readEntity(String.class);
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.findAndRegisterModules();
             JsonNode jsonNode = objectMapper.readTree(responseBodyAsString);
 
             ZepRegularWorkingTimes workingTimes[] = objectMapper.treeToValue(jsonNode.get("data"), ZepRegularWorkingTimes[].class);

@@ -24,13 +24,13 @@ public class ZepEmploymentPeriod {
      private Boolean isHolidayPerYear;
      @JsonProperty("day_absent_in_hours")
      private Double dayAbsentInHours;
-     private LocalDateTime created;
-     private LocalDateTime modified;
+     private String created;
+     private String modified;
 
      public ZepEmploymentPeriod() {
      }
 
-     public ZepEmploymentPeriod(int id, String employeeId, LocalDateTime startDate, LocalDateTime endDate, String note, Double annualLeaveEntitlement, LocalDateTime beginningOfYear, double periodHolidayEntitlement, boolean isHolidayPerYear, Double dayAbsentInHours, LocalDateTime created, LocalDateTime modified) {
+     public ZepEmploymentPeriod(int id, String employeeId, LocalDateTime startDate, LocalDateTime endDate, String note, Double annualLeaveEntitlement, LocalDateTime beginningOfYear, double periodHolidayEntitlement, boolean isHolidayPerYear, Double dayAbsentInHours, String created, String modified) {
           this.id = id;
           this.employeeId = employeeId;
           this.startDate = startDate;
@@ -125,19 +125,19 @@ public class ZepEmploymentPeriod {
           this.dayAbsentInHours = dayAbsentInHours;
      }
 
-     public LocalDateTime getCreated() {
+     public String getCreated() {
           return created;
      }
 
-     public void setCreated(LocalDateTime created) {
+     public void setCreated(String created) {
           this.created = created;
      }
 
-     public LocalDateTime getModified() {
+     public String getModified() {
           return modified;
      }
 
-     public void setModified(LocalDateTime modified) {
+     public void setModified(String modified) {
           this.modified = modified;
      }
 
