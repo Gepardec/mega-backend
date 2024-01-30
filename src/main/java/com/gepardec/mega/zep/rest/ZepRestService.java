@@ -117,7 +117,7 @@ public class ZepRestService implements ZepService {
 
     @Override
     public Optional<Project> getProjectByName(String projectName, LocalDate monthYear) {
-        Optional<ZepProject> zepProject = projectService.getProjectByName(projectName);
+        Optional<ZepProject> zepProject = projectService.getProjectByName(projectName, monthYear);
         if (zepProject.isPresent()) {
             var projectMapper = new ProjectMapper();
             return Optional.of(projectMapper.map(zepProject.get()));
@@ -132,7 +132,7 @@ public class ZepRestService implements ZepService {
 
     @Override
     public List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date) {
-        List<ZepAttendance> projectTimes = attendanceService.getBillableAttendancesForUser(employee.getUserId());
+        List<ZepAttendance> projectTimes = attendanceService.getBillableAttendancesForUserAndMonth(employee.getUserId(), date);
         var attendanceMapper = new AttendanceMapper();
         return attendanceMapper.mapList(projectTimes);
     }

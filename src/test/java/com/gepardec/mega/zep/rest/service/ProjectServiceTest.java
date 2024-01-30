@@ -302,7 +302,7 @@ public class ProjectServiceTest {
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
 
 
-        Optional<ZepProject> project = projectService.getProjectByName("MEGA");
+        Optional<ZepProject> project = projectService.getProjectByName("MEGA", LocalDate.now());
         assertThat(project.get().getId()).isEqualTo(5);
     }
     @Test
@@ -348,7 +348,7 @@ public class ProjectServiceTest {
         Response employeeResponse = Response.ok().entity(employeeResponseJson).build();
         when(zepProjectRestClient.getProjectEmployees(anyInt())).thenReturn(employeeResponse);
 
-        Optional<ZepProject> project = projectService.getProjectByName("Coffee robot for office");
+        Optional<ZepProject> project = projectService.getProjectByName("Coffee robot for office", LocalDate.now());
         assertThat(project.isEmpty()).isTrue();
 
     }

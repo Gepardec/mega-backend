@@ -25,6 +25,7 @@ public class Paginator {
 
     private static <T> List<T> retrieveAll(Function<Integer, Response> pageSupplier, Integer page, Class<T> elementClass) {
         String responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
+        System.out.println(elementClass);
         System.out.println(responseBodyAsString);
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);

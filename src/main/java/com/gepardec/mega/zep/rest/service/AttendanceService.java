@@ -23,10 +23,8 @@ public class AttendanceService {
     @RestClient
     private ZepAttendanceRestClient zepAttendanceRestClient;
 
-    public List<ZepAttendance> getBillableAttendancesForUser(String username) {
-        List<ZepAttendance> attendances = Paginator.retrieveAll(
-                (page) -> zepAttendanceRestClient.getAttendancesByUsername(username, page),
-                ZepAttendance.class);
+    public List<ZepAttendance> getBillableAttendancesForUserAndMonth(String username, LocalDate date) {
+        List<ZepAttendance> attendances = this.getAttendanceForUserAndMonth(username, date);
         return attendances.stream()
                 .filter(attendance -> attendance.getBillable() <= BILLABLE_TYPE_BORDER)
                 .collect(Collectors.toList());
