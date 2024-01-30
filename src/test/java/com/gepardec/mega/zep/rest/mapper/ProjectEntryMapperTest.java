@@ -1,6 +1,7 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.monthlyreport.*;
+import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.entity.ZepAttendance;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @QuarkusTest
 public class ProjectEntryMapperTest {
@@ -39,6 +41,31 @@ public class ProjectEntryMapperTest {
         ProjectEntry expectedProjectEntry = generateJourneyTimeEntry();
 
         assertThat(mappedProjectEntry).usingRecursiveComparison().isEqualTo(expectedProjectEntry);
+    }
+
+    @Test
+    public void mapZepAttendanceToProjectEntryWithNullValues_JourneyTimeEntry() {
+        ZepAttendance zepAttendance = generateZepAttendance();
+        zepAttendance.setActivity("reisen");
+        zepAttendance.setWorkLocation(null);
+        zepAttendance.setVehicle(null);
+
+        JourneyTimeEntry mappedProjectEntry = (JourneyTimeEntry) projectEntryMapper.map(zepAttendance);
+        JourneyTimeEntry expectedProjectEntry = generateJourneyTimeEntry();
+        expectedProjectEntry.setVehicle(Vehicle.OTHER_INACTIVE);
+        expectedProjectEntry.setWorkingLocation(WorkingLocation.OTHER);
+
+        assertThat(mappedProjectEntry).usingRecursiveComparison().isEqualTo(expectedProjectEntry);
+    }
+
+    @Test
+    public void mapZepAttendanceToProjectEntryWithNullValues_IllegalArgumentException_toTask() {
+        ZepAttendance zepAttendance = generateZepAttendance();
+        zepAttendance.setActivity("nasebohren");
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            ProjectEntry mappedProjectEntry = projectEntryMapper.map(zepAttendance);
+        });
     }
 
 
