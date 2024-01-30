@@ -48,7 +48,7 @@ public class ZepRestService implements ZepService {
 
     @Override
     public Employee getEmployee(String userId) {
-        Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByPersonalNumber(userId);
+        Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByUsername(userId);
         if (zepEmployee.isEmpty()) {
             return null;
         }

@@ -6,7 +6,10 @@ import com.gepardec.mega.zep.mapper.MapperUtil;
 import com.gepardec.mega.zep.rest.entity.ZepAttendance;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -26,10 +29,20 @@ public class AttendanceMapper implements Mapper<ProjectTime, ZepAttendance> {
             locationPrRelevant = zepAttendance.getWorkLocationIsProjectRelevant() != -1;
         }
 
+        String duration = null;
+        if (zepAttendance.getDuration() != null ) {
+            BigDecimal bigDecimal = BigDecimal.valueOf(zepAttendance.getDuration());
+            int hours = bigDecimal.intValue();
+            int minutes = bigDecimal
+                    .subtract(BigDecimal.valueOf(hours))
+                    .multiply(BigDecimal.valueOf(60)).intValue();
+            duration = "" + LocalTime.of(hours, minutes);
+        }
+
+
         String id = zepAttendance.getId() == null? null : "" + zepAttendance.getId();
         String startTime = zepAttendance.getFrom() == null ? null : "" + zepAttendance.getFrom();
         String endTime = zepAttendance.getTo() == null ? null : "" + zepAttendance.getTo();
-        String duration = zepAttendance.getDuration() == null ? null : "" + zepAttendance.getDuration();
         String projectNr = zepAttendance.getProjectId() == null ? null : "" + zepAttendance.getProjectId();
         String task = zepAttendance.getProjectTaskId() == null ? null : "" + zepAttendance.getProjectTaskId();
         Integer km = zepAttendance.getKm() == null ? null : Integer.parseInt(zepAttendance.getKm());
@@ -38,6 +51,7 @@ public class AttendanceMapper implements Mapper<ProjectTime, ZepAttendance> {
         Integer ticketNr = zepAttendance.getTicketId() == null ? null : Integer.parseInt(zepAttendance.getTicketId());
         String created = zepAttendance.getCreated() == null ? null : "" + zepAttendance.getCreated();
         String modified = zepAttendance.getModified() == null ? null : "" + zepAttendance.getModified();
+
 
         return ProjectTime.builder()
                 .id(id)

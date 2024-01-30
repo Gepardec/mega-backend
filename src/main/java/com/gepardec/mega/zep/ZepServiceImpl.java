@@ -42,7 +42,7 @@ public class ZepServiceImpl implements ZepService {
 
     @Override
     public List<ProjectEntry> getProjectTimes(Employee employee, LocalDate date) {
-        return zepServiceRest.getProjectTimes(employee, date);
+        return zepServiceSoap.getProjectTimes(employee, date);
     }
 
     @Override
