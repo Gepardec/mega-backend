@@ -156,7 +156,7 @@ public class AttendanceServiceTest {
                 .build()
         );
 
-        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUser("001-duser");
+        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.now());
         assertThat(attendances).usingRecursiveComparison().isEqualTo(attendancesReference);
     }
 
@@ -186,7 +186,7 @@ public class AttendanceServiceTest {
         when(zepAttendanceRestClient.getAttendancesByUsername(anyString(), eq(2))).thenReturn(resp2);
 
 
-        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUser("001-duser");
+        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.now());
         assertThat(attendances.get(0).getId()).isEqualTo(1);
         assertThat(attendances.get(1).getId()).isEqualTo(2);
     }
@@ -216,7 +216,7 @@ public class AttendanceServiceTest {
         when(zepAttendanceRestClient.getAttendancesByUsername(anyString(), eq(2))).thenReturn(resp2);
 
 
-        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUser("001-duser");
+        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.now());
         assertThat(attendances.isEmpty()).isTrue();
     }
 
