@@ -37,7 +37,7 @@ public class Paginator {
         Optional<String> next = ZepRestUtil.parseJson(responseBodyAsString, "/links/next", String.class);
 
         if (next.isPresent()) {
-            System.out.println("Page: " + page);
+//            System.out.println("Page: " + page);
             result.addAll(retrieveAll(pageSupplier, page + 1, elementClass));
         }
         return result;
@@ -69,7 +69,7 @@ public class Paginator {
         Optional<String> next = ZepRestUtil.parseJson(responseBodyAsString, "/links/next", String.class);
 
         if (next.isPresent()) {
-            System.out.println("Page: " + page);
+//            System.out.println("Page: " + page);
             return searchInAll(pageSupplier, filter, page + 1, elementClass);
         }
         return Optional.empty();
