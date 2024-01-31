@@ -44,7 +44,7 @@ public class ZepEmployee {
         private String bankCode;
         private String currency;
         @JsonProperty("release_date")
-        private LocalDateTime releaseDate;
+        private LocalDate releaseDate;
         private Double vat;
         @JsonProperty("price_group")
         private String priceGroup;
@@ -70,7 +70,8 @@ public class ZepEmployee {
         public ZepEmployee() {
         }
 
-        public ZepEmployee(String username, String firstname, String lastname, String personalNumber, String street, String zip, String city, String country, String abbreviation, ZepSalutation salutation, String title, String email, String phone, String mobile, String fax, String privatePhone, String birthdate, String iban, String bic, Integer accountNo, String bankName, String bankCode, String currency, LocalDateTime releaseDate, Double vat, String priceGroup, ZepEmployment employment, ZepRights rights, Integer departmentId, ZepLanguage language, Integer personioId, String costBearer, Integer taxId, LocalDateTime created, LocalDateTime modified, Integer creditorNumber, Collection<String> categories, Integer absencesCount) {
+        public ZepEmployee(String username, String firstname, String lastname, String personalNumber, String street, String zip, String city, String country, String abbreviation, ZepSalutation salutation, String title, String email, String phone, String mobile, String fax, String privatePhone, String birthdate, String iban, String bic, Integer accountNo, String bankName, String bankCode, String currency, LocalDate
+                releaseDate, Double vat, String priceGroup, ZepEmployment employment, ZepRights rights, Integer departmentId, ZepLanguage language, Integer personioId, String costBearer, Integer taxId, LocalDateTime created, LocalDateTime modified, Integer creditorNumber, Collection<String> categories, Integer absencesCount) {
                 this.username = username;
                 this.firstname = firstname;
                 this.lastname = lastname;
@@ -295,11 +296,11 @@ public class ZepEmployee {
                 this.currency = currency;
         }
 
-        public LocalDateTime getReleaseDate() {
+        public LocalDate getReleaseDate() {
                 return releaseDate;
         }
 
-        public void setReleaseDate(LocalDateTime releaseDate) {
+        public void setReleaseDate(LocalDate releaseDate) {
                 this.releaseDate = releaseDate;
         }
 

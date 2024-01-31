@@ -61,7 +61,6 @@ public class ZepRestService implements ZepService {
 
         Employee employee = employeeMapper.map(zepEmployee.get());
         employee.setActive(active);
-        System.out.println("Employee: " + employee.getUserId() + " is active: " + employee.isActive());
         employee.setRegularWorkingHours(regularWorkingHoursMapMapper.map(zepRegularWorkingTimes));
         return employee;
     }
@@ -72,8 +71,8 @@ public class ZepRestService implements ZepService {
         List<Employee> employees = employeeMapper.mapList(zepEmployees);
         employees.forEach(
                 employee -> {
-                    var periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employee.getUserId());
-                    boolean active = employeeMapper.getActiveOfZepEmploymentPeriods(periods);
+//                    var periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employee.getUserId());
+                    boolean active = true;//employeeMapper.getActiveOfZepEmploymentPeriods(periods);
                     employee.setActive(active);
                 });
 

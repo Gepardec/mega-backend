@@ -9,6 +9,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -112,7 +113,7 @@ public class EmployeeMapperTest {
                 .firstname("Demo")
                 .lastname("User")
                 .salutation(ZepSalutation.builder().name("Mr.").build())
-                .releaseDate(LocalDateTime.of(2022, 12,1, 0, 0, 0))
+                .releaseDate(LocalDate.of(2022, 12,1))
                 .language(new ZepLanguage("de", "German"))
                 .build();
 

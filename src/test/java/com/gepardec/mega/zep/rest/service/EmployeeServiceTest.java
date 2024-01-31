@@ -15,6 +15,7 @@ import jakarta.inject.Inject;
 import org.locationtech.jts.io.InStream;
 import org.mockito.Mockito;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -134,7 +135,7 @@ public class EmployeeServiceTest {
                 .bankName("James Bank")
                 .bankCode("007")
                 .currency("Bonds")
-                .releaseDate(LocalDateTime.of(2022,2, 28, 0, 0, 0))
+                .releaseDate(LocalDate.of(2022,2, 28))
                 .vat(20.0)
                 .priceGroup("03")
                 .employment(ZepEmployment.builder()

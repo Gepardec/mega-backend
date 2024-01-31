@@ -30,7 +30,7 @@ public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
         String releaseDate = zepEmployee.getReleaseDate() == null ?
                 null : zepEmployee.getReleaseDate().toString();
         String language = zepEmployee.getLanguage() == null ?
-                null : zepEmployee.getLanguage().getName();
+                null : zepEmployee.getLanguage().getId();
         return Employee.builder()
             .userId(zepEmployee.getUsername())
             .email(zepEmployee.getEmail())
