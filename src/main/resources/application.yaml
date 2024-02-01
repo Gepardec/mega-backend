@@ -121,7 +121,7 @@ mega:
       port: 993
       username: "service@gepardec.com"
       password: "${MAILER_PASSWORD:default}"
-      sender: "service@gepardec.com"
+      sender: "nobody@zep.de"
       cron-expr: "disabled"
 
   personio:
