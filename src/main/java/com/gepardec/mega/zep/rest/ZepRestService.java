@@ -45,6 +45,9 @@ public class ZepRestService implements ZepService {
     @Inject
     EmployeeMapper employeeMapper;
 
+    @Inject
+    ProjectEntryMapper projectEntryMapper;
+
 
     @Override
     public Employee getEmployee(String userId) {
@@ -87,13 +90,14 @@ public class ZepRestService implements ZepService {
     @Override
     public List<ProjectEntry> getProjectTimes(Employee employee, LocalDate date) {
         List<ZepAttendance> zepAttendances = attendanceService.getAttendanceForUserAndMonth(employee.getUserId(), date);
-
-
-        return null;
+        return projectEntryMapper.mapList(zepAttendances);
     }
 
     @Override
     public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, LocalDate curDate) {
+
+
+
         return null;
     }
 

@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -66,6 +68,18 @@ public class ProjectEntryMapperTest {
         assertThrows(IllegalArgumentException.class, () -> {
             ProjectEntry mappedProjectEntry = projectEntryMapper.map(zepAttendance);
         });
+    }
+
+    @Test
+    public void mapListToProjektEntry_thenReturnList(){
+        List<ZepAttendance> Zeplist = new ArrayList<ZepAttendance>();
+        Zeplist.add(generateZepAttendance());
+        Zeplist.add(generateZepAttendance());
+        List<ProjectEntry> mappedProjectEntryList = projectEntryMapper.mapList(Zeplist);
+
+        assertThat(mappedProjectEntryList.size()).isEqualTo(2);
+        assertThat(mappedProjectEntryList.get(0)).isNotNull();
+        assertThat(mappedProjectEntryList.get(1)).isNotNull();
     }
 
 
