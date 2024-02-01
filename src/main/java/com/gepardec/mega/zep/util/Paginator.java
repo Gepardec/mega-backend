@@ -58,6 +58,9 @@ public class Paginator {
 
         String responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
 
+        System.out.println(elementClass);
+        System.out.println(responseBodyAsString);
+
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
         T[] data = arrayClass.cast(ZepRestUtil.parseJson(responseBodyAsString, "/data", arrayClass)
                 .orElse((T[]) Array.newInstance(elementClass, 0)));

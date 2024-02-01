@@ -41,6 +41,7 @@ public class ProjectMapper implements Mapper<Project, ZepProject> {
                 .billabilityPreset(billabilityPreset)
                 .employees(employees)
                 .leads(leads)
+                .categories(List.of("CONS"))
                 .build();
         /**
          * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,

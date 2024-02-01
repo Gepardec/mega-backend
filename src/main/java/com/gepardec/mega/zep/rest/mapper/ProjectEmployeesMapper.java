@@ -18,11 +18,14 @@ public class ProjectEmployeesMapper implements Mapper<MultivaluedMap<String, Str
     public MultivaluedMap<String, String> map(List<ZepProjectEmployee> zepProjectEmployees) {
         MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
         zepProjectEmployees.forEach(zepProjectEmployee -> {
-                    map.add(USER, zepProjectEmployee.getUsername());
-                    if (zepProjectEmployee.isLead()) {
-                        map.add(LEAD, String.valueOf(zepProjectEmployee.getUsername()));
-                    }
-                });
+            map.add(USER, zepProjectEmployee.getUsername());
+
+            if (zepProjectEmployee.getType() != null) {
+                if (zepProjectEmployee.getType().getId() != 0) {
+                    map.add(LEAD, String.valueOf(zepProjectEmployee.getUsername()));
+                }
+            }
+        });
         return map;
     }
 }
