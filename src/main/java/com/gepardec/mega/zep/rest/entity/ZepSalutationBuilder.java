@@ -1,7 +1,5 @@
 package com.gepardec.mega.zep.rest.entity;
 
-import com.gepardec.mega.domain.model.monthlyreport.WarningType;
-
 public class ZepSalutationBuilder {
     private String id;
     private String name;

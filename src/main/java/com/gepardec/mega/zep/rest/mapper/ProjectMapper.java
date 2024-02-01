@@ -1,18 +1,12 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.BillabilityPreset;
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
-import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 import com.gepardec.mega.zep.rest.entity.ZepProject;
-import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class ProjectMapper implements Mapper<Project, ZepProject> {
 

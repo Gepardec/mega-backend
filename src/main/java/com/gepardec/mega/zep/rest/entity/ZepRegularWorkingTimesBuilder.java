@@ -17,8 +17,6 @@ public class ZepRegularWorkingTimesBuilder {
     private Double monthlyHours;
     private Double maxHoursInMonth;
     private Double maxHoursInWeek;
-
-
     public ZepRegularWorkingTimesBuilder id(int id) {
         this.id = id;
         return this;

@@ -1,19 +1,14 @@
 package com.gepardec.mega.zep.mapper;
 
 import com.gepardec.mega.domain.model.ProjectTime;
-import de.provantis.zep.AttributeType;
-import de.provantis.zep.AttributesType;
 import de.provantis.zep.ProjektzeitType;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import static com.gepardec.mega.domain.utils.DateUtils.parseDate;
 
 @ApplicationScoped
 public class ProjectTimeMapper {

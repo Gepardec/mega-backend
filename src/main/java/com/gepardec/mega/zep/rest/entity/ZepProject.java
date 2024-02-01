@@ -1,9 +1,6 @@
 package com.gepardec.mega.zep.rest.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.criteria.CriteriaBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -97,8 +94,6 @@ public class ZepProject {
       private Integer employeesCount;
       @JsonProperty("activities_count")
       private Integer activitiesCount;
-
-
       public static ZepProjectBuilder builder() {
             return new ZepProjectBuilder();
       }
@@ -530,6 +525,4 @@ public class ZepProject {
       public void setActivitiesCount(Integer activitiesCount) {
             this.activitiesCount = activitiesCount;
       }
-
-
 }

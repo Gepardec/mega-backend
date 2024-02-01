@@ -1,21 +1,12 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.model.ProjectTime;
-import com.gepardec.mega.zep.mapper.MapperUtil;
-import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
-import com.gepardec.mega.zep.rest.entity.*;
-import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
+import com.gepardec.mega.zep.rest.entity.ZepEmployee;
+import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import lombok.NonNull;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Objects;
 
 @ApplicationScoped
 public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
@@ -39,7 +30,7 @@ public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
             .lastname(zepEmployee.getLastname())
             .salutation(salutation)
             .releaseDate(releaseDate)
-            .workDescription(null) //TODO: klären was das ist (getPreisgruppe() in Employee Mapper)
+            .workDescription(zepEmployee.getPriceGroup())
             .language(language)
             .build();
         /**
@@ -60,7 +51,5 @@ public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
         return zepEmploymentPeriods.stream()
                 .anyMatch(zepEmploymentPeriod -> zepEmploymentPeriod.getEndDate() == null);
     }
-
-
 
 }

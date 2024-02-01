@@ -1,6 +1,4 @@
 package com.gepardec.mega.zep.rest.entity;
-
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.LocalDateTime;
@@ -21,8 +19,6 @@ public class ZepRegularWorkingTimes {
         private Double monthly_hours;
         private Double max_hours_in_month;
         private Double max_hours_in_week;
-
-
         public ZepRegularWorkingTimes() {
         }
 

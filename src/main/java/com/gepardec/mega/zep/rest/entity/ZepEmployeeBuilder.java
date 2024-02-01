@@ -1,12 +1,8 @@
 package com.gepardec.mega.zep.rest.entity;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 public class ZepEmployeeBuilder {
     private String username;
@@ -237,8 +233,6 @@ public class ZepEmployeeBuilder {
         this.absencesCount = absencesCount;
         return this;
     }
-
-
     public ZepEmployee build() {
         return new ZepEmployee(username, firstname, lastname, personalNumber, street, zip, city, country, abbreviation, salutation, title, email, phone, mobile, fax, privatePhone, birthdate, iban, bic, accountNo, bankName, bankCode, currency, releaseDate, vat, priceGroup, employment, rights, departmentId, language, personioId, costBearer, taxId, created, modified, creditorNumber, categories, absencesCount);
     }

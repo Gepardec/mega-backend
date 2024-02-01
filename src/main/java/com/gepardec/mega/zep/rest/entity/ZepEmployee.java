@@ -1,18 +1,10 @@
 package com.gepardec.mega.zep.rest.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import lombok.*;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 public class ZepEmployee {
         private String username;
@@ -415,8 +407,6 @@ public class ZepEmployee {
         public void setAbsencesCount(Integer absencesCount) {
                 this.absencesCount = absencesCount;
         }
-
-
         public static ZepEmployeeBuilder builder() {
                 return new ZepEmployeeBuilder();
         }

@@ -1,12 +1,7 @@
 package com.gepardec.mega.zep.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gepardec.mega.zep.ZepServiceException;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -15,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class Paginator {
     public static <T> List<T> retrieveAll(Function<Integer, Response> pageSupplier, Class<T> elementClass) {
@@ -25,8 +19,6 @@ public class Paginator {
 
     private static <T> List<T> retrieveAll(Function<Integer, Response> pageSupplier, Integer page, Class<T> elementClass) {
         String responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
-        System.out.println(elementClass);
-        System.out.println(responseBodyAsString);
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
         T[] data = arrayClass.cast(ZepRestUtil
@@ -38,7 +30,7 @@ public class Paginator {
         Optional<String> next = ZepRestUtil.parseJson(responseBodyAsString, "/links/next", String.class);
 
         if (next.isPresent()) {
-//            System.out.println("Page: " + page);
+
             result.addAll(retrieveAll(pageSupplier, page + 1, elementClass));
         }
         return result;
@@ -58,8 +50,8 @@ public class Paginator {
 
         String responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
 
-        System.out.println(elementClass);
-        System.out.println(responseBodyAsString);
+
+
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
         T[] data = arrayClass.cast(ZepRestUtil.parseJson(responseBodyAsString, "/data", arrayClass)
@@ -73,7 +65,7 @@ public class Paginator {
         Optional<String> next = ZepRestUtil.parseJson(responseBodyAsString, "/links/next", String.class);
 
         if (next.isPresent()) {
-//            System.out.println("Page: " + page);
+
             return searchInAll(pageSupplier, filter, page + 1, elementClass);
         }
         return Optional.empty();

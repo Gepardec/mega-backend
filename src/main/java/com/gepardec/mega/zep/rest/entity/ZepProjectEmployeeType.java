@@ -1,8 +1,5 @@
 package com.gepardec.mega.zep.rest.entity;
 
-import lombok.*;
-
-
 public class ZepProjectEmployeeType {
     private int id;
 

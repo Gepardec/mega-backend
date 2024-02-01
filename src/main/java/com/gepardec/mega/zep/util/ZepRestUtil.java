@@ -1,14 +1,9 @@
 package com.gepardec.mega.zep.util;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gepardec.mega.zep.rest.entity.ZepAbsence;
-import jakarta.ws.rs.core.Response;
 
-import java.lang.reflect.ParameterizedType;
-import java.util.List;
 import java.util.Optional;
 
 public class ZepRestUtil {

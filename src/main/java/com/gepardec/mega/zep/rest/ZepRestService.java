@@ -6,16 +6,11 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.ZepServiceSoapImpl;
 import com.gepardec.mega.zep.rest.entity.*;
 import com.gepardec.mega.zep.rest.mapper.*;
 import com.gepardec.mega.zep.rest.service.*;
-import jakarta.ejb.LocalBean;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.RequestScoped;
-import jakarta.enterprise.inject.Alternative;
 import jakarta.enterprise.inject.Typed;
-import jakarta.enterprise.inject.Vetoed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedMap;
 
@@ -23,7 +18,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 
 @ApplicationScoped
 @Typed(ZepRestService.class)
@@ -47,9 +41,6 @@ public class ZepRestService implements ZepService {
 
     @Inject
     ProjectEntryMapper projectEntryMapper;
-
-    @Inject
-    AttendanceMapper attendanceMapper;
 
 
     @Override

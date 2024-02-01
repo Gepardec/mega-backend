@@ -34,18 +34,23 @@ public class ProjectService {
                 page -> zepProjectRestClient.getProjects(page),
                 ZepProject.class
         );
-        return projects.stream()
+        var nullEndDate = projects.stream()
                 .filter(project -> {
-                    if(project.getEndDate() != null){
-                        if(project.getEndDate().isBefore(firstOfMonth.atStartOfDay())){
-                            return false;
-                        }
-
+                    if (project.getEndDate() == null) {
+                        return project.getStartDate().isBefore(lastOfMonth.atStartOfDay()) ||
+                                project.getStartDate().isEqual(lastOfMonth.atStartOfDay());
                     }
-                    return true;
-                })
-                .filter(project -> !(project.getStartDate().isAfter(lastOfMonth.atTime(23, 59, 59))))
-                .collect(Collectors.toList());
+                    return false;
+                });
+        var projectStream = projects.stream()
+                .filter(project -> project.getEndDate() != null && project.getStartDate() != null)
+                .filter(project -> (project.getEndDate().isAfter(firstOfMonth.atStartOfDay()) ||
+                        project.getEndDate().isEqual(firstOfMonth.atStartOfDay())) &&
+                        (project.getStartDate().isBefore(lastOfMonth.atStartOfDay()) ||
+                        project.getStartDate().isEqual(lastOfMonth.atStartOfDay())))
+                .peek(project -> System.out.println(project.getStartDate() + ";" + project.getEndDate()));
+
+        return Stream.concat(nullEndDate, projectStream).collect(Collectors.toList());
     }
 
     public Optional<ZepProject> getProjectByName(String name, LocalDate date) {

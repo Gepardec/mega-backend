@@ -1,23 +1,8 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
-import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.model.ProjectTime;
-import com.gepardec.mega.zep.mapper.MapperUtil;
-import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
-import com.gepardec.mega.zep.rest.entity.*;
-import com.gepardec.mega.zep.rest.service.EmployeeService;
-import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
+import com.gepardec.mega.zep.rest.entity.ZepAbsence;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import lombok.NonNull;
-
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class AbsenceMapper implements Mapper<AbsenceTime, ZepAbsence> {

@@ -1,13 +1,13 @@
 package com.gepardec.mega.zep.mapper;
 
+import com.gepardec.mega.domain.utils.DateUtils;
+import de.provantis.zep.AttributeType;
+import de.provantis.zep.AttributesType;
+
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import com.gepardec.mega.domain.utils.DateUtils;
-import de.provantis.zep.AttributesType;
-import de.provantis.zep.AttributeType;
 
 
 public class MapperUtil {

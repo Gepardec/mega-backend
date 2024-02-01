@@ -1,8 +1,5 @@
 package com.gepardec.mega.zep.rest.mapper;
 
-import com.gepardec.mega.domain.model.AbsenceTime;
-import com.gepardec.mega.zep.rest.entity.ZepAbsence;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;

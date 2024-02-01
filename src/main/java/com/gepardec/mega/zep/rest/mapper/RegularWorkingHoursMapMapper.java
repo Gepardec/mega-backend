@@ -6,7 +6,6 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class RegularWorkingHoursMapMapper implements Mapper<Map<DayOfWeek, Duration>, ZepRegularWorkingTimes> {
 

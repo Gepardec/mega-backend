@@ -7,9 +7,6 @@ import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.rest.ZepRestService;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Alternative;
-import jakarta.enterprise.inject.Default;
-import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
 
 import java.time.LocalDate;

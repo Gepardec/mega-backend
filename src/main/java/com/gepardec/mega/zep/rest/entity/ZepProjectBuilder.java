@@ -286,8 +286,6 @@ public class ZepProjectBuilder {
         this.activitiesCount = activitiesCount;
         return this;
     }
-
-
     public ZepProject build() {
         return new ZepProject(id, name, description, startDate, endDate, status, comments, costObject, costObjectIdentifier, created, modified, keywords, referenceOrder, referenceCommission, referenceProcurement, referenceObject, language, currency, url, locationAddress, locationCity, locationState, locationCountry, revenueAccount, customerId, customerContactId, customerProjectReference, customerBillingAddressId, customerShippingAddressId, hasMultipleCustomers, departmentId, billingType, billingTasks, planHours, planHoursPerDay, planCanExceed, planWarningPercent, planWarningPercent2, planWarningPercent3, planWage, planExpenses, planExpensesTravel, planHoursDone, planHoursInvoiced, tasksCount, employeesCount, activitiesCount);
     }
