@@ -49,13 +49,9 @@ public class ProjectService {
     }
 
     public Optional<ZepProject> getProjectByName(String name, LocalDate date) {
-        LocalDate startDate = date.withDayOfMonth(1);
-        LocalDate endDate = date.withDayOfMonth(date.lengthOfMonth());
-        return Paginator.searchInAll(
-                page -> zepProjectRestClient.getProjectByStartEnd(startDate, endDate, page),
-                project -> project.getName().equals(name),
-                ZepProject.class
-        );
+        return getProjectsForMonthYear(date).stream()
+                .filter(project -> project.getName().equals(name))
+                .findFirst();
     }
 
 
