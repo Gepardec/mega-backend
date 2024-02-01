@@ -80,7 +80,7 @@ public class EmployeeServiceTest {
                 "      \"name\": \"bond\"\n" +
                 "    },\n" +
                 "    \"department_id\": 7,\n" +
-                "    \"language\": \"English\",\n" +
+                "    \"language\": {\"id\": \"en\", \"name\": \"English\"},\n" +
                 "    \"personio_id\": 7,\n" +
                 "    \"cost_bearer\": null,\n" +
                 "    \"tax_id\": null,\n" +

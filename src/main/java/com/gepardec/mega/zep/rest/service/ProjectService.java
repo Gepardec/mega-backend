@@ -36,6 +36,9 @@ public class ProjectService {
         );
         var nullEndDate = projects.stream()
                 .filter(project -> {
+                    if (project.getStartDate() == null) {
+                        return false;
+                    }
                     if (project.getEndDate() == null) {
                         return project.getStartDate().isBefore(lastOfMonth.atStartOfDay()) ||
                                 project.getStartDate().isEqual(lastOfMonth.atStartOfDay());
