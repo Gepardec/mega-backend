@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@ApplicationScoped
 public class AttendanceMapper implements Mapper<ProjectTime, ZepAttendance> {
 
     @Override
