@@ -8,6 +8,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.io.FileUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -15,6 +16,8 @@ import org.mockito.Captor;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -248,6 +251,25 @@ public class AttendanceServiceTest {
         assertThat(usernameCaptor.getValue()).isEqualTo("username");
 
         mockedPaginator.close();
+    }
+
+    @Test
+    public void filterAttendanceResponse_thenReturnProjectEntriesWithGivenID(){
+        String responseBody;
+
+        try {
+            responseBody = FileUtils.readFileToString(new File("src/test/resources/zep/rest/testresponses/ZepAttendanceList.json"), StandardCharsets.UTF_8);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
+        Response response = Response.ok().entity(responseBody).build();
+        when(zepAttendanceRestClient.getAttendance(anyString(), anyString(), anyString(), anyInt())).thenReturn(response);
+
+        List<ZepAttendance> result = attendanceService.getAttendanceForUserProjectAndMonth("001-tuser", LocalDate.of(2021, 12, 10), 3);
+
+        assertThat(result.size()).isEqualTo(3);
     }
 
 

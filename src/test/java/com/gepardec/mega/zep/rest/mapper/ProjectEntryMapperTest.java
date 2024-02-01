@@ -101,7 +101,7 @@ public class ProjectEntryMapperTest {
                 .start(null)
                 .destination(null)
                 .vehicle(null)
-                .isPrivate(false)
+                .isPrivate(0)
                 .passengers(null)
                 .km(null)
                 .directionOfTravel(null)

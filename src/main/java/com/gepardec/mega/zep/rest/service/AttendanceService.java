@@ -40,5 +40,16 @@ public class AttendanceService {
             page -> zepAttendanceRestClient.getAttendance(startDate, endDate, username, page),
             ZepAttendance.class);
     }
+    public List<ZepAttendance> getAttendanceForUserProjectAndMonth(String username, LocalDate date, Integer projectId) {
+        String startDate = date.withDayOfMonth(1).toString();
+        String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
+
+        List<ZepAttendance> attendances = Paginator.retrieveAll(
+                page -> zepAttendanceRestClient.getAttendance(startDate, endDate, username, page),
+                ZepAttendance.class);
+        return attendances.stream()
+                .filter(attendance -> attendance.getProjectId() == projectId)
+                .collect(Collectors.toList());
+    }
 }
 

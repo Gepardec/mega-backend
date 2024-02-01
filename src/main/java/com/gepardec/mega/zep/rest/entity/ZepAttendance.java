@@ -33,7 +33,7 @@ public class ZepAttendance {
     private String destination;
     private String vehicle;
     @JsonProperty("private")
-    private Boolean isPrivate;
+    private Integer isPrivate;
     private String passengers;
     private String km;
     @JsonProperty("direction_of_travel")
@@ -50,7 +50,7 @@ public class ZepAttendance {
     public ZepAttendance() {
     }
 
-    public ZepAttendance(Integer id, LocalDate date, LocalTime from, LocalTime to, String employeeId, Integer projectId, Integer projectTaskId, Double duration, Integer billable, String workLocation, Integer workLocationIsProjectRelevant, String note, String activity, String start, String destination, String vehicle, Boolean isPrivate, String passengers, String km, String directionOfTravel, String ticketId, String subtaskId, String invoiceItemId, LocalDateTime created, LocalDateTime modified) {
+    public ZepAttendance(Integer id, LocalDate date, LocalTime from, LocalTime to, String employeeId, Integer projectId, Integer projectTaskId, Double duration, Integer billable, String workLocation, Integer workLocationIsProjectRelevant, String note, String activity, String start, String destination, String vehicle, Integer isPrivate, String passengers, String km, String directionOfTravel, String ticketId, String subtaskId, String invoiceItemId, LocalDateTime created, LocalDateTime modified) {
         this.id = id;
         this.date = date;
         this.from = from;
@@ -206,11 +206,11 @@ public class ZepAttendance {
         this.vehicle = vehicle;
     }
 
-    public Boolean isPrivate() {
+    public Integer getIsPrivate() {
         return isPrivate;
     }
 
-    public void setPrivate(Boolean aPrivate) {
+    public void setIsPrivate(Integer aPrivate) {
         isPrivate = aPrivate;
     }
 

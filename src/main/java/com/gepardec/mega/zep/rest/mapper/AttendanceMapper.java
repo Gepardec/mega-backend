@@ -52,6 +52,13 @@ public class AttendanceMapper implements Mapper<ProjectTime, ZepAttendance> {
         String created = zepAttendance.getCreated() == null ? null : "" + zepAttendance.getCreated();
         String modified = zepAttendance.getModified() == null ? null : "" + zepAttendance.getModified();
 
+        Boolean isPrivate;
+        if (zepAttendance.getIsPrivate() == null || zepAttendance.getIsPrivate() == 0){
+            isPrivate = false;
+        } else {
+            isPrivate = true;
+        }
+
 
         return ProjectTime.builder()
                 .id(id)
@@ -75,7 +82,7 @@ public class AttendanceMapper implements Mapper<ProjectTime, ZepAttendance> {
                 .ticketNr(ticketNr)
                 .subtaskNr(zepAttendance.getSubtaskId())
                 .travelDirection(zepAttendance.getDirectionOfTravel())
-                .isPrivateVehicle(zepAttendance.isPrivate())
+                .isPrivateVehicle(isPrivate)
                 .created(created)
                 .modified(modified)
                 .build();

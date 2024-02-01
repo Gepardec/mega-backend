@@ -40,7 +40,7 @@ public class AttendanceMapperTest {
                 .start("Liesing bhf")
                 .destination("Atzgersdorf bhf")
                 .vehicle("Elektrotriebwagen 4020")
-                .isPrivate(false)
+                .isPrivate(0)
                 .passengers("2")
                 .km("10")
                 .directionOfTravel("Meidling")
@@ -74,7 +74,7 @@ public class AttendanceMapperTest {
         assertThat(pt.getTicketNr()).isEqualTo(Integer.parseInt(zepAttendance.getTicketId()));
         assertThat(pt.getSubtaskNr()).isEqualTo(zepAttendance.getSubtaskId());
         assertThat(pt.getTravelDirection()).isEqualTo(zepAttendance.getDirectionOfTravel());
-        assertThat(pt.getIsPrivateVehicle()).isEqualTo(zepAttendance.isPrivate());
+        assertThat(pt.getIsPrivateVehicle()).isEqualTo(false);
         assertThat(pt.getCreated()).isEqualTo(zepAttendance.getCreated() + "");
         assertThat(pt.getModified()).isEqualTo(zepAttendance.getModified() + "");
     }

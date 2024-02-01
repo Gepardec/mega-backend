@@ -21,7 +21,7 @@ public class ZepAttendanceBuilder {
     private String start;
     private String destination;
     private String vehicle;
-    private Boolean isPrivate;
+    private Integer isPrivate;
     private String passengers;
     private String km;
     private String directionOfTravel;
@@ -111,7 +111,7 @@ public class ZepAttendanceBuilder {
         return this;
     }
 
-    public ZepAttendanceBuilder isPrivate(Boolean isPrivate) {
+    public ZepAttendanceBuilder isPrivate(Integer isPrivate) {
         this.isPrivate = isPrivate;
         return this;
     }
