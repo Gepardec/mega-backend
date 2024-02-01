@@ -34,5 +34,6 @@ public class ZepRestServiceImplTest {
         for (ProjectTime projectTime : projectTimes) {
             System.out.println(projectTime.getProjectNr());
         }
+        System.out.println(projectTimes.size());
     }
 }

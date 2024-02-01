@@ -42,6 +42,9 @@ public class ZepRestService implements ZepService {
     @Inject
     ProjectEntryMapper projectEntryMapper;
 
+    @Inject
+    AttendanceMapper attendanceMapper;
+
 
     @Override
     public Employee getEmployee(String userId) {
@@ -90,12 +93,13 @@ public class ZepRestService implements ZepService {
     @Override
     public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, LocalDate curDate) {
         List<ZepAttendance> allZepAttendancesForProject = new ArrayList<>();
+        Integer projectId = projectService.getProjectByName(project, curDate).get().getId();
 
-        List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(projectService.getProjectByName(project, curDate).get().getId());
+        List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(projectId);
 
         for (ZepProjectEmployee projectEmployee :
                 projectEmployees) {
-            allZepAttendancesForProject.addAll(attendanceService.getAttendanceForUserAndMonth(projectEmployee.getUsername(), curDate));
+            allZepAttendancesForProject.addAll(attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.getUsername(), curDate, projectId));
         }
         return attendanceMapper.mapList(allZepAttendancesForProject);
     }
