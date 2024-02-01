@@ -2,6 +2,7 @@ package com.gepardec.mega.zep.rest.entity;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -31,7 +32,7 @@ public class ZepEmployeeBuilder {
     private String bankName;
     private String bankCode;
     private String currency;
-    private LocalDateTime releaseDate;
+    private LocalDate releaseDate;
     private Double vat;
     private String priceGroup;
     private ZepEmployment employment;
@@ -162,7 +163,7 @@ public class ZepEmployeeBuilder {
         return this;
     }
 
-    public ZepEmployeeBuilder releaseDate(LocalDateTime releaseDate) {
+    public ZepEmployeeBuilder releaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
         return this;
     }

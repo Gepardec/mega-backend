@@ -9,6 +9,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -106,26 +107,26 @@ public class EmployeeMapperTest {
 
             //TODO: Add regularWorkingHours + workDescription
         ZepEmployee zepEmployee = ZepEmployee.builder()
-                .personalNumber("000-duser")
+                .username("000-duser")
                 .email("demo@gepardec.com")
                 .title("RE")
                 .firstname("Demo")
                 .lastname("User")
                 .salutation(ZepSalutation.builder().name("Mr.").build())
-                .releaseDate(LocalDateTime.of(2022, 12,1, 0, 0, 0))
+                .releaseDate(LocalDate.of(2022, 12,1))
                 .language(new ZepLanguage("de", "German"))
                 .build();
 
         Employee employee = employeeMapper.map(zepEmployee);
 
-        assertThat(employee.getUserId()).isEqualTo(zepEmployee.getPersonalNumber());
+        assertThat(employee.getUserId()).isEqualTo(zepEmployee.getUsername());
         assertThat(employee.getEmail()).isEqualTo(zepEmployee.getEmail());
         assertThat(employee.getTitle()).isEqualTo(zepEmployee.getTitle());
         assertThat(employee.getFirstname()).isEqualTo(zepEmployee.getFirstname());
         assertThat(employee.getLastname()).isEqualTo(zepEmployee.getLastname());
         assertThat(employee.getSalutation()).isEqualTo(zepEmployee.getSalutation().getName());
         assertThat(employee.getReleaseDate()).isEqualTo(zepEmployee.getReleaseDate().toString());
-        assertThat(employee.getLanguage()).isEqualTo(zepEmployee.getLanguage());
+        assertThat(employee.getLanguage()).isEqualTo(zepEmployee.getLanguage().getId());
     }
 
     @Test
@@ -134,15 +135,15 @@ public class EmployeeMapperTest {
 
         ZepEmployee[] zepEmployeesArr = {
                 ZepEmployee.builder()
-                        .personalNumber("000")
+                        .username("000")
                         .email("blubb@blah.com")
                         .build(),
                 ZepEmployee.builder()
-                        .personalNumber("001")
+                        .username("001")
                         .email("foo@bar.com")
                         .build(),
                 ZepEmployee.builder()
-                        .personalNumber("002")
+                        .username("002")
                         .email("bar@foo.com")
                         .build(),
         };
@@ -152,7 +153,7 @@ public class EmployeeMapperTest {
         Iterator<ZepEmployee> zepEmployeesIterator = zepEmployees.iterator();
         employees.forEach(employee -> {
                             ZepEmployee zepEmployee = zepEmployeesIterator.next();
-                            assertThat(employee.getUserId()).isEqualTo(zepEmployee.getPersonalNumber());
+                            assertThat(employee.getUserId()).isEqualTo(zepEmployee.getUsername());
                             assertThat(employee.getEmail()).isEqualTo(zepEmployee.getEmail());
                         });
     }
