@@ -42,6 +42,9 @@ public class ZepRestService implements ZepService {
     @Inject
     ProjectEntryMapper projectEntryMapper;
 
+    @Inject
+    AttendanceMapper attendanceMapper;
+
 
     @Override
     public Employee getEmployee(String userId) {

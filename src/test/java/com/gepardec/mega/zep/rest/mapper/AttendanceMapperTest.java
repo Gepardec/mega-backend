@@ -58,7 +58,7 @@ public class AttendanceMapperTest {
         assertThat(pt.getDate()).isEqualTo(zepAttendance.getDate() + "");
         assertThat(pt.getStartTime()).isEqualTo(zepAttendance.getFrom() + "");
         assertThat(pt.getEndTime()).isEqualTo(zepAttendance.getTo() + "");
-        assertThat(pt.getDuration()).isEqualTo(zepAttendance.getDuration() + "");
+        assertThat(pt.getDuration()).isEqualTo("04:45");
         assertThat(pt.getIsBillable()).isTrue();
         assertThat(pt.getIsLocationRelevantToProject()).isFalse();
         assertThat(pt.getLocation()).isEqualTo(zepAttendance.getWorkLocation());

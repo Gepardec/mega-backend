@@ -68,7 +68,7 @@ public class AttendanceServiceTest {
                 "      \"invoice_item_id\": null,\n" +
                 "      \"created\": \"2014-12-01T07:54:24.000000Z\",\n" +
                 "      \"modified\": \"2019-04-15T10:06:39.000000Z\"\n" +
-                "    },\n" +
+                "    }," +
                 "    {\n" +
                 "      \"id\": 2,\n" +
                 "      \"date\": \"2015-02-11\",\n" +
@@ -100,7 +100,7 @@ public class AttendanceServiceTest {
                 "}";
         
         Response resp = Response.ok().entity(responseJson).build();
-        when(zepAttendanceRestClient.getAttendancesByUsername(anyString(), anyInt())).thenReturn(resp);
+        when(zepAttendanceRestClient.getAttendance(any(), any(), anyString(), anyInt())).thenReturn(resp);
         
         List<ZepAttendance> attendancesReference = List.of(
             ZepAttendance.builder()
@@ -185,8 +185,8 @@ public class AttendanceServiceTest {
 
         Response resp1 = Response.ok().entity(responseJsons[0]).build();
         Response resp2 = Response.ok().entity(responseJsons[1]).build();
-        when(zepAttendanceRestClient.getAttendancesByUsername(anyString(), eq(1))).thenReturn(resp1);
-        when(zepAttendanceRestClient.getAttendancesByUsername(anyString(), eq(2))).thenReturn(resp2);
+        when(zepAttendanceRestClient.getAttendance(any(), any(), anyString(), eq(1))).thenReturn(resp1);
+        when(zepAttendanceRestClient.getAttendance(any(), any(), anyString(), eq(2))).thenReturn(resp2);
 
 
         List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.now());
@@ -215,8 +215,8 @@ public class AttendanceServiceTest {
 
         Response resp1 = Response.ok().entity(responseJsons[0]).build();
         Response resp2 = Response.ok().entity(responseJsons[1]).build();
-        when(zepAttendanceRestClient.getAttendancesByUsername(anyString(), eq(1))).thenReturn(resp1);
-        when(zepAttendanceRestClient.getAttendancesByUsername(anyString(), eq(2))).thenReturn(resp2);
+        when(zepAttendanceRestClient.getAttendance(any(), any(), anyString(), eq(1))).thenReturn(resp1);
+        when(zepAttendanceRestClient.getAttendance(any(), any(), anyString(), eq(2))).thenReturn(resp2);
 
 
         List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.now());

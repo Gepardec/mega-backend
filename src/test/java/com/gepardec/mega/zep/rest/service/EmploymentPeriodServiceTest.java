@@ -177,7 +177,7 @@ public class EmploymentPeriodServiceTest {
                 .isHolidayPerYear(true)
                 .dayAbsentInHours(0.0)
                 .created("2020-11-21T08:35:23.000000Z")
-                .modified("2124-01-18T12:56:26.000000Z")
+                .modified("2024-01-18T12:56:26.000000Z")
                 .build();
 
         var zepEmploymentPeriods = List.of(employmentPeriod1, employmentPeriod2, employmentPeriod3);
