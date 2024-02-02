@@ -18,7 +18,7 @@ public class PrematureEmployeeCheckMapper implements DomainMapper<PrematureEmplo
                 .user(userMapper.mapToDomain(prematureEmployeeCheckEntity.getUser()))
                 .forMonth(prematureEmployeeCheckEntity.getForMonth())
                 .reason(prematureEmployeeCheckEntity.getReason())
-                .prematureEmployeeCheckState(prematureEmployeeCheckEntity.getState())
+                .state(prematureEmployeeCheckEntity.getState())
                 .build();
     }
 

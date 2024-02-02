@@ -44,7 +44,7 @@ public class PrematureEmployeeCheckServiceTest {
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .user(createUserForRole(Role.EMPLOYEE))
                 .forMonth(LocalDate.of(2023, 10, 1))
-                .prematureEmployeeCheckState(PrematureEmployeeCheckState.DONE)
+                .state(PrematureEmployeeCheckState.DONE)
                 .build();
 
         when(userRepository.findActiveByEmail(any())).thenReturn(Optional.of(createDBUserForRole(Role.EMPLOYEE)));
@@ -61,7 +61,7 @@ public class PrematureEmployeeCheckServiceTest {
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .user(createUserForRole(Role.EMPLOYEE))
                 .forMonth(LocalDate.of(2023, 10, 1))
-                .prematureEmployeeCheckState(PrematureEmployeeCheckState.DONE)
+                .state(PrematureEmployeeCheckState.DONE)
                 .build();
 
         when(userRepository.findActiveByEmail(any())).thenReturn(Optional.of(createDBUserForRole(Role.EMPLOYEE)));

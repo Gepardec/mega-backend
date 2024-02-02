@@ -155,7 +155,7 @@ public class PrematureEmployeeCheckSyncServiceTest {
                 .id(id)
                 .user(user)
                 .forMonth(testDate)
-                .prematureEmployeeCheckState(PrematureEmployeeCheckState.DONE)
+                .state(PrematureEmployeeCheckState.DONE)
                 .build();
     }
 }

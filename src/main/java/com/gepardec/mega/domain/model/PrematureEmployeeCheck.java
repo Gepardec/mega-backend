@@ -95,7 +95,7 @@ public class PrematureEmployeeCheck {
             return this;
         }
 
-        public Builder prematureEmployeeCheckState(PrematureEmployeeCheckState state){
+        public Builder state(PrematureEmployeeCheckState state){
             this.state = state;
             return this;
         }
