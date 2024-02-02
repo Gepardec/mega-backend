@@ -16,8 +16,8 @@
         <liquibase-maven-plugin.version>4.0.0</liquibase-maven-plugin.version>
         <native2ascii-maven-plugin.plugin.version>2.0.1</native2ascii-maven-plugin.plugin.version>
 
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.version>3.8.1</maven.version>
 
@@ -30,7 +30,6 @@
 
         <ws.rt.version>4.0.0</ws.rt.version>
         <xml.resolver.version>20050927</xml.resolver.version>
-        <lombok.version>1.18.22</lombok.version>
         <focus-shift.version>0.16.0</focus-shift.version>
         <assertj.version>3.21.0</assertj.version>
         <basicjaxb-plugins.version>2.1.0</basicjaxb-plugins.version>
@@ -214,11 +213,6 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-test-security-jwt</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
         </dependency>
         <dependency>
             <groupId>jakarta.mail</groupId>

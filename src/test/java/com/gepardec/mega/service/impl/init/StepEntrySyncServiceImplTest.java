@@ -26,11 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @QuarkusTest
 class StepEntrySyncServiceImplTest {
@@ -125,7 +121,7 @@ class StepEntrySyncServiceImplTest {
                 .build();
     }
 
-    private User.UserBuilder userFor(final int id, final String firstname, final String lastname) {
+    private User.Builder userFor(final int id, final String firstname, final String lastname) {
         return User.builder()
                 .dbId(id)
                 .userId(id + "-userId")
@@ -135,14 +131,14 @@ class StepEntrySyncServiceImplTest {
                 .email(String.format("%s%s.%s@gepardec.com", firstname, id, lastname));
     }
 
-    private Project.ProjectBuilder projectFor(final int id) {
+    private Project.Builder projectFor(final int id) {
         return Project.builder()
                 .projectId(String.valueOf(id))
                 .description(String.format("Description of Project %s", id))
                 .categories(List.of());
     }
 
-    private Step.StepBuilder stepFor(final int id, final String name, final Role role) {
+    private Step.Builder stepFor(final int id, final String name, final Role role) {
         return Step.builder()
                 .dbId(id)
                 .ordinal(id)

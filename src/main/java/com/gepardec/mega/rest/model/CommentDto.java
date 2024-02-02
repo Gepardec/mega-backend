@@ -1,41 +1,148 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.SourceSystem;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.extern.jackson.Jacksonized;
 
-@Jacksonized
-@Builder
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+import java.util.Objects;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CommentDto {
 
-    @JsonProperty
-    private Long id;
+    private final Long id;
 
-    @JsonProperty
-    private String message;
+    private final String message;
 
-    @JsonProperty
-    private String authorEmail;
+    private final String authorEmail;
 
-    @JsonProperty
-    private String authorName;
+    private final String authorName;
 
-    @JsonProperty
-    private String updateDate;
+    private final String updateDate;
 
-    @JsonProperty
-    private EmployeeState state;
+    private final EmployeeState state;
 
-    @JsonProperty
-    private SourceSystem sourceSystem;
+    private final SourceSystem sourceSystem;
+
+    @JsonCreator
+    private CommentDto(Builder builder) {
+        this.id = builder.id;
+        this.message = builder.message;
+        this.authorEmail = builder.authorEmail;
+        this.authorName = builder.authorName;
+        this.updateDate = builder.updateDate;
+        this.state = builder.state;
+        this.sourceSystem = builder.sourceSystem;
+    }
+
+    public static Builder builder() {
+        return Builder.aCommentDto();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getAuthorEmail() {
+        return authorEmail;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public String getUpdateDate() {
+        return updateDate;
+    }
+
+    public EmployeeState getState() {
+        return state;
+    }
+
+    public SourceSystem getSourceSystem() {
+        return sourceSystem;
+    }
+
+
+    public static final class Builder {
+        @JsonProperty
+        private Long id;
+        @JsonProperty
+        private String message;
+        @JsonProperty
+        private String authorEmail;
+        @JsonProperty
+        private String authorName;
+        @JsonProperty
+        private String updateDate;
+        @JsonProperty
+        private EmployeeState state;
+        @JsonProperty
+        private SourceSystem sourceSystem;
+
+        private Builder() {
+        }
+
+        public static Builder aCommentDto() {
+            return new Builder();
+        }
+
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public Builder authorEmail(String authorEmail) {
+            this.authorEmail = authorEmail;
+            return this;
+        }
+
+        public Builder authorName(String authorName) {
+            this.authorName = authorName;
+            return this;
+        }
+
+        public Builder updateDate(String updateDate) {
+            this.updateDate = updateDate;
+            return this;
+        }
+
+        public Builder state(EmployeeState state) {
+            this.state = state;
+            return this;
+        }
+
+        public Builder sourceSystem(SourceSystem sourceSystem) {
+            this.sourceSystem = sourceSystem;
+            return this;
+        }
+
+        public CommentDto build() {
+            return new CommentDto(this);
+        }
+
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CommentDto that = (CommentDto) o;
+        return Objects.equals(getId(), that.getId()) && Objects.equals(getMessage(), that.getMessage()) && Objects.equals(getAuthorEmail(), that.getAuthorEmail()) && Objects.equals(getAuthorName(), that.getAuthorName()) && Objects.equals(getUpdateDate(), that.getUpdateDate()) && getState() == that.getState() && getSourceSystem() == that.getSourceSystem();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getMessage(), getAuthorEmail(), getAuthorName(), getUpdateDate(), getState(), getSourceSystem());
+    }
 }
