@@ -22,7 +22,7 @@ public class PrematureEmployeeCheckDto {
     private final PrematureEmployeeCheckState state;
 
     @JsonCreator
-    public PrematureEmployeeCheckDto(Builder builder) {
+    private PrematureEmployeeCheckDto(Builder builder) {
         this.id = builder.id;
         this.user = builder.user;
         this.forMonth = builder.forMonth;
@@ -68,11 +68,16 @@ public class PrematureEmployeeCheckDto {
     }
 
     public static final class Builder {
-        @JsonProperty private Long id;
-        @JsonProperty private UserDto user;
-        @JsonProperty private LocalDate forMonth;
-        @JsonProperty private String reason;
-        @JsonProperty private PrematureEmployeeCheckState state;
+        @JsonProperty
+        private Long id;
+        @JsonProperty
+        private UserDto user;
+        @JsonProperty
+        private LocalDate forMonth;
+        @JsonProperty
+        private String reason;
+        @JsonProperty
+        private PrematureEmployeeCheckState state;
 
         private Builder() {
         }

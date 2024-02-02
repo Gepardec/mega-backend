@@ -29,7 +29,7 @@ public class ApplicationInfoDto {
     private final Duration upTime;
 
     @JsonCreator
-    public ApplicationInfoDto(Builder builder) {
+    private ApplicationInfoDto(Builder builder) {
         this.version = builder.version;
         this.buildDate = builder.buildDate;
         this.buildNumber = builder.buildNumber;
@@ -57,13 +57,23 @@ public class ApplicationInfoDto {
     }
 
     public static final class Builder {
-        @JsonProperty private String version;
-        @JsonProperty @JsonFormat(pattern = DateTimeConstants.DATE_TIME_PATTERN) private LocalDateTime buildDate;
-        @JsonProperty private Integer buildNumber;
-        @JsonProperty private String commit;
-        @JsonProperty private String branch;
-        @JsonProperty @JsonFormat(pattern = DateTimeConstants.DATE_TIME_PATTERN) private LocalDateTime startedAt;
-        @JsonProperty @JsonSerialize(using = DurationSerializer.class) private Duration upTime;
+        @JsonProperty
+        private String version;
+        @JsonProperty
+        @JsonFormat(pattern = DateTimeConstants.DATE_TIME_PATTERN)
+        private LocalDateTime buildDate;
+        @JsonProperty
+        private Integer buildNumber;
+        @JsonProperty
+        private String commit;
+        @JsonProperty
+        private String branch;
+        @JsonProperty
+        @JsonFormat(pattern = DateTimeConstants.DATE_TIME_PATTERN)
+        private LocalDateTime startedAt;
+        @JsonProperty
+        @JsonSerialize(using = DurationSerializer.class)
+        private Duration upTime;
 
         private Builder() {
         }

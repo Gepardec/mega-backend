@@ -10,7 +10,7 @@ public class Step {
 
     private final Role role;
 
-    public Step(Builder builder) {
+    private Step(Builder builder) {
         this.dbId = builder.dbId;
         this.name = builder.name;
         this.ordinal = builder.ordinal;
@@ -71,7 +71,7 @@ public class Step {
         }
 
         public Step build() {
-           return new Step(this);
+            return new Step(this);
         }
     }
 }

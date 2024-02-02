@@ -73,7 +73,7 @@ public class MonthlyReportDto {
     private final PrematureEmployeeCheck prematureEmployeeCheck;
 
     @JsonCreator
-    public MonthlyReportDto(Builder builder) {
+    private MonthlyReportDto(Builder builder) {
         this.employee = builder.employee;
         this.initialDate = builder.initialDate;
         this.timeWarnings = builder.timeWarnings;

@@ -8,7 +8,7 @@ public class ProjectEmployees {
     private final List<String> employees;
 
 
-    public ProjectEmployees(Builder builder) {
+    private ProjectEmployees(Builder builder) {
         this.projectId = builder.projectId;
         this.employees = builder.employees;
     }
@@ -47,7 +47,7 @@ public class ProjectEmployees {
         }
 
         public ProjectEmployees build() {
-           return new ProjectEmployees(this);
+            return new ProjectEmployees(this);
         }
     }
 }

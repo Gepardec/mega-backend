@@ -24,7 +24,7 @@ public class EnterpriseEntryDto {
 
 
     @JsonCreator
-    public EnterpriseEntryDto(Builder builder) {
+    private EnterpriseEntryDto(Builder builder) {
         this.zepTimesReleased = builder.zepTimesReleased;
         this.chargeabilityExternalEmployeesRecorded = builder.chargeabilityExternalEmployeesRecorded;
         this.payrollAccountingSent = builder.payrollAccountingSent;
@@ -70,11 +70,16 @@ public class EnterpriseEntryDto {
     }
 
     public static final class Builder {
-        @JsonProperty private ProjectState zepTimesReleased;
-        @JsonProperty private ProjectState chargeabilityExternalEmployeesRecorded;
-        @JsonProperty private ProjectState payrollAccountingSent;
-        @JsonProperty private LocalDate date;
-        @JsonProperty private LocalDateTime creationDate;
+        @JsonProperty
+        private ProjectState zepTimesReleased;
+        @JsonProperty
+        private ProjectState chargeabilityExternalEmployeesRecorded;
+        @JsonProperty
+        private ProjectState payrollAccountingSent;
+        @JsonProperty
+        private LocalDate date;
+        @JsonProperty
+        private LocalDateTime creationDate;
 
         private Builder() {
         }

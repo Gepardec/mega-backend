@@ -1,9 +1,6 @@
 package com.gepardec.mega.domain.model;
 
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -25,8 +22,7 @@ public class User {
 
     private final Set<Role> roles;
 
-    @JsonCreator
-    public User(Builder builder) {
+    private User(Builder builder) {
         this.dbId = builder.dbId;
         this.userId = builder.userId;
         this.email = builder.email;
@@ -69,13 +65,13 @@ public class User {
     }
 
     public static final class Builder {
-        @JsonProperty private long dbId;
-        @JsonProperty private String userId;
-        @JsonProperty private String email;
-        @JsonProperty private String firstname;
-        @JsonProperty private String lastname;
-        @JsonProperty private LocalDate releaseDate;
-        @JsonProperty private Set<Role> roles;
+        private long dbId;
+        private String userId;
+        private String email;
+        private String firstname;
+        private String lastname;
+        private LocalDate releaseDate;
+        private Set<Role> roles;
 
         private Builder() {
         }

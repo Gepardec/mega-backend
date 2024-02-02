@@ -22,7 +22,7 @@ public class NewCommentEntryDto {
     private final String currentMonthYear;
 
     @JsonCreator
-    public NewCommentEntryDto(Builder builder) {
+    private NewCommentEntryDto(Builder builder) {
         this.stepId = builder.stepId;
         this.employeeEmail = builder.employeeEmail;
         this.comment = builder.comment;
@@ -73,12 +73,18 @@ public class NewCommentEntryDto {
     }
 
     public static final class Builder {
-        @JsonProperty private Long stepId;
-        @JsonProperty private String employeeEmail;
-        @JsonProperty private String comment;
-        @JsonProperty private String assigneeEmail;
-        @JsonProperty private String project;
-        @JsonProperty private String currentMonthYear;
+        @JsonProperty
+        private Long stepId;
+        @JsonProperty
+        private String employeeEmail;
+        @JsonProperty
+        private String comment;
+        @JsonProperty
+        private String assigneeEmail;
+        @JsonProperty
+        private String project;
+        @JsonProperty
+        private String currentMonthYear;
 
         private Builder() {
         }

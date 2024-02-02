@@ -19,7 +19,7 @@ public class ProjectEntry {
     private final Project project;
 
 
-    public ProjectEntry(Builder builder) {
+    private ProjectEntry(Builder builder) {
         this.date = builder.date;
         this.name = builder.name;
         this.step = builder.step;

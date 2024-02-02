@@ -14,7 +14,7 @@ public class ProjectTimeEntry implements ProjectEntry {
 
     private final String process;
 
-    public ProjectTimeEntry(Builder builder) {
+    private ProjectTimeEntry(Builder builder) {
         this.fromTime = builder.fromTime;
         this.toTime = builder.toTime;
         this.task = builder.task;

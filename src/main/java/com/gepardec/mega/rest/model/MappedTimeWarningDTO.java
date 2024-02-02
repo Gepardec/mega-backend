@@ -27,7 +27,7 @@ public class MappedTimeWarningDTO {
 
 
     @JsonCreator
-    public MappedTimeWarningDTO(Builder builder) {
+    private MappedTimeWarningDTO(Builder builder) {
         this.date = builder.date;
         this.description = builder.description;
     }

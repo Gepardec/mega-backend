@@ -35,7 +35,7 @@ public class ManagementEntryDto {
     private final String nonBillableTime;
 
     @JsonCreator
-    public ManagementEntryDto(Builder builder) {
+    private ManagementEntryDto(Builder builder) {
         this.employee = builder.employee;
         this.employeeCheckState = builder.employeeCheckState;
         this.employeeCheckStateReason = builder.employeeCheckStateReason;

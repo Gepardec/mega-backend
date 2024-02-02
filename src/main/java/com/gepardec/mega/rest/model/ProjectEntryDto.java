@@ -8,7 +8,6 @@ import com.gepardec.mega.domain.model.ProjectStep;
 
 import java.util.Objects;
 
-// TODO Discuss: Rename all rest pojos to DTO?
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectEntryDto {
     private final ProjectState state;
@@ -22,7 +21,7 @@ public class ProjectEntryDto {
     private final String currentMonthYear;
 
     @JsonCreator
-    public ProjectEntryDto(Builder builder) {
+    private ProjectEntryDto(Builder builder) {
         this.state = builder.state;
         this.preset = builder.preset;
         this.projectName = builder.projectName;
@@ -68,11 +67,16 @@ public class ProjectEntryDto {
     }
 
     public static final class Builder {
-        @JsonProperty private ProjectState state;
-        @JsonProperty private boolean preset;
-        @JsonProperty private String projectName;
-        @JsonProperty private ProjectStep step;
-        @JsonProperty private String currentMonthYear;
+        @JsonProperty
+        private ProjectState state;
+        @JsonProperty
+        private boolean preset;
+        @JsonProperty
+        private String projectName;
+        @JsonProperty
+        private ProjectStep step;
+        @JsonProperty
+        private String currentMonthYear;
 
         private Builder() {
         }

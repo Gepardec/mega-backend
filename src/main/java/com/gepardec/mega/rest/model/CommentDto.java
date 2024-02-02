@@ -26,7 +26,7 @@ public class CommentDto {
     private final SourceSystem sourceSystem;
 
     @JsonCreator
-    public CommentDto(Builder builder) {
+    private CommentDto(Builder builder) {
         this.id = builder.id;
         this.message = builder.message;
         this.authorEmail = builder.authorEmail;
@@ -70,13 +70,20 @@ public class CommentDto {
 
 
     public static final class Builder {
-        @JsonProperty private Long id;
-        @JsonProperty private String message;
-        @JsonProperty private String authorEmail;
-        @JsonProperty private String authorName;
-        @JsonProperty private String updateDate;
-        @JsonProperty private EmployeeState state;
-        @JsonProperty private SourceSystem sourceSystem;
+        @JsonProperty
+        private Long id;
+        @JsonProperty
+        private String message;
+        @JsonProperty
+        private String authorEmail;
+        @JsonProperty
+        private String authorName;
+        @JsonProperty
+        private String updateDate;
+        @JsonProperty
+        private EmployeeState state;
+        @JsonProperty
+        private SourceSystem sourceSystem;
 
         private Builder() {
         }
