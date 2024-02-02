@@ -38,7 +38,7 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
         LocalDate selectedMonth = yearMonth.atDay(1);
         List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = prematureEmployeeCheckService.findAllForMonth(selectedMonth)
                 .stream()
-                .filter(pec -> pec.getState().equals(PrematureEmployeeCheckState.DONE))
+                .filter(pec -> pec.getState().equals(PrematureEmployeeCheckState.DONE) || pec.getState().equals(PrematureEmployeeCheckState.IN_PROGRESS))
                 .collect(Collectors.toList());
 
         logger.info(
@@ -73,12 +73,11 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
         LocalDate endDate = pec.getForMonth().with(lastDayOfMonth());
         String ownerEmail = pec.getUser().getEmail();
         Long stepId = StepName.CONTROL_TIMES.getId();
-        EmployeeState newState = EmployeeState.DONE;
 
         if (StringUtils.isBlank(pec.getReason())) {
-            return stepEntryRepository.updateStateAssigned(startDate, endDate, ownerEmail, stepId, newState);
+            return stepEntryRepository.updateStateAssigned(startDate, endDate, ownerEmail, stepId, EmployeeState.DONE);
         } else {
-            return stepEntryRepository.updateStateAssignedWithReason(startDate, endDate, ownerEmail, stepId, newState, pec.getReason());
+            return stepEntryRepository.updateStateAssignedWithReason(startDate, endDate, ownerEmail, stepId, EmployeeState.IN_PROGRESS, pec.getReason());
         }
     }
 }
