@@ -1,6 +1,10 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ZepProjectEmployee {
+
+    @JsonProperty("employee_id")
     private String username;
     private boolean lead;
 
