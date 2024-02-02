@@ -7,7 +7,7 @@ public class ValidationViolation {
     private final String message;
 
 
-    public ValidationViolation(Builder builder) {
+    private ValidationViolation(Builder builder) {
         this.property = builder.property;
         this.message = builder.message;
     }

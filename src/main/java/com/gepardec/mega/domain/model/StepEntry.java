@@ -16,8 +16,7 @@ public class StepEntry {
 
     private final Step step;
 
-
-    public StepEntry(Builder builder) {
+    private StepEntry(Builder builder) {
         this.date = builder.date;
         this.project = builder.project;
         this.state = builder.state;

@@ -22,7 +22,7 @@ public class UpdateEmployeeStepDto {
     private final String newStateReason;
 
     @JsonCreator
-    public UpdateEmployeeStepDto(Builder builder) {
+    private UpdateEmployeeStepDto(Builder builder) {
         this.stepId = builder.stepId;
         this.employee = builder.employee;
         this.currentMonthYear = builder.currentMonthYear;
@@ -68,11 +68,16 @@ public class UpdateEmployeeStepDto {
     }
 
     public static final class Builder {
-        @JsonProperty private Long stepId;
-        @JsonProperty private Employee employee;
-        @JsonProperty private String currentMonthYear;
-        @JsonProperty private EmployeeState newState;
-        @JsonProperty private String newStateReason;
+        @JsonProperty
+        private Long stepId;
+        @JsonProperty
+        private Employee employee;
+        @JsonProperty
+        private String currentMonthYear;
+        @JsonProperty
+        private EmployeeState newState;
+        @JsonProperty
+        private String newStateReason;
 
         private Builder() {
         }

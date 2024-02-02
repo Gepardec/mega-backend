@@ -5,13 +5,13 @@ public class FinishedAndTotalComments {
 
     private final Long totalComments;
 
-    public FinishedAndTotalComments(builder builder) {
+    private FinishedAndTotalComments(Builder builder) {
         this.finishedComments = builder.finishedComments;
         this.totalComments = builder.totalComments;
     }
 
-    public static builder builder() {
-        return builder.aFinishedAndTotalComments();
+    public static Builder builder() {
+        return Builder.aFinishedAndTotalComments();
     }
 
     public Long getFinishedComments() {
@@ -22,29 +22,29 @@ public class FinishedAndTotalComments {
         return totalComments;
     }
 
-    public static final class builder {
+    public static final class Builder {
         private Long finishedComments;
         private Long totalComments;
 
-        private builder() {
+        private Builder() {
         }
 
-        public static builder aFinishedAndTotalComments() {
-            return new builder();
+        public static Builder aFinishedAndTotalComments() {
+            return new Builder();
         }
 
-        public builder finishedComments(Long finishedComments) {
+        public Builder finishedComments(Long finishedComments) {
             this.finishedComments = finishedComments;
             return this;
         }
 
-        public builder totalComments(Long totalComments) {
+        public Builder totalComments(Long totalComments) {
             this.totalComments = totalComments;
             return this;
         }
 
         public FinishedAndTotalComments build() {
-           return new FinishedAndTotalComments(this);
+            return new FinishedAndTotalComments(this);
         }
     }
 }

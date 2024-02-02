@@ -6,6 +6,9 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Employee model (mutable wegen exitDate)
+ */
 public class Employee {
 
     private final String userId;
@@ -39,7 +42,7 @@ public class Employee {
     private Employee(Builder builder) {
         this.userId = builder.userId;
         this.email = builder.email;
-        this.title =builder. title;
+        this.title = builder.title;
         this.firstname = builder.firstname;
         this.lastname = builder.lastname;
         this.salutation = builder.salutation;
@@ -51,7 +54,7 @@ public class Employee {
         this.exitDate = builder.exitDate;
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return Builder.anEmployee();
     }
 
@@ -204,7 +207,7 @@ public class Employee {
         }
 
         public Employee build() {
-           return new Employee(this);
+            return new Employee(this);
         }
     }
 }

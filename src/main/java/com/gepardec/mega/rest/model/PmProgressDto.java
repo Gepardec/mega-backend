@@ -25,7 +25,7 @@ public class PmProgressDto {
 
 
     @JsonCreator
-    public PmProgressDto(Builder builder) {
+    private PmProgressDto(Builder builder) {
         this.project = builder.project;
         this.assigneeEmail = builder.assigneeEmail;
         this.firstname = builder.firstname;
@@ -90,12 +90,21 @@ public class PmProgressDto {
     }
 
     public static final class Builder {
-        @JsonProperty @Nullable private String project;
-        @JsonProperty private String assigneeEmail;
-        @JsonProperty @Nullable private String firstname;
-        @JsonProperty @Nullable private String lastname;
-        @JsonProperty private EmployeeState state;
-        @JsonProperty private Long stepId;
+        @JsonProperty
+        @Nullable
+        private String project;
+        @JsonProperty
+        private String assigneeEmail;
+        @JsonProperty
+        @Nullable
+        private String firstname;
+        @JsonProperty
+        @Nullable
+        private String lastname;
+        @JsonProperty
+        private EmployeeState state;
+        @JsonProperty
+        private Long stepId;
 
         private Builder() {
         }
@@ -135,7 +144,7 @@ public class PmProgressDto {
         }
 
         public PmProgressDto build() {
-           return new PmProgressDto(this);
+            return new PmProgressDto(this);
         }
     }
 }

@@ -26,7 +26,7 @@ public class UserDto {
     private final Set<Role> roles;
 
     @JsonCreator
-    public UserDto(Builder builder) {
+    private UserDto(Builder builder) {
         this.dbId = builder.dbId;
         this.userId = builder.userId;
         this.email = builder.email;
@@ -128,7 +128,7 @@ public class UserDto {
         }
 
         public UserDto build() {
-           return new UserDto(this);
+            return new UserDto(this);
         }
     }
 }

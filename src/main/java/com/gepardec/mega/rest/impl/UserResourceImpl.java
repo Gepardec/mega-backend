@@ -4,6 +4,7 @@ import com.gepardec.mega.application.interceptor.RolesAllowed;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.rest.api.UserResource;
+import com.gepardec.mega.rest.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -18,8 +19,11 @@ public class UserResourceImpl implements UserResource {
     @Inject
     UserContext userContext;
 
+    @Inject
+    UserMapper userMapper;
+
     @Override
     public Response get() {
-        return Response.ok(userContext.getUser()).build();
+        return Response.ok(userMapper.mapToDto(userContext.getUser())).build();
     }
 }

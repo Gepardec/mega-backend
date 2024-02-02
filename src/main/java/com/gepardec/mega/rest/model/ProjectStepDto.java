@@ -19,10 +19,10 @@ public class ProjectStepDto {
 
     private final String currentMonthYear;
 
-    private  EmployeeState newState;
+    private EmployeeState newState;
 
     @JsonCreator
-    public ProjectStepDto(Builder builder) {
+    private ProjectStepDto(Builder builder) {
         this.stepId = builder.stepId;
         this.employee = builder.employee;
         this.projectName = builder.projectName;
@@ -72,11 +72,16 @@ public class ProjectStepDto {
     }
 
     public static final class Builder {
-       @JsonProperty private Long stepId;
-       @JsonProperty private Employee employee;
-       @JsonProperty private String projectName;
-       @JsonProperty private String currentMonthYear;
-       @JsonProperty private EmployeeState newState;
+        @JsonProperty
+        private Long stepId;
+        @JsonProperty
+        private Employee employee;
+        @JsonProperty
+        private String projectName;
+        @JsonProperty
+        private String currentMonthYear;
+        @JsonProperty
+        private EmployeeState newState;
 
         private Builder() {
         }

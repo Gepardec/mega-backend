@@ -29,7 +29,7 @@ public class ConfigDto {
     private final String megaDashUrl;
 
     @JsonCreator
-    public ConfigDto(Builder builder) {
+    private ConfigDto(Builder builder) {
         this.excelUrl = builder.excelUrl;
         this.zepOrigin = builder.zepOrigin;
         this.clientId = builder.clientId;
@@ -96,15 +96,24 @@ public class ConfigDto {
     }
 
     public static final class Builder {
-        @JsonProperty private String excelUrl;
-        @JsonProperty private String zepOrigin;
-        @JsonProperty private String clientId;
-        @JsonProperty private String issuer;
-        @JsonProperty private String scope;
-        @JsonProperty private String version;
-        @JsonProperty private List<String> omMailAddresses;
-        @JsonProperty private String subjectPrefix;
-        @JsonProperty private String megaDashUrl;
+        @JsonProperty
+        private String excelUrl;
+        @JsonProperty
+        private String zepOrigin;
+        @JsonProperty
+        private String clientId;
+        @JsonProperty
+        private String issuer;
+        @JsonProperty
+        private String scope;
+        @JsonProperty
+        private String version;
+        @JsonProperty
+        private List<String> omMailAddresses;
+        @JsonProperty
+        private String subjectPrefix;
+        @JsonProperty
+        private String megaDashUrl;
 
         private Builder() {
         }

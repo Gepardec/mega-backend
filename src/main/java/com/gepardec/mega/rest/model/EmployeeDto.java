@@ -28,7 +28,7 @@ public class EmployeeDto {
     private final boolean active;
 
     @JsonCreator
-    public EmployeeDto(Builder builder) {
+    private EmployeeDto(Builder builder) {
         this.userId = builder.userId;
         this.email = builder.email;
         this.title = builder.title;
@@ -94,15 +94,24 @@ public class EmployeeDto {
     }
 
     public static final class Builder {
-        @JsonProperty private String userId;
-        @JsonProperty private String email;
-        @JsonProperty private String title;
-        @JsonProperty private String firstname;
-        @JsonProperty private String lastname;
-        @JsonProperty private String salutation;
-        @JsonProperty private String releaseDate;
-        @JsonProperty private String workDescription;
-        @JsonProperty private boolean active;
+        @JsonProperty
+        private String userId;
+        @JsonProperty
+        private String email;
+        @JsonProperty
+        private String title;
+        @JsonProperty
+        private String firstname;
+        @JsonProperty
+        private String lastname;
+        @JsonProperty
+        private String salutation;
+        @JsonProperty
+        private String releaseDate;
+        @JsonProperty
+        private String workDescription;
+        @JsonProperty
+        private boolean active;
 
         private Builder() {
         }

@@ -22,7 +22,7 @@ public class Project {
 
     private final BillabilityPreset billabilityPreset;
 
-    public Project(Builder builder) {
+    private Project(Builder builder) {
         this.zepId = builder.zepId;
         this.projectId = builder.projectId;
         this.description = builder.description;

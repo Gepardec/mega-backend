@@ -19,7 +19,7 @@ public class ProjectCommentDto {
     private final String projectName;
 
     @JsonCreator
-    public ProjectCommentDto(Builder builder) {
+    private ProjectCommentDto(Builder builder) {
         this.id = builder.id;
         this.comment = builder.comment;
         this.date = builder.date;
@@ -60,10 +60,14 @@ public class ProjectCommentDto {
     }
 
     public static final class Builder {
-        @JsonProperty private Long id;
-        @JsonProperty private String comment;
-        @JsonProperty private LocalDate date;
-        @JsonProperty private String projectName;
+        @JsonProperty
+        private Long id;
+        @JsonProperty
+        private String comment;
+        @JsonProperty
+        private LocalDate date;
+        @JsonProperty
+        private String projectName;
 
         private Builder() {
         }

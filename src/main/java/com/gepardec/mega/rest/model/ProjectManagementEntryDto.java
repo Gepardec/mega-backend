@@ -32,7 +32,7 @@ public class ProjectManagementEntryDto {
     private final Duration aggregatedNonBillableWorkTimeInSeconds;
 
     @JsonCreator
-    public ProjectManagementEntryDto(Builder builder) {
+    private ProjectManagementEntryDto(Builder builder) {
         this.zepId = builder.zepId;
         this.projectName = builder.projectName;
         this.controlProjectState = builder.controlProjectState;
@@ -103,15 +103,28 @@ public class ProjectManagementEntryDto {
     }
 
     public static final class Builder {
-       @JsonProperty private Integer zepId;
-       @JsonProperty private String projectName;
-       @JsonProperty @Nullable private ProjectState controlProjectState;
-       @JsonProperty @Nullable private ProjectState controlBillingState;
-       @JsonProperty @Nullable private Boolean presetControlProjectState;
-       @JsonProperty @Nullable private Boolean presetControlBillingState;
-       @JsonProperty private List<ManagementEntryDto> entries;
-       @JsonProperty private Duration aggregatedBillableWorkTimeInSeconds;
-       @JsonProperty private Duration aggregatedNonBillableWorkTimeInSeconds;
+        @JsonProperty
+        private Integer zepId;
+        @JsonProperty
+        private String projectName;
+        @JsonProperty
+        @Nullable
+        private ProjectState controlProjectState;
+        @JsonProperty
+        @Nullable
+        private ProjectState controlBillingState;
+        @JsonProperty
+        @Nullable
+        private Boolean presetControlProjectState;
+        @JsonProperty
+        @Nullable
+        private Boolean presetControlBillingState;
+        @JsonProperty
+        private List<ManagementEntryDto> entries;
+        @JsonProperty
+        private Duration aggregatedBillableWorkTimeInSeconds;
+        @JsonProperty
+        private Duration aggregatedNonBillableWorkTimeInSeconds;
 
         private Builder() {
         }

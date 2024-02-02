@@ -17,7 +17,7 @@ public class CustomerProjectWithoutLeadsDto {
 
 
     @JsonCreator
-    public CustomerProjectWithoutLeadsDto(Builder builder) {
+    private CustomerProjectWithoutLeadsDto(Builder builder) {
         this.projectName = builder.projectName;
         this.comment = builder.comment;
         this.fetchDate = builder.fetchDate;
@@ -58,10 +58,14 @@ public class CustomerProjectWithoutLeadsDto {
     }
 
     public static final class Builder {
-        @JsonProperty private String projectName;
-        @JsonProperty private String comment;
-        @JsonProperty private LocalDate fetchDate;
-        @JsonProperty private Integer zepId;
+        @JsonProperty
+        private String projectName;
+        @JsonProperty
+        private String comment;
+        @JsonProperty
+        private LocalDate fetchDate;
+        @JsonProperty
+        private Integer zepId;
 
         private Builder() {
         }
@@ -91,7 +95,7 @@ public class CustomerProjectWithoutLeadsDto {
         }
 
         public CustomerProjectWithoutLeadsDto build() {
-          return new CustomerProjectWithoutLeadsDto(this);
+            return new CustomerProjectWithoutLeadsDto(this);
         }
     }
 }

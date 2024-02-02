@@ -15,7 +15,7 @@ public class EmployeeStepDto {
     private final String currentMonthYear;
 
     @JsonCreator
-    public EmployeeStepDto(Builder builder) {
+    private EmployeeStepDto(Builder builder) {
         this.stepId = builder.stepId;
         this.employee = builder.employee;
         this.currentMonthYear = builder.currentMonthYear;
@@ -52,9 +52,12 @@ public class EmployeeStepDto {
     }
 
     public static final class Builder {
-        @JsonProperty private Long stepId;
-        @JsonProperty private EmployeeDto employee;
-        @JsonProperty private String currentMonthYear;
+        @JsonProperty
+        private Long stepId;
+        @JsonProperty
+        private EmployeeDto employee;
+        @JsonProperty
+        private String currentMonthYear;
 
         private Builder() {
         }
@@ -79,7 +82,7 @@ public class EmployeeStepDto {
         }
 
         public EmployeeStepDto build() {
-           return new EmployeeStepDto(this);
+            return new EmployeeStepDto(this);
         }
     }
 }
