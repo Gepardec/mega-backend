@@ -9,6 +9,8 @@ import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import java.util.Arrays;
+import java.util.Comparator;
 
 @ApplicationScoped
 public class RegularWorkingTimesService {
@@ -36,7 +38,7 @@ public class RegularWorkingTimesService {
             if (workingTimes.length == 0) {
                 throw new ZepServiceException("Data empty");
             }
-            return workingTimes[0];
+            return Arrays.stream(workingTimes).sorted(Comparator.comparing(ZepRegularWorkingTimes::getStart_date, Comparator.nullsLast(Comparator.reverseOrder()))).findFirst().orElse(null);
         } catch (JsonProcessingException e) {
             throw new ZepServiceException("Error parsing the return data of /" + username + "/regular-working-times", e);
         }
