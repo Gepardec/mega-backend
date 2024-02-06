@@ -1,7 +1,11 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.gepardec.mega.zep.rest.entity.builder.ZepDynamicAttributeBuilder;
+
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepDynamicAttribute {
     private String name;
     private String value;

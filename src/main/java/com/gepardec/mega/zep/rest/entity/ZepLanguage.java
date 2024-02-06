@@ -1,5 +1,9 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.gepardec.mega.zep.rest.entity.builder.ZepLanguageBuilder;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepLanguage {
     private String id;
     private String name;

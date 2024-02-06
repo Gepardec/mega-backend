@@ -1,4 +1,6 @@
-package com.gepardec.mega.zep.rest.entity;
+package com.gepardec.mega.zep.rest.entity.builder;
+
+import com.gepardec.mega.zep.rest.entity.ZepLanguage;
 
 public class ZepLanguageBuilder {
     private String id;

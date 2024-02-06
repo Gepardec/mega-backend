@@ -1,5 +1,9 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.gepardec.mega.zep.rest.entity.builder.ZepEmploymentBuilder;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepEmployment {
     private int id;
     private String name;

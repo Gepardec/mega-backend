@@ -1,4 +1,6 @@
-package com.gepardec.mega.zep.rest.entity;
+package com.gepardec.mega.zep.rest.entity.builder;
+
+import com.gepardec.mega.zep.rest.entity.ZepProject;
 
 import java.time.LocalDateTime;
 import java.util.List;

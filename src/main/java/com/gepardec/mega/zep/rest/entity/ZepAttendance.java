@@ -1,11 +1,14 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gepardec.mega.zep.rest.entity.builder.ZepAttendanceBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepAttendance {
     private Integer id;
     private LocalDate date;

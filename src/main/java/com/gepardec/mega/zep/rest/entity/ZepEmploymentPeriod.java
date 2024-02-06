@@ -1,9 +1,12 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gepardec.mega.zep.rest.entity.builder.ZepEmploymentPeriodBuilder;
 
 import java.time.LocalDateTime;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepEmploymentPeriod {
      private int id;
      @JsonProperty("employee_id")

@@ -1,4 +1,7 @@
-package com.gepardec.mega.zep.rest.entity;
+package com.gepardec.mega.zep.rest.entity.builder;
+
+import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
+import com.gepardec.mega.zep.rest.entity.ZepProjectEmployeeType;
 
 public class ZepProjectEmployeeBuilder {
     private String username;

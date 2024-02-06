@@ -1,9 +1,13 @@
 package com.gepardec.mega.zep.rest.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.gepardec.mega.zep.rest.entity.builder.ZepAbsenceBuilder;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepAbsence {
 
     private Integer id;

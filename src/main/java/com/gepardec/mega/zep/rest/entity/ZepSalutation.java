@@ -1,5 +1,9 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.gepardec.mega.zep.rest.entity.builder.ZepSalutationBuilder;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepSalutation {
     public String id;
     public String name;

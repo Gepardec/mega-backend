@@ -4,7 +4,7 @@ import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.zep.rest.entity.ZepProject;
 import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
-import com.gepardec.mega.zep.rest.entity.ZepProjectEmployeeTypeBuilder;
+import com.gepardec.mega.zep.rest.entity.builder.ZepProjectEmployeeTypeBuilder;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 

@@ -1,6 +1,12 @@
-package com.gepardec.mega.zep.rest.entity;
+package com.gepardec.mega.zep.rest.entity.builder;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gepardec.mega.zep.rest.entity.ZepCategory;
+import com.gepardec.mega.zep.rest.entity.ZepDynamicAttribute;
+import com.gepardec.mega.zep.rest.entity.ZepEmployee;
+import com.gepardec.mega.zep.rest.entity.ZepEmployment;
+import com.gepardec.mega.zep.rest.entity.ZepLanguage;
+import com.gepardec.mega.zep.rest.entity.ZepRights;
+import com.gepardec.mega.zep.rest.entity.ZepSalutation;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
