@@ -10,6 +10,8 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
+import java.time.LocalDate;
+
 @Path("/employees")
 @RegisterRestClient(configKey = "zep")
 @ClientHeaderParam(name = "Authorization", value = "{getAuthHeaderValue}")
@@ -37,6 +39,9 @@ public interface ZepEmployeeRestClient extends Authenticatable {
 
     @GET
     @Path("/{username}/absences")
-    Response getAbsencesByUsername(@PathParam("username") String username, @QueryParam("page") int page);
+    Response getAbsencesByUsername(@PathParam("username") String username,
+                                   @QueryParam("start_date") LocalDate startDate,
+                                   @QueryParam("end_date") LocalDate endDate,
+                                   @QueryParam("page") int page);
 
 }

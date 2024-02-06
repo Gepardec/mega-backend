@@ -1,15 +1,12 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.zep.rest.entity.ZepAbsence;
-import com.gepardec.mega.zep.rest.entity.ZepEmployee;
-import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.rest.entity.ZepAbsenceReason;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +19,7 @@ public class AbsenceMapperTest {
     @Test
     public void mapZepAbsenceToAbsenceTime() {
         AbsenceMapper absenceMapper = new AbsenceMapper();
+        ZepAbsenceReason zepAbsenceReason = ZepAbsenceReason.builder().name("KR").build();
         ZepAbsence zepAbsence = ZepAbsence.builder()
                 .id(1)
                 .employeeId("001")
@@ -29,7 +27,7 @@ public class AbsenceMapperTest {
                 .endDate(LocalDate.of(2019, 1, 5))
                 .from(LocalTime.of(8, 1, 32))
                 .to(LocalTime.of(17, 0, 0))
-                .absenceReason("KR")
+                .absenceReason(zepAbsenceReason)
                 .approved(true)
                 .note("Extrauteringravidität")
                 .timezone("UTC")
@@ -43,7 +41,7 @@ public class AbsenceMapperTest {
         assertThat(absence.getUserId()).isEqualTo(zepAbsence.getEmployeeId());
         assertThat(absence.getFromDate()).isEqualTo(zepAbsence.getStartDate());
         assertThat(absence.getToDate()).isEqualTo(zepAbsence.getEndDate());
-        assertThat(absence.getReason()).isEqualTo(zepAbsence.getAbsenceReason());
+        assertThat(absence.getReason()).isEqualTo(zepAbsence.getAbsenceReason().getName());
         assertThat(absence.getAccepted()).isEqualTo(zepAbsence.isApproved());
         assertThat(absence.getTimezone()).isEqualTo(zepAbsence.getTimezone());
         assertThat(absence.getCreated()).isEqualTo(zepAbsence.getCreated());
@@ -57,19 +55,19 @@ public class AbsenceMapperTest {
         ZepAbsence[] zepAbsencesArr = {
                 ZepAbsence.builder()
                         .id(1)
-                        .absenceReason("HO")
+                        .absenceReason(ZepAbsenceReason.builder().name("KR").build())
                         .startDate(LocalDate.of(2019, 1, 2))
                         .employeeId("1")
                         .build(),
                 ZepAbsence.builder()
                         .id(2)
-                        .absenceReason("KR")
+                        .absenceReason(ZepAbsenceReason.builder().name("FA").build())
                         .startDate(LocalDate.of(2019, 1, 2))
                         .employeeId("2")
                         .build(),
                 ZepAbsence.builder()
                         .id(2)
-                        .absenceReason("UB")
+                        .absenceReason(ZepAbsenceReason.builder().name("UB").build())
                         .startDate(LocalDate.of(2019, 1, 2))
                         .employeeId("3")
                         .build()
@@ -82,7 +80,7 @@ public class AbsenceMapperTest {
         absences.forEach(absence -> {
             ZepAbsence zepAbsence = zepAbsencesIterator.next();
             assertThat(zepAbsence.getId()).isEqualTo(absence.getId());
-            assertThat(zepAbsence.getAbsenceReason()).isEqualTo(absence.getReason());
+            assertThat(zepAbsence.getAbsenceReason().getName()).isEqualTo(absence.getReason());
             assertThat(zepAbsence.getEmployeeId()).isEqualTo(absence.getUserId());
             assertThat(zepAbsence.getStartDate()).isEqualTo(absence.getFromDate());
         });

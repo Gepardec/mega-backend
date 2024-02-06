@@ -5,6 +5,7 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
+import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.rest.entity.*;
 import com.gepardec.mega.zep.rest.mapper.*;
@@ -29,6 +30,12 @@ public class ZepRestService implements ZepService {
     ProjectService projectService;
     @Inject
     AttendanceService attendanceService;
+
+    @Inject
+    AbsenceService absenceService;
+
+    @Inject
+    AbsenceMapper absenceMapper;
 
     @Inject
     RegularWorkingTimesService regularWorkingTimesService;
@@ -71,6 +78,7 @@ public class ZepRestService implements ZepService {
         List<Employee> employees = employeeMapper.mapList(zepEmployees);
         employees.forEach(
                 employee -> {
+                    // TODO: Get real val
 //                    var periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employee.getUserId());
                     boolean active = true;//employeeMapper.getActiveOfZepEmploymentPeriods(periods);
                     employee.setActive(active);
@@ -133,7 +141,12 @@ public class ZepRestService implements ZepService {
 
     @Override
     public List<AbsenceTime> getAbsenceForEmployee(Employee employee, LocalDate date) {
-        return null;         // Currently not supported by REST - use SOAP instead
+        LocalDate firstOfMonth = DateUtils.getFirstDayOfMonth(date.getYear(), date.getMonthValue());
+        LocalDate lastOfMonth = DateUtils.getLastDayOfMonth(date.getYear(), date.getMonthValue());
+        List<ZepAbsence> zepAbsences = absenceService
+                .getZepAbsencesByEmployeeNameForDateRange(employee.getUserId(), firstOfMonth, lastOfMonth);
+
+        return absenceMapper.mapList(zepAbsences);
     }
 
     @Override

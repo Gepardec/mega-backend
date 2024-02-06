@@ -1,6 +1,7 @@
 package com.gepardec.mega.zep.rest.entity.builder;
 
 import com.gepardec.mega.zep.rest.entity.ZepAbsence;
+import com.gepardec.mega.zep.rest.entity.ZepAbsenceReason;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,7 +20,7 @@ public class ZepAbsenceBuilder {
     private String timezone;
     private String created;
     private String modified;
-    private String absenceReason;
+    private ZepAbsenceReason absenceReason;
 
     public ZepAbsenceBuilder id(Integer id) {
         this.id = id;
@@ -86,7 +87,7 @@ public class ZepAbsenceBuilder {
         return this;
     }
 
-    public ZepAbsenceBuilder absenceReason(String absenceReason) {
+    public ZepAbsenceBuilder absenceReason(ZepAbsenceReason absenceReason) {
         this.absenceReason = absenceReason;
         return this;
     }

@@ -21,4 +21,7 @@ public interface ZepAttendanceRestClient extends Authenticatable {
 
     @GET
     Response getAttendancesByUsername(@QueryParam("employee_id") String username, @QueryParam("page") int page);
+
+    @GET
+    Response getAttendanceById(@QueryParam("id") int id);
 }

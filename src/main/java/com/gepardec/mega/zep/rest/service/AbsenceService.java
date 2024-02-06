@@ -4,8 +4,13 @@ import com.gepardec.mega.zep.rest.client.ZepAbsenceRestClient;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepAbsence;
 import com.gepardec.mega.zep.util.Paginator;
+import com.gepardec.mega.zep.util.ZepRestUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class AbsenceService {
@@ -16,24 +21,24 @@ public class AbsenceService {
     @RestClient
     ZepAbsenceRestClient zepAbsenceRestClient;
 
-    public ZepAbsence[] getZepAbsencesByEmployeeName(String employeeName) {
-        return Paginator.retrieveAll(
-                page -> zepEmployeeRestClient.getAbsencesByUsername(employeeName, page),
+    public List<ZepAbsence> getZepAbsencesByEmployeeNameForDateRange(String employeeName, LocalDate start, LocalDate end) {
+        List<ZepAbsence> absences = Paginator.retrieveAll(
+                page -> zepEmployeeRestClient.getAbsencesByUsername(employeeName, start, end, page),
                 ZepAbsence.class
-        ).toArray(ZepAbsence[]::new);
+        );
+
+        return getFullZepAbsences(absences);
     }
-//
-//    public void setZepAbsenceReason(ZepAbsence zepAbsence) {
-//        try (Response resp = zepAbsenceRestClient.getAbsenceById(zepAbsence.getId())) {
-//            String output = resp.readEntity(String.class);
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            objectMapper.findAndRegisterModules();
-//            JsonNode jsonNode = objectMapper.readTree(output);
-//            String absenceText = (objectMapper.treeToValue(jsonNode.at("/data/absence_text"), String.class));
-//            zepAbsence.setAbsenceReason(absenceText);
-//        } catch (JsonProcessingException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//    }
+
+    public ZepAbsence getZepAbsenceById(int id) {
+        return ZepRestUtil.parseJson(zepAbsenceRestClient.getAbsenceById(id).readEntity(String.class),
+                "/data",
+                ZepAbsence.class).orElse(null);
+    }
+
+    private List<ZepAbsence> getFullZepAbsences(List<ZepAbsence> zepAbsences) {
+        return zepAbsences.stream()
+                .map(absence -> getZepAbsenceById(absence.getId()))
+                .collect(Collectors.toList());
+    }
 }

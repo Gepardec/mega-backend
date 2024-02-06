@@ -2,6 +2,7 @@ package com.gepardec.mega.zep.rest.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.zep.rest.entity.builder.ZepAbsenceBuilder;
 
 import java.time.LocalDate;
@@ -11,9 +12,14 @@ import java.time.LocalTime;
 public class ZepAbsence {
 
     private Integer id;
+    @JsonProperty("employee_id")
     private String employeeId;
     private String type;
+    @JsonProperty("start_date")
+
     private LocalDate startDate;
+    @JsonProperty("end_date")
+
     private LocalDate endDate;
     private Double hours;
     private LocalTime from;
@@ -23,12 +29,13 @@ public class ZepAbsence {
     private String timezone;
     private String created;
     private String modified;
-    private String absenceReason;
+    @JsonProperty("absenceReason")
+    private ZepAbsenceReason absenceReason;
 
     public ZepAbsence() {
     }
 
-    public ZepAbsence(Integer id, String employeeId, String type, LocalDate startDate, LocalDate endDate, Double hours, LocalTime from, LocalTime to, String note, boolean approved, String timezone, String created, String modified, String absenceReason) {
+    public ZepAbsence(Integer id, String employeeId, String type, LocalDate startDate, LocalDate endDate, Double hours, LocalTime from, LocalTime to, String note, boolean approved, String timezone, String created, String modified, ZepAbsenceReason absenceReason) {
         this.id = id;
         this.employeeId = employeeId;
         this.type = type;
@@ -149,11 +156,11 @@ public class ZepAbsence {
         this.modified = modified;
     }
 
-    public String getAbsenceReason() {
+    public ZepAbsenceReason getAbsenceReason() {
         return absenceReason;
     }
 
-    public void setAbsenceReason(String absenceReason) {
+    public void setAbsenceReason(ZepAbsenceReason absenceReason) {
         this.absenceReason = absenceReason;
     }
 

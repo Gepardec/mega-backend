@@ -30,6 +30,7 @@ public class AttendanceService {
         return Paginator.retrieveAll(
             page -> zepAttendanceRestClient.getAttendance(startDate, endDate, username, page),
             ZepAttendance.class);
+
     }
     public List<ZepAttendance> getAttendanceForUserProjectAndMonth(String username, LocalDate date, Integer projectId) {
         String startDate = date.withDayOfMonth(1).toString();

@@ -12,6 +12,8 @@ public class AbsenceMapper implements Mapper<AbsenceTime, ZepAbsence> {
         if (zepAbsence == null)
             return null;
 
+        String reason = zepAbsence.getAbsenceReason() == null ? "" : zepAbsence.getAbsenceReason().getName();
+
         return AbsenceTime.builder()
                 .id(zepAbsence.getId())
                 .userId(zepAbsence.getEmployeeId())
@@ -19,7 +21,7 @@ public class AbsenceMapper implements Mapper<AbsenceTime, ZepAbsence> {
                 .toDate(zepAbsence.getEndDate())
                 .fromTime("" + zepAbsence.getFrom())
                 .toTime("" + zepAbsence.getTo())
-                .reason(zepAbsence.getAbsenceReason())
+                .reason(reason)
                 .isHalfADay(false)                      //TODO: Possible to set real val?
                 .accepted(zepAbsence.isApproved())
                 .comment(zepAbsence.getNote())
