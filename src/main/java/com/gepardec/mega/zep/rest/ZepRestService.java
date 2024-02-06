@@ -75,7 +75,7 @@ public class ZepRestService implements ZepService {
                     boolean active = true;//employeeMapper.getActiveOfZepEmploymentPeriods(periods);
                     employee.setActive(active);
                 });
-
+//
         return employees;
     }
 
