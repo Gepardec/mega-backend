@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
 public class ZepEmployee {
         private String username;
@@ -55,15 +56,17 @@ public class ZepEmployee {
         private LocalDateTime modified;
         @JsonProperty("creditor_number")
         private Integer creditorNumber;
-        private Collection<String> categories;
+        private Collection<ZepCategory> categories;
         @JsonProperty("absences_count")
         private Integer absencesCount;
+
+        private Collection<ZepDynamicAttribute> dynamicAttributes;
 
         public ZepEmployee() {
         }
 
         public ZepEmployee(String username, String firstname, String lastname, String personalNumber, String street, String zip, String city, String country, String abbreviation, ZepSalutation salutation, String title, String email, String phone, String mobile, String fax, String privatePhone, String birthdate, String iban, String bic, Integer accountNo, String bankName, String bankCode, String currency, LocalDate
-                releaseDate, Double vat, String priceGroup, ZepEmployment employment, ZepRights rights, Integer departmentId, ZepLanguage language, Integer personioId, String costBearer, Integer taxId, LocalDateTime created, LocalDateTime modified, Integer creditorNumber, Collection<String> categories, Integer absencesCount) {
+                releaseDate, Double vat, String priceGroup, ZepEmployment employment, ZepRights rights, Integer departmentId, ZepLanguage language, Integer personioId, String costBearer, Integer taxId, LocalDateTime created, LocalDateTime modified, Integer creditorNumber, Collection<ZepCategory> categories, Collection<ZepDynamicAttribute> dynamicAttributes, Integer absencesCount) {
                 this.username = username;
                 this.firstname = firstname;
                 this.lastname = lastname;
@@ -102,6 +105,8 @@ public class ZepEmployee {
                 this.creditorNumber = creditorNumber;
                 this.categories = categories;
                 this.absencesCount = absencesCount;
+                this.categories = categories;
+                this.dynamicAttributes = dynamicAttributes;
         }
 
         public String getUsername() {
@@ -392,14 +397,6 @@ public class ZepEmployee {
                 this.creditorNumber = creditorNumber;
         }
 
-        public Collection<String> getCategories() {
-                return categories;
-        }
-
-        public void setCategories(Collection<String> categories) {
-                this.categories = categories;
-        }
-
         public Integer getAbsencesCount() {
                 return absencesCount;
         }
@@ -407,6 +404,19 @@ public class ZepEmployee {
         public void setAbsencesCount(Integer absencesCount) {
                 this.absencesCount = absencesCount;
         }
+
+        public void setCategories(Collection<ZepCategory> categories) {
+                this.categories = categories;
+        }
+
+        public Collection<ZepDynamicAttribute> getDynamicAttributes() {
+                return dynamicAttributes;
+        }
+
+        public void setDynamicAttributes(Collection<ZepDynamicAttribute> dynamicAttributes) {
+                this.dynamicAttributes = dynamicAttributes;
+        }
+
         public static ZepEmployeeBuilder builder() {
                 return new ZepEmployeeBuilder();
         }

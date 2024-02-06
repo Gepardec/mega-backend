@@ -1,5 +1,7 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -41,8 +43,11 @@ public class ZepEmployeeBuilder {
     private LocalDateTime created;
     private LocalDateTime modified;
     private Integer creditorNumber;
-    private Collection<String> categories;
+    private Collection<ZepCategory> categories;
+
     private Integer absencesCount;
+
+    private Collection<ZepDynamicAttribute> dynamicAttributes;
 
     public ZepEmployeeBuilder username(String username) {
         this.username = username;
@@ -224,16 +229,21 @@ public class ZepEmployeeBuilder {
         return this;
     }
 
-    public ZepEmployeeBuilder categories(Collection<String> categories) {
+    public ZepEmployeeBuilder categories(Collection<ZepCategory> categories) {
         this.categories = categories;
         return this;
     }
+    public ZepEmployeeBuilder dynamicAttributes(Collection<ZepDynamicAttribute> dynamicAttributes) {
+        this.dynamicAttributes = dynamicAttributes;
+        return this;
+    }
+
 
     public ZepEmployeeBuilder absencesCount(Integer absencesCount) {
         this.absencesCount = absencesCount;
         return this;
     }
     public ZepEmployee build() {
-        return new ZepEmployee(username, firstname, lastname, personalNumber, street, zip, city, country, abbreviation, salutation, title, email, phone, mobile, fax, privatePhone, birthdate, iban, bic, accountNo, bankName, bankCode, currency, releaseDate, vat, priceGroup, employment, rights, departmentId, language, personioId, costBearer, taxId, created, modified, creditorNumber, categories, absencesCount);
+        return new ZepEmployee(username, firstname, lastname, personalNumber, street, zip, city, country, abbreviation, salutation, title, email, phone, mobile, fax, privatePhone, birthdate, iban, bic, accountNo, bankName, bankCode, currency, releaseDate, vat, priceGroup, employment, rights, departmentId, language, personioId, costBearer, taxId, created, modified, creditorNumber,  categories, dynamicAttributes, absencesCount);
     }
 }
