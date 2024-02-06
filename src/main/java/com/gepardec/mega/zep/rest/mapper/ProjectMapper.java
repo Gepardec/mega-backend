@@ -5,11 +5,13 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.zep.rest.entity.ZepProject;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProjectMapper implements Mapper<Project, ZepProject> {
 
+    private static final LocalDate DEFAULT_END_DATE = LocalDate.of(2029, 12, 1);
     public Project map(ZepProject zepProject) {
         if (zepProject == null)
             return null;
@@ -17,7 +19,7 @@ public class ProjectMapper implements Mapper<Project, ZepProject> {
         LocalDate startDate = zepProject.getStartDate() == null ?
                 null : zepProject.getStartDate().toLocalDate();
         LocalDate endDate = zepProject.getEndDate() == null ?
-                null : zepProject.getEndDate().toLocalDate();
+                DEFAULT_END_DATE : zepProject.getEndDate().toLocalDate();
 
         List<String> employees = new ArrayList<>();
         List<String> leads = new ArrayList<>();

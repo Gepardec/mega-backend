@@ -24,12 +24,12 @@ public class ZepServiceImpl implements ZepService {
 
     @Override
     public Employee getEmployee(String userId) {
-        return zepServiceRest.getEmployee(userId);
+        return zepServiceSoap.getEmployee(userId);
     }
 
     @Override
     public List<Employee> getEmployees() {
-        return zepServiceRest.getEmployees();
+        return zepServiceSoap.getEmployees();
     }
 
     @Override
