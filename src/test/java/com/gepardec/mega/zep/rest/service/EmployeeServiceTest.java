@@ -157,7 +157,6 @@ public class EmployeeServiceTest {
                 .modified(LocalDateTime.of(2024, 1, 10, 6, 46,37))
                 .creditorNumber(null)
                 .categories(new ArrayList<>())
-                .dynamicAttributes(new ArrayList<>())
                 .absencesCount(7)
                 .build();
 
