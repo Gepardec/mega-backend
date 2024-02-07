@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -152,7 +153,7 @@ class StepEntrySyncServiceImplTest {
         // default setup
 
         // When
-        stepEntrySyncService.generateStepEntriesFromEndpoint();
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
 
         // Then
         verify(stepEntryService, times(22)).addStepEntry(Mockito.any());
@@ -165,7 +166,7 @@ class StepEntrySyncServiceImplTest {
         when(projectService.getProjectsForMonthYear(Mockito.any(), Mockito.anyList())).thenReturn(List.of());
 
         // When
-        stepEntrySyncService.generateStepEntriesFromEndpoint();
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
 
         // Then
         final ArgumentCaptor<StepEntry> argumentCaptor = ArgumentCaptor.forClass(StepEntry.class);
@@ -202,7 +203,7 @@ class StepEntrySyncServiceImplTest {
                 .build()));
 
         // When
-        stepEntrySyncService.generateStepEntriesFromEndpoint();
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
 
         // Then
         final ArgumentCaptor<StepEntry> argumentCaptor = ArgumentCaptor.forClass(StepEntry.class);
@@ -227,7 +228,7 @@ class StepEntrySyncServiceImplTest {
         // default setup
         when(notificationConfig.getOmMailAddresses()).thenReturn(List.of());
         // When
-        stepEntrySyncService.generateStepEntriesFromEndpoint();
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
 
         // Then
         final ArgumentCaptor<StepEntry> argumentCaptor = ArgumentCaptor.forClass(StepEntry.class);
@@ -252,7 +253,7 @@ class StepEntrySyncServiceImplTest {
         when(notificationConfig.getOmMailAddresses()).thenReturn(List.of("some.user@gepardec.com"));
 
         // When
-        stepEntrySyncService.generateStepEntriesFromEndpoint();
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
 
         // Then
         final ArgumentCaptor<StepEntry> argumentCaptor = ArgumentCaptor.forClass(StepEntry.class);
@@ -273,7 +274,7 @@ class StepEntrySyncServiceImplTest {
         when(notificationConfig.getOmMailAddresses()).thenReturn(List.of());
 
         // When
-        stepEntrySyncService.generateStepEntriesFromEndpoint();
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
 
         // Then
         final ArgumentCaptor<StepEntry> argumentCaptor = ArgumentCaptor.forClass(StepEntry.class);
@@ -294,7 +295,7 @@ class StepEntrySyncServiceImplTest {
         // default setup
 
         // When
-        stepEntrySyncService.generateStepEntriesFromEndpoint();
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
 
         // Then
         final ArgumentCaptor<StepEntry> argumentCaptor = ArgumentCaptor.forClass(StepEntry.class);
@@ -315,7 +316,7 @@ class StepEntrySyncServiceImplTest {
         when(userService.findActiveUsers()).thenReturn(List.of());
 
         // When
-        stepEntrySyncService.generateStepEntriesFromEndpoint();
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
 
         // Then
         verify(stepEntryService, never()).addStepEntry(Mockito.any());
@@ -327,7 +328,7 @@ class StepEntrySyncServiceImplTest {
         // default setup
 
         // When
-        stepEntrySyncService.generateStepEntriesFromEndpoint();
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
 
         // Then
         final ArgumentCaptor<StepEntry> argumentCaptor = ArgumentCaptor.forClass(StepEntry.class);
@@ -356,7 +357,7 @@ class StepEntrySyncServiceImplTest {
         when(stepService.getSteps()).thenReturn(List.of());
 
         // When
-        stepEntrySyncService.generateStepEntriesFromEndpoint();
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
 
         // Then
         verify(stepEntryService, never()).addStepEntry(Mockito.any());
@@ -368,7 +369,7 @@ class StepEntrySyncServiceImplTest {
         // default setup
 
         // When
-        stepEntrySyncService.generateStepEntriesFromEndpoint();
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
 
         // Then
         final ArgumentCaptor<StepEntry> argumentCaptor = ArgumentCaptor.forClass(StepEntry.class);
@@ -391,7 +392,7 @@ class StepEntrySyncServiceImplTest {
         // default setup
 
         // When
-        stepEntrySyncService.generateStepEntriesFromEndpoint();
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
 
         // Then
         final ArgumentCaptor<StepEntry> argumentCaptor = ArgumentCaptor.forClass(StepEntry.class);
