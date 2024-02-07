@@ -17,6 +17,12 @@ import java.util.concurrent.TimeUnit;
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
 
 /**
+ * This class contains all scheduled tasks which are executed by the scheduler.
+ * Attention: The scheduler is only active in the dev profile.
+ * When deployed to a staging environment such as main, dev, qa or prod, the scheduler is disabled.
+ * This is because in a staging environment the services called by the scheduler are invoked via dedicated endpoints
+ * using a cronjob of OpenShift.
+ *
  * @author Thomas Herzog <herzog.thomas81@gmail.com>
  * @since 10/3/2020
  */
