@@ -156,6 +156,9 @@ mp:
     http:
       cors:
         origins: "/.*/"
+    rest-client:
+      zep:
+        url: "https://www.zep-online.de/zepgepardecservices_test/next/api/v1/"
   mega:
     dash-url: "http://localhost:4444/index.html"
     zep:
