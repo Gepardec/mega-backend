@@ -23,7 +23,7 @@ public class EmployeeIntegration {
 
 
     @Test
-    public void testConnection() {
+    public void fetchValidEmployee_thenReturnEmployee() {
 
         Employee expected = Employee.builder()
                 .userId("001-hwirnsberger")
@@ -49,7 +49,5 @@ public class EmployeeIntegration {
         Employee actual = zepRestService.getEmployee("001-hwirnsberger");
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
-
-
     }
 }

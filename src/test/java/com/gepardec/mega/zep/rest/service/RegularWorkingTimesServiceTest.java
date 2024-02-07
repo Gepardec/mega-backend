@@ -62,7 +62,7 @@ public class RegularWorkingTimesServiceTest {
         }
 
         Response response = Response.ok().entity(responseBody).build();
-        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString())).thenReturn(response);
+        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString(), Mockito.anyInt())).thenReturn(response);
 
         ZepRegularWorkingTimes actual = regularWorkingTimesService.getRegularWorkingTimesByUsername("dfsfdsds");
 
@@ -75,7 +75,7 @@ public class RegularWorkingTimesServiceTest {
 
         Response response = Response.ok().entity(responseBody).build();
 
-        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString())).thenReturn(response);
+        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString(), Mockito.anyInt())).thenReturn(response);
 
         assertThrows(ZepServiceException.class, () -> {
             System.out.println(regularWorkingTimesService.getRegularWorkingTimesByUsername("082-tmeindl").getEmployee_id());
@@ -87,7 +87,7 @@ public class RegularWorkingTimesServiceTest {
 
         Response response = Response.status(404).build();
 
-        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString())).thenReturn(response);
+        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString(), Mockito.anyInt())).thenReturn(response);
 
         assertThrows(ZepServiceException.class, () -> {
             System.out.println(regularWorkingTimesService.getRegularWorkingTimesByUsername("non-existing-user").getEmployee_id());
@@ -100,7 +100,7 @@ public class RegularWorkingTimesServiceTest {
 
         Response response = Response.status(401).build();
 
-        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString())).thenReturn(response);
+        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString(), Mockito.anyInt())).thenReturn(response);
 
         assertThrows(ZepServiceException.class, () -> {
             System.out.println(regularWorkingTimesService.getRegularWorkingTimesByUsername("").getEmployee_id());
