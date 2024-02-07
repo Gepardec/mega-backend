@@ -82,7 +82,7 @@ public class AbsenceTimeMapperTest {
         assertThat(absenceTimeStartDateString).isEqualTo(fzt.getStartdatum());
         assertThat(absenceTimeEndDateString).isEqualTo(fzt.getEnddatum());
         assertThat(at.getReason()).isEqualTo(fzt.getFehlgrund());
-        assertThat(at.getIsHalfADay()).isEqualTo(fzt.isIstHalberTag());
+        assertThat(at.getHalfADay()).isEqualTo(fzt.isIstHalberTag());
         assertThat(at.getAccepted()).isEqualTo(fzt.isGenehmigt());
         assertThat(at.getComment()).isEqualTo(fzt.getBemerkung());
         assertThat(at.getTimezone()).isEqualTo(fzt.getTimezone());

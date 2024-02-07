@@ -1,6 +1,7 @@
 package com.gepardec.mega.domain.calculation.time;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
+
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
@@ -172,7 +173,7 @@ class NoEntryCalculatorTest {
 
     private List<AbsenceTime> createAbsenceListFromUBType() {
         List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = new AbsenceTime();
+        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
         LocalDate startDate = LocalDate.of(2021, 2, 25);
         LocalDate endDate = LocalDate.of(2021, 2, 26);
         fehlzeitType.setFromDate(startDate);
@@ -185,7 +186,7 @@ class NoEntryCalculatorTest {
 
     private List<AbsenceTime> createAbsenceListFromFAType() {
         List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = new AbsenceTime();
+        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
         LocalDate startDate = LocalDate.of(2021, 2, 25);
         LocalDate endDate = LocalDate.of(2021, 2, 26);
         fehlzeitType.setFromDate(startDate);
@@ -198,7 +199,7 @@ class NoEntryCalculatorTest {
 
     private List<AbsenceTime> createAbsenceListFromKRType() {
         List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = new AbsenceTime();
+        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
         LocalDate startDate = LocalDate.of(2021, 2, 25);
         LocalDate endDate = LocalDate.of(2021, 2, 26);
         fehlzeitType.setFromDate(startDate);
@@ -211,7 +212,7 @@ class NoEntryCalculatorTest {
 
     private List<AbsenceTime> createAbsenceListFromPUType() {
         List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = new AbsenceTime();
+        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
         LocalDate startDate = LocalDate.of(2021, 2, 25);
         LocalDate endDate = LocalDate.of(2021, 2, 26);
         fehlzeitType.setFromDate(startDate);
@@ -224,7 +225,7 @@ class NoEntryCalculatorTest {
 
     private List<AbsenceTime> createAbsenceListFromKAType() {
         List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = new AbsenceTime();
+        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
         LocalDate startDate = LocalDate.of(2021, 2, 25);
         LocalDate endDate = LocalDate.of(2021, 2, 26);
         fehlzeitType.setFromDate(startDate);
@@ -237,7 +238,7 @@ class NoEntryCalculatorTest {
 
     private List<AbsenceTime> createAbsenceListFromEWType() {
         List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = new AbsenceTime();
+        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
         LocalDate startDate = LocalDate.of(2021, 2, 25);
         LocalDate endDate = LocalDate.of(2021, 2, 26);
         fehlzeitType.setFromDate(startDate);
@@ -250,7 +251,7 @@ class NoEntryCalculatorTest {
 
     private List<AbsenceTime> createAbsenceListFromKOType() {
         List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = new AbsenceTime();
+        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
         LocalDate startDate = LocalDate.of(2021, 2, 25);
         LocalDate endDate = LocalDate.of(2021, 2, 26);
         fehlzeitType.setFromDate(startDate);
@@ -263,7 +264,7 @@ class NoEntryCalculatorTest {
 
     private List<AbsenceTime> createAbsenceListFromMUType() {
         List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = new AbsenceTime();
+        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
         LocalDate startDate = LocalDate.of(2021, 2, 25);
         LocalDate endDate = LocalDate.of(2021, 2, 26);
         fehlzeitType.setFromDate(startDate);
@@ -276,7 +277,7 @@ class NoEntryCalculatorTest {
 
     private List<AbsenceTime> createAbsenceListFromPAType() {
         List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = new AbsenceTime();
+        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
         LocalDate startDate = LocalDate.of(2021, 2, 25);
         LocalDate endDate = LocalDate.of(2021, 2, 26);
         fehlzeitType.setFromDate(startDate);
@@ -289,7 +290,7 @@ class NoEntryCalculatorTest {
 
     private List<AbsenceTime> createAbsenceListFromSUType() {
         List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = new AbsenceTime();
+        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
         LocalDate startDate = LocalDate.of(2021, 2, 25);
         LocalDate endDate = LocalDate.of(2021, 2, 26);
         fehlzeitType.setFromDate(startDate);
@@ -302,7 +303,7 @@ class NoEntryCalculatorTest {
 
     private List<AbsenceTime> createAbsenceListFromUUType() {
         List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = new AbsenceTime();
+        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
         LocalDate startDate = LocalDate.of(2021, 2, 25);
         LocalDate endDate = LocalDate.of(2021, 2, 26);
         fehlzeitType.setFromDate(startDate);

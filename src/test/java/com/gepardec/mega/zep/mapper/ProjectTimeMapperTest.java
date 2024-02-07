@@ -87,8 +87,8 @@ public class ProjectTimeMapperTest {
         assertThat(pt.getStartTime()).isEqualTo(pzt.getVon());
         assertThat(pt.getEndTime()).isEqualTo(pzt.getBis());
         assertThat(pt.getDuration()).isEqualTo(pzt.getDauer());
-        assertThat(pt.getIsBillable()).isEqualTo(pzt.isIstFakturierbar());
-        assertThat(pt.getIsLocationRelevantToProject()).isEqualTo(pzt.isIstOrtProjektRelevant());
+        assertThat(pt.getBillable()).isEqualTo(pzt.isIstFakturierbar());
+        assertThat(pt.getLocationRelevantToProject()).isEqualTo(pzt.isIstOrtProjektRelevant());
         assertThat(pt.getLocation()).isEqualTo(pzt.getOrt());
         assertThat(pt.getComment()).isEqualTo(pzt.getBemerkung());
         assertThat(pt.getProjectNr()).isEqualTo(pzt.getProjektNr());
@@ -102,7 +102,7 @@ public class ProjectTimeMapperTest {
         assertThat(pt.getTicketNr()).isEqualTo(pzt.getTicketNr());
         assertThat(pt.getSubtaskNr()).isEqualTo(pzt.getTeilaufgabeNr());
         assertThat(pt.getTravelDirection()).isEqualTo(pzt.getReiseRichtung());
-        assertThat(pt.getIsPrivateVehicle()).isEqualTo(pzt.isIstPrivatFahrzeug());
+        assertThat(pt.getPrivateVehicle()).isEqualTo(pzt.isIstPrivatFahrzeug());
         assertThat(pt.getCreated()).isEqualTo(pzt.getCreated());
         assertThat(pt.getModified()).isEqualTo(pzt.getModified());
     }

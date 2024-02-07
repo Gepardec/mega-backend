@@ -117,7 +117,7 @@ public class WorkingTimeUtilTest {
     }
 
     private List<AbsenceTime> returnFehlzeitTypeList() {
-        AbsenceTime fehlzeitType = new AbsenceTime();
+        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
         fehlzeitType.setFromDate(LocalDate.of(2023, 11, 6));
         fehlzeitType.setToDate(LocalDate.of(2023,11,7));
         fehlzeitType.setReason("UB");
@@ -128,19 +128,19 @@ public class WorkingTimeUtilTest {
     }
 
     private List<ProjectTime> returnNormalDayProjectTimes(int times) {
-        ProjectTime projektzeitType = new ProjectTime();
+        ProjectTime projektzeitType = ProjectTime.builder().build();
         projektzeitType.setStartTime("8:00");
         projektzeitType.setEndTime("12:00");
         projektzeitType.setDuration("04:00");
         projektzeitType.setUserId("1");
-        projektzeitType.setIsBillable(false);
+        projektzeitType.setBillable(false);
 
-        ProjectTime projektzeitTypeBilllable = new ProjectTime();
+        ProjectTime projektzeitTypeBilllable = ProjectTime.builder().build();
         projektzeitTypeBilllable.setStartTime("12:00");
         projektzeitTypeBilllable.setEndTime("16:00");
         projektzeitTypeBilllable.setDuration("04:00");
         projektzeitTypeBilllable.setUserId("1");
-        projektzeitTypeBilllable.setIsBillable(true);
+        projektzeitTypeBilllable.setBillable(true);
 
 
         List<ProjectTime> projectTimes = new ArrayList<>();

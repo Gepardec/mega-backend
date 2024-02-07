@@ -40,12 +40,12 @@ public class WorkingTimeUtil {
     // Calculator functions for ProjectTime
 
     public String getInternalTimesForEmployee(@Nonnull List<ProjectTime> projektzeitTypeList, @Nonnull Employee employee) {
-        Duration internalTimesForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, Predicate.not(ProjectTime::getIsBillable));
+        Duration internalTimesForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, Predicate.not(ProjectTime::getBillable));
         return DurationFormatUtils.formatDuration(internalTimesForEmployee.toMillis(), BILLABLE_TIME_FORMAT);
     }
 
     public String getBillableTimesForEmployee(@Nonnull List<ProjectTime> projektzeitTypeList, @Nonnull Employee employee) {
-        Duration billableTimesForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, ProjectTime::getIsBillable);
+        Duration billableTimesForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, ProjectTime::getBillable);
         return DurationFormatUtils.formatDuration(billableTimesForEmployee.toMillis(), BILLABLE_TIME_FORMAT);
 
     }
