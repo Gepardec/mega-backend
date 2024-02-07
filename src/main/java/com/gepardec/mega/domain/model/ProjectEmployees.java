@@ -1,22 +1,55 @@
 package com.gepardec.mega.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.util.List;
 
-@Builder
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class ProjectEmployees {
-    private String projectId;
+    private final String projectId;
 
-    private List<String> employees;
+    private final List<String> employees;
+
+
+    private ProjectEmployees(Builder builder) {
+        this.projectId = builder.projectId;
+        this.employees = builder.employees;
+    }
+
+    public static Builder builder() {
+        return Builder.aProjectEmployees();
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public List<String> getEmployees() {
+        return employees;
+    }
+
+    public static final class Builder {
+        private String projectId;
+        private List<String> employees;
+
+        private Builder() {
+        }
+
+        public static Builder aProjectEmployees() {
+            return new Builder();
+        }
+
+        public Builder projectId(String projectId) {
+            this.projectId = projectId;
+            return this;
+        }
+
+        public Builder employees(List<String> employees) {
+            this.employees = employees;
+            return this;
+        }
+
+        public ProjectEmployees build() {
+            return new ProjectEmployees(this);
+        }
+    }
 }
 
 

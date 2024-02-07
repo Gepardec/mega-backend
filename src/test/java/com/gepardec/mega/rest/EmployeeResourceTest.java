@@ -1,6 +1,5 @@
 package com.gepardec.mega.rest;
 
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
@@ -78,8 +77,8 @@ class EmployeeResourceTest {
     void list_whenUserLoggedAndInRoleOFFICE_MANAGEMENT_thenReturnsHttpStatusOK() {
         final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
         when(userContext.getUser()).thenReturn(user);
-        final Employee userAsEmployee = createEmployeeForUser(user);
-        when(employeeService.getEmployee(anyString())).thenReturn(userAsEmployee);
+        final EmployeeDto userAsEmployee = createEmployeeForUser(user);
+        when(employeeService.getEmployee(anyString())).thenReturn(mapper.mapToDomain(userAsEmployee));
 
         given().get("/employees")
                 .then().assertThat().statusCode(HttpStatus.SC_OK);
@@ -98,8 +97,8 @@ class EmployeeResourceTest {
     void list_whenUserLoggedAndInRoleOFFICE_MANAGEMENT_thenReturnsEmployees() {
         final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
         when(userContext.getUser()).thenReturn(user);
-        final Employee userAsEmployee = createEmployeeForUser(user);
-        when(employeeService.getAllActiveEmployees()).thenReturn(List.of(userAsEmployee));
+        final EmployeeDto userAsEmployee = createEmployeeForUser(user);
+        when(employeeService.getAllActiveEmployees()).thenReturn(List.of(mapper.mapToDomain(userAsEmployee)));
 
         final List<EmployeeDto> employees = given().get("/employees").as(new TypeRef<>() {
 
@@ -107,7 +106,7 @@ class EmployeeResourceTest {
 
         assertThat(employees).hasSize(1);
         final EmployeeDto actual = employees.get(0);
-        assertThat(actual).isEqualTo(mapper.mapToDto(userAsEmployee));
+        assertThat(actual).isEqualTo(userAsEmployee);
     }
 
     @Test
@@ -151,7 +150,7 @@ class EmployeeResourceTest {
     void update_whenValidRequest_returnsHttpStatusOK() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
         when(userContext.getUser()).thenReturn(user);
-        final Employee employee = createEmployeeForUser(user);
+        final EmployeeDto employee = createEmployeeForUser(user);
 
         given().contentType(MediaType.APPLICATION_JSON)
                 .body(List.of(employee))
@@ -163,7 +162,7 @@ class EmployeeResourceTest {
     void update_whenValidRequestAndEmployeeServiceReturnsInvalidEmails_returnsInvalidEmails() {
         final User user = createUserForRole(Role.PROJECT_LEAD);
         when(userContext.getUser()).thenReturn(user);
-        final Employee userAsEmployee = createEmployeeForUser(user);
+        final EmployeeDto userAsEmployee = createEmployeeForUser(user);
         final List<String> expected = List.of("invalid1@gmail.com", "invalid2@gmail.com");
         when(employeeService.updateEmployeesReleaseDate(anyList())).thenReturn(expected);
 
@@ -186,8 +185,8 @@ class EmployeeResourceTest {
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
-    private Employee createEmployeeForUser(final User user) {
-        return Employee.builder()
+    private EmployeeDto createEmployeeForUser(final User user) {
+        return EmployeeDto.builder()
                 .email(user.getEmail())
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())

@@ -1,16 +1,13 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.extern.jackson.Jacksonized;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Jacksonized
-@Builder
-@Getter
 public class ProjectCommentDto {
 
     private final Long id;
@@ -21,4 +18,86 @@ public class ProjectCommentDto {
 
     private final String projectName;
 
+    @JsonCreator
+    private ProjectCommentDto(Builder builder) {
+        this.id = builder.id;
+        this.comment = builder.comment;
+        this.date = builder.date;
+        this.projectName = builder.projectName;
+    }
+
+    public static Builder builder() {
+        return Builder.aProjectCommentDto();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProjectCommentDto that = (ProjectCommentDto) o;
+        return Objects.equals(getId(), that.getId()) && Objects.equals(getComment(), that.getComment()) && Objects.equals(getDate(), that.getDate()) && Objects.equals(getProjectName(), that.getProjectName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getComment(), getDate(), getProjectName());
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public static final class Builder {
+        @JsonProperty
+        private Long id;
+        @JsonProperty
+        private String comment;
+        @JsonProperty
+        private LocalDate date;
+        @JsonProperty
+        private String projectName;
+
+        private Builder() {
+        }
+
+        public static Builder aProjectCommentDto() {
+            return new Builder();
+        }
+
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder comment(String comment) {
+            this.comment = comment;
+            return this;
+        }
+
+        public Builder date(LocalDate date) {
+            this.date = date;
+            return this;
+        }
+
+        public Builder projectName(String projectName) {
+            this.projectName = projectName;
+            return this;
+        }
+
+        public ProjectCommentDto build() {
+            return new ProjectCommentDto(this);
+        }
+    }
 }
