@@ -59,8 +59,8 @@ public class AttendanceMapperTest {
         assertThat(pt.getStartTime()).isEqualTo(zepAttendance.getFrom() + "");
         assertThat(pt.getEndTime()).isEqualTo(zepAttendance.getTo() + "");
         assertThat(pt.getDuration()).isEqualTo("04:45");
-        assertThat(pt.getIsBillable()).isTrue();
-        assertThat(pt.getIsLocationRelevantToProject()).isFalse();
+        assertThat(pt.getBillable()).isTrue();
+        assertThat(pt.getLocationRelevantToProject()).isFalse();
         assertThat(pt.getLocation()).isEqualTo(zepAttendance.getWorkLocation());
         assertThat(pt.getComment()).isEqualTo(zepAttendance.getNote());
         assertThat(pt.getProjectNr()).isEqualTo("" + zepAttendance.getProjectId());
@@ -74,7 +74,7 @@ public class AttendanceMapperTest {
         assertThat(pt.getTicketNr()).isEqualTo(Integer.parseInt(zepAttendance.getTicketId()));
         assertThat(pt.getSubtaskNr()).isEqualTo(zepAttendance.getSubtaskId());
         assertThat(pt.getTravelDirection()).isEqualTo(zepAttendance.getDirectionOfTravel());
-        assertThat(pt.getIsPrivateVehicle()).isEqualTo(false);
+        assertThat(pt.getPrivateVehicle()).isEqualTo(false);
         assertThat(pt.getCreated()).isEqualTo(zepAttendance.getCreated() + "");
         assertThat(pt.getModified()).isEqualTo(zepAttendance.getModified() + "");
     }

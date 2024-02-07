@@ -29,9 +29,9 @@ public class Employee {
 
     private final String language;
 
-    private final Map<DayOfWeek, Duration> regularWorkingHours;
+    private Map<DayOfWeek, Duration> regularWorkingHours;
 
-    private final boolean active;
+    private boolean active;
 
     /**
      * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,
@@ -103,6 +103,14 @@ public class Employee {
         return active;
     }
 
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public void setRegularWorkingHours(Map<DayOfWeek, Duration> regularWorkingHours) {
+        this.regularWorkingHours = regularWorkingHours;
+    }
+
     public LocalDate getExitDate() {
         return exitDate;
     }
@@ -110,6 +118,8 @@ public class Employee {
     public void setExitDate(LocalDate exitDate) {
         this.exitDate = exitDate;
     }
+
+
 
     @Override
     public boolean equals(Object o) {

@@ -53,9 +53,7 @@ public class ProjectEntryMapperTest {
         zepAttendance.setVehicle(null);
 
         JourneyTimeEntry mappedProjectEntry = (JourneyTimeEntry) projectEntryMapper.map(zepAttendance);
-        JourneyTimeEntry expectedProjectEntry = generateJourneyTimeEntry();
-        expectedProjectEntry.setVehicle(Vehicle.OTHER_INACTIVE);
-        expectedProjectEntry.setWorkingLocation(WorkingLocation.OTHER);
+        JourneyTimeEntry expectedProjectEntry = generateJourneyTimeWithOtherValuesEntry();
 
         assertThat(mappedProjectEntry).usingRecursiveComparison().isEqualTo(expectedProjectEntry);
     }
@@ -131,6 +129,17 @@ public class ProjectEntryMapperTest {
                 .journeyDirection(JourneyDirection.TO)
                 .workingLocation(WorkingLocation.A)
                 .vehicle(Vehicle.CAR_INACTIVE)
+                .build();
+    }
+    private JourneyTimeEntry generateJourneyTimeWithOtherValuesEntry(){
+        return JourneyTimeEntry.builder()
+                .fromTime(LocalDateTime.of(2019, 1, 2, 9, 15))
+                .toTime(LocalDateTime.of(2019, 1, 2, 10, 15))
+                .task(Task.REISEN)
+                .journeyDirection(JourneyDirection.TO)
+                .workingLocation(WorkingLocation.A)
+                .vehicle(Vehicle.OTHER_INACTIVE)
+                .workingLocation(WorkingLocation.OTHER)
                 .build();
     }
 

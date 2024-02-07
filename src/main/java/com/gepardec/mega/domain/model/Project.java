@@ -14,9 +14,9 @@ public class Project {
 
     private final LocalDate endDate;
 
-    private final List<String> employees;
+    private List<String> employees;
 
-    private final List<String> leads;
+    private List<String> leads;
 
     private final List<String> categories;
 
@@ -76,6 +76,14 @@ public class Project {
 
     public BillabilityPreset getBillabilityPreset() {
         return billabilityPreset;
+    }
+
+    public void setEmployees(List<String> employees) {
+        this.employees = employees;
+    }
+
+    public void setLeads(List<String> leads) {
+        this.leads = leads;
     }
 
     public static final class Builder {
