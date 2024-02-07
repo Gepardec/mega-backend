@@ -111,7 +111,7 @@ public class ReminderEmailSender {
                     .forEach(user -> mailSender.send(EMPLOYEE_CHECK_PROJECTTIME, user.getEmail(), user.getFirstname(), applicationConfig.getDefaultLocale()));
             logSentNotification(EMPLOYEE_CHECK_PROJECTTIME);
         } else {
-            logger.info("NO Reminder to employes sent, cause mega.mail.employees.notification-property is false");
+            logger.info("NO Reminder to employees sent, cause mega.mail.employees.notification-property is false");
         }
     }
 
