@@ -75,12 +75,6 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         return !projects.isEmpty();
     }
 
-
-    @Override
-    public boolean generateProjects() {
-        return generateProjects(LocalDate.now().minusMonths(1).withDayOfMonth(1));
-    }
-
     private List<com.gepardec.mega.db.entity.project.Project> createProjects(List<User> activeUsers, List<Project> projects, LocalDate date) {
         return projects.stream()
                 .map(project -> createProjectEntityFromProject(activeUsers, project, date))
