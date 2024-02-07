@@ -57,8 +57,8 @@ public class ProjectService {
     public List<ZepProjectEmployee> getProjectEmployeesForId(int projectId) {
         try (Response resp = zepProjectRestClient.getProjectEmployees(projectId)) {
             String output = resp.readEntity(String.class);
-            System.out.println(projectId);
-            System.out.println(output);
+//            System.out.println(projectId);
+//            System.out.println(output);
             Optional<ZepProjectEmployee[]> projectEmployees = ZepRestUtil.parseJson(output, "/data", ZepProjectEmployee[].class);
             return Arrays.asList(projectEmployees.orElse(new ZepProjectEmployee[0]));
         }

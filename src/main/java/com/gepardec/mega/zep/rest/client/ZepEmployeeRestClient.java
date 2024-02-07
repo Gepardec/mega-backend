@@ -32,7 +32,7 @@ public interface ZepEmployeeRestClient extends Authenticatable {
 
     @GET
     @Path("/{username}/regular-working-times")
-    Response getRegularWorkingTimesByUsername(@PathParam("username") String username);
+    Response getRegularWorkingTimesByUsername(@PathParam("username") String username, @QueryParam("page") Integer page);
 
     @GET
     Response getAllEmployeesOfPage(@QueryParam("page") int page);
