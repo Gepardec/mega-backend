@@ -243,7 +243,7 @@ public class WorkerResourceTest {
                 .overtime(overtime)
                 .build();
 
-        when(monthlyReportService.getMonthEndReportForUser(2023, 8, null)).thenReturn(expected);
+        when(monthlyReportService.getMonthEndReportForUser(2023, 8, null, null)).thenReturn(expected);
 
         //WHEN
         MonthlyReportDto actual = given().contentType(ContentType.JSON)

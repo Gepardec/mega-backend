@@ -197,7 +197,7 @@ class ZepMailToCommentServiceTest {
                 .build();
     }
 
-    private static Project.ProjectBuilder createValidProjectBuilder() {
+    private static Project.Builder createValidProjectBuilder() {
         return Project.builder().projectId("Gepardec");
     }
 }

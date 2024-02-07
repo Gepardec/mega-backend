@@ -216,7 +216,7 @@ class CommentResourceTest {
 
         //THEN
         assertThat(createdComment).isNotNull();
-        assertThat(createdComment.getMessage()).isEqualTo(newCommentEntryDto.comment());
+        assertThat(createdComment.getMessage()).isEqualTo(newCommentEntryDto.getComment());
     }
 
     @Test

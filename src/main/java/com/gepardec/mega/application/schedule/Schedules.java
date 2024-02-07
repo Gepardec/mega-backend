@@ -12,6 +12,7 @@ import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -52,8 +53,8 @@ public class Schedules {
         syncService.syncEmployees();
     }
 
-    @Scheduled(identity = "Generate step entries on the second last day of a month",
-            cron = "0 0 0 L-2 * ? *")
+    @Scheduled(identity = "Generate step entries on the last day of a month at 00:00",
+            cron = "0 0 0 L * ? *")
     void generateStepEntriesDefault() {
         stepEntrySyncService.generateStepEntriesFromScheduler();
     }
@@ -65,10 +66,10 @@ public class Schedules {
         projectSyncService.generateProjects();
     }
 
-    @Scheduled(identity = "Generate enterprise entries on the first day of a month",
-            cron = "0 0 0 1 * ? *")
+    @Scheduled(identity = "Generate enterprise entries on the last day of a month at 00:00",
+            cron = "0 0 0 L * ? *")
     void generateEnterpriseEntries() {
-        enterpriseSyncService.generateEnterpriseEntries();
+        enterpriseSyncService.generateEnterpriseEntries(LocalDate.now().withDayOfMonth(1));
     }
 
     @Scheduled(identity = "Send E-Mail reminder to Users",
@@ -85,8 +86,8 @@ public class Schedules {
         mailReceiver.retrieveZepEmailsFromInbox();
     }
 
-    @Scheduled(identity = "Take existing PrematureEmployeeChecks and update StepEntries accordingly on the last day of a month at 00:00",
-            cron = "0 0 0 L-1 * ? *")
+    @Scheduled(identity = "Take existing PrematureEmployeeChecks and update StepEntries accordingly on the last day of a month at 06:00",
+            cron = "0 0 6 L * ? *")
     void syncPrematureEmployeeChecksWithStepEntries() {
         prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(DateUtils.getCurrentYearMonth());
     }

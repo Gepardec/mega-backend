@@ -4,9 +4,20 @@ import com.gepardec.mega.domain.model.Comment;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class CommentMapper {
+public class CommentMapper implements DomainMapper<Comment, com.gepardec.mega.db.entity.employee.Comment> {
 
-    public Comment mapDbCommentToDomainComment(com.gepardec.mega.db.entity.employee.Comment dbComment) {
+    @Override
+    public com.gepardec.mega.db.entity.employee.Comment mapToEntity(Comment object) {
+        com.gepardec.mega.db.entity.employee.Comment comment = new com.gepardec.mega.db.entity.employee.Comment();
+        comment.setId(object.getId());
+        comment.setMessage(object.getMessage());
+        comment.setState(object.getState());
+        comment.setSourceSystem(object.getSourceSystem());;
+        return comment;
+    }
+
+    @Override
+    public Comment mapToDomain(com.gepardec.mega.db.entity.employee.Comment dbComment) {
         return Comment
                 .builder()
                 .id(dbComment.getId())

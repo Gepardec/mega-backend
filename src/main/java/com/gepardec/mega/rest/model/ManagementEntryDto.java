@@ -1,58 +1,206 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.domain.model.State;
 import jakarta.annotation.Nullable;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
-import lombok.experimental.Accessors;
-import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
+import java.util.Objects;
 
-@Builder(builderClassName = "Builder")
-@Getter
-@ToString
-@EqualsAndHashCode
-@Accessors(fluent = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Jacksonized
 public class ManagementEntryDto {
 
-    @JsonProperty
     private final EmployeeDto employee;
 
-    @JsonProperty
     private final State employeeCheckState;
 
-    @JsonProperty
     private final String employeeCheckStateReason;
 
-    @JsonProperty
     private final State internalCheckState;
 
-    @JsonProperty
     private final State projectCheckState;
 
-    @JsonProperty
-    @Nullable
     private final List<PmProgressDto> employeeProgresses;
 
-    @JsonProperty
     private final long totalComments;
 
-    @JsonProperty
     private final long finishedComments;
 
-    @JsonProperty
     private final String entryDate;
 
-    @JsonProperty
     private final String billableTime;
 
-    @JsonProperty
     private final String nonBillableTime;
+
+    @JsonCreator
+    private ManagementEntryDto(Builder builder) {
+        this.employee = builder.employee;
+        this.employeeCheckState = builder.employeeCheckState;
+        this.employeeCheckStateReason = builder.employeeCheckStateReason;
+        this.internalCheckState = builder.internalCheckState;
+        this.projectCheckState = builder.projectCheckState;
+        this.employeeProgresses = builder.employeeProgresses;
+        this.totalComments = builder.totalComments;
+        this.finishedComments = builder.finishedComments;
+        this.entryDate = builder.entryDate;
+        this.billableTime = builder.billableTime;
+        this.nonBillableTime = builder.nonBillableTime;
+    }
+
+    public static Builder builder() {
+        return Builder.aManagementEntryDto();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ManagementEntryDto that = (ManagementEntryDto) o;
+        return getTotalComments() == that.getTotalComments() && getFinishedComments() == that.getFinishedComments() && Objects.equals(getEmployee(), that.getEmployee()) && getEmployeeCheckState() == that.getEmployeeCheckState() && Objects.equals(getEmployeeCheckStateReason(), that.getEmployeeCheckStateReason()) && getInternalCheckState() == that.getInternalCheckState() && getProjectCheckState() == that.getProjectCheckState() && Objects.equals(getEmployeeProgresses(), that.getEmployeeProgresses()) && Objects.equals(getEntryDate(), that.getEntryDate()) && Objects.equals(getBillableTime(), that.getBillableTime()) && Objects.equals(getNonBillableTime(), that.getNonBillableTime());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getEmployee(), getEmployeeCheckState(), getEmployeeCheckStateReason(), getInternalCheckState(), getProjectCheckState(), getEmployeeProgresses(), getTotalComments(), getFinishedComments(), getEntryDate(), getBillableTime(), getNonBillableTime());
+    }
+
+    public EmployeeDto getEmployee() {
+        return employee;
+    }
+
+    public State getEmployeeCheckState() {
+        return employeeCheckState;
+    }
+
+    public String getEmployeeCheckStateReason() {
+        return employeeCheckStateReason;
+    }
+
+    public State getInternalCheckState() {
+        return internalCheckState;
+    }
+
+    public State getProjectCheckState() {
+        return projectCheckState;
+    }
+
+    @Nullable
+    public List<PmProgressDto> getEmployeeProgresses() {
+        return employeeProgresses;
+    }
+
+
+    public long getTotalComments() {
+        return totalComments;
+    }
+
+    public long getFinishedComments() {
+        return finishedComments;
+    }
+
+    public String getEntryDate() {
+        return entryDate;
+    }
+
+    public String getBillableTime() {
+        return billableTime;
+    }
+
+    public String getNonBillableTime() {
+        return nonBillableTime;
+    }
+
+    public static final class Builder {
+        @JsonProperty
+        private EmployeeDto employee;
+        @JsonProperty
+        private State employeeCheckState;
+        @JsonProperty
+        private String employeeCheckStateReason;
+        @JsonProperty
+        private State internalCheckState;
+        @JsonProperty
+        private State projectCheckState;
+        @JsonProperty
+        @Nullable
+        private List<PmProgressDto> employeeProgresses;
+        @JsonProperty
+        private long totalComments;
+        @JsonProperty
+        private long finishedComments;
+        @JsonProperty
+        private String entryDate;
+        @JsonProperty
+        private String billableTime;
+        @JsonProperty
+        private String nonBillableTime;
+
+        private Builder() {
+        }
+
+        public static Builder aManagementEntryDto() {
+            return new Builder();
+        }
+
+        public Builder employee(EmployeeDto employee) {
+            this.employee = employee;
+            return this;
+        }
+
+        public Builder employeeCheckState(State employeeCheckState) {
+            this.employeeCheckState = employeeCheckState;
+            return this;
+        }
+
+        public Builder employeeCheckStateReason(String employeeCheckStateReason) {
+            this.employeeCheckStateReason = employeeCheckStateReason;
+            return this;
+        }
+
+        public Builder internalCheckState(State internalCheckState) {
+            this.internalCheckState = internalCheckState;
+            return this;
+        }
+
+        public Builder projectCheckState(State projectCheckState) {
+            this.projectCheckState = projectCheckState;
+            return this;
+        }
+
+        public Builder employeeProgresses(List<PmProgressDto> employeeProgresses) {
+            this.employeeProgresses = employeeProgresses;
+            return this;
+        }
+
+        public Builder totalComments(long totalComments) {
+            this.totalComments = totalComments;
+            return this;
+        }
+
+        public Builder finishedComments(long finishedComments) {
+            this.finishedComments = finishedComments;
+            return this;
+        }
+
+        public Builder entryDate(String entryDate) {
+            this.entryDate = entryDate;
+            return this;
+        }
+
+        public Builder billableTime(String billableTime) {
+            this.billableTime = billableTime;
+            return this;
+        }
+
+        public Builder nonBillableTime(String nonBillableTime) {
+            this.nonBillableTime = nonBillableTime;
+            return this;
+        }
+
+        public ManagementEntryDto build() {
+            return new ManagementEntryDto(this);
+        }
+    }
 }

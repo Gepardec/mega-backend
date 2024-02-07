@@ -46,6 +46,11 @@ databaseChangeLog:
                     nullable: true
                   name: reason
                   type: varchar(500)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: state
+                  type: varchar(15)
             tableName: premature_employee_check
   - changeSet:
       id: unique-constraint_premature-1

@@ -2,11 +2,11 @@
   "build": {
     "language": {
       "name": "java",
-      "version": "openjdk-11"
+      "version": "amazoncorretto-17"
     },
     "type": {
       "name": "maven",
-      "version": "3.8.2",
+      "version": "3.8.6",
       "configuration": {
         "args": "clean install",
         "config": "pom.xml",

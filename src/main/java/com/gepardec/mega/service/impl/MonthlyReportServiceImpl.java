@@ -2,7 +2,13 @@ package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
-import com.gepardec.mega.domain.model.*;
+import com.gepardec.mega.domain.model.AbsenceTime;
+import com.gepardec.mega.domain.model.Comment;
+import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
+import com.gepardec.mega.domain.model.ProjectTime;
+import com.gepardec.mega.domain.model.StepName;
+import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
@@ -21,6 +27,7 @@ import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.service.mapper.TimeWarningMapper;
 import com.gepardec.mega.zep.ZepService;
+import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -89,8 +96,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
         LocalDate initialDate = getCorrectInitialDateForMonthEndReport(employee);
 
-        MonthlyReport monthlyReport = getMonthEndReportForUser(initialDate.getYear(), initialDate.getMonthValue(), employee);
-        monthlyReport.setInitialDate(initialDate);
+        MonthlyReport monthlyReport = getMonthEndReportForUser(initialDate.getYear(), initialDate.getMonthValue(), employee, initialDate);
 
         return monthlyReport;
     }
@@ -113,7 +119,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     }
 
     @Override
-    public MonthlyReport getMonthEndReportForUser(Integer year, Integer month, Employee employee) {
+    public MonthlyReport getMonthEndReportForUser(Integer year, Integer month, Employee employee, LocalDate initialDate) {
         LocalDate date = DateUtils.getFirstDayOfMonth(year, month);
 
         if (employee == null) {
@@ -128,7 +134,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 zepService.getBillableForEmployee(employee, date),
                 zepService.getAbsenceForEmployee(employee, date),
                 stepEntryService.findEmployeeCheckState(employee, date),
-                stepEntryService.findEmployeeInternalCheckState(employee, date)
+                stepEntryService.findEmployeeInternalCheckState(employee, date),
+                initialDate
         );
     }
 
@@ -157,7 +164,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
             List<ProjectTime> billableEntries,
             List<AbsenceTime> absenceEntries,
             Optional<Pair<EmployeeState, String>> employeeCheckState,
-            Optional<EmployeeState> internalCheckState
+            Optional<EmployeeState> internalCheckState,
+            LocalDate initialDate
     ) {
         final List<JourneyWarning> journeyWarnings = warningCalculatorsManager.determineJourneyWarnings(projectEntries);
         final List<TimeWarning> timeWarnings = warningCalculatorsManager.determineTimeWarnings(projectEntries);
@@ -177,6 +185,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .collect(Collectors.toList());
 
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
+        var prematureEmployeeCheck = prematureEmployeeCheckService.findByEmailAndMonth(employee.getEmail(), date);
 
         return MonthlyReport.builder()
                 .employee(employee)
@@ -184,7 +193,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .journeyWarnings(journeyWarnings)
                 .comments(comments)
                 .employeeCheckState(employeeCheckState.map(Pair::getLeft).orElse(EmployeeState.PREMATURE_CHECK))
-                .employeeCheckStateReason(employeeCheckState.map(Pair::getRight).orElse(null))
+                .employeeCheckStateReason(employeeCheckState.map(Pair::getRight).orElse(prematureEmployeeCheck.map(PrematureEmployeeCheck::getReason).orElse(null)))
                 .internalCheckState(internalCheckState.orElse(EmployeeState.OPEN))
                 .employeeProgresses(pmProgressDtos)
                 .otherChecksDone(isMonthCompletedForEmployee(employee, date))
@@ -204,7 +213,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
                 .vacationDayBalance(personioEmployeesService.getVacationDayBalance(employee.getEmail()))
                 .overtime(workingTimeUtil.getOvertimeForEmployee(employee, billableEntries, absenceEntries, date))
-                .hasPrematureEmployeeCheck(prematureEmployeeCheckService.hasUserPrematureEmployeeCheck(employee.getEmail()))
+                .prematureEmployeeCheck(prematureEmployeeCheck.orElse(null))
+                .initialDate(initialDate)
                 .build();
     }
 

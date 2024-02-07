@@ -68,8 +68,6 @@ quarkus:
   rest-client:
     personio-api-v1:
       url: "https://api.personio.de/v1"
-    zep:
-      url: https://www.zep-online.de/zepgepardecservices_test/next/api/v1/
 
 # disables the DefaultResponseExceptionMapper of the microprofile resteasy client
 microprofile:
@@ -155,12 +153,6 @@ mp:
       password: "mega"
       jdbc:
         url: "jdbc:postgresql://localhost:5432/mega"
-    rest-client:
-      "com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient":
-        url: https://www.zep-online.de/zepgepardecservices_test/next/api/v1/
-      "com.gepardec.mega.zep.rest.client.ZepAttendanceRestClient":
-        url: https://www.zep-online.de/zepgepardecservices_test/next/api/v1/
-
     http:
       cors:
         origins: "/.*/"

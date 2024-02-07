@@ -23,6 +23,8 @@ import java.util.stream.Stream;
 @ApplicationScoped
 public class SyncServiceMapper {
 
+    //TODO this is not a mapper, this is a util-service
+
     @Inject
     Logger log;
 

@@ -1,38 +1,130 @@
 package com.gepardec.mega.rest.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
-import lombok.experimental.Accessors;
-import lombok.extern.jackson.Jacksonized;
 
-@Builder(builderClassName = "Builder")
-@Getter
-@ToString
-@EqualsAndHashCode
-@Accessors(fluent = true)
+import java.util.Objects;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Jacksonized
 public class NewCommentEntryDto {
 
-    @JsonProperty
     private final Long stepId;
 
-    @JsonProperty
     private final String employeeEmail;
 
-    @JsonProperty
     private final String comment;
 
-    @JsonProperty
     private final String assigneeEmail;
 
-    @JsonProperty
     private final String project;
 
-    @JsonProperty
     private final String currentMonthYear;
+
+    @JsonCreator
+    private NewCommentEntryDto(Builder builder) {
+        this.stepId = builder.stepId;
+        this.employeeEmail = builder.employeeEmail;
+        this.comment = builder.comment;
+        this.assigneeEmail = builder.assigneeEmail;
+        this.project = builder.project;
+        this.currentMonthYear = builder.currentMonthYear;
+    }
+
+    public static Builder builder() {
+        return Builder.aNewCommentEntryDto();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NewCommentEntryDto that = (NewCommentEntryDto) o;
+        return Objects.equals(getStepId(), that.getStepId()) && Objects.equals(getEmployeeEmail(), that.getEmployeeEmail()) && Objects.equals(getComment(), that.getComment()) && Objects.equals(getAssigneeEmail(), that.getAssigneeEmail()) && Objects.equals(getProject(), that.getProject()) && Objects.equals(getCurrentMonthYear(), that.getCurrentMonthYear());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getStepId(), getEmployeeEmail(), getComment(), getAssigneeEmail(), getProject(), getCurrentMonthYear());
+    }
+
+    public Long getStepId() {
+        return stepId;
+    }
+
+    public String getEmployeeEmail() {
+        return employeeEmail;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public String getAssigneeEmail() {
+        return assigneeEmail;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public String getCurrentMonthYear() {
+        return currentMonthYear;
+    }
+
+    public static final class Builder {
+        @JsonProperty
+        private Long stepId;
+        @JsonProperty
+        private String employeeEmail;
+        @JsonProperty
+        private String comment;
+        @JsonProperty
+        private String assigneeEmail;
+        @JsonProperty
+        private String project;
+        @JsonProperty
+        private String currentMonthYear;
+
+        private Builder() {
+        }
+
+        public static Builder aNewCommentEntryDto() {
+            return new Builder();
+        }
+
+        public Builder stepId(Long stepId) {
+            this.stepId = stepId;
+            return this;
+        }
+
+        public Builder employeeEmail(String employeeEmail) {
+            this.employeeEmail = employeeEmail;
+            return this;
+        }
+
+        public Builder comment(String comment) {
+            this.comment = comment;
+            return this;
+        }
+
+        public Builder assigneeEmail(String assigneeEmail) {
+            this.assigneeEmail = assigneeEmail;
+            return this;
+        }
+
+        public Builder project(String project) {
+            this.project = project;
+            return this;
+        }
+
+        public Builder currentMonthYear(String currentMonthYear) {
+            this.currentMonthYear = currentMonthYear;
+            return this;
+        }
+
+        public NewCommentEntryDto build() {
+            return new NewCommentEntryDto(this);
+        }
+    }
 }
