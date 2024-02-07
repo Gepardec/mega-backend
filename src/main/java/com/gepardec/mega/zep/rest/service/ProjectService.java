@@ -35,6 +35,7 @@ public class ProjectService {
                 ZepProject.class
         );
         return projects.stream()
+                .filter(project -> !(project.getStartDate() == null))
                 .filter(project -> {
                     if (project.getEndDate() != null) {
                         if (project.getEndDate().isBefore(firstOfMonth.atStartOfDay())) {

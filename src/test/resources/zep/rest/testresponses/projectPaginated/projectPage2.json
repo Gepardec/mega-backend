@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "id": 3,
+      "name": "EGA",
+      "start_date": "2020-11-11T00:00:00.0000Z",
+      "end_date": "2021-11-11T00:00:00.0000Z"
+    },
+    {
+      "id": 4,
+      "name": "SUPERMEGA",
+      "start_date": "2020-11-11T00:00:00.0000Z",
+      "end_date": "2514-11-12T00:00:00.0000Z"
+    }
+  ],
+  "links": {
+    "next": "http://www.zep-online.de/demo/next/api/v1/projects/54/employees?page=3"
+  }
+}

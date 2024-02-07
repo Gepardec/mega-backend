@@ -3,17 +3,29 @@ package com.gepardec.mega.zep.rest.service;
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.entity.*;
 import com.gepardec.mega.zep.rest.entity.builder.ZepProjectEmployeeTypeBuilder;
+import com.gepardec.mega.zep.util.Paginator;
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import org.apache.commons.io.FileUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -22,138 +34,33 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 public class ProjectServiceTest {
-    @RestClient
+
     @InjectMock
+    @RestClient
     ZepProjectRestClient zepProjectRestClient;
 
     @Inject
     ProjectService projectService;
 
+    @BeforeEach
+    public void setup() {
+        this.getPaginatedProjectsMock();
+    }
+
+    private void getPaginatedProjectsMock() {
+        List<String> responseJsons = getPages("/zep/rest/testresponses/projectPaginated");
+        System.out.println(responseJsons);
+
+        when(zepProjectRestClient.getProjects( eq(1)))
+                .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
+        when(zepProjectRestClient.getProjects(eq(2)))
+                .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
+        when(zepProjectRestClient.getProjects(eq(3)))
+                .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
+    }
+
     @Test
     public void getSingleFullZepProject() {
-        String responseJson = "{ \"data\": [{\n" +
-                "      \"id\": 1,\n" +
-                "      \"name\": \"MEGA\",\n" +
-                "      \"description\": \"MEGA\",\n" +
-                "      \"start_date\": \"2020-12-01T00:00:00.000000Z\",\n" +
-                "      \"end_date\": \"2026-01-20T00:00:00.000000Z\",\n" +
-                "      \"status\": \"active\",\n" +
-                "      \"comments\": \"Comment MEGA\",\n" +
-                "      \"cost_object\": null,\n" +
-                "      \"cost_object_identifier\": null,\n" +
-                "      \"created\": \"2020-12-05T08:56:09.000000Z\",\n" +
-                "      \"modified\": \"2021-06-03T21:20:23.000000Z\",\n" +
-                "      \"keywords\": [\n" +
-                "        \"intern\"\n" +
-                "      ],\n" +
-                "      \"reference_order\": null,\n" +
-                "      \"reference_commission\": null,\n" +
-                "      \"reference_procurement\": null,\n" +
-                "      \"reference_object\": null,\n" +
-                "      \"language\": null,\n" +
-                "      \"currency\": \"EUR\",\n" +
-                "      \"url\": null,\n" +
-                "      \"location_address\": null,\n" +
-                "      \"location_city\": null,\n" +
-                "      \"location_state\": null,\n" +
-                "      \"location_country\": null,\n" +
-                "      \"revenue_account\": null,\n" +
-                "      \"customer_id\": \"001\",\n" +
-                "      \"customer_contact_id\": 1,\n" +
-                "      \"customer_project_reference\": \"B187\",\n" +
-                "      \"customer_billing_address_id\": null,\n" +
-                "      \"customer_shipping_address_id\": null,\n" +
-                "      \"has_multiple_customers\": null,\n" +
-                "      \"department_id\": 1,\n" +
-                "      \"billing_type\": 1,\n" +
-                "      \"billing_tasks\": 0,\n" +
-                "      \"plan_hours\": \"55.5\",\n" +
-                "      \"plan_hours_per_day\": null,\n" +
-                "      \"plan_can_exceed\": true,\n" +
-                "      \"plan_warning_percent\": \"80.00\",\n" +
-                "      \"plan_warning_percent_2\": \"60.00\",\n" +
-                "      \"plan_warning_percent_3\": \"40.00\",\n" +
-                "      \"plan_wage\": null,\n" +
-                "      \"plan_expenses\": null,\n" +
-                "      \"plan_expenses_travel\": null,\n" +
-                "      \"plan_hours_done\": \"100.00\",\n" +
-                "      \"plan_hours_invoiced\": \"100.00\",\n" +
-                "      \"tasks_count\": 1,\n" +
-                "      \"employees_count\": 1,\n" +
-                "      \"activities_count\": 0\n" +
-                "    }\n" +
-                "],\n" +
-                "  \"links\": {\n" +
-                "    \"first\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects?page=1\",\n" +
-                "    \"last\": null,\n" +
-                "    \"prev\": null,\n" +
-                "    \"next\": null" +
-                "}" +
-                "}";
-
-
-        Response response = Response.ok().entity(responseJson).build();
-        when(zepProjectRestClient.getProjects(anyInt())).thenReturn(response);
-        String employeeResponseJson = "{\"data\": [\n" +
-                "    {\n" +
-                "      \"username\": \"001-duser\",\n" +
-                "      \"lead\": true,\n" +
-                "      \"type\": {\n" +
-                "        \"id\": \"0\",\n" +
-                "        \"name\": \"Project member\"\n" +
-                "      }\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"username\": \"007-jbond\",\n" +
-                "      \"lead\": false,\n" +
-                "      \"type\": {\n" +
-                "        \"id\": \"0\",\n" +
-                "        \"name\": \"Project member\"\n" +
-                "      }\n" +
-                "    }],\n" +
-                "  \"links\": {\n" +
-                "    \"first\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=1\",\n" +
-                "    \"last\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=1\",\n" +
-                "    \"prev\": null,\n" +
-                "    \"next\": null\n" +
-                "  }\n" +
-                "}";
-        String employeeResponseJson2 = "{\"data\": [\n" +
-                "    {\n" +
-                "      \"username\": \"008-hworld\"\n" +
-                "    }],\n" +
-                "  \"links\": {\n" +
-                "    \"first\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=1\",\n" +
-                "    \"last\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=1\",\n" +
-                "    \"prev\": null,\n" +
-                "    \"next\": null\n" +
-                "  }\n" +
-                "}";
-
-        Response responseEmployees = Response.ok().entity(employeeResponseJson).build();
-        when(zepProjectRestClient.getProjectEmployees(eq(1))).thenReturn(responseEmployees);
-        Response responseEmployees2 = Response.ok().entity(employeeResponseJson2).build();
-        when(zepProjectRestClient.getProjectEmployees(eq(2))).thenReturn(responseEmployees2);
-
-        ZepProjectEmployeeType type = new ZepProjectEmployeeTypeBuilder().id(0).name("Project member").build();
-        List<ZepProjectEmployee> projectEmployees1 = List.of(
-                ZepProjectEmployee.builder()
-                        .username("001-duser")
-                        .lead(true)
-                        .type(type)
-                        .build(),
-                ZepProjectEmployee.builder()
-                        .username("007-jbond")
-                        .lead(false)
-                        .type(type)
-                        .build()
-        );
-
-        List<ZepProjectEmployee> projectEmployees2 = List.of(
-                ZepProjectEmployee.builder()
-                        .username("008-hworld")
-                        .build()
-        );
 
         ZepProject referenceZepProject = ZepProject.builder()
                 .id(1)
@@ -205,156 +112,64 @@ public class ProjectServiceTest {
 
     @Test
     public void getPaginatedJsons_thenReturnListOfProjects() {
-        List<String> responseJsons = List.of(
-                "{ \"data\": [{\"id\": 1, \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}],\n" +
-                        "\"links\": {" +
-                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=2\" \n" +
-                        "} \n" +
-                        "}",
-                "{ \"data\": [{\"id\": 2, \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}],\n" +
-                        "\"links\": {" +
-                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=3\" \n" +
-                        "} \n" +
-                        "}",
-                "{ \"data\": [{\"id\": 3, \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}],\n" +
-                        "\"links\": {" +
-                        "   \"next\": null \n" +
-                        "} \n" +
-                        "}"
-        );
+        String[] names = {"MEGA", "gema", "EGA", "SUPERMEGA", "mega", "ega"};
 
-        when(zepProjectRestClient.getProjects(eq(1)))
-                .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
-        when(zepProjectRestClient.getProjects(eq(2)))
-                .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
-        when(zepProjectRestClient.getProjects(eq(3)))
-                .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
-//
-//        String employeeResponseJson =
-//                "{\"data\": [\n" +
-//                "    {\n" +
-//                "      \"username\": \"001-duser\"\n" +
-//                "    }],\n" +
-//                "  \"links\": {\n" +
-//                "    \"next\": null\n" +
-//                "  }\n" +
-//                "}";
-//
-//        IntStream.range(1, 4).forEach(
-//                i -> when(zepProjectRestClient.getProjectEmployees(eq(i)))
-//                    .thenReturn(Response.ok().entity(employeeResponseJson).build()));
 
-        List<ZepProjectEmployee> zepProjectEmployees = List.of(ZepProjectEmployee.builder()
-                .username("001-duser").build());
-        List<ZepProject> zepProjectsReference = List.of(
-                ZepProject.builder()
-                        .id(1)
-                        .startDate(LocalDateTime.of(2020,11, 11, 0,0,0 ))
-                        .build(),
-                ZepProject.builder()
-                        .id(2)
-                        .startDate(LocalDateTime.of(2020,11, 11, 0,0,0 ))
-                        .build(),
-                ZepProject.builder()
-                        .id(3)
-                        .startDate(LocalDateTime.of(2020,11, 11, 0,0,0 ))
-                        .build()
-        );
-
-        List<ZepProject> zepProjects = projectService.getProjectsForMonthYear(LocalDate.of(2024,1,25));
-        assertThat(zepProjects).usingRecursiveComparison().isEqualTo(zepProjectsReference);
+        List<ZepProject> projectList = Paginator.retrieveAll(page -> zepProjectRestClient.getProjects(page), ZepProject.class);
+        List<String> projectNames = projectList.stream()
+                .map(ZepProject::getName)
+                .toList();
+        Arrays.stream(names)
+                .forEach(name -> assertThat(projectNames.contains(name)).isTrue());
     }
 
     @Test
     public void getProjectByName() {
-        List<String> responseJsons = List.of(
-                "{ \"data\": [{\"id\": 1, \"name\": \"mega\", \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}," +
-                        "{\"id\": 2, \"name\": \"gema\", \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}]," +
-                        "\"links\": {" +
-                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=2\" \n" +
-                        "} \n" +
-                        "}",
-                "{ \"data\": [{\"id\": 3, \"name\": \"EGA\", \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}," +
-                        "{\"id\": 4, \"name\": \"SUPERMEGA\", \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}]," +
-                        "\"links\": {" +
-                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=3\" \n" +
-                        "} \n" +
-                        "}",
-                "{ \"data\": [{\"id\": 5, \"name\": \"MEGA\", \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}," +
-                        "{\"id\": 6, \"name\": \"ega\", \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}]," +
-                        "\"links\": {" +
-                        "   \"next\": null \n" +
-                        "} \n" +
-                        "}"
-        );
-
-//        String employeeResponseJson =
-//                "{\"data\": [\n" +
-//                        "    {\n" +
-//                        "      \"username\": \"001-duser\"\n" +
-//                        "    }],\n" +
-//                        "  \"links\": {\n" +
-//                        "    \"next\": null\n" +
-//                        "  }\n" +
-//                        "}";
-
-        when(zepProjectRestClient.getProjects( eq(1)))
-                .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
-        when(zepProjectRestClient.getProjects(eq(2)))
-                .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
-        when(zepProjectRestClient.getProjects(eq(3)))
-                .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
-
-
-        Optional<ZepProject> project = projectService.getProjectByName("MEGA", LocalDate.of(2022, 1, 2));
+        Optional<ZepProject> project = projectService.getProjectByName("mega", LocalDate.of(2022, 1, 2));
         assertThat(project.get().getId()).isEqualTo(5);
     }
     @Test
     public void getProjectByName_whenNoProjectOfName() {
-        List<String> responseJsons = List.of(
-                "{ \"data\": [{\"id\": 1, \"name\": \"mega\", \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}," +
-                        "{\"id\": 2, \"name\": \"gema\", \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}]," +
-                        "\"links\": {" +
-                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=2\" \n" +
-                        "} \n" +
-                        "}",
-                "{ \"data\": [{\"id\": 3, \"name\": \"EGA\", \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}," +
-                        "{\"id\": 4, \"name\": \"SUPERMEGA\", \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}]," +
-                        "\"links\": {" +
-                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=3\" \n" +
-                        "} \n" +
-                        "}",
-                "{ \"data\": [{\"id\": 5, \"name\": \"MEGA\", \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}," +
-                        "{\"id\": 6, \"name\": \"ega\", \"start_date\": \"2020-11-11T00:00:00.0000Z\", \"end_date\": null}]," +
-                        "\"links\": {" +
-                        "   \"next\": null \n" +
-                        "} \n" +
-                        "}"
-        );
-
-        String employeeResponseJson =
-                "{\"data\": [\n" +
-                        "    {\n" +
-                        "      \"username\": \"001-duser\"\n" +
-                        "    }],\n" +
-                        "  \"links\": {\n" +
-                        "    \"next\": null\n" +
-                        "  }\n" +
-                        "}";
-
-        when(zepProjectRestClient.getProjects( eq(1)))
-                .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
-        when(zepProjectRestClient.getProjects(eq(2)))
-                .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
-        when(zepProjectRestClient.getProjects(eq(3)))
-                .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
-
-        Response employeeResponse = Response.ok().entity(employeeResponseJson).build();
-        when(zepProjectRestClient.getProjectEmployees(anyInt())).thenReturn(employeeResponse);
-
         Optional<ZepProject> project = projectService.getProjectByName("Coffee robot for office",
                 LocalDate.of(2022, 1, 2));
         assertThat(project.isEmpty()).isTrue();
 
     }
+
+    public static List<String> getPages(String resourcesPath) {
+        File folder = getFileOfResourcesPath(resourcesPath);
+
+        if (!folder.isDirectory()) {
+            throw new RuntimeException("No directory found at " + folder.getPath());
+        }
+
+        File[] files = Objects.requireNonNull(folder.listFiles());
+        return Arrays.stream(files)
+                .map(ProjectServiceTest::readFile)
+                .collect(Collectors.toList());
+
+    }
+
+    public static Optional<String> getSingleFile(String resourcesPath) {
+        File file = getFileOfResourcesPath(resourcesPath);
+        if (!file.isFile()) {
+            return Optional.empty();
+        }
+        return Optional.of(readFile(file));
+    }
+
+    private static String readFile(File f) {
+        try {
+            return FileUtils.readFileToString(f, "UTF-8");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static File getFileOfResourcesPath(String resourcesPath) {
+        String path = ProjectServiceTest.class.getResource(resourcesPath).getPath();
+        return new File(path);
+    }
+
+
 }
