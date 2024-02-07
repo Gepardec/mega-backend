@@ -12,16 +12,18 @@ import java.util.stream.Collectors;
 
 public class MapperUtil {
     public static Map<String, String> convertAttributesToMap(AttributesType attributes) {
-        if (attributes == null)
+        if (attributes == null) {
             return null;
+        }
         return attributes.getAttribute().stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(de.provantis.zep.AttributeType::getName, AttributeType::getValue));
     }
 
     public static LocalDate convertStringToDate(String dateString) {
-        if (dateString == null)
+        if (dateString == null) {
             return null;
+        }
 
         return DateUtils.parseDate(dateString);
 

@@ -15,8 +15,9 @@ import java.util.stream.Collectors;
 public class AbsenceTimeMapper {
 
         public static List<AbsenceTime> mapList(List<FehlzeitType> absenceTimes) {
-           if (absenceTimes == null)
+           if (absenceTimes == null) {
                return null;
+           }
 
            return absenceTimes.stream()
                    .map(AbsenceTimeMapper::map)
