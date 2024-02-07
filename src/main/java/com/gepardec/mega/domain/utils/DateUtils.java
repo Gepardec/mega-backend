@@ -104,8 +104,7 @@ public final class DateUtils {
         return LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
     }
 
-    public static YearMonth getCurrentYearMonth() {
-        LocalDate today = today();
-        return YearMonth.of(today().getYear(), today.getMonth());
+    public static LocalDate getFirstOfYearMonth(YearMonth yearMonth) {
+        return yearMonth.atDay(1);
     }
 }

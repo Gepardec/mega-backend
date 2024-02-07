@@ -51,22 +51,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
     NotificationConfig notificationConfig;
 
     @Override
-    public boolean generateStepEntriesFromEndpoint() {
-        return generateStepEntries(LocalDate.now().minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()));
-    }
-
-    @Override
-    public boolean generateStepEntriesFromEndpoint(YearMonth date) {
-        return generateStepEntries(date.atDay(1));
-    }
-
-    @Override
-    public boolean generateStepEntriesFromScheduler() {
-        return generateStepEntries(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()));
-    }
-
-
-    private boolean generateStepEntries(LocalDate date) {
+    public boolean generateStepEntries(LocalDate date) {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
