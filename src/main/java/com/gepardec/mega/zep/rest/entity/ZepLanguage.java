@@ -2,6 +2,7 @@ package com.gepardec.mega.zep.rest.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepLanguage {
@@ -29,7 +30,9 @@ public class ZepLanguage {
     }
 
     public static class Builder {
+        @JsonProperty
         private String id;
+        @JsonProperty
         private String name;
 
         public Builder id(String id) {

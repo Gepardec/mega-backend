@@ -29,10 +29,10 @@ public class RegularWorkingHoursMapMapperTest {
                 .friday(8.0)
                 .saturday(0.0)
                 .sunday(0.0)
-                .is_monthly(false)
-                .monthly_hours(0.0)
-                .max_hours_in_month(0.0)
-                .max_hours_in_week(40.0)
+                .isMonthly(false)
+                .monthlyHours(0.0)
+                .maxHoursInMonth(0.0)
+                .maxHoursInWeek(40.0)
                 .build();
 
         Map<DayOfWeek, Duration> regularWorkingHours = regularWorkingHoursMapMapper.map(zepRegularWorkingTimes);
@@ -62,10 +62,10 @@ public class RegularWorkingHoursMapMapperTest {
                 .friday(8.0)
                 .saturday(null)
                 //Sunday missing -> null
-                .is_monthly(false)
-                .monthly_hours(0.0)
-                .max_hours_in_month(0.0)
-                .max_hours_in_week(40.0)
+                .isMonthly(false)
+                .monthlyHours(0.0)
+                .maxHoursInMonth(0.0)
+                .maxHoursInWeek(40.0)
                 .build();
 
         Map<DayOfWeek, Duration> regularWorkingHours = regularWorkingHoursMapMapper.map(zepRegularWorkingTimes);

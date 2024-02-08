@@ -3,7 +3,6 @@ package com.gepardec.mega.zep.rest.entity;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.gepardec.mega.zep.rest.entity.builder.ZepProjectEmployeeBuilder;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 
@@ -20,6 +19,17 @@ public class ZepProjectEmployee {
         this.type = builder.type;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public boolean isLead() {
+        return lead;
+    }
+
+    public ZepProjectEmployeeType getType() {
+        return type;
+    }
 
     public static Builder builder() {
         return Builder.aZepProjectEmployee();

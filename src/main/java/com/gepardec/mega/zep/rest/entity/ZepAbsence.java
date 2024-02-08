@@ -123,6 +123,10 @@ public class ZepAbsence {
         return absenceReason;
     }
 
+    public static Builder builder () {
+        return Builder.aZepAbsence();
+    }
+
     
 
     public static class Builder {
@@ -216,6 +220,10 @@ public class ZepAbsence {
         public Builder absenceReason(ZepAbsenceReason absenceReason) {
             this.absenceReason = absenceReason;
             return this;
+        }
+
+        public static Builder aZepAbsence() {
+            return new Builder();
         }
 
         public ZepAbsence build() {

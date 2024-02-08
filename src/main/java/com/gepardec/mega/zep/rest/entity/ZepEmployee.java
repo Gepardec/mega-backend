@@ -327,26 +327,43 @@ public class ZepEmployee {
         }
 
         public static class Builder {
+                @JsonProperty
                 private String username;
+                @JsonProperty
                 private String firstname;
+                @JsonProperty
                 private String lastname;
                 @JsonProperty("personal_number")
                 private String personalNumber;
+                @JsonProperty
                 private String street;
+                @JsonProperty
                 private String zip;
+                @JsonProperty
                 private String city;
+                @JsonProperty
                 private String country;
+                @JsonProperty
                 private String abbreviation;
+                @JsonProperty
                 private ZepSalutation salutation;
+                @JsonProperty
                 private String title;
+                @JsonProperty
                 private String email;
+                @JsonProperty
                 private String phone;
+                @JsonProperty
                 private String mobile;
+                @JsonProperty
                 private String fax;
                 @JsonProperty("private_phone")
                 private String privatePhone;
+                @JsonProperty
                 private String birthdate;
+                @JsonProperty
                 private String iban;
+                @JsonProperty
                 private String bic;
                 @JsonProperty("account_no")
                 private Integer accountNo;
@@ -354,16 +371,21 @@ public class ZepEmployee {
                 private String bankName;
                 @JsonProperty("bank_code")
                 private String bankCode;
+                @JsonProperty
                 private String currency;
                 @JsonProperty("release_date")
                 private LocalDate releaseDate;
+                @JsonProperty
                 private Double vat;
                 @JsonProperty("price_group")
                 private String priceGroup;
+                @JsonProperty
                 private ZepEmployment employment;
+                @JsonProperty
                 private ZepRights rights;
                 @JsonProperty("department_id")
                 private Integer departmentId;
+                @JsonProperty
                 private ZepLanguage language;
                 @JsonProperty("personio_id")
                 private Integer personioId;
@@ -371,16 +393,19 @@ public class ZepEmployee {
                 private String costBearer;
                 @JsonProperty("tax_id")
                 private Integer taxId;
+                @JsonProperty
                 private LocalDateTime created;
+                @JsonProperty
                 private LocalDateTime modified;
                 @JsonProperty("creditor_number")
                 private Integer creditorNumber;
+                @JsonProperty
                 private Collection<ZepCategory> categories;
                 @JsonProperty("absences_count")
                 private Integer absencesCount;
 
+                @JsonProperty
                 private Collection<ZepDynamicAttribute> dynamicAttributes;
-                private Builder builder;
 
 
                 public Builder username(String username) {
@@ -578,18 +603,18 @@ public class ZepEmployee {
                         return this;
                 }
 
+                public ZepEmployee build() {
+                        return new ZepEmployee(this);
+                }
+
 
                 public static Builder aZepEmployee() {
                         return new Builder();
                 }
 
-                public Builder builder(Builder builder) {
-                        this.builder = builder;
-                        return this;
-                }
 
                 public ZepEmployee createZepEmployee() {
-                        return new ZepEmployee(builder);
+                        return new ZepEmployee(this);
                 }
         }
 }

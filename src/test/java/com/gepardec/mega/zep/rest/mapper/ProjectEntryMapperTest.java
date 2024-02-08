@@ -24,8 +24,8 @@ public class ProjectEntryMapperTest {
 
     @Test
     public void mapZepAttendanceToProjectEntry() {
-        ZepAttendance zepAttendance = generateZepAttendance();
-        ProjectEntry mappedProjectEntry = projectEntryMapper.map(zepAttendance);
+        ZepAttendance.Builder zepAttendance = generateZepAttendanceBuilder();
+        ProjectEntry mappedProjectEntry = projectEntryMapper.map(zepAttendance.build());
         ProjectEntry expectedProjectEntry = generateProjectTimeEntry();
 
         assertThat(mappedProjectEntry).usingRecursiveComparison().isEqualTo(expectedProjectEntry);
@@ -33,13 +33,13 @@ public class ProjectEntryMapperTest {
 
     @Test
     public void mapZepAttendanceJourneyTimeEntry() {
-        ZepAttendance zepAttendance = generateZepAttendance();
-        zepAttendance.setActivity("reisen");
-        zepAttendance.setWorkLocation("A");
-        zepAttendance.setDirectionOfTravel("0");
-        zepAttendance.setVehicle("Auto (PKW passiv)");
+        ZepAttendance.Builder zepAttendance = generateZepAttendanceBuilder();
+        zepAttendance.activity("reisen");
+        zepAttendance.workLocation("A");
+        zepAttendance.directionOfTravel("0");
+        zepAttendance.vehicle("Auto (PKW passiv)");
 
-        ProjectEntry mappedProjectEntry = projectEntryMapper.map(zepAttendance);
+        ProjectEntry mappedProjectEntry = projectEntryMapper.map(zepAttendance.build());
         ProjectEntry expectedProjectEntry = generateJourneyTimeEntry();
 
         assertThat(mappedProjectEntry).usingRecursiveComparison().isEqualTo(expectedProjectEntry);
@@ -47,12 +47,12 @@ public class ProjectEntryMapperTest {
 
     @Test
     public void mapZepAttendanceToProjectEntryWithNullValues_JourneyTimeEntry() {
-        ZepAttendance zepAttendance = generateZepAttendance();
-        zepAttendance.setActivity("reisen");
-        zepAttendance.setWorkLocation(null);
-        zepAttendance.setVehicle(null);
+        ZepAttendance.Builder zepAttendance = generateZepAttendanceBuilder();
+        zepAttendance.activity("reisen");
+        zepAttendance.workLocation(null);
+        zepAttendance.vehicle(null);
 
-        JourneyTimeEntry mappedProjectEntry = (JourneyTimeEntry) projectEntryMapper.map(zepAttendance);
+        JourneyTimeEntry mappedProjectEntry = (JourneyTimeEntry) projectEntryMapper.map(zepAttendance.build());
         JourneyTimeEntry expectedProjectEntry = generateJourneyTimeWithOtherValuesEntry();
 
         assertThat(mappedProjectEntry).usingRecursiveComparison().isEqualTo(expectedProjectEntry);
@@ -60,19 +60,19 @@ public class ProjectEntryMapperTest {
 
     @Test
     public void mapZepAttendanceToProjectEntryWithNullValues_IllegalArgumentException_toTask() {
-        ZepAttendance zepAttendance = generateZepAttendance();
-        zepAttendance.setActivity("nasebohren");
+        ZepAttendance.Builder zepAttendance = generateZepAttendanceBuilder();
+        zepAttendance.activity("nasebohren");
 
         assertThrows(IllegalArgumentException.class, () -> {
-            ProjectEntry mappedProjectEntry = projectEntryMapper.map(zepAttendance);
+            ProjectEntry mappedProjectEntry = projectEntryMapper.map(zepAttendance.build());
         });
     }
 
     @Test
     public void mapListToProjektEntry_thenReturnList(){
         List<ZepAttendance> Zeplist = new ArrayList<ZepAttendance>();
-        Zeplist.add(generateZepAttendance());
-        Zeplist.add(generateZepAttendance());
+        Zeplist.add(generateZepAttendanceBuilder().build());
+        Zeplist.add(generateZepAttendanceBuilder().build());
         List<ProjectEntry> mappedProjectEntryList = projectEntryMapper.mapList(Zeplist);
 
         assertThat(mappedProjectEntryList.size()).isEqualTo(2);
@@ -81,7 +81,7 @@ public class ProjectEntryMapperTest {
     }
 
 
-    private ZepAttendance generateZepAttendance(){
+    private ZepAttendance.Builder generateZepAttendanceBuilder(){
         return ZepAttendance.builder()
                 .id(1)
                 .date(LocalDate.of(2019, 1, 2))
@@ -107,8 +107,7 @@ public class ProjectEntryMapperTest {
                 .subtaskId(null)
                 .invoiceItemId(null)
                 .created(LocalDateTime.of(2019, 1, 12, 16, 32, 29))
-                .modified(LocalDateTime.of(2019, 1, 12, 18, 32, 29))
-                .build();
+                .modified(LocalDateTime.of(2019, 1, 12, 18, 32, 29));
     }
 
     private ProjectTimeEntry generateProjectTimeEntry(){

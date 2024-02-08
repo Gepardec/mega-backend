@@ -396,8 +396,11 @@ public class ZepProject {
       
 
       public static final class Builder {
+            @JsonProperty
             private Integer id;
+            @JsonProperty
             private String name;
+            @JsonProperty
             private String description;
 
             @JsonProperty("start_date")
@@ -405,7 +408,9 @@ public class ZepProject {
 
             @JsonProperty("end_date")
             private LocalDateTime endDate;
+            @JsonProperty
             private String status;
+            @JsonProperty
             private String comments;
 
             @JsonProperty("cost_object")
@@ -425,8 +430,11 @@ public class ZepProject {
             @JsonProperty("reference_object")
             private String referenceObject;
 
+            @JsonProperty
             private String language;
+            @JsonProperty
             private String currency;
+            @JsonProperty
             private String url;
             @JsonProperty("location_address")
             private String locationAddress;
@@ -536,6 +544,197 @@ public class ZepProject {
                   this.costObjectIdentifier = costObjectIdentifier;
                   return this;
             }
+
+            public Builder created(LocalDateTime created) {
+                  this.created = created;
+                  return this;
+            }
+
+            public Builder modified(LocalDateTime modified) {
+                  this.modified = modified;
+                  return this;
+            }
+
+            public Builder keywords(List<String> keywords) {
+                  this.keywords = keywords;
+                  return this;
+            }
+
+            public Builder referenceOrder(String referenceOrder) {
+                  this.referenceOrder = referenceOrder;
+                  return this;
+            }
+
+            public Builder referenceCommission(String referenceCommission) {
+                  this.referenceCommission = referenceCommission;
+                  return this;
+            }
+
+            public Builder referenceProcurement(String referenceProcurement) {
+                  this.referenceProcurement = referenceProcurement;
+                  return this;
+            }
+
+            public Builder referenceObject(String referenceObject) {
+                  this.referenceObject = referenceObject;
+                  return this;
+            }
+
+            public Builder language(String language) {
+                  this.language = language;
+                  return this;
+            }
+
+            public Builder currency(String currency) {
+                  this.currency = currency;
+                  return this;
+            }
+
+            public Builder url(String url) {
+                  this.url = url;
+                  return this;
+            }
+
+            public Builder locationAddress(String locationAddress) {
+                  this.locationAddress = locationAddress;
+                  return this;
+            }
+
+            public Builder locationCity(String locationCity) {
+                  this.locationCity = locationCity;
+                  return this;
+            }
+
+            public Builder locationState(String locationState) {
+                  this.locationState = locationState;
+                  return this;
+            }
+
+            public Builder locationCountry(String locationCountry) {
+                  this.locationCountry = locationCountry;
+                  return this;
+            }
+
+            public Builder revenueAccount(String revenueAccount) {
+                  this.revenueAccount = revenueAccount;
+                  return this;
+            }
+
+            public Builder customerId(String customerId) {
+                  this.customerId = customerId;
+                  return this;
+            }
+
+            public Builder customerContactId(Integer customerContactId) {
+                  this.customerContactId = customerContactId;
+                  return this;
+            }
+
+            public Builder customerProjectReference(String customerProjectReference) {
+                  this.customerProjectReference = customerProjectReference;
+                  return this;
+            }
+
+            public Builder customerBillingAddressId(Integer customerBillingAddressId) {
+                  this.customerBillingAddressId = customerBillingAddressId;
+                  return this;
+            }
+
+            public Builder customerShippingAddressId(Integer customerShippingAddressId) {
+                  this.customerShippingAddressId = customerShippingAddressId;
+                  return this;
+            }
+
+            public Builder hasMultipleCustomers(String hasMultipleCustomers) {
+                  this.hasMultipleCustomers = hasMultipleCustomers;
+                  return this;
+            }
+
+            public Builder departmentId(Integer departmentId) {
+                  this.departmentId = departmentId;
+                  return this;
+            }
+
+            public Builder billingType(Integer billingType) {
+                  this.billingType = billingType;
+                  return this;
+            }
+
+            public Builder billingTasks(Integer billingTasks) {
+                  this.billingTasks = billingTasks;
+                  return this;
+            }
+
+            public Builder planHours(String planHours) {
+                  this.planHours = planHours;
+                  return this;
+            }
+
+            public Builder planHoursPerDay(String planHoursPerDay) {
+                  this.planHoursPerDay = planHoursPerDay;
+                  return this;
+            }
+
+            public Builder planCanExceed(Boolean planCanExceed) {
+                  this.planCanExceed = planCanExceed;
+                  return this;
+            }
+
+            public Builder planWarningPercent(Double planWarningPercent) {
+                  this.planWarningPercent = planWarningPercent;
+                  return this;
+            }
+
+            public Builder planWarningPercent2(Double planWarningPercent2) {
+                  this.planWarningPercent2 = planWarningPercent2;
+                  return this;
+            }
+
+            public Builder planWarningPercent3(Double planWarningPercent3) {
+                  this.planWarningPercent3 = planWarningPercent3;
+                  return this;
+            }
+
+            public Builder planWage(Double planWage) {
+                  this.planWage = planWage;
+                  return this;
+            }
+
+            public Builder planExpenses(String planExpenses) {
+                  this.planExpenses = planExpenses;
+                  return this;
+            }
+
+            public Builder planExpensesTravel(String planExpensesTravel) {
+                  this.planExpensesTravel = planExpensesTravel;
+                  return this;
+            }
+
+            public Builder planHoursDone(Double planHoursDone) {
+                  this.planHoursDone = planHoursDone;
+                  return this;
+            }
+
+            public Builder planHoursInvoiced(Double planHoursInvoiced) {
+                  this.planHoursInvoiced = planHoursInvoiced;
+                  return this;
+            }
+
+            public Builder tasksCount(Integer tasksCount) {
+                  this.tasksCount = tasksCount;
+                  return this;
+            }
+
+            public Builder employeesCount(Integer employeesCount) {
+                  this.employeesCount = employeesCount;
+                  return this;
+            }
+
+            public Builder activitiesCount(Integer activitiesCount) {
+                  this.activitiesCount = activitiesCount;
+                  return this;
+            }
+
 
             public ZepProject build() {
                   return new ZepProject(this);

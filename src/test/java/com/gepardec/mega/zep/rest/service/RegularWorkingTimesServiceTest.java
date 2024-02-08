@@ -48,10 +48,10 @@ public class RegularWorkingTimesServiceTest {
                 .friday(6.5)
                 .saturday(null)
                 .sunday(null)
-                .is_monthly(null)
-                .monthly_hours(null)
-                .max_hours_in_month(null)
-                .max_hours_in_week(null)
+                .isMonthly(null)
+                .monthlyHours(null)
+                .maxHoursInMonth(null)
+                .maxHoursInWeek(null)
                 .build();
 
         resourceFileService.getSingleFile("/regularWorkingTimes/regularWorkingTimes001duser.json").ifPresent(json -> {

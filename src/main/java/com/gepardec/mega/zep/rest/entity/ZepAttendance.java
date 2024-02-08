@@ -218,9 +218,13 @@ public class ZepAttendance {
     }
 
     public static class Builder {
+        @JsonProperty
         private Integer id;
+        @JsonProperty
         private LocalDate date;
+        @JsonProperty
         private LocalTime from;
+        @JsonProperty
         private LocalTime to;
         @JsonProperty("employee_id")
         private String employeeId;
@@ -238,14 +242,21 @@ public class ZepAttendance {
 
         @JsonProperty("work_location_is_project_relevant")
         private Integer workLocationIsProjectRelevant;
+        @JsonProperty
         private String note;
+        @JsonProperty
         private String activity;
+        @JsonProperty
         private String start;
+        @JsonProperty
         private String destination;
+        @JsonProperty
         private String vehicle;
         @JsonProperty("private")
         private Integer isPrivate;
+        @JsonProperty
         private String passengers;
+        @JsonProperty
         private String km;
         @JsonProperty("direction_of_travel")
         private String directionOfTravel;
@@ -255,7 +266,9 @@ public class ZepAttendance {
         private String subtaskId;
         @JsonProperty("invoice_item_id")
         private String invoiceItemId;
+        @JsonProperty
         private LocalDateTime created;
+        @JsonProperty
         private LocalDateTime modified;
 
 
