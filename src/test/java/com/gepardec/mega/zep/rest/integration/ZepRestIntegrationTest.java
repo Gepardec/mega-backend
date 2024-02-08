@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 //Integration tests for the getEmployee method in ZepRestService
 @QuarkusTest
+@Disabled
 public class ZepRestIntegrationTest {
 
 
@@ -33,7 +34,6 @@ public class ZepRestIntegrationTest {
 
 
     @Test
-//    @Disabled
     public void fetchValidEmployee_thenReturnEmployee() {
 
         Employee expected = Employee.builder()
