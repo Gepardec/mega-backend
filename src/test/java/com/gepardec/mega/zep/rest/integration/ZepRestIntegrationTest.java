@@ -1,24 +1,31 @@
 package com.gepardec.mega.zep.rest.integration;
 
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.ProjectTime;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.impl.Rest;
 
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 //Integration tests for the getEmployee method in ZepRestService
 @QuarkusTest
-public class EmployeeIntegration {
+public class ZepRestIntegrationTest {
 
 
     @Inject @Rest
@@ -26,7 +33,7 @@ public class EmployeeIntegration {
 
 
     @Test
-    @Disabled
+//    @Disabled
     public void fetchValidEmployee_thenReturnEmployee() {
 
         Employee expected = Employee.builder()
@@ -53,5 +60,38 @@ public class EmployeeIntegration {
         Employee actual = zepService.getEmployee("001-hwirnsberger");
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
+    public void getEmployees_InvalidUsername_thenThrowException() {
+        assertThrows(Exception.class, () -> {
+            zepService.getEmployee("001-testtestnothere");
+        });
+    }
+
+    @Test
+    public void getProjectTimes_valid(){
+       List<ProjectEntry> projectEntries = zepService.getProjectTimes(zepService.getEmployee("001-hwirnsberger"), LocalDate.of(2020,4,1));
+       assertThat(projectEntries.size()).isGreaterThan(0);
+       for (ProjectEntry projectEntry : projectEntries) {
+           assertThat(projectEntry.getDurationInHours()).isNotNull();
+           assertThat(projectEntry.getDate().getMonthValue()).isEqualTo(4);
+       }
+    }
+
+    @Test
+    public void getProjectTimes_noEntries(){
+        List<ProjectEntry> projectEntries = zepService.getProjectTimes(zepService.getEmployee("082-tmeindl"), LocalDate.of(2020,4,1));
+        assertThat(projectEntries.size()).isEqualTo(0);
+    }
+
+    @Test
+    public void getProjectTimesForEmployeePerProject_valid(){
+        List<ProjectTime> projectTimes = zepService.getProjectTimesForEmployeePerProject("BVAEB-KAP-2021", LocalDate.of(2021,1,1));
+        assertThat(projectTimes.size()).isEqualTo(4);
+        for (ProjectTime projectTime : projectTimes) {
+            assertThat(projectTime.getDuration()).isNotNull();
+            assertThat(projectTime.getDate().getMonthValue()).isEqualTo(1);
+        }
     }
 }

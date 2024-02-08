@@ -8,7 +8,10 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static java.util.Locale.filter;
 
 @ApplicationScoped
 public class AttendanceService {
@@ -39,8 +42,9 @@ public class AttendanceService {
         List<ZepAttendance> attendances = Paginator.retrieveAll(
                 page -> zepAttendanceRestClient.getAttendance(startDate, endDate, username, page),
                 ZepAttendance.class);
+
         return attendances.stream()
-                .filter(attendance -> attendance.getProjectId() == projectId)
+                .filter(attendance -> Objects.equals(attendance.getProjectId(), projectId))
                 .collect(Collectors.toList());
     }
 }
