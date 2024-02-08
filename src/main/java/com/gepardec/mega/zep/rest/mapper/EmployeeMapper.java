@@ -39,7 +39,7 @@ public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
          */
     }
 
-    public boolean getActiveOfZepEmploymentPeriods(List<ZepEmploymentPeriod> zepEmploymentPeriods) {
+    public static boolean getActiveOfZepEmploymentPeriods(List<ZepEmploymentPeriod> zepEmploymentPeriods) {
         if (zepEmploymentPeriods == null) {
             return false;
         }

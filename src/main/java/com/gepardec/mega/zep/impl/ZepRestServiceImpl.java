@@ -17,6 +17,7 @@ import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
 import com.gepardec.mega.zep.rest.mapper.AbsenceMapper;
 import com.gepardec.mega.zep.rest.mapper.AttendanceMapper;
 import com.gepardec.mega.zep.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.zep.rest.mapper.Mapper;
 import com.gepardec.mega.zep.rest.mapper.ProjectEmployeesMapper;
 import com.gepardec.mega.zep.rest.mapper.ProjectEntryMapper;
 import com.gepardec.mega.zep.rest.mapper.ProjectMapper;
@@ -32,9 +33,12 @@ import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedMap;
 
+import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -52,7 +56,7 @@ public class ZepRestServiceImpl implements ZepService {
     AbsenceService absenceService;
 
     @Inject
-    AbsenceMapper absenceMapper;
+    Mapper<AbsenceTime, ZepAbsence> absenceMapper;
 
     @Inject
     RegularWorkingTimesService regularWorkingTimesService;
@@ -61,13 +65,21 @@ public class ZepRestServiceImpl implements ZepService {
     EmploymentPeriodService employmentPeriodService;
 
     @Inject
-    EmployeeMapper employeeMapper;
+    Mapper<Employee,ZepEmployee> employeeMapper;
 
     @Inject
-    ProjectEntryMapper projectEntryMapper;
+    Mapper<ProjectEntry, ZepAttendance> projectEntryMapper;
 
     @Inject
-    AttendanceMapper attendanceMapper;
+    Mapper<ProjectTime, ZepAttendance> attendanceMapper;
+
+    @Inject
+    Mapper<Project, ZepProject> projectMapper;
+
+    Mapper<MultivaluedMap<String, String>, List<ZepProjectEmployee>> projectEmployeesMapper;
+
+    @Inject
+    Mapper<Map<DayOfWeek, Duration>, ZepRegularWorkingTimes> regularWorkingTimesMapper;
 
 
     @Override
@@ -78,14 +90,14 @@ public class ZepRestServiceImpl implements ZepService {
         }
 
         List<ZepEmploymentPeriod> period = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(userId);
-        boolean active = employeeMapper.getActiveOfZepEmploymentPeriods(period);
+        boolean active = EmployeeMapper.getActiveOfZepEmploymentPeriods(period);
 
-        var regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
+
         ZepRegularWorkingTimes zepRegularWorkingTimes = regularWorkingTimesService.getRegularWorkingTimesByUsername(userId);
 
         Employee employee = employeeMapper.map(zepEmployee.get());
         employee.setActive(active);
-        employee.setRegularWorkingHours(regularWorkingHoursMapMapper.map(zepRegularWorkingTimes));
+        employee.setRegularWorkingHours(regularWorkingTimesMapper.map(zepRegularWorkingTimes));
         return employee;
     }
 
@@ -118,7 +130,7 @@ public class ZepRestServiceImpl implements ZepService {
     @Override
     public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, LocalDate curDate) {
         List<ZepAttendance> allZepAttendancesForProject = new ArrayList<>();
-        Integer projectId = projectService.getProjectByName(project, curDate).get().getId();
+        Integer projectId = projectService.getProjectByName(project, curDate).map(ZepProject::getId).orElse(null);
 
         List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(projectId);
 
@@ -131,9 +143,6 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<Project> getProjectsForMonthYear(LocalDate monthYear) {
-        var projectMapper = new ProjectMapper();
-        var projectEmployeesMapper = new ProjectEmployeesMapper();
-
         List<ZepProject> zepProjects = projectService.getProjectsForMonthYear(monthYear);
         List<Project> projects = projectMapper.mapList(zepProjects);
         projects.forEach(project -> {
@@ -149,11 +158,7 @@ public class ZepRestServiceImpl implements ZepService {
     @Override
     public Optional<Project> getProjectByName(String projectName, LocalDate monthYear) {
         Optional<ZepProject> zepProject = projectService.getProjectByName(projectName, monthYear);
-        if (zepProject.isPresent()) {
-            var projectMapper = new ProjectMapper();
-            return Optional.of(projectMapper.map(zepProject.get()));
-        }
-        return Optional.empty();
+        return zepProject.map(project -> projectMapper.map(project));
     }
 
     @Override
@@ -169,7 +174,6 @@ public class ZepRestServiceImpl implements ZepService {
     @Override
     public List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date) {
         List<ZepAttendance> projectTimes = attendanceService.getBillableAttendancesForUserAndMonth(employee.getUserId(), date);
-        var attendanceMapper = new AttendanceMapper();
         return attendanceMapper.mapList(projectTimes);
     }
 }

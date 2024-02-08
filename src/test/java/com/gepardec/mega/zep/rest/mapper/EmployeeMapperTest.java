@@ -21,6 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @QuarkusTest
 public class EmployeeMapperTest {
 
+    @Inject
+    Mapper<Employee, ZepEmployee> employeeMapper;
+
     @Test
     public void getActiveWhen_3DatesActive() {
         List<ZepEmploymentPeriod> employmentPeriods = List.of(
@@ -34,8 +37,7 @@ public class EmployeeMapperTest {
                         .endDate(null)
                         .build());
 
-        var employeeMapper = new EmployeeMapper();
-        boolean active = employeeMapper.getActiveOfZepEmploymentPeriods(employmentPeriods);
+        boolean active = EmployeeMapper.getActiveOfZepEmploymentPeriods(employmentPeriods);
         assertThat(active).isTrue();
 
     }
@@ -52,8 +54,7 @@ public class EmployeeMapperTest {
                         .endDate(LocalDateTime.of(2023, 11, 12, 3, 1, 2))
                         .build());
 
-        var employeeMapper = new EmployeeMapper();
-        boolean active = employeeMapper.getActiveOfZepEmploymentPeriods(employmentPeriods);
+        boolean active = EmployeeMapper.getActiveOfZepEmploymentPeriods(employmentPeriods);
         assertThat(active).isFalse();
     }
     @Test
@@ -69,23 +70,19 @@ public class EmployeeMapperTest {
                         .endDate(LocalDateTime.of(2018, 2, 1, 12, 32, 12))
                         .build());
 
-        var employeeMapper = new EmployeeMapper();
-        boolean active = employeeMapper.getActiveOfZepEmploymentPeriods(employmentPeriods);
+        boolean active = EmployeeMapper.getActiveOfZepEmploymentPeriods(employmentPeriods);
         assertThat(active).isTrue();
     }
     @Test
     public void getInactiveWhen_AllNull() {
         List<ZepEmploymentPeriod> employmentPeriods =  List.of();
 
-        var employeeMapper = new EmployeeMapper();
-        boolean active = employeeMapper.getActiveOfZepEmploymentPeriods(employmentPeriods);
+        boolean active = EmployeeMapper.getActiveOfZepEmploymentPeriods(employmentPeriods);
         assertThat(active).isFalse();
     }
 
     @Test
     public void mapZepEmployeeToEmployee() {
-        EmployeeMapper employeeMapper = new EmployeeMapper();
-
 //    List<ZepEmploymentPeriod> employmentPeriods = List.of(
 //            ZepEmploymentPeriod.builder()
 //                    .startDate(LocalDateTime.of(2010,1,2, 23, 32, 48))
@@ -131,8 +128,6 @@ public class EmployeeMapperTest {
 
     @Test
     public void mapZepEmployeesToEmployees() {
-        EmployeeMapper employeeMapper = new EmployeeMapper();
-
         ZepEmployee[] zepEmployeesArr = {
                 ZepEmployee.builder()
                         .username("000")

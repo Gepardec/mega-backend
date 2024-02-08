@@ -3,12 +3,14 @@ package com.gepardec.mega.zep.rest.mapper;
 import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.zep.rest.entity.ZepProject;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@ApplicationScoped
 public class ProjectMapper implements Mapper<Project, ZepProject> {
 
     private static final LocalDate DEFAULT_END_DATE = LocalDate.of(2029, 12, 1);

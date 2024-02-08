@@ -1,12 +1,14 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+@ApplicationScoped
 public class RegularWorkingHoursMapMapper implements Mapper<Map<DayOfWeek, Duration>, ZepRegularWorkingTimes> {
 
     @Override
