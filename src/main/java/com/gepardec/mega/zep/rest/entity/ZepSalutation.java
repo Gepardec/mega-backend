@@ -1,37 +1,54 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.gepardec.mega.zep.rest.entity.builder.ZepSalutationBuilder;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepSalutation {
-    public String id;
-    public String name;
+    public final String id;
+    public final String name;
 
-    public ZepSalutation() {}
 
-    public ZepSalutation(String id, String name) {
-        this.id = id;
-        this.name = name;
+    @JsonCreator
+    public ZepSalutation(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+
+    public static Builder builder() {
+        return Builder.aZepSalutation();
     }
 
-    public static ZepSalutationBuilder builder() {
-        return new ZepSalutationBuilder();
+    public static class Builder {
+        private String id;
+        private String name;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public ZepSalutation build() {
+            return new ZepSalutation(this);
+        }
+
+        public static Builder aZepSalutation() {
+            return new Builder();
+        }
     }
 }

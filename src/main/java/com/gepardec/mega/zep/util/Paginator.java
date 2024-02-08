@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+
 public class Paginator {
     public static <T> List<T> retrieveAll(Function<Integer, Response> pageSupplier, Class<T> elementClass) {
         int page = 1;

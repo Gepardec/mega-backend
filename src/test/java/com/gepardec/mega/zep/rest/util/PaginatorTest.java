@@ -4,7 +4,6 @@ import com.gepardec.mega.zep.rest.client.ZepAttendanceRestClient;
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepProject;
 import com.gepardec.mega.zep.util.Paginator;
-import com.gepardec.mega.zep.util.ZepRestUtil;
 import com.gepardec.mega.helper.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;

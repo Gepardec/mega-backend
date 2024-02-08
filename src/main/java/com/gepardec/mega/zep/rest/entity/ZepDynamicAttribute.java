@@ -1,49 +1,69 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.gepardec.mega.zep.rest.entity.builder.ZepDynamicAttributeBuilder;
 
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepDynamicAttribute {
-    private String name;
-    private String value;
-    private Map<String, String> description;
+    private final String name;
+    private final String value;
+    private final Map<String, String> description;
 
-    public ZepDynamicAttribute() {}
 
-    public ZepDynamicAttribute(String name, String value, Map<String, String> description) {
-        this.name = name;
-        this.value = value;
-        this.description = description;
+    @JsonCreator
+    public ZepDynamicAttribute(Builder builder) {
+        this.name = builder.name;
+        this.value = builder.value;
+        this.description = builder.description;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public String getValue() {
         return value;
     }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
 
     public Map<String, String> getDescription() {
         return description;
     }
 
-    public void setDescription(Map<String, String> description) {
-        this.description = description;
-    }
 
-    public static ZepDynamicAttributeBuilder builder() {
-        return new ZepDynamicAttributeBuilder();
+    public static Builder builder() {
+        return Builder.aZepDynamicAttribute();
+    }
+    
+    public static class Builder {
+        private String name;
+        private String value;
+        private Map<String, String> description;
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder value(String value) {
+            this.value = value;
+            return this;
+        }
+
+        public Builder description(Map<String, String> description) {
+            this.description = description;
+            return this;
+        }
+
+        public ZepDynamicAttribute build() {
+            return new ZepDynamicAttribute(this);
+        }
+
+        public static Builder aZepDynamicAttribute() {
+            return new Builder();
+        }
     }
 }

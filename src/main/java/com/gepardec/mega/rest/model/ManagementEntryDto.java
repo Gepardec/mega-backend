@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ManagementEntryDto {
+public class        ManagementEntryDto {
 
     private final EmployeeDto employee;
 

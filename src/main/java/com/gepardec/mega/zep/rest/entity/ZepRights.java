@@ -1,39 +1,55 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gepardec.mega.zep.rest.entity.builder.ZepRightsBuilder;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepRights {
-    private int id;
+    private final int id;
 
-    private String name;
+    private final String name;
 
-    public ZepRights() {
-    }
-
-    public ZepRights(int id, String name) {
-        this.id = id;
-        this.name = name;
+    @JsonCreator
+    public ZepRights(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
     }
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+
+    public static Builder builder() {
+        return Builder.aZepRights();
     }
 
-    public static ZepRightsBuilder builder() {
-        return new ZepRightsBuilder();
+    public static class Builder {
+        private int id;
+        private String name;
+
+        public Builder id(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public ZepRights build() {
+            return new ZepRights(this);
+        }
+
+        public static Builder aZepRights() {
+            return new Builder();
+        }
     }
 }

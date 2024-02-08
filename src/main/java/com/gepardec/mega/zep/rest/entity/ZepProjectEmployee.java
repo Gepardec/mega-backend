@@ -1,52 +1,63 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.zep.rest.entity.builder.ZepProjectEmployeeBuilder;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+
 public class ZepProjectEmployee {
+    private final String username;
+    private final boolean lead;
 
-    @JsonProperty("employee_id")
-    private String username;
-    private boolean lead;
+    private final ZepProjectEmployeeType type;
 
-    private ZepProjectEmployeeType type;
-
-    public ZepProjectEmployee() {
+    @JsonCreator
+    public ZepProjectEmployee(Builder builder) {
+        this.username = builder.username;
+        this.lead = builder.lead;
+        this.type = builder.type;
     }
 
-    public ZepProjectEmployee(String username, boolean lead, ZepProjectEmployeeType type) {
-        this.username = username;
-        this.lead = lead;
-        this.type = type;
+
+    public static Builder builder() {
+        return Builder.aZepProjectEmployee();
     }
 
-    public String getUsername() {
-        return username;
-    }
+    public static final class Builder {
+        @JsonProperty("employee_id")
+        private String username;
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+        @JsonProperty
+        private boolean lead;
 
-    public boolean isLead() {
-        return lead;
-    }
+        @JsonProperty
+        private ZepProjectEmployeeType type;
 
-    public void setLead(boolean lead) {
-        this.lead = lead;
-    }
+        public static Builder aZepProjectEmployee() {
+            return new Builder();
+        }
 
-    public ZepProjectEmployeeType getType() {
-        return type;
-    }
 
-    public void setType(ZepProjectEmployeeType type) {
-        this.type = type;
-    }
+        public Builder username(String username) {
+            this.username = username;
+            return this;
+        }
 
-    public static ZepProjectEmployeeBuilder builder() {
-        return new ZepProjectEmployeeBuilder();
+        public Builder lead(boolean lead) {
+            this.lead = lead;
+            return this;
+        }
+
+        public Builder type(ZepProjectEmployeeType type) {
+            this.type = type;
+            return this;
+        }
+
+        public ZepProjectEmployee build() {
+            return new ZepProjectEmployee(this);
+        }
+
     }
 }

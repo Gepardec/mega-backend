@@ -1,38 +1,53 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.gepardec.mega.zep.rest.entity.builder.ZepLanguageBuilder;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepLanguage {
-    private String id;
-    private String name;
+    private final String id;
+    private final String name;
 
-    public ZepLanguage() {
-    }
-
-    public ZepLanguage(String id, String name) {
-        this.id = id;
-        this.name = name;
+    @JsonCreator
+    public ZepLanguage(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+
+    public static Builder builder() {
+        return Builder.aZepLanguage();
     }
 
-    public static ZepLanguageBuilder builder() {
-        return new ZepLanguageBuilder();
+    public static class Builder {
+        private String id;
+        private String name;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public static Builder aZepLanguage() {
+            return new Builder();
+        }
+
+        public ZepLanguage build() {
+            return new ZepLanguage(this);
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.gepardec.mega.zep.rest.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.gepardec.mega.zep.rest.entity.builder.ZepEmployeeBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,416 +9,587 @@ import java.util.Collection;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepEmployee {
-        private String username;
-        private String firstname;
-        private String lastname;
-        @JsonProperty("personal_number")
-        private String personalNumber;
-        private String street;
-        private String zip;
-        private String city;
-        private String country;
-        private String abbreviation;
-        private ZepSalutation salutation;
-        private String title;
-        private String email;
-        private String phone;
-        private String mobile;
-        private String fax;
-        @JsonProperty("private_phone")
-        private String privatePhone;
-        private String birthdate;
-        private String iban;
-        private String bic;
-        @JsonProperty("account_no")
-        private Integer accountNo;
-        @JsonProperty("bank_name")
-        private String bankName;
-        @JsonProperty("bank_code")
-        private String bankCode;
-        private String currency;
-        @JsonProperty("release_date")
-        private LocalDate releaseDate;
-        private Double vat;
-        @JsonProperty("price_group")
-        private String priceGroup;
-        private ZepEmployment employment;
-        private ZepRights rights;
-        @JsonProperty("department_id")
-        private Integer departmentId;
-        private ZepLanguage language;
-        @JsonProperty("personio_id")
-        private Integer personioId;
-        @JsonProperty("cost_bearer")
-        private String costBearer;
-        @JsonProperty("tax_id")
-        private Integer taxId;
-        private LocalDateTime created;
-        private LocalDateTime modified;
-        @JsonProperty("creditor_number")
-        private Integer creditorNumber;
-        private Collection<ZepCategory> categories;
-        @JsonProperty("absences_count")
-        private Integer absencesCount;
 
-        private Collection<ZepDynamicAttribute> dynamicAttributes;
+        private final String username;
+        private final String firstname;
+        private final String lastname;
+        private final String personalNumber;
+        private final String street;
+        private final String zip;
+        private final String city;
+        private final String country;
+        private final String abbreviation;
+        private final ZepSalutation salutation;
+        private final String title;
+        private final String email;
+        private final String phone;
+        private final String mobile;
+        private final String fax;
+        private final String privatePhone;
+        private final String birthdate;
+        private final String iban;
+        private final String bic;
+        private final Integer accountNo;
+        private final String bankName;
+        private final String bankCode;
+        private final String currency;
+        private final LocalDate releaseDate;
+        private final Double vat;
+        private final String priceGroup;
+        private final ZepEmployment employment;
+        private final ZepRights rights;
+        private final Integer departmentId;
+        private final ZepLanguage language;
+        private final Integer personioId;
+        private final String costBearer;
+        private final Integer taxId;
+        private final LocalDateTime created;
+        private final LocalDateTime modified;
+        private final Integer creditorNumber;
+        private final Collection<ZepCategory> categories;
+        private final Collection<ZepDynamicAttribute> dynamicAttributes;
+        private final Integer absencesCount;
 
-        public ZepEmployee() {
-        }
 
-        public ZepEmployee(String username, String firstname, String lastname, String personalNumber, String street, String zip, String city, String country, String abbreviation, ZepSalutation salutation, String title, String email, String phone, String mobile, String fax, String privatePhone, String birthdate, String iban, String bic, Integer accountNo, String bankName, String bankCode, String currency, LocalDate
-                releaseDate, Double vat, String priceGroup, ZepEmployment employment, ZepRights rights, Integer departmentId, ZepLanguage language, Integer personioId, String costBearer, Integer taxId, LocalDateTime created, LocalDateTime modified, Integer creditorNumber, Collection<ZepCategory> categories, Collection<ZepDynamicAttribute> dynamicAttributes, Integer absencesCount) {
-                this.username = username;
-                this.firstname = firstname;
-                this.lastname = lastname;
-                this.personalNumber = personalNumber;
-                this.street = street;
-                this.zip = zip;
-                this.city = city;
-                this.country = country;
-                this.abbreviation = abbreviation;
-                this.salutation = salutation;
-                this.title = title;
-                this.email = email;
-                this.phone = phone;
-                this.mobile = mobile;
-                this.fax = fax;
-                this.privatePhone = privatePhone;
-                this.birthdate = birthdate;
-                this.iban = iban;
-                this.bic = bic;
-                this.accountNo = accountNo;
-                this.bankName = bankName;
-                this.bankCode = bankCode;
-                this.currency = currency;
-                this.releaseDate = releaseDate;
-                this.vat = vat;
-                this.priceGroup = priceGroup;
-                this.employment = employment;
-                this.rights = rights;
-                this.departmentId = departmentId;
-                this.language = language;
-                this.personioId = personioId;
-                this.costBearer = costBearer;
-                this.taxId = taxId;
-                this.created = created;
-                this.modified = modified;
-                this.creditorNumber = creditorNumber;
-                this.categories = categories;
-                this.absencesCount = absencesCount;
-                this.categories = categories;
-                this.dynamicAttributes = dynamicAttributes;
+        public ZepEmployee(Builder builder) {
+                this.username = builder.username;
+                this.firstname = builder.firstname;
+                this.lastname = builder.lastname;
+                this.personalNumber = builder.personalNumber;
+                this.street = builder.street;
+                this.zip = builder.zip;
+                this.city = builder.city;
+                this.country = builder.country;
+                this.abbreviation = builder.abbreviation;
+                this.salutation = builder.salutation;
+                this.title = builder.title;
+                this.email = builder.email;
+                this.phone = builder.phone;
+                this.mobile = builder.mobile;
+                this.fax = builder.fax;
+                this.privatePhone = builder.privatePhone;
+                this.birthdate = builder.birthdate;
+                this.iban = builder.iban;
+                this.bic = builder.bic;
+                this.accountNo = builder.accountNo;
+                this.bankName = builder.bankName;
+                this.bankCode = builder.bankCode;
+                this.currency = builder.currency;
+                this.releaseDate = builder.releaseDate;
+                this.vat = builder.vat;
+                this.priceGroup = builder.priceGroup;
+                this.employment = builder.employment;
+                this.rights = builder.rights;
+                this.departmentId = builder.departmentId;
+                this.language = builder.language;
+                this.personioId = builder.personioId;
+                this.costBearer = builder.costBearer;
+                this.taxId = builder.taxId;
+                this.created = builder.created;
+                this.modified = builder.modified;
+                this.creditorNumber = builder.creditorNumber;
+                this.categories = builder.categories;
+                this.absencesCount = builder.absencesCount;
+                this.dynamicAttributes = builder.dynamicAttributes;
         }
 
         public String getUsername() {
                 return username;
         }
 
-        public void setUsername(String username) {
-                this.username = username;
-        }
+        
 
         public String getFirstname() {
                 return firstname;
         }
 
-        public void setFirstname(String firstname) {
-                this.firstname = firstname;
-        }
+        
 
         public String getLastname() {
                 return lastname;
         }
 
-        public void setLastname(String lastname) {
-                this.lastname = lastname;
-        }
+        
 
         public String getPersonalNumber() {
                 return personalNumber;
         }
 
-        public void setPersonalNumber(String personalNumber) {
-                this.personalNumber = personalNumber;
-        }
+        
 
         public String getStreet() {
                 return street;
         }
 
-        public void setStreet(String street) {
-                this.street = street;
-        }
+        
 
         public String getZip() {
                 return zip;
         }
 
-        public void setZip(String zip) {
-                this.zip = zip;
-        }
+        
 
         public String getCity() {
                 return city;
         }
 
-        public void setCity(String city) {
-                this.city = city;
-        }
+        
 
         public String getCountry() {
                 return country;
         }
 
-        public void setCountry(String country) {
-                this.country = country;
-        }
+        
 
         public String getAbbreviation() {
                 return abbreviation;
         }
 
-        public void setAbbreviation(String abbreviation) {
-                this.abbreviation = abbreviation;
-        }
+        
 
         public ZepSalutation getSalutation() {
                 return salutation;
         }
 
-        public void setSalutation(ZepSalutation salutation) {
-                this.salutation = salutation;
-        }
+        
 
         public String getTitle() {
                 return title;
         }
 
-        public void setTitle(String title) {
-                this.title = title;
-        }
+        
 
         public String getEmail() {
                 return email;
         }
 
-        public void setEmail(String email) {
-                this.email = email;
-        }
+        
 
         public String getPhone() {
                 return phone;
         }
 
-        public void setPhone(String phone) {
-                this.phone = phone;
-        }
+        
 
         public String getMobile() {
                 return mobile;
         }
 
-        public void setMobile(String mobile) {
-                this.mobile = mobile;
-        }
+        
 
         public String getFax() {
                 return fax;
         }
 
-        public void setFax(String fax) {
-                this.fax = fax;
-        }
+        
 
         public String getPrivatePhone() {
                 return privatePhone;
         }
 
-        public void setPrivatePhone(String privatePhone) {
-                this.privatePhone = privatePhone;
-        }
+        
 
         public String getBirthdate() {
                 return birthdate;
         }
 
-        public void setBirthdate(String birthdate) {
-                this.birthdate = birthdate;
-        }
+        
 
         public String getIban() {
                 return iban;
         }
 
-        public void setIban(String iban) {
-                this.iban = iban;
-        }
+        
 
         public String getBic() {
                 return bic;
         }
 
-        public void setBic(String bic) {
-                this.bic = bic;
-        }
+        
 
         public Integer getAccountNo() {
                 return accountNo;
         }
 
-        public void setAccountNo(Integer accountNo) {
-                this.accountNo = accountNo;
-        }
+        
 
         public String getBankName() {
                 return bankName;
         }
 
-        public void setBankName(String bankName) {
-                this.bankName = bankName;
-        }
+        
 
         public String getBankCode() {
                 return bankCode;
         }
 
-        public void setBankCode(String bankCode) {
-                this.bankCode = bankCode;
-        }
+        
 
         public String getCurrency() {
                 return currency;
         }
 
-        public void setCurrency(String currency) {
-                this.currency = currency;
-        }
+        
 
         public LocalDate getReleaseDate() {
                 return releaseDate;
         }
 
-        public void setReleaseDate(LocalDate releaseDate) {
-                this.releaseDate = releaseDate;
-        }
+        
 
         public Double getVat() {
                 return vat;
         }
 
-        public void setVat(Double vat) {
-                this.vat = vat;
-        }
+        
 
         public String getPriceGroup() {
                 return priceGroup;
         }
 
-        public void setPriceGroup(String priceGroup) {
-                this.priceGroup = priceGroup;
-        }
+        
 
         public ZepEmployment getEmployment() {
                 return employment;
         }
 
-        public void setEmployment(ZepEmployment employment) {
-                this.employment = employment;
-        }
+        
 
         public ZepRights getRights() {
                 return rights;
         }
 
-        public void setRights(ZepRights rights) {
-                this.rights = rights;
-        }
+        
 
         public Integer getDepartmentId() {
                 return departmentId;
         }
 
-        public void setDepartmentId(Integer departmentId) {
-                this.departmentId = departmentId;
-        }
+        
 
         public ZepLanguage getLanguage() {
                 return language;
         }
 
-        public void setLanguage(ZepLanguage language) {
-                this.language = language;
-        }
+        
 
         public Integer getPersonioId() {
                 return personioId;
         }
 
-        public void setPersonioId(Integer personioId) {
-                this.personioId = personioId;
-        }
+        
 
         public String getCostBearer() {
                 return costBearer;
         }
 
-        public void setCostBearer(String costBearer) {
-                this.costBearer = costBearer;
-        }
+        
 
         public Integer getTaxId() {
                 return taxId;
         }
 
-        public void setTaxId(Integer taxId) {
-                this.taxId = taxId;
-        }
+        
 
         public LocalDateTime getCreated() {
                 return created;
         }
 
-        public void setCreated(LocalDateTime created) {
-                this.created = created;
-        }
+        
 
         public LocalDateTime getModified() {
                 return modified;
         }
 
-        public void setModified(LocalDateTime modified) {
-                this.modified = modified;
-        }
+        
 
         public Integer getCreditorNumber() {
                 return creditorNumber;
         }
 
-        public void setCreditorNumber(Integer creditorNumber) {
-                this.creditorNumber = creditorNumber;
-        }
+        
 
         public Integer getAbsencesCount() {
                 return absencesCount;
         }
 
-        public void setAbsencesCount(Integer absencesCount) {
-                this.absencesCount = absencesCount;
-        }
+        
 
-        public void setCategories(Collection<ZepCategory> categories) {
-                this.categories = categories;
-        }
+        
 
         public Collection<ZepDynamicAttribute> getDynamicAttributes() {
                 return dynamicAttributes;
         }
 
-        public void setDynamicAttributes(Collection<ZepDynamicAttribute> dynamicAttributes) {
-                this.dynamicAttributes = dynamicAttributes;
+
+        public static Builder builder() {
+                return Builder.aZepEmployee();
         }
 
-        public static ZepEmployeeBuilder builder() {
-                return new ZepEmployeeBuilder();
+        public static class Builder {
+                private String username;
+                private String firstname;
+                private String lastname;
+                @JsonProperty("personal_number")
+                private String personalNumber;
+                private String street;
+                private String zip;
+                private String city;
+                private String country;
+                private String abbreviation;
+                private ZepSalutation salutation;
+                private String title;
+                private String email;
+                private String phone;
+                private String mobile;
+                private String fax;
+                @JsonProperty("private_phone")
+                private String privatePhone;
+                private String birthdate;
+                private String iban;
+                private String bic;
+                @JsonProperty("account_no")
+                private Integer accountNo;
+                @JsonProperty("bank_name")
+                private String bankName;
+                @JsonProperty("bank_code")
+                private String bankCode;
+                private String currency;
+                @JsonProperty("release_date")
+                private LocalDate releaseDate;
+                private Double vat;
+                @JsonProperty("price_group")
+                private String priceGroup;
+                private ZepEmployment employment;
+                private ZepRights rights;
+                @JsonProperty("department_id")
+                private Integer departmentId;
+                private ZepLanguage language;
+                @JsonProperty("personio_id")
+                private Integer personioId;
+                @JsonProperty("cost_bearer")
+                private String costBearer;
+                @JsonProperty("tax_id")
+                private Integer taxId;
+                private LocalDateTime created;
+                private LocalDateTime modified;
+                @JsonProperty("creditor_number")
+                private Integer creditorNumber;
+                private Collection<ZepCategory> categories;
+                @JsonProperty("absences_count")
+                private Integer absencesCount;
+
+                private Collection<ZepDynamicAttribute> dynamicAttributes;
+                private Builder builder;
+
+
+                public Builder username(String username) {
+                        this.username = username;
+                        return this;
+                }
+
+                public Builder firstname(String firstname) {
+                        this.firstname = firstname;
+                        return this;
+                }
+
+                public Builder lastname(String lastname) {
+                        this.lastname = lastname;
+                        return this;
+                }
+
+                public Builder personalNumber(String personalNumber) {
+                        this.personalNumber = personalNumber;
+                        return this;
+                }
+
+                public Builder street(String street) {
+                        this.street = street;
+                        return this;
+                }
+
+                public Builder zip(String zip) {
+                        this.zip = zip;
+                        return this;
+                }
+
+                public Builder city(String city) {
+                        this.city = city;
+                        return this;
+                }
+
+                public Builder country(String country) {
+                        this.country = country;
+                        return this;
+                }
+
+                public Builder abbreviation(String abbreviation) {
+                        this.abbreviation = abbreviation;
+                        return this;
+                }
+
+                public Builder salutation(ZepSalutation salutation) {
+                        this.salutation = salutation;
+                        return this;
+                }
+
+                public Builder title(String title) {
+                        this.title = title;
+                        return this;
+                }
+
+                public Builder email(String email) {
+                        this.email = email;
+                        return this;
+                }
+
+                public Builder phone(String phone) {
+                        this.phone = phone;
+                        return this;
+                }
+
+                public Builder mobile(String mobile) {
+                        this.mobile = mobile;
+                        return this;
+                }
+
+                public Builder fax(String fax) {
+                        this.fax = fax;
+                        return this;
+                }
+
+                public Builder privatePhone(String privatePhone) {
+                        this.privatePhone = privatePhone;
+                        return this;
+                }
+
+                public Builder birthdate(String birthdate) {
+                        this.birthdate = birthdate;
+                        return this;
+                }
+
+                public Builder iban(String iban) {
+                        this.iban = iban;
+                        return this;
+                }
+
+                public Builder bic(String bic) {
+                        this.bic = bic;
+                        return this;
+                }
+
+                public Builder accountNo(Integer accountNo) {
+                        this.accountNo = accountNo;
+                        return this;
+                }
+
+                public Builder bankName(String bankName) {
+                        this.bankName = bankName;
+                        return this;
+                }
+
+                public Builder bankCode(String bankCode) {
+                        this.bankCode = bankCode;
+                        return this;
+                }
+
+                public Builder currency(String currency) {
+                        this.currency = currency;
+                        return this;
+                }
+
+                public Builder releaseDate(LocalDate releaseDate) {
+                        this.releaseDate = releaseDate;
+                        return this;
+                }
+
+                public Builder vat(Double vat) {
+                        this.vat = vat;
+                        return this;
+                }
+
+                public Builder priceGroup(String priceGroup) {
+                        this.priceGroup = priceGroup;
+                        return this;
+                }
+
+                public Builder employment(ZepEmployment employment) {
+                        this.employment = employment;
+                        return this;
+                }
+
+                public Builder rights(ZepRights rights) {
+                        this.rights = rights;
+                        return this;
+                }
+
+                public Builder departmentId(Integer departmentId) {
+                        this.departmentId = departmentId;
+                        return this;
+                }
+
+                public Builder language(ZepLanguage language) {
+                        this.language = language;
+                        return this;
+                }
+
+                public Builder personioId(Integer personioId) {
+                        this.personioId = personioId;
+                        return this;
+                }
+
+                public Builder costBearer(String costBearer) {
+                        this.costBearer = costBearer;
+                        return this;
+                }
+
+                public Builder taxId(Integer taxId) {
+                        this.taxId = taxId;
+                        return this;
+                }
+
+                public Builder created(LocalDateTime created) {
+                        this.created = created;
+                        return this;
+                }
+
+                public Builder modified(LocalDateTime modified) {
+                        this.modified = modified;
+                        return this;
+                }
+
+                public Builder creditorNumber(Integer creditorNumber) {
+                        this.creditorNumber = creditorNumber;
+                        return this;
+                }
+
+                public Builder categories(Collection<ZepCategory> categories) {
+                        this.categories = categories;
+                        return this;
+                }
+
+                public Builder absencesCount(Integer absencesCount) {
+                        this.absencesCount = absencesCount;
+                        return this;
+                }
+
+                public Builder dynamicAttributes(Collection<ZepDynamicAttribute> dynamicAttributes) {
+                        this.dynamicAttributes = dynamicAttributes;
+                        return this;
+                }
+
+
+                public static Builder aZepEmployee() {
+                        return new Builder();
+                }
+
+                public Builder builder(Builder builder) {
+                        this.builder = builder;
+                        return this;
+                }
+
+                public ZepEmployee createZepEmployee() {
+                        return new ZepEmployee(builder);
+                }
         }
 }

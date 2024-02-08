@@ -1,159 +1,219 @@
 package com.gepardec.mega.zep.rest.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.gepardec.mega.zep.rest.entity.builder.ZepRegularWorkingTimesBuilder;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepRegularWorkingTimes {
-        private int id;
-        private String employee_id;
-        private LocalDateTime start_date;
-        private Double monday;
-        private Double tuesday;
-        private Double wednesday;
-        private Double thursday;
-        private Double friday;
-        private Double saturday;
-        private Double sunday;
-        private Boolean is_monthly;
-        private Double monthly_hours;
-        private Double max_hours_in_month;
-        private Double max_hours_in_week;
-        public ZepRegularWorkingTimes() {
-        }
+        private final int id;
+        private final String employee_id;
+        private final LocalDateTime start_date;
+        private final Double monday;
+        private final Double tuesday;
+        private final Double wednesday;
+        private final Double thursday;
+        private final Double friday;
+        private final Double saturday;
+        private final Double sunday;
+        private final Boolean isMonthly;
+        private final Double monthlyHours;
+        private final Double maxHoursInMonth;
+        private final Double maxHoursInWeek;
 
-        public ZepRegularWorkingTimes(int id, String employee_id, LocalDateTime start_date, Double monday, Double tuesday, Double wednesday, Double thursday, Double friday, Double saturday, Double sunday, Boolean is_monthly, Double monthly_hours, Double max_hours_in_month, Double max_hours_in_week) {
-                this.id = id;
-                this.employee_id = employee_id;
-                this.start_date = start_date;
-                this.monday = monday;
-                this.tuesday = tuesday;
-                this.wednesday = wednesday;
-                this.thursday = thursday;
-                this.friday = friday;
-                this.saturday = saturday;
-                this.sunday = sunday;
-                this.is_monthly = is_monthly;
-                this.monthly_hours = monthly_hours;
-                this.max_hours_in_month = max_hours_in_month;
-                this.max_hours_in_week = max_hours_in_week;
+
+        public ZepRegularWorkingTimes(Builder builder) {
+                this.id = builder.id;
+                this.employee_id = builder.employee_id;
+                this.start_date = builder.start_date;
+                this.monday = builder.monday;
+                this.tuesday = builder.tuesday;
+                this.wednesday = builder.wednesday;
+                this.thursday = builder.thursday;
+                this.friday = builder.friday;
+                this.saturday = builder.saturday;
+                this.sunday = builder.sunday;
+                this.isMonthly = builder.isMonthly;
+                this.monthlyHours = builder.monthlyHours;
+                this.maxHoursInMonth = builder.maxHoursInMonth;
+                this.maxHoursInWeek = builder.maxHoursInWeek;
         }
 
         public int getId() {
                 return id;
         }
 
-        public void setId(int id) {
-                this.id = id;
-        }
 
         public String getEmployee_id() {
                 return employee_id;
         }
 
-        public void setEmployee_id(String employee_id) {
-                this.employee_id = employee_id;
-        }
 
         public LocalDateTime getStart_date() {
                 return start_date;
         }
 
-        public void setStart_date(LocalDateTime start_date) {
-                this.start_date = start_date;
-        }
 
         public Double getMonday() {
                 return monday;
         }
 
-        public void setMonday(Double monday) {
-                this.monday = monday;
-        }
 
         public Double getTuesday() {
                 return tuesday;
         }
 
-        public void setTuesday(Double tuesday) {
-                this.tuesday = tuesday;
-        }
 
         public Double getWednesday() {
                 return wednesday;
         }
 
-        public void setWednesday(Double wednesday) {
-                this.wednesday = wednesday;
-        }
 
         public Double getThursday() {
                 return thursday;
         }
 
-        public void setThursday(Double thursday) {
-                this.thursday = thursday;
-        }
 
         public Double getFriday() {
                 return friday;
         }
 
-        public void setFriday(Double friday) {
-                this.friday = friday;
-        }
 
         public Double getSaturday() {
                 return saturday;
         }
 
-        public void setSaturday(Double saturday) {
-                this.saturday = saturday;
-        }
 
         public Double getSunday() {
                 return sunday;
         }
 
-        public void setSunday(Double sunday) {
-                this.sunday = sunday;
+
+        public Boolean getIsMonthly() {
+                return isMonthly;
         }
 
-        public Boolean getIs_monthly() {
-                return is_monthly;
+
+        public Double getMonthlyHours() {
+                return monthlyHours;
         }
 
-        public void setIs_monthly(Boolean is_monthly) {
-                this.is_monthly = is_monthly;
+
+        public Double getMaxHoursInMonth() {
+                return maxHoursInMonth;
         }
 
-        public Double getMonthly_hours() {
-                return monthly_hours;
+
+        public Double getMaxHoursInWeek() {
+                return maxHoursInWeek;
         }
 
-        public void setMonthly_hours(Double monthly_hours) {
-                this.monthly_hours = monthly_hours;
+
+        public static Builder builder() {
+                return Builder.aZepRegularWorkingTimes();
         }
 
-        public Double getMax_hours_in_month() {
-                return max_hours_in_month;
-        }
+        public static class Builder {
+                private int id;
+                private String employee_id;
+                private LocalDateTime start_date;
+                private Double monday;
+                private Double tuesday;
+                private Double wednesday;
+                private Double thursday;
+                private Double friday;
+                private Double saturday;
+                private Double sunday;
 
-        public void setMax_hours_in_month(Double max_hours_in_month) {
-                this.max_hours_in_month = max_hours_in_month;
-        }
+                @JsonProperty("is_monthly")
+                private Boolean isMonthly;
 
-        public Double getMax_hours_in_week() {
-                return max_hours_in_week;
-        }
+                @JsonProperty("monthly_hours")
+                private Double monthlyHours;
 
-        public void setMax_hours_in_week(Double max_hours_in_week) {
-                this.max_hours_in_week = max_hours_in_week;
-        }
+                @JsonProperty("max_hours_in_month")
+                private Double maxHoursInMonth;
 
-        public static ZepRegularWorkingTimesBuilder builder() {
-                return new ZepRegularWorkingTimesBuilder();
+                @JsonProperty("max_hours_in_week")
+                private Double maxHoursInWeek;
+
+                public Builder id(int id) {
+                        this.id = id;
+                        return this;
+                }
+
+                public Builder employee_id(String employee_id) {
+                        this.employee_id = employee_id;
+                        return this;
+                }
+
+                public Builder start_date(LocalDateTime start_date) {
+                        this.start_date = start_date;
+                        return this;
+                }
+
+                public Builder monday(Double monday) {
+                        this.monday = monday;
+                        return this;
+                }
+
+                public Builder tuesday(Double tuesday) {
+                        this.tuesday = tuesday;
+                        return this;
+                }
+
+                public Builder wednesday(Double wednesday) {
+                        this.wednesday = wednesday;
+                        return this;
+                }
+
+                public Builder thursday(Double thursday) {
+                        this.thursday = thursday;
+                        return this;
+                }
+
+                public Builder friday(Double friday) {
+                        this.friday = friday;
+                        return this;
+                }
+
+                public Builder saturday(Double saturday) {
+                        this.saturday = saturday;
+                        return this;
+                }
+
+                public Builder sunday(Double sunday) {
+                        this.sunday = sunday;
+                        return this;
+                }
+
+                public Builder isMonthly(Boolean isMonthly) {
+                        this.isMonthly = isMonthly;
+                        return this;
+                }
+
+                public Builder monthlyHours(Double monthlyHours) {
+                        this.monthlyHours = monthlyHours;
+                        return this;
+                }
+
+                public Builder maxHoursInMonth(Double maxHoursInMonth) {
+                        this.maxHoursInMonth = maxHoursInMonth;
+                        return this;
+                }
+
+                public Builder maxHoursInWeek(Double maxHoursInWeek) {
+                        this.maxHoursInWeek = maxHoursInWeek;
+                        return this;
+                }
+
+                public ZepRegularWorkingTimes build() {
+                        return new ZepRegularWorkingTimes(this);
+                }
+
+                public static Builder aZepRegularWorkingTimes() {
+                        return new Builder();
+                }
         }
 
 }

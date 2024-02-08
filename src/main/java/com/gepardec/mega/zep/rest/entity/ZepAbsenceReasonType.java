@@ -1,36 +1,53 @@
 package com.gepardec.mega.zep.rest.entity;
 
-import com.gepardec.mega.zep.rest.entity.builder.ZepAbsenceReasonTypeBuilder;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 public class ZepAbsenceReasonType {
-    private Integer id;
-    private String name;
+    private final Integer id;
+    private final String name;
 
-    public ZepAbsenceReasonType() {
-    }
 
-    public ZepAbsenceReasonType(Integer id, String name) {
-        this.id = id;
-        this.name = name;
+    @JsonCreator
+    public ZepAbsenceReasonType(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
     }
 
     public Integer getId() {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+
+    public static Builder builder() {
+        return Builder.aZepAbsenceReasonType();
     }
 
-    public static ZepAbsenceReasonTypeBuilder builder() {
-        return new ZepAbsenceReasonTypeBuilder();
+    public static class Builder {
+        private Integer id;
+        private String name;
+
+        public Builder id(Integer id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public ZepAbsenceReasonType build() {
+            return new ZepAbsenceReasonType(this);
+        }
+
+        public static Builder aZepAbsenceReasonType() {
+            return new Builder();
+        }
     }
 }

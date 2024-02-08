@@ -1,7 +1,6 @@
 package com.gepardec.mega.zep.rest.util;
 
 import com.gepardec.mega.helper.ResourceFileService;
-import com.gepardec.mega.helper.ResourcePath;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;

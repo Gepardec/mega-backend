@@ -13,6 +13,7 @@ import java.util.List;
 @ApplicationScoped
 public class ProjectMapper implements Mapper<Project, ZepProject> {
 
+    //TODO: remove this default value
     private static final LocalDate DEFAULT_END_DATE = LocalDate.of(2029, 12, 1);
     public Project map(ZepProject zepProject) {
         if (zepProject == null)
