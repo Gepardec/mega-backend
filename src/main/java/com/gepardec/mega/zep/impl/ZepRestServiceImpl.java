@@ -76,6 +76,7 @@ public class ZepRestServiceImpl implements ZepService {
     @Inject
     Mapper<Project, ZepProject> projectMapper;
 
+    @Inject
     Mapper<MultivaluedMap<String, String>, List<ZepProjectEmployee>> projectEmployeesMapper;
 
     @Inject

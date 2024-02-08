@@ -1,11 +1,13 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 
 import java.util.List;
 
+@ApplicationScoped
 public class ProjectEmployeesMapper implements Mapper<MultivaluedMap<String, String>, List<ZepProjectEmployee>>{
 
     public static final String USER = "user";
