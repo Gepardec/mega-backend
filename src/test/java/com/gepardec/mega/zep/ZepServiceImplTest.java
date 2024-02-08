@@ -3,6 +3,7 @@ package com.gepardec.mega.zep;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
+import com.gepardec.mega.zep.impl.ZepSoapServiceImpl;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
 import de.provantis.zep.MitarbeiterListeType;
 import de.provantis.zep.MitarbeiterType;
@@ -55,7 +56,7 @@ class ZepServiceImplTest {
     @Inject
     Logger logger;
 
-    ZepServiceSoapImpl zepService;
+    ZepSoapServiceImpl zepService;
 
     private ProjektMitarbeiterListeType projektMitarbeiterListeType;
 
@@ -86,7 +87,7 @@ class ZepServiceImplTest {
     void setUp() {
         zepSoapPortType = mock(ZepSoapPortType.class);
 
-        zepService = new ZepServiceSoapImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper);
+        zepService = new ZepSoapServiceImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper);
 
         final ReadProjekteResponseType readProjekteResponseType = new ReadProjekteResponseType();
         final ProjektListeType projektListeType = new ProjektListeType();

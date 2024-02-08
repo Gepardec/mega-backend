@@ -17,6 +17,8 @@ import com.gepardec.mega.rest.model.ProjectManagementEntryDto;
 import com.gepardec.mega.service.api.*;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.impl.Rest;
+import com.gepardec.mega.zep.impl.Soap;
 import de.provantis.zep.ProjektzeitType;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;

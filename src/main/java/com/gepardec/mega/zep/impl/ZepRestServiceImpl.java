@@ -1,4 +1,4 @@
-package com.gepardec.mega.zep.rest;
+package com.gepardec.mega.zep.impl;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
@@ -7,9 +7,26 @@ import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.rest.entity.*;
-import com.gepardec.mega.zep.rest.mapper.*;
-import com.gepardec.mega.zep.rest.service.*;
+import com.gepardec.mega.zep.rest.entity.ZepAbsence;
+import com.gepardec.mega.zep.rest.entity.ZepAttendance;
+import com.gepardec.mega.zep.rest.entity.ZepEmployee;
+import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.rest.entity.ZepProject;
+import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
+import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
+import com.gepardec.mega.zep.rest.mapper.AbsenceMapper;
+import com.gepardec.mega.zep.rest.mapper.AttendanceMapper;
+import com.gepardec.mega.zep.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.zep.rest.mapper.ProjectEmployeesMapper;
+import com.gepardec.mega.zep.rest.mapper.ProjectEntryMapper;
+import com.gepardec.mega.zep.rest.mapper.ProjectMapper;
+import com.gepardec.mega.zep.rest.mapper.RegularWorkingHoursMapMapper;
+import com.gepardec.mega.zep.rest.service.AbsenceService;
+import com.gepardec.mega.zep.rest.service.AttendanceService;
+import com.gepardec.mega.zep.rest.service.EmployeeService;
+import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
+import com.gepardec.mega.zep.rest.service.ProjectService;
+import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
@@ -21,8 +38,8 @@ import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
-@Typed(ZepRestService.class)
-public class ZepRestService implements ZepService {
+@Rest
+public class ZepRestServiceImpl implements ZepService {
 
     @Inject
     EmployeeService employeeService;

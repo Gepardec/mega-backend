@@ -1,7 +1,9 @@
 package com.gepardec.mega.zep.rest.integration;
 
 import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.zep.rest.ZepRestService;
+import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.impl.Rest;
+
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Disabled;
@@ -19,8 +21,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class EmployeeIntegration {
 
 
-    @Inject
-    ZepRestService zepRestService;
+    @Inject @Rest
+    ZepService zepService;
 
 
     @Test
@@ -48,7 +50,7 @@ public class EmployeeIntegration {
                 .exitDate(null)
                 .build();
 
-        Employee actual = zepRestService.getEmployee("001-hwirnsberger");
+        Employee actual = zepService.getEmployee("001-hwirnsberger");
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }

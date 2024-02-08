@@ -15,6 +15,8 @@ import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
 import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.impl.Rest;
+import com.gepardec.mega.zep.impl.Soap;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;

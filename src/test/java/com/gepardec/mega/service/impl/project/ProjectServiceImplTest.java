@@ -6,6 +6,8 @@ import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.service.impl.ProjectServiceImpl;
 import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.impl.Rest;
+import com.gepardec.mega.zep.impl.Soap;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;

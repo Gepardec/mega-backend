@@ -1,9 +1,12 @@
-package com.gepardec.mega.zep;
+package com.gepardec.mega.zep.impl;
 
 import com.gepardec.mega.domain.model.*;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
+import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.ZepServiceException;
+import com.gepardec.mega.zep.ZepSoapProvider;
 import com.gepardec.mega.zep.mapper.AbsenceTimeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
 import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
@@ -32,8 +35,8 @@ import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth
 import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfCurrentMonth;
 
 @RequestScoped
-@Typed(ZepServiceSoapImpl.class)
-public class ZepServiceSoapImpl implements ZepService {
+@Soap
+public class ZepSoapServiceImpl implements ZepService {
 
 
     private static final Range<Integer> PROJECT_LEAD_RANGE = Range.between(1, 2);
@@ -42,14 +45,14 @@ public class ZepServiceSoapImpl implements ZepService {
 
     private final Logger logger;
 
-    private final ZepSoapPortType zepSoapPortType;
+    private final de.provantis.zep.ZepSoapPortType zepSoapPortType;
 
     private final ZepSoapProvider zepSoapProvider;
 
     private final ProjectEntryMapper projectEntryMapper;
 
     @Inject
-    public ZepServiceSoapImpl(final EmployeeMapper employeeMapper,
+    public ZepSoapServiceImpl(final EmployeeMapper employeeMapper,
                               final Logger logger,
                               final ZepSoapPortType zepSoapPortType,
                               final ZepSoapProvider zepSoapProvider,

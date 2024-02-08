@@ -1,11 +1,12 @@
 package com.gepardec.mega.zep;
 
 import com.gepardec.mega.domain.model.ProjectTime;
-import com.gepardec.mega.zep.rest.ZepRestService;
+import com.gepardec.mega.zep.impl.Rest;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -13,12 +14,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 @QuarkusTest
-public class    ZepRestServiceImplTest {
+public class ZepRestServiceImplTest {
     @Inject
     RegularWorkingTimesService regularWorkingTimesService;
 
-    @Inject
-    ZepRestService zepRestService;
+    @Inject @Rest
+    ZepService zepRestService;
 
 //    @Inject
 //    ZepEmployeeRestClient zepEmployeeRestClient;

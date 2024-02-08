@@ -1,11 +1,11 @@
-package com.gepardec.mega.zep;
+package com.gepardec.mega.zep.impl;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
-import com.gepardec.mega.zep.rest.ZepRestService;
+import com.gepardec.mega.zep.ZepService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -16,11 +16,11 @@ import java.util.Optional;
 @ApplicationScoped
 public class ZepServiceImpl implements ZepService {
 
-    @Inject
-    ZepServiceSoapImpl zepServiceSoap;
+    @Soap
+    ZepService zepServiceSoap;
 
-    @Inject
-    ZepRestService zepServiceRest;
+    @Rest
+    ZepService zepServiceRest;
 
     @Override
     public Employee getEmployee(String userId) {
