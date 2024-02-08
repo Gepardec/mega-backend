@@ -2,7 +2,7 @@
   "data": [
     {
       "id": 155,
-      "employee_id": "082-tmeindl",
+      "employee_id": "001-duser",
       "start_date": null,
       "monday": 8,
       "tuesday": 8,
@@ -33,8 +33,8 @@
     }
   ],
   "links": {
-    "first": "http:\/\/www.zep-online.de\/zepgepardecservices_test\/next\/api\/v1\/employees\/082-tmeindl\/regular-working-times?page=1",
-    "last": "http:\/\/www.zep-online.de\/zepgepardecservices_test\/next\/api\/v1\/employees\/082-tmeindl\/regular-working-times?page=1",
+    "first": "http:\/\/www.zep-online.de\/zepgepardecservices_test\/next\/api\/v1\/employees\/001-duser\/regular-working-times?page=1",
+    "last": "http:\/\/www.zep-online.de\/zepgepardecservices_test\/next\/api\/v1\/employees\/001-duser\/regular-working-times?page=1",
     "prev": null,
     "next": null
   },
@@ -49,7 +49,7 @@
         "active": false
       },
       {
-        "url": "http:\/\/www.zep-online.de\/zepgepardecservices_test\/next\/api\/v1\/employees\/082-tmeindl\/regular-working-times?page=1",
+        "url": "http:\/\/www.zep-online.de\/zepgepardecservices_test\/next\/api\/v1\/employees\/001-duser\/regular-working-times?page=1",
         "label": "1",
         "active": true
       },
@@ -59,7 +59,7 @@
         "active": false
       }
     ],
-    "path": "http:\/\/www.zep-online.de\/zepgepardecservices_test\/next\/api\/v1\/employees\/082-tmeindl\/regular-working-times",
+    "path": "http:\/\/www.zep-online.de\/zepgepardecservices_test\/next\/api\/v1\/employees\/001-duser\/regular-working-times",
     "per_page": 15,
     "to": 1,
     "total": 1

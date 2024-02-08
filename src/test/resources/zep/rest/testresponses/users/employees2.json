@@ -1,0 +1,10 @@
+{
+  "data":
+  [
+    {"username": "001-tuser" }
+  ],
+  "links": {
+    "next": "http://www.zep-online.de/instance/next/api/v1/employees?page=3"
+  }
+}
+

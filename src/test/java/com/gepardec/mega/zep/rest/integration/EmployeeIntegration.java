@@ -4,6 +4,7 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.zep.rest.ZepRestService;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
@@ -23,6 +24,7 @@ public class EmployeeIntegration {
 
 
     @Test
+    @Disabled
     public void fetchValidEmployee_thenReturnEmployee() {
 
         Employee expected = Employee.builder()

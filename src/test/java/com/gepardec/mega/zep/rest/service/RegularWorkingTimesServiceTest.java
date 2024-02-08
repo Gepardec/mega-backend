@@ -3,6 +3,7 @@ package com.gepardec.mega.zep.rest.service;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
+import com.gepardec.mega.zep.util.files.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
@@ -30,14 +31,15 @@ public class RegularWorkingTimesServiceTest {
     @Inject
     RegularWorkingTimesService regularWorkingTimesService;
 
-
+    @Inject
+    ResourceFileService resourceFileService;
 
     @Test
     public void getRegularWorkingTimesByUsername_receiveValidWorkingTime_then_returnValidZepWorkingTime(){
 
         ZepRegularWorkingTimes regularWorkingTimes = ZepRegularWorkingTimes.builder()
                 .id(155)
-                .employee_id("082-tmeindl")
+                .employee_id("001-duser")
                 .start_date(null)
                 .monday(8.0)
                 .tuesday(8.0)
@@ -52,19 +54,14 @@ public class RegularWorkingTimesServiceTest {
                 .max_hours_in_week(null)
                 .build();
 
-        String responseBody;
+        resourceFileService.getSingleFile("/regularWorkingTimes/regularWorkingTimes001duser.json").ifPresent(json -> {
+            Response response = Response.ok().entity(json).build();
+            when(zepEmployeeRestClient.getRegularWorkingTimesByUsername("001-duser", 1)).thenReturn(response);
+        });
 
-        try {
-            responseBody = FileUtils.readFileToString(new File("src/test/resources/zep/rest/testresponses/regularWorkingTimes_OK_082-tmeindl_body.json"), StandardCharsets.UTF_8);
-        }catch (Exception e){
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
 
-        Response response = Response.ok().entity(responseBody).build();
-        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString(), Mockito.anyInt())).thenReturn(response);
 
-        ZepRegularWorkingTimes actual = regularWorkingTimesService.getRegularWorkingTimesByUsername("dfsfdsds");
+        ZepRegularWorkingTimes actual = regularWorkingTimesService.getRegularWorkingTimesByUsername("001-duser");
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(regularWorkingTimes);
     }

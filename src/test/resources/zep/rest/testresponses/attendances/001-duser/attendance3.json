@@ -1,0 +1,15 @@
+{
+  "data": [
+    {
+      "id": 4,
+      "billable": 3
+    },
+    {
+      "id": 5,
+      "billable": 4
+    }
+  ],
+  "links": {
+    "next": null
+  }
+}

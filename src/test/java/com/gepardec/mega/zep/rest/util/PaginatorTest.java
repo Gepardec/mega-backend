@@ -5,8 +5,10 @@ import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepProject;
 import com.gepardec.mega.zep.util.Paginator;
 import com.gepardec.mega.zep.util.ZepRestUtil;
+import com.gepardec.mega.zep.util.files.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
@@ -31,28 +33,12 @@ public class PaginatorTest {
     @InjectMock
     ZepProjectRestClient zepProjectRestClient;
 
+    @Inject
+    ResourceFileService resourceFileService;
+
     @Test
     public void withFullPaginatedJsons_thenReturnList() {
-        List<String> responseJsons = List.of(
-                "{ \"data\": [{\"id\": 1, \"name\": \"mega\"}," +
-                        "{\"id\": 2, \"name\": \"gema\"}]," +
-                        "\"links\": {" +
-                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=2\" \n" +
-                        "} \n" +
-                        "}",
-                "{ \"data\": [{\"id\": 3, \"name\": \"EGA\"}," +
-                        "{\"id\": 4, \"name\": \"SUPERMEGA\"}]," +
-                        "\"links\": {" +
-                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=3\" \n" +
-                        "} \n" +
-                        "}",
-                "{ \"data\": [{\"id\": 5, \"name\": \"MEGA\"}," +
-                        "{\"id\": 6, \"name\": \"ega\"}]," +
-                        "\"links\": {" +
-                        "   \"next\": null \n" +
-                        "} \n" +
-                        "}"
-        );
+        List<String> responseJsons = resourceFileService.getDirContents("projects");
 
         when(zepProjectRestClient.getProjects(eq(1)))
                 .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
@@ -61,7 +47,7 @@ public class PaginatorTest {
         when(zepProjectRestClient.getProjects(eq(3)))
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
 
-        String[] names = {"mega", "gema", "EGA", "SUPERMEGA", "MEGA", "ega"};
+        String[] names = {"MEGA", "gema", "EGA", "SUPERMEGA", "mega", "ega"};
 
 
         List<ZepProject> projectList = Paginator.retrieveAll(page -> zepProjectRestClient.getProjects(page), ZepProject.class);
@@ -78,17 +64,17 @@ public class PaginatorTest {
 
     @Test
     public void withEmptyPages_thenReturnEmptyList() {
-        String anyPage = "{ \"data\": [], \"links\": {" +
-                "\"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/4\\/employees?page=%d\"}}";
-        String page3 = "{ \"data\": [], \"links\": {" +
-                "\"next\": null }}";
+        String anyPage = resourceFileService.getSingleFile("paginator/emptyPage.json").get();
+        String lastPage = resourceFileService.getSingleFile("paginator/emptyPageLast.json").get();
+
+        int pages = 3;
         List<ZepProject> list = Paginator.retrieveAll(
                 page -> {
                     String json;
-                    if (page == 3) {
-                        json = page3;
+                    if (page == pages) {
+                        json = lastPage;
                     } else {
-                        json = String.format(anyPage, page + 1);
+                        json = anyPage;
                     }
                     return Response.ok().entity(json).build();
                 },
@@ -98,17 +84,16 @@ public class PaginatorTest {
 
     @Test
     public void withEmptyPages_thenReturnNullSearch() {
-        String anyPage = "{ \"data\": [], \"links\": {" +
-                "\"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/4\\/employees?page=%d\"}}";
-        String page3 = "{ \"data\": [], \"links\": {" +
-                "\"next\": null }}";
+        String anyPage = resourceFileService.getSingleFile("paginator/emptyPage.json").get();
+        String lastPage = resourceFileService.getSingleFile("paginator/emptyPageLast.json").get();
+        int pages = 3;
         Optional<ZepProject> projectOpt = Paginator.searchInAll(
                 page -> {
                     String json;
-                    if (page == 3) {
-                        json = page3;
+                    if (page == pages) {
+                        json = lastPage;
                     } else {
-                        json = String.format(anyPage, page + 1);
+                        json = anyPage;
                     }
                     return Response.ok().entity(json).build();
                 },
@@ -118,7 +103,8 @@ public class PaginatorTest {
     }
     @Test
     public void withEmptyData_thenReturnNullSearch() {
-        String anyPage = "{ \"data\": [], \"links\": {\"next\": null}}";
+        String anyPage = resourceFileService.getSingleFile("paginator/emptyPageLast.json").get();
+
         Optional<ZepProject> projectOpt = Paginator.searchInAll(
                 page -> Response.ok().entity(anyPage).build(),
                 project -> project.getName().equals("mega"),
@@ -129,7 +115,8 @@ public class PaginatorTest {
 
     @Test
     public void withNullData_thenReturnNullSearch() {
-        String anyPage = "{ \"data\": null, \"links\": {\"next\": null}}";
+        String anyPage = resourceFileService.getSingleFile("paginator/nullPage.json").get();
+
         Optional<ZepProject> projectOpt = Paginator.searchInAll(
                 page -> Response.ok().entity(anyPage).build(),
                 project -> project.getName().equals("mega"),
@@ -139,7 +126,7 @@ public class PaginatorTest {
     }
     @Test
     public void withNullData_thenReturnEmptyList() {
-        String anyPage = "{ \"data\": null, \"links\": {\"next\": null}}";
+        String anyPage = resourceFileService.getSingleFile("paginator/nullPage.json").get();
         List<ZepProject> list = Paginator.retrieveAll(
                 page -> Response.ok().entity(anyPage).build(),
                 ZepProject.class);
@@ -149,26 +136,8 @@ public class PaginatorTest {
 
     @Test
     public void withFullPaginatedJsons_thenReturnSearch() {
-        List<String> responseJsons = List.of(
-                "{ \"data\": [{\"id\": 1, \"name\": \"mega\"}," +
-                        "{\"id\": 2, \"name\": \"gema\"}]," +
-                        "\"links\": {" +
-                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=2\" \n" +
-                        "} \n" +
-                        "}",
-                "{ \"data\": [{\"id\": 3, \"name\": \"EGA\"}," +
-                        "{\"id\": 4, \"name\": \"SUPERMEGA\"}]," +
-                        "\"links\": {" +
-                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=3\" \n" +
-                        "} \n" +
-                        "}",
-                "{ \"data\": [{\"id\": 5, \"name\": \"MEGA\"}," +
-                        "{\"id\": 6, \"name\": \"ega\"}]," +
-                        "\"links\": {" +
-                        "   \"next\": null \n" +
-                        "} \n" +
-                        "}"
-        );
+        List<String> responseJsons = resourceFileService.getDirContents("projects");
+
 
         when(zepProjectRestClient.getProjects(eq(1)))
                 .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
@@ -188,26 +157,8 @@ public class PaginatorTest {
 
     @Test
     public void withFullPaginatedJsons_thenReturnNullSearch() {
-        List<String> responseJsons = List.of(
-                "{ \"data\": [{\"id\": 1, \"name\": \"mega\"}," +
-                        "{\"id\": 2, \"name\": \"gema\"}]," +
-                        "\"links\": {" +
-                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=2\" \n" +
-                        "} \n" +
-                        "}",
-                "{ \"data\": [{\"id\": 3, \"name\": \"EGA\"}," +
-                        "{\"id\": 4, \"name\": \"SUPERMEGA\"}]," +
-                        "\"links\": {" +
-                        "   \"next\": \"http:\\/\\/www.zep-online.de\\/demo\\/next\\/api\\/v1\\/projects\\/54\\/employees?page=3\" \n" +
-                        "} \n" +
-                        "}",
-                "{ \"data\": [{\"id\": 5, \"name\": \"MEGA\"}," +
-                        "{\"id\": 6, \"name\": \"ega\"}]," +
-                        "\"links\": {" +
-                        "   \"next\": null \n" +
-                        "} \n" +
-                        "}"
-        );
+        List<String> responseJsons = resourceFileService.getDirContents("projects");
+
 
 
         when(zepProjectRestClient.getProjects(eq(1)))

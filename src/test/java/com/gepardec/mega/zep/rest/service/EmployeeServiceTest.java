@@ -3,6 +3,7 @@ package com.gepardec.mega.zep.rest.service;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.*;
+import com.gepardec.mega.zep.util.files.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.ws.rs.core.Response;
@@ -37,66 +38,29 @@ public class EmployeeServiceTest {
     @Inject
     EmployeeService employeeService;
 
+    @Inject
+    ResourceFileService resourceFileService;
+
+    @BeforeEach
+    public void init() {
+        resourceFileService.getSingleFile("/user007.json").ifPresent(json -> {
+            Response response = Response.ok().entity(json).build();
+            when(zepEmployeeRestClient.getByPersonalNumber("007")).thenReturn(response);
+        });
+
+        List<String> responseJson = resourceFileService.getDirContents("/users");
+
+        IntStream.range(0, responseJson.size()).forEach(
+                i -> {
+                    when(zepEmployeeRestClient
+                            .getAllEmployeesOfPage(eq(i + 1)))
+                            .thenReturn(Response.ok().entity(responseJson.get(i)).build());
+                }
+        );
+    }
+
     @Test
     public void getEmployeeJson_thenReturnZepEmployee() {
-        String employeeJson =
-                "{\n" +
-                "  \"data\": [{\n" +
-                "    \"username\": \"007-jbond\",\n" +
-                "    \"firstname\": \"James\",\n" +
-                "    \"lastname\": \"Bond\",\n" +
-                "    \"personal_number\": \"007\",\n" +
-                "    \"street\": \"Herzgasse 9\",\n" +
-                "    \"zip\": \"1100\",\n" +
-                "    \"city\": \"Wien\",\n" +
-                "    \"country\": \"Austria\",\n" +
-                "    \"abbreviation\": \"JBO\",\n" +
-                "    \"salutation\": {\n" +
-                "      \"id\": \"Herr\",\n" +
-                "      \"name\": \"Sir\"\n" +
-                "    },\n" +
-                "    \"title\": \"BSc\",\n" +
-                "    \"email\": \"james.bond@gepardec.com\",\n" +
-                "    \"phone\": \"+4300707\",\n" +
-                "    \"mobile\": \"+43007\",\n" +
-                "    \"fax\": \"007\",\n" +
-                "    \"private_phone\": \"+39 007007\",\n" +
-                "    \"birthdate\": \"2007-07-07\",\n" +
-                "    \"iban\": \"AT07 0707 0707 0707 0707\",\n" +
-                "    \"bic\": \"JBANK3\",\n" +
-                "    \"account_no\": \"7\",\n" +
-                "    \"bank_name\": \"James Bank\",\n" +
-                "    \"bank_code\": \"007\",\n" +
-                "    \"currency\": \"Bonds\",\n" +
-                "    \"release_date\": \"2022-02-28T00:00:00.000000Z\",\n" +
-                "    \"vat\": 20,\n" +
-                "    \"price_group\": \"03\",\n" +
-                "    \"employment\": {\n" +
-                "      \"id\": 0,\n" +
-                "      \"name\": \"Employee\"\n" +
-                "    },\n" +
-                "    \"rights\": {\n" +
-                "      \"id\": 7,\n" +
-                "      \"name\": \"bond\"\n" +
-                "    },\n" +
-                "    \"department_id\": 7,\n" +
-                "    \"language\": {\"id\": \"en\", \"name\": \"English\"},\n" +
-                "    \"personio_id\": 7,\n" +
-                "    \"cost_bearer\": null,\n" +
-                "    \"tax_id\": null,\n" +
-                "    \"created\": \"2023-05-24T11:27:29.000000Z\",\n" +
-                "    \"modified\": \"2024-01-10T06:46:37.000000Z\",\n" +
-                "    \"creditor_number\": null,\n" +
-                "    \"categories\": [],\n" +
-                "    \"absences_count\": 7\n" +
-                "  }]\n" +
-                "}";
-
-        Response response = Response
-                .ok()
-                .entity(employeeJson)
-                .build();
-        when(zepEmployeeRestClient.getByPersonalNumber(any())).thenReturn(response);
 
         List<ZepEmploymentPeriod> zepEmploymentPeriods = List.of(
                 ZepEmploymentPeriod.builder()
@@ -169,30 +133,6 @@ public class EmployeeServiceTest {
 
     @Test
     public void getZepEmployees_whenEmployeesList() {
-        String[] employeePagesBody = {
-                "{" +
-                    "\"data\": [{\"username\": \"000-duser\" }], " +
-                    "\"links\": {" +
-                        "\"next\": \"http:\\/\\/www.zep-online.de\\/instance\\/next\\/api\\/v1\\/employees?page=2\"" +
-                    "}" +
-                "}",
-                "{" +
-                    "\"data\": [{\"username\": \"001-tuser\" }], " +
-                    "\"links\": {" +
-                        "\"next\": \"http:\\/\\/www.zep-online.de\\/instance\\/next\\/api\\/v1\\/employees?page=3\"" +
-                    "}" +
-                "}",
-                "{" +
-                    "\"data\": [{\"username\": \"007-jbond\" }], " +
-                    "\"links\": {\"next\": null}" +
-                "}",
-        };
-
-        IntStream.range(0, 3).forEach(i -> {
-            Response responseEmployeePages = Response.ok().entity(employeePagesBody[i]).build();
-            when(zepEmployeeRestClient.getAllEmployeesOfPage(i + 1)).thenReturn(responseEmployeePages);
-        });
-
         var periods000 = List.of(
                 ZepEmploymentPeriod.builder()
                         .id(23)

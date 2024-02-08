@@ -1,0 +1,11 @@
+{
+  "data": [
+    { 
+      "id": 3,
+      "billable": 2
+    }
+  ],
+  "links": {
+    "next":  "http://demo-zep/attendances?username=001-duser&start_date=2024-02-01&end_date=2024-02-28&page=3"
+  }
+}

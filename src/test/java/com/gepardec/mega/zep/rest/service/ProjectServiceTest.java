@@ -1,34 +1,27 @@
 package com.gepardec.mega.zep.rest.service;
 
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
-import com.gepardec.mega.zep.rest.entity.*;
-import com.gepardec.mega.zep.rest.entity.builder.ZepProjectEmployeeTypeBuilder;
+import com.gepardec.mega.zep.rest.entity.ZepProject;
 import com.gepardec.mega.zep.util.Paginator;
-import io.quarkus.test.junit.QuarkusMock;
+import com.gepardec.mega.zep.util.files.ResourceFileService;
+import com.gepardec.mega.zep.util.files.ResourcePath;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
-import org.apache.commons.io.FileUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -42,13 +35,21 @@ public class ProjectServiceTest {
     @Inject
     ProjectService projectService;
 
+    @Inject
+    ResourceFileService resourceFileService;
+
+    @Test
+    public void test() {
+        System.out.println(resourceFileService.getFilesDir().getPath());
+    }
+
     @BeforeEach
     public void setup() {
         this.getPaginatedProjectsMock();
     }
 
     private void getPaginatedProjectsMock() {
-        List<String> responseJsons = getPages("/zep/rest/testresponses/projectPaginated");
+        List<String> responseJsons = resourceFileService.getDirContents("projects");
         System.out.println(responseJsons);
 
         when(zepProjectRestClient.getProjects( eq(1)))
@@ -134,41 +135,6 @@ public class ProjectServiceTest {
                 LocalDate.of(2022, 1, 2));
         assertThat(project.isEmpty()).isTrue();
 
-    }
-
-    public static List<String> getPages(String resourcesPath) {
-        File folder = getFileOfResourcesPath(resourcesPath);
-
-        if (!folder.isDirectory()) {
-            throw new RuntimeException("No directory found at " + folder.getPath());
-        }
-
-        File[] files = Objects.requireNonNull(folder.listFiles());
-        return Arrays.stream(files)
-                .map(ProjectServiceTest::readFile)
-                .collect(Collectors.toList());
-
-    }
-
-    public static Optional<String> getSingleFile(String resourcesPath) {
-        File file = getFileOfResourcesPath(resourcesPath);
-        if (!file.isFile()) {
-            return Optional.empty();
-        }
-        return Optional.of(readFile(file));
-    }
-
-    private static String readFile(File f) {
-        try {
-            return FileUtils.readFileToString(f, "UTF-8");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static File getFileOfResourcesPath(String resourcesPath) {
-        String path = ProjectServiceTest.class.getResource(resourcesPath).getPath();
-        return new File(path);
     }
 
 
