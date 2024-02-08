@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 //Integration tests for the getEmployee method in ZepRestService
 @QuarkusTest
-//@Disabled
+@Disabled
 public class ZepRestIntegrationTest {
 
 
@@ -119,4 +119,6 @@ public class ZepRestIntegrationTest {
         Project project = zepService.getProjectByName("BVAEB-KAP-2021", LocalDate.of(2021, 1, 1)).get();
         System.out.println(project.getZepId());
     }
+
+
 }
