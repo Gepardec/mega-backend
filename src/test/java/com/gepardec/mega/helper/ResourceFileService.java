@@ -1,6 +1,5 @@
-package com.gepardec.mega.zep.util.files;
+package com.gepardec.mega.helper;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import org.apache.commons.io.FileUtils;
 

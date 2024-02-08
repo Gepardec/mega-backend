@@ -1,9 +1,9 @@
 package com.gepardec.mega.zep.rest.service;
 
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.gepardec.mega.helper.ResourceFileService;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.*;
-import com.gepardec.mega.zep.util.files.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.ws.rs.core.Response;

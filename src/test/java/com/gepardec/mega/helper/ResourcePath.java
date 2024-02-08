@@ -1,4 +1,4 @@
-package com.gepardec.mega.zep.util.files;
+package com.gepardec.mega.helper;
 
 import jakarta.inject.Qualifier;
 

@@ -2,7 +2,7 @@ package com.gepardec.mega.zep.rest.service;
 
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
-import com.gepardec.mega.zep.util.files.ResourceFileService;
+import com.gepardec.mega.helper.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
