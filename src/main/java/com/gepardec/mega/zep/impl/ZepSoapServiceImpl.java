@@ -72,13 +72,13 @@ public class ZepSoapServiceImpl implements ZepService {
         return getEmployeeInternal(readMitarbeiterSearchCriteriaType).stream().findFirst().orElse(null);
     }
 
-    @CacheResult(cacheName = "employee")
+    
     @Override
     public List<Employee> getEmployees() {
         return getEmployeeInternal(null);
     }
 
-    @CacheInvalidate(cacheName = "employee")
+    
     @Override
     public void updateEmployeesReleaseDate(final String userId, final String releaseDate) {
         logger.info("start update user {} with releaseDate {}", userId, releaseDate);
@@ -105,7 +105,7 @@ public class ZepSoapServiceImpl implements ZepService {
         }
     }
 
-    @CacheResult(cacheName = "fehlzeitentype")
+    
     @Override
     public List<AbsenceTime> getAbsenceForEmployee(Employee employee, LocalDate date) {
         final ReadFehlzeitRequestType fehlzeitenRequest = new ReadFehlzeitRequestType();
@@ -130,7 +130,7 @@ public class ZepSoapServiceImpl implements ZepService {
         return Collections.emptyList();
     }
 
-    @CacheResult(cacheName = "projektzeittype")
+    
     @Override
     public List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date) {
         ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(employee, date, this::createProjectTimeSearchCriteria);
@@ -146,7 +146,7 @@ public class ZepSoapServiceImpl implements ZepService {
     }
 
 
-    @CacheResult(cacheName = "projectentry")
+    
     @Override
     public List<ProjectEntry> getProjectTimes(Employee employee, LocalDate date) {
         ReadProjektzeitenResponseType projectTimeResponse = readProjektzeitenWithSearchCriteria(employee, date, this::createProjectTimeSearchCriteria);
@@ -158,7 +158,7 @@ public class ZepSoapServiceImpl implements ZepService {
                 .collect(Collectors.toList());
     }
 
-    @CacheResult(cacheName = "projektzeittype")
+    
     @Override
     public List<ProjectTime> getProjectTimesForEmployeePerProject(String projectID, LocalDate curDate) {
         ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(projectID, curDate, this::createProjectTimesForEmployeePerProjectSearchCriteria);
@@ -173,7 +173,7 @@ public class ZepSoapServiceImpl implements ZepService {
         return Collections.emptyList();
     }
 
-    @CacheResult(cacheName = "project")
+    
     @Override
     public List<Project> getProjectsForMonthYear(final LocalDate monthYear) {
         final ReadProjekteResponseType readProjekteResponseType = getProjectsInternal(monthYear);

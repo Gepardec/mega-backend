@@ -131,9 +131,11 @@ public class ZepAbsence {
 
     public static class Builder {
 
+        @JsonProperty
         private Integer id;
         @JsonProperty("employee_id")
         private String employeeId;
+        @JsonProperty
         private String type;
         @JsonProperty("start_date")
 
@@ -141,13 +143,21 @@ public class ZepAbsence {
         @JsonProperty("end_date")
 
         private LocalDate endDate;
+        @JsonProperty
         private Double hours;
+        @JsonProperty
         private LocalTime from;
+        @JsonProperty
         private LocalTime to;
+        @JsonProperty
         private String note;
+        @JsonProperty
         private boolean approved;
+        @JsonProperty
         private String timezone;
+        @JsonProperty
         private String created;
+        @JsonProperty
         private String modified;
         @JsonProperty("absenceReason")
         private ZepAbsenceReason absenceReason;

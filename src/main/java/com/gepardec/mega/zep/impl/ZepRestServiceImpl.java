@@ -28,6 +28,8 @@ import com.gepardec.mega.zep.rest.service.EmployeeService;
 import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
 import com.gepardec.mega.zep.rest.service.ProjectService;
 import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
+import io.quarkus.cache.CacheInvalidate;
+import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
@@ -103,6 +105,7 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     @Override
+    @CacheResult(cacheName = "employee")
     public List<Employee> getEmployees() {
         List<ZepEmployee> zepEmployees = employeeService.getZepEmployees();
         List<Employee> employees = employeeMapper.mapList(zepEmployees);
@@ -117,6 +120,7 @@ public class ZepRestServiceImpl implements ZepService {
         return employees;
     }
 
+    @CacheInvalidate(cacheName = "employee")
     @Override
     public void updateEmployeesReleaseDate(String userId, String releaseDate) {
         return;         // Currently not supported by REST - use SOAP instead
@@ -131,7 +135,12 @@ public class ZepRestServiceImpl implements ZepService {
     @Override
     public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, LocalDate curDate) {
         List<ZepAttendance> allZepAttendancesForProject = new ArrayList<>();
-        Integer projectId = projectService.getProjectByName(project, curDate).map(ZepProject::getId).orElse(null);
+        Optional<ZepProject> projectOpt = projectService.getProjectByName(project, curDate);
+        if (projectOpt.isEmpty()) {
+            return List.of();
+        }
+
+        Integer projectId = projectOpt.get().getId();
 
         List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(projectId);
 

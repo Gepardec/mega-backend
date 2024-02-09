@@ -91,9 +91,11 @@ public class ZepAbsenceReason {
 
 
     public static class Builder {
-
+        @JsonProperty
         public String name;
+        @JsonProperty
         public String comment;
+        @JsonProperty
         public Byte approve;
         @JsonProperty("allow_self_entry")
         public Byte allowSelfEntry;
@@ -103,7 +105,9 @@ public class ZepAbsenceReason {
         public Byte allowHoursOfVacation;
         @JsonProperty("anyone_can_see_name")
         public Byte anyoneCanSeeName;
+        @JsonProperty
         public String color;
+        @JsonProperty
         public ZepAbsenceReasonType type;
 
         @JsonProperty("client_calendar_category")
@@ -112,7 +116,9 @@ public class ZepAbsenceReason {
         @JsonProperty("inform_employee_upon_approval_or_revocation")
         public Byte informEmployeeUponApprovalOrRevocation;
 
+        @JsonProperty
         public String created;
+        @JsonProperty
         public String modified;
 
 

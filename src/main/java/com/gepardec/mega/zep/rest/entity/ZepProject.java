@@ -417,8 +417,11 @@ public class ZepProject {
             private String costObject;
             @JsonProperty("cost_object_identifier")
             private String costObjectIdentifier;
+            @JsonProperty
             private LocalDateTime created;
+            @JsonProperty
             private LocalDateTime modified;
+            @JsonProperty
             private List<String> keywords;
 
             @JsonProperty("reference_order")

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -20,6 +21,16 @@ public class Paginator {
 
     private static <T> List<T> retrieveAll(Function<Integer, Response> pageSupplier, Integer page, Class<T> elementClass) {
         String responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
+        System.out.println(responseBodyAsString);
+        if (responseBodyAsString.equals("""
+                {
+                  "message": "Too many attempts."
+                }
+                """)) {
+                System.out.println("sleepy");
+//                TimeUnit.SECONDS.sleep(3);
+                responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
+        }
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
         T[] data = arrayClass.cast(ZepRestUtil

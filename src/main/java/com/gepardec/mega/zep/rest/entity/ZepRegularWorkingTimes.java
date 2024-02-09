@@ -114,15 +114,25 @@ public class ZepRegularWorkingTimes {
         }
 
         public static class Builder {
+                @JsonProperty
                 private int id;
+                @JsonProperty
                 private String employee_id;
+                @JsonProperty
                 private LocalDateTime start_date;
+                @JsonProperty
                 private Double monday;
+                @JsonProperty
                 private Double tuesday;
+                @JsonProperty
                 private Double wednesday;
+                @JsonProperty
                 private Double thursday;
+                @JsonProperty
                 private Double friday;
+                @JsonProperty
                 private Double saturday;
+                @JsonProperty
                 private Double sunday;
 
                 @JsonProperty("is_monthly")
