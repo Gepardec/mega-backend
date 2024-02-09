@@ -13,7 +13,7 @@ public class ProjectStepDto {
 
     private final Long stepId;
 
-    private final Employee employee;
+    private final EmployeeDto employee;
 
     private final String projectName;
 
@@ -51,7 +51,7 @@ public class ProjectStepDto {
         return stepId;
     }
 
-    public Employee getEmployee() {
+    public EmployeeDto getEmployee() {
         return employee;
     }
 
@@ -75,7 +75,7 @@ public class ProjectStepDto {
         @JsonProperty
         private Long stepId;
         @JsonProperty
-        private Employee employee;
+        private EmployeeDto employee;
         @JsonProperty
         private String projectName;
         @JsonProperty
@@ -95,7 +95,7 @@ public class ProjectStepDto {
             return this;
         }
 
-        public Builder employee(Employee employee) {
+        public Builder employee(EmployeeDto employee) {
             this.employee = employee;
             return this;
         }
