@@ -13,7 +13,7 @@ public class UpdateEmployeeStepDto {
 
     private final Long stepId;
 
-    private final Employee employee;
+    private final EmployeeDto employee;
 
     private final String currentMonthYear;
 
@@ -38,7 +38,7 @@ public class UpdateEmployeeStepDto {
         return stepId;
     }
 
-    public Employee getEmployee() {
+    public EmployeeDto getEmployee() {
         return employee;
     }
 
@@ -71,7 +71,7 @@ public class UpdateEmployeeStepDto {
         @JsonProperty
         private Long stepId;
         @JsonProperty
-        private Employee employee;
+        private EmployeeDto employee;
         @JsonProperty
         private String currentMonthYear;
         @JsonProperty
@@ -91,7 +91,7 @@ public class UpdateEmployeeStepDto {
             return this;
         }
 
-        public Builder employee(Employee employee) {
+        public Builder employee(EmployeeDto employee) {
             this.employee = employee;
             return this;
         }
