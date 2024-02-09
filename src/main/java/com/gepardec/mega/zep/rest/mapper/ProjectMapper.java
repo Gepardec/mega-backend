@@ -7,22 +7,23 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
 public class ProjectMapper implements Mapper<Project, ZepProject> {
-
-    //TODO: remove this default value
-    private static final LocalDate DEFAULT_END_DATE = LocalDate.of(2029, 12, 1);
     public Project map(ZepProject zepProject) {
         if (zepProject == null)
             return null;
 
         LocalDate startDate = zepProject.getStartDate() == null ?
                 null : zepProject.getStartDate().toLocalDate();
-        LocalDate endDate = zepProject.getEndDate() == null ?
-                DEFAULT_END_DATE : zepProject.getEndDate().toLocalDate();
+        LocalDateTime endDateTime = zepProject.getEndDate();
+        LocalDate endDate;
+        endDate = endDateTime == null ?
+                LocalDate.now().plusYears(5).with(TemporalAdjusters.lastDayOfYear())
+                : endDateTime.toLocalDate();
 
         List<String> employees = new ArrayList<>();
         List<String> leads = new ArrayList<>();
