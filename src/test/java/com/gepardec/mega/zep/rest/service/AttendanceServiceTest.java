@@ -1,7 +1,6 @@
 package com.gepardec.mega.zep.rest.service;
 
 import com.gepardec.mega.zep.rest.client.ZepAttendanceRestClient;
-import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepAttendance;
 import com.gepardec.mega.zep.util.Paginator;
 import com.gepardec.mega.helper.ResourceFileService;
@@ -9,17 +8,12 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-import org.apache.commons.io.FileUtils;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
