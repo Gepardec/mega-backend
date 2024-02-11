@@ -68,6 +68,8 @@ quarkus:
   rest-client:
     personio-api-v1:
       url: "https://api.personio.de/v1"
+  shutdown:
+    timeout: "30s"
 
 # disables the DefaultResponseExceptionMapper of the microprofile resteasy client
 microprofile:
