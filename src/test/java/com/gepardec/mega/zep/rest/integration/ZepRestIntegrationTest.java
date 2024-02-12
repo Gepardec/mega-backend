@@ -99,6 +99,10 @@ public class ZepRestIntegrationTest {
 
     @Test
     public void getProjectsForMonthYear_valid() {
+        for (int i = 1; i < 10; i++) {
+            List<Project> projects = zepService.getProjectsForMonthYear(LocalDate.of(2020, i, 1));
+            assertThat(projects.size()).isGreaterThan(0);
+        }
         List<Project> projects = zepService.getProjectsForMonthYear(LocalDate.of(2021, 1, 1));
         assertThat(projects.size()).isEqualTo(33);
         for (Project project : projects) {

@@ -29,5 +29,5 @@ public interface ZepProjectRestClient extends Authenticatable{
 
     @GET
     @Path("{id}/employees")
-    Response getProjectEmployees(@PathParam("id") int projectId);
+    Response getProjectEmployees(@PathParam("id") int projectId, @QueryParam("page") int page);
 }
