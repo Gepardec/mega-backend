@@ -34,6 +34,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedMap;
+import org.slf4j.Logger;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -84,11 +85,15 @@ public class ZepRestServiceImpl implements ZepService {
     @Inject
     Mapper<Map<DayOfWeek, Duration>, ZepRegularWorkingTimes> regularWorkingTimesMapper;
 
+    @Inject
+    Logger logger;
+
 
     @Override
     public Employee getEmployee(String userId) {
         Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByUsername(userId);
         if (zepEmployee.isEmpty()) {
+            logger.warn("No employee found for user {}", userId);
             return null;
         }
 
@@ -113,6 +118,7 @@ public class ZepRestServiceImpl implements ZepService {
                 employee -> {
                     // TODO: Get real val
 //                    var periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employee.getUserId());
+                    logger.warn("{} is set as active employee. The boolean \"active\" in employee is currently hardcoded to true.", employee.getUserId());
                     boolean active = true;//employeeMapper.getActiveOfZepEmploymentPeriods(periods);
                     employee.setActive(active);
                 });
@@ -137,6 +143,7 @@ public class ZepRestServiceImpl implements ZepService {
         List<ZepAttendance> allZepAttendancesForProject = new ArrayList<>();
         Optional<ZepProject> projectOpt = projectService.getProjectByName(project, curDate);
         if (projectOpt.isEmpty()) {
+            logger.warn("No project found for name {}", project);
             return List.of();
         }
 
