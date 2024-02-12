@@ -1,4 +1,5 @@
 package com.gepardec.mega.zep.rest.entity;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -22,6 +23,7 @@ public class ZepRegularWorkingTimes {
         private final Double maxHoursInWeek;
 
 
+        @JsonCreator
         public ZepRegularWorkingTimes(Builder builder) {
                 this.id = builder.id;
                 this.employee_id = builder.employee_id;
@@ -113,6 +115,7 @@ public class ZepRegularWorkingTimes {
                 return Builder.aZepRegularWorkingTimes();
         }
 
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Builder {
                 @JsonProperty
                 private int id;

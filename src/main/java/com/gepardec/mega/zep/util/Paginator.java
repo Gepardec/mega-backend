@@ -75,12 +75,17 @@ public class Paginator {
 
     private static String responseBodyOf(Response response) {
         try (response) {
-            //Math to throttle requests if we approach the rate limit for requests
+            //Header indicating the remaining requests until the rate limit is reached
+            String xRateHeader = response.getHeaderString("X-RateLimit-Remaining");
+            if (xRateHeader == null) return response.readEntity(String.class);
+
+            //If we reach the rate limit, we throw an exception
             int rate = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
             if (response.getStatus() == 429 || rate == 0) {
                 response.getHeaders().forEach((k, v) -> System.out.println(k + ":" + v));
                 throw new ZepServiceTooManyRequestsException("Too many requests to ZEP REST");
             }
+            //Math to throttle requests if we approach the rate limit for requests
             if (rate < 10) {
                 Long sleepTime = (long) (10 / (Math.exp(rate / 2.5)) * 1000);
                 TimeUnit.MILLISECONDS.sleep(sleepTime);

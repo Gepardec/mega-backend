@@ -1,5 +1,6 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -51,6 +52,7 @@ public class ZepEmployee {
         private final Integer absencesCount;
 
 
+        @JsonCreator
         public ZepEmployee(Builder builder) {
                 this.username = builder.username;
                 this.firstname = builder.firstname;

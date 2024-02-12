@@ -26,6 +26,7 @@ public class ZepAbsence {
     private final ZepAbsenceReason absenceReason;
 
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public ZepAbsence(Builder builder) {
         this.id = builder.id;
         this.employeeId = builder.employeeId;
