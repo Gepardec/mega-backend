@@ -1,6 +1,7 @@
 package com.gepardec.mega.zep.util;
 
 import com.gepardec.mega.zep.ZepServiceException;
+import com.gepardec.mega.zep.ZepServiceTooManyRequestsException;
 import jakarta.ws.rs.core.Response;
 
 import java.lang.reflect.Array;
@@ -21,16 +22,6 @@ public class Paginator {
 
     private static <T> List<T> retrieveAll(Function<Integer, Response> pageSupplier, Integer page, Class<T> elementClass) {
         String responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
-        System.out.println(responseBodyAsString);
-        if (responseBodyAsString.equals("""
-                {
-                  "message": "Too many attempts."
-                }
-                """)) {
-                System.out.println("sleepy");
-//                TimeUnit.SECONDS.sleep(3);
-                responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
-        }
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
         T[] data = arrayClass.cast(ZepRestUtil
@@ -56,13 +47,11 @@ public class Paginator {
     }
 
     private static <T> Optional<T> searchInAll(Function<Integer, Response> pageSupplier,
-                                          Predicate<T> filter,
-                                          Integer page,
-                                          Class<T> elementClass) {
+                                               Predicate<T> filter,
+                                               Integer page,
+                                               Class<T> elementClass) {
 
         String responseBodyAsString = responseBodyOf(pageSupplier.apply(page));
-
-
 
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
@@ -84,17 +73,32 @@ public class Paginator {
     }
 
 
-
-     private static String responseBodyOf(Response response) {
+    private static String responseBodyOf(Response response) {
         try (response) {
+            //Header indicating the remaining requests until the rate limit is reached
+            String xRateHeader = response.getHeaderString("X-RateLimit-Remaining");
+            if (xRateHeader == null) return response.readEntity(String.class);
+
+            //If we reach the rate limit, we throw an exception
+            int rate = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
+            if (response.getStatus() == 429 || rate == 0) {
+                response.getHeaders().forEach((k, v) -> System.out.println(k + ":" + v));
+                throw new ZepServiceTooManyRequestsException("Too many requests to ZEP REST");
+            }
+            //Math to throttle requests if we approach the rate limit for requests
+            if (rate < 10) {
+                Long sleepTime = (long) (10 / (Math.exp(rate / 2.5)) * 1000);
+                TimeUnit.MILLISECONDS.sleep(sleepTime);
+            }
             return response.readEntity(String.class);
-        }
-        catch (Exception e) {
-            throw new ZepServiceException("Error while reading response body",e);
+        } catch (ZepServiceTooManyRequestsException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ZepServiceException("Error while reading response body", e);
         }
     }
 
-    private static <T> Optional<T> filterList(List<T> list , Predicate<T> filter) {
+    private static <T> Optional<T> filterList(List<T> list, Predicate<T> filter) {
         return list.stream()
                 .filter(filter)
                 .findFirst();
@@ -103,6 +107,7 @@ public class Paginator {
     private static <T> Class<T[]> convertClassToArrayClass(Class<T> targetClass) {
         return (Class<T[]>) Array.newInstance(targetClass, 0).getClass();
     }
+
     private static <T> Class<T[]> getEmptyArrayOf(Class<T> targetClass) {
         return (Class<T[]>) Array.newInstance(targetClass, 0).getClass();
     }
