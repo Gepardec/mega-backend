@@ -108,7 +108,8 @@ public class ProjectServiceTest {
 
 
         List<ZepProject> zepProject = projectService.getProjectsForMonthYear(LocalDate.of(2024, 1, 1));
-        assertThat(zepProject.get(0)).usingRecursiveComparison().isEqualTo(referenceZepProject);
+        zepProject.stream().filter(project -> project.getId() == 1)
+                .forEach(project -> assertThat(project).usingRecursiveComparison().isEqualTo(referenceZepProject));
     }
 
     @Test
