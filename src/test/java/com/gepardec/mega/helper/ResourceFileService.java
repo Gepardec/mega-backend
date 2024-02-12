@@ -36,6 +36,8 @@ public class ResourceFileService {
     public List<String> getDirContents(String path) {
         File filesSubDir = new File(filesDir.getPath() + "/" + path);
         return Arrays.stream(filesSubDir.listFiles())
+                .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
+//                .peek(f -> System.out.println(f.getName()))
                 .map(ResourceFileService::readFile)
                 .toList();
     }
