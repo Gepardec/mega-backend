@@ -51,6 +51,7 @@ public class PaginatorTest {
 
         List<ZepProject> projectList = Paginator.retrieveAll(page -> zepProjectRestClient.getProjects(page), ZepProject.class);
         List<String> projectNames = projectList.stream().map(ZepProject::getName).peek(System.out::println).collect(Collectors.toList());
+        System.out.println(projectNames);
         Arrays.stream(names).forEach(name -> assertThat(projectNames.contains(name)).isTrue());
     }
     @Test

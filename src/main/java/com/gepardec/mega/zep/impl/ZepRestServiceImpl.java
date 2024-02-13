@@ -101,11 +101,15 @@ public class ZepRestServiceImpl implements ZepService {
         boolean active = EmployeeMapper.getActiveOfZepEmploymentPeriods(period);
 
 
-        ZepRegularWorkingTimes zepRegularWorkingTimes = regularWorkingTimesService.getRegularWorkingTimesByUsername(userId);
+        Optional<ZepRegularWorkingTimes> zepRegularWorkingTimesOpt =
+                regularWorkingTimesService.getRegularWorkingTimesByUsername(userId);
+
 
         Employee employee = employeeMapper.map(zepEmployee.get());
         employee.setActive(active);
-        employee.setRegularWorkingHours(regularWorkingTimesMapper.map(zepRegularWorkingTimes));
+        zepRegularWorkingTimesOpt.ifPresent(rwt -> {
+            employee.setRegularWorkingHours(regularWorkingTimesMapper.map(rwt));
+        });
         return employee;
     }
 

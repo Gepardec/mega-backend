@@ -1,10 +1,13 @@
 package com.gepardec.mega.zep.rest.service;
 
+import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
 import com.gepardec.mega.zep.util.Paginator;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.slf4j.Logger;
 
 import java.util.List;
 
@@ -14,11 +17,21 @@ public class EmploymentPeriodService {
     @RestClient
     ZepEmployeeRestClient zepEmployeeRestService;
 
+    @Inject
+    Logger logger;
+
     public List<ZepEmploymentPeriod> getZepEmploymentPeriodsByEmployeeName(String employeeName) {
-        return Paginator.retrieveAll(
-                page -> zepEmployeeRestService.getEmploymentPeriodByUserName(employeeName, page),
-                ZepEmploymentPeriod.class
-        );
+        try {
+            return Paginator.retrieveAll(
+                    page -> zepEmployeeRestService.getEmploymentPeriodByUserName(employeeName, page),
+                    ZepEmploymentPeriod.class
+            );
+        }  catch (ZepServiceException e) {
+            logger.warn("Error retrieving employment periods for employee \"%s\" from ZEP: No /data field in response"
+                    .formatted(employeeName), e);
+        }
+
+        return List.of();
     }
 
 }

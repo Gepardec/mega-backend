@@ -19,7 +19,7 @@ public class ZepRestUtilTest {
         assertThatThrownBy(() -> {
             ZepRestUtil.parseJson(json, "/data", List.class);
         }).isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("No Node found at JSON-Path: /data");
+                .hasMessageContaining("Missing JSON-Path: /data");
     }
 
     @Test

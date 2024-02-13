@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gepardec.mega.zep.ZepServiceException;
-
 import java.util.Optional;
+
 
 public class ZepRestUtil {
 
@@ -16,7 +16,7 @@ public class ZepRestUtil {
         try {
             JsonNode jsonNode = objectMapper.readTree(json).at(path);
             if (jsonNode.isMissingNode()) {
-                throw new RuntimeException("No Node found at JSON-Path: " + path);
+                throw new ZepServiceException("Missing JSON-Path: " + path);
             }
 
             if (jsonNode.isNull()) {

@@ -77,7 +77,9 @@ public class Paginator {
         try (response) {
             //Header indicating the remaining requests until the rate limit is reached
             String xRateHeader = response.getHeaderString("X-RateLimit-Remaining");
-            if (xRateHeader == null) return response.readEntity(String.class);
+            if (xRateHeader == null) {
+                return response.readEntity(String.class);
+            }
 
             //If we reach the rate limit, we throw an exception
             int rate = Integer.parseInt(response.getHeaderString("X-RateLimit-Remaining"));
