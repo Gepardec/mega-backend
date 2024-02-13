@@ -3,10 +3,12 @@ package com.gepardec.mega.zep.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gepardec.mega.zep.ZepServiceException;
 
 import java.util.Optional;
 
 public class ZepRestUtil {
+
     public static <T> Optional<T> parseJson (String json, String path, Class<T> resultClass) {
         var objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules();
@@ -27,7 +29,7 @@ public class ZepRestUtil {
 
             return Optional.of(objectMapper.treeToValue(jsonNode, resultClass));
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new ZepServiceException("Error while parsing json to " + resultClass.getName(), e);
         }
     }
 
