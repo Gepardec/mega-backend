@@ -4,21 +4,26 @@ import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.zep.rest.entity.ZepAbsence;
 import com.gepardec.mega.zep.rest.entity.ZepAbsenceReason;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 public class AbsenceMapperTest {
 
+    @Inject
+    AbsenceMapper absenceMapper;
+
     @Test
     public void mapZepAbsenceToAbsenceTime() {
-        AbsenceMapper absenceMapper = new AbsenceMapper();
         ZepAbsenceReason zepAbsenceReason = ZepAbsenceReason.builder().name("KR").build();
         ZepAbsence zepAbsence = ZepAbsence.builder()
                 .id(1)
@@ -50,7 +55,7 @@ public class AbsenceMapperTest {
 
     @Test
     public void mapZepAbsencesToAbsenceTimes() {
-        AbsenceMapper absenceMapper = new AbsenceMapper();
+
 
         ZepAbsence[] zepAbsencesArr = {
                 ZepAbsence.builder()

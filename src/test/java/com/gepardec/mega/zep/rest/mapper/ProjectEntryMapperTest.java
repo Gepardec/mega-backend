@@ -63,7 +63,7 @@ public class ProjectEntryMapperTest {
         ZepAttendance.Builder zepAttendance = generateZepAttendanceBuilder();
         zepAttendance.activity("nasebohren");
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(ZepServiceException.class, () -> {
             ProjectEntry mappedProjectEntry = projectEntryMapper.map(zepAttendance.build());
         });
     }

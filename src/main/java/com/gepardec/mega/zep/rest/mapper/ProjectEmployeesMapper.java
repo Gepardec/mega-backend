@@ -1,5 +1,6 @@
 package com.gepardec.mega.zep.rest.mapper;
 
+import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.MultivaluedHashMap;
@@ -15,16 +16,21 @@ public class ProjectEmployeesMapper implements Mapper<MultivaluedMap<String, Str
 
     @Override
     public MultivaluedMap<String, String> map(List<ZepProjectEmployee> zepProjectEmployees) {
-        MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
-        zepProjectEmployees.forEach(zepProjectEmployee -> {
-            map.add(USER, zepProjectEmployee.getUsername());
 
-            if (zepProjectEmployee.getType() != null) {
-                if (zepProjectEmployee.getType().getId() != 0) {
-                    map.add(LEAD, String.valueOf(zepProjectEmployee.getUsername()));
+        try {
+            MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
+            zepProjectEmployees.forEach(zepProjectEmployee -> {
+                map.add(USER, zepProjectEmployee.getUsername());
+
+                if (zepProjectEmployee.getType() != null) {
+                    if (zepProjectEmployee.getType().getId() != 0) {
+                        map.add(LEAD, String.valueOf(zepProjectEmployee.getUsername()));
+                    }
                 }
-            }
-        });
-        return map;
+            });
+            return map;
+        }catch (Exception e){
+            throw new ZepServiceException("While trying to map ZepProjectEmployee to MultivaluedMap of \"user\" and \"lead\" collections, an error occurred", e);
+        }
     }
 }

@@ -1,8 +1,11 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.monthlyreport.*;
+import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.entity.ZepAttendance;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.slf4j.Logger;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -12,36 +15,47 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry, ZepAttendance> {
+
+    @Inject
+    Logger logger;
+
     @Override
     public com.gepardec.mega.domain.model.monthlyreport.ProjectEntry map(ZepAttendance zepAttendance) {
         if (zepAttendance == null) {
+            logger.info("ZEP REST implementation -- While trying to map zepAttendance to ProjectEntry, zepAttendance was null");
             return null;
         }
-        Task task = toTask(zepAttendance.getActivity());
-        LocalDateTime from = LocalDateTime.of(zepAttendance.getDate(), zepAttendance.getFrom());
-        LocalDateTime to = LocalDateTime.of(zepAttendance.getDate(), zepAttendance.getTo());
-        WorkingLocation workingLocation = toWorkingLocation(zepAttendance.getWorkLocation());
-        String process = Integer.toString(zepAttendance.getProjectTaskId());
 
-        if (Task.isJourney(task)) {
-            JourneyDirection journeyDirection = toJourneyDirection(zepAttendance.getDirectionOfTravel());
-            Vehicle vehicle = toVehicle(zepAttendance.getVehicle());
-            return JourneyTimeEntry.builder()
-                    .fromTime(from)
-                    .toTime(to)
-                    .task(task)
-                    .journeyDirection(journeyDirection)
-                    .workingLocation(workingLocation)
-                    .vehicle(vehicle)
-                    .build();
-        } else {
-            return ProjectTimeEntry.builder()
-                    .fromTime(from)
-                    .toTime(to)
-                    .task(task)
-                    .workingLocation(workingLocation)
-                    .process(process)
-                    .build();
+        try{
+
+            Task task = toTask(zepAttendance.getActivity());
+            LocalDateTime from = LocalDateTime.of(zepAttendance.getDate(), zepAttendance.getFrom());
+            LocalDateTime to = LocalDateTime.of(zepAttendance.getDate(), zepAttendance.getTo());
+            WorkingLocation workingLocation = toWorkingLocation(zepAttendance.getWorkLocation());
+            String process = Integer.toString(zepAttendance.getProjectTaskId());
+
+            if (Task.isJourney(task)) {
+                JourneyDirection journeyDirection = toJourneyDirection(zepAttendance.getDirectionOfTravel());
+                Vehicle vehicle = toVehicle(zepAttendance.getVehicle());
+                return JourneyTimeEntry.builder()
+                        .fromTime(from)
+                        .toTime(to)
+                        .task(task)
+                        .journeyDirection(journeyDirection)
+                        .workingLocation(workingLocation)
+                        .vehicle(vehicle)
+                        .build();
+            } else {
+                return ProjectTimeEntry.builder()
+                        .fromTime(from)
+                        .toTime(to)
+                        .task(task)
+                        .workingLocation(workingLocation)
+                        .process(process)
+                        .build();
+            }
+        }catch (Exception e){
+            throw new ZepServiceException("While trying to map ZepAttendance to ProjectEntry, an error occurred", e);
         }
 
     
