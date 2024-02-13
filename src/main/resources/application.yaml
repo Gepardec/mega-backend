@@ -68,6 +68,8 @@ quarkus:
   rest-client:
     personio-api-v1:
       url: "https://api.personio.de/v1"
+    zep:
+      url: "${mega.zep.origin}/next/api/v1/"
 
 # disables the DefaultResponseExceptionMapper of the microprofile resteasy client
 microprofile:
@@ -94,6 +96,7 @@ mega:
     admin-token: "${TOKEN:default}"
     soap-path: "/sync/soap.php?v=${SOAP_PATH_VERSION:7}"
     rest_token: "${ZEP_REST_TOKEN:default}"
+    origin: "https://www.zep-online.de/zepgepardecservices_test"
 
 
 
@@ -160,11 +163,9 @@ mp:
         origins: "/.*/"
     rest-client:
       zep:
-        url: "https://www.zep-online.de/zepgepardecservices_test/next/api/v1/"
+        url: "${mega.zep.origin}/next/api/v1/"
   mega:
     dash-url: "http://localhost:4444/index.html"
-    zep:
-      origin: "https://www.zep-online.de/zepgepardecservices_test"
 
     oauth:
       issuer: "https://gepardec-sso-dev.play.run.gepardec.com/realms/gepardec"
@@ -185,7 +186,7 @@ mp:
   quarkus:
     rest-client:
         zep:
-          url: "https://www.zep-online.de/zepgepardecservices_test/next/api/v1/"
+          url: "${mega.zep.origin}/next/api/v1/"
     log:
       console:
         format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
