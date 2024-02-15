@@ -2,13 +2,11 @@ package com.gepardec.mega.zep.rest.service;
 
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepProject;
-import com.gepardec.mega.zep.util.Paginator;
+import com.gepardec.mega.zep.util.ResponseParser;
 import com.gepardec.mega.helper.ResourceFileService;
-import com.gepardec.mega.helper.ResourcePath;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +37,7 @@ public class ProjectServiceTest {
     ResourceFileService resourceFileService;
 
     @Inject
-    Paginator paginator;
+    ResponseParser responseParser;
 
     @Test
     public void test() {
@@ -120,7 +118,7 @@ public class ProjectServiceTest {
         String[] names = {"MEGA", "gema", "EGA", "SUPERMEGA", "mega", "ega"};
 
 
-        List<ZepProject> projectList = paginator.retrieveAll(page -> zepProjectRestClient.getProjects(page), ZepProject.class);
+        List<ZepProject> projectList = responseParser.retrieveAll(page -> zepProjectRestClient.getProjects(page), ZepProject.class);
         List<String> projectNames = projectList.stream()
                 .map(ZepProject::getName)
                 .toList();

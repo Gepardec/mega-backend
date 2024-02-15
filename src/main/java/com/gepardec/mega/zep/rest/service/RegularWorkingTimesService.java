@@ -3,7 +3,7 @@ package com.gepardec.mega.zep.rest.service;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
-import com.gepardec.mega.zep.util.Paginator;
+import com.gepardec.mega.zep.util.ResponseParser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -23,11 +23,11 @@ public class RegularWorkingTimesService {
     Logger logger;
 
     @Inject
-    Paginator paginator;
+    ResponseParser responseParser;
 
     public Optional<ZepRegularWorkingTimes> getRegularWorkingTimesByUsername(String username) {
         try  {
-            List<ZepRegularWorkingTimes> zepRegularWorkingTimes = paginator.retrieveAll(
+            List<ZepRegularWorkingTimes> zepRegularWorkingTimes = responseParser.retrieveAll(
                     (page) -> zepEmployeeRestClient.getRegularWorkingTimesByUsername(username, page),
                     ZepRegularWorkingTimes.class);
 

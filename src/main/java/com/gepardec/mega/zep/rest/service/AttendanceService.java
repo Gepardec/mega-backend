@@ -3,7 +3,7 @@ package com.gepardec.mega.zep.rest.service;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepAttendanceRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepAttendance;
-import com.gepardec.mega.zep.util.Paginator;
+import com.gepardec.mega.zep.util.ResponseParser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -26,7 +26,7 @@ public class AttendanceService {
     Logger logger;
 
     @Inject
-    Paginator paginator;
+    ResponseParser responseParser;
 
     public List<ZepAttendance> getBillableAttendancesForUserAndMonth(String username, LocalDate date) {
         try {
@@ -47,7 +47,7 @@ public class AttendanceService {
         String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
 
         try {
-            return paginator.retrieveAll(
+            return responseParser.retrieveAll(
                     page -> zepAttendanceRestClient.getAttendance(startDate, endDate, username, page),
                     ZepAttendance.class);
         } catch (ZepServiceException e) {
@@ -62,7 +62,7 @@ public class AttendanceService {
         String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
 
         try {
-            List<ZepAttendance> attendances = paginator.retrieveAll(
+            List<ZepAttendance> attendances = responseParser.retrieveAll(
                     page -> zepAttendanceRestClient.getAttendance(startDate, endDate, username, page),
                     ZepAttendance.class);
 

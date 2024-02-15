@@ -3,7 +3,7 @@ package com.gepardec.mega.zep.rest.service;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
-import com.gepardec.mega.zep.util.Paginator;
+import com.gepardec.mega.zep.util.ResponseParser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -21,11 +21,11 @@ public class EmploymentPeriodService {
     Logger logger;
 
     @Inject
-    Paginator paginator;
+    ResponseParser responseParser;
 
     public List<ZepEmploymentPeriod> getZepEmploymentPeriodsByEmployeeName(String employeeName) {
         try {
-            return paginator.retrieveAll(
+            return responseParser.retrieveAll(
                     page -> zepEmployeeRestService.getEmploymentPeriodByUserName(employeeName, page),
                     ZepEmploymentPeriod.class
             );

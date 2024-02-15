@@ -1,6 +1,5 @@
 package com.gepardec.mega.zep.util;
 
-import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.ZepServiceTooManyRequestsException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -11,15 +10,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 @ApplicationScoped
-public class Paginator {
+public class ResponseParser {
 
     @Inject
     RequestThrottler requestThrottler;
+
+    public <T> Optional<T> retrieveSingle(Response response, Class<T> elementClass) {
+        String responseBodyAsString = readResponse(response);
+        return JsonUtil.parseJson(responseBodyAsString, "/data", elementClass);
+    }
 
     public <T> List<T> retrieveAll(Function<Integer, Response> pageSupplier, Class<T> elementClass) {
         int page = 1;
@@ -30,13 +34,13 @@ public class Paginator {
         String responseBodyAsString = readResponse(pageSupplier.apply(page));
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
-        T[] data = arrayClass.cast(ZepRestUtil
+        T[] data = arrayClass.cast(JsonUtil
                 .parseJson(responseBodyAsString, "/data", arrayClass)
                 .orElse((T[]) Array.newInstance(elementClass, 0)));
 
         List<T> result = new ArrayList<>(Arrays.asList(data));
 
-        Optional<String> next = ZepRestUtil.parseJson(responseBodyAsString, "/links/next", String.class);
+        Optional<String> next = JsonUtil.parseJson(responseBodyAsString, "/links/next", String.class);
 
         if (next.isPresent()) {
 
@@ -61,7 +65,7 @@ public class Paginator {
 
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
-        T[] data = arrayClass.cast(ZepRestUtil.parseJson(responseBodyAsString, "/data", arrayClass)
+        T[] data = arrayClass.cast(JsonUtil.parseJson(responseBodyAsString, "/data", arrayClass)
                 .orElse((T[]) Array.newInstance(elementClass, 0)));
 
         Optional<T> current = filterList(Arrays.asList(data), filter);
@@ -69,7 +73,7 @@ public class Paginator {
             return current;
         }
 
-        Optional<String> next = ZepRestUtil.parseJson(responseBodyAsString, "/links/next", String.class);
+        Optional<String> next = JsonUtil.parseJson(responseBodyAsString, "/links/next", String.class);
 
         if (next.isPresent()) {
 

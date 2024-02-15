@@ -1,9 +1,8 @@
 package com.gepardec.mega.zep.rest.util;
 
-import com.gepardec.mega.zep.rest.client.ZepAttendanceRestClient;
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepProject;
-import com.gepardec.mega.zep.util.Paginator;
+import com.gepardec.mega.zep.util.ResponseParser;
 import com.gepardec.mega.helper.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
@@ -11,10 +10,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +22,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class PaginatorTest {
+public class ResponseParserTest {
 
     @RestClient
     @InjectMock
@@ -36,7 +32,7 @@ public class PaginatorTest {
     ResourceFileService resourceFileService;
 
     @Inject
-    Paginator paginator;
+    ResponseParser responseParser;
 
     @Test
     public void withFullPaginatedJsons_thenReturnList() {
@@ -52,14 +48,14 @@ public class PaginatorTest {
         String[] names = {"MEGA", "gema", "EGA", "SUPERMEGA", "mega", "ega"};
 
 
-        List<ZepProject> projectList = paginator.retrieveAll(page -> zepProjectRestClient.getProjects(page), ZepProject.class);
+        List<ZepProject> projectList = responseParser.retrieveAll(page -> zepProjectRestClient.getProjects(page), ZepProject.class);
         List<String> projectNames = projectList.stream().map(ZepProject::getName).peek(System.out::println).collect(Collectors.toList());
         System.out.println(projectNames);
         Arrays.stream(names).forEach(name -> assertThat(projectNames.contains(name)).isTrue());
     }
     @Test
     public void withEmptyData_thenReturnEmptyList() {
-        List<ZepProject> list = paginator.retrieveAll(
+        List<ZepProject> list = responseParser.retrieveAll(
                 page -> Response.ok().entity("{ \"data\": [], \"links\": {\"next\": null}}").build(),
                 ZepProject.class);
         assertThat(list).isEmpty();
@@ -71,7 +67,7 @@ public class PaginatorTest {
         String lastPage = resourceFileService.getSingleFile("paginator/emptyPageLast.json").get();
 
         int pages = 3;
-        List<ZepProject> list = paginator.retrieveAll(
+        List<ZepProject> list = responseParser.retrieveAll(
                 page -> {
                     String json;
                     if (page == pages) {
@@ -90,7 +86,7 @@ public class PaginatorTest {
         String anyPage = resourceFileService.getSingleFile("paginator/emptyPage.json").get();
         String lastPage = resourceFileService.getSingleFile("paginator/emptyPageLast.json").get();
         int pages = 3;
-        Optional<ZepProject> projectOpt = paginator.searchInAll(
+        Optional<ZepProject> projectOpt = responseParser.searchInAll(
                 page -> {
                     String json;
                     if (page == pages) {
@@ -108,7 +104,7 @@ public class PaginatorTest {
     public void withEmptyData_thenReturnNullSearch() {
         String anyPage = resourceFileService.getSingleFile("paginator/emptyPageLast.json").get();
 
-        Optional<ZepProject> projectOpt = paginator.searchInAll(
+        Optional<ZepProject> projectOpt = responseParser.searchInAll(
                 page -> Response.ok().entity(anyPage).build(),
                 project -> project.getName().equals("mega"),
                 ZepProject.class);
@@ -120,7 +116,7 @@ public class PaginatorTest {
     public void withNullData_thenReturnNullSearch() {
         String anyPage = resourceFileService.getSingleFile("paginator/nullPage.json").get();
 
-        Optional<ZepProject> projectOpt = paginator.searchInAll(
+        Optional<ZepProject> projectOpt = responseParser.searchInAll(
                 page -> Response.ok().entity(anyPage).build(),
                 project -> project.getName().equals("mega"),
                 ZepProject.class);
@@ -130,7 +126,7 @@ public class PaginatorTest {
     @Test
     public void withNullData_thenReturnEmptyList() {
         String anyPage = resourceFileService.getSingleFile("paginator/nullPage.json").get();
-        List<ZepProject> list = paginator.retrieveAll(
+        List<ZepProject> list = responseParser.retrieveAll(
                 page -> Response.ok().entity(anyPage).build(),
                 ZepProject.class);
 
@@ -150,7 +146,7 @@ public class PaginatorTest {
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
 
 
-        Optional<ZepProject> projectOpt = paginator.searchInAll(
+        Optional<ZepProject> projectOpt = responseParser.searchInAll(
                 page -> zepProjectRestClient.getProjects(page),
                 project -> project.getName().equals("SUPERMEGA"),
                 ZepProject.class);
@@ -171,7 +167,7 @@ public class PaginatorTest {
         when(zepProjectRestClient.getProjects(eq(3)))
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
 
-        Optional<ZepProject> projectOpt = paginator.searchInAll(
+        Optional<ZepProject> projectOpt = responseParser.searchInAll(
                 page -> zepProjectRestClient.getProjects(page),
                 project -> project.getName().equals("Mmeeggaa"),
                 ZepProject.class);

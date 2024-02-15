@@ -4,8 +4,8 @@ import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepAbsenceRestClient;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepAbsence;
-import com.gepardec.mega.zep.util.Paginator;
-import com.gepardec.mega.zep.util.ZepRestUtil;
+import com.gepardec.mega.zep.util.ResponseParser;
+import com.gepardec.mega.zep.util.JsonUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -28,11 +28,11 @@ public class AbsenceService {
     Logger logger;
 
     @Inject
-    Paginator paginator;
+    ResponseParser responseParser;
 
     public List<ZepAbsence> getZepAbsencesByEmployeeNameForDateRange(String employeeName, LocalDate start, LocalDate end) {
         try {
-            List<ZepAbsence> absences = paginator.retrieveAll(
+            List<ZepAbsence> absences = responseParser.retrieveAll(
                     page -> zepEmployeeRestClient.getAbsencesByUsername(employeeName, start, end, page),
                     ZepAbsence.class
             );
@@ -46,8 +46,7 @@ public class AbsenceService {
 
     public ZepAbsence getZepAbsenceById(int id) {
         try {
-            return ZepRestUtil.parseJson(zepAbsenceRestClient.getAbsenceById(id).readEntity(String.class),
-                    "/data",
+            return responseParser.retrieveSingle(zepAbsenceRestClient.getAbsenceById(id),
                     ZepAbsence.class).orElse(null);
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving absence + \"%s\" from ZEP: No /data field in response".formatted(id),

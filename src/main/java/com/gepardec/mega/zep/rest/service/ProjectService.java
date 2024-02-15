@@ -3,26 +3,19 @@ package com.gepardec.mega.zep.rest.service;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
-import com.gepardec.mega.zep.rest.entity.ZepEmployee;
 import com.gepardec.mega.zep.rest.entity.ZepProject;
 import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
-import com.gepardec.mega.zep.util.Paginator;
-import com.gepardec.mega.zep.util.ZepRestUtil;
+import com.gepardec.mega.zep.util.ResponseParser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @ApplicationScoped
 public class ProjectService {
@@ -34,11 +27,11 @@ public class ProjectService {
     Logger logger;
 
     @Inject
-    Paginator paginator;
+    ResponseParser responseParser;
 
     public List<ZepProject> getProjectsForMonthYear(LocalDate monthYear) {
         try {
-            List<ZepProject> projects = paginator.retrieveAll(
+            List<ZepProject> projects = responseParser.retrieveAll(
                     page -> zepProjectRestClient.getProjects(page),
                     ZepProject.class
             );
@@ -67,7 +60,7 @@ public class ProjectService {
 
     public List<ZepProjectEmployee> getProjectEmployeesForId(int projectId) {
         try {
-            return paginator.retrieveAll(
+            return responseParser.retrieveAll(
                     page -> zepProjectRestClient.getProjectEmployees(projectId, page),
                     ZepProjectEmployee.class
             );

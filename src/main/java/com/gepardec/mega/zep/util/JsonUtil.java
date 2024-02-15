@@ -7,7 +7,7 @@ import com.gepardec.mega.zep.ZepServiceException;
 import java.util.Optional;
 
 
-public class ZepRestUtil {
+public class JsonUtil {
 
     public static <T> Optional<T> parseJson (String json, String path, Class<T> resultClass) {
         var objectMapper = new ObjectMapper();
