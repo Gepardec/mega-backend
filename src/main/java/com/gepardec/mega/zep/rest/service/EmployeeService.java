@@ -24,6 +24,9 @@ public class EmployeeService{
     @Inject
     Logger logger;
 
+    @Inject
+    Paginator paginator;
+
     public Optional<ZepEmployee> getZepEmployeeByUsername(String name) {
         try (Response resp = zepEmployeeRestClient.getByUsername(name)) {
             String output = resp.readEntity(String.class);
@@ -55,7 +58,7 @@ public class EmployeeService{
     }
 
     public List<ZepEmployee> getZepEmployees() {
-        return Paginator.retrieveAll(
+        return paginator.retrieveAll(
                 (page) -> zepEmployeeRestClient.getAllEmployeesOfPage(page),
                 ZepEmployee.class);
     }

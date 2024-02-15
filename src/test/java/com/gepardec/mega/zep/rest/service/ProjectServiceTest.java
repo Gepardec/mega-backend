@@ -38,6 +38,9 @@ public class ProjectServiceTest {
     @Inject
     ResourceFileService resourceFileService;
 
+    @Inject
+    Paginator paginator;
+
     @Test
     public void test() {
         System.out.println(resourceFileService.getFilesDir().getPath());
@@ -117,7 +120,7 @@ public class ProjectServiceTest {
         String[] names = {"MEGA", "gema", "EGA", "SUPERMEGA", "mega", "ega"};
 
 
-        List<ZepProject> projectList = Paginator.retrieveAll(page -> zepProjectRestClient.getProjects(page), ZepProject.class);
+        List<ZepProject> projectList = paginator.retrieveAll(page -> zepProjectRestClient.getProjects(page), ZepProject.class);
         List<String> projectNames = projectList.stream()
                 .map(ZepProject::getName)
                 .toList();

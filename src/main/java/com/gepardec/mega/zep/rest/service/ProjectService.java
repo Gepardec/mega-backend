@@ -33,9 +33,12 @@ public class ProjectService {
     @Inject
     Logger logger;
 
+    @Inject
+    Paginator paginator;
+
     public List<ZepProject> getProjectsForMonthYear(LocalDate monthYear) {
         try {
-            List<ZepProject> projects = Paginator.retrieveAll(
+            List<ZepProject> projects = paginator.retrieveAll(
                     page -> zepProjectRestClient.getProjects(page),
                     ZepProject.class
             );
@@ -64,7 +67,7 @@ public class ProjectService {
 
     public List<ZepProjectEmployee> getProjectEmployeesForId(int projectId) {
         try {
-            return Paginator.retrieveAll(
+            return paginator.retrieveAll(
                     page -> zepProjectRestClient.getProjectEmployees(projectId, page),
                     ZepProjectEmployee.class
             );

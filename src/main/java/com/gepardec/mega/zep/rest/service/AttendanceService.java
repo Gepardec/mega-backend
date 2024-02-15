@@ -25,6 +25,9 @@ public class AttendanceService {
     @Inject
     Logger logger;
 
+    @Inject
+    Paginator paginator;
+
     public List<ZepAttendance> getBillableAttendancesForUserAndMonth(String username, LocalDate date) {
         try {
             List<ZepAttendance> attendances = this.getAttendanceForUserAndMonth(username, date);
@@ -44,7 +47,7 @@ public class AttendanceService {
         String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
 
         try {
-            return Paginator.retrieveAll(
+            return paginator.retrieveAll(
                     page -> zepAttendanceRestClient.getAttendance(startDate, endDate, username, page),
                     ZepAttendance.class);
         } catch (ZepServiceException e) {
@@ -59,7 +62,7 @@ public class AttendanceService {
         String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
 
         try {
-            List<ZepAttendance> attendances = Paginator.retrieveAll(
+            List<ZepAttendance> attendances = paginator.retrieveAll(
                     page -> zepAttendanceRestClient.getAttendance(startDate, endDate, username, page),
                     ZepAttendance.class);
 

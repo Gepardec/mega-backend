@@ -20,9 +20,12 @@ public class EmploymentPeriodService {
     @Inject
     Logger logger;
 
+    @Inject
+    Paginator paginator;
+
     public List<ZepEmploymentPeriod> getZepEmploymentPeriodsByEmployeeName(String employeeName) {
         try {
-            return Paginator.retrieveAll(
+            return paginator.retrieveAll(
                     page -> zepEmployeeRestService.getEmploymentPeriodByUserName(employeeName, page),
                     ZepEmploymentPeriod.class
             );

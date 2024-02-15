@@ -27,9 +27,12 @@ public class AbsenceService {
     @Inject
     Logger logger;
 
+    @Inject
+    Paginator paginator;
+
     public List<ZepAbsence> getZepAbsencesByEmployeeNameForDateRange(String employeeName, LocalDate start, LocalDate end) {
         try {
-            List<ZepAbsence> absences = Paginator.retrieveAll(
+            List<ZepAbsence> absences = paginator.retrieveAll(
                     page -> zepEmployeeRestClient.getAbsencesByUsername(employeeName, start, end, page),
                     ZepAbsence.class
             );

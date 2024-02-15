@@ -22,9 +22,12 @@ public class RegularWorkingTimesService {
     @Inject
     Logger logger;
 
+    @Inject
+    Paginator paginator;
+
     public Optional<ZepRegularWorkingTimes> getRegularWorkingTimesByUsername(String username) {
         try  {
-            List<ZepRegularWorkingTimes> zepRegularWorkingTimes = Paginator.retrieveAll(
+            List<ZepRegularWorkingTimes> zepRegularWorkingTimes = paginator.retrieveAll(
                     (page) -> zepEmployeeRestClient.getRegularWorkingTimesByUsername(username, page),
                     ZepRegularWorkingTimes.class);
 
