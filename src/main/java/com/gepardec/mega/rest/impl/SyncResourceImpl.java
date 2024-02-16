@@ -8,6 +8,7 @@ import com.gepardec.mega.service.api.ProjectSyncService;
 import com.gepardec.mega.service.api.StepEntrySyncService;
 import com.gepardec.mega.service.api.SyncService;
 import io.quarkus.arc.properties.IfBuildProperty;
+import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
@@ -22,6 +23,7 @@ import static com.gepardec.mega.domain.utils.DateUtils.getFirstOfYearMonth;
 
 @RequestScoped
 @IfBuildProperty(name = "mega.endpoint.test.enable", stringValue = "true", enableIfMissing = true)
+@Authenticated
 public class SyncResourceImpl implements SyncResource {
 
     @Inject

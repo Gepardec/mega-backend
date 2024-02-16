@@ -3,12 +3,14 @@ package com.gepardec.mega.application.producer;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
+import com.gepardec.mega.rest.api.UserResource;
 import com.gepardec.mega.service.api.UserService;
 import io.quarkus.test.InjectMock;
+import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.Claim;
-import io.quarkus.test.security.jwt.JwtSecurity;
+import io.quarkus.test.security.oidc.Claim;
+import io.quarkus.test.security.oidc.OidcSecurity;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
+@TestHTTPEndpoint(UserResource.class)
 class UserContextProducerTest {
 
     @InjectMock
@@ -28,7 +31,7 @@ class UserContextProducerTest {
 
     @Test
     @TestSecurity(user = "test")
-    @JwtSecurity(claims = {
+    @OidcSecurity(claims = {
             @Claim(key = "email", value = "test@gepardec.com")
     })
     void createUserContext_whenUserVerified_thenUserSetAndLogged() {
