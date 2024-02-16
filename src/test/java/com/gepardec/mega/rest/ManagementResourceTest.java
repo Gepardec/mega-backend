@@ -6,7 +6,13 @@ import com.gepardec.mega.db.entity.employee.Step;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.project.ProjectEntry;
 import com.gepardec.mega.db.entity.project.ProjectStep;
-import com.gepardec.mega.domain.model.*;
+import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.FinishedAndTotalComments;
+import com.gepardec.mega.domain.model.ProjectEmployees;
+import com.gepardec.mega.domain.model.Role;
+import com.gepardec.mega.domain.model.StepName;
+import com.gepardec.mega.domain.model.User;
+import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.rest.model.ManagementEntryDto;
 import com.gepardec.mega.rest.model.ProjectManagementEntryDto;
 import com.gepardec.mega.service.api.CommentService;
@@ -16,8 +22,8 @@ import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.ProjektzeitType;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.Claim;
 import io.quarkus.test.security.jwt.JwtSecurity;
@@ -29,11 +35,17 @@ import org.mockito.ArgumentMatchers;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest

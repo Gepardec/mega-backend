@@ -11,8 +11,8 @@ import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.api.StepService;
 import com.gepardec.mega.service.api.UserService;
 import com.gepardec.mega.service.impl.StepEntrySyncServiceImpl;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,11 @@ import java.util.stream.Collectors;
 
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class StepEntrySyncServiceImplTest {

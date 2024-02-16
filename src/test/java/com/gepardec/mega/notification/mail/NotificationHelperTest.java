@@ -2,15 +2,18 @@ package com.gepardec.mega.notification.mail;
 
 import com.gepardec.mega.application.configuration.NotificationConfig;
 import com.gepardec.mega.application.producer.ResourceBundleProducer;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -21,10 +24,10 @@ class NotificationHelperTest {
     @Inject
     NotificationHelper notificationHelper;
 
-    @InjectMock(returnsDeepMocks = true)
+    @InjectMock
     private NotificationConfig notificationConfig;
 
-    @InjectMock(returnsDeepMocks = true)
+    @InjectMock
     private ResourceBundleProducer resourceBundleProducer;
 
     @Test
@@ -78,9 +81,10 @@ class NotificationHelperTest {
 
     @Test
     void whenPrefixNull_thenNoPrefixAdded() {
+        var resourceBundle = mock(ResourceBundle.class);
+        when(resourceBundle.getString("mail.EMPLOYEE_CHECK_PROJECTTIME.subject")).thenReturn("Subject");
+        when(resourceBundleProducer.getResourceBundle(any(Locale.class))).thenReturn(resourceBundle);
         when(notificationConfig.getSubjectPrefix()).thenReturn(null);
-        when(resourceBundleProducer.getResourceBundle(any(Locale.class)).getString("mail.EMPLOYEE_CHECK_PROJECTTIME.subject"))
-                .thenReturn("Subject");
         final String subject = notificationHelper.subjectForMail(Mail.EMPLOYEE_CHECK_PROJECTTIME, Locale.GERMAN);
 
         assertThat(subject).isEqualTo("Subject");
@@ -88,9 +92,10 @@ class NotificationHelperTest {
 
     @Test
     void whenPrefixSet_thenNoPrefixAdded() {
+        var resourceBundle = mock(ResourceBundle.class);
+        when(resourceBundle.getString("mail.EMPLOYEE_CHECK_PROJECTTIME.subject")).thenReturn("Subject");
+        when(resourceBundleProducer.getResourceBundle(any(Locale.class))).thenReturn(resourceBundle);
         when(notificationConfig.getSubjectPrefix()).thenReturn("DEV: ");
-        when(resourceBundleProducer.getResourceBundle(any(Locale.class)).getString("mail.EMPLOYEE_CHECK_PROJECTTIME.subject"))
-                .thenReturn("Subject");
         final String subject = notificationHelper.subjectForMail(Mail.EMPLOYEE_CHECK_PROJECTTIME, Locale.GERMAN);
 
         assertThat(subject).isEqualTo("DEV: Subject");

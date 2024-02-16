@@ -4,7 +4,6 @@ import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.domain.model.Role;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
-import io.quarkus.vertx.web.Param;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
