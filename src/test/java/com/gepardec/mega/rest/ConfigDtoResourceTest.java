@@ -5,8 +5,8 @@ import com.gepardec.mega.application.configuration.OAuthConfig;
 import com.gepardec.mega.application.configuration.ZepConfig;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.Claim;
-import io.quarkus.test.security.jwt.JwtSecurity;
+import io.quarkus.test.security.oidc.Claim;
+import io.quarkus.test.security.oidc.OidcSecurity;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import org.apache.http.HttpStatus;
@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 @QuarkusTest
 @TestSecurity(user = "test")
-@JwtSecurity(claims = {
+@OidcSecurity(claims = {
         @Claim(key = "email", value = "test@gepardec.com")
 })
 class ConfigDtoResourceTest {

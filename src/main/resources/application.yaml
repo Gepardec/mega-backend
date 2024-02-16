@@ -14,6 +14,8 @@ quarkus:
     root-path: "/"
     non-application-root-path: "/"
     port: 8080
+    auth:
+      proactive: false
 
   log:
     console:
@@ -71,6 +73,21 @@ quarkus:
   shutdown:
     timeout: "30s"
 
+  oidc:
+    auth-server-url: "${mega.oauth.issuer}"
+    application-type: "service"
+    token:
+      audience: "${mega.oauth.client-id}"
+    mega-cron:
+      auth-server-url: "${mega.oauth.issuer}"
+      application-type: "service"
+      token:
+        audience: "${mega.oauth.mega-cron.client-id}"
+
+mp:
+  openapi:
+    filter: com.gepardec.mega.application.filter.MegaCronSecuritySchemaOASFilter
+
 # disables the DefaultResponseExceptionMapper of the microprofile resteasy client
 microprofile:
   rest:
@@ -98,8 +115,10 @@ mega:
 
   oauth:
     client-id: "mega"
-    issuer: "https://gepardec-sso.apps.c-gepa-play.gepa.vshnmanaged.net/realms/gepardec"
+    issuer: "https://gepardec-sso-dev.play.run.gepardec.com/realms/gepardec"
     scope: "openid profile email microprofile-jwt"
+    mega-cron:
+      client-id: "mega-cron"
 
   mail:
     employees:
@@ -134,14 +153,6 @@ mega:
     token:
       expires-in-minutes: 1200 # 20h - real token expires in 24h
 
-mp:
-  jwt:
-    verify:
-      issuer: "${mega.oauth.issuer}"
-      audiences: "${mega.oauth.client-id}"
-      publickey:
-        location: "${mega.oauth.issuer}/protocol/openid-connect/certs"
-
 ## DEV Properties
 "%dev":
   quarkus:
@@ -161,9 +172,6 @@ mp:
     dash-url: "http://localhost:4444/index.html"
     zep:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
-
-    oauth:
-      issuer: "https://gepardec-sso-dev.play.run.gepardec.com/realms/gepardec"
 
     mail:
       subject-prefix: "LOCAL: "
@@ -206,9 +214,6 @@ mp:
 
     zep:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
-
-    oauth:
-      issuer: "https://gepardec-sso-dev.play.run.geaprdec.com/realms/gepardec"
 
     mail:
       subject-prefix: "UNIT-TEST: "

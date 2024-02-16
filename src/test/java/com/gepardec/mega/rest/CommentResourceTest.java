@@ -12,8 +12,8 @@ import com.gepardec.mega.service.api.CommentService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.Claim;
-import io.quarkus.test.security.jwt.JwtSecurity;
+import io.quarkus.test.security.oidc.Claim;
+import io.quarkus.test.security.oidc.OidcSecurity;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestSecurity(user = "test")
-@JwtSecurity(claims = {
+@OidcSecurity(claims = {
         @Claim(key = "email", value = "test@gepardec.com")
 })
 class CommentResourceTest {
@@ -57,7 +57,7 @@ class CommentResourceTest {
 
     @Test
     @TestSecurity
-    @JwtSecurity
+    @OidcSecurity
     void finish_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
@@ -99,7 +99,7 @@ class CommentResourceTest {
 
     @Test
     @TestSecurity
-    @JwtSecurity
+    @OidcSecurity
     void getAllCommentsForEmployee_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
@@ -167,7 +167,7 @@ class CommentResourceTest {
 
     @Test
     @TestSecurity
-    @JwtSecurity
+    @OidcSecurity
     void newCommentForEmployee_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         given().contentType(ContentType.JSON)
                 .post("/comments")
@@ -228,7 +228,7 @@ class CommentResourceTest {
 
     @Test
     @TestSecurity
-    @JwtSecurity
+    @OidcSecurity
     void deleteComment_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         given().contentType(ContentType.JSON)
                 .delete("/comments/1")
@@ -252,7 +252,7 @@ class CommentResourceTest {
 
     @Test
     @TestSecurity
-    @JwtSecurity
+    @OidcSecurity
     void updateCommentForEmployee_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         given().contentType(ContentType.JSON)
                 .put("/comments")
