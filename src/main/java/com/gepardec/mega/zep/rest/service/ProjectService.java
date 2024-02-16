@@ -6,6 +6,7 @@ import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepProject;
 import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
 import com.gepardec.mega.zep.util.ResponseParser;
+import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -29,12 +30,10 @@ public class ProjectService {
     @Inject
     ResponseParser responseParser;
 
+    @CacheResult(cacheName = "zep-project")
     public List<ZepProject> getProjectsForMonthYear(LocalDate monthYear) {
         try {
-            List<ZepProject> projects = responseParser.retrieveAll(
-                    page -> zepProjectRestClient.getProjects(page),
-                    ZepProject.class
-            );
+            List<ZepProject> projects = this.getAllProjects();
             return this.filterProjectsByMonthYear(projects, monthYear);
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving projects for month + \"%s\" from ZEP: No /data field in response"
@@ -42,6 +41,13 @@ public class ProjectService {
         }
 
         return List.of();
+    }
+
+    private List<ZepProject> getAllProjects()  {
+        return responseParser.retrieveAll(
+                page -> zepProjectRestClient.getProjects(page),
+                ZepProject.class
+        );
     }
 
     public Optional<ZepProject> getProjectByName(String name, LocalDate date) {
