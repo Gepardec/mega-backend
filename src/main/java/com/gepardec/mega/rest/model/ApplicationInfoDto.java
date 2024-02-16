@@ -1,9 +1,7 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.gepardec.mega.application.constant.DateTimeConstants;
 import com.gepardec.mega.application.jackson.serializer.DurationSerializer;
@@ -16,6 +14,7 @@ import java.util.Objects;
 public class ApplicationInfoDto {
     private final String version;
 
+    @JsonFormat(pattern = DateTimeConstants.DATE_TIME_PATTERN)
     private final LocalDateTime buildDate;
 
     private final Integer buildNumber;
@@ -24,11 +23,12 @@ public class ApplicationInfoDto {
 
     private final String branch;
 
+    @JsonFormat(pattern = DateTimeConstants.DATE_TIME_PATTERN)
     private final LocalDateTime startedAt;
 
+    @JsonSerialize(using = DurationSerializer.class)
     private final Duration upTime;
 
-    @JsonCreator
     private ApplicationInfoDto(Builder builder) {
         this.version = builder.version;
         this.buildDate = builder.buildDate;
@@ -37,6 +37,34 @@ public class ApplicationInfoDto {
         this.branch = builder.branch;
         this.startedAt = builder.startedAt;
         this.upTime = builder.upTime;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public LocalDateTime getBuildDate() {
+        return buildDate;
+    }
+
+    public Integer getBuildNumber() {
+        return buildNumber;
+    }
+
+    public String getCommit() {
+        return commit;
+    }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public LocalDateTime getStartedAt() {
+        return startedAt;
+    }
+
+    public Duration getUpTime() {
+        return upTime;
     }
 
     public static Builder builder() {
@@ -57,22 +85,12 @@ public class ApplicationInfoDto {
     }
 
     public static final class Builder {
-        @JsonProperty
         private String version;
-        @JsonProperty
-        @JsonFormat(pattern = DateTimeConstants.DATE_TIME_PATTERN)
         private LocalDateTime buildDate;
-        @JsonProperty
         private Integer buildNumber;
-        @JsonProperty
         private String commit;
-        @JsonProperty
         private String branch;
-        @JsonProperty
-        @JsonFormat(pattern = DateTimeConstants.DATE_TIME_PATTERN)
         private LocalDateTime startedAt;
-        @JsonProperty
-        @JsonSerialize(using = DurationSerializer.class)
         private Duration upTime;
 
         private Builder() {
@@ -116,7 +134,6 @@ public class ApplicationInfoDto {
             this.upTime = upTime;
             return this;
         }
-
 
         public ApplicationInfoDto build() {
             return new ApplicationInfoDto(this);
