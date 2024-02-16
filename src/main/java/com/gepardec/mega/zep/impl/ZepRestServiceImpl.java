@@ -91,6 +91,8 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public Employee getEmployee(String userId) {
+        logger.debug("Retrieving employee %s from ZEP".formatted(userId));
+
         Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByUsername(userId);
         if (zepEmployee.isEmpty()) {
             logger.warn("No employee found for user {}", userId);
@@ -116,6 +118,8 @@ public class ZepRestServiceImpl implements ZepService {
     @Override
     @CacheResult(cacheName = "employee")
     public List<Employee> getEmployees() {
+        logger.debug("Retrieving employees from ZEP");
+
         List<ZepEmployee> zepEmployees = employeeService.getZepEmployees();
         List<Employee> employees = employeeMapper.mapList(zepEmployees);
         employees.forEach(
@@ -138,6 +142,7 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<ProjectEntry> getProjectTimes(Employee employee, LocalDate date) {
+        logger.debug("Retrieving project times from ZEP of %s".formatted(employee.getUserId()));
         List<ZepAttendance> zepAttendances = attendanceService.getAttendanceForUserAndMonth(employee.getUserId(), date);
         return projectEntryMapper.mapList(zepAttendances);
     }
@@ -145,6 +150,7 @@ public class ZepRestServiceImpl implements ZepService {
     @Override
     public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, LocalDate curDate) {
         List<ZepAttendance> allZepAttendancesForProject = new ArrayList<>();
+        logger.debug("Retrieving project %s from ZEP".formatted(project));
         Optional<ZepProject> projectOpt = projectService.getProjectByName(project, curDate);
         if (projectOpt.isEmpty()) {
             logger.warn("No project found for name {}", project);
@@ -153,10 +159,12 @@ public class ZepRestServiceImpl implements ZepService {
 
         Integer projectId = projectOpt.get().getId();
 
+        logger.debug("Retrieving project employees of %d from ZEP".formatted(projectId));
         List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(projectId);
 
         for (ZepProjectEmployee projectEmployee :
                 projectEmployees) {
+            logger.debug("Retrieving attendance of user %s of project %d from ZEP".formatted(projectEmployee.getUsername(), projectId));
             allZepAttendancesForProject.addAll(attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.getUsername(), curDate, projectId));
         }
         return attendanceMapper.mapList(allZepAttendancesForProject);
@@ -164,9 +172,11 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<Project> getProjectsForMonthYear(LocalDate monthYear) {
+        logger.debug("Retrieving projects for monthYear of %s from ZEP".formatted(monthYear.toString()));
         List<ZepProject> zepProjects = projectService.getProjectsForMonthYear(monthYear);
         List<Project> projects = projectMapper.mapList(zepProjects);
         projects.forEach(project -> {
+            logger.debug("Retrieving project employees for project %s from ZEP".formatted(project.getProjectId()));
             List<ZepProjectEmployee> zepProjectEmployees = projectService.getProjectEmployeesForId(project.getZepId());
             MultivaluedMap<String, String> projectEmployeesMap = projectEmployeesMapper.map(zepProjectEmployees);
             project.setEmployees(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.USER, new ArrayList<>()));
@@ -178,12 +188,14 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public Optional<Project> getProjectByName(String projectName, LocalDate monthYear) {
+        logger.debug("Retrieving project %s from ZEP".formatted(projectName));
         Optional<ZepProject> zepProject = projectService.getProjectByName(projectName, monthYear);
         return zepProject.map(project -> projectMapper.map(project));
     }
 
     @Override
     public List<AbsenceTime> getAbsenceForEmployee(Employee employee, LocalDate date) {
+        logger.debug("Retrieving absences of %s from ZEP".formatted(employee.getUserId()));
         LocalDate firstOfMonth = DateUtils.getFirstDayOfMonth(date.getYear(), date.getMonthValue());
         LocalDate lastOfMonth = DateUtils.getLastDayOfMonth(date.getYear(), date.getMonthValue());
         List<ZepAbsence> zepAbsences = absenceService
@@ -194,6 +206,7 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date) {
+        logger.debug("Retrieving billable entries of employee %s from ZEP".formatted(employee.getUserId()));
         List<ZepAttendance> projectTimes = attendanceService.getBillableAttendancesForUserAndMonth(employee.getUserId(), date);
         return attendanceMapper.mapList(projectTimes);
     }
