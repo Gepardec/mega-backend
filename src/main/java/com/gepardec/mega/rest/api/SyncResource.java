@@ -1,6 +1,7 @@
 package com.gepardec.mega.rest.api;
 
 import com.gepardec.mega.rest.model.EmployeeDto;
+import io.quarkus.oidc.Tenant;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -11,18 +12,33 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.security.OAuthFlow;
+import org.eclipse.microprofile.openapi.annotations.security.OAuthFlows;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
+import org.eclipse.microprofile.openapi.annotations.security.SecuritySchemes;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.time.YearMonth;
 import java.util.List;
 
 @Path("/sync")
+@Tenant("mega-cron")
 @Tag(name = "SyncResource")
 @Produces(MediaType.APPLICATION_JSON)
+@SecurityRequirement(name = "mega-cron")
+@SecuritySchemes(
+        @SecurityScheme(
+                securitySchemeName = "mega-cron",
+                type = SecuritySchemeType.OAUTH2,
+                flows = @OAuthFlows(clientCredentials = @OAuthFlow())
+        )
+)
 public interface SyncResource {
 
     @Operation(operationId = "syncProjects", description = "Syncs projects for a given amount of months.")

@@ -3,12 +3,14 @@ package com.gepardec.mega.rest.impl;
 import com.gepardec.mega.notification.mail.ReminderEmailSender;
 import com.gepardec.mega.notification.mail.receiver.MailReceiver;
 import com.gepardec.mega.rest.api.MailResource;
+import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 
 @RequestScoped
+@Authenticated
 public class MailResourceImpl implements MailResource {
 
     @Inject

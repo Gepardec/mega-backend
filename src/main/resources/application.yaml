@@ -14,6 +14,8 @@ quarkus:
     root-path: "/"
     non-application-root-path: "/"
     port: 8080
+    auth:
+      proactive: false
 
   log:
     console:
@@ -81,6 +83,21 @@ quarkus:
     zep-health:
       url: "${mega.zep.origin}‚"
 
+  oidc:
+    auth-server-url: "${mega.oauth.issuer}"
+    application-type: "service"
+    token:
+      audience: "${mega.oauth.client-id}"
+    mega-cron:
+      auth-server-url: "${mega.oauth.issuer}"
+      application-type: "service"
+      token:
+        audience: "${mega.oauth.mega-cron.client-id}"
+
+mp:
+  openapi:
+    filter: com.gepardec.mega.application.filter.MegaCronSecuritySchemaOASFilter
+
 # disables the DefaultResponseExceptionMapper of the microprofile resteasy client
 microprofile:
   rest:
@@ -108,12 +125,12 @@ mega:
     rest-token: "${ZEP_REST_TOKEN:default}"
     origin: "https://www.zep-online.de/zepgepardecservices_test"
 
-
-
   oauth:
     client-id: "mega"
     issuer: "https://gepardec-sso-qa.apps.cloudscale-lpg-2.appuio.cloud/realms/gepardec"
     scope: "openid profile email microprofile-jwt"
+    mega-cron:
+      client-id: "mega-cron"
 
   mail:
     employees:
@@ -140,7 +157,7 @@ mega:
       port: 993
       username: "service@gepardec.com"
       password: "${MAILER_PASSWORD:default}"
-      sender: "nobody@provantis.de"
+      sender: "nobody@zep.de"
       cron-expr: "disabled"
 
   personio:
@@ -150,14 +167,6 @@ mega:
         secret: "${PERSONIO_API_CLIENT_SECRET:default}"
     token:
       expires-in-minutes: 1200 # 20h - real token expires in 24h
-
-mp:
-  jwt:
-    verify:
-      issuer: "${mega.oauth.issuer}"
-      audiences: "${mega.oauth.client-id}"
-      publickey:
-        location: "${mega.oauth.issuer}/protocol/openid-connect/certs"
 
 ## DEV Properties
 "%dev":
@@ -177,9 +186,6 @@ mp:
 
   mega:
     dash-url: "http://localhost:4444/index.html"
-
-    oauth:
-      issuer: "https://gepardec-sso-qa.apps.cloudscale-lpg-2.appuio.cloud/realms/gepardec"
 
     mail:
       subject-prefix: "LOCAL: "
@@ -222,9 +228,6 @@ mp:
 
     zep:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
-
-    oauth:
-      issuer: "https://gepardec-sso-qa.apps.cloudscale-lpg-2.appuio.cloud/realms/gepardec"
 
     mail:
       subject-prefix: "UNIT-TEST: "
