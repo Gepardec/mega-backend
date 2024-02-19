@@ -84,16 +84,24 @@ quarkus:
       url: "${mega.zep.origin}‚"
 
   oidc:
+    # for the default client (mega) we verify the access token locally
     auth-server-url: "${mega.oauth.issuer}"
     application-type: "service"
     token:
       audience: "${mega.oauth.client-id}"
+    # for the server to server client (mega-cron) we verify the token with token introspection
     mega-cron:
       auth-server-url: "${mega.oauth.issuer}"
       application-type: "service"
       token:
-        audience: "${mega.oauth.mega-cron.client-id}"
-
+        require-jwt-introspection-only: true
+      client-id: "${mega.oauth.mega-cron.client-id}"
+      credentials:
+        client-secret:
+          value: "${mega.oauth.mega-cron.client-secret}"
+      roles:
+        source: accesstoken
+        role-claim-path: "resource_access/mega-cron/roles"
 mp:
   openapi:
     filter: com.gepardec.mega.application.filter.MegaCronSecuritySchemaOASFilter
@@ -109,8 +117,8 @@ microprofile:
 mega:
   info:
     build:
-      version: "${revision}"
-      date: "${timestamp}"
+      version: "${revision:local}"
+      date: "${timestamp:2007-12-03T10:15:30}"
 
     git:
       branch: "${BRANCH:local}"
