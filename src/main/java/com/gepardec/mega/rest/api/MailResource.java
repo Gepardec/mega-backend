@@ -11,6 +11,8 @@ import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.security.*;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import java.time.LocalDateTime;
+
 @Path("/mail")
 @Tenant("mega-cron")
 @Tag(name = "MailResource")
@@ -34,4 +36,8 @@ public interface MailResource {
     @GET
     @Path("/retrieveZepEmails")
     Response retrieveZepEmailsFromInbox();
+
+    @Path("/ping")
+    @GET
+    LocalDateTime ping();
 }
