@@ -16,6 +16,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.security.*;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 
 @Path("/sync")
@@ -117,4 +118,8 @@ public interface SyncResource {
     @Path("/all")
     @GET
     Response syncAll(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
+
+    @Path("/ping")
+    @GET
+    LocalDateTime ping();
 }

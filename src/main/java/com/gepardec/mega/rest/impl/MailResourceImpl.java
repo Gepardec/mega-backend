@@ -4,13 +4,16 @@ import com.gepardec.mega.notification.mail.ReminderEmailSender;
 import com.gepardec.mega.notification.mail.receiver.MailReceiver;
 import com.gepardec.mega.rest.api.MailResource;
 import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 
+import java.time.LocalDateTime;
+
 @RequestScoped
-@Authenticated
+@RolesAllowed("mega-cron:mail")
 public class MailResourceImpl implements MailResource {
 
     @Inject
@@ -44,5 +47,10 @@ public class MailResourceImpl implements MailResource {
         }
 
         return Response.ok().build();
+    }
+
+    @Override
+    public LocalDateTime ping() {
+        return LocalDateTime.now();
     }
 }

@@ -7,12 +7,13 @@ import com.gepardec.mega.service.api.ProjectSyncService;
 import com.gepardec.mega.service.api.StepEntrySyncService;
 import com.gepardec.mega.service.api.SyncService;
 import io.quarkus.arc.properties.IfBuildProperty;
-import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.function.Function;
 
@@ -21,7 +22,7 @@ import static com.gepardec.mega.domain.utils.DateUtils.getFirstOfYearMonth;
 
 @RequestScoped
 @IfBuildProperty(name = "mega.endpoint.test.enable", stringValue = "true", enableIfMissing = true)
-@Authenticated
+@RolesAllowed("mega-cron:sync")
 public class SyncResourceImpl implements SyncResource {
 
     @Inject
@@ -74,6 +75,11 @@ public class SyncResourceImpl implements SyncResource {
         syncPrematureEmployeeChecks(from, to);
 
         return Response.ok("ok").build();
+    }
+
+    @Override
+    public LocalDateTime ping() {
+        return LocalDateTime.now();
     }
 
     private Response syncFromTo(Function<LocalDate, Boolean> syncFunction, YearMonth from, YearMonth to) {
