@@ -1,6 +1,6 @@
 package com.gepardec.mega.rest.impl;
 
-import com.gepardec.mega.application.interceptor.RolesAllowed;
+import com.gepardec.mega.application.interceptor.MegaRolesAllowed;
 import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
@@ -47,7 +47,7 @@ import java.util.Optional;
 
 @RequestScoped
 @Authenticated
-@RolesAllowed(Role.EMPLOYEE)
+@MegaRolesAllowed(Role.EMPLOYEE)
 public class WorkerResourceImpl implements WorkerResource {
 
     @Inject

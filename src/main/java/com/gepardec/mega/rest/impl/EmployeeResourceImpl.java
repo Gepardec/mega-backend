@@ -1,6 +1,6 @@
 package com.gepardec.mega.rest.impl;
 
-import com.gepardec.mega.application.interceptor.RolesAllowed;
+import com.gepardec.mega.application.interceptor.MegaRolesAllowed;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.rest.api.EmployeeResource;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @RequestScoped
 @Authenticated
-@RolesAllowed({Role.PROJECT_LEAD, Role.OFFICE_MANAGEMENT})
+@MegaRolesAllowed({Role.PROJECT_LEAD, Role.OFFICE_MANAGEMENT})
 public class EmployeeResourceImpl implements EmployeeResource {
 
     @Inject
