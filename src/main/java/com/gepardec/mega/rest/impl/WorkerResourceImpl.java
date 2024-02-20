@@ -1,6 +1,6 @@
 package com.gepardec.mega.rest.impl;
 
-import com.gepardec.mega.application.interceptor.RolesAllowed;
+import com.gepardec.mega.application.interceptor.MegaRolesAllowed;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.rest.api.WorkerResource;
@@ -13,7 +13,7 @@ import jakarta.ws.rs.core.Response;
 
 @RequestScoped
 @Authenticated
-@RolesAllowed(Role.EMPLOYEE)
+@MegaRolesAllowed(Role.EMPLOYEE)
 public class WorkerResourceImpl implements WorkerResource {
 
     @Inject

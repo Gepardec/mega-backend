@@ -1,6 +1,6 @@
 package com.gepardec.mega.rest.impl;
 
-import com.gepardec.mega.application.interceptor.RolesAllowed;
+import com.gepardec.mega.application.interceptor.MegaRolesAllowed;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.rest.api.EnterpriseResource;
 import com.gepardec.mega.rest.model.EnterpriseEntryDto;
@@ -15,7 +15,7 @@ import java.time.temporal.TemporalAdjusters;
 
 @RequestScoped
 @Authenticated
-@RolesAllowed(value = {Role.PROJECT_LEAD, Role.OFFICE_MANAGEMENT})
+@MegaRolesAllowed(value = {Role.PROJECT_LEAD, Role.OFFICE_MANAGEMENT})
 public class EnterpriseResourceImpl implements EnterpriseResource {
 
     @Inject

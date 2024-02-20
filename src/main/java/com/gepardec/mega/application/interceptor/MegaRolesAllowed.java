@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
-public @interface RolesAllowed {
+public @interface MegaRolesAllowed {
 
     @Nonbinding
     Role[] value() default {Role.EMPLOYEE};
