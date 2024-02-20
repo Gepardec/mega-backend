@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class RolesAllowedInterceptorTest {
+class MegaMegaRolesAllowedInterceptorTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private UserContext userContext;
@@ -31,7 +31,7 @@ class RolesAllowedInterceptorTest {
     private InvocationContext invocationContext;
 
     @InjectMocks
-    private RolesAllowedInterceptor rolesAllowedInterceptor;
+    private MegaRolesAllowedInterceptor megaRolesAllowedInterceptor;
 
     @Test
     void invoke_whenAnnotationOnClassLevel_thenUsesClassLevelAnnotation() throws Exception {
@@ -39,7 +39,7 @@ class RolesAllowedInterceptorTest {
         when(invocationContext.getTarget()).thenReturn(new TargetWithAnnotation());
         when(userContext.getUser().getRoles()).thenReturn(Set.of(Role.EMPLOYEE));
 
-        rolesAllowedInterceptor.intercept(invocationContext);
+        megaRolesAllowedInterceptor.intercept(invocationContext);
 
         verify(invocationContext, times(1)).proceed();
     }
@@ -49,7 +49,7 @@ class RolesAllowedInterceptorTest {
         when(invocationContext.getMethod().getAnnotation(any())).thenReturn(null);
         when(invocationContext.getTarget()).thenReturn(new TargetNoAnnotation());
 
-        assertThatThrownBy(() -> rolesAllowedInterceptor.intercept(invocationContext))
+        assertThatThrownBy(() -> megaRolesAllowedInterceptor.intercept(invocationContext))
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -58,7 +58,7 @@ class RolesAllowedInterceptorTest {
     @Disabled
     void intercept_whenNotLogged_thenThrowsForbiddenException() {
         when(invocationContext.getMethod().getAnnotation(any())).thenReturn(createAnnotation(new Role[]{Role.EMPLOYEE}));
-        assertThatThrownBy(() -> rolesAllowedInterceptor.intercept(invocationContext)).isInstanceOf(ForbiddenException.class);
+        assertThatThrownBy(() -> megaRolesAllowedInterceptor.intercept(invocationContext)).isInstanceOf(ForbiddenException.class);
     }
 
     @Test
@@ -66,7 +66,7 @@ class RolesAllowedInterceptorTest {
         when(invocationContext.getMethod().getAnnotation(any())).thenReturn(createAnnotation(new Role[]{Role.OFFICE_MANAGEMENT}));
         when(userContext.getUser().getRoles()).thenReturn(Set.of(Role.EMPLOYEE));
 
-        assertThatThrownBy(() -> rolesAllowedInterceptor.intercept(invocationContext)).isInstanceOf(ForbiddenException.class);
+        assertThatThrownBy(() -> megaRolesAllowedInterceptor.intercept(invocationContext)).isInstanceOf(ForbiddenException.class);
     }
 
     @Test
@@ -74,13 +74,13 @@ class RolesAllowedInterceptorTest {
         when(invocationContext.getMethod().getAnnotation(any())).thenReturn(createAnnotation(Role.values()));
         when(userContext.getUser().getRoles()).thenReturn(Set.of(Role.EMPLOYEE));
 
-        rolesAllowedInterceptor.intercept(invocationContext);
+        megaRolesAllowedInterceptor.intercept(invocationContext);
 
         verify(invocationContext, times(1)).proceed();
     }
 
-    private RolesAllowed createAnnotation(final Role[] roles) {
-        return new RolesAllowed() {
+    private MegaRolesAllowed createAnnotation(final Role[] roles) {
+        return new MegaRolesAllowed() {
             @Override
             public Role[] value() {
                 return roles;
@@ -88,12 +88,12 @@ class RolesAllowedInterceptorTest {
 
             @Override
             public Class<? extends Annotation> annotationType() {
-                return RolesAllowed.class;
+                return MegaRolesAllowed.class;
             }
         };
     }
 
-    @RolesAllowed(Role.EMPLOYEE)
+    @MegaRolesAllowed(Role.EMPLOYEE)
     private static class TargetWithAnnotation {
 
     }

@@ -13,24 +13,24 @@ import java.util.Objects;
 import java.util.Set;
 
 @Interceptor
-@RolesAllowed
+@MegaRolesAllowed
 @Priority(Interceptor.Priority.APPLICATION)
-public class RolesAllowedInterceptor {
+public class MegaRolesAllowedInterceptor {
 
     @Inject
     UserContext userContext;
 
     @AroundInvoke
     public Object intercept(InvocationContext invocationContext) throws Exception {
-        RolesAllowed rolesAllowedAnnotation = invocationContext.getMethod().getAnnotation(RolesAllowed.class);
-        if (rolesAllowedAnnotation == null) {
-            rolesAllowedAnnotation = invocationContext.getTarget().getClass().getAnnotation(RolesAllowed.class);
+        MegaRolesAllowed megaRolesAllowedAnnotation = invocationContext.getMethod().getAnnotation(MegaRolesAllowed.class);
+        if (megaRolesAllowedAnnotation == null) {
+            megaRolesAllowedAnnotation = invocationContext.getTarget().getClass().getAnnotation(MegaRolesAllowed.class);
         }
 
-        Objects.requireNonNull(rolesAllowedAnnotation,
+        Objects.requireNonNull(megaRolesAllowedAnnotation,
                 "Could not resolve Authorizaion annotation. Do you use Stereotype annotations, which are currently not supported?");
 
-        Role[] allowedRoles = rolesAllowedAnnotation.value();
+        Role[] allowedRoles = megaRolesAllowedAnnotation.value();
         if (isInRole(userContext.getUser().getRoles(), allowedRoles)) {
             return invocationContext.proceed();
         } else {
