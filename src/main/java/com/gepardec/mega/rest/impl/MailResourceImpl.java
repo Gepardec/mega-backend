@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import java.time.LocalDateTime;
 
 @RequestScoped
-@RolesAllowed("mega-cron:mail")
+//@RolesAllowed("mega-cron:mail")
 public class MailResourceImpl implements MailResource {
 
     @Inject
