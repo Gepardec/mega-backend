@@ -1,14 +1,12 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 
 import java.time.LocalDate;
@@ -16,10 +14,13 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = MonthlyReportDto.Builder.class)
 public class MonthlyReportDto {
 
     private final EmployeeDto employee;
 
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
     private final LocalDate initialDate;
 
     private final List<MappedTimeWarningDTO> timeWarnings;
@@ -70,9 +71,8 @@ public class MonthlyReportDto {
 
     private final double overtime;
 
-    private final PrematureEmployeeCheck prematureEmployeeCheck;
+    private final PrematureEmployeeCheckDto prematureEmployeeCheck;
 
-    @JsonCreator
     private MonthlyReportDto(Builder builder) {
         this.employee = builder.employee;
         this.initialDate = builder.initialDate;
@@ -224,67 +224,39 @@ public class MonthlyReportDto {
         return overtime;
     }
 
-    public PrematureEmployeeCheck getPrematureEmployeeCheck() {
+    public PrematureEmployeeCheckDto getPrematureEmployeeCheck() {
         return prematureEmployeeCheck;
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
-        @JsonProperty
         private EmployeeDto employee;
-        @JsonDeserialize(using = LocalDateDeserializer.class)
-        @JsonSerialize(using = LocalDateSerializer.class)
-        @JsonProperty
         private LocalDate initialDate;
-        @JsonProperty
         private List<MappedTimeWarningDTO> timeWarnings;
-        @JsonProperty
         private List<JourneyWarning> journeyWarnings;
-        @JsonProperty
         private List<CommentDto> comments;
-        @JsonProperty
         private EmployeeState employeeCheckState;
-        @JsonProperty
         private String employeeCheckStateReason;
-        @JsonProperty
         private EmployeeState internalCheckState;
-        @JsonProperty
         private List<PmProgressDto> employeeProgresses;
-        @JsonProperty
         private boolean otherChecksDone;
-        @JsonProperty
         private int vacationDays;
-        @JsonProperty
         private int homeofficeDays;
-        @JsonProperty
         private int compensatoryDays;
-        @JsonProperty
         private int nursingDays;
-        @JsonProperty
         private int maternityLeaveDays;
-        @JsonProperty
         private int externalTrainingDays;
-        @JsonProperty
         private int conferenceDays;
-        @JsonProperty
         private int maternityProtectionDays;
-        @JsonProperty
         private int fatherMonthDays;
-        @JsonProperty
         private int paidSpecialLeaveDays;
-        @JsonProperty
         private int nonPaidVacationDays;
-        @JsonProperty
         private double vacationDayBalance;
-        @JsonProperty
         private String billableTime;
-        @JsonProperty
         private String totalWorkingTime;
-        @JsonProperty
         private int paidSickLeave;
-        @JsonProperty
         private double overtime;
-        @JsonProperty
-        private PrematureEmployeeCheck prematureEmployeeCheck;
+        private PrematureEmployeeCheckDto prematureEmployeeCheck;
 
         private Builder() {
         }
@@ -423,7 +395,7 @@ public class MonthlyReportDto {
             return this;
         }
 
-        public Builder prematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
+        public Builder prematureEmployeeCheck(PrematureEmployeeCheckDto prematureEmployeeCheck) {
             this.prematureEmployeeCheck = prematureEmployeeCheck;
             return this;
         }

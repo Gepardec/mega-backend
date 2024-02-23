@@ -27,9 +27,14 @@ public class ProjectEntryServiceImpl implements ProjectEntryService {
 
     @Override
     public boolean update(ProjectEntryDto projectEntry) {
-        ProjectEntry projectEntity = findByNameAndEntryDateAndStep(projectEntry.getProjectName(), LocalDate.parse(projectEntry.getCurrentMonthYear()), projectEntry.getStep());
+        var projectEntity = findByNameAndEntryDateAndStep(
+                projectEntry.getProjectName(),
+                LocalDate.parse(projectEntry.getCurrentMonthYear()),
+                projectEntry.getStep()
+        );
         projectEntity.setState(mapProjectStateFromModelToDatabase(projectEntry.getState()));
         projectEntity.setPreset(projectEntry.isPreset());
+
         return projectEntryRepository.updateProjectEntry(projectEntity);
     }
 

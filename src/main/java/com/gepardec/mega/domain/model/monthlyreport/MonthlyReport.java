@@ -6,6 +6,7 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.PmProgressDto;
+import jakarta.annotation.Nullable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -208,6 +209,7 @@ public class MonthlyReport {
         return overtime;
     }
 
+    @Nullable
     public PrematureEmployeeCheck getPrematureEmployeeCheck() {
         return prematureEmployeeCheck;
     }
@@ -378,7 +380,7 @@ public class MonthlyReport {
             return this;
         }
 
-        public Builder prematureEmployeeCheck (PrematureEmployeeCheck prematureEmployeeCheck) {
+        public Builder prematureEmployeeCheck(PrematureEmployeeCheck prematureEmployeeCheck) {
             this.prematureEmployeeCheck = prematureEmployeeCheck;
             return this;
         }

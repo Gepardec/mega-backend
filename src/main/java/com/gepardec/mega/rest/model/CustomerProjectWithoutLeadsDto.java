@@ -1,13 +1,14 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = CustomerProjectWithoutLeadsDto.Builder.class)
 public class CustomerProjectWithoutLeadsDto {
 
     private final String projectName;
@@ -15,8 +16,6 @@ public class CustomerProjectWithoutLeadsDto {
     private final LocalDate fetchDate;
     private final Integer zepId;
 
-
-    @JsonCreator
     private CustomerProjectWithoutLeadsDto(Builder builder) {
         this.projectName = builder.projectName;
         this.comment = builder.comment;
@@ -57,14 +56,11 @@ public class CustomerProjectWithoutLeadsDto {
         return zepId;
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
-        @JsonProperty
         private String projectName;
-        @JsonProperty
         private String comment;
-        @JsonProperty
         private LocalDate fetchDate;
-        @JsonProperty
         private Integer zepId;
 
         private Builder() {

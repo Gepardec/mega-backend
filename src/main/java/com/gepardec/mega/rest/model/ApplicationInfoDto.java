@@ -2,6 +2,8 @@ package com.gepardec.mega.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.gepardec.mega.application.constant.DateTimeConstants;
 import com.gepardec.mega.application.jackson.serializer.DurationSerializer;
@@ -11,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = ApplicationInfoDto.Builder.class)
 public class ApplicationInfoDto {
     private final String version;
 
@@ -84,6 +87,7 @@ public class ApplicationInfoDto {
         return Objects.hash(version, buildDate, buildNumber, commit, branch, startedAt, upTime);
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
         private String version;
         private LocalDateTime buildDate;

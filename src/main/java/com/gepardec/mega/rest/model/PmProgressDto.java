@@ -1,8 +1,8 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import jakarta.annotation.Nullable;
@@ -10,6 +10,7 @@ import jakarta.annotation.Nullable;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = PmProgressDto.Builder.class)
 public class PmProgressDto {
     private final String project;
 
@@ -23,8 +24,6 @@ public class PmProgressDto {
 
     private final Long stepId;
 
-
-    @JsonCreator
     private PmProgressDto(Builder builder) {
         this.project = builder.project;
         this.assigneeEmail = builder.assigneeEmail;
@@ -89,21 +88,13 @@ public class PmProgressDto {
                 .build();
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
-        @JsonProperty
-        @Nullable
         private String project;
-        @JsonProperty
         private String assigneeEmail;
-        @JsonProperty
-        @Nullable
         private String firstname;
-        @JsonProperty
-        @Nullable
         private String lastname;
-        @JsonProperty
         private EmployeeState state;
-        @JsonProperty
         private Long stepId;
 
         private Builder() {

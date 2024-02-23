@@ -1,12 +1,13 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = EmployeeDto.Builder.class)
 public class EmployeeDto {
 
     private final String userId;
@@ -27,7 +28,6 @@ public class EmployeeDto {
 
     private final boolean active;
 
-    @JsonCreator
     private EmployeeDto(Builder builder) {
         this.userId = builder.userId;
         this.email = builder.email;
@@ -93,24 +93,16 @@ public class EmployeeDto {
         return Objects.hash(getUserId(), getEmail(), getTitle(), getFirstname(), getLastname(), getSalutation(), getReleaseDate(), getWorkDescription(), isActive());
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
-        @JsonProperty
         private String userId;
-        @JsonProperty
         private String email;
-        @JsonProperty
         private String title;
-        @JsonProperty
         private String firstname;
-        @JsonProperty
         private String lastname;
-        @JsonProperty
         private String salutation;
-        @JsonProperty
         private String releaseDate;
-        @JsonProperty
         private String workDescription;
-        @JsonProperty
         private boolean active;
 
         private Builder() {

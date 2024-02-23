@@ -1,8 +1,8 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.gepardec.mega.domain.model.ProjectState;
 import jakarta.annotation.Nullable;
 
@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = ProjectManagementEntryDto.Builder.class)
 public class ProjectManagementEntryDto {
 
     private final Integer zepId;
@@ -31,7 +32,6 @@ public class ProjectManagementEntryDto {
 
     private final Duration aggregatedNonBillableWorkTimeInSeconds;
 
-    @JsonCreator
     private ProjectManagementEntryDto(Builder builder) {
         this.zepId = builder.zepId;
         this.projectName = builder.projectName;
@@ -102,28 +102,16 @@ public class ProjectManagementEntryDto {
         return Objects.hash(getZepId(), getProjectName(), getControlProjectState(), getControlBillingState(), getPresetControlProjectState(), getPresetControlBillingState(), getEntries(), getAggregatedBillableWorkTimeInSeconds(), getAggregatedNonBillableWorkTimeInSeconds());
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
-        @JsonProperty
         private Integer zepId;
-        @JsonProperty
         private String projectName;
-        @JsonProperty
-        @Nullable
         private ProjectState controlProjectState;
-        @JsonProperty
-        @Nullable
         private ProjectState controlBillingState;
-        @JsonProperty
-        @Nullable
         private Boolean presetControlProjectState;
-        @JsonProperty
-        @Nullable
         private Boolean presetControlBillingState;
-        @JsonProperty
         private List<ManagementEntryDto> entries;
-        @JsonProperty
         private Duration aggregatedBillableWorkTimeInSeconds;
-        @JsonProperty
         private Duration aggregatedNonBillableWorkTimeInSeconds;
 
         private Builder() {

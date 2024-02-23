@@ -5,6 +5,8 @@ import com.gepardec.mega.rest.model.MonthlyReportDto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import java.util.Optional;
+
 @ApplicationScoped
 public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyReportDto> {
 
@@ -13,6 +15,9 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
 
     @Inject
     CommentMapper commentMapper;
+
+    @Inject
+    PrematureEmployeeCheckMapper prematureEmployeeCheckMapper;
 
     @Override
     public MonthlyReportDto mapToDto(MonthlyReport object) {
@@ -40,7 +45,11 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .totalWorkingTime(object.getTotalWorkingTime())
                 .paidSickLeave(object.getPaidSickLeave())
                 .overtime(object.getOvertime())
-                .prematureEmployeeCheck(object.getPrematureEmployeeCheck())
+                .prematureEmployeeCheck(
+                        Optional.ofNullable(object.getPrematureEmployeeCheck())
+                                .map(prematureEmployeeCheckMapper::mapToDto)
+                                .orElse(null)
+                )
                 .build();
     }
 
@@ -74,7 +83,7 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .totalWorkingTime(object.getTotalWorkingTime())
                 .paidSickLeave(object.getPaidSickLeave())
                 .overtime(object.getOvertime())
-                .prematureEmployeeCheck(object.getPrematureEmployeeCheck())
+                .prematureEmployeeCheck(prematureEmployeeCheckMapper.mapToDomain(object.getPrematureEmployeeCheck()))
                 .build();
     }
 }

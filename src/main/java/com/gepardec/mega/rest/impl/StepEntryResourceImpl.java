@@ -47,7 +47,7 @@ public class StepEntryResourceImpl implements StepEntryResource {
 
         return Response.ok(
                         stepEntryService.updateStepEntryStateForEmployee(
-                                updateEmployeeStepDto.getEmployee(),
+                                employeeMapper.mapToDomain(updateEmployeeStepDto.getEmployee()),
                                 updateEmployeeStepDto.getStepId(),
                                 from,
                                 to,
@@ -62,7 +62,7 @@ public class StepEntryResourceImpl implements StepEntryResource {
     public Response updateEmployeeStateForProject(final ProjectStepDto projectStepDto) {
         return Response.ok(
                 stepEntryService.updateStepEntryStateForEmployeeInProject(
-                        projectStepDto.getEmployee(),
+                        employeeMapper.mapToDomain(projectStepDto.getEmployee()),
                         projectStepDto.getStepId(),
                         projectStepDto.getProjectName(),
                         projectStepDto.getCurrentMonthYear(),
