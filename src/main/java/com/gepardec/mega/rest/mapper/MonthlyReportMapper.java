@@ -45,8 +45,8 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .totalWorkingTime(object.getTotalWorkingTime())
                 .paidSickLeave(object.getPaidSickLeave())
                 .overtime(object.getOvertime())
-                .guildLead(object.getGuildLead())
-                .internalProjectLead(object.getInternalProjectLead())
+                .guildLead(object.getGuildLead().isEmpty() ? null : object.getGuildLead())
+                .internalProjectLead(object.getInternalProjectLead().isEmpty() ? null : object.getInternalProjectLead())
                 .prematureEmployeeCheck(
                         Optional.ofNullable(object.getPrematureEmployeeCheck())
                                 .map(prematureEmployeeCheckMapper::mapToDto)
@@ -85,8 +85,8 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .totalWorkingTime(object.getTotalWorkingTime())
                 .paidSickLeave(object.getPaidSickLeave())
                 .overtime(object.getOvertime())
-                .guildLead(object.getGuildLead())
-                .internalProjectLead(object.getInternalProjectLead())
+                .guildLead(object.getGuildLead() == null ? "" : object.getGuildLead())
+                .internalProjectLead(object.getInternalProjectLead() == null ? "" : object.getInternalProjectLead())
                 .prematureEmployeeCheck(prematureEmployeeCheckMapper.mapToDomain(object.getPrematureEmployeeCheck()))
                 .build();
     }
