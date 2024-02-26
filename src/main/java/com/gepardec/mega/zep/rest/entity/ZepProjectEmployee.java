@@ -35,6 +35,7 @@ public class ZepProjectEmployee {
         return Builder.aZepProjectEmployee();
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
         @JsonProperty("employee_id")
         private String username;

@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepEmployee {
 
         private final String username;
@@ -328,6 +327,7 @@ public class ZepEmployee {
                 return Builder.aZepEmployee();
         }
 
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Builder {
                 @JsonProperty
                 private String username;

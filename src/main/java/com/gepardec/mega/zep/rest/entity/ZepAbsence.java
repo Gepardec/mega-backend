@@ -1,13 +1,13 @@
 package com.gepardec.mega.zep.rest.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepAbsence {
 
     private final Integer id;
@@ -25,8 +25,7 @@ public class ZepAbsence {
     private final String modified;
     private final ZepAbsenceReason absenceReason;
 
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
+    @JsonCreator
     public ZepAbsence(Builder builder) {
         this.id = builder.id;
         this.employeeId = builder.employeeId;
@@ -128,8 +127,8 @@ public class ZepAbsence {
         return Builder.aZepAbsence();
     }
 
-    
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Builder {
 
         @JsonProperty

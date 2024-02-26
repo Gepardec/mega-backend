@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepCategory {
     private final String name;
     private final Map<String, String> description;
@@ -30,8 +29,9 @@ public class ZepCategory {
 
     private static Builder builder() {
         return Builder.aZepCategory();
-    }
 
+    }
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Builder {
         @JsonProperty
         private String name;

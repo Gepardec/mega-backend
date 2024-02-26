@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepDynamicAttribute {
     private final String name;
     private final String value;
@@ -38,7 +37,8 @@ public class ZepDynamicAttribute {
     public static Builder builder() {
         return Builder.aZepDynamicAttribute();
     }
-    
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Builder {
         @JsonProperty
         private String name;

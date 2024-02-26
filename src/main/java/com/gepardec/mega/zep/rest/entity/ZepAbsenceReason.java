@@ -1,5 +1,6 @@
 package com.gepardec.mega.zep.rest.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 public class ZepAbsenceReason {
@@ -18,7 +19,7 @@ public class ZepAbsenceReason {
     private final String created;
     private final String modified;
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
+    @JsonCreator
     public ZepAbsenceReason(Builder builder) {
         this.name = builder.name;
         this.comment = builder.comment;
@@ -91,7 +92,7 @@ public class ZepAbsenceReason {
         return name;
     }
 
-
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Builder {
         @JsonProperty
         public String name;

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepRegularWorkingTimes {
         private final int id;
         private final String employee_id;

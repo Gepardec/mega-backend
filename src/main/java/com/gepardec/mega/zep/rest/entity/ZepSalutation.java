@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepSalutation {
     public final String id;
     public final String name;
@@ -30,6 +29,7 @@ public class ZepSalutation {
         return Builder.aZepSalutation();
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Builder {
         @JsonProperty
         private String id;

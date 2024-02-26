@@ -393,8 +393,8 @@ public class ZepProject {
             return activitiesCount;
       }
 
-      
 
+      @JsonIgnoreProperties(ignoreUnknown = true)
       public static final class Builder {
             @JsonProperty
             private Integer id;

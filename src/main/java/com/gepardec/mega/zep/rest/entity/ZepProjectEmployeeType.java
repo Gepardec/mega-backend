@@ -24,6 +24,8 @@ public class ZepProjectEmployeeType {
         this.name = builder.name;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+
     public static final class Builder {
         @JsonProperty
         private int id;

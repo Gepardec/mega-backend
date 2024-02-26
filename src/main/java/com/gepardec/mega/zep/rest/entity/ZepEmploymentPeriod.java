@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepEmploymentPeriod {
 
      private final int id;
@@ -99,6 +98,8 @@ public class ZepEmploymentPeriod {
      public String getModified() {
           return modified;
      }
+
+     @JsonIgnoreProperties(ignoreUnknown = true)
 
      public static class Builder {
           @JsonProperty

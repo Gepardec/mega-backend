@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ZepAttendance {
 
     private final Integer id;
@@ -217,6 +216,7 @@ public class ZepAttendance {
         return Builder.aZepAttendance();
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Builder {
         @JsonProperty
         private Integer id;
