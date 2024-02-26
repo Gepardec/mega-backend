@@ -28,6 +28,12 @@ public class PersonioEmployee {
     @JsonProperty("dynamic_393528")
     private Attribute<String> personalnummer;
 
+    @JsonProperty("dynamic_10177615")
+    private Attribute<String> guildLead;
+
+    @JsonProperty("dynamic_10177735")
+    private Attribute<String> internalProjectLead;
+
     public Attribute<Integer> getId() {
         return id;
     }
@@ -74,6 +80,22 @@ public class PersonioEmployee {
 
     public void setVacationDayBalance(Attribute<Double> vacationDayBalance) {
         this.vacationDayBalance = vacationDayBalance;
+    }
+
+    public Attribute<String> getGuildLead() {
+        return guildLead;
+    }
+
+    public Attribute<String> getInternalProjectLead() {
+        return internalProjectLead;
+    }
+
+    public void setGuildLead(Attribute<String> guildLead) {
+        this.guildLead = guildLead;
+    }
+
+    public void setInternalProjectLead(Attribute<String> internalProjectLead) {
+        this.internalProjectLead = internalProjectLead;
     }
 
     public Attribute<String> getPersonalnummer() {
