@@ -94,7 +94,7 @@ public class ProjectMapperTest {
         LocalDate endDate = zepProject.getEndDate() == null ?
                 null : zepProject.getEndDate().toLocalDate();
 
-        Project project = projectMapper.map(zepProject);
+        Project project = projectMapper.map(zepProject).build();
         assertThat(project.getZepId()).isEqualTo(zepProject.getId());
         assertThat(project.getProjectId()).isEqualTo(zepProject.getName());
         assertThat(project.getStartDate()).isEqualTo(startDate);

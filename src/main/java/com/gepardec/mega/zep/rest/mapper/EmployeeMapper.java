@@ -53,17 +53,4 @@ public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
 
     }
 
-    public static boolean getActiveOfZepEmploymentPeriods(List<ZepEmploymentPeriod> zepEmploymentPeriods) {
-        if (zepEmploymentPeriods == null) {
-            return false;
-        }
-
-        if (zepEmploymentPeriods.stream().allMatch(Objects::isNull)) {
-            return false;
-        }
-
-        return zepEmploymentPeriods.stream()
-                .anyMatch(zepEmploymentPeriod -> zepEmploymentPeriod.getEndDate() == null);
-    }
-
 }

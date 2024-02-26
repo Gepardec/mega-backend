@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @ApplicationScoped
 @Rest
@@ -77,7 +79,7 @@ public class ZepRestServiceImpl implements ZepService {
     Mapper<ProjectTime, ZepAttendance> attendanceMapper;
 
     @Inject
-    Mapper<Project, ZepProject> projectMapper;
+    Mapper<Project.Builder, ZepProject> projectMapper;
 
     @Inject
     Mapper<MultivaluedMap<String, String>, List<ZepProjectEmployee>> projectEmployeesMapper;
@@ -86,8 +88,10 @@ public class ZepRestServiceImpl implements ZepService {
     Mapper<Map<DayOfWeek, Duration>, ZepRegularWorkingTimes> regularWorkingTimesMapper;
 
     @Inject
-    Logger logger;
+    Mapper<Boolean, List<ZepEmploymentPeriod>> activeEmployeeMapper;
 
+    @Inject
+    Logger logger;
 
     @Override
     public Employee getEmployee(String userId) {
@@ -99,8 +103,8 @@ public class ZepRestServiceImpl implements ZepService {
             return null;
         }
 
-        List<ZepEmploymentPeriod> period = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(userId);
-        boolean active = EmployeeMapper.getActiveOfZepEmploymentPeriods(period);
+        List<ZepEmploymentPeriod> periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(userId);
+        boolean active = activeEmployeeMapper.map(periods);
 
 
         Optional<ZepRegularWorkingTimes> zepRegularWorkingTimesOpt =
@@ -124,10 +128,8 @@ public class ZepRestServiceImpl implements ZepService {
         List<Employee> employees = employeeMapper.mapList(zepEmployees);
         employees.forEach(
                 employee -> {
-                    // TODO: Get real val
-//                    var periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employee.getUserId());
-                    logger.warn("{} is set as active employee. The boolean \"active\" in employee is currently hardcoded to true.", employee.getUserId());
-                    boolean active = true;//employeeMapper.getActiveOfZepEmploymentPeriods(periods);
+                    var periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employee.getUserId());
+                    boolean active = activeEmployeeMapper.map(periods);
                     employee.setActive(active);
                 });
 
@@ -162,11 +164,10 @@ public class ZepRestServiceImpl implements ZepService {
         logger.debug("Retrieving project employees of %d from ZEP".formatted(projectId));
         List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(projectId);
 
-        for (ZepProjectEmployee projectEmployee :
-                projectEmployees) {
+        projectEmployees.forEach(projectEmployee -> {
             logger.debug("Retrieving attendance of user %s of project %d from ZEP".formatted(projectEmployee.getUsername(), projectId));
             allZepAttendancesForProject.addAll(attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.getUsername(), curDate, projectId));
-        }
+        });
         return attendanceMapper.mapList(allZepAttendancesForProject);
     }
 
@@ -174,23 +175,19 @@ public class ZepRestServiceImpl implements ZepService {
     public List<Project> getProjectsForMonthYear(LocalDate monthYear) {
         logger.debug("Retrieving projects for monthYear of %s from ZEP".formatted(monthYear.toString()));
         List<ZepProject> zepProjects = projectService.getProjectsForMonthYear(monthYear);
-        List<Project> projects = projectMapper.mapList(zepProjects);
-        projects.forEach(project -> {
-            logger.debug("Retrieving project employees for project %s from ZEP".formatted(project.getProjectId()));
-            List<ZepProjectEmployee> zepProjectEmployees = projectService.getProjectEmployeesForId(project.getZepId());
-            MultivaluedMap<String, String> projectEmployeesMap = projectEmployeesMapper.map(zepProjectEmployees);
-            project.setEmployees(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.USER, new ArrayList<>()));
-            project.setLeads(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.LEAD, new ArrayList<>()));
-        });
-
-        return projects;
+        List<Project.Builder> projects = projectMapper.mapList(zepProjects);
+        IntStream.range(0, projects.size())
+                .forEach(i -> addProjectEmployeesToBuilder(projects.get(i), zepProjects.get(i)));
+        return projects.stream()
+                .map(Project.Builder::build)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Optional<Project> getProjectByName(String projectName, LocalDate monthYear) {
         logger.debug("Retrieving project %s from ZEP".formatted(projectName));
         Optional<ZepProject> zepProject = projectService.getProjectByName(projectName, monthYear);
-        return zepProject.map(project -> projectMapper.map(project));
+        return zepProject.map(project -> projectMapper.map(project).build());
     }
 
     @Override
@@ -209,5 +206,12 @@ public class ZepRestServiceImpl implements ZepService {
         logger.debug("Retrieving billable entries of employee %s from ZEP".formatted(employee.getUserId()));
         List<ZepAttendance> projectTimes = attendanceService.getBillableAttendancesForUserAndMonth(employee.getUserId(), date);
         return attendanceMapper.mapList(projectTimes);
+    }
+
+    private void addProjectEmployeesToBuilder(Project.Builder projectBuilder, ZepProject zepProject) {
+            List<ZepProjectEmployee> zepProjectEmployees = projectService.getProjectEmployeesForId(zepProject.getId());
+            MultivaluedMap<String, String> projectEmployeesMap = projectEmployeesMapper.map(zepProjectEmployees);
+            projectBuilder.employees(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.USER, new ArrayList<>()));
+            projectBuilder.leads(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.LEAD, new ArrayList<>()));
     }
 }

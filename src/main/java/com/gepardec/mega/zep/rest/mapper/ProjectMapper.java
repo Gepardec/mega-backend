@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
-public class ProjectMapper implements Mapper<Project, ZepProject> {
+public class ProjectMapper implements Mapper<Project.Builder, ZepProject> {
 
     @Inject
     Logger logger;
-    public Project map(ZepProject zepProject) {
+    public Project.Builder map(ZepProject zepProject) {
         if (zepProject == null) {
             logger.info("ZEP REST implementation -- While trying to map ZepProject to Project, ZepProject was null");
             return null;
@@ -50,8 +50,7 @@ public class ProjectMapper implements Mapper<Project, ZepProject> {
                     .billabilityPreset(billabilityPreset)
                     .employees(employees)
                     .leads(leads)
-                    .categories(List.of("CONS"))
-                    .build();
+                    .categories(List.of("CONS"));
             /**
              * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,
              * wenn Mitarbeiter inaktiv ist.

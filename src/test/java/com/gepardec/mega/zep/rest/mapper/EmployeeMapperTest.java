@@ -23,6 +23,9 @@ public class EmployeeMapperTest {
 
     @Inject
     Mapper<Employee, ZepEmployee> employeeMapper;
+    
+    @Inject
+    Mapper<Boolean, List<ZepEmploymentPeriod>> activeMapper;
 
     @Test
     public void getActiveWhen_3DatesActive() {
@@ -37,7 +40,7 @@ public class EmployeeMapperTest {
                         .endDate(null)
                         .build());
 
-        boolean active = EmployeeMapper.getActiveOfZepEmploymentPeriods(employmentPeriods);
+        boolean active = activeMapper.map(employmentPeriods);
         assertThat(active).isTrue();
 
     }
@@ -54,7 +57,7 @@ public class EmployeeMapperTest {
                         .endDate(LocalDateTime.of(2023, 11, 12, 3, 1, 2))
                         .build());
 
-        boolean active = EmployeeMapper.getActiveOfZepEmploymentPeriods(employmentPeriods);
+        boolean active = activeMapper.map(employmentPeriods);
         assertThat(active).isFalse();
     }
     @Test
@@ -70,14 +73,14 @@ public class EmployeeMapperTest {
                         .endDate(LocalDateTime.of(2018, 2, 1, 12, 32, 12))
                         .build());
 
-        boolean active = EmployeeMapper.getActiveOfZepEmploymentPeriods(employmentPeriods);
+        boolean active = activeMapper.map(employmentPeriods);
         assertThat(active).isTrue();
     }
     @Test
     public void getInactiveWhen_AllNull() {
         List<ZepEmploymentPeriod> employmentPeriods =  List.of();
 
-        boolean active = EmployeeMapper.getActiveOfZepEmploymentPeriods(employmentPeriods);
+        boolean active = activeMapper.map(employmentPeriods);
         assertThat(active).isFalse();
     }
 
