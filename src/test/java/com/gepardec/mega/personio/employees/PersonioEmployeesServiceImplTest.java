@@ -44,9 +44,13 @@ class PersonioEmployeesServiceImplTest {
 
         //WHEN
         var result = personioEmployeesService.getVacationDayBalance("mega.test@gepardec.com");
+        var guildLead = personioEmployeesService.getGuildLead("simon.gartner@gepardec.com");
+        var internalProjectLead = personioEmployeesService.getInternalProjectLead("simon.gartner@gepardec.com");
 
         //THEN
         assertThat(result).isEqualTo(10d);
+        assertThat(guildLead).isEqualTo("guildLead");
+        assertThat(internalProjectLead).isEqualTo("internalProjectLead");
     }
 
     @Test
@@ -108,8 +112,16 @@ class PersonioEmployeesServiceImplTest {
         var vacationDayBalance = new Attribute<Double>();
         vacationDayBalance.setValue(10d);
 
+        var guildLead = new Attribute<String>();
+        guildLead.setValue("guildLead");
+
+        var internalProjectLead = new Attribute<String>();
+        internalProjectLead.setValue("internalProjectLead");
+
         var employee = new PersonioEmployee();
         employee.setVacationDayBalance(vacationDayBalance);
+        employee.setGuildLead(guildLead);
+        employee.setInternalProjectLead(internalProjectLead);
 
         return employee;
     }
