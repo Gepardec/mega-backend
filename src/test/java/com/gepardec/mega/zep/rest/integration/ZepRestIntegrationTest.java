@@ -66,9 +66,7 @@ public class ZepRestIntegrationTest {
 
     @Test
     public void getEmployees_InvalidUsername_thenThrowException() {
-        assertThrows(Exception.class, () -> {
-            zepService.getEmployee("001-testtestnothere");
-        });
+        assertThat(zepService.getEmployee("001-testtestnothere")).isNull();
     }
 
     @Test
