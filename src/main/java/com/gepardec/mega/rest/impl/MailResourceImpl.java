@@ -3,8 +3,6 @@ package com.gepardec.mega.rest.impl;
 import com.gepardec.mega.notification.mail.ReminderEmailSender;
 import com.gepardec.mega.notification.mail.receiver.MailReceiver;
 import com.gepardec.mega.rest.api.MailResource;
-import io.quarkus.security.Authenticated;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
@@ -50,7 +48,8 @@ public class MailResourceImpl implements MailResource {
     }
 
     @Override
-    public LocalDateTime ping() {
+    public LocalDateTime ping(String payload) {
+        logger.info(payload);
         return LocalDateTime.now();
     }
 }
