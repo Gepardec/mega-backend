@@ -211,6 +211,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .vacationDayBalance(personioEmployeesService.getVacationDayBalance(employee.getEmail()))
                 .overtime(workingTimeUtil.getOvertimeForEmployee(employee, billableEntries, absenceEntries, date))
                 .prematureEmployeeCheck(prematureEmployeeCheck.orElse(null))
+                .guildLead(personioEmployeesService.getGuildLead(employee.getEmail()))
+                .internalProjectLead(personioEmployeesService.getInternalProjectLead(employee.getEmail()))
                 .initialDate(initialDate)
                 .build();
     }

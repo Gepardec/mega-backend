@@ -71,6 +71,10 @@ public class MonthlyReportDto {
 
     private final double overtime;
 
+    private final String guildLead;
+
+    private final String internalProjectLead;
+
     private final PrematureEmployeeCheckDto prematureEmployeeCheck;
 
     private MonthlyReportDto(Builder builder) {
@@ -101,6 +105,8 @@ public class MonthlyReportDto {
         this.paidSickLeave = builder.paidSickLeave;
         this.overtime = builder.overtime;
         this.prematureEmployeeCheck = builder.prematureEmployeeCheck;
+        this.guildLead = builder.guildLead;
+        this.internalProjectLead = builder.internalProjectLead;
     }
 
     public static Builder builder() {
@@ -224,6 +230,14 @@ public class MonthlyReportDto {
         return overtime;
     }
 
+    public String getGuildLead() {
+        return guildLead;
+    }
+
+    public String getInternalProjectLead() {
+        return internalProjectLead;
+    }
+
     public PrematureEmployeeCheckDto getPrematureEmployeeCheck() {
         return prematureEmployeeCheck;
     }
@@ -256,6 +270,11 @@ public class MonthlyReportDto {
         private String totalWorkingTime;
         private int paidSickLeave;
         private double overtime;
+
+        private String guildLead;
+
+        private String internalProjectLead;
+
         private PrematureEmployeeCheckDto prematureEmployeeCheck;
 
         private Builder() {
@@ -397,6 +416,16 @@ public class MonthlyReportDto {
 
         public Builder prematureEmployeeCheck(PrematureEmployeeCheckDto prematureEmployeeCheck) {
             this.prematureEmployeeCheck = prematureEmployeeCheck;
+            return this;
+        }
+
+        public Builder guildLead(String guildLead) {
+            this.guildLead = guildLead;
+            return this;
+        }
+
+        public Builder internalProjectLead(String internalProjectLead) {
+            this.internalProjectLead = internalProjectLead;
             return this;
         }
 
