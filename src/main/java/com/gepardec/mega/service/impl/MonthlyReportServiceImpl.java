@@ -2,9 +2,11 @@ package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
+import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
@@ -158,8 +160,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
             Employee employee,
             LocalDate date,
             List<ProjectEntry> projectEntries,
-            List<ProjektzeitType> billableEntries,
-            List<FehlzeitType> absenceEntries,
+            List<ProjectTime> billableEntries,
+            List<AbsenceTime> absenceEntries,
             Optional<Pair<EmployeeState, String>> employeeCheckState,
             Optional<EmployeeState> internalCheckState,
             LocalDate initialDate

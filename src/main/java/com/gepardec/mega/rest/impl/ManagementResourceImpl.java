@@ -285,7 +285,7 @@ public class ManagementResourceImpl implements ManagementResource {
     private ManagementEntryDto createManagementEntryForEmployee(Employee employee, String projectId, List<StepEntry> stepEntries, LocalDate from, LocalDate to, List<PmProgressDto> pmProgressDtos, boolean projectStateLogicSingle) {
         FinishedAndTotalComments finishedAndTotalComments = commentService.countFinishedAndTotalComments(employee.getEmail(), from, to);
 
-        List<ProjektzeitType> projektzeitTypes = zepService.getProjectTimesForEmployeePerProject(projectId, from);
+        List<ProjectTime> projectTime = zepService.getProjectTimesForEmployeePerProject(projectId, from);
 
         if (!stepEntries.isEmpty()) {
             Pair<State, String> employeeCheckStatePair = extractEmployeeCheckState(stepEntries);
@@ -314,8 +314,8 @@ public class ManagementResourceImpl implements ManagementResource {
                     .finishedComments(finishedAndTotalComments.getFinishedComments())
                     .totalComments(finishedAndTotalComments.getTotalComments())
                     .entryDate(stepEntries.get(0).getDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN)))
-                    .billableTime(workingTimeUtil.getBillableTimesForEmployee(projektzeitTypes, employee))
-                    .nonBillableTime(workingTimeUtil.getInternalTimesForEmployee(projektzeitTypes, employee))
+                    .billableTime(workingTimeUtil.getBillableTimesForEmployee(projectTime, employee))
+                    .nonBillableTime(workingTimeUtil.getInternalTimesForEmployee(projectTime, employee))
                     .build();
         }
 

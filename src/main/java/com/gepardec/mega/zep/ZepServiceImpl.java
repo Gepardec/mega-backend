@@ -1,12 +1,12 @@
 package com.gepardec.mega.zep;
 
-import com.gepardec.mega.domain.model.BillabilityPreset;
-import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.model.Project;
+import com.gepardec.mega.domain.model.*;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
+import com.gepardec.mega.zep.mapper.AbsenceTimeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
+import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
 import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.KategorieListeType;
 import de.provantis.zep.KategorieType;
@@ -127,7 +127,7 @@ public class ZepServiceImpl implements ZepService {
 
     @CacheResult(cacheName = "fehlzeitentype")
     @Override
-    public List<FehlzeitType> getAbsenceForEmployee(Employee employee, LocalDate date) {
+    public List<AbsenceTime> getAbsenceForEmployee(Employee employee, LocalDate date) {
         final ReadFehlzeitRequestType fehlzeitenRequest = new ReadFehlzeitRequestType();
         fehlzeitenRequest.setRequestHeader(zepSoapProvider.createRequestHeaderType());
 
@@ -143,7 +143,8 @@ public class ZepServiceImpl implements ZepService {
         if (fehlzeitResponseType != null
                 && fehlzeitResponseType.getFehlzeitListe() != null
                 && fehlzeitResponseType.getFehlzeitListe().getFehlzeit() != null) {
-            return fehlzeitResponseType.getFehlzeitListe().getFehlzeit();
+            List<FehlzeitType> fehlzeit = fehlzeitResponseType.getFehlzeitListe().getFehlzeit();
+            return AbsenceTimeMapper.mapList(fehlzeit);
         }
 
         return Collections.emptyList();
@@ -151,13 +152,14 @@ public class ZepServiceImpl implements ZepService {
 
     @CacheResult(cacheName = "projektzeittype")
     @Override
-    public List<ProjektzeitType> getBillableForEmployee(Employee employee, LocalDate date) {
+    public List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date) {
         ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(employee, date, this::createProjectTimeSearchCriteria);
 
         if (readProjektzeitenResponseType != null
                 && readProjektzeitenResponseType.getProjektzeitListe() != null
                 && readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten() != null) {
-            return readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten();
+            List<ProjektzeitType> projektzeit = readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten();
+            return ProjectTimeMapper.mapList(projektzeit);
         }
 
         return Collections.emptyList();
@@ -178,13 +180,14 @@ public class ZepServiceImpl implements ZepService {
 
     @CacheResult(cacheName = "projektzeittype")
     @Override
-    public List<ProjektzeitType> getProjectTimesForEmployeePerProject(String projectID, LocalDate curDate) {
+    public List<ProjectTime> getProjectTimesForEmployeePerProject(String projectID, LocalDate curDate) {
         ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(projectID, curDate, this::createProjectTimesForEmployeePerProjectSearchCriteria);
 
         if (readProjektzeitenResponseType != null
                 && readProjektzeitenResponseType.getProjektzeitListe() != null
                 && readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten() != null) {
-            return readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten();
+            List<ProjektzeitType> projektzeit = readProjektzeitenResponseType.getProjektzeitListe().getProjektzeiten();
+            return ProjectTimeMapper.mapList(projektzeit);
         }
 
         return Collections.emptyList();
