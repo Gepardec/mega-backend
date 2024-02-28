@@ -26,9 +26,9 @@ public class ProjectMapper implements Mapper<Project.Builder, ZepProject> {
         }
 
         try {
-            LocalDate startDate = zepProject.getStartDate() == null ?
-                    null : zepProject.getStartDate().toLocalDate();
-            LocalDateTime endDateTime = zepProject.getEndDate();
+            LocalDate startDate = zepProject.startDate() == null ?
+                    null : zepProject.startDate().toLocalDate();
+            LocalDateTime endDateTime = zepProject.endDate();
             LocalDate endDate;
             endDate = endDateTime == null ?
                     LocalDate.now().plusYears(5).with(TemporalAdjusters.lastDayOfYear())
@@ -38,13 +38,13 @@ public class ProjectMapper implements Mapper<Project.Builder, ZepProject> {
             List<String> leads = new ArrayList<>();
 
             BillabilityPreset billabilityPreset = null;
-            if (BillabilityPreset.byZepId(zepProject.getBillingType()).isPresent()) {
-                billabilityPreset = BillabilityPreset.byZepId(zepProject.getBillingType()).get();
+            if (BillabilityPreset.byZepId(zepProject.billingType()).isPresent()) {
+                billabilityPreset = BillabilityPreset.byZepId(zepProject.billingType()).get();
             }
 
             return Project.builder()
-                    .zepId(zepProject.getId())
-                    .projectId(zepProject.getName())
+                    .zepId(zepProject.id())
+                    .projectId(zepProject.name())
                     .startDate(startDate)
                     .endDate(endDate)
                     .billabilityPreset(billabilityPreset)

@@ -35,7 +35,7 @@ public class RegularWorkingTimesService {
                 return Optional.empty();
             }
             return zepRegularWorkingTimes.stream()
-                    .min(Comparator.comparing(ZepRegularWorkingTimes::getStart_date,
+                    .min(Comparator.comparing(ZepRegularWorkingTimes::startDate,
                             Comparator.nullsLast(Comparator.reverseOrder())));
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving regular working times for employee \"%s\" from ZEP: No /data field in response"

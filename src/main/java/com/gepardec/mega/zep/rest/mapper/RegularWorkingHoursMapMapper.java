@@ -20,13 +20,13 @@ public class RegularWorkingHoursMapMapper implements Mapper<Map<DayOfWeek, Durat
             Map<DayOfWeek, Duration> regularWorkingHours = new HashMap<>();
 
             if (zepRegularWorkingTimes != null) {
-                regularWorkingHours.put(DayOfWeek.MONDAY, Duration.ofHours(zepRegularWorkingTimes.getMonday() == null ? 0 : zepRegularWorkingTimes.getMonday().longValue()));
-                regularWorkingHours.put(DayOfWeek.TUESDAY, Duration.ofHours(zepRegularWorkingTimes.getTuesday() == null ? 0 : zepRegularWorkingTimes.getTuesday().longValue()));
-                regularWorkingHours.put(DayOfWeek.WEDNESDAY, Duration.ofHours(zepRegularWorkingTimes.getWednesday() == null ? 0 : zepRegularWorkingTimes.getWednesday().longValue()));
-                regularWorkingHours.put(DayOfWeek.THURSDAY, Duration.ofHours(zepRegularWorkingTimes.getThursday() == null ? 0 : zepRegularWorkingTimes.getThursday().longValue()));
-                regularWorkingHours.put(DayOfWeek.FRIDAY, Duration.ofHours(zepRegularWorkingTimes.getFriday() == null ? 0 : zepRegularWorkingTimes.getFriday().longValue()));
-                regularWorkingHours.put(DayOfWeek.SATURDAY, Duration.ofHours(zepRegularWorkingTimes.getSaturday() == null ? 0 : zepRegularWorkingTimes.getSaturday().longValue()));
-                regularWorkingHours.put(DayOfWeek.SUNDAY, Duration.ofHours(zepRegularWorkingTimes.getSunday() == null ? 0 : zepRegularWorkingTimes.getSunday().longValue()));
+                regularWorkingHours.put(DayOfWeek.MONDAY, Duration.ofHours(zepRegularWorkingTimes.monday() == null ? 0 : zepRegularWorkingTimes.monday().longValue()));
+                regularWorkingHours.put(DayOfWeek.TUESDAY, Duration.ofHours(zepRegularWorkingTimes.tuesday() == null ? 0 : zepRegularWorkingTimes.tuesday().longValue()));
+                regularWorkingHours.put(DayOfWeek.WEDNESDAY, Duration.ofHours(zepRegularWorkingTimes.wednesday() == null ? 0 : zepRegularWorkingTimes.wednesday().longValue()));
+                regularWorkingHours.put(DayOfWeek.THURSDAY, Duration.ofHours(zepRegularWorkingTimes.thursday() == null ? 0 : zepRegularWorkingTimes.thursday().longValue()));
+                regularWorkingHours.put(DayOfWeek.FRIDAY, Duration.ofHours(zepRegularWorkingTimes.friday() == null ? 0 : zepRegularWorkingTimes.friday().longValue()));
+                regularWorkingHours.put(DayOfWeek.SATURDAY, Duration.ofHours(zepRegularWorkingTimes.saturday() == null ? 0 : zepRegularWorkingTimes.saturday().longValue()));
+                regularWorkingHours.put(DayOfWeek.SUNDAY, Duration.ofHours(zepRegularWorkingTimes.sunday() == null ? 0 : zepRegularWorkingTimes.sunday().longValue()));
             }
             return regularWorkingHours;
         }catch (Exception e){

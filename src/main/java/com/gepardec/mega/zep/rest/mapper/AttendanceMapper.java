@@ -33,15 +33,15 @@ public class AttendanceMapper implements Mapper<ProjectTime, ZepAttendance> {
 
         try {
 
-            Boolean isBillable = zepAttendance.getBillable() <= BillabilityPreset.BILLABLE_FIXED.getZepId();
+            Boolean isBillable = zepAttendance.billable() <= BillabilityPreset.BILLABLE_FIXED.getZepId();
             Boolean locationPrRelevant = null;
-            if (zepAttendance.getWorkLocationIsProjectRelevant() != null) {
-                locationPrRelevant = zepAttendance.getWorkLocationIsProjectRelevant() != -1;
+            if (zepAttendance.workLocationIsProjectRelevant() != null) {
+                locationPrRelevant = zepAttendance.workLocationIsProjectRelevant() != -1;
             }
 
             String duration = null;
-            if (zepAttendance.getDuration() != null ) {
-                BigDecimal bigDecimal = BigDecimal.valueOf(zepAttendance.getDuration());
+            if (zepAttendance.duration() != null ) {
+                BigDecimal bigDecimal = BigDecimal.valueOf(zepAttendance.duration());
                 int hours = bigDecimal.intValue();
                 int minutes = bigDecimal
                         .subtract(BigDecimal.valueOf(hours))
@@ -50,41 +50,41 @@ public class AttendanceMapper implements Mapper<ProjectTime, ZepAttendance> {
             }
 
 
-            String id = zepAttendance.getId() == null? null : "" + zepAttendance.getId();
-            String startTime = zepAttendance.getFrom() == null ? null : "" + zepAttendance.getFrom();
-            String endTime = zepAttendance.getTo() == null ? null : "" + zepAttendance.getTo();
-            String projectNr = zepAttendance.getProjectId() == null ? null : "" + zepAttendance.getProjectId();
-            String task = zepAttendance.getProjectTaskId() == null ? null : "" + zepAttendance.getProjectTaskId();
-            Integer km = zepAttendance.getKm() == null ? null : Integer.parseInt(zepAttendance.getKm());
-            Integer amountPassengers = zepAttendance.getPassengers() == null ?
-                    null : Integer.parseInt(zepAttendance.getPassengers());
-            Integer ticketNr = zepAttendance.getTicketId() == null ? null : Integer.parseInt(zepAttendance.getTicketId());
-            String created = zepAttendance.getCreated() == null ? null : "" + zepAttendance.getCreated();
-            String modified = zepAttendance.getModified() == null ? null : "" + zepAttendance.getModified();
-            boolean privateVehicle = zepAttendance.getIsPrivate() != null && zepAttendance.getIsPrivate() == 1;
+            String id = zepAttendance.id() == null? null : "" + zepAttendance.id();
+            String startTime = zepAttendance.from() == null ? null : "" + zepAttendance.from();
+            String endTime = zepAttendance.to() == null ? null : "" + zepAttendance.to();
+            String projectNr = zepAttendance.projectId() == null ? null : "" + zepAttendance.projectId();
+            String task = zepAttendance.projectTaskId() == null ? null : "" + zepAttendance.projectTaskId();
+            Integer km = zepAttendance.km() == null ? null : Integer.parseInt(zepAttendance.km());
+            Integer amountPassengers = zepAttendance.passengers() == null ?
+                    null : Integer.parseInt(zepAttendance.passengers());
+            Integer ticketNr = zepAttendance.ticketId() == null ? null : Integer.parseInt(zepAttendance.ticketId());
+            String created = zepAttendance.created() == null ? null : "" + zepAttendance.created();
+            String modified = zepAttendance.modified() == null ? null : "" + zepAttendance.modified();
+            boolean privateVehicle = zepAttendance.isPrivate() != null && zepAttendance.isPrivate() == 1;
 
             return ProjectTime.builder()
                     .id(id)
-                    .userId(zepAttendance.getEmployeeId())
-                    .date(zepAttendance.getDate())
+                    .userId(zepAttendance.employeeId())
+                    .date(zepAttendance.date())
                     .startTime(startTime)
                     .endTime(endTime)
                     .duration(duration)
                     .isBillable(isBillable)
                     .isLocationRelevantToProject(locationPrRelevant)
-                    .location(zepAttendance.getWorkLocation())
-                    .comment(zepAttendance.getNote())
+                    .location(zepAttendance.workLocation())
+                    .comment(zepAttendance.note())
                     .projectNr(projectNr)
-                    .processNr(zepAttendance.getTicketId())
+                    .processNr(zepAttendance.ticketId())
                     .task(task)
-                    .startLocation(zepAttendance.getStart())
-                    .endLocation(zepAttendance.getDestination())
+                    .startLocation(zepAttendance.start())
+                    .endLocation(zepAttendance.destination())
                     .km(km)
                     .amountPassengers(amountPassengers)
-                    .vehicle(zepAttendance.getVehicle())
+                    .vehicle(zepAttendance.vehicle())
                     .ticketNr(ticketNr)
-                    .subtaskNr(zepAttendance.getSubtaskId())
-                    .travelDirection(zepAttendance.getDirectionOfTravel())
+                    .subtaskNr(zepAttendance.subtaskId())
+                    .travelDirection(zepAttendance.directionOfTravel())
                     .isPrivateVehicle(privateVehicle)
                     .created(created)
                     .modified(modified)

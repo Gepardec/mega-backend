@@ -53,30 +53,30 @@ public class AttendanceMapperTest {
 
         ProjectTime pt = attendanceMapper.map(zepAttendance);
 
-        assertThat(pt.getId()).isEqualTo("" + zepAttendance.getId());
-        assertThat(pt.getUserId()).isEqualTo(zepAttendance.getEmployeeId());
-        assertThat(pt.getDate()).isEqualTo(zepAttendance.getDate() + "");
-        assertThat(pt.getStartTime()).isEqualTo(zepAttendance.getFrom() + "");
-        assertThat(pt.getEndTime()).isEqualTo(zepAttendance.getTo() + "");
+        assertThat(pt.getId()).isEqualTo("" + zepAttendance.id());
+        assertThat(pt.getUserId()).isEqualTo(zepAttendance.employeeId());
+        assertThat(pt.getDate()).isEqualTo(zepAttendance.date() + "");
+        assertThat(pt.getStartTime()).isEqualTo(zepAttendance.from() + "");
+        assertThat(pt.getEndTime()).isEqualTo(zepAttendance.to() + "");
         assertThat(pt.getDuration()).isEqualTo("04:45");
         assertThat(pt.getBillable()).isTrue();
         assertThat(pt.getLocationRelevantToProject()).isFalse();
-        assertThat(pt.getLocation()).isEqualTo(zepAttendance.getWorkLocation());
-        assertThat(pt.getComment()).isEqualTo(zepAttendance.getNote());
-        assertThat(pt.getProjectNr()).isEqualTo("" + zepAttendance.getProjectId());
-        assertThat(pt.getProcessNr()).isEqualTo(zepAttendance.getTicketId());
-        assertThat(pt.getTask()).isEqualTo(zepAttendance.getProjectTaskId() + "");
-        assertThat(pt.getStartLocation()).isEqualTo(zepAttendance.getStart());
-        assertThat(pt.getEndLocation()).isEqualTo(zepAttendance.getDestination());
-        assertThat(pt.getKm()).isEqualTo(Integer.parseInt(zepAttendance.getKm()));
-        assertThat(pt.getAmountPassengers()).isEqualTo(Integer.parseInt(zepAttendance.getPassengers()));
-        assertThat(pt.getVehicle()).isEqualTo(zepAttendance.getVehicle());
-        assertThat(pt.getTicketNr()).isEqualTo(Integer.parseInt(zepAttendance.getTicketId()));
-        assertThat(pt.getSubtaskNr()).isEqualTo(zepAttendance.getSubtaskId());
-        assertThat(pt.getTravelDirection()).isEqualTo(zepAttendance.getDirectionOfTravel());
+        assertThat(pt.getLocation()).isEqualTo(zepAttendance.workLocation());
+        assertThat(pt.getComment()).isEqualTo(zepAttendance.note());
+        assertThat(pt.getProjectNr()).isEqualTo("" + zepAttendance.projectId());
+        assertThat(pt.getProcessNr()).isEqualTo(zepAttendance.ticketId());
+        assertThat(pt.getTask()).isEqualTo(zepAttendance.projectTaskId() + "");
+        assertThat(pt.getStartLocation()).isEqualTo(zepAttendance.start());
+        assertThat(pt.getEndLocation()).isEqualTo(zepAttendance.destination());
+        assertThat(pt.getKm()).isEqualTo(Integer.parseInt(zepAttendance.km()));
+        assertThat(pt.getAmountPassengers()).isEqualTo(Integer.parseInt(zepAttendance.passengers()));
+        assertThat(pt.getVehicle()).isEqualTo(zepAttendance.vehicle());
+        assertThat(pt.getTicketNr()).isEqualTo(Integer.parseInt(zepAttendance.ticketId()));
+        assertThat(pt.getSubtaskNr()).isEqualTo(zepAttendance.subtaskId());
+        assertThat(pt.getTravelDirection()).isEqualTo(zepAttendance.directionOfTravel());
         assertThat(pt.getPrivateVehicle()).isEqualTo(false);
-        assertThat(pt.getCreated()).isEqualTo(zepAttendance.getCreated() + "");
-        assertThat(pt.getModified()).isEqualTo(zepAttendance.getModified() + "");
+        assertThat(pt.getCreated()).isEqualTo(zepAttendance.created() + "");
+        assertThat(pt.getModified()).isEqualTo(zepAttendance.modified() + "");
     }
 
 }

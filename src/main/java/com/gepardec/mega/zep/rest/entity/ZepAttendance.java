@@ -7,209 +7,63 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-public class ZepAttendance {
+public record ZepAttendance (
+    Integer id,
+    LocalDate date,
+    LocalTime from,
+    LocalTime to,
+    String employeeId,
+    Integer projectId,
+    Integer projectTaskId,
+    Double duration,
+    Integer billable,
+    String workLocation,
+    Integer workLocationIsProjectRelevant,
+    String note,
+    String activity,
+    String start,
+    String destination,
+    String vehicle,
+    Integer isPrivate,
+    String passengers,
+    String km,
+    String directionOfTravel,
+    String ticketId,
+    String subtaskId,
+    String invoiceItemId,
+    LocalDateTime created,
+    LocalDateTime modified
+) {
 
-    private final Integer id;
-    private final LocalDate date;
-    private final LocalTime from;
-    private final LocalTime to;
-    private final String employeeId;
-    private final Integer projectId;
-    private final Integer projectTaskId;
-    private final Double duration;
-    private final Integer billable;
-    private final String workLocation;
-    private final Integer workLocationIsProjectRelevant;
-    private final String note;
-    private final String activity;
-    private final String start;
-    private final String destination;
-    private final String vehicle;
-    private final Integer isPrivate;
-    private final String passengers;
-    private final String km;
-    private final String directionOfTravel;
-    private final String ticketId;
-    private final String subtaskId;
-    private final String invoiceItemId;
-    private final LocalDateTime created;
-    private final LocalDateTime modified;
 
     @JsonCreator
     public ZepAttendance(Builder builder) {
-        this.id = builder.id;
-        this.date = builder.date;
-        this.from = builder.from;
-        this.to = builder.to;
-        this.employeeId = builder.employeeId;
-        this.projectId = builder.projectId;
-        this.projectTaskId = builder.projectTaskId;
-        this.duration = builder.duration;
-        this.billable = builder.billable;
-        this.workLocation = builder.workLocation;
-        this.workLocationIsProjectRelevant = builder.workLocationIsProjectRelevant;
-        this.note = builder.note;
-        this.activity = builder.activity;
-        this.start = builder.start;
-        this.destination = builder.destination;
-        this.vehicle = builder.vehicle;
-        this.isPrivate = builder.isPrivate;
-        this.passengers = builder.passengers;
-        this.km = builder.km;
-        this.directionOfTravel = builder.directionOfTravel;
-        this.ticketId = builder.ticketId;
-        this.subtaskId = builder.subtaskId;
-        this.invoiceItemId = builder.invoiceItemId;
-        this.created = builder.created;
-        this.modified = builder.modified;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    
-
-    public LocalDate getDate() {
-        return date;
-    }
-
-    
-
-    public LocalTime getFrom() {
-        return from;
-    }
-
-    
-
-    public LocalTime getTo() {
-        return to;
-    }
-
-    
-
-    public String getEmployeeId() {
-        return employeeId;
-    }
-
-    
-
-    public Integer getProjectId() {
-        return projectId;
-    }
-
-    
-
-    public Integer getProjectTaskId() {
-        return projectTaskId;
-    }
-
-    
-
-    public Double getDuration() {
-        return duration;
-    }
-
-    
-
-    public Integer getBillable() {
-        return billable;
-    }
-
-    
-
-    public String getWorkLocation() {
-        return workLocation;
-    }
-
-    
-
-    public Integer getWorkLocationIsProjectRelevant() {
-        return workLocationIsProjectRelevant;
-    }
-
-    
-
-    public String getNote() {
-        return note;
-    }
-
-    
-
-    public String getActivity() {
-        return activity;
-    }
-
-    
-
-    public String getStart() {
-        return start;
-    }
-
-    
-
-    public String getDestination() {
-        return destination;
-    }
-
-    
-
-    public String getVehicle() {
-        return vehicle;
-    }
-
-    
-
-    public Integer getIsPrivate() {
-        return isPrivate;
-    }
-
-    
-
-    public String getPassengers() {
-        return passengers;
-    }
-
-    
-
-    public String getKm() {
-        return km;
-    }
-
-    
-
-    public String getDirectionOfTravel() {
-        return directionOfTravel;
-    }
-
-    
-
-    public String getTicketId() {
-        return ticketId;
-    }
-
-    
-
-    public String getSubtaskId() {
-        return subtaskId;
-    }
-
-    
-
-    public String getInvoiceItemId() {
-        return invoiceItemId;
-    }
-
-    
-
-    public LocalDateTime getCreated() {
-        return created;
-    }
-
-    
-
-    public LocalDateTime getModified() {
-        return modified;
+        this(builder.id,
+             builder.date,
+             builder.from,
+             builder.to,
+             builder.employeeId,
+             builder.projectId,
+             builder.projectTaskId,
+             builder.duration,
+             builder.billable,
+             builder.workLocation,
+             builder.workLocationIsProjectRelevant,
+             builder.note,
+             builder.activity,
+             builder.start,
+             builder.destination,
+             builder.vehicle,
+             builder.isPrivate,
+             builder.passengers,
+             builder.km,
+             builder.directionOfTravel,
+             builder.ticketId,
+             builder.subtaskId,
+             builder.invoiceItemId,
+             builder.created,
+             builder.modified
+        );
     }
 
     public static Builder builder() {

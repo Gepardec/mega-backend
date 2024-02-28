@@ -42,15 +42,15 @@ public class AbsenceMapperTest {
 
         AbsenceTime absence = absenceMapper.map(zepAbsence);
 
-        assertThat(absence.getId()).isEqualTo(zepAbsence.getId());
-        assertThat(absence.getUserId()).isEqualTo(zepAbsence.getEmployeeId());
-        assertThat(absence.getFromDate()).isEqualTo(zepAbsence.getStartDate());
-        assertThat(absence.getToDate()).isEqualTo(zepAbsence.getEndDate());
-        assertThat(absence.getReason()).isEqualTo(zepAbsence.getAbsenceReason().getName());
-        assertThat(absence.getAccepted()).isEqualTo(zepAbsence.isApproved());
-        assertThat(absence.getTimezone()).isEqualTo(zepAbsence.getTimezone());
-        assertThat(absence.getCreated()).isEqualTo(zepAbsence.getCreated());
-        assertThat(absence.getModified()).isEqualTo(zepAbsence.getModified());
+        assertThat(absence.getId()).isEqualTo(zepAbsence.id());
+        assertThat(absence.getUserId()).isEqualTo(zepAbsence.employeeId());
+        assertThat(absence.getFromDate()).isEqualTo(zepAbsence.startDate());
+        assertThat(absence.getToDate()).isEqualTo(zepAbsence.endDate());
+        assertThat(absence.getReason()).isEqualTo(zepAbsence.absenceReason().name());
+        assertThat(absence.getAccepted()).isEqualTo(zepAbsence.approved());
+        assertThat(absence.getTimezone()).isEqualTo(zepAbsence.timezone());
+        assertThat(absence.getCreated()).isEqualTo(zepAbsence.created());
+        assertThat(absence.getModified()).isEqualTo(zepAbsence.modified());
     }
 
     @Test
@@ -84,10 +84,10 @@ public class AbsenceMapperTest {
         Iterator<ZepAbsence> zepAbsencesIterator = zepAbsences.iterator();
         absences.forEach(absence -> {
             ZepAbsence zepAbsence = zepAbsencesIterator.next();
-            assertThat(zepAbsence.getId()).isEqualTo(absence.getId());
-            assertThat(zepAbsence.getAbsenceReason().getName()).isEqualTo(absence.getReason());
-            assertThat(zepAbsence.getEmployeeId()).isEqualTo(absence.getUserId());
-            assertThat(zepAbsence.getStartDate()).isEqualTo(absence.getFromDate());
+            assertThat(zepAbsence.id()).isEqualTo(absence.getId());
+            assertThat(zepAbsence.absenceReason().name()).isEqualTo(absence.getReason());
+            assertThat(zepAbsence.employeeId()).isEqualTo(absence.getUserId());
+            assertThat(zepAbsence.startDate()).isEqualTo(absence.getFromDate());
         });
     }
 }

@@ -180,7 +180,7 @@ public class EmployeeServiceTest {
 
         List<ZepEmployee> employees = employeeService.getZepEmployees();
 
-        employees.forEach(employee-> assertThat(employeeNames.contains(employee.getUsername())).isTrue());
+        employees.forEach(employee-> assertThat(employeeNames.contains(employee.username())).isTrue());
     }
 
 

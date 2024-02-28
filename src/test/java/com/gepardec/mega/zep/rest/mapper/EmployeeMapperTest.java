@@ -119,14 +119,14 @@ public class EmployeeMapperTest {
 
         Employee employee = employeeMapper.map(zepEmployee);
 
-        assertThat(employee.getUserId()).isEqualTo(zepEmployee.getUsername());
-        assertThat(employee.getEmail()).isEqualTo(zepEmployee.getEmail());
-        assertThat(employee.getTitle()).isEqualTo(zepEmployee.getTitle());
-        assertThat(employee.getFirstname()).isEqualTo(zepEmployee.getFirstname());
-        assertThat(employee.getLastname()).isEqualTo(zepEmployee.getLastname());
-        assertThat(employee.getSalutation()).isEqualTo(zepEmployee.getSalutation().getName());
-        assertThat(employee.getReleaseDate()).isEqualTo(zepEmployee.getReleaseDate().toString());
-        assertThat(employee.getLanguage()).isEqualTo(zepEmployee.getLanguage().getId());
+        assertThat(employee.getUserId()).isEqualTo(zepEmployee.username());
+        assertThat(employee.getEmail()).isEqualTo(zepEmployee.email());
+        assertThat(employee.getTitle()).isEqualTo(zepEmployee.title());
+        assertThat(employee.getFirstname()).isEqualTo(zepEmployee.firstname());
+        assertThat(employee.getLastname()).isEqualTo(zepEmployee.lastname());
+        assertThat(employee.getSalutation()).isEqualTo(zepEmployee.salutation().name());
+        assertThat(employee.getReleaseDate()).isEqualTo(zepEmployee.releaseDate().toString());
+        assertThat(employee.getLanguage()).isEqualTo(zepEmployee.language().id());
     }
 
     @Test
@@ -151,8 +151,8 @@ public class EmployeeMapperTest {
         Iterator<ZepEmployee> zepEmployeesIterator = zepEmployees.iterator();
         employees.forEach(employee -> {
                             ZepEmployee zepEmployee = zepEmployeesIterator.next();
-                            assertThat(employee.getUserId()).isEqualTo(zepEmployee.getUsername());
-                            assertThat(employee.getEmail()).isEqualTo(zepEmployee.getEmail());
+                            assertThat(employee.getUserId()).isEqualTo(zepEmployee.username());
+                            assertThat(employee.getEmail()).isEqualTo(zepEmployee.email());
                         });
     }
 }

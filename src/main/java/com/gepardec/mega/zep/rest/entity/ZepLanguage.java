@@ -4,25 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ZepLanguage {
-    private final String id;
-    private final String name;
+public record ZepLanguage (String id, String name) {
 
     @JsonCreator
     public ZepLanguage(Builder builder) {
-        this.id = builder.id;
-        this.name = builder.name;
+        this(builder.id, builder.name);
     }
-
-    public String getId() {
-        return id;
-    }
-
-
-    public String getName() {
-        return name;
-    }
-
 
     public static Builder builder() {
         return Builder.aZepLanguage();

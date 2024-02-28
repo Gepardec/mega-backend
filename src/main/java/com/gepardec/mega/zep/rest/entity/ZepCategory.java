@@ -6,24 +6,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
 
-public class ZepCategory {
-    private final String name;
-    private final Map<String, String> description;
+public record ZepCategory (String name, Map<String, String> description) {
 
 
     @JsonCreator
     public ZepCategory(Builder builder) {
-        this.name = builder.name;
-        this.description = builder.description;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-
-    public Map<String, String> getDescription() {
-        return description;
+        this(builder.name, builder.description);
     }
 
 

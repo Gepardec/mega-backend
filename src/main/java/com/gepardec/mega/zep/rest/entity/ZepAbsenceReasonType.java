@@ -5,26 +5,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ZepAbsenceReasonType {
-    private final Integer id;
-    private final String name;
-
+public record ZepAbsenceReasonType (Integer id, String name) {
 
     @JsonCreator
     public ZepAbsenceReasonType(Builder builder) {
-        this.id = builder.id;
-        this.name = builder.name;
+        this(builder.id, builder.name);
     }
-
-    public Integer getId() {
-        return id;
-    }
-
-
-    public String getName() {
-        return name;
-    }
-
 
     public static Builder builder() {
         return Builder.aZepAbsenceReasonType();

@@ -20,11 +20,11 @@ public class ProjectEmployeesMapper implements Mapper<MultivaluedMap<String, Str
         try {
             MultivaluedMap<String, String> map = new MultivaluedHashMap<>();
             zepProjectEmployees.forEach(zepProjectEmployee -> {
-                map.add(USER, zepProjectEmployee.getUsername());
+                map.add(USER, zepProjectEmployee.username());
 
-                if (zepProjectEmployee.getType() != null) {
-                    if (zepProjectEmployee.getType().getId() != 0) {
-                        map.add(LEAD, String.valueOf(zepProjectEmployee.getUsername()));
+                if (zepProjectEmployee.type() != null) {
+                    if (zepProjectEmployee.type().id() != 0) {
+                        map.add(LEAD, String.valueOf(zepProjectEmployee.username()));
                     }
                 }
             });

@@ -5,102 +5,43 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 
-public class ZepEmploymentPeriod {
-
-     private final int id;
-     private final String employeeId;
-     private final LocalDateTime startDate;
-     private final LocalDateTime endDate;
-     private final String note;
-     private final Double annualLeaveEntitlement;
-     private final LocalDateTime beginningOfYear;
-     private final Double periodHolidayEntitlement;
-     private final Boolean isHolidayPerYear;
-     private final Double dayAbsentInHours;
-     private final String created;
-     private final String modified;
+public record ZepEmploymentPeriod (
+        int id,
+        String employeeId,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        String note,
+        Double annualLeaveEntitlement,
+        LocalDateTime beginningOfYear,
+        Double periodHolidayEntitlement,
+        Boolean isHolidayPerYear,
+        Double dayAbsentInHours,
+        String created,
+        String modified
+) {
 
      @JsonCreator
      public ZepEmploymentPeriod(Builder builder) {
-          this.id = builder.id;
-          this.employeeId = builder.employeeId;
-          this.startDate = builder.startDate;
-          this.endDate = builder.endDate;
-          this.note = builder.note;
-          this.annualLeaveEntitlement = builder.annualLeaveEntitlement;
-          this.beginningOfYear = builder.beginningOfYear;
-          this.periodHolidayEntitlement = builder.periodHolidayEntitlement;
-          this.isHolidayPerYear = builder.isHolidayPerYear;
-          this.dayAbsentInHours = builder.dayAbsentInHours;
-          this.created = builder.created;
-          this.modified = builder.modified;
+          this(builder.id,
+               builder.employeeId,
+               builder.startDate,
+               builder.endDate,
+               builder.note,
+               builder.annualLeaveEntitlement,
+               builder.beginningOfYear,
+               builder.periodHolidayEntitlement,
+               builder.isHolidayPerYear,
+               builder.dayAbsentInHours,
+               builder.created,
+               builder.modified);
      }
 
      public static Builder builder() {
           return Builder.aZepEmploymentPeriod();
      }
 
-     public int getId() {
-          return id;
-     }
-
-
-     public String getEmployeeId() {
-          return employeeId;
-     }
-
-
-     public LocalDateTime getStartDate() {
-          return startDate;
-     }
-
-
-     public LocalDateTime getEndDate() {
-          return endDate;
-     }
-
-
-     public String getNote() {
-          return note;
-     }
-
-
-     public Double getAnnualLeaveEntitlement() {
-          return annualLeaveEntitlement;
-     }
-
-
-     public LocalDateTime getBeginningOfYear() {
-          return beginningOfYear;
-     }
-
-
-     public double getPeriodHolidayEntitlement() {
-          return periodHolidayEntitlement;
-     }
-
-
-     public boolean isHolidayPerYear() {
-          return isHolidayPerYear;
-     }
-
-
-     public Double getDayAbsentInHours() {
-          return dayAbsentInHours;
-     }
-
-
-     public String getCreated() {
-          return created;
-     }
-
-
-     public String getModified() {
-          return modified;
-     }
 
      @JsonIgnoreProperties(ignoreUnknown = true)
-
      public static class Builder {
           @JsonProperty
           private int id;

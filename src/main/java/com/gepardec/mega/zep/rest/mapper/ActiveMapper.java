@@ -16,6 +16,6 @@ public class ActiveMapper implements Mapper<Boolean, List<ZepEmploymentPeriod>> 
 
 
         return zepEmploymentPeriods.stream()
-                .anyMatch(zepEmploymentPeriod -> zepEmploymentPeriod.getEndDate() == null);
+                .anyMatch(zepEmploymentPeriod -> zepEmploymentPeriod.endDate() == null);
     }
 }

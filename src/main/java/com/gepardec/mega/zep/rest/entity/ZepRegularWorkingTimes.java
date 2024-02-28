@@ -5,108 +5,41 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 
-public class ZepRegularWorkingTimes {
-        private final int id;
-        private final String employee_id;
-        private final LocalDateTime start_date;
-        private final Double monday;
-        private final Double tuesday;
-        private final Double wednesday;
-        private final Double thursday;
-        private final Double friday;
-        private final Double saturday;
-        private final Double sunday;
-        private final Boolean isMonthly;
-        private final Double monthlyHours;
-        private final Double maxHoursInMonth;
-        private final Double maxHoursInWeek;
+//generate all record fields
+public record ZepRegularWorkingTimes (
+        int id,
+        String employeeId,
+        LocalDateTime startDate,
+        Double monday,
+        Double tuesday,
+        Double wednesday,
+        Double thursday,
+        Double friday,
+        Double saturday,
+        Double sunday,
+        Boolean isMonthly,
+        Double monthlyHours,
+        Double maxHoursInMonth,
+        Double maxHoursInWeek) {
 
 
         @JsonCreator
         public ZepRegularWorkingTimes(Builder builder) {
-                this.id = builder.id;
-                this.employee_id = builder.employee_id;
-                this.start_date = builder.start_date;
-                this.monday = builder.monday;
-                this.tuesday = builder.tuesday;
-                this.wednesday = builder.wednesday;
-                this.thursday = builder.thursday;
-                this.friday = builder.friday;
-                this.saturday = builder.saturday;
-                this.sunday = builder.sunday;
-                this.isMonthly = builder.isMonthly;
-                this.monthlyHours = builder.monthlyHours;
-                this.maxHoursInMonth = builder.maxHoursInMonth;
-                this.maxHoursInWeek = builder.maxHoursInWeek;
-        }
-
-        public int getId() {
-                return id;
-        }
-
-
-        public String getEmployee_id() {
-                return employee_id;
-        }
-
-
-        public LocalDateTime getStart_date() {
-                return start_date;
-        }
-
-
-        public Double getMonday() {
-                return monday;
-        }
-
-
-        public Double getTuesday() {
-                return tuesday;
-        }
-
-
-        public Double getWednesday() {
-                return wednesday;
-        }
-
-
-        public Double getThursday() {
-                return thursday;
-        }
-
-
-        public Double getFriday() {
-                return friday;
-        }
-
-
-        public Double getSaturday() {
-                return saturday;
-        }
-
-
-        public Double getSunday() {
-                return sunday;
-        }
-
-
-        public Boolean getIsMonthly() {
-                return isMonthly;
-        }
-
-
-        public Double getMonthlyHours() {
-                return monthlyHours;
-        }
-
-
-        public Double getMaxHoursInMonth() {
-                return maxHoursInMonth;
-        }
-
-
-        public Double getMaxHoursInWeek() {
-                return maxHoursInWeek;
+                this(builder.id,
+                        builder.employee_id,
+                        builder.start_date,
+                        builder.monday,
+                        builder.tuesday,
+                        builder.wednesday,
+                        builder.thursday,
+                        builder.friday,
+                        builder.saturday,
+                        builder.sunday,
+                        builder.isMonthly,
+                        builder.monthlyHours,
+                        builder.maxHoursInMonth,
+                        builder.maxHoursInWeek
+                );
         }
 
 

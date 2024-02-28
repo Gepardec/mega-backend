@@ -26,21 +26,21 @@ public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
 
         try {
 
-            String salutation = zepEmployee.getSalutation() == null ?
-                    null : zepEmployee.getSalutation().getName();
-            String releaseDate = zepEmployee.getReleaseDate() == null ?
-                    null : zepEmployee.getReleaseDate().toString();
-            String language = zepEmployee.getLanguage() == null ?
-                    null : zepEmployee.getLanguage().getId();
+            String salutation = zepEmployee.salutation() == null ?
+                    null : zepEmployee.salutation().name();
+            String releaseDate = zepEmployee.releaseDate() == null ?
+                    null : zepEmployee.releaseDate().toString();
+            String language = zepEmployee.language() == null ?
+                    null : zepEmployee.language().id();
             return Employee.builder()
-                    .userId(zepEmployee.getUsername())
-                    .email(zepEmployee.getEmail())
-                    .title(zepEmployee.getTitle())
-                    .firstname(zepEmployee.getFirstname())
-                    .lastname(zepEmployee.getLastname())
+                    .userId(zepEmployee.username())
+                    .email(zepEmployee.email())
+                    .title(zepEmployee.title())
+                    .firstname(zepEmployee.firstname())
+                    .lastname(zepEmployee.lastname())
                     .salutation(salutation)
                     .releaseDate(releaseDate)
-                    .workDescription(zepEmployee.getPriceGroup())
+                    .workDescription(zepEmployee.priceGroup())
                     .language(language)
                     .build();
             /**

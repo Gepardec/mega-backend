@@ -7,57 +7,55 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ZepProject {
-
-      private final Integer id;
-      private final String name;
-      private final String description;
-      private final LocalDateTime startDate;
-      private final LocalDateTime endDate;
-      private final String status;
-      private final String comments;
-      private final String costObject;
-      private final String costObjectIdentifier;
-      private final LocalDateTime created;
-      private final LocalDateTime modified;
-      private final List<String> keywords;
-      private final String referenceOrder;
-      private final String referenceCommission;
-      private final String referenceProcurement;
-      private final String referenceObject;
-      private final String language;
-      private final String currency;
-      private final String url;
-      private final String locationAddress;
-      private final String locationCity;
-      private final String locationState;
-      private final String locationCountry;
-      private final String revenueAccount;
-      private final String customerId;
-      private final Integer customerContactId;
-      private final String customerProjectReference;
-      private final Integer customerBillingAddressId;
-      private final Integer customerShippingAddressId;
-      private final String hasMultipleCustomers;
-      private final Integer departmentId;
-      private final Integer billingType;
-      private final Integer billingTasks;
-      private final String planHours;
-      private final String planHoursPerDay;
-      private final Boolean planCanExceed;
-      private final Double planWarningPercent;
-      private final Double planWarningPercent2;
-      private final Double planWarningPercent3;
-      private final Double planWage;
-      private final String planExpenses;
-      private final String planExpensesTravel;
-      private final Double planHoursDone;
-      private final Double planHoursInvoiced;
-      private final Integer tasksCount;
-      private final Integer employeesCount;
-      private final Integer activitiesCount;
-
+public record ZepProject (
+        Integer id,
+        String name,
+        String description,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+        String status,
+        String comments,
+        String costObject,
+        String costObjectIdentifier,
+        LocalDateTime created,
+        LocalDateTime modified,
+        List<String> keywords,
+        String referenceOrder,
+        String referenceCommission,
+        String referenceProcurement,
+        String referenceObject,
+        String language,
+        String currency,
+        String url,
+        String locationAddress,
+        String locationCity,
+        String locationState,
+        String locationCountry,
+        String revenueAccount,
+        String customerId,
+        Integer customerContactId,
+        String customerProjectReference,
+        Integer customerBillingAddressId,
+        Integer customerShippingAddressId,
+        String hasMultipleCustomers,
+        Integer departmentId,
+        Integer billingType,
+        Integer billingTasks,
+        String planHours,
+        String planHoursPerDay,
+        Boolean planCanExceed,
+        Double planWarningPercent,
+        Double planWarningPercent2,
+        Double planWarningPercent3,
+        Double planWage,
+        String planExpenses,
+        String planExpensesTravel,
+        Double planHoursDone,
+        Double planHoursInvoiced,
+        Integer tasksCount,
+        Integer employeesCount,
+        Integer activitiesCount
+) {
 
       public static Builder builder() {
             return Builder.aZepProject();
@@ -65,334 +63,56 @@ public class ZepProject {
 
       @JsonCreator
       public ZepProject(Builder builder) {
-            this.id = builder.id;
-            this.name = builder.name;
-            this.description = builder.description;
-            this.startDate = builder.startDate;
-            this.endDate = builder.endDate;
-            this.status = builder.status;
-            this.comments = builder.comments;
-            this.costObject = builder.costObject;
-            this.costObjectIdentifier = builder.costObjectIdentifier;
-            this.created = builder.created;
-            this.modified = builder.modified;
-            this.keywords = builder.keywords;
-            this.referenceOrder = builder.referenceOrder;
-            this.referenceCommission = builder.referenceCommission;
-            this.referenceProcurement = builder.referenceProcurement;
-            this.referenceObject = builder.referenceObject;
-            this.language = builder.language;
-            this.currency = builder.currency;
-            this.url = builder.url;
-            this.locationAddress = builder.locationAddress;
-            this.locationCity = builder.locationCity;
-            this.locationState = builder.locationState;
-            this.locationCountry = builder.locationCountry;
-            this.revenueAccount = builder.revenueAccount;
-            this.customerId = builder.customerId;
-            this.customerContactId = builder.customerContactId;
-            this.customerProjectReference = builder.customerProjectReference;
-            this.customerBillingAddressId = builder.customerBillingAddressId;
-            this.customerShippingAddressId = builder.customerShippingAddressId;
-            this.hasMultipleCustomers = builder.hasMultipleCustomers;
-            this.departmentId = builder.departmentId;
-            this.billingType = builder.billingType;
-            this.billingTasks = builder.billingTasks;
-            this.planHours = builder.planHours;
-            this.planHoursPerDay = builder.planHoursPerDay;
-            this.planCanExceed = builder.planCanExceed;
-            this.planWarningPercent = builder.planWarningPercent;
-            this.planWarningPercent2 = builder.planWarningPercent2;
-            this.planWarningPercent3 = builder.planWarningPercent3;
-            this.planWage = builder.planWage;
-            this.planExpenses = builder.planExpenses;
-            this.planExpensesTravel = builder.planExpensesTravel;
-            this.planHoursDone = builder.planHoursDone;
-            this.planHoursInvoiced = builder.planHoursInvoiced;
-            this.tasksCount = builder.tasksCount;
-            this.employeesCount = builder.employeesCount;
-            this.activitiesCount = builder.activitiesCount;
+            this(builder.id,
+                    builder.name,
+                    builder.description,
+                    builder.startDate,
+                    builder.endDate,
+                    builder.status,
+                    builder.comments,
+                    builder.costObject,
+                    builder.costObjectIdentifier,
+                    builder.created,
+                    builder.modified,
+                    builder.keywords,
+                    builder.referenceOrder,
+                    builder.referenceCommission,
+                    builder.referenceProcurement,
+                    builder.referenceObject,
+                    builder.language,
+                    builder.currency,
+                    builder.url,
+                    builder.locationAddress,
+                    builder.locationCity,
+                    builder.locationState,
+                    builder.locationCountry,
+                    builder.revenueAccount,
+                    builder.customerId,
+                    builder.customerContactId,
+                    builder.customerProjectReference,
+                    builder.customerBillingAddressId,
+                    builder.customerShippingAddressId,
+                    builder.hasMultipleCustomers,
+                    builder.departmentId,
+                    builder.billingType,
+                    builder.billingTasks,
+                    builder.planHours,
+                    builder.planHoursPerDay,
+                    builder.planCanExceed,
+                    builder.planWarningPercent,
+                    builder.planWarningPercent2,
+                    builder.planWarningPercent3,
+                    builder.planWage,
+                    builder.planExpenses,
+                    builder.planExpensesTravel,
+                    builder.planHoursDone,
+                    builder.planHoursInvoiced,
+                    builder.tasksCount,
+                    builder.employeesCount,
+                    builder.activitiesCount
+            );
+
       }
-
-      public Integer getId() {
-            return id;
-      }
-
-      
-
-      public String getName() {
-            return name;
-      }
-
-      
-
-      public String getDescription() {
-            return description;
-      }
-
-      
-
-      public LocalDateTime getStartDate() {
-            return startDate;
-      }
-
-      
-
-      public LocalDateTime getEndDate() {
-            return endDate;
-      }
-
-      
-
-      public String getStatus() {
-            return status;
-      }
-
-      
-
-      public String getComments() {
-            return comments;
-      }
-
-      
-
-      public String getCostObject() {
-            return costObject;
-      }
-
-      
-
-      public String getCostObjectIdentifier() {
-            return costObjectIdentifier;
-      }
-
-      
-
-      public LocalDateTime getCreated() {
-            return created;
-      }
-
-      
-
-      public LocalDateTime getModified() {
-            return modified;
-      }
-
-      
-
-      public List<String> getKeywords() {
-            return keywords;
-      }
-
-      
-
-      public String getReferenceOrder() {
-            return referenceOrder;
-      }
-
-      
-
-      public String getReferenceCommission() {
-            return referenceCommission;
-      }
-
-      
-
-      public String getReferenceProcurement() {
-            return referenceProcurement;
-      }
-      
-
-      public String getReferenceObject() {
-            return referenceObject;
-      }
-
-      
-
-      public String getLanguage() {
-            return language;
-      }
-
-      
-
-      public String getCurrency() {
-            return currency;
-      }
-
-      
-
-      public String getUrl() {
-            return url;
-      }
-
-      
-
-      public String getLocationAddress() {
-            return locationAddress;
-      }
-
-      
-
-      public String getLocationCity() {
-            return locationCity;
-      }
-
-      
-
-      public String getLocationState() {
-            return locationState;
-      }
-
-      
-
-      public String getLocationCountry() {
-            return locationCountry;
-      }
-
-      
-
-      public String getRevenueAccount() {
-            return revenueAccount;
-      }
-
-      
-
-      public String getCustomerId() {
-            return customerId;
-      }
-
-      
-
-      public Integer getCustomerContactId() {
-            return customerContactId;
-      }
-
-      
-
-      public String getCustomerProjectReference() {
-            return customerProjectReference;
-      }
-
-      
-
-      public Integer getCustomerBillingAddressId() {
-            return customerBillingAddressId;
-      }
-
-      
-
-      public Integer getCustomerShippingAddressId() {
-            return customerShippingAddressId;
-      }
-
-      
-
-      public String getHasMultipleCustomers() {
-            return hasMultipleCustomers;
-      }
-
-      
-
-      public Integer getDepartmentId() {
-            return departmentId;
-      }
-
-      
-
-      public Integer getBillingType() {
-            return billingType;
-      }
-
-      
-
-      public Integer getBillingTasks() {
-            return billingTasks;
-      }
-
-      
-
-      public String getPlanHours() {
-            return planHours;
-      }
-
-      
-
-      public String getPlanHoursPerDay() {
-            return planHoursPerDay;
-      }
-
-      
-
-      public Boolean getPlanCanExceed() {
-            return planCanExceed;
-      }
-
-      
-
-      public Double getPlanWarningPercent() {
-            return planWarningPercent;
-      }
-
-      
-
-      public Double getPlanWarningPercent2() {
-            return planWarningPercent2;
-      }
-
-      
-
-      public Double getPlanWarningPercent3() {
-            return planWarningPercent3;
-      }
-
-      
-
-      public Double getPlanWage() {
-            return planWage;
-      }
-
-      
-
-      public String getPlanExpenses() {
-            return planExpenses;
-      }
-
-      
-
-      public String getPlanExpensesTravel() {
-            return planExpensesTravel;
-      }
-
-      
-
-      public Double getPlanHoursDone() {
-            return planHoursDone;
-      }
-
-      
-
-      public Double getPlanHoursInvoiced() {
-            return planHoursInvoiced;
-      }
-
-      
-
-      public Integer getTasksCount() {
-            return tasksCount;
-      }
-
-      
-
-      public Integer getEmployeesCount() {
-            return employeesCount;
-      }
-
-      
-
-      public Integer getActivitiesCount() {
-            return activitiesCount;
-      }
-
 
       @JsonIgnoreProperties(ignoreUnknown = true)
       public static final class Builder {
@@ -432,7 +152,6 @@ public class ZepProject {
             private String referenceProcurement;
             @JsonProperty("reference_object")
             private String referenceObject;
-
             @JsonProperty
             private String language;
             @JsonProperty

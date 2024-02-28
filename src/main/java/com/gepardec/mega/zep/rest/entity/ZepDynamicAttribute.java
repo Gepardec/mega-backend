@@ -6,33 +6,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
 
-public class ZepDynamicAttribute {
-    private final String name;
-    private final String value;
-    private final Map<String, String> description;
+public record ZepDynamicAttribute (String name, String value, Map<String, String> description) {
 
 
     @JsonCreator
     public ZepDynamicAttribute(Builder builder) {
-        this.name = builder.name;
-        this.value = builder.value;
-        this.description = builder.description;
+        this(builder.name, builder.value, builder.description);
     }
-
-    public String getName() {
-        return name;
-    }
-
-
-    public String getValue() {
-        return value;
-    }
-
-
-    public Map<String, String> getDescription() {
-        return description;
-    }
-
 
     public static Builder builder() {
         return Builder.aZepDynamicAttribute();

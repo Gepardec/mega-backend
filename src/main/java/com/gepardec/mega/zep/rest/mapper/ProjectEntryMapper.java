@@ -28,15 +28,15 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
 
         try{
 
-            Task task = toTask(zepAttendance.getActivity());
-            LocalDateTime from = LocalDateTime.of(zepAttendance.getDate(), zepAttendance.getFrom());
-            LocalDateTime to = LocalDateTime.of(zepAttendance.getDate(), zepAttendance.getTo());
-            WorkingLocation workingLocation = toWorkingLocation(zepAttendance.getWorkLocation());
-            String process = Integer.toString(zepAttendance.getProjectTaskId());
+            Task task = toTask(zepAttendance.activity());
+            LocalDateTime from = LocalDateTime.of(zepAttendance.date(), zepAttendance.from());
+            LocalDateTime to = LocalDateTime.of(zepAttendance.date(), zepAttendance.to());
+            WorkingLocation workingLocation = toWorkingLocation(zepAttendance.workLocation());
+            String process = Integer.toString(zepAttendance.projectTaskId());
 
             if (Task.isJourney(task)) {
-                JourneyDirection journeyDirection = toJourneyDirection(zepAttendance.getDirectionOfTravel());
-                Vehicle vehicle = toVehicle(zepAttendance.getVehicle());
+                JourneyDirection journeyDirection = toJourneyDirection(zepAttendance.directionOfTravel());
+                Vehicle vehicle = toVehicle(zepAttendance.vehicle());
                 return JourneyTimeEntry.builder()
                         .fromTime(from)
                         .toTime(to)

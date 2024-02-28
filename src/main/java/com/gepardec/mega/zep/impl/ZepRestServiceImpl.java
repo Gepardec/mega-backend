@@ -159,14 +159,14 @@ public class ZepRestServiceImpl implements ZepService {
             return List.of();
         }
 
-        Integer projectId = projectOpt.get().getId();
+        Integer projectId = projectOpt.get().id();
 
         logger.debug("Retrieving project employees of %d from ZEP".formatted(projectId));
         List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(projectId);
 
         projectEmployees.forEach(projectEmployee -> {
-            logger.debug("Retrieving attendance of user %s of project %d from ZEP".formatted(projectEmployee.getUsername(), projectId));
-            allZepAttendancesForProject.addAll(attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.getUsername(), curDate, projectId));
+            logger.debug("Retrieving attendance of user %s of project %d from ZEP".formatted(projectEmployee.username(), projectId));
+            allZepAttendancesForProject.addAll(attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.username(), curDate, projectId));
         });
         return attendanceMapper.mapList(allZepAttendancesForProject);
     }
@@ -209,7 +209,7 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     private void addProjectEmployeesToBuilder(Project.Builder projectBuilder, ZepProject zepProject) {
-            List<ZepProjectEmployee> zepProjectEmployees = projectService.getProjectEmployeesForId(zepProject.getId());
+            List<ZepProjectEmployee> zepProjectEmployees = projectService.getProjectEmployeesForId(zepProject.id());
             MultivaluedMap<String, String> projectEmployeesMap = projectEmployeesMapper.map(zepProjectEmployees);
             projectBuilder.employees(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.USER, new ArrayList<>()));
             projectBuilder.leads(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.LEAD, new ArrayList<>()));

@@ -6,29 +6,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 
-public class ZepProjectEmployee {
-    private final String username;
-    private final boolean lead;
-
-    private final ZepProjectEmployeeType type;
+public record ZepProjectEmployee (String username, boolean lead, ZepProjectEmployeeType type) {
 
     @JsonCreator
     public ZepProjectEmployee(Builder builder) {
-        this.username = builder.username;
-        this.lead = builder.lead;
-        this.type = builder.type;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public boolean isLead() {
-        return lead;
-    }
-
-    public ZepProjectEmployeeType getType() {
-        return type;
+        this(builder.username, builder.lead, builder.type);
     }
 
     public static Builder builder() {

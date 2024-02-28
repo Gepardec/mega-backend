@@ -8,119 +8,38 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class ZepAbsence {
-
-    private final Integer id;
-    private final String employeeId;
-    private final String type;
-    private final LocalDate startDate;
-    private final LocalDate endDate;
-    private final Double hours;
-    private final LocalTime from;
-    private final LocalTime to;
-    private final String note;
-    private final boolean approved;
-    private final String timezone;
-    private final String created;
-    private final String modified;
-    private final ZepAbsenceReason absenceReason;
+public record ZepAbsence (
+    Integer id,
+    String employeeId,
+    String type,
+    LocalDate startDate,
+    LocalDate endDate,
+    Double hours,
+    LocalTime from,
+    LocalTime to,
+    String note,
+    boolean approved,
+    String timezone,
+    String created,
+    String modified,
+    ZepAbsenceReason absenceReason) {
 
     @JsonCreator
     public ZepAbsence(Builder builder) {
-        this.id = builder.id;
-        this.employeeId = builder.employeeId;
-        this.type = builder.type;
-        this.startDate = builder.startDate;
-        this.endDate = builder.endDate;
-        this.hours = builder.hours;
-        this.from = builder.from;
-        this.to = builder.to;
-        this.note = builder.note;
-        this.approved = builder.approved;
-        this.timezone = builder.timezone;
-        this.created = builder.created;
-        this.modified = builder.modified;
-        this.absenceReason = builder.absenceReason;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-
-    public String getEmployeeId() {
-        return employeeId;
-    }
-
-    
-
-    public String getType() {
-        return type;
-    }
-
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    
-
-    public Double getHours() {
-        return hours;
-    }
-
-    
-
-    public LocalTime getFrom() {
-        return from;
-    }
-
-    
-
-    public LocalTime getTo() {
-        return to;
-    }
-
-    
-
-    public String getNote() {
-        return note;
-    }
-
-    
-
-    public boolean isApproved() {
-        return approved;
-    }
-
-    
-
-    public String getTimezone() {
-        return timezone;
-    }
-
-    
-
-    public String getCreated() {
-        return created;
-    }
-
-    
-
-    public String getModified() {
-        return modified;
-    }
-
-    
-
-    public ZepAbsenceReason getAbsenceReason() {
-        return absenceReason;
+        this(builder.id,
+             builder.employeeId,
+             builder.type,
+             builder.startDate,
+             builder.endDate,
+             builder.hours,
+             builder.from,
+             builder.to,
+             builder.note,
+             builder.approved,
+             builder.timezone,
+             builder.created,
+             builder.modified,
+             builder.absenceReason);
     }
 
     public static Builder builder () {

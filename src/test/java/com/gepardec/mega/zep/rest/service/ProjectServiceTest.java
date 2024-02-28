@@ -109,7 +109,7 @@ public class ProjectServiceTest {
 
 
         List<ZepProject> zepProject = projectService.getProjectsForMonthYear(LocalDate.of(2024, 1, 1));
-        zepProject.stream().filter(project -> project.getId() == 1)
+        zepProject.stream().filter(project -> project.id() == 1)
                 .forEach(project -> assertThat(project).usingRecursiveComparison().isEqualTo(referenceZepProject));
     }
 
@@ -120,7 +120,7 @@ public class ProjectServiceTest {
 
         List<ZepProject> projectList = responseParser.retrieveAll(page -> zepProjectRestClient.getProjects(page), ZepProject.class);
         List<String> projectNames = projectList.stream()
-                .map(ZepProject::getName)
+                .map(ZepProject::name)
                 .toList();
         Arrays.stream(names)
                 .forEach(name -> assertThat(projectNames.contains(name)).isTrue());
@@ -129,7 +129,7 @@ public class ProjectServiceTest {
     @Test
     public void getProjectByName() {
         Optional<ZepProject> project = projectService.getProjectByName("mega", LocalDate.of(2022, 1, 2));
-        assertThat(project.get().getId()).isEqualTo(5);
+        assertThat(project.get().id()).isEqualTo(5);
     }
     @Test
     public void getProjectByName_whenNoProjectOfName() {

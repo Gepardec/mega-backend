@@ -4,25 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ZepEmployment {
-    private final int id;
-    private final String name;
+public record ZepEmployment (int id, String name) {
 
     @JsonCreator
     public ZepEmployment(Builder builder) {
-        this.id = builder.id;
-        this.name = builder.name;
+          this(builder.id, builder.name);
     }
-
-    public int getId() {
-        return id;
-    }
-
-
-    public String getName() {
-        return name;
-    }
-
 
     public static Builder builder() {
         return Builder.aZepEmployment();

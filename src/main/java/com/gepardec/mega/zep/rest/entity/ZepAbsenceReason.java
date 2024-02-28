@@ -3,93 +3,44 @@ package com.gepardec.mega.zep.rest.entity;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-public class ZepAbsenceReason {
 
-    private final String name;
-    private final String comment;
-    private final Byte approve;
-    private final Byte allowSelfEntry;
-    private final Byte allowHalfDayHoliday;
-    private final Byte allowHoursOfVacation;
-    private final Byte anyoneCanSeeName;
-    private final String color;
-    private final ZepAbsenceReasonType type;
-    private final String clientCalendarCategory;
-    private final Byte informEmployeeUponApprovalOrRevocation;
-    private final String created;
-    private final String modified;
+import java.util.Objects;
 
+public record ZepAbsenceReason (
+    String name,
+    String comment,
+    Byte approve,
+    Byte allowSelfEntry,
+    Byte allowHalfDayHoliday,
+    Byte allowHoursOfVacation,
+    Byte anyoneCanSeeName,
+    String color,
+    ZepAbsenceReasonType type,
+    String clientCalendarCategory,
+    Byte informEmployeeUponApprovalOrRevocation,
+    String created,
+    String modified
+) {
     @JsonCreator
     public ZepAbsenceReason(Builder builder) {
-        this.name = builder.name;
-        this.comment = builder.comment;
-        this.approve = builder.approve;
-        this.allowSelfEntry = builder.allowSelfEntry;
-        this.allowHalfDayHoliday = builder.allowHalfDayHoliday;
-        this.allowHoursOfVacation = builder.allowHoursOfVacation;
-        this.anyoneCanSeeName = builder.anyoneCanSeeName;
-        this.color = builder.color;
-        this.type = builder.type;
-        this.clientCalendarCategory = builder.clientCalendarCategory;
-        this.informEmployeeUponApprovalOrRevocation = builder.informEmployeeUponApprovalOrRevocation;
-        this.created = builder.created;
-        this.modified = builder.modified;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public Byte getApprove() {
-        return approve;
-    }
-
-    public Byte getAllowSelfEntry() {
-        return allowSelfEntry;
-    }
-
-    public Byte getAllowHalfDayHoliday() {
-        return allowHalfDayHoliday;
-    }
-
-    public Byte getAllowHoursOfVacation() {
-        return allowHoursOfVacation;
-    }
-
-    public Byte getAnyoneCanSeeName() {
-        return anyoneCanSeeName;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public ZepAbsenceReasonType getType() {
-        return type;
-    }
-
-    public String getClientCalendarCategory() {
-        return clientCalendarCategory;
-    }
-
-    public Byte getInformEmployeeUponApprovalOrRevocation() {
-        return informEmployeeUponApprovalOrRevocation;
-    }
-
-    public String getCreated() {
-        return created;
-    }
-
-    public String getModified() {
-        return modified;
+        this(builder.name,
+             builder.comment,
+             builder.approve,
+             builder.allowSelfEntry,
+             builder.allowHalfDayHoliday,
+             builder.allowHoursOfVacation,
+             builder.anyoneCanSeeName,
+             builder.color,
+             builder.type,
+             builder.clientCalendarCategory,
+             builder.informEmployeeUponApprovalOrRevocation,
+             builder.created,
+             builder.modified
+        );
     }
 
     public static Builder builder() {
         return Builder.aZepAbsenceReason();
-    }
-
-    public String getName() {
-        return name;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

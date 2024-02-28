@@ -23,23 +23,23 @@ public class AbsenceMapper implements Mapper<AbsenceTime, ZepAbsence> {
 
         try {
 
-            String reason = zepAbsence.getAbsenceReason() == null ? "" : zepAbsence.getAbsenceReason().getName();
+            String reason = zepAbsence.absenceReason() == null ? "" : zepAbsence.absenceReason().name();
 
             AbsenceTime absenceTime = AbsenceTime.builder()
-                    .id(zepAbsence.getId())
-                    .userId(zepAbsence.getEmployeeId())
-                    .fromDate(zepAbsence.getStartDate())
-                    .toDate(zepAbsence.getEndDate())
-                    .fromTime("" + zepAbsence.getFrom())
-                    .toTime("" + zepAbsence.getTo())
+                    .id(zepAbsence.id())
+                    .userId(zepAbsence.employeeId())
+                    .fromDate(zepAbsence.startDate())
+                    .toDate(zepAbsence.endDate())
+                    .fromTime("" + zepAbsence.from())
+                    .toTime("" + zepAbsence.to())
                     .reason(reason)
                     .isHalfADay(false)                      //TODO: Check if needed, don't see any purpose and ZEP REST doesn't provide this value
-                    .accepted(zepAbsence.isApproved())
-                    .comment(zepAbsence.getNote())
-                    .timezone(zepAbsence.getTimezone())
+                    .accepted(zepAbsence.approved())
+                    .comment(zepAbsence.note())
+                    .timezone(zepAbsence.timezone())
                     .suppressMails(true)                    //TODO: Check if needed, don't see any purpose and ZEP REST doesn't provide this value
-                    .created(zepAbsence.getCreated())
-                    .modified(zepAbsence.getModified())
+                    .created(zepAbsence.created())
+                    .modified(zepAbsence.modified())
                     .attributes(null)
                     .build();
 

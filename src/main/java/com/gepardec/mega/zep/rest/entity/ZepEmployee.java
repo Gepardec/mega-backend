@@ -8,320 +8,92 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
-public class ZepEmployee {
-
-        private final String username;
-        private final String firstname;
-        private final String lastname;
-        private final String personalNumber;
-        private final String street;
-        private final String zip;
-        private final String city;
-        private final String country;
-        private final String abbreviation;
-        private final ZepSalutation salutation;
-        private final String title;
-        private final String email;
-        private final String phone;
-        private final String mobile;
-        private final String fax;
-        private final String privatePhone;
-        private final String birthdate;
-        private final String iban;
-        private final String bic;
-        private final Integer accountNo;
-        private final String bankName;
-        private final String bankCode;
-        private final String currency;
-        private final LocalDate releaseDate;
-        private final Double vat;
-        private final String priceGroup;
-        private final ZepEmployment employment;
-        private final ZepRights rights;
-        private final Integer departmentId;
-        private final ZepLanguage language;
-        private final Integer personioId;
-        private final String costBearer;
-        private final Integer taxId;
-        private final LocalDateTime created;
-        private final LocalDateTime modified;
-        private final Integer creditorNumber;
-        private final Collection<ZepCategory> categories;
-        private final Collection<ZepDynamicAttribute> dynamicAttributes;
-        private final Integer absencesCount;
-
+// Create record fields with line seperation
+public record ZepEmployee (
+        String username,
+        String firstname,
+        String lastname,
+        String personalNumber,
+        String street,
+        String zip,
+        String city,
+        String country,
+        String abbreviation,
+        ZepSalutation salutation,
+        String title,
+        String email,
+        String phone,
+        String mobile,
+        String fax,
+        String privatePhone,
+        String birthdate,
+        String iban,
+        String bic,
+        Integer accountNo,
+        String bankName,
+        String bankCode,
+        String currency,
+        LocalDate releaseDate,
+        Double vat,
+        String priceGroup,
+        ZepEmployment employment,
+        ZepRights rights,
+        Integer departmentId,
+        ZepLanguage language,
+        Integer personioId,
+        String costBearer,
+        Integer taxId,
+        LocalDateTime created,
+        LocalDateTime modified,
+        Integer creditorNumber,
+        Collection<ZepCategory> categories,
+        Collection<ZepDynamicAttribute> dynamicAttributes,
+        Integer absencesCount
+) {
 
         @JsonCreator
         public ZepEmployee(Builder builder) {
-                this.username = builder.username;
-                this.firstname = builder.firstname;
-                this.lastname = builder.lastname;
-                this.personalNumber = builder.personalNumber;
-                this.street = builder.street;
-                this.zip = builder.zip;
-                this.city = builder.city;
-                this.country = builder.country;
-                this.abbreviation = builder.abbreviation;
-                this.salutation = builder.salutation;
-                this.title = builder.title;
-                this.email = builder.email;
-                this.phone = builder.phone;
-                this.mobile = builder.mobile;
-                this.fax = builder.fax;
-                this.privatePhone = builder.privatePhone;
-                this.birthdate = builder.birthdate;
-                this.iban = builder.iban;
-                this.bic = builder.bic;
-                this.accountNo = builder.accountNo;
-                this.bankName = builder.bankName;
-                this.bankCode = builder.bankCode;
-                this.currency = builder.currency;
-                this.releaseDate = builder.releaseDate;
-                this.vat = builder.vat;
-                this.priceGroup = builder.priceGroup;
-                this.employment = builder.employment;
-                this.rights = builder.rights;
-                this.departmentId = builder.departmentId;
-                this.language = builder.language;
-                this.personioId = builder.personioId;
-                this.costBearer = builder.costBearer;
-                this.taxId = builder.taxId;
-                this.created = builder.created;
-                this.modified = builder.modified;
-                this.creditorNumber = builder.creditorNumber;
-                this.categories = builder.categories;
-                this.absencesCount = builder.absencesCount;
-                this.dynamicAttributes = builder.dynamicAttributes;
+                this(builder.username,
+                     builder.firstname,
+                     builder.lastname,
+                     builder.personalNumber,
+                     builder.street,
+                     builder.zip,
+                     builder.city,
+                     builder.country,
+                     builder.abbreviation,
+                     builder.salutation,
+                     builder.title,
+                     builder.email,
+                     builder.phone,
+                     builder.mobile,
+                     builder.fax,
+                     builder.privatePhone,
+                     builder.birthdate,
+                     builder.iban,
+                     builder.bic,
+                     builder.accountNo,
+                     builder.bankName,
+                     builder.bankCode,
+                     builder.currency,
+                     builder.releaseDate,
+                     builder.vat,
+                     builder.priceGroup,
+                     builder.employment,
+                     builder.rights,
+                     builder.departmentId,
+                     builder.language,
+                     builder.personioId,
+                     builder.costBearer,
+                     builder.taxId,
+                     builder.created,
+                     builder.modified,
+                     builder.creditorNumber,
+                     builder.categories,
+                     builder.dynamicAttributes,
+                     builder.absencesCount
+                );
         }
-
-        public String getUsername() {
-                return username;
-        }
-
-        
-
-        public String getFirstname() {
-                return firstname;
-        }
-
-        
-
-        public String getLastname() {
-                return lastname;
-        }
-
-        
-
-        public String getPersonalNumber() {
-                return personalNumber;
-        }
-
-        
-
-        public String getStreet() {
-                return street;
-        }
-
-        
-
-        public String getZip() {
-                return zip;
-        }
-
-        
-
-        public String getCity() {
-                return city;
-        }
-
-        
-
-        public String getCountry() {
-                return country;
-        }
-
-        
-
-        public String getAbbreviation() {
-                return abbreviation;
-        }
-
-        
-
-        public ZepSalutation getSalutation() {
-                return salutation;
-        }
-
-        
-
-        public String getTitle() {
-                return title;
-        }
-
-        
-
-        public String getEmail() {
-                return email;
-        }
-
-        
-
-        public String getPhone() {
-                return phone;
-        }
-
-        
-
-        public String getMobile() {
-                return mobile;
-        }
-
-        
-
-        public String getFax() {
-                return fax;
-        }
-
-        
-
-        public String getPrivatePhone() {
-                return privatePhone;
-        }
-
-        
-
-        public String getBirthdate() {
-                return birthdate;
-        }
-
-        
-
-        public String getIban() {
-                return iban;
-        }
-
-        
-
-        public String getBic() {
-                return bic;
-        }
-
-        
-
-        public Integer getAccountNo() {
-                return accountNo;
-        }
-
-        
-
-        public String getBankName() {
-                return bankName;
-        }
-
-        
-
-        public String getBankCode() {
-                return bankCode;
-        }
-
-        
-
-        public String getCurrency() {
-                return currency;
-        }
-
-        
-
-        public LocalDate getReleaseDate() {
-                return releaseDate;
-        }
-
-        
-
-        public Double getVat() {
-                return vat;
-        }
-
-        
-
-        public String getPriceGroup() {
-                return priceGroup;
-        }
-
-        
-
-        public ZepEmployment getEmployment() {
-                return employment;
-        }
-
-        
-
-        public ZepRights getRights() {
-                return rights;
-        }
-
-        
-
-        public Integer getDepartmentId() {
-                return departmentId;
-        }
-
-        
-
-        public ZepLanguage getLanguage() {
-                return language;
-        }
-
-        
-
-        public Integer getPersonioId() {
-                return personioId;
-        }
-
-        
-
-        public String getCostBearer() {
-                return costBearer;
-        }
-
-        
-
-        public Integer getTaxId() {
-                return taxId;
-        }
-
-        
-
-        public LocalDateTime getCreated() {
-                return created;
-        }
-
-        
-
-        public LocalDateTime getModified() {
-                return modified;
-        }
-
-        
-
-        public Integer getCreditorNumber() {
-                return creditorNumber;
-        }
-
-        
-
-        public Integer getAbsencesCount() {
-                return absencesCount;
-        }
-
-        
-
-        
-
-        public Collection<ZepDynamicAttribute> getDynamicAttributes() {
-                return dynamicAttributes;
-        }
-
 
         public static Builder builder() {
                 return Builder.aZepEmployee();

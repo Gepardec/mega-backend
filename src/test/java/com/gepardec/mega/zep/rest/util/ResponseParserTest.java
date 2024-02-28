@@ -49,7 +49,7 @@ public class ResponseParserTest {
 
 
         List<ZepProject> projectList = responseParser.retrieveAll(page -> zepProjectRestClient.getProjects(page), ZepProject.class);
-        List<String> projectNames = projectList.stream().map(ZepProject::getName).peek(System.out::println).collect(Collectors.toList());
+        List<String> projectNames = projectList.stream().map(ZepProject::name).peek(System.out::println).collect(Collectors.toList());
         System.out.println(projectNames);
         Arrays.stream(names).forEach(name -> assertThat(projectNames.contains(name)).isTrue());
     }
@@ -96,7 +96,7 @@ public class ResponseParserTest {
                     }
                     return Response.ok().entity(json).build();
                 },
-                project -> project.getName().equals("mega"),
+                project -> project.name().equals("mega"),
                 ZepProject.class);
         assertThat(projectOpt).isEmpty();
     }
@@ -106,7 +106,7 @@ public class ResponseParserTest {
 
         Optional<ZepProject> projectOpt = responseParser.searchInAll(
                 page -> Response.ok().entity(anyPage).build(),
-                project -> project.getName().equals("mega"),
+                project -> project.name().equals("mega"),
                 ZepProject.class);
 
         assertThat(projectOpt).isEmpty();
@@ -118,7 +118,7 @@ public class ResponseParserTest {
 
         Optional<ZepProject> projectOpt = responseParser.searchInAll(
                 page -> Response.ok().entity(anyPage).build(),
-                project -> project.getName().equals("mega"),
+                project -> project.name().equals("mega"),
                 ZepProject.class);
 
         assertThat(projectOpt).isEmpty();
@@ -148,10 +148,10 @@ public class ResponseParserTest {
 
         Optional<ZepProject> projectOpt = responseParser.searchInAll(
                 page -> zepProjectRestClient.getProjects(page),
-                project -> project.getName().equals("SUPERMEGA"),
+                project -> project.name().equals("SUPERMEGA"),
                 ZepProject.class);
 
-        assertThat(projectOpt.get().getId()).isEqualTo(4);
+        assertThat(projectOpt.get().id()).isEqualTo(4);
     }
 
     @Test
@@ -169,7 +169,7 @@ public class ResponseParserTest {
 
         Optional<ZepProject> projectOpt = responseParser.searchInAll(
                 page -> zepProjectRestClient.getProjects(page),
-                project -> project.getName().equals("Mmeeggaa"),
+                project -> project.name().equals("Mmeeggaa"),
                 ZepProject.class);
 
         assertThat(projectOpt).isEmpty();

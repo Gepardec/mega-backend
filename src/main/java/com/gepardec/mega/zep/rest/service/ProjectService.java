@@ -53,7 +53,7 @@ public class ProjectService {
     public Optional<ZepProject> getProjectByName(String name, LocalDate date) {
         try {
             return getProjectsForMonthYear(date).stream()
-                    .filter(project -> project.getName().equals(name))
+                    .filter(project -> project.name().equals(name))
                     .findFirst();
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving project + \"%s\" from ZEP: No /data field in response"
@@ -83,16 +83,16 @@ public class ProjectService {
         LocalDate lastOfMonth = DateUtils.getLastDayOfMonth(monthYear.getYear(), monthYear.getMonthValue());
 
         return projects.stream()
-                .filter(project -> !(project.getStartDate() == null))
+                .filter(project -> !(project.startDate() == null))
                 .filter(project -> {
-                    if (project.getEndDate() != null) {
-                        if (project.getEndDate().isBefore(firstOfMonth.atStartOfDay())) {
+                    if (project.endDate() != null) {
+                        if (project.endDate().isBefore(firstOfMonth.atStartOfDay())) {
                             return false;
                         }
                     }
                     return  true;
                 })
-                .filter(project -> !(project.getStartDate().isAfter(lastOfMonth.atTime(23, 59, 59))))
+                .filter(project -> !(project.startDate().isAfter(lastOfMonth.atTime(23, 59, 59))))
                 .collect(Collectors.toList());
 
     }

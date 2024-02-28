@@ -32,7 +32,7 @@ public class AttendanceService {
         try {
             List<ZepAttendance> attendances = this.getAttendanceForUserAndMonth(username, date);
             return attendances.stream()
-                    .filter(attendance -> attendance.getBillable() <= BILLABLE_TYPE_BORDER)
+                    .filter(attendance -> attendance.billable() <= BILLABLE_TYPE_BORDER)
                     .collect(Collectors.toList());
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving billable attendances for user + \"%s\" from ZEP: No /data field in response"
@@ -67,7 +67,7 @@ public class AttendanceService {
                     ZepAttendance.class);
 
             return attendances.stream()
-                    .filter(attendance -> Objects.equals(attendance.getProjectId(), projectId))
+                    .filter(attendance -> Objects.equals(attendance.projectId(), projectId))
                     .collect(Collectors.toList());
         } catch (ZepServiceException e) {
             logger.warn(("Error retrieving billable attendances for user \"%s\" and project \"%d\" from ZEP: " +

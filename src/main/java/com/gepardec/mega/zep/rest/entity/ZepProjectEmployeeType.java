@@ -5,23 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ZepProjectEmployeeType {
-    private final int id;
-
-    private final String name;
-
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
+public record ZepProjectEmployeeType (int id, String name) {
 
     @JsonCreator
     public ZepProjectEmployeeType(Builder builder) {
-        this.id = builder.id;
-        this.name = builder.name;
+        this(builder.id, builder.name);
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

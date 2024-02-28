@@ -128,7 +128,7 @@ public class AttendanceServiceTest {
     public void getAttendancesPaginated() {
         List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.now());
         IntStream.range(0, 3).forEach(
-                i -> assertThat(attendances.get(i).getId()).isEqualTo(i + 1)
+                i -> assertThat(attendances.get(i).id()).isEqualTo(i + 1)
         );
     }
     @Test
