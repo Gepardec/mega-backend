@@ -1,6 +1,7 @@
 package com.gepardec.mega.application.configuration;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -21,9 +22,14 @@ public class ZepConfig {
     @Inject
     @ConfigProperty(name = "mega.zep.soap-path")
     String soapPath;
-    
-    public static String getRestBearerToken() {
-        return ConfigProvider.getConfig().getValue("mega.zep.rest_token", String.class);
+
+    @Inject
+    @ConfigProperty(name = "mega.zep.rest-token")
+    String restToken;
+
+
+    public String getRestBearerToken() {
+        return restToken;
     }
 
     public String getUrlAsString() {

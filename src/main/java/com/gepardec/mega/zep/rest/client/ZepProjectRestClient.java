@@ -8,16 +8,17 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
+import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 import java.time.LocalDate;
 
 @Path("/projects")
 @RegisterRestClient(configKey = "zep")
-@ClientHeaderParam(name = "Authorization", value = "{getAuthHeaderValue}")
+@RegisterClientHeaders(AuthHeaders.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApplicationScoped
-public interface ZepProjectRestClient extends Authenticatable{
+public interface ZepProjectRestClient {
 
     @GET
     Response getProjects(@QueryParam("page") int page);

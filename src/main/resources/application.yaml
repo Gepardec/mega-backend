@@ -95,7 +95,7 @@ mega:
   zep:
     admin-token: "${TOKEN:default}"
     soap-path: "/sync/soap.php?v=${SOAP_PATH_VERSION:7}"
-    rest_token: "${ZEP_REST_TOKEN:default}"
+    rest-token: "${ZEP_REST_TOKEN:default}"
     origin: "https://www.zep-online.de/zepgepardecservices_test"
 
 
