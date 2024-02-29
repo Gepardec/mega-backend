@@ -70,8 +70,8 @@ quarkus:
   rest-client:
     personio-api-v1:
       url: "https://api.personio.de/v1"
-  shutdown:
-    timeout: "30s"
+  #  shutdown:
+  #    timeout: "30s"
 
   oidc:
     # for the default client (mega) we verify the access token locally
