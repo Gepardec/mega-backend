@@ -45,8 +45,8 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .totalWorkingTime(object.getTotalWorkingTime())
                 .paidSickLeave(object.getPaidSickLeave())
                 .overtime(object.getOvertime())
-                .guildLead(object.getGuildLead().isEmpty() ? null : object.getGuildLead())
-                .internalProjectLead(object.getInternalProjectLead().isEmpty() ? null : object.getInternalProjectLead())
+                .guildLead(emptyToDtoFormat(object.getGuildLead()))
+                .internalProjectLead(emptyToDtoFormat(object.getInternalProjectLead()))
                 .prematureEmployeeCheck(
                         Optional.ofNullable(object.getPrematureEmployeeCheck())
                                 .map(prematureEmployeeCheckMapper::mapToDto)
@@ -85,9 +85,20 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .totalWorkingTime(object.getTotalWorkingTime())
                 .paidSickLeave(object.getPaidSickLeave())
                 .overtime(object.getOvertime())
-                .guildLead(object.getGuildLead() == null ? "" : object.getGuildLead())
-                .internalProjectLead(object.getInternalProjectLead() == null ? "" : object.getInternalProjectLead())
+                .guildLead(emptyToDomainFormat(object.getGuildLead()))
+                .internalProjectLead(emptyToDomainFormat(object.getInternalProjectLead()))
                 .prematureEmployeeCheck(prematureEmployeeCheckMapper.mapToDomain(object.getPrematureEmployeeCheck()))
                 .build();
+    }
+
+    private static String emptyToDtoFormat(String value) {
+        if (value == null) {
+            return value;
+        }
+        return value.isEmpty() ? null : value;
+    }
+
+    private static String emptyToDomainFormat(String value) {
+        return value == null ? "" : value;
     }
 }

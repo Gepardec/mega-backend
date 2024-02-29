@@ -43,14 +43,14 @@ class PersonioEmployeesServiceImplTest {
         when(personioEmployeesClient.getByEmail(anyString())).thenReturn(response);
 
         //WHEN
-        var result = personioEmployeesService.getVacationDayBalance("mega.test@gepardec.com");
-        var guildLead = personioEmployeesService.getGuildLead("simon.gartner@gepardec.com");
-        var internalProjectLead = personioEmployeesService.getInternalProjectLead("simon.gartner@gepardec.com");
+        var result = personioEmployeesService.getPersonioEmployeeByEmail("mega.test@gepardec.com");
 
         //THEN
-        assertThat(result).isEqualTo(10d);
-        assertThat(guildLead).isEqualTo("guildLead");
-        assertThat(internalProjectLead).isEqualTo("internalProjectLead");
+        assertThat(result).isNotEmpty();
+        PersonioEmployee personioEmployee = result.get();
+        assertThat(personioEmployee.getVacationDayBalance().getValue()).isEqualTo(10d);
+        assertThat(personioEmployee.getGuildLead().getValue()).isEqualTo("guildLead");
+        assertThat(personioEmployee.getInternalProjectLead().getValue()).isEqualTo("internalProjectLead");
     }
 
     @Test
@@ -65,10 +65,10 @@ class PersonioEmployeesServiceImplTest {
         when(personioEmployeesClient.getByEmail(anyString())).thenReturn(response);
 
         //WHEN
-        var result = personioEmployeesService.getVacationDayBalance("mega.test@gepardec.com");
+        var result = personioEmployeesService.getPersonioEmployeeByEmail(("mega.test@gepardec.com"));
 
         //THEN
-        assertThat(result).isEqualTo(0d);
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -83,12 +83,12 @@ class PersonioEmployeesServiceImplTest {
         when(personioEmployeesClient.getByEmail(anyString())).thenReturn(response);
 
         //WHEN
-        var result = personioEmployeesService.getVacationDayBalance("mega.test@gepardec.com");
+        var result = personioEmployeesService.getPersonioEmployeeByEmail("mega.test@gepardec.com");
 
         //THEN
         verify(logger).info("Fehler bei Aufruf der Personio-Schnittstelle: {}", "Personio-Fehler");
 
-        assertThat(result).isEqualTo(0d);
+        assertThat(result).isEmpty();
     }
 
     private static List<EmployeesResponse> createValidEmployeesResponseData() {

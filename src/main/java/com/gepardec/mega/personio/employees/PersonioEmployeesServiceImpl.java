@@ -8,6 +8,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequestScoped
 public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
@@ -19,49 +20,17 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
     @Inject
     Logger logger;
 
-    @Override
-    public double getVacationDayBalance(String email) {
+    public Optional<PersonioEmployee> getPersonioEmployeeByEmail(String email) {
         var response = personioEmployeesClient.getByEmail(email);
         var employeesResponse = response.readEntity(new GenericType<BaseResponse<List<EmployeesResponse>>>() {
         });
         if (employeesResponse.isSuccess()) {
             if (employeesResponse.getData().size() == 1) {
-                return employeesResponse.getData().get(0).getAttributes().getVacationDayBalance().getValue();
+                return Optional.of(employeesResponse.getData().get(0).getAttributes());
             }
         } else {
             logger.info("Fehler bei Aufruf der Personio-Schnittstelle: {}", employeesResponse.getError().getMessage());
         }
-        return 0;
-    }
-
-    @Override
-    public String getGuildLead(String email) {
-        var response = personioEmployeesClient.getByEmail(email);
-        var employeesResponse = response.readEntity(new GenericType<BaseResponse<List<EmployeesResponse>>>() {
-        });
-        if (employeesResponse.isSuccess()) {
-            if (employeesResponse.getData().size() == 1) {
-                return employeesResponse.getData().get(0)
-                        .getAttributes().getGuildLead().getValue();
-            }
-        } else {
-            logger.info("Fehler bei Aufruf der Personio-Schnittstelle: {}", employeesResponse.getError().getMessage());
-        }
-        return "";
-    }
-    @Override
-    public String getInternalProjectLead(String email) {
-        var response = personioEmployeesClient.getByEmail(email);
-        var employeesResponse = response.readEntity(new GenericType<BaseResponse<List<EmployeesResponse>>>() {
-        });
-        if (employeesResponse.isSuccess()) {
-            if (employeesResponse.getData().size() == 1) {
-                return employeesResponse.getData().get(0)
-                        .getAttributes().getInternalProjectLead().getValue();
-            }
-        } else {
-            logger.info("Fehler bei Aufruf der Personio-Schnittstelle: {}", employeesResponse.getError().getMessage());
-        }
-        return "";
+        return Optional.empty();
     }
 }

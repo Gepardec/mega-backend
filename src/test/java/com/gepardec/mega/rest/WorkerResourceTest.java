@@ -50,8 +50,6 @@ public class WorkerResourceTest {
     @InjectMock
     EmployeeMapper mapper;
 
-    @Inject
-    ObjectMapper objectMapper;
 
     @Test
     void monthlyReport_whenPOST_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
@@ -110,6 +108,8 @@ public class WorkerResourceTest {
         int nonVacationDays = 0;
         String billableTime = "00:00";
         String totalWorkingTime = "00:00";
+        String guildLead = "guildLead";
+        String internalProjectLead = "internalProjectLead";
 
         MonthlyReport expected = MonthlyReport.builder()
                 .employee(employee)
@@ -132,6 +132,8 @@ public class WorkerResourceTest {
                 .fatherMonthDays(fatherMonthDays)
                 .paidSpecialLeaveDays(paidSpecialLeaveDays)
                 .nonPaidVacationDays(nonVacationDays)
+                .guildLead(guildLead)
+                .internalProjectLead(internalProjectLead)
                 .build();
 
         when(monthlyReportService.getMonthEndReportForUser()).thenReturn(expected);
@@ -158,6 +160,8 @@ public class WorkerResourceTest {
         assertThat(fatherMonthDays).isEqualTo(actual.getFatherMonthDays());
         assertThat(paidSpecialLeaveDays).isEqualTo(actual.getPaidSpecialLeaveDays());
         assertThat(nonVacationDays).isEqualTo(actual.getNonPaidVacationDays());
+        assertThat(guildLead).isEqualTo(actual.getGuildLead());
+        assertThat(internalProjectLead).isEqualTo(actual.getInternalProjectLead());
     }
 
     @Test

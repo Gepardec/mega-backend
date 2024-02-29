@@ -46,4 +46,10 @@ public class Attribute<T> {
     public void setUniversalId(String universalId) {
         this.universalId = universalId;
     }
+
+    public static <T> Attribute<T> ofValue(T value) {
+        Attribute<T> attr = new Attribute<>();
+        attr.setValue(value);
+        return attr;
+    }
 }

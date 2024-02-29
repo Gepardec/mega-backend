@@ -1,9 +1,9 @@
 package com.gepardec.mega.personio.employees;
 
+import java.util.Optional;
+
 public interface PersonioEmployeesService {
-    double getVacationDayBalance(String email);
 
-    String getGuildLead(String email);
+    Optional<PersonioEmployee> getPersonioEmployeeByEmail(String email);
 
-    String getInternalProjectLead(String email);
 }

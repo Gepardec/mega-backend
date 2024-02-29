@@ -12,6 +12,8 @@ import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
+import com.gepardec.mega.personio.commons.model.Attribute;
+import com.gepardec.mega.personio.employees.PersonioEmployee;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -37,6 +39,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,7 +86,13 @@ class MonthlyReportServiceImplTest {
         Employee employee1 = createEmployeeForUser(user);
         when(employeeService.getEmployee(anyString())).thenReturn(employee1);
 
-        when(personioEmployeesService.getVacationDayBalance(any())).thenReturn(0d);
+        PersonioEmployee personioEmployee = new PersonioEmployee();
+        personioEmployee.setGuildLead(Attribute.ofValue("guildLead"));
+        personioEmployee.setInternalProjectLead(Attribute.ofValue("internalProjectLead"));
+        personioEmployee.setVacationDayBalance(Attribute.ofValue(0d));
+
+        when(personioEmployeesService.getPersonioEmployeeByEmail(any()))
+                .thenReturn(Optional.of(personioEmployee));
     }
 
     @AfterEach

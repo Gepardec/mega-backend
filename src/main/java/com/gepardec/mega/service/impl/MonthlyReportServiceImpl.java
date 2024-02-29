@@ -30,6 +30,7 @@ import de.provantis.zep.ProjektzeitType;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -87,6 +88,9 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     @Inject
     PrematureEmployeeCheckService prematureEmployeeCheckService;
+
+    @Inject
+    Logger logger;
 
     @Override
     public MonthlyReport getMonthEndReportForUser() {
@@ -184,7 +188,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
         var prematureEmployeeCheck = prematureEmployeeCheckService.findByEmailAndMonth(employee.getEmail(), date);
 
-        return MonthlyReport.builder()
+
+        MonthlyReport.Builder builder = MonthlyReport.builder()
                 .employee(employee)
                 .timeWarnings(mappedTimeWarnings)
                 .journeyWarnings(journeyWarnings)
@@ -208,13 +213,11 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .paidSpecialLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SPECIAL_LEAVE_DAYS, date))
                 .nonPaidVacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS, date))
                 .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
-                .vacationDayBalance(personioEmployeesService.getVacationDayBalance(employee.getEmail()))
                 .overtime(workingTimeUtil.getOvertimeForEmployee(employee, billableEntries, absenceEntries, date))
                 .prematureEmployeeCheck(prematureEmployeeCheck.orElse(null))
-                .guildLead(personioEmployeesService.getGuildLead(employee.getEmail()))
-                .internalProjectLead(personioEmployeesService.getInternalProjectLead(employee.getEmail()))
-                .initialDate(initialDate)
-                .build();
+                .initialDate(initialDate);
+
+        return addPersonioEmployee(builder, employee.getEmail()).build();
     }
 
     private boolean isAnyStepEntryDone(Map.Entry<String, List<StepEntry>> entry) {
@@ -224,4 +227,17 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     private boolean isStepEntryDone(StepEntry stepEntry) {
         return stepEntry.getState() == EmployeeState.DONE;
     }
+
+    private MonthlyReport.Builder addPersonioEmployee(MonthlyReport.Builder builder, String email) {
+        personioEmployeesService.getPersonioEmployeeByEmail(email).ifPresent(
+                employee -> {
+                    builder.internalProjectLead(employee.getInternalProjectLead().getValue());
+                    builder.guildLead(employee.getGuildLead().getValue());
+                    builder.vacationDayBalance(employee.getVacationDayBalance().getValue());
+                }
+        );
+
+        return builder;
+    }
+
 }
