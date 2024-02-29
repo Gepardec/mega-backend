@@ -2,13 +2,18 @@ package com.gepardec.mega.rest.api;
 
 import io.quarkus.oidc.Tenant;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
-import org.eclipse.microprofile.openapi.annotations.security.*;
+import org.eclipse.microprofile.openapi.annotations.security.OAuthFlow;
+import org.eclipse.microprofile.openapi.annotations.security.OAuthFlows;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
+import org.eclipse.microprofile.openapi.annotations.security.SecuritySchemes;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.time.LocalDateTime;
@@ -27,15 +32,33 @@ import java.time.LocalDateTime;
 )
 public interface MailResource {
 
-    @Operation(operationId = "sendReminder", description = "Sends reminder emails to affected employees.")
+    @Operation(operationId = "send-reminder", description = "Sends reminder emails to affected employees.")
     @GET
-    @Path("/sendReminder")
+    @Path("/send-reminder")
     Response sendReminder();
 
-    @Operation(operationId = "retrieveZepEmailsFromInbox", description = "Webhook for new emails from ZEP to trigger comment creation.")
+    /**
+     * The sole purpose of this endpoint is to trigger the retrieval of emails from the ZEP inbox manually.
+     * This is useful for testing purposes.
+     * Therefore, this endpoint must not be used in production!
+     *
+     * @return
+     */
+    @Operation(operationId = "retrieve-zep-mails", description = "Trigger email retrieval from mail inbox manually.")
     @GET
-    @Path("/retrieveZepEmails")
+    @Path("/retrieve-zep-mails")
     Response retrieveZepEmailsFromInbox();
+
+    /**
+     * This endpoint serves as a webhook for new emails from ZEP to trigger comment creation.
+     * A Google Cloud Pub/Sub subscription is set up to call this endpoint when a new email is received.
+     *
+     * @return
+     */
+    @Operation(operationId = "gmailMessageReceivedWebhook", description = "Webhook for new emails from ZEP to trigger comment creation.")
+    @POST
+    @Path("/message-received")
+    Response gmailMessageReceivedWebhook(String payload);
 
     @Path("/ping")
     @GET
