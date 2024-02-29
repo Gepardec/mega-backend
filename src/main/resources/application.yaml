@@ -161,6 +161,17 @@ mega:
     token:
       expires-in-minutes: 1200 # 20h - real token expires in 24h
 
+  google:
+    service-account-key: "${GOOGLE_CLOUD_SERVICE_ACCOUNT_GEPARDEC_MAIL:default}"
+    gmail:
+      api:
+        application-name: "MEGA"
+        workspace-user: "service@gepardec.com"
+        label-filter:
+          - "Label_441228976071720123" # ID of name "ZEP"
+    pubsub:
+      topic: "projects/mega-260510/topics/MegaWebhookEmail"
+
 ## DEV Properties
 "%dev":
   quarkus:
