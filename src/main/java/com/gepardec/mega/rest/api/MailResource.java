@@ -25,17 +25,35 @@ import java.time.LocalDateTime;
 //)
 public interface MailResource {
 
-    @Operation(operationId = "sendReminder", description = "Sends reminder emails to affected employees.")
+    @Operation(operationId = "send-reminder", description = "Sends reminder emails to affected employees.")
     @GET
-    @Path("/sendReminder")
+    @Path("/send-reminder")
     Response sendReminder();
 
-    @Operation(operationId = "retrieveZepEmailsFromInbox", description = "Webhook for new emails from ZEP to trigger comment creation.")
+    /**
+     * The sole purpose of this endpoint is to trigger the retrieval of emails from the ZEP inbox manually.
+     * This is useful for testing purposes.
+     * Therefore, this endpoint must not be used in production!
+     *
+     * @return
+     */
+    @Operation(operationId = "retrieve-zep-mails", description = "Trigger email retrieval from mail inbox manually.")
     @GET
-    @Path("/retrieveZepEmails")
+    @Path("/retrieve-zep-mails")
     Response retrieveZepEmailsFromInbox();
 
-    @Path("/ping")
+    /**
+     * This endpoint serves as a webhook for new emails from ZEP to trigger comment creation.
+     * A Google Cloud Pub/Sub subscription is set up to call this endpoint when a new email is received.
+     *
+     * @return
+     */
+    @Operation(operationId = "gmailMessageReceivedWebhook", description = "Webhook for new emails from ZEP to trigger comment creation.")
     @POST
-    LocalDateTime ping(String payload);
+    @Path("/message-received")
+    Response gmailMessageReceivedWebhook(String payload);
+
+    @Path("/ping")
+    @GET
+    LocalDateTime ping();
 }
