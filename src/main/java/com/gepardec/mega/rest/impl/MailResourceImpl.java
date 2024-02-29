@@ -3,7 +3,6 @@ package com.gepardec.mega.rest.impl;
 import com.gepardec.mega.notification.mail.ReminderEmailSender;
 import com.gepardec.mega.notification.mail.receiver.MailReceiver;
 import com.gepardec.mega.rest.api.MailResource;
-import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -40,6 +39,19 @@ public class MailResourceImpl implements MailResource {
     @Override
     public Response retrieveZepEmailsFromInbox() {
         try {
+            mailReceiver.retrieveZepEmailsFromInbox();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return Response.serverError().entity(e.getMessage()).build();
+        }
+
+        return Response.ok().build();
+    }
+
+    @Override
+    public Response gmailMessageReceivedWebhook(String payload) {
+        try {
+            logger.info("Received payload: {}", payload);
             mailReceiver.retrieveZepEmailsFromInbox();
         } catch (Exception e) {
             logger.error(e.getMessage());
