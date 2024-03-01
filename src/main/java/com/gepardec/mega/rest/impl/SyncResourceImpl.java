@@ -22,7 +22,7 @@ import static com.gepardec.mega.domain.utils.DateUtils.getFirstOfYearMonth;
 
 @RequestScoped
 @IfBuildProperty(name = "mega.endpoint.test.enable", stringValue = "true", enableIfMissing = true)
-@RolesAllowed("mega-cron:sync")
+//@RolesAllowed("mega-cron:sync")
 public class SyncResourceImpl implements SyncResource {
 
     @Inject
