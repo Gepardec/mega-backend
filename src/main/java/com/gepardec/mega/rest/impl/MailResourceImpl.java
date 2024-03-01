@@ -3,6 +3,7 @@ package com.gepardec.mega.rest.impl;
 import com.gepardec.mega.notification.mail.ReminderEmailSender;
 import com.gepardec.mega.notification.mail.receiver.MailReceiver;
 import com.gepardec.mega.rest.api.MailResource;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
@@ -11,7 +12,7 @@ import org.slf4j.Logger;
 import java.time.LocalDateTime;
 
 @RequestScoped
-//@RolesAllowed("mega-cron:mail")
+@RolesAllowed("mega-cron:mail")
 public class MailResourceImpl implements MailResource {
 
     @Inject

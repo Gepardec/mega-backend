@@ -9,6 +9,7 @@ import com.google.api.services.gmail.model.WatchRequest;
 import com.google.api.services.gmail.model.WatchResponse;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 
 @RequestScoped
+@RolesAllowed("mega-cron:mail")
 public class WatchInboxResourceImpl implements WatchInboxResource {
 
     @Inject

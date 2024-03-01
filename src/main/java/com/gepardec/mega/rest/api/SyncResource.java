@@ -20,17 +20,17 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 
 @Path("/sync")
-//@Tenant("mega-cron")
+@Tenant("mega-cron")
 @Tag(name = "SyncResource")
 @Produces(MediaType.APPLICATION_JSON)
-//@SecurityRequirement(name = "mega-cron")
-//@SecuritySchemes(
-//        @SecurityScheme(
-//                securitySchemeName = "mega-cron",
-//                type = SecuritySchemeType.OAUTH2,
-//                flows = @OAuthFlows(clientCredentials = @OAuthFlow())
-//        )
-//)
+@SecurityRequirement(name = "mega-cron")
+@SecuritySchemes(
+        @SecurityScheme(
+                securitySchemeName = "mega-cron",
+                type = SecuritySchemeType.OAUTH2,
+                flows = @OAuthFlows(clientCredentials = @OAuthFlow())
+        )
+)
 public interface SyncResource {
 
     @Operation(operationId = "syncProjects", description = "Syncs projects for a given amount of months.")
