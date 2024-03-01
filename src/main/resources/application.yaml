@@ -98,7 +98,7 @@ quarkus:
       client-id: "${mega.oauth.mega-cron.client-id}"
       credentials:
         client-secret:
-          value: "${mega.oauth.mega-cron.client-secret}"
+          value: "${MEGA_CRON_CLIENT_SECRET:default}"
       roles:
         source: accesstoken
         role-claim-path: "resource_access/mega-cron/roles"
