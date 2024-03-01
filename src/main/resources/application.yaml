@@ -168,7 +168,7 @@ mega:
         application-name: "MEGA"
         workspace-user: "service@gepardec.com"
         label-filter:
-          - "Label_441228976071720123" # ID of name "ZEP"
+          - "Label_5632925620975792127" # ID of name "ZEP_TEST" of workspace-user
     pubsub:
       topic: "projects/mega-260510/topics/MegaWebhookEmail"
 
