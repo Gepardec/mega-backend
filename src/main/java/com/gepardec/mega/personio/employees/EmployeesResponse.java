@@ -7,7 +7,7 @@ public class EmployeesResponse {
 
     private String type;
 
-    private PersonioEmployee attributes;
+    private PersonioEmployeeDto attributes;
 
     public String getType() {
         return type;
@@ -17,11 +17,11 @@ public class EmployeesResponse {
         this.type = type;
     }
 
-    public PersonioEmployee getAttributes() {
+    public PersonioEmployeeDto getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(PersonioEmployee attributes) {
+    public void setAttributes(PersonioEmployeeDto attributes) {
         this.attributes = attributes;
     }
 }

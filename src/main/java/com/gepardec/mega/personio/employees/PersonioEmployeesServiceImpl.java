@@ -1,5 +1,8 @@
 package com.gepardec.mega.personio.employees;
 
+import com.gepardec.mega.domain.mapper.DomainMapper;
+import com.gepardec.mega.domain.mapper.PersonioEmployeeMapper;
+import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.personio.commons.model.BaseResponse;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -20,13 +23,17 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
     @Inject
     Logger logger;
 
+    @Inject
+    DomainMapper<PersonioEmployee, PersonioEmployeeDto> mapper;
+
     public Optional<PersonioEmployee> getPersonioEmployeeByEmail(String email) {
         var response = personioEmployeesClient.getByEmail(email);
         var employeesResponse = response.readEntity(new GenericType<BaseResponse<List<EmployeesResponse>>>() {
         });
         if (employeesResponse.isSuccess()) {
             if (employeesResponse.getData().size() == 1) {
-                return Optional.of(employeesResponse.getData().get(0).getAttributes());
+                PersonioEmployeeDto dto = employeesResponse.getData().get(0).getAttributes();
+                return Optional.of(mapper.mapToDomain(dto));
             }
         } else {
             logger.info("Fehler bei Aufruf der Personio-Schnittstelle: {}", employeesResponse.getError().getMessage());
