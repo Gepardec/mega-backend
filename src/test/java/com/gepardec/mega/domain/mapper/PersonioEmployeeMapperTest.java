@@ -22,23 +22,15 @@ public class PersonioEmployeeMapperTest {
     @BeforeEach
     void setUp() {
         domain = PersonioEmployee.builder()
-                .id(1)
                 .email("testuser@testmail.com")
-                .firstName("Test")
-                .lastName("User")
                 .vacationDayBalance(25.35)
-                .personalNumber("000")
                 .guildLead("TestGuildLead")
                 .internalProjectLead("TestLead")
                 .build();
 
         dto = PersonioEmployeeDto.builder()
-                .id(Attribute.ofValue(1))
                 .email(Attribute.ofValue("testuser@testmail.com"))
-                .firstName(Attribute.ofValue("Test"))
-                .lastName(Attribute.ofValue("User"))
                 .vacationDayBalance(Attribute.ofValue(25.35))
-                .personalnummer(Attribute.ofValue("000"))
                 .guildLead(Attribute.ofValue("TestGuildLead"))
                 .internalProjectLead(Attribute.ofValue("TestLead"))
                 .build();
