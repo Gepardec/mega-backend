@@ -1,5 +1,6 @@
 package com.gepardec.mega.personio.employees;
 
+import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.personio.commons.model.Attribute;
 import com.gepardec.mega.personio.commons.model.BaseResponse;
 import com.gepardec.mega.personio.commons.model.ErrorResponse;
@@ -10,6 +11,7 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
+import org.w3c.dom.Attr;
 
 import java.util.List;
 
@@ -48,9 +50,9 @@ class PersonioEmployeesServiceImplTest {
         //THEN
         assertThat(result).isNotEmpty();
         PersonioEmployee personioEmployee = result.get();
-        assertThat(personioEmployee.getVacationDayBalance().getValue()).isEqualTo(10d);
-        assertThat(personioEmployee.getGuildLead().getValue()).isEqualTo("guildLead");
-        assertThat(personioEmployee.getInternalProjectLead().getValue()).isEqualTo("internalProjectLead");
+        assertThat(personioEmployee.getVacationDayBalance()).isEqualTo(10d);
+        assertThat(personioEmployee.getGuildLead()).isEqualTo("guildLead");
+        assertThat(personioEmployee.getInternalProjectLead()).isEqualTo("internalProjectLead");
     }
 
     @Test
@@ -108,22 +110,12 @@ class PersonioEmployeesServiceImplTest {
         return List.of(data1, data2);
     }
 
-    private static PersonioEmployee createPersonioEmployee() {
-        var vacationDayBalance = new Attribute<Double>();
-        vacationDayBalance.setValue(10d);
-
-        var guildLead = new Attribute<String>();
-        guildLead.setValue("guildLead");
-
-        var internalProjectLead = new Attribute<String>();
-        internalProjectLead.setValue("internalProjectLead");
-
-        var employee = new PersonioEmployee();
-        employee.setVacationDayBalance(vacationDayBalance);
-        employee.setGuildLead(guildLead);
-        employee.setInternalProjectLead(internalProjectLead);
-
-        return employee;
+    private static PersonioEmployeeDto createPersonioEmployee() {
+        return PersonioEmployeeDto.builder()
+                .vacationDayBalance(Attribute.ofValue(10d))
+                .guildLead(Attribute.ofValue("guildLead"))
+                .internalProjectLead(Attribute.ofValue("internalProjectLead"))
+                .build();
     }
 
     private static ErrorResponse createErrorResponse() {

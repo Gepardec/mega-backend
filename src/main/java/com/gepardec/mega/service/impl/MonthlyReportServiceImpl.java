@@ -231,9 +231,9 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     private MonthlyReport.Builder addPersonioEmployee(MonthlyReport.Builder builder, String email) {
         personioEmployeesService.getPersonioEmployeeByEmail(email).ifPresent(
                 employee -> {
-                    builder.internalProjectLead(employee.getInternalProjectLead().getValue());
-                    builder.guildLead(employee.getGuildLead().getValue());
-                    builder.vacationDayBalance(employee.getVacationDayBalance().getValue());
+                    builder.internalProjectLead(employee.getInternalProjectLead());
+                    builder.guildLead(employee.getGuildLead());
+                    builder.vacationDayBalance(employee.getVacationDayBalance());
                 }
         );
 
