@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 // D: Domain-Object, E: Entity-Object
-public interface DomainMapper<D, E> {
+public interface EntityMapper<D, E> {
 
     E mapToEntity(D object);
 

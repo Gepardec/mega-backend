@@ -4,7 +4,7 @@ import com.gepardec.mega.domain.model.Comment;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class CommentMapper implements DomainMapper<Comment, com.gepardec.mega.db.entity.employee.Comment> {
+public class CommentMapper implements EntityMapper<Comment, com.gepardec.mega.db.entity.employee.Comment> {
 
     @Override
     public com.gepardec.mega.db.entity.employee.Comment mapToEntity(Comment object) {

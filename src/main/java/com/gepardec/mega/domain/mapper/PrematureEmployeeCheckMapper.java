@@ -6,7 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
-public class PrematureEmployeeCheckMapper implements DomainMapper<PrematureEmployeeCheck, PrematureEmployeeCheckEntity> {
+public class PrematureEmployeeCheckMapper implements EntityMapper<PrematureEmployeeCheck, PrematureEmployeeCheckEntity> {
 
     @Inject
     UserMapper userMapper;
