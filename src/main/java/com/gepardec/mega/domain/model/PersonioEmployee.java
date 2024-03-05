@@ -28,7 +28,7 @@ public class PersonioEmployee {
         return internalProjectLead;
     }
 
-    public PersonioEmployee(Builder builder) {
+    private PersonioEmployee(Builder builder) {
         this.email = builder.email;
         this.vacationDayBalance = builder.vacationDayBalance;
         this.guildLead = builder.guildLead;
@@ -39,7 +39,7 @@ public class PersonioEmployee {
         return Builder.aPersonioEmployee();
     }
 
-    public static class Builder {
+    public static final class Builder {
         private String email;
         private Double vacationDayBalance;
         private String guildLead;
