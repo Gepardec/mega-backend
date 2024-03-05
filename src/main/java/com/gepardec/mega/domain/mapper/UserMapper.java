@@ -4,7 +4,7 @@ import com.gepardec.mega.domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class UserMapper implements DomainMapper<User, com.gepardec.mega.db.entity.employee.User> {
+public class UserMapper implements EntityMapper<User, com.gepardec.mega.db.entity.employee.User> {
     @Override
     public com.gepardec.mega.db.entity.employee.User mapToEntity(User object) {
         com.gepardec.mega.db.entity.employee.User user = new com.gepardec.mega.db.entity.employee.User();

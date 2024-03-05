@@ -1,6 +1,5 @@
 package com.gepardec.mega.rest.mapper;
 
-import com.gepardec.mega.domain.mapper.DomainMapper;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.personio.commons.model.Attribute;
 import com.gepardec.mega.personio.employees.PersonioEmployeeDto;
