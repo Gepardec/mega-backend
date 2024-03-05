@@ -1,12 +1,12 @@
 package com.gepardec.mega.domain.mapper;
 
 import com.gepardec.mega.domain.model.PersonioEmployee;
-import com.gepardec.mega.personio.employees.PersonioEmployeeDto;
 import com.gepardec.mega.personio.commons.model.Attribute;
+import com.gepardec.mega.personio.employees.PersonioEmployeeDto;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class PersonioEmployeeMapper implements DomainMapper<PersonioEmployee, PersonioEmployeeDto>{
+public class PersonioEmployeeMapper implements DomainMapper<PersonioEmployee, PersonioEmployeeDto> {
     @Override
     public PersonioEmployeeDto mapToEntity(PersonioEmployee object) {
         if (object == null) {
@@ -27,14 +27,14 @@ public class PersonioEmployeeMapper implements DomainMapper<PersonioEmployee, Pe
         }
 
         return PersonioEmployee.builder()
-                .email(object.getEmail()== null ?
-                        null : object.getEmail().getValue())
-                .vacationDayBalance(object.getVacationDayBalance() == null ?
-                        null : object.getVacationDayBalance().getValue())
-                .guildLead(object.getGuildLead() == null ?
-                        null : object.getGuildLead().getValue())
-                .internalProjectLead(object.getInternalProjectLead() == null ?
-                        null : object.getInternalProjectLead().getValue())
+                .email(object.email() == null ?
+                        null : object.email().getValue())
+                .vacationDayBalance(object.vacationDayBalance() == null ?
+                        null : object.vacationDayBalance().getValue())
+                .guildLead(object.guildLead() == null ?
+                        null : object.guildLead().getValue())
+                .internalProjectLead(object.internalProjectLead() == null ?
+                        null : object.internalProjectLead().getValue())
                 .build();
     }
 }

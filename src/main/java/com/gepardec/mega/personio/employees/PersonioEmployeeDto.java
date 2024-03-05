@@ -7,100 +7,61 @@ import com.gepardec.mega.personio.commons.model.Attribute;
 
 import java.util.List;
 
-public record PersonioEmployeeDto (
-    Attribute<Integer> id, 
-    Attribute<String> firstName,
-    Attribute<String> lastName,
-    
-    Attribute<String> email,
-    
-    Attribute<List<TimeOffType>> absenceEntitlement,
-    
-    Attribute<Double> vacationDayBalance,
-    
-    Attribute<String> personalnummer,
-    
-    Attribute<String> guildLead,
-    
-    Attribute<String> internalProjectLead
-        
+public record PersonioEmployeeDto(
+        Attribute<Integer> id,
+        Attribute<String> firstName,
+        Attribute<String> lastName,
+        Attribute<String> email,
+        Attribute<List<TimeOffType>> absenceEntitlement,
+        Attribute<Double> vacationDayBalance,
+        Attribute<String> personalnummer,
+        Attribute<String> guildLead,
+        Attribute<String> internalProjectLead
 ) {
-    
+
     @JsonCreator
-    public PersonioEmployeeDto(Builder builder) {
-        this(builder.id,
-            builder.firstName,
-            builder.lastName,
-            builder.email,
-            builder.absenceEntitlement,
-            builder.vacationDayBalance,
-            builder.personalnummer,
-            builder.guildLead,
-            builder.internalProjectLead);
-    }
-
-    public Attribute<Integer> getId() {
-        return id;
-    }
-
-
-    public Attribute<String> getFirstName() {
-        return firstName;
-    }
-
-
-    public Attribute<String> getLastName() {
-        return lastName;
-    }
-
-
-    public Attribute<String> getEmail() {
-        return email;
-    }
-
-
-    public Attribute<List<TimeOffType>> getAbsenceEntitlement() {
-        return absenceEntitlement;
-    }
-
-    public Attribute<Double> getVacationDayBalance() {
-        return vacationDayBalance;
-    }
-
-
-    public Attribute<String> getGuildLead() {
-        return guildLead;
-    }
-
-    public Attribute<String> getInternalProjectLead() {
-        return internalProjectLead;
-    }
-
-    public Attribute<String> getPersonalnummer() {
-        return personalnummer;
+    private PersonioEmployeeDto(Builder builder) {
+        this(
+                builder.id,
+                builder.firstName,
+                builder.lastName,
+                builder.email,
+                builder.absenceEntitlement,
+                builder.vacationDayBalance,
+                builder.personalnummer,
+                builder.guildLead,
+                builder.internalProjectLead
+        );
     }
 
     public static Builder builder() {
         return Builder.aPersonioEmployeeDto();
     }
-    
+
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Builder {
+    public static final class Builder {
         private Attribute<Integer> id;
+
         @JsonProperty("first_name")
         private Attribute<String> firstName;
+
         @JsonProperty("last_name")
         private Attribute<String> lastName;
+
         private Attribute<String> email;
+
         @JsonProperty("absence_entitlement")
         private Attribute<List<TimeOffType>> absenceEntitlement;
+
         @JsonProperty("vacation_day_balance")
         private Attribute<Double> vacationDayBalance;
+
         @JsonProperty("dynamic_393528")
         private Attribute<String> personalnummer;
 
         @JsonProperty("dynamic_10177615")
         private Attribute<String> guildLead;
+
         @JsonProperty("dynamic_10177735")
         private Attribute<String> internalProjectLead;
 
@@ -150,7 +111,7 @@ public record PersonioEmployeeDto (
         }
 
         public PersonioEmployeeDto build() {
-            return new PersonioEmployeeDto(id, firstName, lastName, email, absenceEntitlement, vacationDayBalance, personalnummer, guildLead, internalProjectLead);
+            return new PersonioEmployeeDto(this);
         }
 
         public static Builder aPersonioEmployeeDto() {
