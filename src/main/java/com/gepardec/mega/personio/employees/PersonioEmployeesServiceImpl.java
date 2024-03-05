@@ -32,7 +32,7 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
         if (employeesResponse.isSuccess()) {
             if (employeesResponse.getData().size() == 1) {
                 PersonioEmployeeDto dto = employeesResponse.getData().get(0).getAttributes();
-                return Optional.of(mapper.mapToDomain(dto));
+                return Optional.ofNullable(mapper.mapToDomain(dto));
             }
         } else {
             logger.info("Fehler bei Aufruf der Personio-Schnittstelle: {}", employeesResponse.getError().getMessage());
