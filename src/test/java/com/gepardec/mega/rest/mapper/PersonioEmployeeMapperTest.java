@@ -1,8 +1,9 @@
-package com.gepardec.mega.domain.mapper;
+package com.gepardec.mega.rest.mapper;
 
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.personio.commons.model.Attribute;
 import com.gepardec.mega.personio.employees.PersonioEmployeeDto;
+import com.gepardec.mega.rest.mapper.PersonioEmployeeMapper;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,17 +38,21 @@ public class PersonioEmployeeMapperTest {
     }
 
     @Test
-    public void testMapToEntity() {
-        assertThat(personioEmployeeMapper.mapToEntity(domain)).usingRecursiveComparison().isEqualTo(dto);
+    public void mapToDto_whenFullDomain_thenReturnDtoWithRelevantFields() {
+        assertThat(personioEmployeeMapper.mapToDto(domain)).usingRecursiveComparison().isEqualTo(dto);
     }
     @Test
-    public void testMapToDomain() {
+    public void mapToDomain_whenDtoWithRelevantFields_thenReturnFullDomain() {
         assertThat(personioEmployeeMapper.mapToDomain(dto)).usingRecursiveComparison().isEqualTo(domain);
     }
 
     @Test
-    public void testMapNull() {
-        assertThat(personioEmployeeMapper.mapToEntity(null)).isNull();
+    public void mapToDto_whenNullDomain_thenReturnNull() {
+        assertThat(personioEmployeeMapper.mapToDto(null)).isNull();
+    }
+
+    @Test
+    public void mapToDomain_whenNullDto_thenReturnNull() {
         assertThat(personioEmployeeMapper.mapToDomain(null)).isNull();
     }
 }

@@ -1,7 +1,6 @@
 package com.gepardec.mega.personio.employees;
 
-import com.gepardec.mega.domain.mapper.DomainMapper;
-import com.gepardec.mega.domain.mapper.PersonioEmployeeMapper;
+import com.gepardec.mega.rest.mapper.PersonioEmployeeMapper;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.personio.commons.model.BaseResponse;
 import jakarta.enterprise.context.RequestScoped;
@@ -24,7 +23,7 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
     Logger logger;
 
     @Inject
-    DomainMapper<PersonioEmployee, PersonioEmployeeDto> mapper;
+    PersonioEmployeeMapper mapper;
 
     public Optional<PersonioEmployee> getPersonioEmployeeByEmail(String email) {
         var response = personioEmployeesClient.getByEmail(email);
