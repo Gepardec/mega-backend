@@ -28,7 +28,6 @@ public class MailReceiver {
     ZepMailToCommentService zepMailToCommentService;
 
     public void retrieveZepEmailsFromInbox() {
-        //testing
         var properties = createMailProperties();
 
         try {
