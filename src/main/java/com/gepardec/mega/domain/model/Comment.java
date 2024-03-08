@@ -1,5 +1,6 @@
 package com.gepardec.mega.domain.model;
 
+import com.gepardec.mega.application.configuration.CommentConfig;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 
 public class Comment {
@@ -60,6 +61,13 @@ public class Comment {
         return sourceSystem;
     }
 
+    private static String shortenMessage(String message) {
+        if (message.length() > CommentConfig.MAX_MESSAGE_LENGTH) {
+            return message.substring(0, CommentConfig.MAX_MESSAGE_LENGTH - 3) + "...";
+        }
+        return message;
+    }
+
     public static final class Builder {
         private Long id;
         private String message;
@@ -82,6 +90,7 @@ public class Comment {
         }
 
         public Builder message(String message) {
+            message = shortenMessage(message);
             this.message = message;
             return this;
         }

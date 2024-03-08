@@ -1,6 +1,8 @@
 package com.gepardec.mega.db.entity.employee;
 
+import com.gepardec.mega.application.configuration.CommentConfig;
 import com.gepardec.mega.domain.model.SourceSystem;
+import jakarta.inject.Inject;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
@@ -20,7 +22,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -57,8 +59,8 @@ public class Comment {
      * The message of the comment for the related step entry
      */
     @NotNull
-    @Length(min = 1, max = 500)
-    @Column(name = "message", length = 500)
+    @Size(max= CommentConfig.MAX_MESSAGE_LENGTH)
+    @Column(name = "message", length = CommentConfig.MAX_MESSAGE_LENGTH)
     private String message;
 
     /**
