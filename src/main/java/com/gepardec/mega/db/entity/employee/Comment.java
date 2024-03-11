@@ -1,6 +1,5 @@
 package com.gepardec.mega.db.entity.employee;
 
-import com.gepardec.mega.application.configuration.CommentConfig;
 import com.gepardec.mega.domain.model.SourceSystem;
 import jakarta.inject.Inject;
 import jakarta.persistence.Column;
@@ -34,6 +33,7 @@ import java.util.Objects;
         @NamedQuery(name = "Comment.findAllCommentsBetweenStartAndEndDateForEmail", query = "SELECT c FROM Comment c WHERE c.stepEntry.owner.email = :email AND ((c.stepEntry.date BETWEEN :start AND :end) OR (c.stepEntry.date < :start))")
 })
 public class Comment {
+    private static final int MAX_MESSAGE_LENGTH = 500;
 
     @Id
     @Column(name = "id", insertable = false, updatable = false)
@@ -59,8 +59,8 @@ public class Comment {
      * The message of the comment for the related step entry
      */
     @NotNull
-    @Size(max= CommentConfig.MAX_MESSAGE_LENGTH)
-    @Column(name = "message", length = CommentConfig.MAX_MESSAGE_LENGTH)
+    @Size(max= MAX_MESSAGE_LENGTH)
+    @Column(name = "message", length = MAX_MESSAGE_LENGTH)
     private String message;
 
     /**
@@ -141,7 +141,14 @@ public class Comment {
     }
 
     public void setMessage(String message) {
-        this.message = message;
+        this.message = shortenTooLargeMessages(message);
+    }
+
+    private static String shortenTooLargeMessages(String message) {
+        if (message.length() > MAX_MESSAGE_LENGTH) {
+            return message.substring(0, MAX_MESSAGE_LENGTH - 3) + "...";
+        }
+        return message;
     }
 
     public EmployeeState getState() {

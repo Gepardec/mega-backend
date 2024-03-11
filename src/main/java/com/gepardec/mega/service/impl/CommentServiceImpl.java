@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class CommentServiceImpl implements CommentService {
 
+
     @Inject
     CommentRepository commentRepository;
 
