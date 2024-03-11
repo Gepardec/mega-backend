@@ -60,7 +60,6 @@ public class Comment {
         return sourceSystem;
     }
 
-
     public static final class Builder {
         private Long id;
         private String message;

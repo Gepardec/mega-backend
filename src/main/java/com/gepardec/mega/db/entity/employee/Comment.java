@@ -1,7 +1,6 @@
 package com.gepardec.mega.db.entity.employee;
 
 import com.gepardec.mega.domain.model.SourceSystem;
-import jakarta.inject.Inject;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
