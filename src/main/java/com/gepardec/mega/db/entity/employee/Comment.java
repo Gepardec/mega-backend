@@ -33,7 +33,7 @@ import java.util.Objects;
         @NamedQuery(name = "Comment.findAllCommentsBetweenStartAndEndDateForEmail", query = "SELECT c FROM Comment c WHERE c.stepEntry.owner.email = :email AND ((c.stepEntry.date BETWEEN :start AND :end) OR (c.stepEntry.date < :start))")
 })
 public class Comment {
-    private static final int MAX_MESSAGE_LENGTH = 500;
+    static final int MAX_MESSAGE_LENGTH = 500;
 
     @Id
     @Column(name = "id", insertable = false, updatable = false)
