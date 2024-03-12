@@ -1,4 +1,4 @@
-package com.gepardec.mega.domain.mapper.dto;
+package com.gepardec.mega.application.rest.provider;
 
 import jakarta.ws.rs.ext.ParamConverter;
 
