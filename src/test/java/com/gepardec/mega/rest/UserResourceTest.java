@@ -3,7 +3,7 @@ package com.gepardec.mega.rest;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
-import com.gepardec.mega.rest.mapper.UserMapper;
+import com.gepardec.mega.domain.mapper.dto.UserMapper;
 import com.gepardec.mega.rest.model.UserDto;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;

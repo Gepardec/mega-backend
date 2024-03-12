@@ -1,6 +1,5 @@
 package com.gepardec.mega.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
@@ -8,7 +7,7 @@ import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
-import com.gepardec.mega.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.domain.mapper.dto.EmployeeMapper;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.MonthlyReportDto;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -18,10 +17,7 @@ import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.Claim;
 import io.quarkus.test.security.jwt.JwtSecurity;
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.parsing.Parser;
-import jakarta.inject.Inject;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 

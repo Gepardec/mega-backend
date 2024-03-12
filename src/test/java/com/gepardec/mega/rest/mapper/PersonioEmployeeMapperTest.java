@@ -3,7 +3,7 @@ package com.gepardec.mega.rest.mapper;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.personio.commons.model.Attribute;
 import com.gepardec.mega.personio.employees.PersonioEmployeeDto;
-import com.gepardec.mega.rest.mapper.PersonioEmployeeMapper;
+import com.gepardec.mega.domain.mapper.dto.PersonioEmployeeMapper;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;

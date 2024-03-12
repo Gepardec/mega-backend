@@ -4,7 +4,7 @@ import com.gepardec.mega.application.interceptor.RolesAllowed;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.rest.api.UserResource;
-import com.gepardec.mega.rest.mapper.UserMapper;
+import com.gepardec.mega.domain.mapper.dto.UserMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;

@@ -9,7 +9,7 @@ import com.gepardec.mega.db.entity.project.ProjectStep;
 import com.gepardec.mega.domain.model.*;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.ManagementResource;
-import com.gepardec.mega.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.domain.mapper.dto.EmployeeMapper;
 import com.gepardec.mega.rest.model.CustomerProjectWithoutLeadsDto;
 import com.gepardec.mega.rest.model.ManagementEntryDto;
 import com.gepardec.mega.rest.model.PmProgressDto;

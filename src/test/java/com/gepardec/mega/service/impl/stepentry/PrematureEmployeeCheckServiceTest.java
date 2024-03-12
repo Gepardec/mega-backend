@@ -4,7 +4,7 @@ import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.db.repository.PrematureEmployeeCheckRepository;
 import com.gepardec.mega.db.repository.UserRepository;
-import com.gepardec.mega.domain.mapper.PrematureEmployeeCheckMapper;
+import com.gepardec.mega.domain.mapper.entity.PrematureEmployeeCheckMapper;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;

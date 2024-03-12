@@ -4,7 +4,7 @@ import com.gepardec.mega.application.interceptor.RolesAllowed;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.rest.api.EmployeeResource;
-import com.gepardec.mega.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.domain.mapper.dto.EmployeeMapper;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import io.quarkus.security.Authenticated;

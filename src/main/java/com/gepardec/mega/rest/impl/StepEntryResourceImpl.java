@@ -2,7 +2,7 @@ package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.StepEntryResource;
-import com.gepardec.mega.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.domain.mapper.dto.EmployeeMapper;
 import com.gepardec.mega.rest.model.EmployeeStepDto;
 import com.gepardec.mega.rest.model.ProjectStepDto;
 import com.gepardec.mega.rest.model.UpdateEmployeeStepDto;

@@ -3,7 +3,7 @@ package com.gepardec.mega.rest;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
-import com.gepardec.mega.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.domain.mapper.dto.EmployeeMapper;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import io.quarkus.test.junit.QuarkusTest;

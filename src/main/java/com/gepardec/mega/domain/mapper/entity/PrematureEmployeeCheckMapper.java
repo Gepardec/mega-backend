@@ -1,4 +1,4 @@
-package com.gepardec.mega.domain.mapper;
+package com.gepardec.mega.domain.mapper.entity;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;

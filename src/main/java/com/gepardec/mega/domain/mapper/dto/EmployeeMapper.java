@@ -1,4 +1,4 @@
-package com.gepardec.mega.rest.mapper;
+package com.gepardec.mega.domain.mapper.dto;
 
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.rest.model.EmployeeDto;

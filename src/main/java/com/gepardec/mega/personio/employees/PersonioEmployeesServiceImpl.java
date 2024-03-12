@@ -1,6 +1,6 @@
 package com.gepardec.mega.personio.employees;
 
-import com.gepardec.mega.rest.mapper.PersonioEmployeeMapper;
+import com.gepardec.mega.domain.mapper.dto.PersonioEmployeeMapper;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.personio.commons.model.BaseResponse;
 import jakarta.enterprise.context.RequestScoped;

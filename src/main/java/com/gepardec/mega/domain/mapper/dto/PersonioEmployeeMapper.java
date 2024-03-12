@@ -1,4 +1,4 @@
-package com.gepardec.mega.rest.mapper;
+package com.gepardec.mega.domain.mapper.dto;
 
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.personio.commons.model.Attribute;

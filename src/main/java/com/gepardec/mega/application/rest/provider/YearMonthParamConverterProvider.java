@@ -1,6 +1,6 @@
 package com.gepardec.mega.application.rest.provider;
 
-import com.gepardec.mega.rest.mapper.YearMonthParamConverter;
+import com.gepardec.mega.domain.mapper.dto.YearMonthParamConverter;
 import jakarta.ws.rs.ext.ParamConverter;
 import jakarta.ws.rs.ext.ParamConverterProvider;
 import jakarta.ws.rs.ext.Provider;

@@ -4,7 +4,7 @@ import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.CommentRepository;
-import com.gepardec.mega.domain.mapper.CommentMapper;
+import com.gepardec.mega.domain.mapper.entity.CommentMapper;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.FinishedAndTotalComments;

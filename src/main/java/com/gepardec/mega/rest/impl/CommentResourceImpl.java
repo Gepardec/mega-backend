@@ -4,7 +4,7 @@ import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.SourceSystem;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.CommentResource;
-import com.gepardec.mega.rest.mapper.CommentMapper;
+import com.gepardec.mega.domain.mapper.dto.CommentMapper;
 import com.gepardec.mega.rest.model.CommentDto;
 import com.gepardec.mega.rest.model.NewCommentEntryDto;
 import com.gepardec.mega.service.api.CommentService;
