@@ -36,7 +36,7 @@ jobs:
       - uses: mr-smithers-excellent/docker-build-push@v6
         name: push-container-image
         with:
-          image: ${{ github.repository }}
+          image: mega-backend
           registry: ghcr.io
           dockerfile: Containerfile
           username: ${{ github.repository }}
