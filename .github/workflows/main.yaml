@@ -35,7 +35,7 @@ jobs:
           password: ${{ secrets.GHCR_TOKEN }}
           dockerfile: Containerfile
           addLatest: true
-          tags: ${{ steps.vars.outputs.sha_short }},latest
+          tags: ${{ steps.vars.outputs.sha_short }},test
           buildArgs: BRANCH=${BRANCH_NAME},COMMIT=${{ steps.vars.outputs.sha_short }},VERSION=${{ steps.vars.outputs.sha_short }}
 
 #  notify:
