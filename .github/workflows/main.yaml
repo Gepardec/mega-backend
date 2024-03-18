@@ -36,8 +36,9 @@ jobs:
       - uses: mr-smithers-excellent/docker-build-push@v6
         name: push-container-image
         with:
-          image: ghcr.io/OWNER/IMAGE_NAME
+          image: ${{ github.repository }}
           registry: ghcr.io
+          dockerfile: Containerfile
           username: ${{ github.repository }}
           password: ${{ secrets.GHCR_TOKEN }}
 
