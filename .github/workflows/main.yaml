@@ -39,8 +39,8 @@ jobs:
           image: mega-backend
           registry: ghcr.io
           dockerfile: Containerfile
-          username: ${{ github.repository }}
-          password: ${{ secrets.GHCR_TOKEN }}
+#          username: ${{ github.repository }}
+          password: ${{ github.token }}
 
 #      - uses: mr-smithers-excellent/docker-build-push@v5
 #        name: push-container-image
