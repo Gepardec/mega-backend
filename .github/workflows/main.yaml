@@ -33,17 +33,25 @@ jobs:
         id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - uses: mr-smithers-excellent/docker-build-push@v5
+      - uses: mr-smithers-excellent/docker-build-push@v6
         name: push-container-image
         with:
-          image: mega-backend
+          image: ghcr.io/OWNER/IMAGE_NAME
           registry: ghcr.io
           username: ${{ github.repository }}
           password: ${{ secrets.GHCR_TOKEN }}
-          dockerfile: Containerfile
-          addLatest: true
-          tags: ${{ steps.vars.outputs.sha_short }},test
-          buildArgs: BRANCH=${BRANCH_NAME},COMMIT=${{ steps.vars.outputs.sha_short }},VERSION=${{ steps.vars.outputs.sha_short }}
+
+#      - uses: mr-smithers-excellent/docker-build-push@v5
+#        name: push-container-image
+#        with:
+#          image: mega-backend
+#          registry: ghcr.io
+#          username: ${{ github.repository }}
+#          password: ${{ secrets.GHCR_TOKEN }}
+#          dockerfile: Containerfile
+#          addLatest: true
+#          tags: ${{ steps.vars.outputs.sha_short }},test
+#          buildArgs: BRANCH=${BRANCH_NAME},COMMIT=${{ steps.vars.outputs.sha_short }},VERSION=${{ steps.vars.outputs.sha_short }}
 
 #  notify:
 #    name: Slack Notifications
