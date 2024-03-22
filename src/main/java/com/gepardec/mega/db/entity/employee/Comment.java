@@ -144,6 +144,9 @@ public class Comment {
     }
 
     private static String shortenTooLargeMessages(String message) {
+        if (message == null) {
+            return null;
+        }
         if (message.length() > MAX_MESSAGE_LENGTH) {
             return message.substring(0, MAX_MESSAGE_LENGTH - 3) + "...";
         }

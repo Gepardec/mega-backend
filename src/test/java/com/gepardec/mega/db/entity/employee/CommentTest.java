@@ -45,4 +45,14 @@ public class CommentTest {
         String expectedMessage = "a".repeat(Comment.MAX_MESSAGE_LENGTH - 3) + "...";
         assertThat(resultComment.getMessage()).isEqualTo(expectedMessage);
     }
+
+    @Test
+    public void setMessage_whenNull_thenMessageNull() {
+        Comment messageComment = new Comment();
+        messageComment.setMessage("becomes null");
+
+        messageComment.setMessage(null);
+
+        assertThat(messageComment.getMessage()).isNull();
+    }
 }
