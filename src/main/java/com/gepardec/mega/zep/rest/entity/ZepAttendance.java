@@ -16,9 +16,9 @@ public record ZepAttendance (
     Integer projectId,
     Integer projectTaskId,
     Double duration,
-    Integer billable,
+    ZepBillable billable,
     String workLocation,
-    Integer workLocationIsProjectRelevant,
+    Boolean workLocationIsProjectRelevant,
     String note,
     String activity,
     String start,
@@ -89,13 +89,13 @@ public record ZepAttendance (
         @JsonProperty("duration")
         private Double duration;
         @JsonProperty("billable")
-        private Integer billable;
+        private ZepBillable billable;
 
         @JsonProperty("work_location")
         private String workLocation;
 
         @JsonProperty("work_location_is_project_relevant")
-        private Integer workLocationIsProjectRelevant;
+        private Boolean workLocationIsProjectRelevant;
         @JsonProperty
         private String note;
         @JsonProperty
@@ -166,7 +166,7 @@ public record ZepAttendance (
             return this;
         }
 
-        public Builder billable(Integer billable) {
+        public Builder billable(ZepBillable billable) {
             this.billable = billable;
             return this;
         }
@@ -176,7 +176,7 @@ public record ZepAttendance (
             return this;
         }
 
-        public Builder workLocationIsProjectRelevant(Integer workLocationIsProjectRelevant) {
+        public Builder workLocationIsProjectRelevant(Boolean workLocationIsProjectRelevant) {
             this.workLocationIsProjectRelevant = workLocationIsProjectRelevant;
             return this;
         }

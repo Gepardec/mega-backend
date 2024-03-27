@@ -46,7 +46,7 @@ public class ProjectMapperTest {
                 .description("Make End of month Great Again")
                 .startDate(LocalDateTime.of(2020, 7, 8, 12, 32, 31))
                 .endDate(LocalDateTime.of(2025, 2, 8, 12, 32, 31))
-                .status("active")
+//                .status("active")
                 .comments("MEGA Teams: teams.com/mega")
                 .costObject(null)
                 .costObjectIdentifier(null)

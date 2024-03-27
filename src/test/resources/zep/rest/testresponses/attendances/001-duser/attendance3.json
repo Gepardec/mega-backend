@@ -2,11 +2,19 @@
   "data": [
     {
       "id": 4,
-      "billable": 3
+      "billable":
+      {
+        "id": 3,
+        "name": "Billable"
+      }
     },
     {
       "id": 5,
-      "billable": 4
+      "billable":
+      {
+        "id": 4,
+        "name": "Billable"
+      }
     }
   ],
   "links": {

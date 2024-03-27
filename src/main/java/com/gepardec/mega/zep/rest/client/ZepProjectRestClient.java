@@ -24,9 +24,14 @@ public interface ZepProjectRestClient {
     Response getProjects(@QueryParam("page") int page);
 
     @GET
-    Response getProjectByStartEnd(@QueryParam("start_date") LocalDate startDate,
-                                  @QueryParam("end_date") LocalDate endDate,
+    Response getProjectByStartEnd(@QueryParam("start_date") String startDate,
+                                  @QueryParam("end_date") String endDate,
                                   @QueryParam("page") int page);
+
+    @GET
+    Response getProjectByName(@QueryParam("start_date") String startDate,
+                              @QueryParam("end_date") String endDate,
+                              @QueryParam("name") String name);
 
     @GET
     @Path("{id}/employees")

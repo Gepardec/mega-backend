@@ -3,6 +3,7 @@ package com.gepardec.mega.zep.rest.mapper;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
 import com.gepardec.mega.zep.rest.entity.ZepAttendance;
+import com.gepardec.mega.zep.rest.entity.ZepBillable;
 import de.provantis.zep.AttributeType;
 import de.provantis.zep.AttributesType;
 import de.provantis.zep.ProjektzeitType;
@@ -32,9 +33,9 @@ public class AttendanceMapperTest {
                 .projectId(1)
                 .projectTaskId(2)
                 .duration(4.75)
-                .billable(2)
+                .billable(ZepBillable.builder().id(1).name("Billable").build())
                 .workLocation("HOME")
-                .workLocationIsProjectRelevant(-1)
+                .workLocationIsProjectRelevant(false)
                 .note("AttendanceServiceTest implementieren")
                 .activity("bearbeiten")
                 .start("Liesing bhf")

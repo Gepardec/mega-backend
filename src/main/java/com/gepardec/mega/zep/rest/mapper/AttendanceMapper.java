@@ -33,10 +33,10 @@ public class AttendanceMapper implements Mapper<ProjectTime, ZepAttendance> {
 
         try {
 
-            Boolean isBillable = zepAttendance.billable() <= BillabilityPreset.BILLABLE_FIXED.getZepId();
+            Boolean isBillable = zepAttendance.billable().id() <= BillabilityPreset.BILLABLE_FIXED.getZepId();
             Boolean locationPrRelevant = null;
             if (zepAttendance.workLocationIsProjectRelevant() != null) {
-                locationPrRelevant = zepAttendance.workLocationIsProjectRelevant() != -1;
+                locationPrRelevant = zepAttendance.workLocationIsProjectRelevant();
             }
 
             String duration = null;

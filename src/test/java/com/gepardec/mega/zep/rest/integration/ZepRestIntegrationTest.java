@@ -118,7 +118,7 @@ public class ZepRestIntegrationTest {
 
     @Test
     public void getProjectByName_valid() {
-        Project project = zepService.getProjectByName("BVAEB-KAP-2021", LocalDate.of(2021, 1, 1)).get();
+        Project project = zepService.getProjectByName("BVAEB-KAP-2021", LocalDate.of(2021, 1, 5)).get();
         System.out.println(project.getZepId());
     }
 

@@ -30,36 +30,36 @@ public class ProjectService {
     @Inject
     ResponseParser responseParser;
 
-    @CacheResult(cacheName = "zep-project")
-    public List<ZepProject> getProjectsForMonthYear(LocalDate monthYear) {
+//    @CacheResult(cacheName = "zep-project")
+    public List<ZepProject> getProjectsForMonthYear(LocalDate date) {
+        String startDate = date.withDayOfMonth(1).toString();
+        String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
+
         try {
-            List<ZepProject> projects = this.getAllProjects();
-            return this.filterProjectsByMonthYear(projects, monthYear);
+            return responseParser.retrieveAll(
+                    page -> zepProjectRestClient.getProjectByStartEnd(startDate,endDate, page),
+                    ZepProject.class
+            );
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving projects for month + \"%s\" from ZEP: No /data field in response"
-                    .formatted(monthYear.format(DateTimeFormatter.ofPattern("MM-yyyy"))), e);
+                    .formatted(date.format(DateTimeFormatter.ofPattern("MM-yyyy"))), e);
         }
 
         return List.of();
     }
 
-    private List<ZepProject> getAllProjects()  {
-        return responseParser.retrieveAll(
-                page -> zepProjectRestClient.getProjects(page),
-                ZepProject.class
-        );
-    }
-
     public Optional<ZepProject> getProjectByName(String name, LocalDate date) {
+        String startDate = date.withDayOfMonth(1).toString();
+        String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
         try {
-            return getProjectsForMonthYear(date).stream()
-                    .filter(project -> project.name().equals(name))
-                    .findFirst();
+            return responseParser.retrieveSingle(
+                    zepProjectRestClient.getProjectByName(startDate, endDate, name),
+                    ZepProject[].class
+            ).map(x -> x[0]);
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving project + \"%s\" from ZEP: No /data field in response"
                     .formatted(name), e);
         }
-
         return Optional.empty();
     }
 
@@ -76,25 +76,6 @@ public class ProjectService {
         }
 
         return List.of();
-    }
-
-    private List<ZepProject> filterProjectsByMonthYear(List<ZepProject> projects, LocalDate monthYear) {
-        LocalDate firstOfMonth = DateUtils.getFirstDayOfMonth(monthYear.getYear(), monthYear.getMonthValue());
-        LocalDate lastOfMonth = DateUtils.getLastDayOfMonth(monthYear.getYear(), monthYear.getMonthValue());
-
-        return projects.stream()
-                .filter(project -> !(project.startDate() == null))
-                .filter(project -> {
-                    if (project.endDate() != null) {
-                        if (project.endDate().isBefore(firstOfMonth.atStartOfDay())) {
-                            return false;
-                        }
-                    }
-                    return  true;
-                })
-                .filter(project -> !(project.startDate().isAfter(lastOfMonth.atTime(23, 59, 59))))
-                .collect(Collectors.toList());
-
     }
 
 }

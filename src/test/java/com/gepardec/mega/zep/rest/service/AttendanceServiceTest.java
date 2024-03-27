@@ -2,6 +2,7 @@ package com.gepardec.mega.zep.rest.service;
 
 import com.gepardec.mega.zep.rest.client.ZepAttendanceRestClient;
 import com.gepardec.mega.zep.rest.entity.ZepAttendance;
+import com.gepardec.mega.zep.rest.entity.ZepBillable;
 import com.gepardec.mega.zep.util.ResponseParser;
 import com.gepardec.mega.helper.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
@@ -73,9 +74,9 @@ public class AttendanceServiceTest {
                 .projectId(1)
                 .projectTaskId(1)
                 .duration(1.25)
-                .billable(1)
+                .billable(ZepBillable.builder().id(1).name("Billable").build())
                 .workLocation(null)
-                .workLocationIsProjectRelevant(-1)
+                .workLocationIsProjectRelevant(false)
                 .note("Kickoff")
                 .activity("besprechen")
                 .start(null)
@@ -100,9 +101,9 @@ public class AttendanceServiceTest {
                 .projectId(1)
                 .projectTaskId(2)
                 .duration(4.75)
-                .billable(2)
+                .billable(ZepBillable.builder().id(2).name("Billable").build())
                 .workLocation(null)
-                .workLocationIsProjectRelevant(-1)
+                .workLocationIsProjectRelevant(true)
                 .note("AttendanceServiceTest implementieren")
                 .activity("bearbeiten")
                 .start(null)
@@ -120,7 +121,7 @@ public class AttendanceServiceTest {
                 .build()
         );
 
-        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.now());
+        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.of(2018,12,11));
         assertThat(List.of(attendances.get(0), attendances.get(1))).usingRecursiveComparison().isEqualTo(attendancesReference);
     }
 

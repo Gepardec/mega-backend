@@ -13,7 +13,7 @@ public record ZepProject (
         String description,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        String status,
+//        String status,
         String comments,
         String costObject,
         String costObjectIdentifier,
@@ -68,7 +68,7 @@ public record ZepProject (
                     builder.description,
                     builder.startDate,
                     builder.endDate,
-                    builder.status,
+//                    builder.status,
                     builder.comments,
                     builder.costObject,
                     builder.costObjectIdentifier,
@@ -128,8 +128,8 @@ public record ZepProject (
 
             @JsonProperty("end_date")
             private LocalDateTime endDate;
-            @JsonProperty
-            private String status;
+//            @JsonProperty
+//            private String status;
             @JsonProperty
             private String comments;
 
@@ -247,10 +247,10 @@ public record ZepProject (
                   return this;
             }
 
-            public Builder status(String status) {
-                  this.status = status;
-                  return this;
-            }
+//            public Builder status(String status) {
+//                  this.status = status;
+//                  return this;
+//            }
 
             public Builder comments(String comments) {
                   this.comments = comments;

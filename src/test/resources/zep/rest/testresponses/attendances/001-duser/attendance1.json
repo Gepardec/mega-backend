@@ -9,9 +9,13 @@
       "project_id": 1, 
       "project_task_id": 1, 
       "duration": "1.25", 
-      "billable": 1, 
+      "billable":
+      {
+        "id": 1,
+        "name": "Billable"
+      },
       "work_location": null, 
-      "work_location_is_project_relevant": -1, 
+      "work_location_is_project_relevant": false,
       "note": "Kickoff", 
       "activity": "besprechen", 
       "start": null, 
@@ -35,8 +39,12 @@
       "employee_id": "001-duser", 
       "project_id": 1, 
       "project_task_id": 2, 
-      "duration": "4.7500000000", 
-      "billable": 2, 
+      "duration": "4.7500000000",
+      "billable":
+      {
+        "id": 2,
+        "name": "Billable"
+      },
       "work_location": null, 
       "work_location_is_project_relevant": -1, 
       "note": "AttendanceServiceTest implementieren", 
