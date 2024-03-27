@@ -3,8 +3,8 @@ package com.gepardec.mega.zep.rest.mapper;
 import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 
 @ApplicationScoped
 public class ActiveMapper implements Mapper<Boolean, List<ZepEmploymentPeriod>> {
@@ -14,8 +14,30 @@ public class ActiveMapper implements Mapper<Boolean, List<ZepEmploymentPeriod>> 
             return false;
         }
 
-
         return zepEmploymentPeriods.stream()
-                .anyMatch(zepEmploymentPeriod -> zepEmploymentPeriod.endDate() == null);
+                .filter(this::startDateIsInPast)
+                .anyMatch(this::endDateIsInFuture);
+    }
+
+    private boolean startDateIsInPast(ZepEmploymentPeriod zepEmploymentPeriod) {
+        if (zepEmploymentPeriod.startDate() == null) {
+            return false;
+        }
+
+        LocalDate startDate = zepEmploymentPeriod.startDate().toLocalDate();
+        LocalDate now = LocalDate.now();
+
+        return !startDate.isAfter(now);
+    }
+
+    private boolean endDateIsInFuture(ZepEmploymentPeriod zepEmploymentPeriod) {
+        if (zepEmploymentPeriod.endDate() == null) {
+            return true;
+        }
+
+        LocalDate endDate = zepEmploymentPeriod.endDate().toLocalDate();
+        LocalDate now = LocalDate.now();
+
+        return !endDate.isBefore(now);
     }
 }

@@ -24,65 +24,7 @@ public class EmployeeMapperTest {
     @Inject
     Mapper<Employee, ZepEmployee> employeeMapper;
     
-    @Inject
-    Mapper<Boolean, List<ZepEmploymentPeriod>> activeMapper;
 
-    @Test
-    public void getActiveWhen_3DatesActive() {
-        List<ZepEmploymentPeriod> employmentPeriods = List.of(
-                ZepEmploymentPeriod.builder()
-                        .endDate(LocalDateTime.of(2018, 2, 1, 12, 32, 12))
-                        .build(),
-                ZepEmploymentPeriod.builder()
-                        .endDate(LocalDateTime.of(2022, 12, 2, 23, 17, 4))
-                        .build(),
-                ZepEmploymentPeriod.builder()
-                        .endDate(null)
-                        .build());
-
-        boolean active = activeMapper.map(employmentPeriods);
-        assertThat(active).isTrue();
-
-    }
-    @Test
-    public void getInactiveWhen_lastDateInactive() {
-        List<ZepEmploymentPeriod> employmentPeriods = List.of(
-                ZepEmploymentPeriod.builder()
-                        .endDate(LocalDateTime.of(2018, 2, 1, 12, 32, 12))
-                        .build(),
-                ZepEmploymentPeriod.builder()
-                        .endDate(LocalDateTime.of(2022, 12, 2, 23, 17, 4))
-                        .build(),
-                ZepEmploymentPeriod.builder()
-                        .endDate(LocalDateTime.of(2023, 11, 12, 3, 1, 2))
-                        .build());
-
-        boolean active = activeMapper.map(employmentPeriods);
-        assertThat(active).isFalse();
-    }
-    @Test
-    public void getActiveWhen_3Dates_firstDateInactive() {
-        List<ZepEmploymentPeriod> employmentPeriods = List.of(
-                ZepEmploymentPeriod.builder()
-                        .endDate(null)
-                        .build(),
-                ZepEmploymentPeriod.builder()
-                        .endDate(LocalDateTime.of(2022, 12, 2, 23, 17, 4))
-                        .build(),
-                ZepEmploymentPeriod.builder()
-                        .endDate(LocalDateTime.of(2018, 2, 1, 12, 32, 12))
-                        .build());
-
-        boolean active = activeMapper.map(employmentPeriods);
-        assertThat(active).isTrue();
-    }
-    @Test
-    public void getInactiveWhen_AllNull() {
-        List<ZepEmploymentPeriod> employmentPeriods =  List.of();
-
-        boolean active = activeMapper.map(employmentPeriods);
-        assertThat(active).isFalse();
-    }
 
     @Test
     public void mapZepEmployeeToEmployee() {

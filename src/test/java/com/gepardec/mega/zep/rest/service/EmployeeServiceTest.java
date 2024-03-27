@@ -65,10 +65,8 @@ public class EmployeeServiceTest {
 
         List<ZepEmploymentPeriod> zepEmploymentPeriods = List.of(
                 ZepEmploymentPeriod.builder()
-                        .employeeId("007")
                         .build(),
                 ZepEmploymentPeriod.builder()
-                        .employeeId("007")
                         .build());
         when(employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(anyString())).thenReturn(zepEmploymentPeriods);
 
@@ -103,38 +101,25 @@ public class EmployeeServiceTest {
     public void getZepEmployees_whenEmployeesList() {
         var periods000 = List.of(
                 ZepEmploymentPeriod.builder()
-                        .id(23)
-                        .employeeId("000-duser")
                         .startDate(LocalDateTime.of(2017, 8, 7, 0, 0, 0))
                         .endDate(LocalDateTime.of(2017, 9, 8, 0, 0, 0))
-                        .note("Praktikant")
                         .build(),
                 ZepEmploymentPeriod.builder()
-                        .id(24)
-                        .employeeId("000-duser")
                         .startDate(LocalDateTime.of(2019, 1, 11, 0, 0, 0))
                         .build());
         var periods001 = List.of(
                 ZepEmploymentPeriod.builder()
-                        .id(43)
-                        .employeeId("001-tuser")
                         .startDate(LocalDateTime.of(2013, 8, 7, 0, 0, 0))
                         .endDate(LocalDateTime.of(2015, 9, 8, 0, 0, 0))
-                        .note("Sommeraushilfe")
                         .build(),
                 ZepEmploymentPeriod.builder()
-                        .id(82)
-                        .employeeId("001-tuser")
                         .startDate(LocalDateTime.of(2019, 1, 11, 0, 0, 0))
                         .endDate(LocalDateTime.of(2019, 12, 31, 0, 0, 0))
                         .build());
         var periods007 = List.of(
                 ZepEmploymentPeriod.builder()
-                        .id(43)
-                        .employeeId("007-jbond")
                         .startDate(LocalDateTime.of(2020, 8, 11, 0, 0, 0))
-                        .note("Privatdetektiv")
-                        .build());
+                         .build());
 
         List<String> employeeNames = List.of("000-duser", "001-tuser", "007-jbond");
         when(employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employeeNames.get(0))).thenReturn(periods000);
