@@ -50,7 +50,6 @@ class PersonioEmployeesServiceImplTest {
         //THEN
         assertThat(result).isNotEmpty();
         PersonioEmployee personioEmployee = result.get();
-        assertThat(personioEmployee.getVacationDayBalance()).isEqualTo(10d);
         assertThat(personioEmployee.getGuildLead()).isEqualTo("guildLead");
         assertThat(personioEmployee.getInternalProjectLead()).isEqualTo("internalProjectLead");
     }
@@ -112,7 +111,6 @@ class PersonioEmployeesServiceImplTest {
 
     private static PersonioEmployeeDto createPersonioEmployee() {
         return PersonioEmployeeDto.builder()
-                .vacationDayBalance(Attribute.ofValue(10d))
                 .guildLead(Attribute.ofValue("guildLead"))
                 .internalProjectLead(Attribute.ofValue("internalProjectLead"))
                 .build();

@@ -15,7 +15,6 @@ public class PersonioEmployeeMapper implements DtoMapper<PersonioEmployee, Perso
 
         return PersonioEmployeeDto.builder()
                 .email(Attribute.ofValue(domain.getEmail()))
-                .vacationDayBalance(Attribute.ofValue(domain.getVacationDayBalance()))
                 .guildLead(Attribute.ofValue(domain.getGuildLead()))
                 .internalProjectLead(Attribute.ofValue(domain.getInternalProjectLead()))
                 .build();
@@ -30,8 +29,6 @@ public class PersonioEmployeeMapper implements DtoMapper<PersonioEmployee, Perso
         return PersonioEmployee.builder()
                 .email(dto.email() == null ?
                         null : dto.email().getValue())
-                .vacationDayBalance(dto.vacationDayBalance() == null ?
-                        null : dto.vacationDayBalance().getValue())
                 .guildLead(dto.guildLead() == null ?
                         null : dto.guildLead().getValue())
                 .internalProjectLead(dto.internalProjectLead() == null ?
