@@ -51,10 +51,6 @@ public class ProjectMapper implements Mapper<Project.Builder, ZepProject> {
                     .employees(employees)
                     .leads(leads)
                     .categories(List.of("CONS"));
-            /**
-             * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,
-             * wenn Mitarbeiter inaktiv ist.
-             */
         }catch (Exception e){
             throw new ZepServiceException("While trying to map ZepProject to Project, an error occurred", e);
         }
