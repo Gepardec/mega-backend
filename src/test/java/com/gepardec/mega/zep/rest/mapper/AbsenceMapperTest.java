@@ -42,21 +42,15 @@ public class AbsenceMapperTest {
 
         AbsenceTime absence = absenceMapper.map(zepAbsence);
 
-        assertThat(absence.getId()).isEqualTo(zepAbsence.id());
-        assertThat(absence.getUserId()).isEqualTo(zepAbsence.employeeId());
-        assertThat(absence.getFromDate()).isEqualTo(zepAbsence.startDate());
-        assertThat(absence.getToDate()).isEqualTo(zepAbsence.endDate());
-        assertThat(absence.getReason()).isEqualTo(zepAbsence.absenceReason().name());
-        assertThat(absence.getAccepted()).isEqualTo(zepAbsence.approved());
-        assertThat(absence.getTimezone()).isEqualTo(zepAbsence.timezone());
-        assertThat(absence.getCreated()).isEqualTo(zepAbsence.created());
-        assertThat(absence.getModified()).isEqualTo(zepAbsence.modified());
+        assertThat(absence.userId()).isEqualTo(zepAbsence.employeeId());
+        assertThat(absence.fromDate()).isEqualTo(zepAbsence.startDate());
+        assertThat(absence.toDate()).isEqualTo(zepAbsence.endDate());
+        assertThat(absence.reason()).isEqualTo(zepAbsence.absenceReason().name());
+        assertThat(absence.accepted()).isEqualTo(zepAbsence.approved());
     }
 
     @Test
     public void mapZepAbsencesToAbsenceTimes() {
-
-
         ZepAbsence[] zepAbsencesArr = {
                 ZepAbsence.builder()
                         .id(1)
@@ -84,10 +78,9 @@ public class AbsenceMapperTest {
         Iterator<ZepAbsence> zepAbsencesIterator = zepAbsences.iterator();
         absences.forEach(absence -> {
             ZepAbsence zepAbsence = zepAbsencesIterator.next();
-            assertThat(zepAbsence.id()).isEqualTo(absence.getId());
-            assertThat(zepAbsence.absenceReason().name()).isEqualTo(absence.getReason());
-            assertThat(zepAbsence.employeeId()).isEqualTo(absence.getUserId());
-            assertThat(zepAbsence.startDate()).isEqualTo(absence.getFromDate());
+            assertThat(zepAbsence.absenceReason().name()).isEqualTo(absence.reason());
+            assertThat(zepAbsence.employeeId()).isEqualTo(absence.userId());
+            assertThat(zepAbsence.startDate()).isEqualTo(absence.fromDate());
         });
     }
 }

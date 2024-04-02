@@ -22,7 +22,7 @@ public class AbsenceTimeMapper {
            return absenceTimes.stream()
                    .map(AbsenceTimeMapper::map)
                    .filter(Objects::nonNull)
-                   .sorted(Comparator.comparing(AbsenceTime::getFromDate))
+                   .sorted(Comparator.comparing(AbsenceTime::fromDate))
                    .collect(Collectors.toList());
         }
 
@@ -33,24 +33,13 @@ public class AbsenceTimeMapper {
 
             LocalDate startDate = MapperUtil.convertStringToDate(fehlzeitType.getStartdatum());
             LocalDate endDate = MapperUtil.convertStringToDate(fehlzeitType.getEnddatum());
-            Map<String, String> attributes = MapperUtil.convertAttributesToMap(fehlzeitType.getAttributes());
 
             return AbsenceTime.builder()
-                    .id(fehlzeitType.getId())
                     .userId(fehlzeitType.getUserId())
                     .fromDate(startDate)
                     .toDate(endDate)
-                    .fromTime(fehlzeitType.getVonZeit())
-                    .toTime(fehlzeitType.getBisZeit())
                     .reason(fehlzeitType.getFehlgrund())
-                    .isHalfADay(fehlzeitType.isIstHalberTag())
                     .accepted(fehlzeitType.isGenehmigt())
-                    .comment(fehlzeitType.getBemerkung())
-                    .timezone(fehlzeitType.getTimezone())
-                    .suppressMails(fehlzeitType.isMailversandUnterdruecken())
-                    .created(fehlzeitType.getCreated())
-                    .modified(fehlzeitType.getModified())
-                    .attributes(attributes)
                     .build();
         }
 

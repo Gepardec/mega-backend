@@ -26,21 +26,11 @@ public class AbsenceMapper implements Mapper<AbsenceTime, ZepAbsence> {
             String reason = zepAbsence.absenceReason() == null ? "" : zepAbsence.absenceReason().name();
 
             AbsenceTime absenceTime = AbsenceTime.builder()
-                    .id(zepAbsence.id())
                     .userId(zepAbsence.employeeId())
                     .fromDate(zepAbsence.startDate())
                     .toDate(zepAbsence.endDate())
-                    .fromTime("" + zepAbsence.from())
-                    .toTime("" + zepAbsence.to())
                     .reason(reason)
-                    .isHalfADay(false)                      //TODO: Check if needed, don't see any purpose and ZEP REST doesn't provide this value
                     .accepted(zepAbsence.approved())
-                    .comment(zepAbsence.note())
-                    .timezone(zepAbsence.timezone())
-                    .suppressMails(true)                    //TODO: Check if needed, don't see any purpose and ZEP REST doesn't provide this value
-                    .created(zepAbsence.created())
-                    .modified(zepAbsence.modified())
-                    .attributes(null)
                     .build();
 
             logger.debug("Mapped ZepAbsence to AbsenceTime -- some values have been hardcoded and not fetched from the ZEP rest client");

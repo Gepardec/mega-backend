@@ -117,12 +117,12 @@ public class WorkingTimeUtilTest {
     }
 
     private List<AbsenceTime> returnFehlzeitTypeList() {
-        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
-        fehlzeitType.setFromDate(LocalDate.of(2023, 11, 6));
-        fehlzeitType.setToDate(LocalDate.of(2023,11,7));
-        fehlzeitType.setReason("UB");
-        fehlzeitType.setUserId("1");
-        fehlzeitType.setAccepted(true);
+        AbsenceTime fehlzeitType = AbsenceTime.builder()
+                .fromDate(LocalDate.of(2023, 11, 6))
+                .toDate(LocalDate.of(2023, 11, 7))
+                .reason("UB")
+                .accepted(true)
+                .build();
 
         return List.of(fehlzeitType);
     }

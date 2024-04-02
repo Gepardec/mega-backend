@@ -65,7 +65,7 @@ public class WorkingTimeUtil {
 
         // In case there are absences that do not affect the current month, filter them out
         fehlzeitTypeList = fehlzeitTypeList.stream()
-                .filter(ftl -> ftl.getFromDate().getMonthValue() == date.getMonthValue())
+                .filter(ftl -> ftl.fromDate().getMonthValue() == date.getMonthValue())
                 .collect(Collectors.toList());
 
         //FIXME
@@ -111,13 +111,13 @@ public class WorkingTimeUtil {
 
     public int getAbsenceTimesForEmployee(@Nonnull List<AbsenceTime> fehlZeitTypeList, String absenceType, LocalDate date) {
         return (int) fehlZeitTypeList.stream()
-                .filter(fzt -> fzt.getReason().equals(absenceType))
-                .filter(AbsenceTime::getAccepted)
+                .filter(fzt -> fzt.reason().equals(absenceType))
+                .filter(AbsenceTime::accepted)
                 .map(fehlzeitType -> trimDurationToCurrentMonth(fehlzeitType, date))
                 .mapToLong(ftl ->
                         getWorkingDaysBetween(
-                                ftl.getFromDate(),
-                                ftl.getToDate()
+                                ftl.fromDate(),
+                                ftl.toDate()
                         ).size()
                 )
                 .sum();
@@ -125,10 +125,10 @@ public class WorkingTimeUtil {
 
     public Map<DayOfWeek, Long> getAbsenceDaysCountMap(@Nonnull List<AbsenceTime> fehlZeitTypeList, LocalDate date) {
         return fehlZeitTypeList.stream()
-                .filter(ftl -> !BOOKABLE_ABSENCES.contains(ftl.getReason()))
-                .filter(AbsenceTime::getAccepted)
+                .filter(ftl -> !BOOKABLE_ABSENCES.contains(ftl.reason()))
+                .filter(AbsenceTime::accepted)
                 .map(fehlzeitType -> trimDurationToCurrentMonth(fehlzeitType, date))
-                .map(ftl -> getWorkingDaysBetween(ftl.getFromDate(), ftl.getToDate()))
+                .map(ftl -> getWorkingDaysBetween(ftl.fromDate(), ftl.toDate()))
                 .flatMap(this::getDayOfWeeks)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
     }
@@ -138,12 +138,21 @@ public class WorkingTimeUtil {
     }
 
     private AbsenceTime trimDurationToCurrentMonth(AbsenceTime fehlzeit, LocalDate date) {
-        if (fehlzeit.getToDate().getMonthValue() > date.getMonthValue()) {
-            fehlzeit.setToDate(date.with(TemporalAdjusters.lastDayOfMonth()));
+        LocalDate toDate = fehlzeit.toDate();
+        if (toDate.getMonthValue() > date.getMonthValue()) {
+            toDate = date.with(TemporalAdjusters.lastDayOfMonth());
         }
-        if (fehlzeit.getFromDate().getMonthValue() < date.getMonthValue()) {
-            fehlzeit.setFromDate(date.with(TemporalAdjusters.firstDayOfMonth()));
+        LocalDate fromDate = fehlzeit.fromDate();
+        if (fromDate.getMonthValue() < date.getMonthValue()) {
+            fromDate = date.with(TemporalAdjusters.firstDayOfMonth());
         }
-        return fehlzeit;
+
+        return AbsenceTime.builder()
+            .accepted(fehlzeit.accepted())
+            .reason(fehlzeit.reason())
+            .toDate(toDate)
+            .fromDate(fromDate)
+            .build();
+
     }
 }

@@ -121,12 +121,12 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
 
     private List<LocalDate> filterAbsenceTypesAndCompileLocalDateList(String type, List<AbsenceTime> absenceEntries) {
         return absenceEntries.stream()
-                .filter(fzt -> fzt.getReason().equals(type))
+                .filter(fzt -> fzt.reason().equals(type))
                 .flatMap(this::extractFehlzeitenDateRange)
                 .collect(Collectors.toList());
     }
 
     private Stream<LocalDate> extractFehlzeitenDateRange(AbsenceTime fzt) {
-        return fzt.getFromDate().datesUntil(fzt.getToDate().plusDays(1));
+        return fzt.fromDate().datesUntil(fzt.toDate().plusDays(1));
     }
 }

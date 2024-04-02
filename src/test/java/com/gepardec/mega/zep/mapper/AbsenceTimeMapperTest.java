@@ -26,35 +26,6 @@ public class AbsenceTimeMapperTest {
         assertThat(AbsenceTimeMapper.map(null)).isNull();
     }
 
-    @Test
-    void whenAttributes_thenReturnsAttributesMap() {
-        FehlzeitType fzt = new FehlzeitType();
-        fzt.setUserId("2");
-        fzt.setStartdatum("2023-10-23");
-        fzt.setFehlgrund("KR");
-
-        AttributeType attribute = new AttributeType();
-        attribute.setName("gilde");
-        attribute.setValue("cia");
-        AttributeType attribute2 = new AttributeType();
-        attribute2.setName("office");
-        attribute2.setValue("wien");
-
-        List<AttributeType> attributesList = new ArrayList<>();
-        attributesList.add(attribute);
-        attributesList.add(attribute2);
-
-        AttributesType attributes = new AttributesType();
-        attributes.setAttribute(attributesList);
-        fzt.setAttributes(attributes);
-
-        AbsenceTime at = AbsenceTimeMapper.map(fzt);
-        Map<String, String> atAttributesMap = at.getAttributes();
-
-        assertThat(atAttributesMap.get(attribute.getName())).isEqualTo(attribute.getValue());
-        assertThat(atAttributesMap.get(attribute2.getName())).isEqualTo(attribute2.getValue());
-
-    }
 
     @Test
     void withFullSettings_thenReturnsAbsenceTimeObject() {
@@ -74,24 +45,14 @@ public class AbsenceTimeMapperTest {
 
         AbsenceTime at = AbsenceTimeMapper.map(fzt);
 
-        String absenceTimeStartDateString = at.getFromDate().toString();
-        String absenceTimeEndDateString = at.getToDate().toString();
+        String absenceTimeStartDateString = at.fromDate().toString();
+        String absenceTimeEndDateString = at.toDate().toString();
 
-        assertThat(at.getId()).isEqualTo(fzt.getId());
-        assertThat(at.getUserId()).isEqualTo(fzt.getUserId());
+        assertThat(at.userId()).isEqualTo(fzt.getUserId());
         assertThat(absenceTimeStartDateString).isEqualTo(fzt.getStartdatum());
         assertThat(absenceTimeEndDateString).isEqualTo(fzt.getEnddatum());
-        assertThat(at.getReason()).isEqualTo(fzt.getFehlgrund());
-        assertThat(at.getHalfADay()).isEqualTo(fzt.isIstHalberTag());
-        assertThat(at.getAccepted()).isEqualTo(fzt.isGenehmigt());
-        assertThat(at.getComment()).isEqualTo(fzt.getBemerkung());
-        assertThat(at.getTimezone()).isEqualTo(fzt.getTimezone());
-        assertThat(at.getSuppressMails()).isEqualTo(fzt.isMailversandUnterdruecken());
-        assertThat(at.getCreated()).isEqualTo(fzt.getCreated());
-        assertThat(at.getModified()).isEqualTo(fzt.getModified());
-        assertThat(at.getReason()).isEqualTo(fzt.getFehlgrund());
-
-        assertThat(at.getId()).isEqualTo(fzt.getId());
+        assertThat(at.reason()).isEqualTo(fzt.getFehlgrund());
+        assertThat(at.accepted()).isEqualTo(fzt.isGenehmigt());
     }
 
     @Test
@@ -114,8 +75,8 @@ public class AbsenceTimeMapperTest {
         List<FehlzeitType> fztList = List.of(fztArr);
         List<AbsenceTime> atList = AbsenceTimeMapper.mapList(fztList);
 
-        assertThat(atList.get(0).getUserId()).isEqualTo(fztList.get(0).getUserId());
-        assertThat(atList.get(1).getUserId()).isEqualTo(fztList.get(1).getUserId());
+        assertThat(atList.get(0).userId()).isEqualTo(fztList.get(0).getUserId());
+        assertThat(atList.get(1).userId()).isEqualTo(fztList.get(1).getUserId());
     }
 
     @Test

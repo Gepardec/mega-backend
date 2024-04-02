@@ -67,21 +67,21 @@ class NoEntryCalculatorTest {
 
     @Test
     void calculate_whenAllEntriesAndVacationDayOnWorkingDay_thenNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryList(2), createAbsenceListFromUBType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryList(2), createAbsenceListFromType(AbsenteeType.VACATION_DAYS));
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenAllEntriesAndCompensatoryDayOnWorkingDay_thenNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryList(2), createAbsenceListFromFAType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryList(2), createAbsenceListFromType(AbsenteeType.COMPENSATORY_DAYS));
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenAllEntriesAndSicknessDayOnWorkingDay_thenNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryList(2), createAbsenceListFromKRType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryList(2), createAbsenceListFromType(AbsenteeType.SICKNESS_DAYS));
 
         assertThat(result).isEmpty();
     }
@@ -95,63 +95,63 @@ class NoEntryCalculatorTest {
 
     @Test
     void calculate_whenNursingDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromPUType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromType(AbsenteeType.NURSING_DAYS));
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenMaternityLeaveDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromKAType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromType(AbsenteeType.MATERNITY_LEAVE_DAYS));
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenExternalTrainingDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromEWType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromType(AbsenteeType.EXTERNAL_TRAINING_DAYS));
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenConferenceDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromKOType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromType(AbsenteeType.CONFERENCE_DAYS));
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenMaternityProtectionDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromMUType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromType(AbsenteeType.MATERNITY_PROTECTION_DAYS));
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenFatherMonthDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromPAType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromType(AbsenteeType.FATHER_MONTH_DAYS));
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenPaidSpecialLeaveDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromSUType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromType(AbsenteeType.PAID_SPECIAL_LEAVE_DAYS));
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenNonPaidVacationDays_thenReturnsNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromUUType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), createProjectEntryListForNovember(), createAbsenceListFromType(AbsenteeType.NON_PAID_VACATION_DAYS));
 
         assertThat(result).isEmpty();
     }
 
     @Test
     void calculate_whenDateInFuture_thenNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), List.of(createProjectTimeEntryForFuture(LocalDate.now())), createAbsenceListFromUUType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), List.of(createProjectTimeEntryForFuture(LocalDate.now())), createAbsenceListFromType(AbsenteeType.NON_PAID_VACATION_DAYS));
         List<TimeWarning> resultsAfterToday = result.stream()
                 .filter(timeWarning -> timeWarning.getDate().isAfter(LocalDate.now()))
                 .collect(Collectors.toList());
@@ -162,7 +162,7 @@ class NoEntryCalculatorTest {
 
     @Test
     void calculate_whenDateToday_thenNoWarning() {
-        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), List.of(createProjectTimeEntryForFuture(LocalDate.now())), createAbsenceListFromUUType());
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), List.of(createProjectTimeEntryForFuture(LocalDate.now())), createAbsenceListFromType(AbsenteeType.NON_PAID_VACATION_DAYS));
         List<TimeWarning> resultsAfterToday = result.stream()
                 .filter(timeWarning -> timeWarning.getDate().isEqual(LocalDate.now()))
                 .collect(Collectors.toList());
@@ -171,148 +171,20 @@ class NoEntryCalculatorTest {
         assertThat(resultsAfterToday).isEmpty();
     }
 
-    private List<AbsenceTime> createAbsenceListFromUBType() {
-        List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
+    private List<AbsenceTime> createAbsenceListFromType(AbsenteeType type) {
         LocalDate startDate = LocalDate.of(2021, 2, 25);
         LocalDate endDate = LocalDate.of(2021, 2, 26);
-        fehlzeitType.setFromDate(startDate);
-        fehlzeitType.setToDate(endDate);
-        fehlzeitType.setReason(AbsenteeType.VACATION_DAYS.getType());
-        fehlzeiten.add(fehlzeitType);
+        String reason = type.getType();
 
-        return fehlzeiten;
+        AbsenceTime absence = AbsenceTime.builder()
+                .fromDate(startDate)
+                .toDate(endDate)
+                .reason(reason)
+                .build();
+
+        return new ArrayList<>(List.of(absence));
     }
 
-    private List<AbsenceTime> createAbsenceListFromFAType() {
-        List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
-        LocalDate startDate = LocalDate.of(2021, 2, 25);
-        LocalDate endDate = LocalDate.of(2021, 2, 26);
-        fehlzeitType.setFromDate(startDate);
-        fehlzeitType.setToDate(endDate);
-        fehlzeitType.setReason(AbsenteeType.COMPENSATORY_DAYS.getType());
-        fehlzeiten.add(fehlzeitType);
-
-        return fehlzeiten;
-    }
-
-    private List<AbsenceTime> createAbsenceListFromKRType() {
-        List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
-        LocalDate startDate = LocalDate.of(2021, 2, 25);
-        LocalDate endDate = LocalDate.of(2021, 2, 26);
-        fehlzeitType.setFromDate(startDate);
-        fehlzeitType.setToDate(endDate);
-        fehlzeitType.setReason(AbsenteeType.SICKNESS_DAYS.getType());
-        fehlzeiten.add(fehlzeitType);
-
-        return fehlzeiten;
-    }
-
-    private List<AbsenceTime> createAbsenceListFromPUType() {
-        List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
-        LocalDate startDate = LocalDate.of(2021, 2, 25);
-        LocalDate endDate = LocalDate.of(2021, 2, 26);
-        fehlzeitType.setFromDate(startDate);
-        fehlzeitType.setToDate(endDate);
-        fehlzeitType.setReason(AbsenteeType.NURSING_DAYS.getType());
-        fehlzeiten.add(fehlzeitType);
-
-        return fehlzeiten;
-    }
-
-    private List<AbsenceTime> createAbsenceListFromKAType() {
-        List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
-        LocalDate startDate = LocalDate.of(2021, 2, 25);
-        LocalDate endDate = LocalDate.of(2021, 2, 26);
-        fehlzeitType.setFromDate(startDate);
-        fehlzeitType.setToDate(endDate);
-        fehlzeitType.setReason(AbsenteeType.MATERNITY_LEAVE_DAYS.getType());
-        fehlzeiten.add(fehlzeitType);
-
-        return fehlzeiten;
-    }
-
-    private List<AbsenceTime> createAbsenceListFromEWType() {
-        List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
-        LocalDate startDate = LocalDate.of(2021, 2, 25);
-        LocalDate endDate = LocalDate.of(2021, 2, 26);
-        fehlzeitType.setFromDate(startDate);
-        fehlzeitType.setToDate(endDate);
-        fehlzeitType.setReason(AbsenteeType.EXTERNAL_TRAINING_DAYS.getType());
-        fehlzeiten.add(fehlzeitType);
-
-        return fehlzeiten;
-    }
-
-    private List<AbsenceTime> createAbsenceListFromKOType() {
-        List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
-        LocalDate startDate = LocalDate.of(2021, 2, 25);
-        LocalDate endDate = LocalDate.of(2021, 2, 26);
-        fehlzeitType.setFromDate(startDate);
-        fehlzeitType.setToDate(endDate);
-        fehlzeitType.setReason(AbsenteeType.CONFERENCE_DAYS.getType());
-        fehlzeiten.add(fehlzeitType);
-
-        return fehlzeiten;
-    }
-
-    private List<AbsenceTime> createAbsenceListFromMUType() {
-        List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
-        LocalDate startDate = LocalDate.of(2021, 2, 25);
-        LocalDate endDate = LocalDate.of(2021, 2, 26);
-        fehlzeitType.setFromDate(startDate);
-        fehlzeitType.setToDate(endDate);
-        fehlzeitType.setReason(AbsenteeType.MATERNITY_PROTECTION_DAYS.getType());
-        fehlzeiten.add(fehlzeitType);
-
-        return fehlzeiten;
-    }
-
-    private List<AbsenceTime> createAbsenceListFromPAType() {
-        List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
-        LocalDate startDate = LocalDate.of(2021, 2, 25);
-        LocalDate endDate = LocalDate.of(2021, 2, 26);
-        fehlzeitType.setFromDate(startDate);
-        fehlzeitType.setToDate(endDate);
-        fehlzeitType.setReason(AbsenteeType.FATHER_MONTH_DAYS.getType());
-        fehlzeiten.add(fehlzeitType);
-
-        return fehlzeiten;
-    }
-
-    private List<AbsenceTime> createAbsenceListFromSUType() {
-        List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
-        LocalDate startDate = LocalDate.of(2021, 2, 25);
-        LocalDate endDate = LocalDate.of(2021, 2, 26);
-        fehlzeitType.setFromDate(startDate);
-        fehlzeitType.setToDate(endDate);
-        fehlzeitType.setReason(AbsenteeType.PAID_SPECIAL_LEAVE_DAYS.getType());
-        fehlzeiten.add(fehlzeitType);
-
-        return fehlzeiten;
-    }
-
-    private List<AbsenceTime> createAbsenceListFromUUType() {
-        List<AbsenceTime> fehlzeiten = new ArrayList<>();
-        AbsenceTime fehlzeitType = AbsenceTime.builder().build();
-        LocalDate startDate = LocalDate.of(2021, 2, 25);
-        LocalDate endDate = LocalDate.of(2021, 2, 26);
-        fehlzeitType.setFromDate(startDate);
-        fehlzeitType.setToDate(endDate);
-        fehlzeitType.setReason(AbsenteeType.NON_PAID_VACATION_DAYS.getType());
-        fehlzeiten.add(fehlzeitType);
-
-        return fehlzeiten;
-    }
 
     private List<ProjectEntry> createProjectEntryList(int amountOfMissingEntries) {
         return IntStream.rangeClosed(1, 26 - amountOfMissingEntries)
