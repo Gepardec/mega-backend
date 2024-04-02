@@ -61,8 +61,6 @@ public class MonthlyReportDto {
 
     private final int nonPaidVacationDays;
 
-    private final double vacationDayBalance;
-
     private final String billableTime;
 
     private final String totalWorkingTime;
@@ -99,7 +97,6 @@ public class MonthlyReportDto {
         this.fatherMonthDays = builder.fatherMonthDays;
         this.paidSpecialLeaveDays = builder.paidSpecialLeaveDays;
         this.nonPaidVacationDays = builder.nonPaidVacationDays;
-        this.vacationDayBalance = builder.vacationDayBalance;
         this.billableTime = builder.billableTime;
         this.totalWorkingTime = builder.totalWorkingTime;
         this.paidSickLeave = builder.paidSickLeave;
@@ -118,12 +115,12 @@ public class MonthlyReportDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MonthlyReportDto that = (MonthlyReportDto) o;
-        return isOtherChecksDone() == that.isOtherChecksDone() && getVacationDays() == that.getVacationDays() && getHomeofficeDays() == that.getHomeofficeDays() && getCompensatoryDays() == that.getCompensatoryDays() && getNursingDays() == that.getNursingDays() && getMaternityLeaveDays() == that.getMaternityLeaveDays() && getExternalTrainingDays() == that.getExternalTrainingDays() && getConferenceDays() == that.getConferenceDays() && getMaternityProtectionDays() == that.getMaternityProtectionDays() && getFatherMonthDays() == that.getFatherMonthDays() && getPaidSpecialLeaveDays() == that.getPaidSpecialLeaveDays() && getNonPaidVacationDays() == that.getNonPaidVacationDays() && Double.compare(getVacationDayBalance(), that.getVacationDayBalance()) == 0 && getPaidSickLeave() == that.getPaidSickLeave() && Double.compare(getOvertime(), that.getOvertime()) == 0 && getPrematureEmployeeCheck() == that.getPrematureEmployeeCheck() && Objects.equals(getEmployee(), that.getEmployee()) && Objects.equals(getInitialDate(), that.getInitialDate()) && Objects.equals(getTimeWarnings(), that.getTimeWarnings()) && Objects.equals(getJourneyWarnings(), that.getJourneyWarnings()) && Objects.equals(getComments(), that.getComments()) && getEmployeeCheckState() == that.getEmployeeCheckState() && Objects.equals(getEmployeeCheckStateReason(), that.getEmployeeCheckStateReason()) && getInternalCheckState() == that.getInternalCheckState() && Objects.equals(getEmployeeProgresses(), that.getEmployeeProgresses()) && Objects.equals(getBillableTime(), that.getBillableTime()) && Objects.equals(getTotalWorkingTime(), that.getTotalWorkingTime());
+        return isOtherChecksDone() == that.isOtherChecksDone() && getVacationDays() == that.getVacationDays() && getHomeofficeDays() == that.getHomeofficeDays() && getCompensatoryDays() == that.getCompensatoryDays() && getNursingDays() == that.getNursingDays() && getMaternityLeaveDays() == that.getMaternityLeaveDays() && getExternalTrainingDays() == that.getExternalTrainingDays() && getConferenceDays() == that.getConferenceDays() && getMaternityProtectionDays() == that.getMaternityProtectionDays() && getFatherMonthDays() == that.getFatherMonthDays() && getPaidSpecialLeaveDays() == that.getPaidSpecialLeaveDays() && getNonPaidVacationDays() == that.getNonPaidVacationDays() && getPaidSickLeave() == that.getPaidSickLeave() && Double.compare(getOvertime(), that.getOvertime()) == 0 && getPrematureEmployeeCheck() == that.getPrematureEmployeeCheck() && Objects.equals(getEmployee(), that.getEmployee()) && Objects.equals(getInitialDate(), that.getInitialDate()) && Objects.equals(getTimeWarnings(), that.getTimeWarnings()) && Objects.equals(getJourneyWarnings(), that.getJourneyWarnings()) && Objects.equals(getComments(), that.getComments()) && getEmployeeCheckState() == that.getEmployeeCheckState() && Objects.equals(getEmployeeCheckStateReason(), that.getEmployeeCheckStateReason()) && getInternalCheckState() == that.getInternalCheckState() && Objects.equals(getEmployeeProgresses(), that.getEmployeeProgresses()) && Objects.equals(getBillableTime(), that.getBillableTime()) && Objects.equals(getTotalWorkingTime(), that.getTotalWorkingTime());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getEmployee(), getInitialDate(), getTimeWarnings(), getJourneyWarnings(), getComments(), getEmployeeCheckState(), getEmployeeCheckStateReason(), getInternalCheckState(), getEmployeeProgresses(), isOtherChecksDone(), getVacationDays(), getHomeofficeDays(), getCompensatoryDays(), getNursingDays(), getMaternityLeaveDays(), getExternalTrainingDays(), getConferenceDays(), getMaternityProtectionDays(), getFatherMonthDays(), getPaidSpecialLeaveDays(), getNonPaidVacationDays(), getVacationDayBalance(), getBillableTime(), getTotalWorkingTime(), getPaidSickLeave(), getOvertime(), getPrematureEmployeeCheck());
+        return Objects.hash(getEmployee(), getInitialDate(), getTimeWarnings(), getJourneyWarnings(), getComments(), getEmployeeCheckState(), getEmployeeCheckStateReason(), getInternalCheckState(), getEmployeeProgresses(), isOtherChecksDone(), getVacationDays(), getHomeofficeDays(), getCompensatoryDays(), getNursingDays(), getMaternityLeaveDays(), getExternalTrainingDays(), getConferenceDays(), getMaternityProtectionDays(), getFatherMonthDays(), getPaidSpecialLeaveDays(), getNonPaidVacationDays(), getBillableTime(), getTotalWorkingTime(), getPaidSickLeave(), getOvertime(), getPrematureEmployeeCheck());
     }
 
     public EmployeeDto getEmployee() {
@@ -210,10 +207,6 @@ public class MonthlyReportDto {
         return nonPaidVacationDays;
     }
 
-    public double getVacationDayBalance() {
-        return vacationDayBalance;
-    }
-
     public String getBillableTime() {
         return billableTime;
     }
@@ -265,7 +258,6 @@ public class MonthlyReportDto {
         private int fatherMonthDays;
         private int paidSpecialLeaveDays;
         private int nonPaidVacationDays;
-        private double vacationDayBalance;
         private String billableTime;
         private String totalWorkingTime;
         private int paidSickLeave;
@@ -386,11 +378,6 @@ public class MonthlyReportDto {
 
         public Builder nonPaidVacationDays(int nonPaidVacationDays) {
             this.nonPaidVacationDays = nonPaidVacationDays;
-            return this;
-        }
-
-        public Builder vacationDayBalance(double vacationDayBalance) {
-            this.vacationDayBalance = vacationDayBalance;
             return this;
         }
 

@@ -4,8 +4,6 @@ public class PersonioEmployee {
 
     private final String email;
 
-    private final Double vacationDayBalance;
-
     private final String guildLead;
 
     private final String internalProjectLead;
@@ -14,11 +12,6 @@ public class PersonioEmployee {
     public String getEmail() {
         return email;
     }
-
-    public Double getVacationDayBalance() {
-        return vacationDayBalance;
-    }
-
 
     public String getGuildLead() {
         return guildLead;
@@ -30,7 +23,6 @@ public class PersonioEmployee {
 
     private PersonioEmployee(Builder builder) {
         this.email = builder.email;
-        this.vacationDayBalance = builder.vacationDayBalance;
         this.guildLead = builder.guildLead;
         this.internalProjectLead = builder.internalProjectLead;
     }
@@ -41,7 +33,6 @@ public class PersonioEmployee {
 
     public static final class Builder {
         private String email;
-        private Double vacationDayBalance;
         private String guildLead;
         private String internalProjectLead;
 
@@ -49,12 +40,6 @@ public class PersonioEmployee {
             this.email = email;
             return this;
         }
-
-        public Builder vacationDayBalance(Double vacationDayBalance) {
-            this.vacationDayBalance = vacationDayBalance;
-            return this;
-        }
-
 
         public Builder guildLead(String guildLead) {
             this.guildLead = guildLead;
