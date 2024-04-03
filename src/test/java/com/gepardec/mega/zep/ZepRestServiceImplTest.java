@@ -36,7 +36,7 @@ public class ZepRestServiceImplTest {
     public void integrationTest_getProjectTimesForEmployeePerProject(){
         List<ProjectTime> projectTimes = zepRestService.getProjectTimesForEmployeePerProject("ITSV-VAEB-2018", LocalDate.of(2018, 12, 12));
         for (ProjectTime projectTime : projectTimes) {
-            System.out.println(projectTime.getProjectNr());
+            System.out.println(projectTime.getUserId() + ": " + projectTime.getDuration() + " " + projectTime.getBillable());
         }
         System.out.println(projectTimes.size());
     }

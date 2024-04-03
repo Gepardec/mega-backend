@@ -91,7 +91,6 @@ public class ZepRestIntegrationTest {
         assertThat(projectTimes.size()).isEqualTo(4);
         for (ProjectTime projectTime : projectTimes) {
             assertThat(projectTime.getDuration()).isNotNull();
-            assertThat(projectTime.getDate().getMonthValue()).isEqualTo(1);
         }
     }
 

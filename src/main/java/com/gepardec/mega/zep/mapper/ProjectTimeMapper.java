@@ -27,37 +27,11 @@ public class ProjectTimeMapper {
         if (projektzeitType == null) {
             return null;
         }
-        LocalDate date = MapperUtil.convertStringToDate(projektzeitType.getDatum());
-
-        Map<String, String> attributes = MapperUtil.convertAttributesToMap(projektzeitType.getAttributes());
-
 
         return ProjectTime.builder()
-                .id(projektzeitType.getId())
                 .userId(projektzeitType.getUserId())
-                .date(date)
-                .startTime(projektzeitType.getVon())
-                .endTime(projektzeitType.getBis())
                 .duration(projektzeitType.getDauer())
                 .isBillable(projektzeitType.isIstFakturierbar())
-                .isLocationRelevantToProject(projektzeitType.isIstOrtProjektRelevant())
-                .location(projektzeitType.getOrt())
-                .comment(projektzeitType.getBemerkung())
-                .projectNr(projektzeitType.getProjektNr())
-                .processNr(projektzeitType.getVorgangNr())
-                .task(projektzeitType.getTaetigkeit())
-                .startLocation(projektzeitType.getStart())
-                .endLocation(projektzeitType.getZiel())
-                .km(projektzeitType.getKm())
-                .amountPassengers(projektzeitType.getAnzahlMitfahrer())
-                .vehicle(projektzeitType.getFahrzeug())
-                .ticketNr(projektzeitType.getTicketNr())
-                .subtaskNr(projektzeitType.getTeilaufgabeNr())
-                .travelDirection(projektzeitType.getReiseRichtung())
-                .isPrivateVehicle(projektzeitType.isIstPrivatFahrzeug())
-                .created(projektzeitType.getCreated())
-                .modified(projektzeitType.getModified())
-                .attributes(attributes)
                 .build();
     }
 }

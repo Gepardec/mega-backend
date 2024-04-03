@@ -604,19 +604,13 @@ class ManagementResourceTest {
         List<ProjectTime> timeType = new ArrayList<>();
         ProjectTime projektzeitType = ProjectTime.builder().build();
         projektzeitType.setDuration("4");
-        projektzeitType.setStartTime("08:00");
-        projektzeitType.setEndTime("12:00");
         projektzeitType.setBillable(true);
 
         ProjectTime projektzeitType1 = ProjectTime.builder().build();
         projektzeitType1.setDuration("0");
-        projektzeitType1.setStartTime("00:00");
-        projektzeitType1.setEndTime("00:00");
 
         ProjectTime projektzeitType2 = ProjectTime.builder().build();
         projektzeitType2.setDuration("2");
-        projektzeitType2.setStartTime("13:00");
-        projektzeitType2.setEndTime("15:00");
         projektzeitType2.setBillable(false);
 
         timeType.add(projektzeitType);

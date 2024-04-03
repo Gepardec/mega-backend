@@ -75,7 +75,6 @@ public class EmployeeServiceTest {
                 .firstname("James")
                 .lastname("Bond")
                 .salutation(ZepSalutation.builder()
-                        .id("Herr")
                         .name("Sir")
                         .build()
                 )
@@ -85,7 +84,6 @@ public class EmployeeServiceTest {
                 .priceGroup("03")
                 .language(ZepLanguage.builder()
                         .id("en")
-                        .name("English")
                         .build()
                 )
                 .build();

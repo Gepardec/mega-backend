@@ -11,34 +11,18 @@ import java.time.LocalTime;
 public record ZepAbsence (
     Integer id,
     String employeeId,
-    String type,
     LocalDate startDate,
     LocalDate endDate,
-    Double hours,
-    LocalTime from,
-    LocalTime to,
-    String note,
     boolean approved,
-    String timezone,
-    String created,
-    String modified,
     ZepAbsenceReason absenceReason) {
 
     @JsonCreator
     public ZepAbsence(Builder builder) {
         this(builder.id,
              builder.employeeId,
-             builder.type,
              builder.startDate,
              builder.endDate,
-             builder.hours,
-             builder.from,
-             builder.to,
-             builder.note,
              builder.approved,
-             builder.timezone,
-             builder.created,
-             builder.modified,
              builder.absenceReason);
     }
 
@@ -63,21 +47,7 @@ public record ZepAbsence (
 
         private LocalDate endDate;
         @JsonProperty
-        private Double hours;
-        @JsonProperty
-        private LocalTime from;
-        @JsonProperty
-        private LocalTime to;
-        @JsonProperty
-        private String note;
-        @JsonProperty
         private boolean approved;
-        @JsonProperty
-        private String timezone;
-        @JsonProperty
-        private String created;
-        @JsonProperty
-        private String modified;
         @JsonProperty("absenceReason")
         private ZepAbsenceReason absenceReason;
 
@@ -106,43 +76,9 @@ public record ZepAbsence (
             return this;
         }
 
-        public Builder hours(Double hours) {
-            this.hours = hours;
-            return this;
-        }
-
-        public Builder from(LocalTime from) {
-            this.from = from;
-            return this;
-        }
-
-        public Builder to(LocalTime to) {
-            this.to = to;
-            return this;
-        }
-
-        public Builder note(String note) {
-            this.note = note;
-            return this;
-        }
 
         public Builder approved(boolean approved) {
             this.approved = approved;
-            return this;
-        }
-
-        public Builder timezone(String timezone) {
-            this.timezone = timezone;
-            return this;
-        }
-
-        public Builder created(String created) {
-            this.created = created;
-            return this;
-        }
-
-        public Builder modified(String modified) {
-            this.modified = modified;
             return this;
         }
 

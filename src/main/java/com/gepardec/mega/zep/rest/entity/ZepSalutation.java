@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record ZepSalutation (String id, String name) {
+public record ZepSalutation (String name) {
 
     @JsonCreator
     public ZepSalutation(Builder builder) {
-        this(builder.id, builder.name);
+        this(builder.name);
     }
 
     public static Builder builder() {
@@ -18,14 +18,8 @@ public record ZepSalutation (String id, String name) {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Builder {
         @JsonProperty
-        private String id;
-        @JsonProperty
         private String name;
 
-        public Builder id(String id) {
-            this.id = id;
-            return this;
-        }
 
         public Builder name(String name) {
             this.name = name;

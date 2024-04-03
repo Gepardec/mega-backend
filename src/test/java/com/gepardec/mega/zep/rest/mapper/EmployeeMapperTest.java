@@ -56,7 +56,7 @@ public class EmployeeMapperTest {
                 .lastname("User")
                 .salutation(ZepSalutation.builder().name("Mr.").build())
                 .releaseDate(LocalDate.of(2022, 12,1))
-                .language(ZepLanguage.builder().id("de").name("German").build())
+                .language(ZepLanguage.builder().id("de").build())
                 .build();
 
         Employee employee = employeeMapper.map(zepEmployee);

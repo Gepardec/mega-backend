@@ -30,14 +30,8 @@ public class AbsenceMapperTest {
                 .employeeId("001")
                 .startDate(LocalDate.of(2019, 1, 2))
                 .endDate(LocalDate.of(2019, 1, 5))
-                .from(LocalTime.of(8, 1, 32))
-                .to(LocalTime.of(17, 0, 0))
                 .absenceReason(zepAbsenceReason)
                 .approved(true)
-                .note("Extrauteringravidität")
-                .timezone("UTC")
-                .created("02-01-2019T08:01:32.0000Z")
-                .modified("05-01-2019T18:11:12.0000Z")
                 .build();
 
         AbsenceTime absence = absenceMapper.map(zepAbsence);

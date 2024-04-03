@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record ZepProjectEmployeeType (int id, String name) {
+public record ZepProjectEmployeeType (int id) {
 
     @JsonCreator
     public ZepProjectEmployeeType(Builder builder) {
-        this(builder.id, builder.name);
+        this(builder.id);
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -18,20 +18,12 @@ public record ZepProjectEmployeeType (int id, String name) {
         @JsonProperty
         private int id;
 
-        @JsonProperty
-        private String name;
-
         public static Builder aZepProjectEmployeeType() {
             return new Builder();
         }
 
         public Builder id(int id) {
             this.id = id;
-            return this;
-        }
-
-        public Builder name(String name) {
-            this.name = name;
             return this;
         }
 

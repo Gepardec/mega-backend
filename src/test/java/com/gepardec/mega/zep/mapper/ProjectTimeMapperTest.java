@@ -24,33 +24,6 @@ public class ProjectTimeMapperTest {
         assertThat(ProjectTimeMapper.map(null)).isNull();
     }
 
-    @Test
-    void whenAttributes_thenReturnsAttributesMap() {
-        ProjektzeitType pzt = new ProjektzeitType();
-        pzt.setUserId("1");
-
-        de.provantis.zep.AttributeType attribute = new AttributeType();
-        attribute.setName("gilde");
-        attribute.setValue("cia");
-        de.provantis.zep.AttributeType attribute2 = new AttributeType();
-        attribute2.setName("office");
-        attribute2.setValue("wien");
-
-        List<AttributeType> attributesList = new ArrayList<>();
-        attributesList.add(attribute);
-        attributesList.add(attribute2);
-
-        AttributesType attributes = new AttributesType();
-        attributes.setAttribute(attributesList);
-        pzt.setAttributes(attributes);
-
-        ProjectTime pt = ProjectTimeMapper.map(pzt);
-        Map<String, String> ptAttributesMap = pt.getAttributes();
-
-        assertThat(ptAttributesMap.get(attribute.getName())).isEqualTo(attribute.getValue());
-        assertThat(ptAttributesMap.get(attribute2.getName())).isEqualTo(attribute2.getValue());
-
-    }
 
     @Test
     void withFullSettings_thenReturnsAbsenceTimeObject() {
@@ -79,32 +52,9 @@ public class ProjectTimeMapperTest {
 
         ProjectTime pt = ProjectTimeMapper.map(pzt);
 
-        String projectTimeDateString = pt.getDate().toString();
-
-        assertThat(pt.getId()).isEqualTo(pzt.getId());
         assertThat(pt.getUserId()).isEqualTo(pzt.getUserId());
-        assertThat(projectTimeDateString).isEqualTo(pzt.getDatum());
-        assertThat(pt.getStartTime()).isEqualTo(pzt.getVon());
-        assertThat(pt.getEndTime()).isEqualTo(pzt.getBis());
         assertThat(pt.getDuration()).isEqualTo(pzt.getDauer());
         assertThat(pt.getBillable()).isEqualTo(pzt.isIstFakturierbar());
-        assertThat(pt.getLocationRelevantToProject()).isEqualTo(pzt.isIstOrtProjektRelevant());
-        assertThat(pt.getLocation()).isEqualTo(pzt.getOrt());
-        assertThat(pt.getComment()).isEqualTo(pzt.getBemerkung());
-        assertThat(pt.getProjectNr()).isEqualTo(pzt.getProjektNr());
-        assertThat(pt.getProcessNr()).isEqualTo(pzt.getVorgangNr());
-        assertThat(pt.getTask()).isEqualTo(pzt.getTaetigkeit());
-        assertThat(pt.getStartLocation()).isEqualTo(pzt.getStart());
-        assertThat(pt.getEndLocation()).isEqualTo(pzt.getZiel());
-        assertThat(pt.getKm()).isEqualTo(pzt.getKm());
-        assertThat(pt.getAmountPassengers()).isEqualTo(pzt.getAnzahlMitfahrer());
-        assertThat(pt.getVehicle()).isEqualTo(pzt.getFahrzeug());
-        assertThat(pt.getTicketNr()).isEqualTo(pzt.getTicketNr());
-        assertThat(pt.getSubtaskNr()).isEqualTo(pzt.getTeilaufgabeNr());
-        assertThat(pt.getTravelDirection()).isEqualTo(pzt.getReiseRichtung());
-        assertThat(pt.getPrivateVehicle()).isEqualTo(pzt.isIstPrivatFahrzeug());
-        assertThat(pt.getCreated()).isEqualTo(pzt.getCreated());
-        assertThat(pt.getModified()).isEqualTo(pzt.getModified());
     }
 
     @Test

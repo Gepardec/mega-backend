@@ -22,18 +22,15 @@ public class ProjectMapperTest {
         List<ZepProjectEmployee> zepProjectEmployees = List.of(
                 ZepProjectEmployee.builder()
                         .username("Anton")
-                        .lead(true)
-                        .type(ZepProjectEmployeeType.builder().id(1).name("pm").build())
+                        .type(ZepProjectEmployeeType.builder().id(1).build())
                         .build(),
                 ZepProjectEmployee.builder()
                         .username("Berta")
-                        .lead(false)
-                        .type(ZepProjectEmployeeType.builder().id(2).name("engineer").build())
+                        .type(ZepProjectEmployeeType.builder().id(2).build())
                         .build(),
                 ZepProjectEmployee.builder()
                         .username("Caesar")
-                        .lead(false)
-                        .type(ZepProjectEmployeeType.builder().id(2).name("engineer").build())
+                        .type(ZepProjectEmployeeType.builder().id(2).build())
                         .build()
         );
 

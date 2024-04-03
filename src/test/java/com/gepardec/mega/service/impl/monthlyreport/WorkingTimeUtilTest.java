@@ -129,15 +129,11 @@ public class WorkingTimeUtilTest {
 
     private List<ProjectTime> returnNormalDayProjectTimes(int times) {
         ProjectTime projektzeitType = ProjectTime.builder().build();
-        projektzeitType.setStartTime("8:00");
-        projektzeitType.setEndTime("12:00");
         projektzeitType.setDuration("04:00");
         projektzeitType.setUserId("1");
         projektzeitType.setBillable(false);
 
         ProjectTime projektzeitTypeBilllable = ProjectTime.builder().build();
-        projektzeitTypeBilllable.setStartTime("12:00");
-        projektzeitTypeBilllable.setEndTime("16:00");
         projektzeitTypeBilllable.setDuration("04:00");
         projektzeitTypeBilllable.setUserId("1");
         projektzeitTypeBilllable.setBillable(true);

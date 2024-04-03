@@ -38,8 +38,6 @@ public class RegularWorkingTimesServiceTest {
     public void getRegularWorkingTimesByUsername_receiveValidWorkingTime_then_returnValidZepWorkingTime(){
 
         ZepRegularWorkingTimes regularWorkingTimes = ZepRegularWorkingTimes.builder()
-                .id(155)
-                .employee_id("001-duser")
                 .start_date(null)
                 .monday(8.0)
                 .tuesday(8.0)
@@ -48,10 +46,6 @@ public class RegularWorkingTimesServiceTest {
                 .friday(6.5)
                 .saturday(null)
                 .sunday(null)
-                .isMonthly(null)
-                .monthlyHours(null)
-                .maxHoursInMonth(null)
-                .maxHoursInWeek(null)
                 .build();
 
         resourceFileService.getSingleFile("/regularWorkingTimes/regularWorkingTimes001duser.json").ifPresent(json -> {

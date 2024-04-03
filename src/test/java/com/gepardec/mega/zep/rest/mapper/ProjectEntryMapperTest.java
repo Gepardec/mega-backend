@@ -92,23 +92,12 @@ public class ProjectEntryMapperTest {
                 .projectId(1)
                 .projectTaskId(30)
                 .duration(1.0)
-                .billable(ZepBillable.builder().id(2).name("Billable").build())
+                .billable(ZepBillable.builder().id(2).build())
                 .workLocation("A")
                 .workLocationIsProjectRelevant(false)
-                .note("SomeNote")
                 .activity("bearbeiten")
-                .start(null)
-                .destination(null)
                 .vehicle(null)
-                .isPrivate(0)
-                .passengers(null)
-                .km(null)
-                .directionOfTravel(null)
-                .ticketId(null)
-                .subtaskId(null)
-                .invoiceItemId(null)
-                .created(LocalDateTime.of(2019, 1, 12, 16, 32, 29))
-                .modified(LocalDateTime.of(2019, 1, 12, 18, 32, 29));
+                .directionOfTravel(null);
     }
 
     private ProjectTimeEntry generateProjectTimeEntry(){

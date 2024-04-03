@@ -19,20 +19,9 @@ public record ZepAttendance (
     ZepBillable billable,
     String workLocation,
     Boolean workLocationIsProjectRelevant,
-    String note,
     String activity,
-    String start,
-    String destination,
     String vehicle,
-    Integer isPrivate,
-    String passengers,
-    String km,
-    String directionOfTravel,
-    String ticketId,
-    String subtaskId,
-    String invoiceItemId,
-    LocalDateTime created,
-    LocalDateTime modified
+    String directionOfTravel
 ) {
 
 
@@ -49,20 +38,9 @@ public record ZepAttendance (
              builder.billable,
              builder.workLocation,
              builder.workLocationIsProjectRelevant,
-             builder.note,
              builder.activity,
-             builder.start,
-             builder.destination,
              builder.vehicle,
-             builder.isPrivate,
-             builder.passengers,
-             builder.km,
-             builder.directionOfTravel,
-             builder.ticketId,
-             builder.subtaskId,
-             builder.invoiceItemId,
-             builder.created,
-             builder.modified
+             builder.directionOfTravel
         );
     }
 
@@ -96,34 +74,15 @@ public record ZepAttendance (
 
         @JsonProperty("work_location_is_project_relevant")
         private Boolean workLocationIsProjectRelevant;
-        @JsonProperty
-        private String note;
+
         @JsonProperty
         private String activity;
-        @JsonProperty
-        private String start;
-        @JsonProperty
-        private String destination;
+
         @JsonProperty
         private String vehicle;
-        @JsonProperty("private")
-        private Integer isPrivate;
-        @JsonProperty
-        private String passengers;
-        @JsonProperty
-        private String km;
+
         @JsonProperty("direction_of_travel")
         private String directionOfTravel;
-        @JsonProperty("ticket_id")
-        private String ticketId;
-        @JsonProperty("subtask_id")
-        private String subtaskId;
-        @JsonProperty("invoice_item_id")
-        private String invoiceItemId;
-        @JsonProperty
-        private LocalDateTime created;
-        @JsonProperty
-        private LocalDateTime modified;
 
 
         public Builder id(Integer id) {
@@ -181,23 +140,10 @@ public record ZepAttendance (
             return this;
         }
 
-        public Builder note(String note) {
-            this.note = note;
-            return this;
-        }
+
 
         public Builder activity(String activity) {
             this.activity = activity;
-            return this;
-        }
-
-        public Builder start(String start) {
-            this.start = start;
-            return this;
-        }
-
-        public Builder destination(String destination) {
-            this.destination = destination;
             return this;
         }
 
@@ -206,50 +152,12 @@ public record ZepAttendance (
             return this;
         }
 
-        public Builder isPrivate(Integer isPrivate) {
-            this.isPrivate = isPrivate;
-            return this;
-        }
-
-        public Builder passengers(String passengers) {
-            this.passengers = passengers;
-            return this;
-        }
-
-        public Builder km(String km) {
-            this.km = km;
-            return this;
-        }
 
         public Builder directionOfTravel(String directionOfTravel) {
             this.directionOfTravel = directionOfTravel;
             return this;
         }
 
-        public Builder ticketId(String ticketId) {
-            this.ticketId = ticketId;
-            return this;
-        }
-
-        public Builder subtaskId(String subtaskId) {
-            this.subtaskId = subtaskId;
-            return this;
-        }
-
-        public Builder invoiceItemId(String invoiceItemId) {
-            this.invoiceItemId = invoiceItemId;
-            return this;
-        }
-
-        public Builder created(LocalDateTime created) {
-            this.created = created;
-            return this;
-        }
-
-        public Builder modified(LocalDateTime modified) {
-            this.modified = modified;
-            return this;
-        }
 
         public ZepAttendance build() {
             return new ZepAttendance(this);

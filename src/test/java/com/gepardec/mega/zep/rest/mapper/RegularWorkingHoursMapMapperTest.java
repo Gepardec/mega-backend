@@ -19,8 +19,6 @@ public class RegularWorkingHoursMapMapperTest {
     public void mapZepRegularWorkingTimesToRegularWorkingHoursMap() {
         RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
         ZepRegularWorkingTimes zepRegularWorkingTimes = ZepRegularWorkingTimes.builder()
-                .id(1)
-                .employee_id("001")
                 .start_date(LocalDateTime.of(2019, 1, 2, 8, 1, 32))
                 .monday(8.0)
                 .tuesday(8.0)
@@ -29,10 +27,6 @@ public class RegularWorkingHoursMapMapperTest {
                 .friday(8.0)
                 .saturday(0.0)
                 .sunday(0.0)
-                .isMonthly(false)
-                .monthlyHours(0.0)
-                .maxHoursInMonth(0.0)
-                .maxHoursInWeek(40.0)
                 .build();
 
         Map<DayOfWeek, Duration> regularWorkingHours = regularWorkingHoursMapMapper.map(zepRegularWorkingTimes);
@@ -52,8 +46,6 @@ public class RegularWorkingHoursMapMapperTest {
         RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
 
         ZepRegularWorkingTimes zepRegularWorkingTimes = ZepRegularWorkingTimes.builder()
-                .id(1)
-                .employee_id("001")
                 .start_date(LocalDateTime.of(2019, 1, 2, 8, 1, 32))
                 .monday(null)
                 .tuesday(8.0)
@@ -61,11 +53,6 @@ public class RegularWorkingHoursMapMapperTest {
                 .thursday(8.0)
                 .friday(8.0)
                 .saturday(null)
-                //Sunday missing -> null
-                .isMonthly(false)
-                .monthlyHours(0.0)
-                .maxHoursInMonth(0.0)
-                .maxHoursInWeek(40.0)
                 .build();
 
         Map<DayOfWeek, Duration> regularWorkingHours = regularWorkingHoursMapMapper.map(zepRegularWorkingTimes);
