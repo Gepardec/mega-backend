@@ -89,6 +89,7 @@ class MonthlyReportServiceImplTest {
         PersonioEmployee personioEmployee = PersonioEmployee.builder()
             .guildLead("guildLead")
             .internalProjectLead("internalProjectLead")
+            .vacationDayBalance(0d)
             .build();
 
         when(personioEmployeesService.getPersonioEmployeeByEmail(any()))
