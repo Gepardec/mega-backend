@@ -30,7 +30,6 @@ public class ProjectService {
     @Inject
     ResponseParser responseParser;
 
-//    @CacheResult(cacheName = "zep-project")
     public List<ZepProject> getProjectsForMonthYear(LocalDate date) {
         String startDate = date.withDayOfMonth(1).toString();
         String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();

@@ -120,7 +120,6 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     @Override
-    @CacheResult(cacheName = "employee")
     public List<Employee> getEmployees() {
         logger.debug("Retrieving employees from ZEP");
 
@@ -136,7 +135,6 @@ public class ZepRestServiceImpl implements ZepService {
         return employees;
     }
 
-    @CacheInvalidate(cacheName = "employee")
     @Override
     public void updateEmployeesReleaseDate(String userId, String releaseDate) {
         return;         // Currently not supported by REST - use SOAP instead
