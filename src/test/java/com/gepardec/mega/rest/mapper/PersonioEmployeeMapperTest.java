@@ -24,12 +24,14 @@ public class PersonioEmployeeMapperTest {
     void setUp() {
         domain = PersonioEmployee.builder()
                 .email("testuser@testmail.com")
+                .vacationDayBalance(25.35)
                 .guildLead("TestGuildLead")
                 .internalProjectLead("TestLead")
                 .build();
 
         dto = PersonioEmployeeDto.builder()
                 .email(Attribute.ofValue("testuser@testmail.com"))
+                .vacationDayBalance(Attribute.ofValue(25.35))
                 .guildLead(Attribute.ofValue("TestGuildLead"))
                 .internalProjectLead(Attribute.ofValue("TestLead"))
                 .build();

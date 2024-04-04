@@ -13,6 +13,7 @@ public record PersonioEmployeeDto(
         Attribute<String> lastName,
         Attribute<String> email,
         Attribute<List<TimeOffType>> absenceEntitlement,
+        Attribute<Double> vacationDayBalance,
         Attribute<String> personalnummer,
         Attribute<String> guildLead,
         Attribute<String> internalProjectLead
@@ -26,6 +27,7 @@ public record PersonioEmployeeDto(
                 builder.lastName,
                 builder.email,
                 builder.absenceEntitlement,
+                builder.vacationDayBalance,
                 builder.personalnummer,
                 builder.guildLead,
                 builder.internalProjectLead
@@ -50,6 +52,9 @@ public record PersonioEmployeeDto(
 
         @JsonProperty("absence_entitlement")
         private Attribute<List<TimeOffType>> absenceEntitlement;
+
+        @JsonProperty("vacation_day_balance")
+        private Attribute<Double> vacationDayBalance;
 
         @JsonProperty("dynamic_393528")
         private Attribute<String> personalnummer;
@@ -82,6 +87,11 @@ public record PersonioEmployeeDto(
 
         public Builder absenceEntitlement(Attribute<List<TimeOffType>> absenceEntitlement) {
             this.absenceEntitlement = absenceEntitlement;
+            return this;
+        }
+
+        public Builder vacationDayBalance(Attribute<Double> vacationDayBalance) {
+            this.vacationDayBalance = vacationDayBalance;
             return this;
         }
 

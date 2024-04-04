@@ -56,6 +56,8 @@ public class MonthlyReport {
 
     private final int paidSickLeave;
 
+    private final double vacationDayBalance;
+
     private final String billableTime;
 
     private final String totalWorkingTime;
@@ -91,6 +93,7 @@ public class MonthlyReport {
         this.paidSpecialLeaveDays = builder.paidSpecialLeaveDays;
         this.nonPaidVacationDays = builder.nonPaidVacationDays;
         this.paidSickLeave = builder.paidSickLeave;
+        this.vacationDayBalance = builder.vacationDayBalance;
         this.billableTime = builder.billableTime;
         this.totalWorkingTime = builder.totalWorkingTime;
         this.overtime = builder.overtime;
@@ -196,6 +199,10 @@ public class MonthlyReport {
         return paidSickLeave;
     }
 
+    public double getVacationDayBalance() {
+        return vacationDayBalance;
+    }
+
     public String getBillableTime() {
         return billableTime;
     }
@@ -244,6 +251,7 @@ public class MonthlyReport {
         private int paidSpecialLeaveDays;
         private int nonPaidVacationDays;
         private int paidSickLeave;
+        private double vacationDayBalance;
         private String billableTime;
         private String totalWorkingTime;
         private double overtime;
@@ -365,6 +373,11 @@ public class MonthlyReport {
 
         public Builder paidSickLeave(int paidSickLeave) {
             this.paidSickLeave = paidSickLeave;
+            return this;
+        }
+
+        public Builder vacationDayBalance(double vacationDayBalance) {
+            this.vacationDayBalance = vacationDayBalance;
             return this;
         }
 
