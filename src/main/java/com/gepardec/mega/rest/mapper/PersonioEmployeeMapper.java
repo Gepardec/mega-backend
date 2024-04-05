@@ -30,7 +30,7 @@ public class PersonioEmployeeMapper implements DtoMapper<PersonioEmployee, Perso
         return PersonioEmployee.builder()
                 .email(dto.email() == null ?
                         null : dto.email().getValue())
-                .vacationDayBalance(null)
+                .vacationDayBalance(0.0)
                 .guildLead(dto.guildLead() == null ?
                         null : dto.guildLead().getValue())
                 .internalProjectLead(dto.internalProjectLead() == null ?

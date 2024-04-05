@@ -24,7 +24,7 @@ public class PersonioEmployeeMapperTest {
     void setUp() {
         domain = PersonioEmployee.builder()
                 .email("testuser@testmail.com")
-                .vacationDayBalance(null)
+                .vacationDayBalance(0.0)
                 .guildLead("TestGuildLead")
                 .internalProjectLead("TestLead")
                 .build();
