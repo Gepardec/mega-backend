@@ -26,8 +26,8 @@ jobs:
         id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: Set env
-        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $BRANCH
-      - run: cat $BRANCH
+        run: export BRANCH=${BRANCH_NAME}
+      - run: echo ${BRANCH}
 
       - uses: mr-smithers-excellent/docker-build-push@v6
         name: push-container-image
