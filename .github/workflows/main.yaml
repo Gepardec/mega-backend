@@ -25,12 +25,12 @@ jobs:
       - name: Set outputs
         id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-      - name: Set env
-        run: export BRANCH=${BRANCH_NAME}
-      - run: echo "BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
+#      - name: Set env
+#        run: export BRANCH=${BRANCH_NAME}
+#      - run: echo "BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
       - run: echo "COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-      - run: echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-      - run: echo ${BRANCH}
+#      - run: echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+#      - run: echo ${BRANCH}
 
       - uses: mr-smithers-excellent/docker-build-push@v6
         name: push-container-image
@@ -38,6 +38,6 @@ jobs:
           image: mega-backend
           registry: ghcr.io
           dockerfile: Containerfile
-          buildArgs: COMMIT=${{ env.COMMIT}}, BRANCH=${{ env.BRANCH}}, VERSION=${{ env.VERSION}}
+          buildArgs: COMMIT=${{ env.COMMIT}}, BRANCH=${{ env.BRANCH_NAME}}, VERSION=${{ env.COMMIT}}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
