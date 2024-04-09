@@ -27,6 +27,7 @@ jobs:
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: Set env
         run: export BRANCH=${BRANCH_NAME}
+      - run: echo "BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
       - run: echo ${BRANCH}
 
       - uses: mr-smithers-excellent/docker-build-push@v6
