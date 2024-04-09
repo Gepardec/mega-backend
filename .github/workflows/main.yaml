@@ -38,9 +38,6 @@ jobs:
           image: mega-backend
           registry: ghcr.io
           dockerfile: Containerfile
-          buildArgs:
-            - COMMIT=${{ env.COMMIT}}
-            - BRANCH=${{ env.BRANCH}}
-            - VERSION=${{ env.VERSION}}
+          buildArgs: [COMMIT=${{ env.COMMIT}}, BRANCH=${{ env.BRANCH}}, VERSION=${{ env.VERSION}}]
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
