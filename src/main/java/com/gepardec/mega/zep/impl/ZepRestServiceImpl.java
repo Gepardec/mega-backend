@@ -47,7 +47,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @ApplicationScoped
-@Rest
 public class ZepRestServiceImpl implements ZepService {
 
     @Inject

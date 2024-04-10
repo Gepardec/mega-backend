@@ -3,7 +3,6 @@ package com.gepardec.mega.zep.rest.mapper;
 import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.zep.ZepServiceException;
-import com.gepardec.mega.zep.mapper.MapperUtil;
 import com.gepardec.mega.zep.rest.entity.ZepAttendance;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

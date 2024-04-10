@@ -1,5 +1,0 @@
-<jaxws:bindings
-        xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
-        wsdlLocation="./zep_v7.wsdl">
-    <jaxws:enableAsyncMapping>true</jaxws:enableAsyncMapping>
-</jaxws:bindings>

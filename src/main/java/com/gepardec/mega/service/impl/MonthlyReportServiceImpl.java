@@ -27,10 +27,7 @@ import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.service.mapper.TimeWarningMapper;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.impl.Rest;
-import com.gepardec.mega.zep.impl.Soap;
-import de.provantis.zep.FehlzeitType;
-import de.provantis.zep.ProjektzeitType;
+
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;

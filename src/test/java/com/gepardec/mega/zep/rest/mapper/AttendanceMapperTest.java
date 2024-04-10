@@ -1,12 +1,8 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.ProjectTime;
-import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
 import com.gepardec.mega.zep.rest.entity.ZepAttendance;
 import com.gepardec.mega.zep.rest.entity.ZepBillable;
-import de.provantis.zep.AttributeType;
-import de.provantis.zep.AttributesType;
-import de.provantis.zep.ProjektzeitType;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

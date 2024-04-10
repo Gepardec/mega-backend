@@ -35,7 +35,9 @@ public class AbsenceService {
             List<ZepAbsence> absences = responseParser.retrieveAll(
                     page -> zepEmployeeRestClient.getAbsencesByUsername(employeeName, start, end, page),
                     ZepAbsence.class
-            );
+            ).stream()
+                    .filter(absence -> absence.startDate().isAfter(start) && absence.endDate().isBefore(end))
+                    .collect(Collectors.toList());
             return getFullZepAbsences(absences);
         }  catch (ZepServiceException e) {
             logger.warn("Error retrieving employee + \"%s\" from ZEP: No /data field in response".formatted(employeeName),
