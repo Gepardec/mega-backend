@@ -18,7 +18,7 @@ public class ZepRestServiceImplTest {
     @Inject
     RegularWorkingTimesService regularWorkingTimesService;
 
-    @Inject @Rest
+    @Inject
     ZepService zepRestService;
 
 //    @Inject

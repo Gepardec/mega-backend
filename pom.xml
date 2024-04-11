@@ -167,16 +167,6 @@
             <version>${guava.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.ws</groupId>
-            <artifactId>rt</artifactId>
-            <version>${ws.rt.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.org.apache.xml.internal</groupId>
-            <artifactId>resolver</artifactId>
-            <version>${xml.resolver.version}</version>
-        </dependency>
-        <dependency>
             <groupId>de.focus-shift</groupId>
             <artifactId>jollyday-jaxb</artifactId>
             <version>${focus-shift.version}</version>
@@ -239,54 +229,6 @@
             </resource>
         </resources>
         <plugins>
-            <plugin>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-codegen-plugin</artifactId>
-                <version>${cxf-codegen-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>wsdl2java</goal>
-                        </goals>
-                        <configuration>
-                            <sourceRoot>${project.build.directory}/generated-sources</sourceRoot>
-                            <wsdlOptions>
-                                <wsdlOption>
-                                    <wsdl>${project.basedir}/src/main/resources/wsdl/zep_v7.wsdl</wsdl>
-                                    <extraargs>
-                                        <extraarg>-xjc-Xsetters</extraarg>
-                                        <extraarg>-xjc-Xsetters-mode=direct</extraarg>
-                                    </extraargs>
-                                    <bindingFiles>
-                                        <bindingFile>${project.basedir}/src/main/resources/wsdl/zep-bindings.xml
-                                        </bindingFile>
-                                    </bindingFiles>
-                                </wsdlOption>
-                            </wsdlOptions>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.cxf.xjc-utils</groupId>
-                        <artifactId>cxf-xjc-runtime</artifactId>
-                        <version>${cxf-codegen-plugin.version}</version>
-                    </dependency>
-                    <!--FIXME: Keep track of https://github.com/highsource/jaxb2-basics/issues/162, since it is the original package-->
-                    <dependency>
-                        <groupId>org.patrodyne.jvnet</groupId>
-                        <artifactId>hisrc-basicjaxb-plugins</artifactId>
-                        <version>${basicjaxb-plugins.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.patrodyne.jvnet</groupId>
-                        <artifactId>hisrc-basicjaxb-runtime</artifactId>
-                        <version>${basicjaxb-plugins.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

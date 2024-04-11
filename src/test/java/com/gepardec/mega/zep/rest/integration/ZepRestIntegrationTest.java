@@ -31,7 +31,6 @@ public class ZepRestIntegrationTest {
 
 
     @Inject
-    @Rest
     ZepService zepService;
 
 
