@@ -125,7 +125,7 @@ public class ZepServiceImpl implements ZepService {
         }
     }
 
-    //@CacheResult(cacheName = "fehlzeitentype")
+    @CacheResult(cacheName = "fehlzeitentype")
     @Override
     public List<FehlzeitType> getAbsenceForEmployee(Employee employee, LocalDate date) {
         final ReadFehlzeitRequestType fehlzeitenRequest = new ReadFehlzeitRequestType();

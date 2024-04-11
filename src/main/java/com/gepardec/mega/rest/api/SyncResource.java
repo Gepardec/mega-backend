@@ -11,6 +11,7 @@ import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.time.YearMonth;
@@ -105,4 +106,9 @@ public interface SyncResource {
     @Path("/all")
     @GET
     Response syncAll(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
+
+
+    @Path("/automatic-release")
+    @GET
+    Response getAllEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
 }
