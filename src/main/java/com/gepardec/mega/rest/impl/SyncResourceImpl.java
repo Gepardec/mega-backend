@@ -1,19 +1,24 @@
 package com.gepardec.mega.rest.impl;
 
+import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
+import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
+import com.gepardec.mega.rest.api.EmployeeResource;
 import com.gepardec.mega.rest.api.SyncResource;
-import com.gepardec.mega.service.api.EnterpriseSyncService;
-import com.gepardec.mega.service.api.PrematureEmployeeCheckSyncService;
-import com.gepardec.mega.service.api.ProjectSyncService;
-import com.gepardec.mega.service.api.StepEntrySyncService;
-import com.gepardec.mega.service.api.SyncService;
+import com.gepardec.mega.service.api.*;
+import com.gepardec.mega.zep.ZepService;
+import de.provantis.zep.FehlzeitType;
 import io.quarkus.arc.properties.IfBuildProperty;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
+import java.io.Console;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @RequestScoped
 @IfBuildProperty(name = "mega.endpoint.test.enable", stringValue = "true", enableIfMissing = true)
@@ -33,6 +38,11 @@ public class SyncResourceImpl implements SyncResource {
 
     @Inject
     PrematureEmployeeCheckSyncService prematureEmployeeCheckSyncService;
+    @Inject
+    ZepService zepService;
+
+    @Inject
+    EmployeeService employeeService;
 
     @Override
     public Response syncProjects(YearMonth from, YearMonth to) {
@@ -120,5 +130,44 @@ public class SyncResourceImpl implements SyncResource {
         generateStepEntries(from, to);
 
         return Response.ok("ok").build();
+    }
+
+    @Override
+    public Response getAllEmployeesWithoutTimeBookingsAndAbsentWholeMonth() {
+        List<Employee> empls = employeeService.getAllActiveEmployees();
+        List<Employee> resultEmpls = new ArrayList<>();
+        LocalDate now = LocalDate.now();
+        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
+        LocalDate lastOfPreviousMonth = DateUtils.getLastDayOfMonth(now.getYear(), firstOfPreviousMonth.getMonth().getValue());
+
+        for (var empl : empls) {
+            List<FehlzeitType> absences = zepService.getAbsenceForEmployee(empl, firstOfPreviousMonth);
+            boolean allAbsent = true;
+            System.out.println(empl.getFirstname());
+            firstOfPreviousMonth.datesUntil(lastOfPreviousMonth).forEach(
+                    day -> {
+                        if (OfficeCalendarUtil.isWorkingDay(day)) {
+                            boolean isAbsent = isAbsent(day, empl, absences);
+                            if (!isAbsent) {
+                                allAbsent = false; //TODO: exchange this -> not possible inside here
+                                return;
+                            }
+                        }
+                    });
+            if(allAbsent){
+                resultEmpls.add(empl);
+            }
+        }
+        return Response.ok("ok").build();
+    }
+
+    private static boolean isAbsent(LocalDate day, Employee empl, List<FehlzeitType> absences) {
+        boolean match = absences.stream().anyMatch(absence -> {
+            LocalDate startDate = LocalDate.parse(absence.getStartdatum());
+            LocalDate endDate = LocalDate.parse(absence.getEnddatum());
+            return day.equals(startDate) || day.equals(endDate) || (day.isAfter(startDate) && day.isBefore(endDate));
+        });
+        System.out.println(match);
+        return absences.stream().anyMatch(absence -> day.equals(LocalDate.parse(absence.getStartdatum())));
     }
 }
