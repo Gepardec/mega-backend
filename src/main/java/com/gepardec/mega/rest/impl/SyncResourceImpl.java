@@ -5,6 +5,8 @@ import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
 import com.gepardec.mega.rest.api.EmployeeResource;
 import com.gepardec.mega.rest.api.SyncResource;
+import com.gepardec.mega.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.*;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.FehlzeitType;
@@ -19,6 +21,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RequestScoped
 @IfBuildProperty(name = "mega.endpoint.test.enable", stringValue = "true", enableIfMissing = true)
@@ -43,6 +46,9 @@ public class SyncResourceImpl implements SyncResource {
 
     @Inject
     EmployeeService employeeService;
+
+    @Inject
+    EmployeeMapper employeeMapper;
 
     @Override
     public Response syncProjects(YearMonth from, YearMonth to) {
@@ -133,41 +139,54 @@ public class SyncResourceImpl implements SyncResource {
     }
 
     @Override
-    public Response getAllEmployeesWithoutTimeBookingsAndAbsentWholeMonth() {
+    public List<EmployeeDto> updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth() {
         List<Employee> empls = employeeService.getAllActiveEmployees();
-        List<Employee> resultEmpls = new ArrayList<>();
+        List<EmployeeDto> updatedEmpls = new ArrayList<>();
+        List<Employee> absentEmpls = new ArrayList<>();
+
         LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
         LocalDate lastOfPreviousMonth = DateUtils.getLastDayOfMonth(now.getYear(), firstOfPreviousMonth.getMonth().getValue());
 
         for (var empl : empls) {
             List<FehlzeitType> absences = zepService.getAbsenceForEmployee(empl, firstOfPreviousMonth);
-            boolean allAbsent = true;
+            AtomicBoolean allAbsent = new AtomicBoolean(true);
             System.out.println(empl.getFirstname());
-            firstOfPreviousMonth.datesUntil(lastOfPreviousMonth).forEach(
-                    day -> {
-                        if (OfficeCalendarUtil.isWorkingDay(day)) {
-                            boolean isAbsent = isAbsent(day, empl, absences);
-                            if (!isAbsent) {
-                                allAbsent = false; //TODO: exchange this -> not possible inside here
-                                return;
-                            }
-                        }
-                    });
-            if(allAbsent){
-                resultEmpls.add(empl);
+
+            for (LocalDate day = firstOfPreviousMonth; !day.isAfter(lastOfPreviousMonth); day = day.plusDays(1)) {
+                if (OfficeCalendarUtil.isWorkingDay(day)) {
+                    boolean isAbsent = isAbsent(day, absences);
+                    if (!isAbsent) {
+                        allAbsent.set(false);
+                        break;
+                    }
+                }
             }
+
+            // only add empl who was absent the whole month
+            if(allAbsent.get()){
+                absentEmpls.add(empl);
+            }
+
+            // set release date of empl to last day of previous month --> no confirmation of empl. necessary
+            absentEmpls.forEach(e -> {
+                zepService.updateEmployeesReleaseDate(e.getUserId(), lastOfPreviousMonth.toString());
+                updatedEmpls.add(employeeMapper.mapToDto(e));
+            });
         }
-        return Response.ok("ok").build();
+        return updatedEmpls;
     }
 
-    private static boolean isAbsent(LocalDate day, Employee empl, List<FehlzeitType> absences) {
-        boolean match = absences.stream().anyMatch(absence -> {
+    private boolean isAbsent(LocalDate day, List<FehlzeitType> absences) {
+        for(var absence : absences){
             LocalDate startDate = LocalDate.parse(absence.getStartdatum());
             LocalDate endDate = LocalDate.parse(absence.getEnddatum());
-            return day.equals(startDate) || day.equals(endDate) || (day.isAfter(startDate) && day.isBefore(endDate));
-        });
-        System.out.println(match);
-        return absences.stream().anyMatch(absence -> day.equals(LocalDate.parse(absence.getStartdatum())));
+            if(day.equals(startDate) ||
+                day.equals(endDate) ||
+                (day.isAfter(startDate) && day.isBefore(endDate))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

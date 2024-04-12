@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.api;
 
+import com.gepardec.mega.rest.model.EmployeeDto;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -15,6 +16,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.time.YearMonth;
+import java.util.List;
 
 @Path("/sync")
 @Tag(name = "SyncResource")
@@ -108,7 +110,9 @@ public interface SyncResource {
     Response syncAll(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
 
 
+    @Operation(operationId = "updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth", description = "Update all employees that don't have time bookings and are absent for the whole month.")
     @Path("/automatic-release")
     @GET
-    Response getAllEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
+    List<EmployeeDto> updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
+
 }
