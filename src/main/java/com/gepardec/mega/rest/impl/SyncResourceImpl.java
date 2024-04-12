@@ -14,6 +14,7 @@ import io.quarkus.arc.properties.IfBuildProperty;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import org.slf4j.Logger;
 
 import java.io.Console;
 import java.time.LocalDate;
@@ -49,6 +50,9 @@ public class SyncResourceImpl implements SyncResource {
 
     @Inject
     EmployeeMapper employeeMapper;
+
+    @Inject
+    Logger logger;
 
     @Override
     public Response syncProjects(YearMonth from, YearMonth to) {
@@ -174,6 +178,8 @@ public class SyncResourceImpl implements SyncResource {
                 updatedEmpls.add(employeeMapper.mapToDto(e));
             });
         }
+
+        logger.info("updated " + updatedEmpls.size() + " employees!");
         return updatedEmpls;
     }
 
