@@ -155,9 +155,10 @@ public class SyncResourceImpl implements SyncResource {
 
         LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
-        LocalDate lastOfPreviousMonth = DateUtils.getLastDayOfMonth(now.getYear(), firstOfPreviousMonth.getMonth().getValue());
+        LocalDate lastOfPreviousMonth = DateUtils.getLastDayOfMonth(firstOfPreviousMonth.getYear(), firstOfPreviousMonth.getMonth().getValue());
 
         for (var empl : activeAndInternalEmpls) {
+            //all absence types besides HomeOffice and External training days
             List<FehlzeitType> absences = zepService.getAbsenceForEmployee(empl, firstOfPreviousMonth).stream()
                     .filter(absence -> !AbsenceType.getAbscenceTypesWhereWorkingTimeNeeded().stream()
                             .map(AbsenceType::getAbsenceName).toList()
