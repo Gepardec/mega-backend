@@ -144,7 +144,11 @@ public class SyncResourceImpl implements SyncResource {
 
     @Override
     public List<EmployeeDto> updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth() {
-        List<Employee> empls = employeeService.getAllActiveEmployees();
+        //to avoid having a look at external empls
+        List<Employee> activeAndInternalEmpls = employeeService.getAllActiveEmployees()
+                                                               .stream()
+                                                               .filter(e -> !e.getUserId().startsWith("e"))
+                                                               .toList();
         List<EmployeeDto> updatedEmpls = new ArrayList<>();
         List<Employee> absentEmpls = new ArrayList<>();
 
@@ -152,34 +156,33 @@ public class SyncResourceImpl implements SyncResource {
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
         LocalDate lastOfPreviousMonth = DateUtils.getLastDayOfMonth(now.getYear(), firstOfPreviousMonth.getMonth().getValue());
 
-        for (var empl : empls) {
+        for (var empl : activeAndInternalEmpls) {
             List<FehlzeitType> absences = zepService.getAbsenceForEmployee(empl, firstOfPreviousMonth);
-            AtomicBoolean allAbsent = new AtomicBoolean(true);
-            System.out.println(empl.getFirstname());
+            boolean allAbsent = true;
 
             for (LocalDate day = firstOfPreviousMonth; !day.isAfter(lastOfPreviousMonth); day = day.plusDays(1)) {
                 if (OfficeCalendarUtil.isWorkingDay(day)) {
                     boolean isAbsent = isAbsent(day, absences);
                     if (!isAbsent) {
-                        allAbsent.set(false);
+                        allAbsent = false;
                         break;
                     }
                 }
             }
 
             // only add empl who was absent the whole month
-            if(allAbsent.get()){
+            if(allAbsent){
                 absentEmpls.add(empl);
             }
-
-            // set release date of empl to last day of previous month --> no confirmation of empl. necessary
-            absentEmpls.forEach(e -> {
-                zepService.updateEmployeesReleaseDate(e.getUserId(), lastOfPreviousMonth.toString());
-                updatedEmpls.add(employeeMapper.mapToDto(e));
-            });
         }
 
-        logger.info("updated " + updatedEmpls.size() + " employees!");
+        // set release date of empl to last day of previous month --> no confirmation of empl. necessary
+        absentEmpls.forEach(e -> {
+            zepService.updateEmployeesReleaseDate(e.getUserId(), lastOfPreviousMonth.toString());
+            updatedEmpls.add(employeeMapper.mapToDto(e));
+        });
+
+        logger.info("updated " + updatedEmpls.size() + " employee(s)!");
         return updatedEmpls;
     }
 
