@@ -1,5 +1,6 @@
 package com.gepardec.mega.service.impl;
 
+import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.Comment;
@@ -45,19 +46,6 @@ import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfMonth;
 
 @RequestScoped
 public class MonthlyReportServiceImpl implements MonthlyReportService {
-
-    public static final String COMPENSATORY_DAYS = "FA";
-    public static final String HOME_OFFICE_DAYS = "HO";
-    public static final String VACATION_DAYS = "UB";
-    public static final String NURSING_DAYS = "PU";
-    public static final String MATERNITY_LEAVE_DAYS = "KA";
-    public static final String EXTERNAL_TRAINING_DAYS = "EW";
-    public static final String CONFERENCE_DAYS = "KO";
-    public static final String MATERNITY_PROTECTION_DAYS = "MU";
-    public static final String FATHER_MONTH_DAYS = "PA";
-    public static final String PAID_SPECIAL_LEAVE_DAYS = "SU";
-    public static final String NON_PAID_VACATION_DAYS = "UU";
-    public static final String PAID_SICK_LEAVE = "KR";
 
     @Inject
     ZepService zepService;
@@ -201,18 +189,18 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .otherChecksDone(isMonthCompletedForEmployee(employee, date))
                 .billableTime(workingTimeUtil.getBillableTimesForEmployee(billableEntries, employee))
                 .totalWorkingTime(workingTimeUtil.getTotalWorkingTimeForEmployee(billableEntries, employee))
-                .compensatoryDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, COMPENSATORY_DAYS, date))
-                .homeofficeDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, HOME_OFFICE_DAYS, date))
-                .vacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, VACATION_DAYS, date))
-                .nursingDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, NURSING_DAYS, date))
-                .maternityLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, MATERNITY_LEAVE_DAYS, date))
-                .externalTrainingDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, EXTERNAL_TRAINING_DAYS, date))
-                .conferenceDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, CONFERENCE_DAYS, date))
-                .maternityProtectionDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, MATERNITY_PROTECTION_DAYS, date))
-                .fatherMonthDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, FATHER_MONTH_DAYS, date))
-                .paidSpecialLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SPECIAL_LEAVE_DAYS, date))
-                .nonPaidVacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS, date))
-                .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
+                .compensatoryDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.COMPENSATORY_DAYS.getAbsenceName(), date))
+                .homeofficeDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.HOME_OFFICE_DAYS.getAbsenceName(), date))
+                .vacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.VACATION_DAYS.getAbsenceName(), date))
+                .nursingDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.NURSING_DAYS.getAbsenceName(), date))
+                .maternityLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.MATERNITY_LEAVE_DAYS.getAbsenceName(), date))
+                .externalTrainingDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.EXTERNAL_TRAINING_DAYS.getAbsenceName(), date))
+                .conferenceDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.CONFERENCE_DAYS.getAbsenceName(), date))
+                .maternityProtectionDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.MATERNITY_PROTECTION_DAYS.getAbsenceName(), date))
+                .fatherMonthDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.FATHER_MONTH_DAYS.getAbsenceName(), date))
+                .paidSpecialLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.PAID_SPECIAL_LEAVE_DAYS.getAbsenceName(), date))
+                .nonPaidVacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.NON_PAID_VACATION_DAYS.getAbsenceName(), date))
+                .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.PAID_SICK_LEAVE.getAbsenceName(), date))
                 .overtime(workingTimeUtil.getOvertimeForEmployee(employee, billableEntries, absenceEntries, date))
                 .prematureEmployeeCheck(prematureEmployeeCheck.orElse(null))
                 .initialDate(initialDate);

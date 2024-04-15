@@ -1,5 +1,6 @@
 package com.gepardec.mega.rest.impl;
 
+import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
@@ -157,7 +158,11 @@ public class SyncResourceImpl implements SyncResource {
         LocalDate lastOfPreviousMonth = DateUtils.getLastDayOfMonth(now.getYear(), firstOfPreviousMonth.getMonth().getValue());
 
         for (var empl : activeAndInternalEmpls) {
-            List<FehlzeitType> absences = zepService.getAbsenceForEmployee(empl, firstOfPreviousMonth);
+            List<FehlzeitType> absences = zepService.getAbsenceForEmployee(empl, firstOfPreviousMonth).stream()
+                    .filter(absence -> !AbsenceType.getAbscenceTypesWhereWorkingTimeNeeded().stream()
+                            .map(AbsenceType::getAbsenceName).toList()
+                            .contains(absence.getFehlgrund()))
+                    .toList();
             boolean allAbsent = true;
 
             for (LocalDate day = firstOfPreviousMonth; !day.isAfter(lastOfPreviousMonth); day = day.plusDays(1)) {
@@ -179,7 +184,7 @@ public class SyncResourceImpl implements SyncResource {
         // set release date of empl to last day of previous month --> no confirmation of empl. necessary
         absentEmpls.forEach(e -> {
             zepService.updateEmployeesReleaseDate(e.getUserId(), lastOfPreviousMonth.toString());
-            updatedEmpls.add(employeeMapper.mapToDto(e));
+            updatedEmpls.add(employeeMapper.mapToDto(zepService.getEmployee(e.getUserId())));
         });
 
         logger.info("updated " + updatedEmpls.size() + " employee(s)!");
