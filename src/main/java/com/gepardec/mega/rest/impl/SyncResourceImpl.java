@@ -155,6 +155,7 @@ public class SyncResourceImpl implements SyncResource {
 
         LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
+        //use this firstOfPreviousMonth.getYear() because of january and december
         LocalDate lastOfPreviousMonth = DateUtils.getLastDayOfMonth(firstOfPreviousMonth.getYear(), firstOfPreviousMonth.getMonth().getValue());
 
         for (var empl : activeAndInternalEmpls) {
