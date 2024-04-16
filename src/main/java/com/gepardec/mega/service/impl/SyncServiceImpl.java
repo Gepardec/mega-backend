@@ -107,7 +107,7 @@ public class SyncServiceImpl implements SyncService {
         for (var employee : activeAndInternalEmployees) {
             //considering all absence types besides HomeOffice and External training days
             List<FehlzeitType> absences = zepService.getAbsenceForEmployee(employee, firstOfPreviousMonth).stream()
-                    .filter(absence -> !AbsenceType.getAbscenceTypesWhereWorkingTimeNeeded().stream()
+                    .filter(absence -> !AbsenceType.getAbsenceTypesWhereWorkingTimeNeeded().stream()
                             .map(AbsenceType::getAbsenceName).toList()
                             .contains(absence.getFehlgrund()))
                     .toList();
@@ -135,7 +135,7 @@ public class SyncServiceImpl implements SyncService {
             updatedEmployees.add(employeeMapper.mapToDto(zepService.getEmployee(employee.getUserId())));
         });
 
-        logger.info("updated " + updatedEmployees.size() + " employee(s)!");
+        logger.info("updated {} employee(s)!", updatedEmployees.size());
         return updatedEmployees;
     }
 

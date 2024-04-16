@@ -1,29 +1,21 @@
 package com.gepardec.mega.rest.impl;
 
-import com.gepardec.mega.db.entity.common.AbsenceType;
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
-import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
-import com.gepardec.mega.rest.api.EmployeeResource;
 import com.gepardec.mega.rest.api.SyncResource;
-import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.model.EmployeeDto;
-import com.gepardec.mega.service.api.*;
-import com.gepardec.mega.zep.ZepService;
-import de.provantis.zep.FehlzeitType;
+import com.gepardec.mega.service.api.EnterpriseSyncService;
+import com.gepardec.mega.service.api.PrematureEmployeeCheckSyncService;
+import com.gepardec.mega.service.api.ProjectSyncService;
+import com.gepardec.mega.service.api.StepEntrySyncService;
+import com.gepardec.mega.service.api.SyncService;
 import io.quarkus.arc.properties.IfBuildProperty;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-import org.slf4j.Logger;
 
-import java.io.Console;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @RequestScoped
 @IfBuildProperty(name = "mega.endpoint.test.enable", stringValue = "true", enableIfMissing = true)
@@ -139,6 +131,4 @@ public class SyncResourceImpl implements SyncResource {
     public List<EmployeeDto> updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth() {
         return syncService.syncUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
     }
-
-
 }

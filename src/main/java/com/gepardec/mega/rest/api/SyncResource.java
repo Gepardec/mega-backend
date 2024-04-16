@@ -1,7 +1,11 @@
 package com.gepardec.mega.rest.api;
 
 import com.gepardec.mega.rest.model.EmployeeDto;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -74,7 +78,6 @@ public interface SyncResource {
     @GET
     Response generateStepEntries(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
 
-
     @Operation(operationId = "syncPrematureEmployeeChecks", description = "Sync PrematureEmployeeChecks with existing StepEntries and updates these accordingly.")
     @Parameter(name = "from",
             description = "If not given uses the current month. " +
@@ -107,15 +110,15 @@ public interface SyncResource {
     @GET
     Response syncAll(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
 
-
     @Operation(operationId = "updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth", description = "Update all employees that don't have time bookings and are absent for the whole month.")
-    @Path("/automatic-release")
     @APIResponse(responseCode = "200",
-                 description = "Successfully updated affected employees.",
-                 content = {@Content(mediaType = "application/json",
-                                     schema = @Schema(implementation = EmployeeDto[].class))
-                 })
+            description = "Successfully updated affected employees.",
+            content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = EmployeeDto[].class))
+            }
+    )
+    @Path("/automatic-release")
     @PUT
     List<EmployeeDto> updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
-
 }

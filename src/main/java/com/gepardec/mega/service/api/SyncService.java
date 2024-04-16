@@ -11,6 +11,6 @@ import java.util.List;
 public interface SyncService {
 
     void syncEmployees();
-    List<EmployeeDto> syncUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
 
+    List<EmployeeDto> syncUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
 }
