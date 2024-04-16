@@ -1,15 +1,13 @@
 package com.gepardec.mega.rest.api;
 
 import com.gepardec.mega.rest.model.EmployeeDto;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
@@ -112,7 +110,12 @@ public interface SyncResource {
 
     @Operation(operationId = "updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth", description = "Update all employees that don't have time bookings and are absent for the whole month.")
     @Path("/automatic-release")
-    @GET
+    @APIResponse(responseCode = "200",
+                 description = "Successfully updated affected employees.",
+                 content = {@Content(mediaType = "application/json",
+                                     schema = @Schema(implementation = EmployeeDto[].class))
+                 })
+    @PUT
     List<EmployeeDto> updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
 
 }

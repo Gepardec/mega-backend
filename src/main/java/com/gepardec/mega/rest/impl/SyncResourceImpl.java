@@ -145,22 +145,22 @@ public class SyncResourceImpl implements SyncResource {
 
     @Override
     public List<EmployeeDto> updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth() {
-        //to avoid having a look at external empls
-        List<Employee> activeAndInternalEmpls = employeeService.getAllActiveEmployees()
+        //to avoid having a look at external employees filter
+        List<Employee> activeAndInternalEmployees = employeeService.getAllActiveEmployees()
                                                                .stream()
                                                                .filter(e -> !e.getUserId().startsWith("e"))
                                                                .toList();
-        List<EmployeeDto> updatedEmpls = new ArrayList<>();
-        List<Employee> absentEmpls = new ArrayList<>();
+        List<EmployeeDto> updatedEmployees = new ArrayList<>();
+        List<Employee> absentEmployees = new ArrayList<>();
 
         LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
         //use this firstOfPreviousMonth.getYear() because of january and december
         LocalDate lastOfPreviousMonth = DateUtils.getLastDayOfMonth(firstOfPreviousMonth.getYear(), firstOfPreviousMonth.getMonth().getValue());
 
-        for (var empl : activeAndInternalEmpls) {
-            //all absence types besides HomeOffice and External training days
-            List<FehlzeitType> absences = zepService.getAbsenceForEmployee(empl, firstOfPreviousMonth).stream()
+        for (var employee : activeAndInternalEmployees) {
+            //considering all absence types besides HomeOffice and External training days
+            List<FehlzeitType> absences = zepService.getAbsenceForEmployee(employee, firstOfPreviousMonth).stream()
                     .filter(absence -> !AbsenceType.getAbscenceTypesWhereWorkingTimeNeeded().stream()
                             .map(AbsenceType::getAbsenceName).toList()
                             .contains(absence.getFehlgrund()))
@@ -177,20 +177,20 @@ public class SyncResourceImpl implements SyncResource {
                 }
             }
 
-            // only add empl who was absent the whole month
+            // only add employee who was absent the whole month
             if(allAbsent){
-                absentEmpls.add(empl);
+                absentEmployees.add(employee);
             }
         }
 
-        // set release date of empl to last day of previous month --> no confirmation of empl. necessary
-        absentEmpls.forEach(e -> {
-            zepService.updateEmployeesReleaseDate(e.getUserId(), lastOfPreviousMonth.toString());
-            updatedEmpls.add(employeeMapper.mapToDto(zepService.getEmployee(e.getUserId())));
+        // set release date of employee to last day of previous month --> no confirmation of employee necessary
+        absentEmployees.forEach(employee -> {
+            zepService.updateEmployeesReleaseDate(employee.getUserId(), lastOfPreviousMonth.toString());
+            updatedEmployees.add(employeeMapper.mapToDto(zepService.getEmployee(employee.getUserId())));
         });
 
-        logger.info("updated " + updatedEmpls.size() + " employee(s)!");
-        return updatedEmpls;
+        logger.info("updated " + updatedEmployees.size() + " employee(s)!");
+        return updatedEmployees;
     }
 
     private boolean isAbsent(LocalDate day, List<FehlzeitType> absences) {
