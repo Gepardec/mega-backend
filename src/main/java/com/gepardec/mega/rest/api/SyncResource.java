@@ -1,6 +1,8 @@
 package com.gepardec.mega.rest.api;
 
+import com.gepardec.mega.rest.model.EmployeeDto;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
@@ -9,11 +11,14 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.time.YearMonth;
+import java.util.List;
 
 @Path("/sync")
 @Tag(name = "SyncResource")
@@ -73,7 +78,6 @@ public interface SyncResource {
     @GET
     Response generateStepEntries(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
 
-
     @Operation(operationId = "syncPrematureEmployeeChecks", description = "Sync PrematureEmployeeChecks with existing StepEntries and updates these accordingly.")
     @Parameter(name = "from",
             description = "If not given uses the current month. " +
@@ -105,4 +109,16 @@ public interface SyncResource {
     @Path("/all")
     @GET
     Response syncAll(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
+
+    @Operation(operationId = "updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth", description = "Update all employees that don't have time bookings and are absent for the whole month.")
+    @APIResponse(responseCode = "200",
+            description = "Successfully updated affected employees.",
+            content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = EmployeeDto[].class))
+            }
+    )
+    @Path("/automatic-release")
+    @PUT
+    List<EmployeeDto> updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
 }

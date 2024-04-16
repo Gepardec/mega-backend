@@ -3,6 +3,7 @@ package com.gepardec.mega.application.schedule;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.notification.mail.ReminderEmailSender;
 import com.gepardec.mega.notification.mail.receiver.MailReceiver;
+import com.gepardec.mega.rest.api.SyncResource;
 import com.gepardec.mega.service.api.EnterpriseSyncService;
 import com.gepardec.mega.service.api.PrematureEmployeeCheckSyncService;
 import com.gepardec.mega.service.api.ProjectSyncService;
@@ -29,6 +30,7 @@ public class Schedules {
 
     @Inject
     StepEntrySyncService stepEntrySyncService;
+
 
     @Inject
     ProjectSyncService projectSyncService;
@@ -90,5 +92,11 @@ public class Schedules {
             cron = "0 0 6 L * ? *")
     void syncPrematureEmployeeChecksWithStepEntries() {
         prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(DateUtils.getCurrentYearMonth());
+    }
+
+    @Scheduled(identity = "Set release date automatically for any employee who was absent the whole month and had no time bookings - on the first day of a month at 07:00",
+               cron = "0 0 7 1 * *")
+    void setReleaseDateForEmployeesWhoWhereAbsentWholeMonth(){
+        syncService.syncUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
     }
 }
