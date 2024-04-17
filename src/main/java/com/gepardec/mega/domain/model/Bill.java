@@ -49,7 +49,6 @@ public class Bill {
     }
 
     public static final class Builder {
-
             private LocalDate billDate;
 
             private Double bruttoValue;
@@ -59,7 +58,6 @@ public class Bill {
             private PaymentMethodType paymentMethodType;
 
             private String projectName;
-
 
             private Builder(){}
 
@@ -93,7 +91,5 @@ public class Bill {
             public Bill build() {
                 return new Bill(this);
             }
-
-
         }
 }
