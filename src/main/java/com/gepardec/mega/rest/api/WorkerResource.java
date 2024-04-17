@@ -6,8 +6,10 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/worker")
+@Tag(name = "WorkerResource")
 public interface WorkerResource {
     @GET
     @Path("/monthendreports")
