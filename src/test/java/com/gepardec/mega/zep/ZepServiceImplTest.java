@@ -1,5 +1,6 @@
 package com.gepardec.mega.zep;
 
+import com.gepardec.mega.db.repository.ProjectRepository;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
@@ -57,6 +58,8 @@ class ZepServiceImplTest {
 
     ZepServiceImpl zepService;
 
+    ProjectRepository projectRepository;
+
     private ProjektMitarbeiterListeType projektMitarbeiterListeType;
 
     private LocalDate monthYear;
@@ -86,7 +89,7 @@ class ZepServiceImplTest {
     void setUp() {
         zepSoapPortType = mock(ZepSoapPortType.class);
 
-        zepService = new ZepServiceImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper);
+        zepService = new ZepServiceImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper, projectRepository);
 
         final ReadProjekteResponseType readProjekteResponseType = new ReadProjekteResponseType();
         final ProjektListeType projektListeType = new ProjektListeType();

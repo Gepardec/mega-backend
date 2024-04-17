@@ -24,7 +24,7 @@ public enum AbsenceType {
         this.absenceName = absenceName;
     }
 
-    public String getAbsenceName(){return  this.absenceName;}
+    public String getAbsenceName(){return this.absenceName;}
     public int getAbsenceId(){return  this.absenceId;}
 
     public static List<AbsenceType> getAbsenceTypesWhereWorkingTimeNeeded(){

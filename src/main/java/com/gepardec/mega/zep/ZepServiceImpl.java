@@ -1,5 +1,7 @@
 package com.gepardec.mega.zep;
 
+import com.gepardec.mega.db.entity.common.PaymentMethodType;
+import com.gepardec.mega.db.repository.ProjectRepository;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.Employee;
@@ -22,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
 import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfCurrentMonth;
+import static java.lang.Long.parseLong;
 
 @RequestScoped
 public class ZepServiceImpl implements ZepService {
@@ -47,17 +51,22 @@ public class ZepServiceImpl implements ZepService {
 
     private final ProjectEntryMapper projectEntryMapper;
 
+    private final ProjectRepository projectRepository;
+
+
     @Inject
     public ZepServiceImpl(final EmployeeMapper employeeMapper,
                           final Logger logger,
                           final ZepSoapPortType zepSoapPortType,
                           final ZepSoapProvider zepSoapProvider,
-                          final ProjectEntryMapper projectEntryMapper) {
+                          final ProjectEntryMapper projectEntryMapper,
+                          final ProjectRepository projectRepository) {
         this.employeeMapper = employeeMapper;
         this.logger = logger;
         this.zepSoapPortType = zepSoapPortType;
         this.zepSoapProvider = zepSoapProvider;
         this.projectEntryMapper = projectEntryMapper;
+        this.projectRepository = projectRepository;
     }
 
     @Override
@@ -182,8 +191,10 @@ public class ZepServiceImpl implements ZepService {
     public List<Bill> getBillsForEmployeeByMonth(final Employee employee) {
         final ReadBelegResponseType readBelegResponseType = getBelegeInternal(employee);
 
-        BelegListeType belegListe = readBelegResponseType.getBelegListe();
-
+        BelegListeType billList = readBelegResponseType.getBelegListe();
+        return billList.getBeleg().stream()
+                .map(bt -> createBill(bt, employee))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -308,6 +319,25 @@ public class ZepServiceImpl implements ZepService {
         searchCriteria.setBis(getLastDayOfCurrentMonth(date));
 
         return searchCriteria;
+    }
+
+    private Bill createBill(final BelegType belegType, Employee employee) {
+        String projectName = projectRepository.findById(parseLong(belegType.getProjektNr())).getName();
+        List<BelegbetragType> amountList = belegType.getBelegbetragListe().getBelegbetrag();
+        double bruttoValue = 0.0;
+
+        //TODO what if not 1?
+        if(amountList.size() == 1){
+            bruttoValue = amountList.get(0).getBetrag() * amountList.get(0).getMenge();
+        }
+
+        return Bill.builder()
+                .billDate(DateUtils.parseDate(belegType.getDatum()))
+                .bruttoValue(bruttoValue)
+                .billType(belegType.getBelegart())
+                .paymentMethodType(PaymentMethodType.valueOf(belegType.getZahlungsart()))
+                .projectName(projectName)
+                .build();
     }
 
     private Project createProject(final ProjektType projektType, final LocalDate monthYear) {

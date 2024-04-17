@@ -24,6 +24,10 @@ public class Bill {
         this.projectName = builder.projectName;
     }
 
+    public static Builder builder() {
+        return Builder.aBill();
+    }
+
     public LocalDate getBillDate() {
         return billDate;
     }
@@ -59,7 +63,7 @@ public class Bill {
 
             private Builder(){}
 
-            public static Builder aBeleg(){return new Builder();}
+            public static Builder aBill(){return new Builder();}
 
             public Builder billDate(LocalDate billDate) {
                 this.billDate = billDate;
@@ -84,6 +88,10 @@ public class Bill {
             public Builder projectName(String projectName) {
                 this.projectName = projectName;
                 return this;
+            }
+
+            public Bill build() {
+                return new Bill(this);
             }
 
 
