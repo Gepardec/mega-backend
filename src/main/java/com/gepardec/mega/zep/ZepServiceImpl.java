@@ -1,6 +1,6 @@
 package com.gepardec.mega.zep;
 
-import com.gepardec.mega.domain.model.Beleg;
+import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
@@ -179,8 +179,11 @@ public class ZepServiceImpl implements ZepService {
 
     @CacheResult(cacheName = "belege")
     @Override
-    public List<Beleg> getBillsForEmployeeByMonth(final Employee employee) {
+    public List<Bill> getBillsForEmployeeByMonth(final Employee employee) {
         final ReadBelegResponseType readBelegResponseType = getBelegeInternal(employee);
+
+        BelegListeType belegListe = readBelegResponseType.getBelegListe();
+
     }
 
     @Override

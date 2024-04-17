@@ -1,6 +1,6 @@
 package com.gepardec.mega.zep;
 
-import com.gepardec.mega.domain.model.Beleg;
+import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
@@ -31,5 +31,5 @@ public interface ZepService {
 
     List<ProjektzeitType> getBillableForEmployee(Employee employee, LocalDate date);
 
-    List<Beleg> getBillsForEmployeeByMonth(final Employee employee);
+    List<Bill> getBillsForEmployeeByMonth(final Employee employee);
 }
