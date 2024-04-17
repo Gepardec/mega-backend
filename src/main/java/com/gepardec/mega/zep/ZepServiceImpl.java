@@ -1,5 +1,6 @@
 package com.gepardec.mega.zep;
 
+import com.gepardec.mega.domain.model.Beleg;
 import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
@@ -7,32 +8,7 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
-import de.provantis.zep.FehlzeitType;
-import de.provantis.zep.KategorieListeType;
-import de.provantis.zep.KategorieType;
-import de.provantis.zep.MitarbeiterType;
-import de.provantis.zep.ProjektListeType;
-import de.provantis.zep.ProjektMitarbeiterListeType;
-import de.provantis.zep.ProjektMitarbeiterType;
-import de.provantis.zep.ProjektNrListeType;
-import de.provantis.zep.ProjektType;
-import de.provantis.zep.ProjektzeitType;
-import de.provantis.zep.ReadFehlzeitRequestType;
-import de.provantis.zep.ReadFehlzeitResponseType;
-import de.provantis.zep.ReadFehlzeitSearchCriteriaType;
-import de.provantis.zep.ReadMitarbeiterRequestType;
-import de.provantis.zep.ReadMitarbeiterSearchCriteriaType;
-import de.provantis.zep.ReadProjekteRequestType;
-import de.provantis.zep.ReadProjekteResponseType;
-import de.provantis.zep.ReadProjekteSearchCriteriaType;
-import de.provantis.zep.ReadProjektzeitenRequestType;
-import de.provantis.zep.ReadProjektzeitenResponseType;
-import de.provantis.zep.ReadProjektzeitenSearchCriteriaType;
-import de.provantis.zep.ResponseHeaderType;
-import de.provantis.zep.UpdateMitarbeiterRequestType;
-import de.provantis.zep.UpdateMitarbeiterResponseType;
-import de.provantis.zep.UserIdListeType;
-import de.provantis.zep.ZepSoapPortType;
+import de.provantis.zep.*;
 import io.quarkus.cache.CacheInvalidate;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.RequestScoped;
@@ -201,6 +177,12 @@ public class ZepServiceImpl implements ZepService {
                 .collect(Collectors.toList());
     }
 
+    @CacheResult(cacheName = "belege")
+    @Override
+    public List<Beleg> getBillsForEmployeeByMonth(final Employee employee) {
+        final ReadBelegResponseType readBelegResponseType = getBelegeInternal(employee);
+    }
+
     @Override
     public Optional<Project> getProjectByName(final String projectName, final LocalDate monthYear) {
         final var readProjekteSearchCriteriaType = new ReadProjekteSearchCriteriaType();
@@ -255,6 +237,27 @@ public class ZepServiceImpl implements ZepService {
         return zepSoapPortType.readProjekte(readProjekteRequestType);
     }
 
+    private ReadBelegResponseType getBelegeInternal(final Employee employee){
+        LocalDate dateForSearchCriteria;
+        LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
+        LocalDate now = LocalDate.now();
+        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
+
+        if (now.isAfter(midOfCurrentMonth)) {
+            dateForSearchCriteria = now;
+        } else {
+            dateForSearchCriteria = firstOfPreviousMonth;
+        }
+
+        final ReadBelegSearchCriteriaType readBelegSearchCriteriaType = createBelegSearchCriteria(employee, dateForSearchCriteria);
+
+        final ReadBelegRequestType readBelegRequestType = new ReadBelegRequestType();
+        readBelegRequestType.setRequestHeader(zepSoapProvider.createRequestHeaderType());
+        readBelegRequestType.setReadBelegSearchCriteria(readBelegSearchCriteriaType);
+
+        return zepSoapPortType.readBeleg(readBelegRequestType);
+    }
+
     private ReadProjektzeitenSearchCriteriaType createProjectTimeSearchCriteria(Employee employee, LocalDate date) {
         ReadProjektzeitenSearchCriteriaType searchCriteria = new ReadProjektzeitenSearchCriteriaType();
 
@@ -287,6 +290,20 @@ public class ZepServiceImpl implements ZepService {
         searchCriteria.setEnddatum(getLastDayOfCurrentMonth(date));
 
         searchCriteria.setUserId(employee.getUserId());
+        return searchCriteria;
+    }
+
+    private ReadBelegSearchCriteriaType createBelegSearchCriteria(Employee employee, LocalDate date){
+        ReadBelegSearchCriteriaType searchCriteria = new ReadBelegSearchCriteriaType();
+
+        //setUserIdListe needs this special parameter below, could be more than one id but in this case only one is useful
+        UserIdListeType userIdListe = new UserIdListeType();
+        userIdListe.setUserId(List.of(employee.getUserId()));
+
+        searchCriteria.setUserIdListe(userIdListe);
+        searchCriteria.setVon(getFirstDayOfCurrentMonth(date));
+        searchCriteria.setBis(getLastDayOfCurrentMonth(date));
+
         return searchCriteria;
     }
 
