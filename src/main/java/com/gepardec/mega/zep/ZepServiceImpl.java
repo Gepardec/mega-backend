@@ -15,6 +15,7 @@ import io.quarkus.cache.CacheInvalidate;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -51,7 +52,6 @@ public class ZepServiceImpl implements ZepService {
 
     private final ProjectEntryMapper projectEntryMapper;
 
-    private final ProjectRepository projectRepository;
 
 
     @Inject
@@ -59,14 +59,12 @@ public class ZepServiceImpl implements ZepService {
                           final Logger logger,
                           final ZepSoapPortType zepSoapPortType,
                           final ZepSoapProvider zepSoapProvider,
-                          final ProjectEntryMapper projectEntryMapper,
-                          final ProjectRepository projectRepository) {
+                          final ProjectEntryMapper projectEntryMapper) {
         this.employeeMapper = employeeMapper;
         this.logger = logger;
         this.zepSoapPortType = zepSoapPortType;
         this.zepSoapProvider = zepSoapProvider;
         this.projectEntryMapper = projectEntryMapper;
-        this.projectRepository = projectRepository;
     }
 
     @Override
@@ -189,7 +187,7 @@ public class ZepServiceImpl implements ZepService {
     //@CacheResult(cacheName = "belege")
     @Override
     public List<Bill> getBillsForEmployeeByMonth(final Employee employee) {
-        final ReadBelegResponseType readBelegResponseType = getBelegeInternal(employee);
+        final ReadBelegResponseType readBelegResponseType = getBillsInternal(employee);
 
         BelegListeType billList = readBelegResponseType.getBelegListe();
         return billList.getBeleg().stream()
@@ -251,7 +249,7 @@ public class ZepServiceImpl implements ZepService {
         return zepSoapPortType.readProjekte(readProjekteRequestType);
     }
 
-    private ReadBelegResponseType getBelegeInternal(final Employee employee){
+    private ReadBelegResponseType getBillsInternal(final Employee employee) {
         LocalDate dateForSearchCriteria;
         LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
         LocalDate now = LocalDate.now();
@@ -263,13 +261,29 @@ public class ZepServiceImpl implements ZepService {
             dateForSearchCriteria = firstOfPreviousMonth;
         }
 
-        final ReadBelegSearchCriteriaType readBelegSearchCriteriaType = createBelegSearchCriteria(employee, dateForSearchCriteria);
+        final ReadBelegSearchCriteriaType readBelegSearchCriteriaType = createBillSearchCriteria(employee, dateForSearchCriteria);
 
         final ReadBelegRequestType readBelegRequestType = new ReadBelegRequestType();
         readBelegRequestType.setRequestHeader(zepSoapProvider.createRequestHeaderType());
         readBelegRequestType.setReadBelegSearchCriteria(readBelegSearchCriteriaType);
 
         return zepSoapPortType.readBeleg(readBelegRequestType);
+    }
+
+    private ReadBelegAnhangResponseType getAttachmentForBill(int billNumber) {
+        final ReadBelegAnhangSearchCriteriaType readBelegAnhangSearchCriteriaType = createAttachmentSearchCriteria(billNumber);
+
+        final ReadBelegAnhangRequestType readBelegAnhangRequestType = new ReadBelegAnhangRequestType();
+        readBelegAnhangRequestType.setRequestHeader(zepSoapProvider.createRequestHeaderType());
+        readBelegAnhangRequestType.setReadBelegAnhangSearchCriteria(readBelegAnhangSearchCriteriaType);
+
+        return zepSoapPortType.readBelegAnhang(readBelegAnhangRequestType);
+    }
+
+    private ReadBelegAnhangSearchCriteriaType createAttachmentSearchCriteria(int billNumber) {
+        ReadBelegAnhangSearchCriteriaType searchCriteria = new ReadBelegAnhangSearchCriteriaType();
+        searchCriteria.setBelegNr(billNumber);
+        return searchCriteria;
     }
 
     private ReadProjektzeitenSearchCriteriaType createProjectTimeSearchCriteria(Employee employee, LocalDate date) {
@@ -307,7 +321,7 @@ public class ZepServiceImpl implements ZepService {
         return searchCriteria;
     }
 
-    private ReadBelegSearchCriteriaType createBelegSearchCriteria(Employee employee, LocalDate date){
+    private ReadBelegSearchCriteriaType createBillSearchCriteria(Employee employee, LocalDate date){
         ReadBelegSearchCriteriaType searchCriteria = new ReadBelegSearchCriteriaType();
 
         //setUserIdListe needs this special parameter below, could be more than one id but in this case only one is useful
@@ -315,8 +329,8 @@ public class ZepServiceImpl implements ZepService {
         userIdListe.setUserId(List.of(employee.getUserId()));
 
         searchCriteria.setUserIdListe(userIdListe);
-        searchCriteria.setVon(DateUtils.getFirstDayOfCurrentMonth(date));
-        searchCriteria.setBis(DateUtils.getLastDayOfCurrentMonth(date));
+        searchCriteria.setVon(getFirstDayOfCurrentMonth(date));
+        searchCriteria.setBis(getLastDayOfCurrentMonth(date));
 
         return searchCriteria;
     }
@@ -324,6 +338,16 @@ public class ZepServiceImpl implements ZepService {
     private Bill createBill(final BelegType belegType) {
         List<BelegbetragType> amountList = belegType.getBelegbetragListe().getBelegbetrag();
         double bruttoValue = 0.0;
+        ReadBelegAnhangResponseType readBelegAnhangResponseType = getAttachmentForBill(belegType.getBelegNr());
+
+        //because it is not possible to store a byte[] in json
+        String attachmentBase64String = "Bill has no attachment.";
+        
+        if(readBelegAnhangResponseType.getAnhang().getInhalt() != null){
+            byte[] attachmentBase64 = readBelegAnhangResponseType.getAnhang().getInhalt();
+            attachmentBase64String = Base64.encodeBase64String(attachmentBase64);
+        }
+        
 
         // would be different if there is more than one tax rate on one bill
         // -> is not our case, if it would be one should consider changing structure of Bill-Object and iterate over all entries of amountList
@@ -335,8 +359,9 @@ public class ZepServiceImpl implements ZepService {
                 .billDate(DateUtils.parseDate(belegType.getDatum()))
                 .bruttoValue(bruttoValue)
                 .billType(belegType.getBelegart())
-                .paymentMethodType(PaymentMethodType.getByName(belegType.getZahlungsart()).orElse(null))
+                .paymentMethodType(PaymentMethodType.getByName(belegType.getZahlungsart()).orElse(null)) //can actually never be null, because it is required in ZEP -> Optional due to Enum
                 .projectName(belegType.getProjektNr())
+                .attachmentBase64(attachmentBase64String)
                 .build();
     }
 

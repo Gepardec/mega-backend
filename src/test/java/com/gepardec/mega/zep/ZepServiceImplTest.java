@@ -58,8 +58,6 @@ class ZepServiceImplTest {
 
     ZepServiceImpl zepService;
 
-    ProjectRepository projectRepository;
-
     private ProjektMitarbeiterListeType projektMitarbeiterListeType;
 
     private LocalDate monthYear;
@@ -89,7 +87,7 @@ class ZepServiceImplTest {
     void setUp() {
         zepSoapPortType = mock(ZepSoapPortType.class);
 
-        zepService = new ZepServiceImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper, projectRepository);
+        zepService = new ZepServiceImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper);
 
         final ReadProjekteResponseType readProjekteResponseType = new ReadProjekteResponseType();
         final ProjektListeType projektListeType = new ProjektListeType();

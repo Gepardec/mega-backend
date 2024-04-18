@@ -14,6 +14,7 @@ public class BillMapper implements DtoMapper<Bill, BillDto> {
                 .bruttoValue(object.getBruttoValue())
                 .paymentMethodType(object.getPaymentMethodType())
                 .projectName(object.getProjectName())
+                .attachmentBase64(object.getAttachmentBase64String())
                 .build();
     }
 
@@ -25,6 +26,7 @@ public class BillMapper implements DtoMapper<Bill, BillDto> {
                 .bruttoValue(object.getBruttoValue())
                 .paymentMethodType(object.getPaymentMethodType())
                 .projectName(object.getProjectName())
+                .attachmentBase64(object.getAttachmentBase64String())
                 .build();
     }
 }
