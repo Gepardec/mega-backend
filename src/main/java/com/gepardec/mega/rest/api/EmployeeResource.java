@@ -34,8 +34,6 @@ public interface EmployeeResource {
                             schema = @Schema(implementation = BillDto[].class))
             }
     )
-    @APIResponse(responseCode = "404",
-            description = "No bills for this user found.")
     @Parameter(name = "id", description = "ID of the employee for whom the bills are to be retrieved.")
     @Path("/{id}/bills")
     @GET

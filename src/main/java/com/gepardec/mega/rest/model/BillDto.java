@@ -2,13 +2,22 @@ package com.gepardec.mega.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.deser.std.NumberDeserializers;
+import com.fasterxml.jackson.databind.ser.std.NumberSerializers;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.gepardec.mega.db.entity.common.PaymentMethodType;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDeserialize(builder = BillDto.Builder.class)
 public class BillDto {
 
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private final LocalDate billDate;
 
     private final Double bruttoValue;
@@ -58,9 +67,27 @@ public class BillDto {
         return attachmentBase64String;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BillDto billDto = (BillDto) o;
+        return Objects.equals(billDate, billDto.billDate) && Objects.equals(bruttoValue, billDto.bruttoValue) && Objects.equals(billType, billDto.billType) && paymentMethodType == billDto.paymentMethodType && Objects.equals(projectName, billDto.projectName) && Objects.equals(attachmentBase64String, billDto.attachmentBase64String);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(billDate, bruttoValue, billType, paymentMethodType, projectName, attachmentBase64String);
+    }
+
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
+        @JsonSerialize(using = LocalDateSerializer.class)
+        @JsonDeserialize(using = LocalDateDeserializer.class)
         private LocalDate billDate;
 
+        @JsonSerialize(using = NumberSerializers.DoubleSerializer.class)
+        @JsonDeserialize(using = NumberDeserializers.DoubleDeserializer.class)
         private Double bruttoValue;
 
         private String billType;

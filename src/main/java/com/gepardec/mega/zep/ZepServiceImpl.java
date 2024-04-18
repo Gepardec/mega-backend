@@ -341,7 +341,7 @@ public class ZepServiceImpl implements ZepService {
         ReadBelegAnhangResponseType readBelegAnhangResponseType = getAttachmentForBill(belegType.getBelegNr());
 
         //because it is not possible to store a byte[] in json
-        String attachmentBase64String = "Bill has no attachment.";
+        String attachmentBase64String = null;
         
         if(readBelegAnhangResponseType.getAnhang().getInhalt() != null){
             byte[] attachmentBase64 = readBelegAnhangResponseType.getAnhang().getInhalt();

@@ -1,6 +1,5 @@
 package com.gepardec.mega.rest.impl;
 
-import com.gepardec.mega.application.exception.NoBillsFoundException;
 import com.gepardec.mega.application.interceptor.RolesAllowed;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
@@ -53,12 +52,8 @@ public class EmployeeResourceImpl implements EmployeeResource {
         Employee employee = employeeService.getEmployee(employeeId);
         List<Bill> resultBillList = zepService.getBillsForEmployeeByMonth(employee);
 
-        if(resultBillList.isEmpty()){
-            throw new NoBillsFoundException("Keine Belege für diesen Mitarbeiter gefunden.");
-        } else {
-            return resultBillList.stream()
-                    .map(billMapper::mapToDto)
-                    .collect(Collectors.toList());
-        }
+        return resultBillList.stream()
+                .map(billMapper::mapToDto)
+                .collect(Collectors.toList());
     }
 }

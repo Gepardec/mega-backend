@@ -1,30 +1,34 @@
 package com.gepardec.mega.rest;
 
-import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.User;
-import com.gepardec.mega.domain.model.UserContext;
+import com.gepardec.mega.db.entity.common.PaymentMethodType;
+import com.gepardec.mega.domain.model.*;
+import com.gepardec.mega.rest.api.EmployeeResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
+import com.gepardec.mega.zep.ZepService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.Claim;
 import io.quarkus.test.security.jwt.JwtSecurity;
+import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
+import io.restassured.parsing.Parser;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -37,8 +41,14 @@ class EmployeeResourceTest {
     @Inject
     EmployeeMapper mapper;
 
+    @Inject
+    EmployeeResource employeeResource;
+
     @InjectMock
     EmployeeService employeeService;
+
+    @InjectMock
+    ZepService zepService;
 
 
     @InjectMock
@@ -185,6 +195,71 @@ class EmployeeResourceTest {
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
+    @Test
+    @TestSecurity(user = "test", roles = "PROJECT_LEAD")
+    @JwtSecurity
+    void testGetBillsForEmployeeByMonth_whenEmployeeHasBills_thenReturnBillsWithOptionalAttachment(){
+        when(userContext.getUser()).thenReturn(createUserForRole(Role.PROJECT_LEAD));
+
+        Employee userUnderTest = createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com");
+        when(employeeService.getEmployee(eq(userUnderTest.getUserId())))
+                .thenReturn(userUnderTest);
+
+
+        when(zepService.getBillsForEmployeeByMonth(eq(userUnderTest)))
+                .thenReturn(
+                    getBillsForEmployee()
+                );
+
+        List<BillDto> actual = employeeResource.getBillsForEmployeeByMonth(userUnderTest.getUserId());
+
+        assertThat(actual).isNotNull().size().isEqualTo(3);
+        assertThat(actual.get(0).getBillType()).isEqualTo("Lebensmittel");
+    }
+
+    private List<Bill> getBillsForEmployee() {
+        return List.of(
+                createBillForEmployee(LocalDate.of(2024, 4, 11),
+                        12.0,
+                        "Lebensmittel",
+                        PaymentMethodType.COMPANY,
+                        "3BankenIT - JBoss",
+                        null),
+                createBillForEmployee(LocalDate.of(2024, 4, 10),
+                        12.0,
+                        "Büromaterial",
+                        PaymentMethodType.PRIVATE,
+                        "3BankenIT - JBoss",
+                        null),
+                createBillForEmployee(LocalDate.of(2024, 4, 9),
+                        30.0,
+                        "Lebensmittel",
+                        PaymentMethodType.PRIVATE,
+                        "3BankenIT - JBoss",
+                        null)
+        );
+    }
+
+    private Employee createEmployeeForId(final String id, final String email){
+        return Employee.builder()
+                .userId(id)
+                .email(email)
+                .active(true)
+                .build();
+    }
+
+    private Bill createBillForEmployee(LocalDate billDate, double bruttoValue, String billType,
+                                       PaymentMethodType paymentMethodType, String projectName,
+                                       String attachmentBase64String){
+        return Bill.builder()
+                .billDate(billDate)
+                .bruttoValue(bruttoValue)
+                .billType(billType)
+                .paymentMethodType(paymentMethodType)
+                .projectName(projectName)
+                .attachmentBase64(attachmentBase64String)
+                .build();
+    }
     private EmployeeDto createEmployeeForUser(final User user) {
         return EmployeeDto.builder()
                 .email(user.getEmail())
