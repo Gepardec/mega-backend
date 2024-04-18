@@ -1,5 +1,8 @@
 package com.gepardec.mega.db.entity.common;
 
+import java.util.Optional;
+import java.util.stream.Stream;
+
 public enum PaymentMethodType {
     COMPANY (0, "Firma"),
     PRIVATE (1, "privat");
@@ -18,5 +21,9 @@ public enum PaymentMethodType {
 
     public String getPaymentMethodName() {
         return paymentMethodName;
+    }
+
+    public static Optional<PaymentMethodType> getByName(String paymentMethodName) {
+        return Stream.of(values()).filter(v -> v.paymentMethodName.equals(paymentMethodName)).findFirst();
     }
 }

@@ -186,14 +186,14 @@ public class ZepServiceImpl implements ZepService {
                 .collect(Collectors.toList());
     }
 
-    @CacheResult(cacheName = "belege")
+    //@CacheResult(cacheName = "belege")
     @Override
     public List<Bill> getBillsForEmployeeByMonth(final Employee employee) {
         final ReadBelegResponseType readBelegResponseType = getBelegeInternal(employee);
 
         BelegListeType billList = readBelegResponseType.getBelegListe();
         return billList.getBeleg().stream()
-                .map(bt -> createBill(bt, employee))
+                .map(this::createBill)
                 .collect(Collectors.toList());
     }
 
@@ -315,18 +315,18 @@ public class ZepServiceImpl implements ZepService {
         userIdListe.setUserId(List.of(employee.getUserId()));
 
         searchCriteria.setUserIdListe(userIdListe);
-        searchCriteria.setVon(getFirstDayOfCurrentMonth(date));
-        searchCriteria.setBis(getLastDayOfCurrentMonth(date));
+        searchCriteria.setVon(DateUtils.getFirstDayOfCurrentMonth(date));
+        searchCriteria.setBis(DateUtils.getLastDayOfCurrentMonth(date));
 
         return searchCriteria;
     }
 
-    private Bill createBill(final BelegType belegType, Employee employee) {
-        String projectName = projectRepository.findById(parseLong(belegType.getProjektNr())).getName();
+    private Bill createBill(final BelegType belegType) {
         List<BelegbetragType> amountList = belegType.getBelegbetragListe().getBelegbetrag();
         double bruttoValue = 0.0;
 
-        //TODO what if not 1?
+        // would be different if there is more than one tax rate on one bill
+        // -> is not our case, if it would be one should consider changing structure of Bill-Object and iterate over all entries of amountList
         if(amountList.size() == 1){
             bruttoValue = amountList.get(0).getBetrag() * amountList.get(0).getMenge();
         }
@@ -335,8 +335,8 @@ public class ZepServiceImpl implements ZepService {
                 .billDate(DateUtils.parseDate(belegType.getDatum()))
                 .bruttoValue(bruttoValue)
                 .billType(belegType.getBelegart())
-                .paymentMethodType(PaymentMethodType.valueOf(belegType.getZahlungsart()))
-                .projectName(projectName)
+                .paymentMethodType(PaymentMethodType.getByName(belegType.getZahlungsart()).orElse(null))
+                .projectName(belegType.getProjektNr())
                 .build();
     }
 
