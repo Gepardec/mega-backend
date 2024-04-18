@@ -198,7 +198,7 @@ class EmployeeResourceTest {
     @Test
     @TestSecurity(user = "test", roles = "PROJECT_LEAD")
     @JwtSecurity
-    void testGetBillsForEmployeeByMonth_whenEmployeeHasBills_thenReturnBillsWithOptionalAttachment(){
+    void testGetBillsForEmployeeByMonth_whenEmployeeHasBills_thenReturnBills(){
         when(userContext.getUser()).thenReturn(createUserForRole(Role.PROJECT_LEAD));
 
         Employee userUnderTest = createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com");
