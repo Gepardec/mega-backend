@@ -95,7 +95,7 @@ public class Schedules {
     }
 
     @Scheduled(identity = "Set release date automatically for any employee who was absent the whole month and had no time bookings - on the first day of a month at 07:00",
-               cron = "0 0 7 1 * *")
+               cron = "0 0 7 1 * ? *")
     void setReleaseDateForEmployeesWhoWhereAbsentWholeMonth(){
         syncService.syncUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
     }
