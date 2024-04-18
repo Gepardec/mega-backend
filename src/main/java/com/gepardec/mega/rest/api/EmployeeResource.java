@@ -26,7 +26,7 @@ public interface EmployeeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     Response update(@NotEmpty(message = "{workerResource.employees.notEmpty}") List<EmployeeDto> employeesDto);
 
-    @Operation(operationId = "getBillsForEmployee", description = "Get all bills that the user with given id uploaded for current month.")
+    @Operation(operationId = "getBillsForEmployeeByMonth", description = "Get all bills that the user with given id uploaded for current month.")
     @APIResponse(responseCode = "200",
             description = "Successfully retrieved bills for employee.",
             content = {
@@ -39,6 +39,6 @@ public interface EmployeeResource {
     @Parameter(name = "id", description = "ID of the employee for whom the bills are to be retrieved.")
     @Path("/{id}/bills")
     @GET
-    List<BillDto> getBillsForEmployee(@PathParam(value = "id") String employeeId);
+    List<BillDto> getBillsForEmployeeByMonth(@PathParam(value = "id") String employeeId);
 
 }

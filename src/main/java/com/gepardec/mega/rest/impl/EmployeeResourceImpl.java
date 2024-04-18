@@ -49,7 +49,7 @@ public class EmployeeResourceImpl implements EmployeeResource {
     }
 
     @Override
-    public List<BillDto> getBillsForEmployee(String employeeId) {
+    public List<BillDto> getBillsForEmployeeByMonth(String employeeId) {
         Employee employee = employeeService.getEmployee(employeeId);
         List<Bill> resultBillList = zepService.getBillsForEmployeeByMonth(employee);
 
