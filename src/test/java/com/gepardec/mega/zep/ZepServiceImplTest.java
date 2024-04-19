@@ -2,8 +2,10 @@ package com.gepardec.mega.zep;
 
 import com.gepardec.mega.db.entity.common.PaymentMethodType;
 import com.gepardec.mega.db.repository.ProjectRepository;
+import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
+import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
 import de.provantis.zep.*;
@@ -27,9 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @QuarkusTest
 class ZepServiceImplTest {
@@ -104,20 +104,52 @@ class ZepServiceImplTest {
         assertThat(employee).isNotNull();
         assertThat(employee.getUserId()).isEqualTo("0");
 
-        Mockito.verify(zepSoapPortType).readMitarbeiter(Mockito.argThat(
+        verify(zepSoapPortType).readMitarbeiter(Mockito.argThat(
                 argument -> argument.getReadMitarbeiterSearchCriteria() != null && argument.getReadMitarbeiterSearchCriteria().getUserId().equals("0")
         ));
     }
 
     @Test
     void testGetBillsForEmployeeByMonth_whenEmployeeHasBills_returnsBills(){
+        LocalDate now = LocalDate.now();
+        String firstOfCurrentMonth = DateUtils.getFirstDayOfCurrentMonth(now);
+        String lastOfCurrentMonth = DateUtils.getLastDayOfCurrentMonth(now);
+
         when(zepSoapPortType.readBeleg(Mockito.any(ReadBelegRequestType.class)))
                 .thenReturn(createReadBelegResponseType(
                                 List.of(
-                                    createBelegType(19874)
+                                    createBelegType(19874),
+                                    createBelegType(19875)
                                 )
                              )
                 );
+
+        when(zepSoapPortType.readBelegAnhang(Mockito.any(ReadBelegAnhangRequestType.class)))
+                .thenReturn(createReadBelegAnhangResponseType());
+
+        List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com"));
+
+        assertThat(actual).isNotNull().size().isEqualTo(2);
+    }
+
+    @Test
+    void testGetBillsForEmployeeByMonth_whenEmployeeHasNoBills_returnsEmptyList(){
+        LocalDate now = LocalDate.now();
+        String firstOfCurrentMonth = DateUtils.getFirstDayOfCurrentMonth(now);
+        String lastOfCurrentMonth = DateUtils.getLastDayOfCurrentMonth(now);
+
+        when(zepSoapPortType.readBeleg(Mockito.any(ReadBelegRequestType.class)))
+                .thenReturn(createReadBelegResponseType(
+                                List.of()
+                        )
+                );
+
+        when(zepSoapPortType.readBelegAnhang(Mockito.any(ReadBelegAnhangRequestType.class)))
+                .thenReturn(createReadBelegAnhangResponseType());
+
+        List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com"));
+
+        assertThat(actual).isNotNull().isEmpty();
     }
 
     @Test
@@ -185,7 +217,7 @@ class ZepServiceImplTest {
                 () -> assertThat(employee).hasSize(3)
         );
 
-        Mockito.verify(zepSoapPortType).readMitarbeiter(Mockito.argThat(
+        verify(zepSoapPortType).readMitarbeiter(Mockito.argThat(
                 argument -> argument.getReadMitarbeiterSearchCriteria() == null
         ));
     }
@@ -199,7 +231,7 @@ class ZepServiceImplTest {
                 .isInstanceOf(ZepServiceException.class)
                 .hasMessage("updateEmployeeReleaseDate failed with code: 1337");
 
-        Mockito.verify(zepSoapPortType).updateMitarbeiter(Mockito.argThat(
+        verify(zepSoapPortType).updateMitarbeiter(Mockito.argThat(
                 argument -> argument.getMitarbeiter().getUserId().equals("0") && argument.getMitarbeiter().getFreigabedatum().equals("2020-01-01")
         ));
     }
@@ -210,7 +242,7 @@ class ZepServiceImplTest {
 
         zepService.updateEmployeesReleaseDate("0", "2020-01-01");
 
-        Mockito.verify(zepSoapPortType).updateMitarbeiter(Mockito.argThat(
+        verify(zepSoapPortType).updateMitarbeiter(Mockito.argThat(
                 argument -> argument.getMitarbeiter().getUserId().equals("0") && argument.getMitarbeiter().getFreigabedatum().equals("2020-01-01")
         ));
     }
@@ -221,7 +253,7 @@ class ZepServiceImplTest {
 
         zepService.updateEmployeesReleaseDate("0", "2020-01-01");
 
-        Mockito.verify(zepSoapPortType).updateMitarbeiter(Mockito.argThat(
+        verify(zepSoapPortType).updateMitarbeiter(Mockito.argThat(
                 argument -> argument.getMitarbeiter().getUserId().equals("0") && argument.getMitarbeiter().getFreigabedatum().equals("2020-01-01")
         ));
     }
@@ -233,7 +265,7 @@ class ZepServiceImplTest {
 
         zepService.updateEmployeesReleaseDate("0", "2020-01-01");
 
-        Mockito.verify(zepSoapPortType).updateMitarbeiter(Mockito.argThat(
+        verify(zepSoapPortType).updateMitarbeiter(Mockito.argThat(
                 argument -> argument.getMitarbeiter().getUserId().equals("0") && argument.getMitarbeiter().getFreigabedatum().equals("2020-01-01")
         ));
     }
@@ -286,6 +318,21 @@ class ZepServiceImplTest {
         readBelegResponseType.setBelegListe(new BelegListeType());
         readBelegResponseType.getBelegListe().getBeleg().addAll(belegType);
         return readBelegResponseType;
+    }
+
+    private ReadBelegAnhangResponseType createReadBelegAnhangResponseType(){
+        final ReadBelegAnhangResponseType readBelegAnhangResponseType = new ReadBelegAnhangResponseType();
+        readBelegAnhangResponseType.setAnhang(new AnhangType());
+        readBelegAnhangResponseType.getAnhang().setInhalt(null);
+        return readBelegAnhangResponseType;
+    }
+
+    private Employee createEmployeeForId(final String id, final String email){
+        return Employee.builder()
+                .userId(id)
+                .email(email)
+                .active(true)
+                .build();
     }
 
     private ResponseHeaderType createResponseHeaderType(final String returnCode) {
