@@ -86,8 +86,6 @@ public class BillDto {
         @JsonDeserialize(using = LocalDateDeserializer.class)
         private LocalDate billDate;
 
-        @JsonSerialize(using = NumberSerializers.DoubleSerializer.class)
-        @JsonDeserialize(using = NumberDeserializers.DoubleDeserializer.class)
         private Double bruttoValue;
 
         private String billType;

@@ -217,6 +217,28 @@ class EmployeeResourceTest {
         assertThat(actual.get(0).getBillType()).isEqualTo("Lebensmittel");
     }
 
+    @Test
+    @TestSecurity(user = "test", roles = "PROJECT_LEAD")
+    @JwtSecurity
+    void testGetBillsForEmployeeByMonth_whenEmployeeHasNoBills_thenReturnEmptyList(){
+        when(userContext.getUser()).thenReturn(createUserForRole(Role.PROJECT_LEAD));
+
+        Employee userUnderTest = createEmployeeForId("026-cruhsam", "christoph.ruhsam@gepardec.com");
+        when(employeeService.getEmployee(eq(userUnderTest.getUserId())))
+                .thenReturn(userUnderTest);
+
+
+        when(zepService.getBillsForEmployeeByMonth(eq(userUnderTest)))
+                .thenReturn(
+                        List.of()
+                );
+
+        List<BillDto> actual = employeeResource.getBillsForEmployeeByMonth(userUnderTest.getUserId());
+
+        assertThat(actual).isNotNull();
+        assertThat(actual).isEmpty();
+    }
+
     private List<Bill> getBillsForEmployee() {
         return List.of(
                 createBillForEmployee(LocalDate.of(2024, 4, 11),
