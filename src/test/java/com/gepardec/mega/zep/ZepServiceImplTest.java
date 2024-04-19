@@ -1,24 +1,12 @@
 package com.gepardec.mega.zep;
 
+import com.gepardec.mega.db.entity.common.PaymentMethodType;
 import com.gepardec.mega.db.repository.ProjectRepository;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
-import de.provantis.zep.MitarbeiterListeType;
-import de.provantis.zep.MitarbeiterType;
-import de.provantis.zep.ProjektListeType;
-import de.provantis.zep.ProjektMitarbeiterListeType;
-import de.provantis.zep.ProjektMitarbeiterType;
-import de.provantis.zep.ProjektType;
-import de.provantis.zep.ReadMitarbeiterRequestType;
-import de.provantis.zep.ReadMitarbeiterResponseType;
-import de.provantis.zep.ReadProjekteRequestType;
-import de.provantis.zep.ReadProjekteResponseType;
-import de.provantis.zep.ResponseHeaderType;
-import de.provantis.zep.UpdateMitarbeiterRequestType;
-import de.provantis.zep.UpdateMitarbeiterResponseType;
-import de.provantis.zep.ZepSoapPortType;
+import de.provantis.zep.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
@@ -119,6 +107,17 @@ class ZepServiceImplTest {
         Mockito.verify(zepSoapPortType).readMitarbeiter(Mockito.argThat(
                 argument -> argument.getReadMitarbeiterSearchCriteria() != null && argument.getReadMitarbeiterSearchCriteria().getUserId().equals("0")
         ));
+    }
+
+    @Test
+    void testGetBillsForEmployeeByMonth_whenEmployeeHasBills_returnsBills(){
+        when(zepSoapPortType.readBeleg(Mockito.any(ReadBelegRequestType.class)))
+                .thenReturn(createReadBelegResponseType(
+                                List.of(
+                                    createBelegType(19874)
+                                )
+                             )
+                );
     }
 
     @Test
@@ -255,11 +254,38 @@ class ZepServiceImplTest {
         return mitarbeiter;
     }
 
+    private BelegType createBelegType(final int belegNr){
+        final BelegType beleg = new BelegType();
+        final BelegbetragListeType belegbetragListeType = new BelegbetragListeType();
+
+        final BelegbetragType belegbetragType = new BelegbetragType();
+        belegbetragType.setBetrag(4.0);
+        belegbetragType.setMenge(2.0);
+
+        belegbetragListeType.setBelegbetrag(List.of(belegbetragType));
+
+        beleg.setBelegNr(belegNr);
+        beleg.setBelegart("Lebensmittel");
+        beleg.setDatum("2024-04-19");
+        beleg.setProjektNr("3BankenIT - JBoss");
+        beleg.setBelegbetragListe(belegbetragListeType);
+        beleg.setZahlungsart(PaymentMethodType.COMPANY.getPaymentMethodName());
+
+        return beleg;
+    }
+
     private ReadMitarbeiterResponseType createReadMitarbeiterResponseType(final List<MitarbeiterType> mitarbeiterType) {
         final ReadMitarbeiterResponseType readMitarbeiterResponseType = new ReadMitarbeiterResponseType();
         readMitarbeiterResponseType.setMitarbeiterListe(new MitarbeiterListeType());
         readMitarbeiterResponseType.getMitarbeiterListe().getMitarbeiter().addAll(mitarbeiterType);
         return readMitarbeiterResponseType;
+    }
+
+    private ReadBelegResponseType createReadBelegResponseType(final List<BelegType> belegType){
+        final ReadBelegResponseType readBelegResponseType = new ReadBelegResponseType();
+        readBelegResponseType.setBelegListe(new BelegListeType());
+        readBelegResponseType.getBelegListe().getBeleg().addAll(belegType);
+        return readBelegResponseType;
     }
 
     private ResponseHeaderType createResponseHeaderType(final String returnCode) {
