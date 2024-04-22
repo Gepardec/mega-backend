@@ -8,6 +8,7 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
+import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
 import de.provantis.zep.*;
@@ -52,6 +53,8 @@ public class ZepServiceImpl implements ZepService {
 
     private final ProjectEntryMapper projectEntryMapper;
 
+    private final MonthlyReportService monthlyReportService;
+
 
 
     @Inject
@@ -59,12 +62,14 @@ public class ZepServiceImpl implements ZepService {
                           final Logger logger,
                           final ZepSoapPortType zepSoapPortType,
                           final ZepSoapProvider zepSoapProvider,
-                          final ProjectEntryMapper projectEntryMapper) {
+                          final ProjectEntryMapper projectEntryMapper,
+                          final MonthlyReportService monthlyReportService) {
         this.employeeMapper = employeeMapper;
         this.logger = logger;
         this.zepSoapPortType = zepSoapPortType;
         this.zepSoapProvider = zepSoapProvider;
         this.projectEntryMapper = projectEntryMapper;
+        this.monthlyReportService = monthlyReportService;
     }
 
     @Override
@@ -255,7 +260,7 @@ public class ZepServiceImpl implements ZepService {
         LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
 
-        if (now.isAfter(midOfCurrentMonth)) {
+        if (now.isAfter(midOfCurrentMonth) && monthlyReportService.isMonthConfirmedFromEmployee(employee, firstOfPreviousMonth)) {
             dateForSearchCriteria = now;
         } else {
             dateForSearchCriteria = firstOfPreviousMonth;

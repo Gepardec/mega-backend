@@ -6,6 +6,8 @@ import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.utils.DateUtils;
+import com.gepardec.mega.service.api.MonthlyReportService;
+import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
 import de.provantis.zep.*;
@@ -46,6 +48,9 @@ class ZepServiceImplTest {
 
     ZepServiceImpl zepService;
 
+    @InjectMock
+    MonthlyReportService monthlyReportService;
+
     private ProjektMitarbeiterListeType projektMitarbeiterListeType;
 
     private LocalDate monthYear;
@@ -75,7 +80,7 @@ class ZepServiceImplTest {
     void setUp() {
         zepSoapPortType = mock(ZepSoapPortType.class);
 
-        zepService = new ZepServiceImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper);
+        zepService = new ZepServiceImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper, monthlyReportService);
 
         final ReadProjekteResponseType readProjekteResponseType = new ReadProjekteResponseType();
         final ProjektListeType projektListeType = new ProjektListeType();
@@ -123,7 +128,10 @@ class ZepServiceImplTest {
         when(zepSoapPortType.readBelegAnhang(Mockito.any(ReadBelegAnhangRequestType.class)))
                 .thenReturn(createReadBelegAnhangResponseType());
 
-        List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com"));
+        when(monthlyReportService.isMonthConfirmedFromEmployee(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com", "2024-03-31"), LocalDate.of(2024, 3, 1)))
+                .thenReturn(true);
+
+        List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com", "2024-03-31"));
 
         assertThat(actual).isNotNull().size().isEqualTo(2);
     }
@@ -139,7 +147,10 @@ class ZepServiceImplTest {
         when(zepSoapPortType.readBelegAnhang(Mockito.any(ReadBelegAnhangRequestType.class)))
                 .thenReturn(createReadBelegAnhangResponseType());
 
-        List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com"));
+        when(monthlyReportService.isMonthConfirmedFromEmployee(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com", "2024-02-29"), LocalDate.of(2024, 3, 1)))
+                .thenReturn(true);
+
+        List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com", "2024-02-29"));
 
         assertThat(actual).isNotNull().isEmpty();
     }
@@ -319,10 +330,11 @@ class ZepServiceImplTest {
         return readBelegAnhangResponseType;
     }
 
-    private Employee createEmployeeForId(final String id, final String email){
+    private Employee createEmployeeForId(final String id, final String email, final String releaseDate){
         return Employee.builder()
                 .userId(id)
                 .email(email)
+                .releaseDate(releaseDate)
                 .active(true)
                 .build();
     }

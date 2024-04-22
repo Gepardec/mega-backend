@@ -12,4 +12,6 @@ public interface MonthlyReportService {
     MonthlyReport getMonthEndReportForUser(Integer year, Integer month, Employee employee, LocalDate initialDate);
 
     boolean isMonthCompletedForEmployee(Employee employee, LocalDate date);
+
+    boolean isMonthConfirmedFromEmployee(Employee employee, LocalDate date);
 }
