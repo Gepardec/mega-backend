@@ -137,14 +137,14 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void testGetBillsForEmployeeByMonth_whenEmployeeHasBills_returnsBills(){
+    void testGetBillsForEmployeeByMonth_whenEmployeeHasBills_returnsBills() {
         when(zepSoapPortType.readBeleg(Mockito.any(ReadBelegRequestType.class)))
                 .thenReturn(createReadBelegResponseType(
                                 List.of(
-                                    createBelegType(19874),
-                                    createBelegType(19875)
+                                        createBelegType(19874),
+                                        createBelegType(19875)
                                 )
-                             )
+                        )
                 );
 
         when(zepSoapPortType.readBelegAnhang(Mockito.any(ReadBelegAnhangRequestType.class)))
@@ -160,7 +160,7 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void testGetBillsForEmployeeByMonth_whenEmployeeHasNoBills_returnsEmptyList(){
+    void testGetBillsForEmployeeByMonth_whenEmployeeHasNoBills_returnsEmptyList() {
         when(zepSoapPortType.readBeleg(Mockito.any(ReadBelegRequestType.class)))
                 .thenReturn(createReadBelegResponseType(
                                 List.of()
@@ -170,7 +170,7 @@ class ZepServiceImplTest {
         when(zepSoapPortType.readBelegAnhang(Mockito.any(ReadBelegAnhangRequestType.class)))
                 .thenReturn(createReadBelegAnhangResponseType());
 
-        when(monthlyReportService.isMonthConfirmedFromEmployee(createEmployeeForId("099-testUser", "test.user@gepardec.com","2024-02-29"), LocalDate.of(2024, 3, 1)))
+        when(monthlyReportService.isMonthConfirmedFromEmployee(createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-02-29"), LocalDate.of(2024, 3, 1)))
                 .thenReturn(true);
 
         List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-02-29"));
@@ -312,7 +312,7 @@ class ZepServiceImplTest {
         return mitarbeiter;
     }
 
-    private BelegType createBelegType(final int belegNr){
+    private BelegType createBelegType(final int belegNr) {
         final BelegType beleg = new BelegType();
         final BelegbetragListeType belegbetragListeType = new BelegbetragListeType();
 
@@ -339,21 +339,21 @@ class ZepServiceImplTest {
         return readMitarbeiterResponseType;
     }
 
-    private ReadBelegResponseType createReadBelegResponseType(final List<BelegType> belegType){
+    private ReadBelegResponseType createReadBelegResponseType(final List<BelegType> belegType) {
         final ReadBelegResponseType readBelegResponseType = new ReadBelegResponseType();
         readBelegResponseType.setBelegListe(new BelegListeType());
         readBelegResponseType.getBelegListe().getBeleg().addAll(belegType);
         return readBelegResponseType;
     }
 
-    private ReadBelegAnhangResponseType createReadBelegAnhangResponseType(){
+    private ReadBelegAnhangResponseType createReadBelegAnhangResponseType() {
         final ReadBelegAnhangResponseType readBelegAnhangResponseType = new ReadBelegAnhangResponseType();
         readBelegAnhangResponseType.setAnhang(new AnhangType());
         readBelegAnhangResponseType.getAnhang().setInhalt(null);
         return readBelegAnhangResponseType;
     }
 
-    private Employee createEmployeeForId(final String id, final String email, final String releaseDate){
+    private Employee createEmployeeForId(final String id, final String email, final String releaseDate) {
         return Employee.builder()
                 .userId(id)
                 .email(email)
