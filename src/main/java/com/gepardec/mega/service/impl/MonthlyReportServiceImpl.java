@@ -103,7 +103,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         }
     }
 
-    private boolean isMonthConfirmedFromEmployee(Employee employee, LocalDate date) {
+    public boolean isMonthConfirmedFromEmployee(Employee employee, LocalDate date) {
         return stepEntryService.findControlTimesStepEntry(employee, date).stream()
                 .allMatch(stepEnry -> stepEnry.getState().equals(EmployeeState.DONE));
     }

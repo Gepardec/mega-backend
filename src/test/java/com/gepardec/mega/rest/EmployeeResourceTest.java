@@ -1,11 +1,17 @@
 package com.gepardec.mega.rest;
 
+import com.gepardec.mega.db.entity.common.PaymentMethodType;
+import com.gepardec.mega.domain.model.Bill;
+import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
+import com.gepardec.mega.rest.api.EmployeeResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
+import com.gepardec.mega.zep.ZepService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
@@ -17,6 +23,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -37,12 +44,18 @@ class EmployeeResourceTest {
     @Inject
     EmployeeMapper mapper;
 
+    @Inject
+    EmployeeResource employeeResource;
+
     @InjectMock
     EmployeeService employeeService;
 
+    @InjectMock
+    ZepService zepService;
+
 
     @InjectMock
-    private UserContext userContext;
+    UserContext userContext;
 
     @Test
     @TestSecurity
@@ -185,6 +198,86 @@ class EmployeeResourceTest {
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
+    @Test
+    void testGetBillsForEmployeeByMonth_whenEmployeeHasBills_thenReturnBills(){
+        User userForRole = createUserForRole(Role.PROJECT_LEAD);
+        when(userContext.getUser()).thenReturn(userForRole);
+        final Employee userAsEmployee = mapper.mapToDomain(createEmployeeForUser(userForRole));
+
+
+        when(employeeService.getEmployee(userAsEmployee.getUserId()))
+                .thenReturn(userAsEmployee);
+
+
+        when(zepService.getBillsForEmployeeByMonth(userAsEmployee))
+                .thenReturn(
+                    getBillsForEmployee()
+                );
+
+        List<BillDto> actual = employeeResource.getBillsForEmployeeByMonth(userAsEmployee.getUserId());
+
+        assertThat(actual).isNotNull().size().isEqualTo(3);
+        assertThat(actual.get(0).getBillType()).isEqualTo("Lebensmittel");
+    }
+
+    @Test
+    void testGetBillsForEmployeeByMonth_whenEmployeeHasNoBills_thenReturnEmptyList(){
+        User userForRole = createUserForRole(Role.PROJECT_LEAD);
+        when(userContext.getUser()).thenReturn(userForRole);
+        final Employee userAsEmployee = mapper.mapToDomain(createEmployeeForUser(userForRole));
+
+
+        when(employeeService.getEmployee(userAsEmployee.getUserId()))
+                .thenReturn(userAsEmployee);
+
+
+        when(zepService.getBillsForEmployeeByMonth(userAsEmployee))
+                .thenReturn(
+                        List.of()
+                );
+
+        List<BillDto> actual = employeeResource.getBillsForEmployeeByMonth(userAsEmployee.getUserId());
+
+        assertThat(actual).isNotNull();
+        assertThat(actual).isEmpty();
+    }
+
+    private List<Bill> getBillsForEmployee() {
+        return List.of(
+                createBillForEmployee(LocalDate.of(2024, 4, 11),
+                        12.0,
+                        "Lebensmittel",
+                        PaymentMethodType.COMPANY,
+                        "3BankenIT - JBoss",
+                        null),
+                createBillForEmployee(LocalDate.of(2024, 4, 10),
+                        12.0,
+                        "Büromaterial",
+                        PaymentMethodType.PRIVATE,
+                        "3BankenIT - JBoss",
+                        null),
+                createBillForEmployee(LocalDate.of(2024, 4, 9),
+                        30.0,
+                        "Lebensmittel",
+                        PaymentMethodType.PRIVATE,
+                        "3BankenIT - JBoss",
+                        null)
+        );
+    }
+
+
+    private Bill createBillForEmployee(LocalDate billDate, double bruttoValue, String billType,
+                                       PaymentMethodType paymentMethodType, String projectName,
+                                       String attachmentBase64String){
+        return Bill.builder()
+                .billDate(billDate)
+                .bruttoValue(bruttoValue)
+                .billType(billType)
+                .paymentMethodType(paymentMethodType)
+                .projectName(projectName)
+                .attachmentBase64(attachmentBase64String)
+                .build();
+    }
     private EmployeeDto createEmployeeForUser(final User user) {
         return EmployeeDto.builder()
                 .email(user.getEmail())

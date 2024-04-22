@@ -11,8 +11,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/projectcomments")
+@Tag(name = "ProjectCommentResource")
 public interface ProjectCommentResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
