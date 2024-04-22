@@ -111,10 +111,6 @@ class ZepServiceImplTest {
 
     @Test
     void testGetBillsForEmployeeByMonth_whenEmployeeHasBills_returnsBills(){
-        LocalDate now = LocalDate.now();
-        String firstOfCurrentMonth = DateUtils.getFirstDayOfCurrentMonth(now);
-        String lastOfCurrentMonth = DateUtils.getLastDayOfCurrentMonth(now);
-
         when(zepSoapPortType.readBeleg(Mockito.any(ReadBelegRequestType.class)))
                 .thenReturn(createReadBelegResponseType(
                                 List.of(
@@ -134,10 +130,6 @@ class ZepServiceImplTest {
 
     @Test
     void testGetBillsForEmployeeByMonth_whenEmployeeHasNoBills_returnsEmptyList(){
-        LocalDate now = LocalDate.now();
-        String firstOfCurrentMonth = DateUtils.getFirstDayOfCurrentMonth(now);
-        String lastOfCurrentMonth = DateUtils.getLastDayOfCurrentMonth(now);
-
         when(zepSoapPortType.readBeleg(Mockito.any(ReadBelegRequestType.class)))
                 .thenReturn(createReadBelegResponseType(
                                 List.of()
