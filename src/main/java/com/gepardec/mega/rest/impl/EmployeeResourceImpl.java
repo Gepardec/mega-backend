@@ -54,6 +54,6 @@ public class EmployeeResourceImpl implements EmployeeResource {
 
         return resultBillList.stream()
                 .map(billMapper::mapToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

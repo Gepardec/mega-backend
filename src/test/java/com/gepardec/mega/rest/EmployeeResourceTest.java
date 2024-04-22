@@ -52,7 +52,7 @@ class EmployeeResourceTest {
 
 
     @InjectMock
-    private UserContext userContext;
+    UserContext userContext;
 
     @Test
     @TestSecurity
@@ -196,44 +196,44 @@ class EmployeeResourceTest {
     }
 
     @Test
-    @TestSecurity(user = "test", roles = "PROJECT_LEAD")
-    @JwtSecurity
     void testGetBillsForEmployeeByMonth_whenEmployeeHasBills_thenReturnBills(){
-        when(userContext.getUser()).thenReturn(createUserForRole(Role.PROJECT_LEAD));
-
-        Employee userUnderTest = createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com");
-        when(employeeService.getEmployee(eq(userUnderTest.getUserId())))
-                .thenReturn(userUnderTest);
+        User userForRole = createUserForRole(Role.PROJECT_LEAD);
+        when(userContext.getUser()).thenReturn(userForRole);
+        final Employee userAsEmployee = mapper.mapToDomain(createEmployeeForUser(userForRole));
 
 
-        when(zepService.getBillsForEmployeeByMonth(eq(userUnderTest)))
+        when(employeeService.getEmployee(eq(userAsEmployee.getUserId())))
+                .thenReturn(userAsEmployee);
+
+
+        when(zepService.getBillsForEmployeeByMonth(eq(userAsEmployee)))
                 .thenReturn(
                     getBillsForEmployee()
                 );
 
-        List<BillDto> actual = employeeResource.getBillsForEmployeeByMonth(userUnderTest.getUserId());
+        List<BillDto> actual = employeeResource.getBillsForEmployeeByMonth(userAsEmployee.getUserId());
 
         assertThat(actual).isNotNull().size().isEqualTo(3);
         assertThat(actual.get(0).getBillType()).isEqualTo("Lebensmittel");
     }
 
     @Test
-    @TestSecurity(user = "test", roles = "PROJECT_LEAD")
-    @JwtSecurity
     void testGetBillsForEmployeeByMonth_whenEmployeeHasNoBills_thenReturnEmptyList(){
-        when(userContext.getUser()).thenReturn(createUserForRole(Role.PROJECT_LEAD));
-
-        Employee userUnderTest = createEmployeeForId("026-cruhsam", "christoph.ruhsam@gepardec.com");
-        when(employeeService.getEmployee(eq(userUnderTest.getUserId())))
-                .thenReturn(userUnderTest);
+        User userForRole = createUserForRole(Role.PROJECT_LEAD);
+        when(userContext.getUser()).thenReturn(userForRole);
+        final Employee userAsEmployee = mapper.mapToDomain(createEmployeeForUser(userForRole));
 
 
-        when(zepService.getBillsForEmployeeByMonth(eq(userUnderTest)))
+        when(employeeService.getEmployee(eq(userAsEmployee.getUserId())))
+                .thenReturn(userAsEmployee);
+
+
+        when(zepService.getBillsForEmployeeByMonth(eq(userAsEmployee)))
                 .thenReturn(
                         List.of()
                 );
 
-        List<BillDto> actual = employeeResource.getBillsForEmployeeByMonth(userUnderTest.getUserId());
+        List<BillDto> actual = employeeResource.getBillsForEmployeeByMonth(userAsEmployee.getUserId());
 
         assertThat(actual).isNotNull();
         assertThat(actual).isEmpty();
@@ -262,13 +262,6 @@ class EmployeeResourceTest {
         );
     }
 
-    private Employee createEmployeeForId(final String id, final String email){
-        return Employee.builder()
-                .userId(id)
-                .email(email)
-                .active(true)
-                .build();
-    }
 
     private Bill createBillForEmployee(LocalDate billDate, double bruttoValue, String billType,
                                        PaymentMethodType paymentMethodType, String projectName,

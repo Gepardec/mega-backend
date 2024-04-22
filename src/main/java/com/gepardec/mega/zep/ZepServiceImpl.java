@@ -189,7 +189,7 @@ public class ZepServiceImpl implements ZepService {
                 .collect(Collectors.toList());
     }
 
-    //@CacheResult(cacheName = "belege")
+
     @Override
     public List<Bill> getBillsForEmployeeByMonth(final Employee employee) {
         final ReadBelegResponseType readBelegResponseType = getBillsInternal(employee);
@@ -197,7 +197,7 @@ public class ZepServiceImpl implements ZepService {
         BelegListeType billList = readBelegResponseType.getBelegListe();
         return billList.getBeleg().stream()
                 .map(this::createBill)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -342,12 +342,11 @@ public class ZepServiceImpl implements ZepService {
 
     private Bill createBill(final BelegType belegType) {
         List<BelegbetragType> amountList = belegType.getBelegbetragListe().getBelegbetrag();
-        double bruttoValue = 0.0;
         ReadBelegAnhangResponseType readBelegAnhangResponseType = getAttachmentForBill(belegType.getBelegNr());
 
         //because it is not possible to store a byte[] in json
         String attachmentBase64String = null;
-        
+
         if(readBelegAnhangResponseType.getAnhang().getInhalt() != null){
             byte[] attachmentBase64 = readBelegAnhangResponseType.getAnhang().getInhalt();
             attachmentBase64String = Base64.encodeBase64String(attachmentBase64);
@@ -356,6 +355,7 @@ public class ZepServiceImpl implements ZepService {
 
         // would be different if there is more than one tax rate on one bill
         // -> is not our case, if it would be one should consider changing structure of Bill-Object and iterate over all entries of amountList
+        double bruttoValue = 0.0;
         if(amountList.size() == 1){
             bruttoValue = amountList.get(0).getBetrag() * amountList.get(0).getMenge();
         }
