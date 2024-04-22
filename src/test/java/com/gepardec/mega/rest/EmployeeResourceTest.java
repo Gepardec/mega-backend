@@ -1,7 +1,11 @@
 package com.gepardec.mega.rest;
 
 import com.gepardec.mega.db.entity.common.PaymentMethodType;
-import com.gepardec.mega.domain.model.*;
+import com.gepardec.mega.domain.model.Bill;
+import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.Role;
+import com.gepardec.mega.domain.model.User;
+import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.rest.api.EmployeeResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.model.BillDto;
@@ -13,9 +17,7 @@ import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.Claim;
 import io.quarkus.test.security.jwt.JwtSecurity;
-import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
-import io.restassured.parsing.Parser;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.http.HttpStatus;
@@ -28,7 +30,8 @@ import java.util.Set;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -202,11 +205,11 @@ class EmployeeResourceTest {
         final Employee userAsEmployee = mapper.mapToDomain(createEmployeeForUser(userForRole));
 
 
-        when(employeeService.getEmployee(eq(userAsEmployee.getUserId())))
+        when(employeeService.getEmployee(userAsEmployee.getUserId()))
                 .thenReturn(userAsEmployee);
 
 
-        when(zepService.getBillsForEmployeeByMonth(eq(userAsEmployee)))
+        when(zepService.getBillsForEmployeeByMonth(userAsEmployee))
                 .thenReturn(
                     getBillsForEmployee()
                 );
@@ -224,11 +227,11 @@ class EmployeeResourceTest {
         final Employee userAsEmployee = mapper.mapToDomain(createEmployeeForUser(userForRole));
 
 
-        when(employeeService.getEmployee(eq(userAsEmployee.getUserId())))
+        when(employeeService.getEmployee(userAsEmployee.getUserId()))
                 .thenReturn(userAsEmployee);
 
 
-        when(zepService.getBillsForEmployeeByMonth(eq(userAsEmployee)))
+        when(zepService.getBillsForEmployeeByMonth(userAsEmployee))
                 .thenReturn(
                         List.of()
                 );

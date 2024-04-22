@@ -1,7 +1,6 @@
 package com.gepardec.mega.zep;
 
 import com.gepardec.mega.db.entity.common.PaymentMethodType;
-import com.gepardec.mega.db.repository.ProjectRepository;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.Employee;
@@ -11,7 +10,41 @@ import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
-import de.provantis.zep.*;
+import de.provantis.zep.BelegListeType;
+import de.provantis.zep.BelegType;
+import de.provantis.zep.BelegbetragType;
+import de.provantis.zep.FehlzeitType;
+import de.provantis.zep.KategorieListeType;
+import de.provantis.zep.KategorieType;
+import de.provantis.zep.MitarbeiterType;
+import de.provantis.zep.ProjektListeType;
+import de.provantis.zep.ProjektMitarbeiterListeType;
+import de.provantis.zep.ProjektMitarbeiterType;
+import de.provantis.zep.ProjektNrListeType;
+import de.provantis.zep.ProjektType;
+import de.provantis.zep.ProjektzeitType;
+import de.provantis.zep.ReadBelegAnhangRequestType;
+import de.provantis.zep.ReadBelegAnhangResponseType;
+import de.provantis.zep.ReadBelegAnhangSearchCriteriaType;
+import de.provantis.zep.ReadBelegRequestType;
+import de.provantis.zep.ReadBelegResponseType;
+import de.provantis.zep.ReadBelegSearchCriteriaType;
+import de.provantis.zep.ReadFehlzeitRequestType;
+import de.provantis.zep.ReadFehlzeitResponseType;
+import de.provantis.zep.ReadFehlzeitSearchCriteriaType;
+import de.provantis.zep.ReadMitarbeiterRequestType;
+import de.provantis.zep.ReadMitarbeiterSearchCriteriaType;
+import de.provantis.zep.ReadProjekteRequestType;
+import de.provantis.zep.ReadProjekteResponseType;
+import de.provantis.zep.ReadProjekteSearchCriteriaType;
+import de.provantis.zep.ReadProjektzeitenRequestType;
+import de.provantis.zep.ReadProjektzeitenResponseType;
+import de.provantis.zep.ReadProjektzeitenSearchCriteriaType;
+import de.provantis.zep.ResponseHeaderType;
+import de.provantis.zep.UpdateMitarbeiterRequestType;
+import de.provantis.zep.UpdateMitarbeiterResponseType;
+import de.provantis.zep.UserIdListeType;
+import de.provantis.zep.ZepSoapPortType;
 import io.quarkus.cache.CacheInvalidate;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.RequestScoped;
@@ -26,16 +59,13 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
 import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfCurrentMonth;
-import static java.lang.Long.parseLong;
 
 @RequestScoped
 public class ZepServiceImpl implements ZepService {
@@ -161,7 +191,7 @@ public class ZepServiceImpl implements ZepService {
                 .flatMap(projectTimes -> Optional.ofNullable(projectTimes.getProjektzeitListe()))
                 .stream()
                 .flatMap(projectTimes -> projectEntryMapper.mapList(projectTimes.getProjektzeiten()).stream())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @CacheResult(cacheName = "projektzeittype")
@@ -186,7 +216,7 @@ public class ZepServiceImpl implements ZepService {
         ProjektListeType projektListe = readProjekteResponseType.getProjektListe();
         return projektListe.getProjekt().stream()
                 .map(pt -> createProject(pt, monthYear))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -400,7 +430,7 @@ public class ZepServiceImpl implements ZepService {
                 .stream()
                 .filter(e -> filterActiveEmployees(monthYear, e.getVon(), e.getBis()))
                 .map(ProjektMitarbeiterType::getUserId)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean filterActiveEmployees(final LocalDate monthYear, final String inProjectFrom, final String inProjectUntil) {
@@ -423,7 +453,7 @@ public class ZepServiceImpl implements ZepService {
                 .filter(e -> filterActiveEmployees(monthYear, e.getVon(), e.getBis()))
                 .filter(projektMitarbeiterType -> PROJECT_LEAD_RANGE.contains(projektMitarbeiterType.getIstProjektleiter()))
                 .map(ProjektMitarbeiterType::getUserId)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<String> createCategories(final ProjektType projektType) {
@@ -432,7 +462,7 @@ public class ZepServiceImpl implements ZepService {
                 .getKategorie()
                 .stream()
                 .map(KategorieType::getKurzform)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -453,6 +483,6 @@ public class ZepServiceImpl implements ZepService {
                 .stream()
                 .flatMap(mitarbeiterListe -> mitarbeiterListe.getMitarbeiter().stream())
                 .map(employeeMapper::map)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

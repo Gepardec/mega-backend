@@ -1,16 +1,35 @@
 package com.gepardec.mega.zep;
 
 import com.gepardec.mega.db.entity.common.PaymentMethodType;
-import com.gepardec.mega.db.repository.ProjectRepository;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
-import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.MonthlyReportService;
-import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
-import de.provantis.zep.*;
+import de.provantis.zep.AnhangType;
+import de.provantis.zep.BelegListeType;
+import de.provantis.zep.BelegType;
+import de.provantis.zep.BelegbetragListeType;
+import de.provantis.zep.BelegbetragType;
+import de.provantis.zep.MitarbeiterListeType;
+import de.provantis.zep.MitarbeiterType;
+import de.provantis.zep.ProjektListeType;
+import de.provantis.zep.ProjektMitarbeiterListeType;
+import de.provantis.zep.ProjektMitarbeiterType;
+import de.provantis.zep.ProjektType;
+import de.provantis.zep.ReadBelegAnhangRequestType;
+import de.provantis.zep.ReadBelegAnhangResponseType;
+import de.provantis.zep.ReadBelegRequestType;
+import de.provantis.zep.ReadBelegResponseType;
+import de.provantis.zep.ReadMitarbeiterRequestType;
+import de.provantis.zep.ReadMitarbeiterResponseType;
+import de.provantis.zep.ReadProjekteRequestType;
+import de.provantis.zep.ReadProjekteResponseType;
+import de.provantis.zep.ResponseHeaderType;
+import de.provantis.zep.UpdateMitarbeiterRequestType;
+import de.provantis.zep.UpdateMitarbeiterResponseType;
+import de.provantis.zep.ZepSoapPortType;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
@@ -31,7 +50,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class ZepServiceImplTest {
@@ -128,7 +151,7 @@ class ZepServiceImplTest {
         when(zepSoapPortType.readBelegAnhang(Mockito.any(ReadBelegAnhangRequestType.class)))
                 .thenReturn(createReadBelegAnhangResponseType());
 
-        when(monthlyReportService.isMonthConfirmedFromEmployee(eq(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com", "2024-03-31")), eq(LocalDate.of(2024, 3, 1))))
+        when(monthlyReportService.isMonthConfirmedFromEmployee(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com", "2024-03-31"), eq(LocalDate.of(2024, 3, 1))))
                 .thenReturn(true);
 
         List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com", "2024-03-31"));
@@ -148,7 +171,7 @@ class ZepServiceImplTest {
         when(zepSoapPortType.readBelegAnhang(Mockito.any(ReadBelegAnhangRequestType.class)))
                 .thenReturn(createReadBelegAnhangResponseType());
 
-        when(monthlyReportService.isMonthConfirmedFromEmployee(eq(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com", "2024-02-29")), eq(LocalDate.of(2024, 3, 1))))
+        when(monthlyReportService.isMonthConfirmedFromEmployee(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com", "2024-02-29"), eq(LocalDate.of(2024, 3, 1))))
                 .thenReturn(true);
 
         List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com", "2024-02-29"));
