@@ -15,6 +15,8 @@ import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
@@ -79,6 +81,43 @@ public class SyncResourceTest {
 
     }
 
+
+    @ParameterizedTest
+    @ValueSource(strings = {"2024-03-31", "2024-04-30"})
+    void testUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeHasNoTimesAndAllAbsencesAndReleasedateIsAlreadySet_thenReturnEmptyList(String releaseDate) {
+        Employee userUnderTest = createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com", releaseDate);
+        when(employeeService.getAllActiveEmployees())
+                .thenReturn(
+                        List.of(
+                                createEmployeeForId("e02-oseimel", "oliver.seimel@gepardec.com", releaseDate),
+                                userUnderTest,
+                                createEmployeeForId("026-cruhsam", "christoph.ruhsam@gepardec.com", releaseDate)
+                        )
+                );
+
+
+        List<FehlzeitType> fehlzeitList = createFehlzeitTypeListForUser(
+                "039-cgattringer",
+                new AbsenceEntry("2024-03-01", "2024-03-01", AbsenceType.PAID_SICK_LEAVE.getAbsenceName()),
+                new AbsenceEntry("2024-03-04", "2024-03-08", AbsenceType.VACATION_DAYS.getAbsenceName()),
+                new AbsenceEntry("2024-03-11", "2024-03-15", AbsenceType.VACATION_DAYS.getAbsenceName()),
+                new AbsenceEntry("2024-03-18", "2024-03-22", AbsenceType.VACATION_DAYS.getAbsenceName()),
+                new AbsenceEntry("2024-03-25", "2024-03-29", AbsenceType.VACATION_DAYS.getAbsenceName())
+        );
+
+        when(zepService.getAbsenceForEmployee(eq(userUnderTest), any(LocalDate.class)))
+                .thenReturn(fehlzeitList);
+
+        doNothing().when(zepService).updateEmployeesReleaseDate(anyString(), anyString());
+
+        when(zepService.getEmployee(eq(userUnderTest.getUserId())))
+                .thenReturn(userUnderTest);
+
+        List<EmployeeDto> actual = syncResource.updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
+
+        assertThat(actual).isNotNull().isEmpty();
+    }
+
     @Test
     void testUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeHasNoTimesAndAllAbsencesWithHomeOfficeAndVacation_thenReturnEmptyList(){
         Employee userUnderTest = createEmployeeForId("039-cgattringer", "chiara.gattringer@gepardec.com", "2024-02-29");
@@ -112,8 +151,9 @@ public class SyncResourceTest {
         List<EmployeeDto> actual = syncResource.updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
 
         assertThat(actual).isEmpty();
-
     }
+
+
 
     @Test
     void testUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeHasNoTimesAndSomeAbsences_thenReturnEmptyList(){

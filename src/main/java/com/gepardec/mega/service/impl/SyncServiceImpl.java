@@ -93,9 +93,9 @@ public class SyncServiceImpl implements SyncService {
     public List<EmployeeDto> syncUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth() {
         //to avoid having a look at external employees filter
         List<Employee> activeAndInternalEmployees = employeeService.getAllActiveEmployees()
-                .stream()
-                .filter(e -> !e.getUserId().startsWith("e"))
-                .toList();
+                                                                   .stream()
+                                                                   .filter(e -> !e.getUserId().startsWith("e"))
+                                                                   .toList();
         List<EmployeeDto> updatedEmployees = new ArrayList<>();
         List<Employee> absentEmployees = new ArrayList<>();
 
@@ -104,7 +104,12 @@ public class SyncServiceImpl implements SyncService {
         //use this firstOfPreviousMonth.getYear() because of january and december
         LocalDate lastOfPreviousMonth = DateUtils.getLastDayOfMonth(firstOfPreviousMonth.getYear(), firstOfPreviousMonth.getMonth().getValue());
 
-        for (var employee : activeAndInternalEmployees) {
+        //to avoid getting employees more often then once
+        List<Employee> activeAndInternalAndNotReleasedEmployees = activeAndInternalEmployees.stream()
+                                                                  .filter(e -> DateUtils.parseDate(e.getReleaseDate()).isBefore(lastOfPreviousMonth))
+                                                                  .toList();
+
+        for (var employee : activeAndInternalAndNotReleasedEmployees) {
             //considering all absence types besides HomeOffice and External training days
             List<FehlzeitType> absences = zepService.getAbsenceForEmployee(employee, firstOfPreviousMonth).stream()
                     .filter(absence -> !AbsenceType.getAbsenceTypesWhereWorkingTimeNeeded().stream()
