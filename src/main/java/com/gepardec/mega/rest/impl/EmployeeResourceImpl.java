@@ -16,6 +16,8 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,9 +50,9 @@ public class EmployeeResourceImpl implements EmployeeResource {
     }
 
     @Override
-    public List<BillDto> getBillsForEmployeeByMonth(String employeeId) {
+    public List<BillDto> getBillsForEmployeeByMonth(String employeeId, YearMonth from) {
         Employee employee = employeeService.getEmployee(employeeId);
-        List<Bill> resultBillList = zepService.getBillsForEmployeeByMonth(employee);
+        List<Bill> resultBillList = zepService.getBillsForEmployeeByMonth(employee, from);
 
         return resultBillList.stream()
                 .map(billMapper::mapToDto)

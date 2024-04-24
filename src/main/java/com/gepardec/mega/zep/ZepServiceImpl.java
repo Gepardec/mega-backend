@@ -55,6 +55,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
@@ -64,8 +65,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
-import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfCurrentMonth;
+import static com.gepardec.mega.domain.utils.DateUtils.*;
 
 @RequestScoped
 public class ZepServiceImpl implements ZepService {
@@ -221,14 +221,25 @@ public class ZepServiceImpl implements ZepService {
 
 
     @Override
-    public List<Bill> getBillsForEmployeeByMonth(final Employee employee) {
-        final ReadBelegResponseType readBelegResponseType = getBillsInternal(employee);
+    public List<Bill> getBillsForEmployeeByMonth(final Employee employee, YearMonth yearMonth) {
+        String fromDate = getFirstDayOfCurrentMonth(LocalDate.now());
+        String toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
+
+        if(yearMonth != null){
+            fromDate = formatDate(yearMonth.atDay(1));
+            toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
+        }
+
+
+        final ReadBelegResponseType readBelegResponseType = getBillsInternal(employee, fromDate, toDate);
 
         BelegListeType billList = readBelegResponseType.getBelegListe();
         return billList.getBeleg().stream()
                 .map(this::createBill)
                 .toList();
     }
+
+
 
     @Override
     public Optional<Project> getProjectByName(final String projectName, final LocalDate monthYear) {
@@ -284,19 +295,26 @@ public class ZepServiceImpl implements ZepService {
         return zepSoapPortType.readProjekte(readProjekteRequestType);
     }
 
-    private ReadBelegResponseType getBillsInternal(final Employee employee) {
-        LocalDate dateForSearchCriteria;
-        LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
+    private ReadBelegResponseType getBillsInternal(final Employee employee, final String from, final String to) {
         LocalDate now = LocalDate.now();
+        LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
+        String dateForSearchCriteriaFrom = "";
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
+        String dateForSearchCriteriaTo ="";
 
-        if (now.isAfter(midOfCurrentMonth) && monthlyReportService.isMonthConfirmedFromEmployee(employee, firstOfPreviousMonth)) {
-            dateForSearchCriteria = now;
+
+        if(from == null && to == null) {
+            if (now.isAfter(midOfCurrentMonth) && monthlyReportService.isMonthConfirmedFromEmployee(employee, firstOfPreviousMonth)) {
+                dateForSearchCriteriaFrom = getFirstDayOfCurrentMonth(now);
+                dateForSearchCriteriaTo = getLastDayOfCurrentMonth(now);
+            }
         } else {
-            dateForSearchCriteria = firstOfPreviousMonth;
+            dateForSearchCriteriaFrom = from;
+            dateForSearchCriteriaTo = to;
         }
 
-        final ReadBelegSearchCriteriaType readBelegSearchCriteriaType = createBillSearchCriteria(employee, dateForSearchCriteria);
+
+        final ReadBelegSearchCriteriaType readBelegSearchCriteriaType = createBillSearchCriteria(employee, dateForSearchCriteriaFrom, dateForSearchCriteriaTo);
 
         final ReadBelegRequestType readBelegRequestType = new ReadBelegRequestType();
         readBelegRequestType.setRequestHeader(zepSoapProvider.createRequestHeaderType());
@@ -356,7 +374,7 @@ public class ZepServiceImpl implements ZepService {
         return searchCriteria;
     }
 
-    private ReadBelegSearchCriteriaType createBillSearchCriteria(Employee employee, LocalDate date){
+    private ReadBelegSearchCriteriaType createBillSearchCriteria(Employee employee, String from, String to){
         ReadBelegSearchCriteriaType searchCriteria = new ReadBelegSearchCriteriaType();
 
         //setUserIdListe needs this special parameter below, could be more than one id but in this case only one is useful
@@ -364,8 +382,8 @@ public class ZepServiceImpl implements ZepService {
         userIdListe.setUserId(List.of(employee.getUserId()));
 
         searchCriteria.setUserIdListe(userIdListe);
-        searchCriteria.setVon(getFirstDayOfCurrentMonth(date));
-        searchCriteria.setBis(getLastDayOfCurrentMonth(date));
+        searchCriteria.setVon(from);
+        searchCriteria.setBis(to);
 
         return searchCriteria;
     }

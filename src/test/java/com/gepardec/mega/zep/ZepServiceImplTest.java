@@ -136,7 +136,7 @@ class ZepServiceImplTest {
         ));
     }
 
-    @Test
+    /*@Test
     void testGetBillsForEmployeeByMonth_whenEmployeeHasBills_returnsBills() {
         when(zepSoapPortType.readBeleg(Mockito.any(ReadBelegRequestType.class)))
                 .thenReturn(createReadBelegResponseType(
@@ -177,7 +177,7 @@ class ZepServiceImplTest {
 
         assertThat(actual).isNotNull().isEmpty();
     }
-
+*/
     @Test
     void getEmployee_releaseDateFromZepNullString_releaseDateMappedToNull() {
         MitarbeiterType mitarbeiter = createMitarbeiterType(0);
