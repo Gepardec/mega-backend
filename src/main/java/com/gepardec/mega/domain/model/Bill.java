@@ -16,6 +16,7 @@ public class Bill {
     private final String projectName;
 
     private final String attachmentBase64String;
+    private final String attachmentFileName;
 
 
     private Bill(Builder builder){
@@ -25,6 +26,7 @@ public class Bill {
         this.paymentMethodType = builder.paymentMethodType;
         this.projectName = builder.projectName;
         this.attachmentBase64String = builder.attachmentBase64String;
+        this.attachmentFileName = builder.attachmentFileName;
     }
 
     public static Builder builder() {
@@ -55,6 +57,8 @@ public class Bill {
         return attachmentBase64String;
     }
 
+    public String getAttachmentFileName() {return attachmentFileName;}
+
     public static final class Builder {
             private LocalDate billDate;
 
@@ -67,6 +71,7 @@ public class Bill {
             private String projectName;
 
             private String attachmentBase64String;
+            private String attachmentFileName;
 
             private Builder(){}
 
@@ -99,6 +104,11 @@ public class Bill {
 
             public Builder attachmentBase64(String attachmentBase64String){
                 this.attachmentBase64String = attachmentBase64String;
+                return this;
+            }
+
+            public Builder attachmentFileName(String attachmentFileName) {
+                this.attachmentFileName = attachmentFileName;
                 return this;
             }
 
