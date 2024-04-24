@@ -376,7 +376,7 @@ public class ZepServiceImpl implements ZepService {
 
         //because it is not possible to store a byte[] in json
         String attachmentBase64String = null;
-        String attachmentFilename = "";
+        String attachmentFilename = null;
 
         if(readBelegAnhangResponseType.getAnhang().getInhalt() != null){
             byte[] attachmentBase64 = readBelegAnhangResponseType.getAnhang().getInhalt();
