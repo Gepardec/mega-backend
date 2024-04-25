@@ -24,6 +24,7 @@ import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Set;
 
@@ -209,7 +210,7 @@ class EmployeeResourceTest {
                 .thenReturn(userAsEmployee);
 
 
-        when(zepService.getBillsForEmployeeByMonth(userAsEmployee))
+        when(zepService.getBillsForEmployeeByMonth(userAsEmployee, YearMonth.of(2024, 4))
                 .thenReturn(
                     getBillsForEmployee()
                 );
@@ -240,8 +241,7 @@ class EmployeeResourceTest {
 
         assertThat(actual).isNotNull();
         assertThat(actual).isEmpty();
-    }
-*/
+    }*/
     private List<Bill> getBillsForEmployee() {
         return List.of(
                 createBillForEmployee(LocalDate.of(2024, 4, 11),

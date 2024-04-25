@@ -10,14 +10,13 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/worker")
 @Tag(name = "WorkerResource")
+@Produces(MediaType.APPLICATION_JSON)
 public interface WorkerResource {
     @GET
     @Path("/monthendreports")
-    @Produces(MediaType.APPLICATION_JSON)
     Response monthlyReport();
 
     @GET
     @Path("/monthendreports/{year}/{month}")
-    @Produces(MediaType.APPLICATION_JSON)
     Response monthlyReport(@PathParam("year") Integer year, @PathParam("month") Integer month);
 }

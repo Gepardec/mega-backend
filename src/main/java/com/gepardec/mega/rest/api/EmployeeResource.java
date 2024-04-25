@@ -42,8 +42,9 @@ public interface EmployeeResource {
     )
     @Parameter(name = "id", description = "ID of the employee for whom the bills are to be retrieved.")
     @Parameter(name = "from",
-            description = "If not given uses the current month. " +
-                    "If given uses the parameter-date.",
+            description = "If not given uses the whole current month. <br> " +
+                    "If given uses the whole month of the parameter-date. <br>" +
+                    "For example if 2024-03 is given it retrieves all bills from 2024-03-01 to 2024-03-31.",
             in = ParameterIn.QUERY,
             schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
     @Path("/{id}/bills")

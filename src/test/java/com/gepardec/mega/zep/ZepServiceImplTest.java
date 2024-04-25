@@ -42,6 +42,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Stream;
@@ -136,7 +137,7 @@ class ZepServiceImplTest {
         ));
     }
 
-    /*@Test
+    @Test
     void testGetBillsForEmployeeByMonth_whenEmployeeHasBills_returnsBills() {
         when(zepSoapPortType.readBeleg(Mockito.any(ReadBelegRequestType.class)))
                 .thenReturn(createReadBelegResponseType(
@@ -153,7 +154,7 @@ class ZepServiceImplTest {
         when(monthlyReportService.isMonthConfirmedFromEmployee(createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-03-31"), LocalDate.of(2024, 3, 1)))
                 .thenReturn(true);
 
-        List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-03-31"));
+        List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-03-31"), YearMonth.of(2024, 3));
 
         assertThat(actual).isNotNull().size().isEqualTo(2);
         assertThat(actual.get(0).getProjectName()).isEqualTo("3BankenIT - JBoss");
@@ -173,11 +174,10 @@ class ZepServiceImplTest {
         when(monthlyReportService.isMonthConfirmedFromEmployee(createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-02-29"), LocalDate.of(2024, 3, 1)))
                 .thenReturn(true);
 
-        List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-02-29"));
+        List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-02-29"), YearMonth.of(2024, 3));
 
         assertThat(actual).isNotNull().isEmpty();
     }
-*/
     @Test
     void getEmployee_releaseDateFromZepNullString_releaseDateMappedToNull() {
         MitarbeiterType mitarbeiter = createMitarbeiterType(0);
