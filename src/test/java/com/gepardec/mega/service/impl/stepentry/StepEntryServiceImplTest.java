@@ -166,8 +166,8 @@ class StepEntryServiceImplTest {
     }
 
     @Test
-    void updateStepEntryReasonForStepWithStateDone_ShouldReturnFalse_WhenUpdateFails() {
-        Employee employee = createEmployee(); // Mock Employee
+    void updateStepEntryReasonForStepWithStateDone_whenUpdateFails_thenReturnFalse() {
+        Employee employee = createEmployee();
         Long stepId = 123L;
         LocalDate from = LocalDate.now();
         LocalDate to = LocalDate.now().plusDays(7);
