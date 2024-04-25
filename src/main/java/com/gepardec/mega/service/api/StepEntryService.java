@@ -27,6 +27,8 @@ public interface StepEntryService {
 
     boolean setOpenAndAssignedStepEntriesDone(Employee employee, Long stepId, LocalDate from, LocalDate to);
 
+    boolean updateStepEntryReasonForStepWithStateDone(Employee employee, Long stepId, LocalDate from, LocalDate to, String reason);
+
     boolean updateStepEntryStateForEmployee(Employee employee, Long stepId, LocalDate from, LocalDate to, EmployeeState newState, String reason);
 
     boolean updateStepEntryStateForEmployeeInProject(Employee employee, Long stepId, String project, String currentMonthYear, EmployeeState employeeState);

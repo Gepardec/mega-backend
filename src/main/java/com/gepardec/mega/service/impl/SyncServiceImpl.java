@@ -140,7 +140,7 @@ public class SyncServiceImpl implements SyncService {
         // set status from OPEN to DONE for step_id 1 -> employee doesn't need to confirm times manually
         absentEmployees.forEach(employee -> {
             stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L,  firstOfPreviousMonth, lastOfPreviousMonth);
-            //set state reason?
+            stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, 1L, firstOfPreviousMonth, lastOfPreviousMonth, "Aufgrund von Abwesenheiten wurde der Monat automatisch bestätigt.");
             updatedEmployees.add(employeeMapper.mapToDto(zepService.getEmployee(employee.getUserId())));
         });
 

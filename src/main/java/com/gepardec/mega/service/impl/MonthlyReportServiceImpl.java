@@ -175,6 +175,16 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
         var prematureEmployeeCheck = prematureEmployeeCheckService.findByEmailAndMonth(employee.getEmail(), date);
+        String stepEntryForAutomaticReleaseReason = null;
+        try {
+            var stepEntry = stepEntryService.findStepEntryForEmployeeAtStep(1L, employee.getEmail(), employee.getEmail(), LocalDate.of(year, month, 1).toString());
+            if(stepEntry != null) {
+                stepEntryForAutomaticReleaseReason = stepEntry.getStateReason();
+            }
+        } catch (IllegalStateException exception) {
+            // is already null here
+        }
+
 
 
         MonthlyReport.Builder builder = MonthlyReport.builder()
@@ -183,7 +193,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .journeyWarnings(journeyWarnings)
                 .comments(comments)
                 .employeeCheckState(employeeCheckState.map(Pair::getLeft).orElse(EmployeeState.PREMATURE_CHECK))
-                .employeeCheckStateReason(employeeCheckState.map(Pair::getRight).orElse(prematureEmployeeCheck.map(PrematureEmployeeCheck::getReason).orElse(null)))
+                .employeeCheckStateReason(employeeCheckState.map(Pair::getRight).orElse(prematureEmployeeCheck.map(PrematureEmployeeCheck::getReason).orElse(stepEntryForAutomaticReleaseReason)))
                 .internalCheckState(internalCheckState.orElse(EmployeeState.OPEN))
                 .employeeProgresses(pmProgressDtos)
                 .otherChecksDone(isMonthCompletedForEmployee(employee, date))

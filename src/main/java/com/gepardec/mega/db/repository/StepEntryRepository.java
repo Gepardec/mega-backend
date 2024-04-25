@@ -103,6 +103,22 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
     }
 
     @Transactional
+    public int updateReasonForStepEntryWithStateDone(LocalDate startDate, LocalDate endDate, String ownerEmail, Long stepId, String reason) {
+        return update("UPDATE StepEntry s SET s.stateReason = :reason" +
+                        " WHERE s.id IN" +
+                        " (SELECT s.id FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND " +
+                        "         s.owner.email = :ownerEmail AND s.step.id = :stepId AND" +
+                        "         s.employeeState = :employeeState)",
+                Parameters
+                        .with("employeeState", EmployeeState.DONE)
+                        .and("reason", reason)
+                        .and("start", startDate)
+                        .and("end", endDate)
+                        .and("ownerEmail", ownerEmail)
+                        .and("stepId", stepId));
+    }
+
+    @Transactional
     public int updateStateAssigned(LocalDate startDate, LocalDate endDate, String ownerEmail, Long stepId, String project, EmployeeState newState) {
         return update("UPDATE StepEntry s SET s.employeeState = :employeeState WHERE s.id IN (SELECT s.id FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.owner.email = :ownerEmail AND s.step.id = :stepId AND s.project like :project)",
                 Parameters
