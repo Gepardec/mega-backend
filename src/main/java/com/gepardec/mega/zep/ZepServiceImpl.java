@@ -230,7 +230,6 @@ public class ZepServiceImpl implements ZepService {
             toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
         }
 
-
         final ReadBelegResponseType readBelegResponseType = getBillsInternal(employee, fromDate, toDate);
 
         BelegListeType billList = readBelegResponseType.getBelegListe();
@@ -297,9 +296,10 @@ public class ZepServiceImpl implements ZepService {
 
     private ReadBelegResponseType getBillsInternal(final Employee employee, final String from, final String to) {
         LocalDate now = LocalDate.now();
-        LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
-        String dateForSearchCriteriaFrom = "";
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
+        LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
+
+        String dateForSearchCriteriaFrom = "";
         String dateForSearchCriteriaTo ="";
 
 
@@ -312,7 +312,6 @@ public class ZepServiceImpl implements ZepService {
             dateForSearchCriteriaFrom = from;
             dateForSearchCriteriaTo = to;
         }
-
 
         final ReadBelegSearchCriteriaType readBelegSearchCriteriaType = createBillSearchCriteria(employee, dateForSearchCriteriaFrom, dateForSearchCriteriaTo);
 
@@ -413,7 +412,7 @@ public class ZepServiceImpl implements ZepService {
                 .billDate(DateUtils.parseDate(belegType.getDatum()))
                 .bruttoValue(bruttoValue)
                 .billType(belegType.getBelegart())
-                .paymentMethodType(PaymentMethodType.getByName(belegType.getZahlungsart()).orElse(null)) //can actually never be null, because it is required in ZEP -> Optional due to Enum
+                .paymentMethodType(PaymentMethodType.getByName(belegType.getZahlungsart()).orElse(null)) //can actually never be null, because it is required in ZEP -> Optional<...> due to Enum
                 .projectName(belegType.getProjektNr())
                 .attachmentBase64(attachmentBase64String)
                 .attachmentFileName(attachmentFilename)
