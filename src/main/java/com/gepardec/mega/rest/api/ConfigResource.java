@@ -9,9 +9,9 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/config")
 @Tag(name = "ConfigResource")
+@Produces(MediaType.APPLICATION_JSON)
 public interface ConfigResource {
     @Path("/")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     Response get();
 }

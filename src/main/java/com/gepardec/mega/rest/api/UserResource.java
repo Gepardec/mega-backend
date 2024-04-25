@@ -9,8 +9,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/user")
 @Tag(name = "UserResource")
+@Produces(MediaType.APPLICATION_JSON)
 public interface UserResource {
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     Response get();
 }

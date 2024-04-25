@@ -28,6 +28,8 @@ public class BillDto {
 
     private final String attachmentBase64String;
 
+    private final String attachmentFileName;
+
 
     private BillDto(Builder builder){
         this.billDate = builder.billDate;
@@ -36,6 +38,7 @@ public class BillDto {
         this.paymentMethodType = builder.paymentMethodType;
         this.projectName = builder.projectName;
         this.attachmentBase64String = builder.attachmentBase64String;
+        this.attachmentFileName = builder.attachmentFileName;
     }
 
     public static Builder builder() {return Builder.aBillDto();}
@@ -65,6 +68,8 @@ public class BillDto {
         return attachmentBase64String;
     }
 
+    public String getAttachmentFileName() { return attachmentFileName; }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -93,6 +98,8 @@ public class BillDto {
         private String projectName;
 
         private String attachmentBase64String;
+
+        private String attachmentFileName;
 
         private Builder(){}
 
@@ -125,6 +132,11 @@ public class BillDto {
 
         public Builder attachmentBase64(String attachmentBase64String){
             this.attachmentBase64String = attachmentBase64String;
+            return this;
+        }
+
+        public Builder attachmentFileName(String attachmentFileName) {
+            this.attachmentFileName = attachmentFileName;
             return this;
         }
 

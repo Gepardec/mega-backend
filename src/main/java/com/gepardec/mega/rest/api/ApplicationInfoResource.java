@@ -9,8 +9,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/info")
 @Tag(name = "ApplicationInfoResource")
+@Produces(MediaType.APPLICATION_JSON)
 public interface ApplicationInfoResource {
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     Response get();
 }

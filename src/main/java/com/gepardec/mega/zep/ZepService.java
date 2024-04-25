@@ -8,6 +8,7 @@ import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,5 +32,5 @@ public interface ZepService {
 
     List<ProjektzeitType> getBillableForEmployee(Employee employee, LocalDate date);
 
-    List<Bill> getBillsForEmployeeByMonth(final Employee employee);
+    List<Bill> getBillsForEmployeeByMonth(final Employee employee, YearMonth yearMonth);
 }
