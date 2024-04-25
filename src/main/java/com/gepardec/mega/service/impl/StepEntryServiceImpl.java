@@ -105,6 +105,11 @@ public class StepEntryServiceImpl implements StepEntryService {
     }
 
     @Override
+    public boolean updateStepEntryReasonForStepWithStateDone(Employee employee, Long stepId, LocalDate from, LocalDate to, String reason) {
+        return stepEntryRepository.updateReasonForStepEntryWithStateDone(from, to, employee.getEmail(), stepId, reason) > 0;
+    }
+
+    @Override
     public boolean updateStepEntryStateForEmployee(Employee employee, Long stepId, LocalDate from, LocalDate to,
                                                    EmployeeState newState, String reason) {
         return stepEntryRepository.updateStateAssignedWithReason(from, to, employee.getEmail(), stepId, newState, reason) > 0;

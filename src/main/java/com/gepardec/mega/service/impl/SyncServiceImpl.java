@@ -12,6 +12,7 @@ import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.ProjectService;
+import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.api.SyncService;
 import com.gepardec.mega.service.mapper.SyncServiceMapper;
 import com.gepardec.mega.zep.ZepService;
@@ -56,6 +57,8 @@ public class SyncServiceImpl implements SyncService {
 
     @Inject
     ApplicationConfig applicationConfig;
+    @Inject
+    StepEntryService stepEntryService;
 
     @Inject
     SyncServiceMapper mapper;
@@ -134,9 +137,10 @@ public class SyncServiceImpl implements SyncService {
             }
         }
 
-        // set release date of employee to last day of previous month --> no confirmation of employee necessary
+        // set status from OPEN to DONE for step_id 1 -> employee doesn't need to confirm times manually
         absentEmployees.forEach(employee -> {
-            zepService.updateEmployeesReleaseDate(employee.getUserId(), lastOfPreviousMonth.toString());
+            stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L,  firstOfPreviousMonth, lastOfPreviousMonth);
+            stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, 1L, firstOfPreviousMonth, lastOfPreviousMonth, "Aufgrund von Abwesenheiten wurde der Monat automatisch bestätigt.");
             updatedEmployees.add(employeeMapper.mapToDto(zepService.getEmployee(employee.getUserId())));
         });
 
