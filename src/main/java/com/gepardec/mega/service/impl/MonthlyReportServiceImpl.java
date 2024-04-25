@@ -86,9 +86,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
         LocalDate initialDate = getCorrectInitialDateForMonthEndReport(employee);
 
-        MonthlyReport monthlyReport = getMonthEndReportForUser(initialDate.getYear(), initialDate.getMonthValue(), employee, initialDate);
-
-        return monthlyReport;
+        return getMonthEndReportForUser(initialDate.getYear(), initialDate.getMonthValue(), employee, initialDate);
     }
 
     private LocalDate getCorrectInitialDateForMonthEndReport(Employee employee) {
