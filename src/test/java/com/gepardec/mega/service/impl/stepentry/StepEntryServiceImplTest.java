@@ -22,9 +22,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -148,6 +146,40 @@ class StepEntryServiceImplTest {
         boolean updated = stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L, from, to);
 
         assertThat(updated).isTrue();
+    }
+
+    @Test
+    void updateStepEntryReasonForStepWithStateDone_whenUpdateSuccessful_thenReturnTrue() {
+        Employee employee = createEmployee();
+        Long stepId = 123L;
+        LocalDate from = LocalDate.now();
+        LocalDate to = LocalDate.now().plusDays(7);
+        String reason = "Test reason";
+
+        when(stepEntryRepository.updateReasonForStepEntryWithStateDone(any(LocalDate.class), any(LocalDate.class), anyString(), any(Long.class), anyString()))
+                .thenReturn(1);
+
+        boolean result = stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, stepId, from, to, reason);
+
+        assertThat(result).isTrue();
+        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(eq(from), eq(to), eq(employee.getEmail()), eq(stepId), eq(reason));
+    }
+
+    @Test
+    void updateStepEntryReasonForStepWithStateDone_ShouldReturnFalse_WhenUpdateFails() {
+        Employee employee = createEmployee(); // Mock Employee
+        Long stepId = 123L;
+        LocalDate from = LocalDate.now();
+        LocalDate to = LocalDate.now().plusDays(7);
+        String reason = "Test reason";
+
+        when(stepEntryRepository.updateReasonForStepEntryWithStateDone(any(LocalDate.class), any(LocalDate.class), anyString(), any(Long.class), anyString()))
+                .thenReturn(0);
+
+        boolean result = stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, stepId, from, to, reason);
+
+        assertThat(result).isFalse();
+        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(eq(from), eq(to), eq(employee.getEmail()), eq(stepId), eq(reason));
     }
 
     @Test
