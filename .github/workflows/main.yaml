@@ -1,6 +1,9 @@
 name: Release Containerimage
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -20,18 +23,17 @@ jobs:
       - name: Build (and test) project with Maven
         run: mvn -B package -D skipTests --file pom.xml
 
+      # set the env.BRANCH_NAME variable
       - uses: nelonoel/branch-name@v1.0.1
 
       - name: Set outputs
         id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-#      - name: Set env
-#        run: export BRANCH=${BRANCH_NAME}
-#      - run: echo "BRANCH=$BRANCH_NAME" >> $GITHUB_ENV
-      - run: echo "COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-#      - run: echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-#      - run: echo ${BRANCH}
 
+      # set the env.COMMIT variable
+      - run: echo "COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      # build the container image and release it as a package in this repository
       - uses: mr-smithers-excellent/docker-build-push@v6
         name: push-container-image
         with:
