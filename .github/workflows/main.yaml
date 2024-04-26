@@ -43,3 +43,4 @@ jobs:
           buildArgs: COMMIT=${{ env.COMMIT}}, BRANCH=${{ env.BRANCH_NAME}}, VERSION=${{ env.COMMIT}}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+          addLatest: ${{ github.ref == 'refs/heads/main' }}
