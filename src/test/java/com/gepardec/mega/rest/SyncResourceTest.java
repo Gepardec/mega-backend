@@ -1,10 +1,11 @@
 package com.gepardec.mega.rest;
 
 import com.gepardec.mega.db.entity.common.AbsenceType;
+import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.Employee;
 
 
-import com.gepardec.mega.domain.model.StepEntry;
 import com.gepardec.mega.rest.api.SyncResource;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -94,6 +95,9 @@ public class SyncResourceTest {
             )
             .thenReturn(true);
 
+        when(stepEntryService.findStepEntryForEmployeeAtStep(anyLong(), anyString(), anyString(), anyString()))
+                .thenReturn(createStepEntry());
+
         List<EmployeeDto> actual = syncResource.updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
 
         assertThat(actual).isNotNull().size().isEqualTo(1);
@@ -105,36 +109,6 @@ public class SyncResourceTest {
     }
 
 
-    @ParameterizedTest
-    @ValueSource(strings = {"2024-03-31", "2024-04-30"})
-    void testUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeHasNoTimesAndAllAbsencesAndReleasedateIsAfterCurrentMonth_thenReturnEmptyList(String releaseDate) {
-        Employee userUnderTest = createEmployeeForId("099-testUser", "test.user@gepardec.com", releaseDate);
-        when(employeeService.getAllActiveEmployees())
-                .thenReturn(
-                        List.of(
-                                createEmployeeForId("e02-externalUser", "external.user@gepardec.com", releaseDate),
-                                userUnderTest,
-                                createEmployeeForId("100-testUser2", "test.user2@gepardec.com", releaseDate)
-                        )
-                );
-
-
-        List<FehlzeitType> fehlzeitList = createFehlzeitTypeListForUser(
-                "099-testUser",
-                new AbsenceEntry("2024-03-01", "2024-03-01", AbsenceType.PAID_SICK_LEAVE.getAbsenceName()),
-                new AbsenceEntry("2024-03-04", "2024-03-08", AbsenceType.VACATION_DAYS.getAbsenceName()),
-                new AbsenceEntry("2024-03-11", "2024-03-15", AbsenceType.VACATION_DAYS.getAbsenceName()),
-                new AbsenceEntry("2024-03-18", "2024-03-22", AbsenceType.VACATION_DAYS.getAbsenceName()),
-                new AbsenceEntry("2024-03-25", "2024-03-29", AbsenceType.VACATION_DAYS.getAbsenceName())
-        );
-
-        when(zepService.getAbsenceForEmployee(eq(userUnderTest), any(LocalDate.class)))
-                .thenReturn(fehlzeitList);
-
-        List<EmployeeDto> actual = syncResource.updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
-
-        assertThat(actual).isNotNull().isEmpty();
-    }
 
     @Test
     void testUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeHasNoTimesAndAllAbsencesWithHomeOfficeAndVacation_thenReturnEmptyList(){
@@ -254,6 +228,12 @@ public class SyncResourceTest {
         fehlzeitType.setEnddatum(endDate);
         fehlzeitType.setFehlgrund(reason);
         return fehlzeitType;
+    }
+
+    private static StepEntry createStepEntry(){
+        StepEntry entry = new StepEntry();
+        entry.setState(EmployeeState.OPEN);
+        return entry;
     }
 
     //helper class for test classes above to reduce loc

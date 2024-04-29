@@ -2,6 +2,9 @@ package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.application.configuration.ApplicationConfig;
 import com.gepardec.mega.db.entity.common.AbsenceType;
+import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.db.entity.employee.Step;
+import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.Employee;
@@ -107,12 +110,7 @@ public class SyncServiceImpl implements SyncService {
         //use this firstOfPreviousMonth.getYear() because of january and december
         LocalDate lastOfPreviousMonth = DateUtils.getLastDayOfMonth(firstOfPreviousMonth.getYear(), firstOfPreviousMonth.getMonth().getValue());
 
-        //to avoid getting employees more often then once
-        List<Employee> activeAndInternalAndNotReleasedEmployees = activeAndInternalEmployees.stream()
-                                                                  .filter(e -> DateUtils.parseDate(e.getReleaseDate()).isBefore(lastOfPreviousMonth))
-                                                                  .toList();
-
-        for (var employee : activeAndInternalAndNotReleasedEmployees) {
+        for (var employee : activeAndInternalEmployees) {
             //considering all absence types besides HomeOffice and External training days
             List<FehlzeitType> absences = zepService.getAbsenceForEmployee(employee, firstOfPreviousMonth).stream()
                     .filter(absence -> !AbsenceType.getAbsenceTypesWhereWorkingTimeNeeded().stream()
@@ -139,9 +137,13 @@ public class SyncServiceImpl implements SyncService {
 
         // set status from OPEN to DONE for step_id 1 -> employee doesn't need to confirm times manually
         absentEmployees.forEach(employee -> {
-            stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L,  firstOfPreviousMonth, lastOfPreviousMonth);
-            stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, 1L, firstOfPreviousMonth, lastOfPreviousMonth, "Aufgrund von Abwesenheiten wurde der Monat automatisch bestätigt.");
-            updatedEmployees.add(employeeMapper.mapToDto(zepService.getEmployee(employee.getUserId())));
+            StepEntry entry = stepEntryService.findStepEntryForEmployeeAtStep(1L, employee.getEmail(), employee.getEmail(), DateUtils.formatDate(firstOfPreviousMonth));
+            // if IN_PROGRESS OR already DONE than do not update reason
+            if(entry.getState().equals(EmployeeState.OPEN)) {
+                stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L,  firstOfPreviousMonth, lastOfPreviousMonth);
+                stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, 1L, firstOfPreviousMonth, lastOfPreviousMonth, "Aufgrund von Abwesenheiten wurde der Monat automatisch bestätigt.");
+                updatedEmployees.add(employeeMapper.mapToDto(zepService.getEmployee(employee.getUserId())));
+            }
         });
 
         logger.info("updated {} employee(s)!", updatedEmployees.size());
