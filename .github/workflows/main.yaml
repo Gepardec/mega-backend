@@ -21,7 +21,7 @@ jobs:
           cache: maven
 
       - name: Build (and test) project with Maven
-        run: mvn -B package -D skipTests --file pom.xml
+        run: mvn -B package --file pom.xml
 
       # set the env.BRANCH_NAME variable
       - uses: nelonoel/branch-name@v1.0.1
