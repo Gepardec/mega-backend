@@ -146,7 +146,7 @@ public class SyncServiceImpl implements SyncService {
             }
         });
 
-        logger.info("updated {} employee(s)!", updatedEmployees.size());
+        logger.info("updated {} employee(s).", updatedEmployees.size());
         return updatedEmployees;
     }
 
