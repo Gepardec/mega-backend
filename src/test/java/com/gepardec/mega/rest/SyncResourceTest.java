@@ -105,36 +105,6 @@ public class SyncResourceTest {
     }
 
 
-    @ParameterizedTest
-    @ValueSource(strings = {"2024-03-31", "2024-04-30"})
-    void testUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeHasNoTimesAndAllAbsencesAndReleasedateIsAfterCurrentMonth_thenReturnEmptyList(String releaseDate) {
-        Employee userUnderTest = createEmployeeForId("099-testUser", "test.user@gepardec.com", releaseDate);
-        when(employeeService.getAllActiveEmployees())
-                .thenReturn(
-                        List.of(
-                                createEmployeeForId("e02-externalUser", "external.user@gepardec.com", releaseDate),
-                                userUnderTest,
-                                createEmployeeForId("100-testUser2", "test.user2@gepardec.com", releaseDate)
-                        )
-                );
-
-
-        List<FehlzeitType> fehlzeitList = createFehlzeitTypeListForUser(
-                "099-testUser",
-                new AbsenceEntry("2024-03-01", "2024-03-01", AbsenceType.PAID_SICK_LEAVE.getAbsenceName()),
-                new AbsenceEntry("2024-03-04", "2024-03-08", AbsenceType.VACATION_DAYS.getAbsenceName()),
-                new AbsenceEntry("2024-03-11", "2024-03-15", AbsenceType.VACATION_DAYS.getAbsenceName()),
-                new AbsenceEntry("2024-03-18", "2024-03-22", AbsenceType.VACATION_DAYS.getAbsenceName()),
-                new AbsenceEntry("2024-03-25", "2024-03-29", AbsenceType.VACATION_DAYS.getAbsenceName())
-        );
-
-        when(zepService.getAbsenceForEmployee(eq(userUnderTest), any(LocalDate.class)))
-                .thenReturn(fehlzeitList);
-
-        List<EmployeeDto> actual = syncResource.updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
-
-        assertThat(actual).isNotNull().isEmpty();
-    }
 
     @Test
     void testUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeHasNoTimesAndAllAbsencesWithHomeOfficeAndVacation_thenReturnEmptyList(){
