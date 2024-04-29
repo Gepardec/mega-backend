@@ -1,10 +1,11 @@
 package com.gepardec.mega.rest;
 
 import com.gepardec.mega.db.entity.common.AbsenceType;
+import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.Employee;
 
 
-import com.gepardec.mega.domain.model.StepEntry;
 import com.gepardec.mega.rest.api.SyncResource;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -93,6 +94,9 @@ public class SyncResourceTest {
                 )
             )
             .thenReturn(true);
+
+        when(stepEntryService.findStepEntryForEmployeeAtStep(anyLong(), anyString(), anyString(), anyString()))
+                .thenReturn(createStepEntry());
 
         List<EmployeeDto> actual = syncResource.updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
 
@@ -224,6 +228,12 @@ public class SyncResourceTest {
         fehlzeitType.setEnddatum(endDate);
         fehlzeitType.setFehlgrund(reason);
         return fehlzeitType;
+    }
+
+    private static StepEntry createStepEntry(){
+        StepEntry entry = new StepEntry();
+        entry.setState(EmployeeState.OPEN);
+        return entry;
     }
 
     //helper class for test classes above to reduce loc

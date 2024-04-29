@@ -138,7 +138,7 @@ public class SyncServiceImpl implements SyncService {
         // set status from OPEN to DONE for step_id 1 -> employee doesn't need to confirm times manually
         absentEmployees.forEach(employee -> {
             StepEntry entry = stepEntryService.findStepEntryForEmployeeAtStep(1L, employee.getEmail(), employee.getEmail(), DateUtils.formatDate(firstOfPreviousMonth));
-            boolean isStateEquals = entry.getState().equals(EmployeeState.OPEN);
+            // if IN_PROGRESS OR already DONE than do not update reason
             if(entry.getState().equals(EmployeeState.OPEN)) {
                 stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L,  firstOfPreviousMonth, lastOfPreviousMonth);
                 stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, 1L, firstOfPreviousMonth, lastOfPreviousMonth, "Aufgrund von Abwesenheiten wurde der Monat automatisch bestätigt.");
