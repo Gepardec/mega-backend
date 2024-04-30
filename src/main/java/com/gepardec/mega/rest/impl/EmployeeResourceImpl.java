@@ -30,13 +30,9 @@ public class EmployeeResourceImpl implements EmployeeResource {
     EmployeeMapper mapper;
 
     @Inject
-    BillMapper billMapper;
-
-    @Inject
     EmployeeService employeeService;
 
-    @Inject
-    ZepService zepService;
+
 
     @Override
     public Response list() {
@@ -49,13 +45,5 @@ public class EmployeeResourceImpl implements EmployeeResource {
         return Response.ok(employeeService.updateEmployeesReleaseDate(mapper.mapListToDomain(employeesDto))).build();
     }
 
-    @Override
-    public List<BillDto> getBillsForEmployeeByMonth(String employeeId, YearMonth from) {
-        Employee employee = employeeService.getEmployee(employeeId);
-        List<Bill> resultBillList = zepService.getBillsForEmployeeByMonth(employee, from);
 
-        return resultBillList.stream()
-                .map(billMapper::mapToDto)
-                .toList();
-    }
 }

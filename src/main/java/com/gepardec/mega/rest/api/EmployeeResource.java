@@ -31,24 +31,4 @@ public interface EmployeeResource {
     Response update(@NotEmpty(message = "{workerResource.employees.notEmpty}") List<EmployeeDto> employeesDto);
 
 
-
-    @Operation(operationId = "getBillsForEmployeeByMonth", description = "Get all bills that the user with given id uploaded for current month.")
-    @APIResponse(responseCode = "200",
-            description = "Successfully retrieved bills for employee.",
-            content = {
-                    @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = BillDto[].class))
-            }
-    )
-    @Parameter(name = "id", description = "ID of the employee for whom the bills are to be retrieved.")
-    @Parameter(name = "from",
-            description = "If not given uses the whole current month. <br> " +
-                    "If given uses the whole month of the parameter-date. <br>" +
-                    "For example if 2024-03 is given it retrieves all bills from 2024-03-01 to 2024-03-31.",
-            in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
-    @Path("/{id}/bills")
-    @GET
-    List<BillDto> getBillsForEmployeeByMonth(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
-
 }
