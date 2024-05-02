@@ -5,6 +5,8 @@ import com.gepardec.mega.rest.model.MonthlyReportDto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import java.util.Optional;
+
 @ApplicationScoped
 public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyReportDto> {
 
@@ -13,6 +15,9 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
 
     @Inject
     CommentMapper commentMapper;
+
+    @Inject
+    PrematureEmployeeCheckMapper prematureEmployeeCheckMapper;
 
     @Override
     public MonthlyReportDto mapToDto(MonthlyReport object) {
@@ -40,7 +45,13 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .totalWorkingTime(object.getTotalWorkingTime())
                 .paidSickLeave(object.getPaidSickLeave())
                 .overtime(object.getOvertime())
-                .prematureEmployeeCheck(object.getPrematureEmployeeCheck())
+                .guildLead(emptyToDtoFormat(object.getGuildLead()))
+                .internalProjectLead(emptyToDtoFormat(object.getInternalProjectLead()))
+                .prematureEmployeeCheck(
+                        Optional.ofNullable(object.getPrematureEmployeeCheck())
+                                .map(prematureEmployeeCheckMapper::mapToDto)
+                                .orElse(null)
+                )
                 .build();
     }
 
@@ -74,7 +85,20 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .totalWorkingTime(object.getTotalWorkingTime())
                 .paidSickLeave(object.getPaidSickLeave())
                 .overtime(object.getOvertime())
-                .prematureEmployeeCheck(object.getPrematureEmployeeCheck())
+                .guildLead(emptyToDomainFormat(object.getGuildLead()))
+                .internalProjectLead(emptyToDomainFormat(object.getInternalProjectLead()))
+                .prematureEmployeeCheck(prematureEmployeeCheckMapper.mapToDomain(object.getPrematureEmployeeCheck()))
                 .build();
+    }
+
+    private static String emptyToDtoFormat(String value) {
+        if (value == null) {
+            return value;
+        }
+        return value.isEmpty() ? null : value;
+    }
+
+    private static String emptyToDomainFormat(String value) {
+        return value == null ? "" : value;
     }
 }

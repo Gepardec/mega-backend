@@ -1,14 +1,15 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.SourceSystem;
 
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = CommentDto.Builder.class)
 public class CommentDto {
 
     private final Long id;
@@ -25,7 +26,6 @@ public class CommentDto {
 
     private final SourceSystem sourceSystem;
 
-    @JsonCreator
     private CommentDto(Builder builder) {
         this.id = builder.id;
         this.message = builder.message;
@@ -69,20 +69,14 @@ public class CommentDto {
     }
 
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
-        @JsonProperty
         private Long id;
-        @JsonProperty
         private String message;
-        @JsonProperty
         private String authorEmail;
-        @JsonProperty
         private String authorName;
-        @JsonProperty
         private String updateDate;
-        @JsonProperty
         private EmployeeState state;
-        @JsonProperty
         private SourceSystem sourceSystem;
 
         private Builder() {

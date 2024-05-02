@@ -1,14 +1,14 @@
 package com.gepardec.mega.zep;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
+import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
-import com.gepardec.mega.zep.impl.ZepRestServiceImpl;
-import com.gepardec.mega.zep.impl.ZepSoapServiceImpl;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,4 +31,6 @@ public interface ZepService {
     List<AbsenceTime> getAbsenceForEmployee(Employee employee, LocalDate date);
 
     List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date);
+
+    List<Bill> getBillsForEmployeeByMonth(final Employee employee, YearMonth yearMonth);
 }

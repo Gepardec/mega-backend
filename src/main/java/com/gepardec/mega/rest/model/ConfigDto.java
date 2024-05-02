@@ -1,13 +1,14 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import java.util.List;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = ConfigDto.Builder.class)
 public class ConfigDto {
 
     private final String excelUrl;
@@ -28,7 +29,6 @@ public class ConfigDto {
 
     private final String megaDashUrl;
 
-    @JsonCreator
     private ConfigDto(Builder builder) {
         this.excelUrl = builder.excelUrl;
         this.zepOrigin = builder.zepOrigin;
@@ -95,24 +95,16 @@ public class ConfigDto {
         return Objects.hash(getExcelUrl(), getZepOrigin(), getClientId(), getIssuer(), getScope(), getVersion(), getOmMailAddresses(), getSubjectPrefix(), getMegaDashUrl());
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
-        @JsonProperty
         private String excelUrl;
-        @JsonProperty
         private String zepOrigin;
-        @JsonProperty
         private String clientId;
-        @JsonProperty
         private String issuer;
-        @JsonProperty
         private String scope;
-        @JsonProperty
         private String version;
-        @JsonProperty
         private List<String> omMailAddresses;
-        @JsonProperty
         private String subjectPrefix;
-        @JsonProperty
         private String megaDashUrl;
 
         private Builder() {

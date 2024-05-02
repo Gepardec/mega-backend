@@ -30,10 +30,10 @@ public class WorkingTimeUtil {
 
     private static final String BILLABLE_TIME_FORMAT = "HH:mm";
     private static final List<String> BOOKABLE_ABSENCES = List.of(
-            MonthlyReportServiceImpl.CONFERENCE_DAYS,
-            MonthlyReportServiceImpl.EXTERNAL_TRAINING_DAYS,
-            MonthlyReportServiceImpl.HOME_OFFICE_DAYS,
-            MonthlyReportServiceImpl.COMPENSATORY_DAYS // compensatory days must have an impact on the overtime balance
+            AbsenceType.CONFERENCE_DAYS.getAbsenceName(),
+            AbsenceType.EXTERNAL_TRAINING_DAYS.getAbsenceName(),
+            AbsenceType.HOME_OFFICE_DAYS.getAbsenceName(),
+            AbsenceType.COMPENSATORY_DAYS.getAbsenceName() // compensatory days must have an impact on the overtime balance
     );
 
 

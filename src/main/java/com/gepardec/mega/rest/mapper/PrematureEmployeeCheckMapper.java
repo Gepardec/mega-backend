@@ -14,6 +14,7 @@ public class PrematureEmployeeCheckMapper implements DtoMapper<PrematureEmployee
     @Override
     public PrematureEmployeeCheckDto mapToDto(PrematureEmployeeCheck object) {
         return PrematureEmployeeCheckDto.builder()
+                .id(object.getId())
                 .user(userMapper.mapToDto(object.getUser()))
                 .forMonth(object.getForMonth())
                 .reason(object.getReason())

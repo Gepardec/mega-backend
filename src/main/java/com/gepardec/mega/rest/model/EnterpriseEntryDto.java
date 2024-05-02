@@ -1,8 +1,8 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.gepardec.mega.domain.model.ProjectState;
 
 import java.time.LocalDate;
@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = EnterpriseEntryDto.Builder.class)
 public class EnterpriseEntryDto {
 
     private final ProjectState zepTimesReleased;
@@ -22,8 +23,6 @@ public class EnterpriseEntryDto {
 
     private final LocalDateTime creationDate;
 
-
-    @JsonCreator
     private EnterpriseEntryDto(Builder builder) {
         this.zepTimesReleased = builder.zepTimesReleased;
         this.chargeabilityExternalEmployeesRecorded = builder.chargeabilityExternalEmployeesRecorded;
@@ -69,16 +68,12 @@ public class EnterpriseEntryDto {
         return creationDate;
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
-        @JsonProperty
         private ProjectState zepTimesReleased;
-        @JsonProperty
         private ProjectState chargeabilityExternalEmployeesRecorded;
-        @JsonProperty
         private ProjectState payrollAccountingSent;
-        @JsonProperty
         private LocalDate date;
-        @JsonProperty
         private LocalDateTime creationDate;
 
         private Builder() {

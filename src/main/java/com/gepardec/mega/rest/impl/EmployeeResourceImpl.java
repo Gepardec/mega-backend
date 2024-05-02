@@ -1,18 +1,25 @@
 package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.application.interceptor.RolesAllowed;
+import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.rest.api.EmployeeResource;
+import com.gepardec.mega.rest.mapper.BillMapper;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
+import com.gepardec.mega.zep.ZepService;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestScoped
 @Authenticated
@@ -23,7 +30,13 @@ public class EmployeeResourceImpl implements EmployeeResource {
     EmployeeMapper mapper;
 
     @Inject
+    BillMapper billMapper;
+
+    @Inject
     EmployeeService employeeService;
+
+    @Inject
+    ZepService zepService;
 
     @Override
     public Response list() {
@@ -34,5 +47,15 @@ public class EmployeeResourceImpl implements EmployeeResource {
     @Override
     public Response update(final List<EmployeeDto> employeesDto) {
         return Response.ok(employeeService.updateEmployeesReleaseDate(mapper.mapListToDomain(employeesDto))).build();
+    }
+
+    @Override
+    public List<BillDto> getBillsForEmployeeByMonth(String employeeId, YearMonth from) {
+        Employee employee = employeeService.getEmployee(employeeId);
+        List<Bill> resultBillList = zepService.getBillsForEmployeeByMonth(employee, from);
+
+        return resultBillList.stream()
+                .map(billMapper::mapToDto)
+                .toList();
     }
 }

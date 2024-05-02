@@ -1,10 +1,8 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
@@ -13,20 +11,15 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = MappedTimeWarningDTO.Builder.class)
 public class MappedTimeWarningDTO {
 
-    @JsonProperty
-    public final String description;
-    @JsonProperty
+    private final String description;
+
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private final LocalDate date;
 
-    @JsonIgnore
-    public LocalDate getDate() {
-        return date;
-    }
-
-
-    @JsonCreator
     private MappedTimeWarningDTO(Builder builder) {
         this.date = builder.date;
         this.description = builder.description;
@@ -34,6 +27,14 @@ public class MappedTimeWarningDTO {
 
     public static Builder builder() {
         return Builder.aMappedTimeWarningDTO();
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public LocalDate getDate() {
+        return date;
     }
 
     @Override
@@ -49,16 +50,10 @@ public class MappedTimeWarningDTO {
         return Objects.hash(getDate(), getDescription());
     }
 
-    public String getDescription() {
-        return description;
-    }
-
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
-        @JsonProperty
-        @JsonSerialize(using = LocalDateSerializer.class)
-        @JsonDeserialize(using = LocalDateDeserializer.class)
+
         private LocalDate date;
-        @JsonProperty
         private String description;
 
         private Builder() {

@@ -1,14 +1,15 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.gepardec.mega.domain.model.Role;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = UserDto.Builder.class)
 public class UserDto {
 
     private final long dbId;
@@ -25,7 +26,6 @@ public class UserDto {
 
     private final Set<Role> roles;
 
-    @JsonCreator
     private UserDto(Builder builder) {
         this.dbId = builder.dbId;
         this.userId = builder.userId;
@@ -69,20 +69,14 @@ public class UserDto {
         return roles;
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
-        @JsonProperty
         private long dbId;
-        @JsonProperty
         private String userId;
-        @JsonProperty
         private String email;
-        @JsonProperty
         private String firstname;
-        @JsonProperty
         private String lastname;
-        @JsonProperty
         private LocalDate releaseDate;
-        @JsonProperty
         private Set<Role> roles;
 
         private Builder() {

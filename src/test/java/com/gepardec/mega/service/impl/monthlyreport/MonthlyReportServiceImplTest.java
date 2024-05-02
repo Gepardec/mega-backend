@@ -1,5 +1,10 @@
 package com.gepardec.mega.service.impl.monthlyreport;
 
+import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.PersonioEmployee;
+import com.gepardec.mega.domain.model.Role;
+import com.gepardec.mega.domain.model.User;
+import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.*;
 import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
@@ -9,6 +14,7 @@ import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
+import com.gepardec.mega.personio.commons.model.Attribute;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -35,6 +41,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,7 +88,14 @@ class MonthlyReportServiceImplTest {
         Employee employee1 = createEmployeeForUser(user);
         when(employeeService.getEmployee(anyString())).thenReturn(employee1);
 
-        when(personioEmployeesService.getVacationDayBalance(any())).thenReturn(0d);
+        PersonioEmployee personioEmployee = PersonioEmployee.builder()
+            .guildLead("guildLead")
+            .internalProjectLead("internalProjectLead")
+            .vacationDayBalance(0d)
+            .build();
+
+        when(personioEmployeesService.getPersonioEmployeeByEmail(any()))
+                .thenReturn(Optional.of(personioEmployee));
     }
 
     @AfterEach
@@ -155,13 +169,12 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<AbsenceTime> absenceList = new ArrayList<>();
-        AbsenceTime nursingDay = AbsenceTime.builder()
-            .reason("PU")
-            .accepted(true)
-            .toDate(LocalDate.of(2020, 2, 29))
-            .fromDate(LocalDate.of(2020, 2, 27))
-            .build();
+        List<FehlzeitType> absenceList = new ArrayList<>();
+        FehlzeitType nursingDay = new FehlzeitType();
+        nursingDay.setFehlgrund("PU");
+        nursingDay.setGenehmigt(true);
+        nursingDay.setEnddatum(LocalDate.of(2020, 2, 29).toString());
+        nursingDay.setStartdatum(LocalDate.of(2020, 2, 27).toString());
         absenceList.add(nursingDay);
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
@@ -186,8 +199,12 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<AbsenceTime> absenceList = new ArrayList<>();
-        AbsenceTime maternityLeaveDay = createAbsenceFromType("KA");
+        List<FehlzeitType> absenceList = new ArrayList<>();
+        FehlzeitType maternityLeaveDay = new FehlzeitType();
+        maternityLeaveDay.setFehlgrund("KA");
+        maternityLeaveDay.setGenehmigt(true);
+        maternityLeaveDay.setEnddatum(LocalDate.of(2020, 2, 29).toString());
+        maternityLeaveDay.setStartdatum(LocalDate.of(2020, 2, 27).toString());
         absenceList.add(maternityLeaveDay);
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());

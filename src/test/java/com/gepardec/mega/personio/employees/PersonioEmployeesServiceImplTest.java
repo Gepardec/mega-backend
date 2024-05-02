@@ -1,5 +1,6 @@
 package com.gepardec.mega.personio.employees;
 
+import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.personio.commons.model.Attribute;
 import com.gepardec.mega.personio.commons.model.BaseResponse;
 import com.gepardec.mega.personio.commons.model.ErrorResponse;
@@ -10,6 +11,7 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
+import org.w3c.dom.Attr;
 
 import java.util.List;
 
@@ -43,10 +45,13 @@ class PersonioEmployeesServiceImplTest {
         when(personioEmployeesClient.getByEmail(anyString())).thenReturn(response);
 
         //WHEN
-        var result = personioEmployeesService.getVacationDayBalance("mega.test@gepardec.com");
+        var result = personioEmployeesService.getPersonioEmployeeByEmail("mega.test@gepardec.com");
 
         //THEN
-        assertThat(result).isEqualTo(10d);
+        assertThat(result).isNotEmpty();
+        PersonioEmployee personioEmployee = result.get();
+        assertThat(personioEmployee.getGuildLead()).isEqualTo("guildLead");
+        assertThat(personioEmployee.getInternalProjectLead()).isEqualTo("internalProjectLead");
     }
 
     @Test
@@ -61,10 +66,10 @@ class PersonioEmployeesServiceImplTest {
         when(personioEmployeesClient.getByEmail(anyString())).thenReturn(response);
 
         //WHEN
-        var result = personioEmployeesService.getVacationDayBalance("mega.test@gepardec.com");
+        var result = personioEmployeesService.getPersonioEmployeeByEmail(("mega.test@gepardec.com"));
 
         //THEN
-        assertThat(result).isEqualTo(0d);
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -79,12 +84,12 @@ class PersonioEmployeesServiceImplTest {
         when(personioEmployeesClient.getByEmail(anyString())).thenReturn(response);
 
         //WHEN
-        var result = personioEmployeesService.getVacationDayBalance("mega.test@gepardec.com");
+        var result = personioEmployeesService.getPersonioEmployeeByEmail("mega.test@gepardec.com");
 
         //THEN
         verify(logger).info("Fehler bei Aufruf der Personio-Schnittstelle: {}", "Personio-Fehler");
 
-        assertThat(result).isEqualTo(0d);
+        assertThat(result).isEmpty();
     }
 
     private static List<EmployeesResponse> createValidEmployeesResponseData() {
@@ -104,14 +109,11 @@ class PersonioEmployeesServiceImplTest {
         return List.of(data1, data2);
     }
 
-    private static PersonioEmployee createPersonioEmployee() {
-        var vacationDayBalance = new Attribute<Double>();
-        vacationDayBalance.setValue(10d);
-
-        var employee = new PersonioEmployee();
-        employee.setVacationDayBalance(vacationDayBalance);
-
-        return employee;
+    private static PersonioEmployeeDto createPersonioEmployee() {
+        return PersonioEmployeeDto.builder()
+                .guildLead(Attribute.ofValue("guildLead"))
+                .internalProjectLead(Attribute.ofValue("internalProjectLead"))
+                .build();
     }
 
     private static ErrorResponse createErrorResponse() {

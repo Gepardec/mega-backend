@@ -1,14 +1,15 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = PrematureEmployeeCheckDto.Builder.class)
 public class PrematureEmployeeCheckDto {
 
     private final Long id;
@@ -21,7 +22,6 @@ public class PrematureEmployeeCheckDto {
 
     private final PrematureEmployeeCheckState state;
 
-    @JsonCreator
     private PrematureEmployeeCheckDto(Builder builder) {
         this.id = builder.id;
         this.user = builder.user;
@@ -67,16 +67,12 @@ public class PrematureEmployeeCheckDto {
         return Objects.hash(getUser(), getForMonth(), getReason());
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
-        @JsonProperty
         private Long id;
-        @JsonProperty
         private UserDto user;
-        @JsonProperty
         private LocalDate forMonth;
-        @JsonProperty
         private String reason;
-        @JsonProperty
         private PrematureEmployeeCheckState state;
 
         private Builder() {

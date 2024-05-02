@@ -1,8 +1,8 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.gepardec.mega.domain.model.State;
 import jakarta.annotation.Nullable;
 
@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = ManagementEntryDto.Builder.class)
 public class ManagementEntryDto {
 
     private final EmployeeDto employee;
@@ -34,7 +35,6 @@ public class ManagementEntryDto {
 
     private final String nonBillableTime;
 
-    @JsonCreator
     private ManagementEntryDto(Builder builder) {
         this.employee = builder.employee;
         this.employeeCheckState = builder.employeeCheckState;
@@ -112,29 +112,18 @@ public class ManagementEntryDto {
         return nonBillableTime;
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
-        @JsonProperty
         private EmployeeDto employee;
-        @JsonProperty
         private State employeeCheckState;
-        @JsonProperty
         private String employeeCheckStateReason;
-        @JsonProperty
         private State internalCheckState;
-        @JsonProperty
         private State projectCheckState;
-        @JsonProperty
-        @Nullable
         private List<PmProgressDto> employeeProgresses;
-        @JsonProperty
         private long totalComments;
-        @JsonProperty
         private long finishedComments;
-        @JsonProperty
         private String entryDate;
-        @JsonProperty
         private String billableTime;
-        @JsonProperty
         private String nonBillableTime;
 
         private Builder() {

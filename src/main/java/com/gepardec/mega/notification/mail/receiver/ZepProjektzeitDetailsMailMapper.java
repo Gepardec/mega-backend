@@ -23,7 +23,7 @@ public class ZepProjektzeitDetailsMailMapper implements ZepMailMapper<ZepProjekt
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private static final String SUBJECT_REGEX = "Projektzeit (.*) von (.*) bis (.*) \\((.*)\\)";
-    private static final String PROJECT_NAME_REGEX = "(\\w*) \\(.*\\)";
+    private static final String PROJECT_NAME_REGEX = "^(.*?)\\s*\\(";
 
     private static final String HINT_LINE = "Hinweis:";
     private static final String METADATA_MARKER = "#METADATEN####################################";

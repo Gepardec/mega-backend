@@ -6,16 +6,17 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/worker")
+@Tag(name = "WorkerResource")
+@Produces(MediaType.APPLICATION_JSON)
 public interface WorkerResource {
     @GET
     @Path("/monthendreports")
-    @Produces(MediaType.APPLICATION_JSON)
     Response monthlyReport();
 
     @GET
     @Path("/monthendreports/{year}/{month}")
-    @Produces(MediaType.APPLICATION_JSON)
     Response monthlyReport(@PathParam("year") Integer year, @PathParam("month") Integer month);
 }

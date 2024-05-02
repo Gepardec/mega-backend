@@ -1,5 +1,6 @@
 package com.gepardec.mega.service.impl;
 
+import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.AbsenceTime;
@@ -35,6 +36,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -49,19 +51,6 @@ import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfMonth;
 
 @RequestScoped
 public class MonthlyReportServiceImpl implements MonthlyReportService {
-
-    public static final String COMPENSATORY_DAYS = "FA";
-    public static final String HOME_OFFICE_DAYS = "HO";
-    public static final String VACATION_DAYS = "UB";
-    public static final String NURSING_DAYS = "PU";
-    public static final String MATERNITY_LEAVE_DAYS = "KA";
-    public static final String EXTERNAL_TRAINING_DAYS = "EW";
-    public static final String CONFERENCE_DAYS = "KO";
-    public static final String MATERNITY_PROTECTION_DAYS = "MU";
-    public static final String FATHER_MONTH_DAYS = "PA";
-    public static final String PAID_SPECIAL_LEAVE_DAYS = "SU";
-    public static final String NON_PAID_VACATION_DAYS = "UU";
-    public static final String PAID_SICK_LEAVE = "KR";
 
     @Inject
     ZepService zepService;
@@ -93,15 +82,16 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     @Inject
     PrematureEmployeeCheckService prematureEmployeeCheckService;
 
+    @Inject
+    Logger logger;
+
     @Override
     public MonthlyReport getMonthEndReportForUser() {
         Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
 
         LocalDate initialDate = getCorrectInitialDateForMonthEndReport(employee);
 
-        MonthlyReport monthlyReport = getMonthEndReportForUser(initialDate.getYear(), initialDate.getMonthValue(), employee, initialDate);
-
-        return monthlyReport;
+        return getMonthEndReportForUser(initialDate.getYear(), initialDate.getMonthValue(), employee, initialDate);
     }
 
     private LocalDate getCorrectInitialDateForMonthEndReport(Employee employee) {
@@ -116,7 +106,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         }
     }
 
-    private boolean isMonthConfirmedFromEmployee(Employee employee, LocalDate date) {
+    public boolean isMonthConfirmedFromEmployee(Employee employee, LocalDate date) {
         return stepEntryService.findControlTimesStepEntry(employee, date).stream()
                 .allMatch(stepEnry -> stepEnry.getState().equals(EmployeeState.DONE));
     }
@@ -189,36 +179,47 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
         var prematureEmployeeCheck = prematureEmployeeCheckService.findByEmailAndMonth(employee.getEmail(), date);
+        String stepEntryForAutomaticReleaseReason = null;
+        try {
+            var stepEntry = stepEntryService.findStepEntryForEmployeeAtStep(1L, employee.getEmail(), employee.getEmail(), LocalDate.of(year, month, 1).toString());
+            if(stepEntry != null) {
+                stepEntryForAutomaticReleaseReason = stepEntry.getStateReason();
+            }
+        } catch (IllegalStateException exception) {
+            // is already null here
+        }
 
-        return MonthlyReport.builder()
+
+
+        MonthlyReport.Builder builder = MonthlyReport.builder()
                 .employee(employee)
                 .timeWarnings(mappedTimeWarnings)
                 .journeyWarnings(journeyWarnings)
                 .comments(comments)
                 .employeeCheckState(employeeCheckState.map(Pair::getLeft).orElse(EmployeeState.PREMATURE_CHECK))
-                .employeeCheckStateReason(employeeCheckState.map(Pair::getRight).orElse(prematureEmployeeCheck.map(PrematureEmployeeCheck::getReason).orElse(null)))
+                .employeeCheckStateReason(employeeCheckState.map(Pair::getRight).orElse(prematureEmployeeCheck.map(PrematureEmployeeCheck::getReason).orElse(stepEntryForAutomaticReleaseReason)))
                 .internalCheckState(internalCheckState.orElse(EmployeeState.OPEN))
                 .employeeProgresses(pmProgressDtos)
                 .otherChecksDone(isMonthCompletedForEmployee(employee, date))
                 .billableTime(workingTimeUtil.getBillableTimesForEmployee(billableEntries, employee))
                 .totalWorkingTime(workingTimeUtil.getTotalWorkingTimeForEmployee(billableEntries, employee))
-                .compensatoryDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, COMPENSATORY_DAYS, date))
-                .homeofficeDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, HOME_OFFICE_DAYS, date))
-                .vacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, VACATION_DAYS, date))
-                .nursingDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, NURSING_DAYS, date))
-                .maternityLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, MATERNITY_LEAVE_DAYS, date))
-                .externalTrainingDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, EXTERNAL_TRAINING_DAYS, date))
-                .conferenceDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, CONFERENCE_DAYS, date))
-                .maternityProtectionDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, MATERNITY_PROTECTION_DAYS, date))
-                .fatherMonthDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, FATHER_MONTH_DAYS, date))
-                .paidSpecialLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SPECIAL_LEAVE_DAYS, date))
-                .nonPaidVacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, NON_PAID_VACATION_DAYS, date))
-                .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, PAID_SICK_LEAVE, date))
-                .vacationDayBalance(personioEmployeesService.getVacationDayBalance(employee.getEmail()))
+                .compensatoryDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.COMPENSATORY_DAYS.getAbsenceName(), date))
+                .homeofficeDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.HOME_OFFICE_DAYS.getAbsenceName(), date))
+                .vacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.VACATION_DAYS.getAbsenceName(), date))
+                .nursingDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.NURSING_DAYS.getAbsenceName(), date))
+                .maternityLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.MATERNITY_LEAVE_DAYS.getAbsenceName(), date))
+                .externalTrainingDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.EXTERNAL_TRAINING_DAYS.getAbsenceName(), date))
+                .conferenceDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.CONFERENCE_DAYS.getAbsenceName(), date))
+                .maternityProtectionDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.MATERNITY_PROTECTION_DAYS.getAbsenceName(), date))
+                .fatherMonthDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.FATHER_MONTH_DAYS.getAbsenceName(), date))
+                .paidSpecialLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.PAID_SPECIAL_LEAVE_DAYS.getAbsenceName(), date))
+                .nonPaidVacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.NON_PAID_VACATION_DAYS.getAbsenceName(), date))
+                .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.PAID_SICK_LEAVE.getAbsenceName(), date))
                 .overtime(workingTimeUtil.getOvertimeForEmployee(employee, billableEntries, absenceEntries, date))
                 .prematureEmployeeCheck(prematureEmployeeCheck.orElse(null))
-                .initialDate(initialDate)
-                .build();
+                .initialDate(initialDate);
+
+        return addPersonioEmployee(builder, employee.getEmail()).build();
     }
 
     private boolean isAnyStepEntryDone(Map.Entry<String, List<StepEntry>> entry) {
@@ -228,4 +229,17 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     private boolean isStepEntryDone(StepEntry stepEntry) {
         return stepEntry.getState() == EmployeeState.DONE;
     }
+
+    private MonthlyReport.Builder addPersonioEmployee(MonthlyReport.Builder builder, String email) {
+        personioEmployeesService.getPersonioEmployeeByEmail(email).ifPresent(
+                employee -> {
+                    builder.internalProjectLead(employee.getInternalProjectLead());
+                    builder.guildLead(employee.getGuildLead());
+                    builder.vacationDayBalance(employee.getVacationDayBalance());
+                }
+        );
+
+        return builder;
+    }
+
 }

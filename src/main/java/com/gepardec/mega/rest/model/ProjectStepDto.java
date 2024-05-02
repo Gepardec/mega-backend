@@ -1,14 +1,14 @@
 package com.gepardec.mega.rest.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.domain.model.Employee;
 
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonDeserialize(builder = ProjectStepDto.Builder.class)
 public class ProjectStepDto {
 
     private final Long stepId;
@@ -21,7 +21,6 @@ public class ProjectStepDto {
 
     private EmployeeState newState;
 
-    @JsonCreator
     private ProjectStepDto(Builder builder) {
         this.stepId = builder.stepId;
         this.employee = builder.employee;
@@ -71,16 +70,12 @@ public class ProjectStepDto {
         this.newState = newState;
     }
 
+    @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
-        @JsonProperty
         private Long stepId;
-        @JsonProperty
         private EmployeeDto employee;
-        @JsonProperty
         private String projectName;
-        @JsonProperty
         private String currentMonthYear;
-        @JsonProperty
         private EmployeeState newState;
 
         private Builder() {
