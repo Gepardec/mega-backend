@@ -6,6 +6,7 @@ import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.Employee;
 
 
+import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.SyncResource;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -65,13 +66,11 @@ public class SyncResourceTest {
                 );
 
 
+        LocalDate now = LocalDate.now();
+        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
         List<FehlzeitType> fehlzeitList = createFehlzeitTypeListForUser(
                 "099-testUser",
-                new AbsenceEntry("2024-03-01", "2024-03-01", AbsenceType.PAID_SICK_LEAVE.getAbsenceName()),
-                new AbsenceEntry("2024-03-04", "2024-03-08", AbsenceType.VACATION_DAYS.getAbsenceName()),
-                new AbsenceEntry("2024-03-11", "2024-03-15", AbsenceType.VACATION_DAYS.getAbsenceName()),
-                new AbsenceEntry("2024-03-18", "2024-03-22", AbsenceType.VACATION_DAYS.getAbsenceName()),
-                new AbsenceEntry("2024-03-25", "2024-03-29", AbsenceType.VACATION_DAYS.getAbsenceName())
+                new AbsenceEntry(firstOfPreviousMonth.toString(), DateUtils.getLastDayOfMonth(firstOfPreviousMonth.getYear(), firstOfPreviousMonth.getMonth().getValue()).toString(), AbsenceType.PAID_SICK_LEAVE.getAbsenceName())
         );
 
         when(zepService.getAbsenceForEmployee(eq(userUnderTest), any(LocalDate.class)))
@@ -103,8 +102,8 @@ public class SyncResourceTest {
         assertThat(actual).isNotNull().size().isEqualTo(1);
         assertThat(employeeArgumentCaptor.getValue()).isEqualTo(userUnderTest);
         assertThat(longArgumentCaptor.getValue()).isEqualTo(1L);
-        assertThat(localStartDateCaptor.getValue()).isEqualTo(LocalDate.of(2024, 3, 1));
-        assertThat(localEndDateCaptor.getValue()).isEqualTo(LocalDate.of(2024, 3, 31));
+        assertThat(localStartDateCaptor.getValue()).isEqualTo(firstOfPreviousMonth);
+        assertThat(localEndDateCaptor.getValue()).isEqualTo(DateUtils.getLastDayOfMonth(firstOfPreviousMonth.getYear(), firstOfPreviousMonth.getMonth().getValue()));
         assertThat(actual.get(0).getUserId()).isEqualTo(userUnderTest.getUserId());
     }
 

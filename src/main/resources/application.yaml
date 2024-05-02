@@ -114,7 +114,7 @@ mega:
         - "simon.bauer@gepardec.com"
         - "paul.waldecker@gepardec.com"
         - "paul.proemer@gepardec.com"
-        - "chiara.gattringer@gepardec.com"
+        #- "chiara.gattringer@gepardec.com"
 
     receiver:
       protocol: "imaps"
