@@ -34,7 +34,9 @@
       "customer_shipping_address_id": null,
       "has_multiple_customers": null,
       "department_id": 1,
-      "billing_type": 1,
+      "billing_type": {
+        "id": 1
+      },
       "billing_tasks": 0,
       "plan_hours": "55.5",
       "plan_hours_per_day": null,

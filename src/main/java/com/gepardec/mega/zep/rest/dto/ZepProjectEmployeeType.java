@@ -1,4 +1,4 @@
-package com.gepardec.mega.zep.rest.entity;
+package com.gepardec.mega.zep.rest.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

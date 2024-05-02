@@ -1,21 +1,16 @@
 package com.gepardec.mega.zep.rest.service;
 
-import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.gepardec.mega.helper.ResourceFileService;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
-import com.gepardec.mega.zep.rest.entity.*;
-import com.gepardec.mega.helper.ResourceFileService;
+import com.gepardec.mega.zep.rest.dto.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import jakarta.inject.Inject;
-import org.locationtech.jts.io.InStream;
-import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

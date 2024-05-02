@@ -2,7 +2,7 @@ package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.zep.ZepServiceException;
-import com.gepardec.mega.zep.rest.entity.ZepAbsence;
+import com.gepardec.mega.zep.rest.dto.ZepAbsence;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;

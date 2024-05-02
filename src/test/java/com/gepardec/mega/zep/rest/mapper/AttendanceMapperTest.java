@@ -1,21 +1,12 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.ProjectTime;
-import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
-import com.gepardec.mega.zep.rest.entity.ZepAttendance;
-import com.gepardec.mega.zep.rest.entity.ZepBillable;
-import de.provantis.zep.AttributeType;
-import de.provantis.zep.AttributesType;
-import de.provantis.zep.ProjektzeitType;
+import com.gepardec.mega.zep.rest.dto.ZepAttendance;
+import com.gepardec.mega.zep.rest.dto.ZepBillable;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +24,7 @@ public class AttendanceMapperTest {
                 .projectId(1)
                 .projectTaskId(2)
                 .duration(4.75)
-                .billable(ZepBillable.builder().id(1).build())
+                .billable(true)
                 .workLocation("HOME")
                 .workLocationIsProjectRelevant(false)
                 .activity("bearbeiten")

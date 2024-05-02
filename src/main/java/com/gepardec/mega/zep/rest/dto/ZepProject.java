@@ -1,18 +1,17 @@
-package com.gepardec.mega.zep.rest.entity;
+package com.gepardec.mega.zep.rest.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public record ZepProject (
         Integer id,
         String name,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        Integer billingType
+        ZepBillingType billingType
 ) {
 
       public static Builder builder() {
@@ -44,7 +43,7 @@ public record ZepProject (
             @JsonProperty("end_date")
             private LocalDateTime endDate;
             @JsonProperty("billing_type")
-            private Integer billingType;
+            private ZepBillingType billingType;
 
             private Builder() {
             }
@@ -73,7 +72,7 @@ public record ZepProject (
                   return this;
             }
 
-            public Builder billingType(Integer billingType) {
+            public Builder billingType(ZepBillingType billingType) {
                   this.billingType = billingType;
                   return this;
             }

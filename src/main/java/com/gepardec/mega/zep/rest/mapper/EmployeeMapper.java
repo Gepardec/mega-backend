@@ -2,14 +2,10 @@ package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.zep.ZepServiceException;
-import com.gepardec.mega.zep.rest.entity.ZepEmployee;
-import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.rest.dto.ZepEmployee;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
-
-import java.util.List;
-import java.util.Objects;
 
 @ApplicationScoped
 public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {

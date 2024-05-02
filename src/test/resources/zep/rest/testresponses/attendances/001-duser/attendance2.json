@@ -2,11 +2,7 @@
   "data": [
     { 
       "id": 3,
-      "billable":
-      {
-        "id": 2,
-        "name": "Billable"
-      }
+      "billable": true
     }
   ],
   "links": {

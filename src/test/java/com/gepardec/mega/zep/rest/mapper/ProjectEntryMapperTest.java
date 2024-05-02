@@ -2,8 +2,8 @@ package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.monthlyreport.*;
 import com.gepardec.mega.zep.ZepServiceException;
-import com.gepardec.mega.zep.rest.entity.ZepAttendance;
-import com.gepardec.mega.zep.rest.entity.ZepBillable;
+import com.gepardec.mega.zep.rest.dto.ZepAttendance;
+import com.gepardec.mega.zep.rest.dto.ZepBillable;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
@@ -92,7 +92,7 @@ public class ProjectEntryMapperTest {
                 .projectId(1)
                 .projectTaskId(30)
                 .duration(1.0)
-                .billable(ZepBillable.builder().id(2).build())
+                .billable(true)
                 .workLocation("A")
                 .workLocationIsProjectRelevant(false)
                 .activity("bearbeiten")

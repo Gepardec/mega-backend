@@ -2,7 +2,7 @@ package com.gepardec.mega.zep.rest.service;
 
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepAttendanceRestClient;
-import com.gepardec.mega.zep.rest.entity.ZepAttendance;
+import com.gepardec.mega.zep.rest.dto.ZepAttendance;
 import com.gepardec.mega.zep.util.ResponseParser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -32,7 +32,7 @@ public class AttendanceService {
         try {
             List<ZepAttendance> attendances = this.getAttendanceForUserAndMonth(username, date);
             return attendances.stream()
-                    .filter(attendance -> attendance.billable().id() <= BILLABLE_TYPE_BORDER)
+                    .filter(ZepAttendance::billable)
                     .collect(Collectors.toList());
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving billable attendances for user + \"%s\" from ZEP: No /data field in response"

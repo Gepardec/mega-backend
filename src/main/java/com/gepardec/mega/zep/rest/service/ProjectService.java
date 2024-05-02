@@ -1,12 +1,10 @@
 package com.gepardec.mega.zep.rest.service;
 
-import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
-import com.gepardec.mega.zep.rest.entity.ZepProject;
-import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepProject;
+import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.util.ResponseParser;
-import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -16,7 +14,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ProjectService {

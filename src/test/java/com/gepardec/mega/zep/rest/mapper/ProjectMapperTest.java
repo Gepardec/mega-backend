@@ -2,9 +2,10 @@ package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.Project;
-import com.gepardec.mega.zep.rest.entity.ZepProject;
-import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
-import com.gepardec.mega.zep.rest.entity.ZepProjectEmployeeType;
+import com.gepardec.mega.zep.rest.dto.ZepBillingType;
+import com.gepardec.mega.zep.rest.dto.ZepProject;
+import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepProjectEmployeeType;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
@@ -42,7 +43,7 @@ public class ProjectMapperTest {
                 .name("MEGA")
                 .startDate(LocalDateTime.of(2020, 7, 8, 12, 32, 31))
                 .endDate(LocalDateTime.of(2025, 2, 8, 12, 32, 31))
-                .billingType(billabilityZepId)
+                .billingType(new ZepBillingType(billabilityZepId))
                 .build();
 
         LocalDate startDate = zepProject.startDate() == null ?

@@ -1,11 +1,9 @@
 package com.gepardec.mega.zep.rest.mapper;
 
-import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.rest.dto.ZepEmploymentPeriod;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
 
 import java.time.LocalDateTime;
 import java.util.List;

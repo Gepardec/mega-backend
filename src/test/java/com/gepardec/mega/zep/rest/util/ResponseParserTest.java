@@ -1,7 +1,7 @@
 package com.gepardec.mega.zep.rest.util;
 
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
-import com.gepardec.mega.zep.rest.entity.ZepProject;
+import com.gepardec.mega.zep.rest.dto.ZepProject;
 import com.gepardec.mega.zep.util.ResponseParser;
 import com.gepardec.mega.helper.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;

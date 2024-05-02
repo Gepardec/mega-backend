@@ -1,7 +1,7 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.zep.ZepServiceException;
-import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;

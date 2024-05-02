@@ -104,7 +104,7 @@ class ZepServiceImplTest {
     void setUp() {
         zepSoapPortType = mock(ZepSoapPortType.class);
 
-        zepService = new ZepSoapServiceImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper);
+        zepService = new ZepSoapServiceImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper, monthlyReportService);
 
         final ReadProjekteResponseType readProjekteResponseType = new ReadProjekteResponseType();
         final ProjektListeType projektListeType = new ProjektListeType();

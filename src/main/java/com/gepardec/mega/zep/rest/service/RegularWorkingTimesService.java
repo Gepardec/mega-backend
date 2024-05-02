@@ -2,7 +2,7 @@ package com.gepardec.mega.zep.rest.service;
 
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
-import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
+import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
 import com.gepardec.mega.zep.util.ResponseParser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

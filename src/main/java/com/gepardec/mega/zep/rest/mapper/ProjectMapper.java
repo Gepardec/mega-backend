@@ -3,7 +3,7 @@ package com.gepardec.mega.zep.rest.mapper;
 import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.zep.ZepServiceException;
-import com.gepardec.mega.zep.rest.entity.ZepProject;
+import com.gepardec.mega.zep.rest.dto.ZepProject;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -38,8 +38,8 @@ public class ProjectMapper implements Mapper<Project.Builder, ZepProject> {
             List<String> leads = new ArrayList<>();
 
             BillabilityPreset billabilityPreset = null;
-            if (BillabilityPreset.byZepId(zepProject.billingType()).isPresent()) {
-                billabilityPreset = BillabilityPreset.byZepId(zepProject.billingType()).get();
+            if (BillabilityPreset.byZepId(zepProject.billingType().id()).isPresent()) {
+                billabilityPreset = BillabilityPreset.byZepId(zepProject.billingType().id()).get();
             }
 
             return Project.builder()

@@ -1,6 +1,6 @@
 package com.gepardec.mega.zep.rest.mapper;
 
-import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.rest.dto.ZepEmploymentPeriod;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.LocalDate;

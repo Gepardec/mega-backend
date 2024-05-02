@@ -57,11 +57,13 @@ import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
@@ -72,6 +74,7 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static com.gepardec.mega.domain.utils.DateUtils.formatDate;
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
 import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfCurrentMonth;
 
@@ -92,17 +95,21 @@ public class ZepSoapServiceImpl implements ZepService {
 
     private final ProjectEntryMapper projectEntryMapper;
 
+    private final MonthlyReportService monthlyReportService;
+
     @Inject
     public ZepSoapServiceImpl(final EmployeeMapper employeeMapper,
                               final Logger logger,
                               final ZepSoapPortType zepSoapPortType,
                               final ZepSoapProvider zepSoapProvider,
-                              final ProjectEntryMapper projectEntryMapper) {
+                              final ProjectEntryMapper projectEntryMapper,
+                              final MonthlyReportService monthlyReportService) {
         this.employeeMapper = employeeMapper;
         this.logger = logger;
         this.zepSoapPortType = zepSoapPortType;
         this.zepSoapProvider = zepSoapProvider;
         this.projectEntryMapper = projectEntryMapper;
+        this.monthlyReportService = monthlyReportService;
     }
 
     @Override

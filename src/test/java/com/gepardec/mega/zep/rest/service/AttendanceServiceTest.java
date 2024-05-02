@@ -1,8 +1,8 @@
 package com.gepardec.mega.zep.rest.service;
 
 import com.gepardec.mega.zep.rest.client.ZepAttendanceRestClient;
-import com.gepardec.mega.zep.rest.entity.ZepAttendance;
-import com.gepardec.mega.zep.rest.entity.ZepBillable;
+import com.gepardec.mega.zep.rest.dto.ZepAttendance;
+import com.gepardec.mega.zep.rest.dto.ZepBillable;
 import com.gepardec.mega.zep.util.ResponseParser;
 import com.gepardec.mega.helper.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
@@ -17,7 +17,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +73,7 @@ public class AttendanceServiceTest {
                 .projectId(1)
                 .projectTaskId(1)
                 .duration(1.25)
-                .billable(ZepBillable.builder().id(1).build())
+                .billable(true)
                 .workLocation(null)
                 .workLocationIsProjectRelevant(false)
                 .activity("besprechen")
@@ -90,7 +89,7 @@ public class AttendanceServiceTest {
                 .projectId(1)
                 .projectTaskId(2)
                 .duration(4.75)
-                .billable(ZepBillable.builder().id(2).build())
+                .billable(true)
                 .workLocation(null)
                 .workLocationIsProjectRelevant(true)
                 .activity("bearbeiten")

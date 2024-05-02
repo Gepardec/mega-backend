@@ -2,7 +2,7 @@ package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.monthlyreport.*;
 import com.gepardec.mega.zep.ZepServiceException;
-import com.gepardec.mega.zep.rest.entity.ZepAttendance;
+import com.gepardec.mega.zep.rest.dto.ZepAttendance;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;

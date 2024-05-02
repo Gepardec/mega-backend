@@ -1,35 +1,35 @@
-package com.gepardec.mega.zep.rest.entity;
+package com.gepardec.mega.zep.rest.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record ZepBillable(Integer id) {
+public record ZepBillingType(Integer id) {
 
     @JsonCreator
-    public ZepBillable(Builder builder) {
+    ZepBillingType(Builder builder) {
         this(builder.id);
     }
 
     public static Builder builder() {
-        return Builder.aZepBillable();
+        return Builder.aBillingType();
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static final class Builder {
-        @JsonProperty("id")
+    public static class Builder {
+        @JsonProperty
         private Integer id;
-
-        public ZepBillable build() {
-            return new ZepBillable(this);
-        }
 
         public Builder id(Integer id) {
             this.id = id;
             return this;
         }
 
-        public static Builder aZepBillable() {
+        public ZepBillingType build() {
+            return new ZepBillingType(this);
+        }
+
+        public static Builder aBillingType() {
             return new Builder();
         }
     }

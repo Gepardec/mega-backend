@@ -1,18 +1,15 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
-import com.gepardec.mega.zep.rest.entity.ZepAbsence;
-import com.gepardec.mega.zep.rest.entity.ZepAbsenceReason;
+import com.gepardec.mega.zep.rest.dto.ZepAbsence;
+import com.gepardec.mega.zep.rest.dto.ZepAbsenceReason;
 import io.quarkus.test.junit.QuarkusTest;
-import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

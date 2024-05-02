@@ -1,37 +1,29 @@
 package com.gepardec.mega.zep.impl;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
+import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.rest.entity.ZepAbsence;
-import com.gepardec.mega.zep.rest.entity.ZepAttendance;
-import com.gepardec.mega.zep.rest.entity.ZepEmployee;
-import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
-import com.gepardec.mega.zep.rest.entity.ZepProject;
-import com.gepardec.mega.zep.rest.entity.ZepProjectEmployee;
-import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
-import com.gepardec.mega.zep.rest.mapper.AbsenceMapper;
-import com.gepardec.mega.zep.rest.mapper.AttendanceMapper;
-import com.gepardec.mega.zep.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.zep.rest.dto.ZepAbsence;
+import com.gepardec.mega.zep.rest.dto.ZepAttendance;
+import com.gepardec.mega.zep.rest.dto.ZepEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.rest.dto.ZepProject;
+import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
 import com.gepardec.mega.zep.rest.mapper.Mapper;
 import com.gepardec.mega.zep.rest.mapper.ProjectEmployeesMapper;
-import com.gepardec.mega.zep.rest.mapper.ProjectEntryMapper;
-import com.gepardec.mega.zep.rest.mapper.ProjectMapper;
-import com.gepardec.mega.zep.rest.mapper.RegularWorkingHoursMapMapper;
 import com.gepardec.mega.zep.rest.service.AbsenceService;
 import com.gepardec.mega.zep.rest.service.AttendanceService;
 import com.gepardec.mega.zep.rest.service.EmployeeService;
 import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
 import com.gepardec.mega.zep.rest.service.ProjectService;
 import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
-import io.quarkus.cache.CacheInvalidate;
-import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedMap;
 import org.slf4j.Logger;
@@ -39,6 +31,7 @@ import org.slf4j.Logger;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -204,6 +197,12 @@ public class ZepRestServiceImpl implements ZepService {
         logger.debug("Retrieving billable entries of employee %s from ZEP".formatted(employee.getUserId()));
         List<ZepAttendance> projectTimes = attendanceService.getBillableAttendancesForUserAndMonth(employee.getUserId(), date);
         return attendanceMapper.mapList(projectTimes);
+    }
+
+    @Override
+    public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
+        //TODO Chiara - REST impl
+        return null;
     }
 
     private void addProjectEmployeesToBuilder(Project.Builder projectBuilder, ZepProject zepProject) {

@@ -1,12 +1,10 @@
-package com.gepardec.mega.zep.rest.entity;
+package com.gepardec.mega.zep.rest.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collection;
 
 public record ZepEmployee (
         String username,

@@ -169,12 +169,16 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<FehlzeitType> absenceList = new ArrayList<>();
-        FehlzeitType nursingDay = new FehlzeitType();
-        nursingDay.setFehlgrund("PU");
-        nursingDay.setGenehmigt(true);
-        nursingDay.setEnddatum(LocalDate.of(2020, 2, 29).toString());
-        nursingDay.setStartdatum(LocalDate.of(2020, 2, 27).toString());
+        List<AbsenceTime> absenceList = new ArrayList<>();
+        AbsenceTime nursingDay = new AbsenceTime(
+                "0",
+                LocalDate.of(2020, 2, 27),
+                LocalDate.of(2020, 2, 29),
+                "PU",
+                true
+
+        );
+
         absenceList.add(nursingDay);
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
@@ -199,12 +203,14 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<FehlzeitType> absenceList = new ArrayList<>();
-        FehlzeitType maternityLeaveDay = new FehlzeitType();
-        maternityLeaveDay.setFehlgrund("KA");
-        maternityLeaveDay.setGenehmigt(true);
-        maternityLeaveDay.setEnddatum(LocalDate.of(2020, 2, 29).toString());
-        maternityLeaveDay.setStartdatum(LocalDate.of(2020, 2, 27).toString());
+        List<AbsenceTime> absenceList = new ArrayList<>();
+        AbsenceTime maternityLeaveDay = new AbsenceTime(
+                "0",
+                LocalDate.of(2020, 2, 27),
+                LocalDate.of(2020, 2, 29),
+                "KA",
+                true
+        );
         absenceList.add(maternityLeaveDay);
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());

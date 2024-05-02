@@ -2,12 +2,10 @@ package com.gepardec.mega.zep.rest.service;
 
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
-import com.gepardec.mega.zep.rest.entity.ZepEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepEmployee;
 import com.gepardec.mega.zep.util.ResponseParser;
-import com.gepardec.mega.zep.util.JsonUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 

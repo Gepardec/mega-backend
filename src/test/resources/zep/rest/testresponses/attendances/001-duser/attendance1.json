@@ -9,11 +9,7 @@
       "project_id": 1, 
       "project_task_id": 1, 
       "duration": "1.25", 
-      "billable":
-      {
-        "id": 1,
-        "name": "Billable"
-      },
+      "billable": true,
       "work_location": null, 
       "work_location_is_project_relevant": false,
       "note": "Kickoff", 
@@ -40,11 +36,7 @@
       "project_id": 1, 
       "project_task_id": 2, 
       "duration": "4.7500000000",
-      "billable":
-      {
-        "id": 2,
-        "name": "Billable"
-      },
+      "billable": true,
       "work_location": null, 
       "work_location_is_project_relevant": -1, 
       "note": "AttendanceServiceTest implementieren", 

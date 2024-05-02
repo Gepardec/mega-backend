@@ -1,27 +1,24 @@
-package com.gepardec.mega.zep.rest.entity;
+package com.gepardec.mega.zep.rest.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Objects;
+public record ZepSalutation (String name) {
 
-public record ZepAbsenceReason (
-    String name
-) {
     @JsonCreator
-    public ZepAbsenceReason(Builder builder) {
+    public ZepSalutation(Builder builder) {
         this(builder.name);
     }
 
     public static Builder builder() {
-        return Builder.aZepAbsenceReason();
+        return Builder.aZepSalutation();
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Builder {
         @JsonProperty
-        public String name;
+        private String name;
 
 
         public Builder name(String name) {
@@ -29,13 +26,12 @@ public record ZepAbsenceReason (
             return this;
         }
 
-        public ZepAbsenceReason build() {
-            return new ZepAbsenceReason(this);
+        public ZepSalutation build() {
+            return new ZepSalutation(this);
         }
 
-        public static Builder aZepAbsenceReason() {
+        public static Builder aZepSalutation() {
             return new Builder();
         }
     }
-
 }

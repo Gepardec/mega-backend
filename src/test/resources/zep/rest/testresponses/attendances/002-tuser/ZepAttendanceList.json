@@ -9,11 +9,7 @@
       "project_id": 98,
       "project_task_id": 323,
       "duration": "1.5000000000",
-      "billable":
-      {
-        "id": 2,
-        "name": "Billable"
-      },
+      "billable": true,
       "work_location": null,
       "work_location_is_project_relevant": null,
       "note": "Jenkins aufräumen weil Speicherplatz ausgegangen ist",
@@ -40,11 +36,7 @@
       "project_id": 86,
       "project_task_id": 406,
       "duration": "2.0000000000",
-      "billable":
-      {
-        "id": 2,
-        "name": "Billable"
-      },
+      "billable": true,
       "work_location": null,
       "work_location_is_project_relevant": null,
       "note": "Heapdump IQS8 analysiert",
@@ -71,11 +63,7 @@
       "project_id": 86,
       "project_task_id": 406,
       "duration": "2.2500000000",
-      "billable":
-      {
-        "id": 2,
-        "name": "Billable"
-      },
+      "billable": true,
       "work_location": null,
       "work_location_is_project_relevant": null,
       "note": "Verbessern der batch pipelines",
@@ -102,11 +90,7 @@
       "project_id": 86,
       "project_task_id": 406,
       "duration": "3.0000000000",
-      "billable":
-      {
-        "id": 2,
-        "name": "Billable"
-      },
+      "billable": true,
       "work_location": null,
       "work_location_is_project_relevant": null,
       "note": "JFX",
@@ -133,11 +117,7 @@
       "project_id": 3,
       "project_task_id": 38,
       "duration": "1.5000000000",
-      "billable":
-      {
-        "id": 1,
-        "name": "Billable"
-      },
+      "billable": true,
       "work_location": "A",
       "work_location_is_project_relevant": -1,
       "note": "Nach Linz",
@@ -164,11 +144,7 @@
       "project_id": 86,
       "project_task_id": 406,
       "duration": "2.0000000000",
-      "billable":
-      {
-        "id": 2,
-        "name": "Billable"
-      },
+      "billable": true,
       "work_location": "A",
       "work_location_is_project_relevant": -1,
       "note": "Release bauen.",
@@ -195,11 +171,7 @@
       "project_id": 86,
       "project_task_id": 406,
       "duration": "1.0000000000",
-      "billable":
-      {
-        "id": 2,
-        "name": "Billable"
-      },
+      "billable": true,
       "work_location": "A",
       "work_location_is_project_relevant": -1,
       "note": "Probleme Speicher Jenkins lösen",
@@ -226,11 +198,7 @@
       "project_id": 86,
       "project_task_id": 406,
       "duration": "1.0000000000",
-      "billable":
-      {
-        "id": 2,
-        "name": "Billable"
-      },
+      "billable": true,
       "work_location": "A",
       "work_location_is_project_relevant": -1,
       "note": "Heapdump analyse nach Umstellung auf RequestScoped",
@@ -257,11 +225,7 @@
       "project_id": 3,
       "project_task_id": 38,
       "duration": "1.5000000000",
-      "billable":
-      {
-        "id": 1,
-        "name": "Billable"
-      },
+      "billable": true,
       "work_location": "A",
       "work_location_is_project_relevant": -1,
       "note": "Learning Friday Projekte vorstellen",
@@ -288,11 +252,7 @@
       "project_id": 3,
       "project_task_id": 38,
       "duration": "1.7500000000",
-      "billable":
-      {
-        "id": 1,
-        "name": "Billable"
-      },
+      "billable": true,
       "work_location": "A",
       "work_location_is_project_relevant": -1,
       "note": "Nach Wien",

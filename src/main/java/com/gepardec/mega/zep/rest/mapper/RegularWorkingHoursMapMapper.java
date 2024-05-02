@@ -1,7 +1,7 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.zep.ZepServiceException;
-import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
+import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.DayOfWeek;

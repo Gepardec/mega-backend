@@ -1,6 +1,7 @@
 package com.gepardec.mega.zep.impl;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
+import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectTime;
@@ -12,6 +13,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,5 +69,10 @@ public class ZepServiceImpl implements ZepService {
     @Override
     public List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date) {
         return zepServiceRest.getBillableForEmployee(employee, date);
+    }
+
+    @Override
+    public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
+        return null;
     }
 }

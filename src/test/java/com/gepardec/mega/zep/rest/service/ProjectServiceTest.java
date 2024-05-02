@@ -1,7 +1,8 @@
 package com.gepardec.mega.zep.rest.service;
 
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
-import com.gepardec.mega.zep.rest.entity.ZepProject;
+import com.gepardec.mega.zep.rest.dto.ZepBillingType;
+import com.gepardec.mega.zep.rest.dto.ZepProject;
 import com.gepardec.mega.zep.util.ResponseParser;
 import com.gepardec.mega.helper.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,7 +79,7 @@ public class ProjectServiceTest {
                 .name("MEGA")
                 .startDate(LocalDateTime.of(2020, 12, 1, 0,0,0))
                 .endDate(LocalDateTime.of(2026, 1, 20, 0,0,0))
-                .billingType(1)
+                .billingType(new ZepBillingType(1))
                 .build();
 
 

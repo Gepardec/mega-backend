@@ -1,6 +1,6 @@
 package com.gepardec.mega.zep.rest.mapper;
 
-import com.gepardec.mega.zep.rest.entity.ZepRegularWorkingTimes;
+import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 

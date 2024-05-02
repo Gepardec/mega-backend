@@ -1,10 +1,9 @@
-package com.gepardec.mega.zep.rest.entity;
+package com.gepardec.mega.zep.rest.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public record ZepAttendance (
@@ -16,7 +15,7 @@ public record ZepAttendance (
     Integer projectId,
     Integer projectTaskId,
     Double duration,
-    ZepBillable billable,
+    Boolean billable,
     String workLocation,
     Boolean workLocationIsProjectRelevant,
     String activity,
@@ -67,7 +66,7 @@ public record ZepAttendance (
         @JsonProperty("duration")
         private Double duration;
         @JsonProperty("billable")
-        private ZepBillable billable;
+        private Boolean billable;
 
         @JsonProperty("work_location")
         private String workLocation;
@@ -83,7 +82,6 @@ public record ZepAttendance (
 
         @JsonProperty("direction_of_travel")
         private String directionOfTravel;
-
 
         public Builder id(Integer id) {
             this.id = id;
@@ -125,7 +123,7 @@ public record ZepAttendance (
             return this;
         }
 
-        public Builder billable(ZepBillable billable) {
+        public Builder billable(Boolean billable) {
             this.billable = billable;
             return this;
         }

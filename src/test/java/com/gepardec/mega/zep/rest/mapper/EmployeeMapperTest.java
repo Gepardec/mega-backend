@@ -1,18 +1,14 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.zep.rest.entity.ZepEmployee;
-import com.gepardec.mega.zep.rest.entity.ZepEmploymentPeriod;
-import com.gepardec.mega.zep.rest.entity.ZepLanguage;
-import com.gepardec.mega.zep.rest.entity.ZepSalutation;
+import com.gepardec.mega.zep.rest.dto.ZepEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepLanguage;
+import com.gepardec.mega.zep.rest.dto.ZepSalutation;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 

@@ -1,5 +1,6 @@
 package com.gepardec.mega.service.helper;
 
+import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.ProjectTime;

@@ -7,6 +7,7 @@ import com.gepardec.mega.db.entity.employee.Step;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.UserRepository;
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.utils.DateUtils;
@@ -112,10 +113,10 @@ public class SyncServiceImpl implements SyncService {
 
         for (var employee : activeAndInternalEmployees) {
             //considering all absence types besides HomeOffice and External training days
-            List<FehlzeitType> absences = zepService.getAbsenceForEmployee(employee, firstOfPreviousMonth).stream()
+            List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee, firstOfPreviousMonth).stream()
                     .filter(absence -> !AbsenceType.getAbsenceTypesWhereWorkingTimeNeeded().stream()
                             .map(AbsenceType::getAbsenceName).toList()
-                            .contains(absence.getFehlgrund()))
+                            .contains(absence.reason()))
                     .toList();
             boolean allAbsent = true;
 
@@ -150,10 +151,10 @@ public class SyncServiceImpl implements SyncService {
         return updatedEmployees;
     }
 
-    private boolean isAbsent(LocalDate day, List<FehlzeitType> absences) {
+    private boolean isAbsent(LocalDate day, List<AbsenceTime> absences) {
         for(var absence : absences){
-            LocalDate startDate = LocalDate.parse(absence.getStartdatum());
-            LocalDate endDate = LocalDate.parse(absence.getEnddatum());
+            LocalDate startDate = absence.fromDate();
+            LocalDate endDate = absence.toDate();
             if(day.equals(startDate) ||
                     day.equals(endDate) ||
                     (day.isAfter(startDate) && day.isBefore(endDate))) {
