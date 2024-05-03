@@ -19,10 +19,7 @@ import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;

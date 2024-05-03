@@ -1,17 +1,11 @@
 package com.gepardec.mega.rest;
 
-import com.gepardec.mega.db.entity.common.PaymentMethodType;
-import com.gepardec.mega.domain.model.Bill;
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
-import com.gepardec.mega.rest.api.EmployeeResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
-import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
-import com.gepardec.mega.zep.ZepService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
@@ -23,8 +17,6 @@ import jakarta.ws.rs.core.MediaType;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.Set;
 
