@@ -8,21 +8,10 @@ import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.rest.dto.ZepAbsence;
-import com.gepardec.mega.zep.rest.dto.ZepAttendance;
-import com.gepardec.mega.zep.rest.dto.ZepEmployee;
-import com.gepardec.mega.zep.rest.dto.ZepEmploymentPeriod;
-import com.gepardec.mega.zep.rest.dto.ZepProject;
-import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
-import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
+import com.gepardec.mega.zep.rest.dto.*;
 import com.gepardec.mega.zep.rest.mapper.Mapper;
 import com.gepardec.mega.zep.rest.mapper.ProjectEmployeesMapper;
-import com.gepardec.mega.zep.rest.service.AbsenceService;
-import com.gepardec.mega.zep.rest.service.AttendanceService;
-import com.gepardec.mega.zep.rest.service.EmployeeService;
-import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
-import com.gepardec.mega.zep.rest.service.ProjectService;
-import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
+import com.gepardec.mega.zep.rest.service.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -49,6 +38,9 @@ public class ZepRestServiceImpl implements ZepService {
     ProjectService projectService;
     @Inject
     AttendanceService attendanceService;
+
+    @Inject
+    ReceiptService receiptService;
 
     @Inject
     AbsenceService absenceService;
@@ -201,7 +193,13 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
-        //TODO Chiara - REST impl
+        List<ZepReceipt> allReceiptsForYearMonth = receiptService.getAllReceiptsForYearMonth(yearMonth);
+        List<ZepReceipt> allReceiptsForYearMonthAndEmployee = new ArrayList<>();
+        if(!allReceiptsForYearMonth.isEmpty()) {
+            allReceiptsForYearMonthAndEmployee = allReceiptsForYearMonth.stream().filter(receipt -> receipt.employeeId().equals(employee.getUserId())).toList();
+            // TODO get attachments for every single bill
+        }
+        System.out.println(allReceiptsForYearMonth);
         return null;
     }
 
