@@ -10,24 +10,22 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/stepentry")
+@Tag(name = "StepEntryResource")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public interface StepEntryResource {
     @PUT
     @Path("/close")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     Response close(@NotNull(message = "{stepEntryResource.parameter.notNull}") EmployeeStepDto employeeStepDto);
 
     @PUT
     @Path("/updateEmployeeStateForOffice")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     Response updateEmployeeStateForOffice(@NotNull(message = "{stepEntryResource.parameter.notNull}") UpdateEmployeeStepDto updateEmployeeStepDto);
 
     @PUT
     @Path("/updateEmployeeStateForProject")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     Response updateEmployeeStateForProject(@NotNull(message = "{stepEntryResource.parameter.notNull}") ProjectStepDto projectStepDto);
 }

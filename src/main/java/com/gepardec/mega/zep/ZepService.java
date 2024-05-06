@@ -1,5 +1,6 @@
 package com.gepardec.mega.zep;
 
+import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
@@ -7,6 +8,7 @@ import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.ProjektzeitType;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,4 +31,6 @@ public interface ZepService {
     List<FehlzeitType> getAbsenceForEmployee(Employee employee, LocalDate date);
 
     List<ProjektzeitType> getBillableForEmployee(Employee employee, LocalDate date);
+
+    List<Bill> getBillsForEmployeeByMonth(final Employee employee, YearMonth yearMonth);
 }

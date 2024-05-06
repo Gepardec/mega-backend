@@ -2,6 +2,7 @@ package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.SyncResource;
+import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EnterpriseSyncService;
 import com.gepardec.mega.service.api.PrematureEmployeeCheckSyncService;
 import com.gepardec.mega.service.api.ProjectSyncService;
@@ -14,6 +15,7 @@ import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 
 @RequestScoped
 @IfBuildProperty(name = "mega.endpoint.test.enable", stringValue = "true", enableIfMissing = true)
@@ -33,6 +35,9 @@ public class SyncResourceImpl implements SyncResource {
 
     @Inject
     PrematureEmployeeCheckSyncService prematureEmployeeCheckSyncService;
+
+
+
 
     @Override
     public Response syncProjects(YearMonth from, YearMonth to) {
@@ -120,5 +125,10 @@ public class SyncResourceImpl implements SyncResource {
         generateStepEntries(from, to);
 
         return Response.ok("ok").build();
+    }
+
+    @Override
+    public List<EmployeeDto> updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth() {
+        return syncService.syncUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
     }
 }

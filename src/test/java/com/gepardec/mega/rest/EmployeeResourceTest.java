@@ -37,12 +37,13 @@ class EmployeeResourceTest {
     @Inject
     EmployeeMapper mapper;
 
+
     @InjectMock
     EmployeeService employeeService;
 
 
     @InjectMock
-    private UserContext userContext;
+    UserContext userContext;
 
     @Test
     @TestSecurity
@@ -184,6 +185,11 @@ class EmployeeResourceTest {
         given().post("/employees")
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
+
+
+
+
+
 
     private EmployeeDto createEmployeeForUser(final User user) {
         return EmployeeDto.builder()

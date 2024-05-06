@@ -11,7 +11,6 @@ import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-
 import java.util.List;
 
 @RequestScoped
@@ -25,6 +24,8 @@ public class EmployeeResourceImpl implements EmployeeResource {
     @Inject
     EmployeeService employeeService;
 
+
+
     @Override
     public Response list() {
         final List<Employee> allActiveEmployees = employeeService.getAllActiveEmployees();
@@ -35,4 +36,6 @@ public class EmployeeResourceImpl implements EmployeeResource {
     public Response update(final List<EmployeeDto> employeesDto) {
         return Response.ok(employeeService.updateEmployeesReleaseDate(mapper.mapListToDomain(employeesDto))).build();
     }
+
+
 }

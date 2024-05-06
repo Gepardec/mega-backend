@@ -9,7 +9,7 @@ quarkus:
   http:
     cors:
       ~: true
-      origins: "/https://mega-frontend([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/,/https://gepardec-sso([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/"
+      origins: "/https://mega-frontend([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/,/https://gepardec-sso([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/,/https://mega-backend([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/"
       access-control-allow-credentials: true
     root-path: "/"
     non-application-root-path: "/"
@@ -114,6 +114,7 @@ mega:
         - "simon.bauer@gepardec.com"
         - "paul.waldecker@gepardec.com"
         - "paul.proemer@gepardec.com"
+        - "chiara.gattringer@gepardec.com"
 
     receiver:
       protocol: "imaps"
