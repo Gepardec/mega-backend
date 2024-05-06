@@ -14,7 +14,6 @@ import com.gepardec.mega.service.api.EmployeeService;
 
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.zep.ZepService;
-import de.provantis.zep.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
@@ -66,7 +65,7 @@ public class SyncResourceTest {
 
         LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
-        List<FehlzeitType> fehlzeitList = createFehlzeitTypeListForUser(
+        List<AbsenceTime> fehlzeitList = createAbsenceTimeListForUser(
                 "099-testUser",
                 new AbsenceEntry(firstOfPreviousMonth.toString(), DateUtils.getLastDayOfMonth(firstOfPreviousMonth.getYear(), firstOfPreviousMonth.getMonth().getValue()).toString(), AbsenceType.PAID_SICK_LEAVE.getAbsenceName())
         );
