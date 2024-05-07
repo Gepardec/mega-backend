@@ -1,10 +1,8 @@
 package com.gepardec.mega.zep.rest.dto;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.db.entity.common.PaymentMethodType;
-
 import java.time.LocalDate;
 
 public record ZepReceipt (
@@ -13,10 +11,9 @@ public record ZepReceipt (
         String employeeId,
         LocalDate receiptDate,
         Double bruttoValue,
-        String billType,
+        ZepReceiptType receiptType,
         PaymentMethodType paymentMethodType,
-        String projectName,
-        //String attachmentBase64String,
+        int projectId,
         String attachmentFileName
 
 ) {
@@ -29,9 +26,9 @@ public record ZepReceipt (
                 builder.employeeId,
                 builder.receiptDate,
                 builder.bruttoValue,
-                builder.billType,
+                builder.receiptType,
                 builder.paymentMethodType,
-                builder.projectName,
+                builder.projectId,
                 builder.attachmentFileName
         );
     }
@@ -52,13 +49,10 @@ public record ZepReceipt (
 
         @JsonProperty("receipt_type_id")
         private ZepReceiptType receiptType;
-        private String billType;
         @JsonProperty("payment_method")
         private PaymentMethodType paymentMethodType;
         @JsonProperty("project_id")
-        private String projectName;
-
-        //String attachmentBase64String,
+        private int projectId;
         @JsonProperty("filename")
         private String attachmentFileName;
 
@@ -86,8 +80,8 @@ public record ZepReceipt (
             return this;
         }
 
-        public Builder projectName(String projectName) {
-            this.projectName = projectName;
+        public Builder projectId(int projectId) {
+            this.projectId = projectId;
             return this;
         }
 
@@ -96,8 +90,8 @@ public record ZepReceipt (
             return this;
         }
 
-        public Builder billTypeFromReceiptType(ZepReceiptType receiptType) {
-            this.billType = receiptType.name();
+        public Builder receiptType(ZepReceiptType receiptType) {
+            this.receiptType = receiptType;
             return this;
         }
 

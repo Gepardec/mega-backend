@@ -55,7 +55,7 @@ public class ZepRestServiceImpl implements ZepService {
     EmploymentPeriodService employmentPeriodService;
 
     @Inject
-    Mapper<Employee,ZepEmployee> employeeMapper;
+    Mapper<Employee, ZepEmployee> employeeMapper;
 
     @Inject
     Mapper<ProjectEntry, ZepAttendance> projectEntryMapper;
@@ -194,19 +194,41 @@ public class ZepRestServiceImpl implements ZepService {
     @Override
     public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
         List<ZepReceipt> allReceiptsForYearMonth = receiptService.getAllReceiptsForYearMonth(yearMonth);
-        List<ZepReceipt> allReceiptsForYearMonthAndEmployee = new ArrayList<>();
-        if(!allReceiptsForYearMonth.isEmpty()) {
+        List<ZepReceipt> allReceiptsForYearMonthAndEmployee;
+        List<Bill> resultBillList = new ArrayList<>();
+
+
+        if (!allReceiptsForYearMonth.isEmpty()) {
             allReceiptsForYearMonthAndEmployee = allReceiptsForYearMonth.stream().filter(receipt -> receipt.employeeId().equals(employee.getUserId())).toList();
-            // TODO get attachments for every single bill
+
+            allReceiptsForYearMonthAndEmployee.forEach(zepReceipt -> {
+                Optional<ZepProject> zepProject = projectService.getProjectById(zepReceipt.projectId());
+                Optional<ZepReceiptAttachment> attachment = receiptService.getAttachmentByReceiptId(zepReceipt.id());
+
+                if (zepProject.isPresent()) {
+                    zepProject.ifPresent(project ->
+                            resultBillList.add(
+                                    Bill.builder()
+                                            .billDate(zepReceipt.receiptDate())
+                                            .bruttoValue(zepReceipt.bruttoValue())
+                                            .billType(zepReceipt.receiptType().name())
+                                            .paymentMethodType(zepReceipt.paymentMethodType())
+                                            .projectName(project.name())
+                                            .attachmentBase64(attachment.isPresent() ? attachment.get().fileContent() : null)
+                                            .attachmentFileName(zepReceipt.attachmentFileName())
+                                            .build()
+                            ));
+                }
+            });
         }
-        System.out.println(allReceiptsForYearMonth);
-        return null;
+        return resultBillList;
     }
 
+
     private void addProjectEmployeesToBuilder(Project.Builder projectBuilder, ZepProject zepProject) {
-            List<ZepProjectEmployee> zepProjectEmployees = projectService.getProjectEmployeesForId(zepProject.id());
-            MultivaluedMap<String, String> projectEmployeesMap = projectEmployeesMapper.map(zepProjectEmployees);
-            projectBuilder.employees(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.USER, new ArrayList<>()));
-            projectBuilder.leads(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.LEAD, new ArrayList<>()));
+        List<ZepProjectEmployee> zepProjectEmployees = projectService.getProjectEmployeesForId(zepProject.id());
+        MultivaluedMap<String, String> projectEmployeesMap = projectEmployeesMapper.map(zepProjectEmployees);
+        projectBuilder.employees(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.USER, new ArrayList<>()));
+        projectBuilder.leads(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.LEAD, new ArrayList<>()));
     }
 }

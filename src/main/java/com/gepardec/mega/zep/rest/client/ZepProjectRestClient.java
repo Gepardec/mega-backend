@@ -34,6 +34,10 @@ public interface ZepProjectRestClient {
                               @QueryParam("name") String name);
 
     @GET
+    @Path("{id}")
+    Response getProjectById(@PathParam("id") int projectId);
+
+    @GET
     @Path("{id}/employees")
     Response getProjectEmployees(@PathParam("id") int projectId, @QueryParam("page") int page);
 

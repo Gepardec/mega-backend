@@ -23,5 +23,5 @@ public interface ZepReceiptRestClient {
 
     @GET
     @Path("{id}/attachments")
-    Response getAttachmentForReceipt(@PathParam("id") int receiptId, @QueryParam("page") int page);
+    Response getAttachmentForReceipt(@PathParam("id") int receiptId);
 }

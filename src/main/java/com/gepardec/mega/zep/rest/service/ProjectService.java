@@ -59,6 +59,19 @@ public class ProjectService {
         return Optional.empty();
     }
 
+    public Optional<ZepProject> getProjectById(int projectId) {
+        try {
+            return responseParser.retrieveSingle(
+                    zepProjectRestClient.getProjectById(projectId),
+                    ZepProject.class
+            );
+        } catch (ZepServiceException e) {
+            logger.warn("Error retrieving project + \"%d\" from ZEP: No /data field in response"
+                    .formatted(projectId), e);
+        }
+        return Optional.empty();
+    }
+
 
     public List<ZepProjectEmployee> getProjectEmployeesForId(int projectId) {
         try {
