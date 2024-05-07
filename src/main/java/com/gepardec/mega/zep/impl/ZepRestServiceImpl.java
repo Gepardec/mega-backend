@@ -199,21 +199,13 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
-        /*String fromDate = getFirstDayOfCurrentMonth(LocalDate.now());
-        String toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
-
-        if(yearMonth != null){
-            fromDate = formatDate(yearMonth.atDay(1));
-            toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
-        }*/
-
         String fromDate = "";
         String toDate = "";
         LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
         LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
 
-        if(yearMonth != null){
+        if (yearMonth != null) {
             fromDate = formatDate(yearMonth.atDay(1));
             toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
         } else {
@@ -233,7 +225,6 @@ public class ZepRestServiceImpl implements ZepService {
         List<ZepReceipt> allReceiptsForYearMonthAndEmployee;
         List<Bill> resultBillList = new ArrayList<>();
 
-
         if (!allReceiptsForYearMonth.isEmpty()) {
             allReceiptsForYearMonthAndEmployee = allReceiptsForYearMonth.stream().filter(receipt -> receipt.employeeId().equals(employee.getUserId())).toList();
 
@@ -241,20 +232,20 @@ public class ZepRestServiceImpl implements ZepService {
                 Optional<ZepProject> zepProject = projectService.getProjectById(zepReceipt.projectId());
                 Optional<ZepReceiptAttachment> attachment = receiptService.getAttachmentByReceiptId(zepReceipt.id());
 
-                if (zepProject.isPresent()) {
-                    zepProject.ifPresent(project ->
-                            resultBillList.add(
-                                    Bill.builder()
-                                            .billDate(zepReceipt.receiptDate())
-                                            .bruttoValue(zepReceipt.bruttoValue())
-                                            .billType(zepReceipt.receiptType().name())
-                                            .paymentMethodType(zepReceipt.paymentMethodType())
-                                            .projectName(project.name())
-                                            .attachmentBase64(attachment.map(ZepReceiptAttachment::fileContent).orElse(null))
-                                            .attachmentFileName(zepReceipt.attachmentFileName())
-                                            .build()
-                            ));
-                }
+
+                zepProject.ifPresent(project ->
+                        resultBillList.add(
+                                Bill.builder()
+                                        .billDate(zepReceipt.receiptDate())
+                                        .bruttoValue(zepReceipt.bruttoValue())
+                                        .billType(zepReceipt.receiptType().name())
+                                        .paymentMethodType(zepReceipt.paymentMethodType())
+                                        .projectName(project.name())
+                                        .attachmentBase64(attachment.map(ZepReceiptAttachment::fileContent).orElse(null))
+                                        .attachmentFileName(zepReceipt.attachmentFileName())
+                                        .build()
+                        ));
+
             });
         }
         return resultBillList;
