@@ -19,8 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -67,8 +66,13 @@ public class ProjectServiceTest {
         when(zepProjectRestClient.getProjectByName(any(), any(),eq("mega")))
                 .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
         when(zepProjectRestClient.getProjectByName(any(), any(),eq("empty")))
-                .thenReturn(Response.ok().entity(responseJsons.get(4)).build());
+                .thenReturn(Response.ok().entity(responseJsons.get(5)).build());
 
+       when(zepProjectRestClient.getProjectById(eq(12)))
+                .thenReturn(Response.ok().entity(resourceFileService.getSingleFile("projects/singlePage2.json").get()).build());
+
+        when(zepProjectRestClient.getProjectById(eq(1)))
+                .thenReturn(Response.ok().entity(responseJsons.get(5)).build());
     }
 
     @Test
@@ -100,6 +104,18 @@ public class ProjectServiceTest {
                 LocalDate.of(2022, 1, 2));
         assertThat(project.isEmpty()).isTrue();
 
+    }
+
+    @Test
+    public void getProjectById() {
+        Optional<ZepProject> project = projectService.getProjectById(12);
+        assertThat(project.isPresent()).isTrue();
+    }
+
+    @Test
+    public void getProjectById_whenNoProjectWithId() {
+        Optional<ZepProject> project = projectService.getProjectById(1);
+        assertThat(project.isEmpty()).isTrue();
     }
 
 
