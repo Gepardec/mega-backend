@@ -1,4 +1,7 @@
 package com.gepardec.mega.zep.rest.service;
+import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.utils.DateUtils;
+import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepReceiptRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepReceipt;
@@ -22,31 +25,43 @@ public class ReceiptService {
     ZepReceiptRestClient zepReceiptRestClient;
 
     @Inject
+    MonthlyReportService monthlyReportService;
+
+    @Inject
     Logger logger;
 
     @Inject
     ResponseParser responseParser;
 
-    public List<ZepReceipt> getAllReceiptsForYearMonth(YearMonth yearMonth) {
-        String startDate = getFirstDayOfCurrentMonth(LocalDate.now());
-        String endDate = formatDate(getLastDayOfCurrentMonth(startDate));
+    public List<ZepReceipt> getAllReceiptsForYearMonth(Employee employee, String fromDate, String toDate) {
+        LocalDate now = LocalDate.now();
+        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
+        LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
 
-        if(yearMonth != null){
-            startDate = formatDate(yearMonth.atDay(1));
-            endDate = formatDate(getLastDayOfCurrentMonth(startDate));
+        String dateForSearchRequestFrom;
+        String dateForSearchRequestTo;
+
+        if(fromDate == null && toDate == null) {
+            if (now.isAfter(midOfCurrentMonth) && monthlyReportService.isMonthConfirmedFromEmployee(employee, firstOfPreviousMonth)) {
+                dateForSearchRequestFrom = getFirstDayOfCurrentMonth(now);
+                dateForSearchRequestTo = getLastDayOfCurrentMonth(now);
+            } else {
+                dateForSearchRequestTo = "";
+                dateForSearchRequestFrom = "";
+            }
+        } else {
+            dateForSearchRequestFrom = fromDate;
+            dateForSearchRequestTo = toDate;
         }
 
         try {
-            String finalStartDate = startDate;
-            String finalEndDate = endDate;
             return responseParser.retrieveAll(
-                    page -> zepReceiptRestClient.getAllReceiptsForMonth(finalStartDate, finalEndDate, page),
+                    page -> zepReceiptRestClient.getAllReceiptsForMonth(dateForSearchRequestFrom, dateForSearchRequestTo, page),
                     ZepReceipt.class
             );
         } catch (ZepServiceException e) {
-            assert yearMonth != null;
             logger.warn("Error retrieving receipts for month + \"%d\" from ZEP: No /data field in response"
-                    .formatted(yearMonth.getMonth().getValue()));
+                    .formatted(DateUtils.parseDate(fromDate).getMonth().getValue(), e));
         }
         return List.of();
     }

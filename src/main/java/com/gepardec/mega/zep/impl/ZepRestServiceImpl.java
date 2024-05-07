@@ -28,6 +28,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.gepardec.mega.domain.utils.DateUtils.*;
+
 @ApplicationScoped
 @Rest
 public class ZepRestServiceImpl implements ZepService {
@@ -193,7 +195,19 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
-        List<ZepReceipt> allReceiptsForYearMonth = receiptService.getAllReceiptsForYearMonth(yearMonth);
+        String fromDate = getFirstDayOfCurrentMonth(LocalDate.now());
+        String toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
+
+        if(yearMonth != null){
+            fromDate = formatDate(yearMonth.atDay(1));
+            toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
+        }
+
+        return getBillsInternal(employee, fromDate, toDate);
+    }
+
+    private List<Bill> getBillsInternal(Employee employee, String fromDate, String toDate) {
+        List<ZepReceipt> allReceiptsForYearMonth = receiptService.getAllReceiptsForYearMonth(employee, fromDate, toDate);
         List<ZepReceipt> allReceiptsForYearMonthAndEmployee;
         List<Bill> resultBillList = new ArrayList<>();
 
@@ -214,7 +228,7 @@ public class ZepRestServiceImpl implements ZepService {
                                             .billType(zepReceipt.receiptType().name())
                                             .paymentMethodType(zepReceipt.paymentMethodType())
                                             .projectName(project.name())
-                                            .attachmentBase64(attachment.isPresent() ? attachment.get().fileContent() : null)
+                                            .attachmentBase64(attachment.map(ZepReceiptAttachment::fileContent).orElse(null))
                                             .attachmentFileName(zepReceipt.attachmentFileName())
                                             .build()
                             ));
