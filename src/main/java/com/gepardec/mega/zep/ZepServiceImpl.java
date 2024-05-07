@@ -222,12 +222,23 @@ public class ZepServiceImpl implements ZepService {
 
     @Override
     public List<Bill> getBillsForEmployeeByMonth(final Employee employee, YearMonth yearMonth) {
-        String fromDate = getFirstDayOfCurrentMonth(LocalDate.now());
-        String toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
+        String fromDate = "";
+        String toDate = "";
+        LocalDate now = LocalDate.now();
+        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
+        LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
 
         if(yearMonth != null){
             fromDate = formatDate(yearMonth.atDay(1));
             toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
+        } else {
+            if (now.isAfter(midOfCurrentMonth) && monthlyReportService.isMonthConfirmedFromEmployee(employee, firstOfPreviousMonth)) {
+                fromDate = getFirstDayOfCurrentMonth(now);
+                toDate = getLastDayOfCurrentMonth(now);
+            } else {
+                fromDate = formatDate(firstOfPreviousMonth);
+                toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
+            }
         }
 
         final ReadBelegResponseType readBelegResponseType = getBillsInternal(employee, fromDate, toDate);
@@ -237,8 +248,6 @@ public class ZepServiceImpl implements ZepService {
                 .map(this::createBill)
                 .toList();
     }
-
-
 
     @Override
     public Optional<Project> getProjectByName(final String projectName, final LocalDate monthYear) {
@@ -295,25 +304,7 @@ public class ZepServiceImpl implements ZepService {
     }
 
     private ReadBelegResponseType getBillsInternal(final Employee employee, final String from, final String to) {
-        LocalDate now = LocalDate.now();
-        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
-        LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
-
-        String dateForSearchCriteriaFrom = "";
-        String dateForSearchCriteriaTo ="";
-
-
-        if(from == null && to == null) {
-            if (now.isAfter(midOfCurrentMonth) && monthlyReportService.isMonthConfirmedFromEmployee(employee, firstOfPreviousMonth)) {
-                dateForSearchCriteriaFrom = getFirstDayOfCurrentMonth(now);
-                dateForSearchCriteriaTo = getLastDayOfCurrentMonth(now);
-            }
-        } else {
-            dateForSearchCriteriaFrom = from;
-            dateForSearchCriteriaTo = to;
-        }
-
-        final ReadBelegSearchCriteriaType readBelegSearchCriteriaType = createBillSearchCriteria(employee, dateForSearchCriteriaFrom, dateForSearchCriteriaTo);
+        final ReadBelegSearchCriteriaType readBelegSearchCriteriaType = createBillSearchCriteria(employee, from, to);
 
         final ReadBelegRequestType readBelegRequestType = new ReadBelegRequestType();
         readBelegRequestType.setRequestHeader(zepSoapProvider.createRequestHeaderType());
