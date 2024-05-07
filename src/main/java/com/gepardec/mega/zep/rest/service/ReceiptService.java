@@ -28,9 +28,6 @@ public class ReceiptService {
     MonthlyReportService monthlyReportService;
 
     @Inject
-    Logger logger;
-
-    @Inject
     ResponseParser responseParser;
 
     public List<ZepReceipt> getAllReceiptsForYearMonth(Employee employee, String fromDate, String toDate) {
@@ -59,9 +56,8 @@ public class ReceiptService {
                     page -> zepReceiptRestClient.getAllReceiptsForMonth(dateForSearchRequestFrom, dateForSearchRequestTo, page),
                     ZepReceipt.class
             );
-        } catch (ZepServiceException e) {
-            logger.warn("Error retrieving receipts for month + \"%d\" from ZEP: No /data field in response"
-                    .formatted(DateUtils.parseDate(fromDate).getMonth().getValue(), e));
+        } catch (ZepServiceException ignored) {
+            // no operation needed because there can be months without receipts
         }
         return List.of();
     }
@@ -73,9 +69,7 @@ public class ReceiptService {
                     ZepReceiptAttachment.class
             );
         } catch (ZepServiceException ignored) {
-            //TODO klären!
-            /*logger.warn("Error retrieving attachment for receipt + \"%d\" from ZEP: No /data field in response"
-                    .formatted(receiptId), e);*/
+            // no operation needed because some receipts can have no attachment
         }
         return Optional.empty();
     }
