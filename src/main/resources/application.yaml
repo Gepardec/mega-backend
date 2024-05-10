@@ -102,7 +102,7 @@ mega:
 
   oauth:
     client-id: "mega"
-    issuer: "https://gepardec-sso.apps.c-gepa-play.gepa.vshnmanaged.net/realms/gepardec"
+    issuer: "https://gepardec-sso-qa.apps.cloudscale-lpg-2.appuio.cloud/realms/gepardec"
     scope: "openid profile email microprofile-jwt"
 
   mail:
@@ -169,7 +169,7 @@ mp:
     dash-url: "http://localhost:4444/index.html"
 
     oauth:
-      issuer: "https://gepardec-sso-dev.play.run.gepardec.com/realms/gepardec"
+      issuer: "https://gepardec-sso-qa.apps.cloudscale-lpg-2.appuio.cloud/realms/gepardec"
 
     mail:
       subject-prefix: "LOCAL: "
@@ -217,7 +217,7 @@ mp:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
 
     oauth:
-      issuer: "https://gepardec-sso-dev.play.run.geaprdec.com/realms/gepardec"
+      issuer: "https://gepardec-sso-qa.apps.cloudscale-lpg-2.appuio.cloud/realms/gepardec"
 
     mail:
       subject-prefix: "UNIT-TEST: "

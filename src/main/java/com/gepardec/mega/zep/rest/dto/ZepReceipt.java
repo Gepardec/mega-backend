@@ -11,7 +11,7 @@ public record ZepReceipt (
         String employeeId,
         LocalDate receiptDate,
         Double bruttoValue,
-        ZepReceiptType receiptType,
+        String receiptTypeName,
         PaymentMethodType paymentMethodType,
         int projectId,
         String attachmentFileName
@@ -26,7 +26,7 @@ public record ZepReceipt (
                 builder.employeeId,
                 builder.receiptDate,
                 builder.bruttoValue,
-                builder.receiptType,
+                builder.receiptTypeName,
                 builder.paymentMethodType,
                 builder.projectId,
                 builder.attachmentFileName
@@ -48,7 +48,7 @@ public record ZepReceipt (
         private Double bruttoValue;
 
         @JsonProperty("receipt_type_id")
-        private ZepReceiptType receiptType;
+        private String receiptTypeName;
         @JsonProperty("payment_method")
         private PaymentMethodType paymentMethodType;
         @JsonProperty("project_id")
@@ -90,8 +90,8 @@ public record ZepReceipt (
             return this;
         }
 
-        public Builder receiptType(ZepReceiptType receiptType) {
-            this.receiptType = receiptType;
+        public Builder receiptTypeName(String receiptTypeName) {
+            this.receiptTypeName = receiptTypeName;
             return this;
         }
 

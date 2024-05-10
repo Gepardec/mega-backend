@@ -226,24 +226,27 @@ public class ZepRestServiceImpl implements ZepService {
         List<Bill> resultBillList = new ArrayList<>();
 
         if (!allReceiptsForYearMonth.isEmpty()) {
-            allReceiptsForYearMonthAndEmployee = allReceiptsForYearMonth.stream().filter(receipt -> receipt.employeeId().equals(employee.getUserId())).toList();
+            allReceiptsForYearMonthAndEmployee = allReceiptsForYearMonth.stream()
+                                                                        .filter(receipt -> receipt.employeeId().equals(employee.getUserId()))
+                                                                        .toList();
 
             allReceiptsForYearMonthAndEmployee.forEach(zepReceipt -> {
                 Optional<ZepProject> zepProject = projectService.getProjectById(zepReceipt.projectId());
                 Optional<ZepReceiptAttachment> attachment = receiptService.getAttachmentByReceiptId(zepReceipt.id());
+                Optional<ZepReceiptAmount> receiptAmount = receiptService.getAmountByReceiptId(zepReceipt.id());
 
 
                 zepProject.ifPresent(project ->
                         resultBillList.add(
                                 Bill.builder()
-                                        .billDate(zepReceipt.receiptDate())
-                                        .bruttoValue(zepReceipt.bruttoValue())
-                                        .billType(zepReceipt.receiptType().name())
-                                        .paymentMethodType(zepReceipt.paymentMethodType())
-                                        .projectName(project.name())
-                                        .attachmentBase64(attachment.map(ZepReceiptAttachment::fileContent).orElse(null))
-                                        .attachmentFileName(zepReceipt.attachmentFileName())
-                                        .build()
+                                    .billDate(zepReceipt.receiptDate())
+                                    .bruttoValue(receiptAmount.map(receipt -> receipt.amount() * receipt.quantity()).orElse(null))
+                                    .billType(zepReceipt.receiptTypeName())
+                                    .paymentMethodType(zepReceipt.paymentMethodType())
+                                    .projectName(project.name())
+                                    .attachmentBase64(attachment.map(ZepReceiptAttachment::fileContent).orElse(null))
+                                    .attachmentFileName(zepReceipt.attachmentFileName())
+                                    .build()
                         ));
 
             });

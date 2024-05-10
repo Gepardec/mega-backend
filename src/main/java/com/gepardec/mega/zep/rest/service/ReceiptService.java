@@ -5,6 +5,7 @@ import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepReceiptRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepReceipt;
+import com.gepardec.mega.zep.rest.dto.ZepReceiptAmount;
 import com.gepardec.mega.zep.rest.dto.ZepReceiptAttachment;
 import com.gepardec.mega.zep.util.ResponseParser;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -29,6 +30,9 @@ public class ReceiptService {
 
     @Inject
     ResponseParser responseParser;
+
+    @Inject
+    Logger logger;
 
     public List<ZepReceipt> getAllReceiptsForYearMonth(Employee employee, String fromDate, String toDate) {
         LocalDate now = LocalDate.now();
@@ -71,6 +75,20 @@ public class ReceiptService {
         } catch (ZepServiceException ignored) {
             // no operation needed because some receipts can have no attachment
         }
+        return Optional.empty();
+    }
+
+    public Optional<ZepReceiptAmount> getAmountByReceiptId(int receiptId) {
+        try {
+            return responseParser.retrieveSingle(
+                    zepReceiptRestClient.getAmountForReceipt(receiptId),
+                    ZepReceiptAmount[].class
+            ).map(x -> x[0]);
+        } catch (ZepServiceException e) {
+            logger.warn("Error retrieving amount for receipt + \"%d\" from ZEP: No /data field in response"
+                    .formatted(receiptId), e);
+        }
+
         return Optional.empty();
     }
 }
