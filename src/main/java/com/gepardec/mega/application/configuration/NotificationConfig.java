@@ -13,7 +13,7 @@ public class NotificationConfig {
     private static final String LOGO_PATH = "img/logo.png";
 
     @Inject
-    @ConfigProperty(name = "mega.mail.subject-prefix", defaultValue = "")
+    @ConfigProperty(name = "mega.mail.subject-prefix")
     Optional<String> subjectPrefix;
 
     @Inject
