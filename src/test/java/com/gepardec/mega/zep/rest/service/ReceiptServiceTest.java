@@ -111,15 +111,15 @@ public class ReceiptServiceTest {
     @Test
     public void testGetAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonth_thenReturnListOfReceipts() {
         ZepReceipt expectedZepReceipt = ZepReceipt.builder()
-                                          .id(1)
-                                          .employeeId("testUser2")
-                                          .receiptDate(LocalDate.now())
-                                          .receiptTypeName("Test receipt type name")
-                                          .bruttoValue(120.00)
-                                          .paymentMethodType("privat")
-                                          .projectId(2)
-                                          .attachmentFileName("Test attachment file name")
-                                          .build();
+                                                  .id(1)
+                                                  .employeeId("testUser2")
+                                                  .receiptDate(LocalDate.now())
+                                                  .receiptTypeName("Test receipt type name")
+                                                  .bruttoValue(120.00)
+                                                  .paymentMethodType("privat")
+                                                  .projectId(2)
+                                                  .attachmentFileName("Test attachment file name")
+                                                  .build();
 
         when(zepReceiptRestClient.getAllReceiptsForMonth(any(String.class), any(String.class), anyInt()))
                 .thenReturn(Response.ok().entity(expectedZepReceipt).build());
