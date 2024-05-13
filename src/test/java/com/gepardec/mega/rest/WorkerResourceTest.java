@@ -293,12 +293,6 @@ public class WorkerResourceTest {
         when(employeeService.getEmployee(userAsEmployee.getUserId()))
                 .thenReturn(userAsEmployee);
 
-
-       /* when(zepService.getBillsForEmployeeByMonth(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(
-                    getBillsForEmployee()
-                );*/
-
         doReturn(getBillsForEmployee()).when(zepService).getBillsForEmployeeByMonth(any(Employee.class), any(YearMonth.class));
 
         List<BillDto> actual = workerResource.getBillsForEmployeeByMonth(userAsEmployee.getUserId(), YearMonth.of(2024, 4));
