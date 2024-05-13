@@ -225,9 +225,8 @@ public class ZepRestServiceImpl implements ZepService {
         fromDate = formatDate(firstOfPreviousMonth);
         toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
         return Pair.of(fromDate, toDate);
-
-
     }
+
     private List<Bill> getBillsInternal(Employee employee, String fromDate, String toDate) {
         List<ZepReceipt> allReceiptsForYearMonth = receiptService.getAllReceiptsForYearMonth(employee, fromDate, toDate);
         List<ZepReceipt> allReceiptsForYearMonthAndEmployee;
