@@ -200,24 +200,6 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
-        /*String fromDate = "";
-        String toDate = "";*/
-       /* LocalDate now = LocalDate.now();
-        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
-        LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
-
-        if (yearMonth != null) {
-            fromDate = formatDate(yearMonth.atDay(1));
-            toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
-        } else {
-            if (now.isAfter(midOfCurrentMonth) && monthlyReportService.isMonthConfirmedFromEmployee(employee, firstOfPreviousMonth)) {
-                fromDate = getFirstDayOfCurrentMonth(now);
-                toDate = getLastDayOfCurrentMonth(now);
-            } else {
-                fromDate = formatDate(firstOfPreviousMonth);
-                toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
-            }
-        }*/
         Pair<String, String> fromToDatePair = dateToDo(employee, yearMonth);
         return getBillsInternal(employee, fromToDatePair.getLeft(), fromToDatePair.getRight());
     }
