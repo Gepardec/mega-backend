@@ -39,7 +39,7 @@ public class ConfigResourceImpl implements ConfigResource {
                 .scope(oauthConfig.getScope())
                 .version(applicationConfig.getVersion())
                 .omMailAddresses(notificationConfig.getOmMailAddresses())
-                .subjectPrefix(notificationConfig.getSubjectPrefix())
+                .subjectPrefix(notificationConfig.getSubjectPrefix().orElse(""))
                 .megaDashUrl(notificationConfig.getMegaDashUrl())
                 .build();
 
