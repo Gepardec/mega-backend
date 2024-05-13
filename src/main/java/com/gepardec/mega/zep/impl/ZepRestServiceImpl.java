@@ -16,6 +16,7 @@ import com.gepardec.mega.zep.rest.service.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedMap;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
 import java.time.DayOfWeek;
@@ -199,9 +200,9 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
-        String fromDate = "";
-        String toDate = "";
-        LocalDate now = LocalDate.now();
+        /*String fromDate = "";
+        String toDate = "";*/
+       /* LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
         LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
 
@@ -216,10 +217,35 @@ public class ZepRestServiceImpl implements ZepService {
                 fromDate = formatDate(firstOfPreviousMonth);
                 toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
             }
-        }
-        return getBillsInternal(employee, fromDate, toDate);
+        }*/
+        Pair<String, String> fromToDatePair = dateToDo(employee, yearMonth);
+        return getBillsInternal(employee, fromToDatePair.getLeft(), fromToDatePair.getRight());
     }
 
+    private Pair<String, String> dateToDo(Employee employee, YearMonth yearMonth) {
+        LocalDate now = LocalDate.now();
+        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
+        LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
+
+        String fromDate;
+        String toDate;
+        if (yearMonth != null) {
+            fromDate = formatDate(yearMonth.atDay(1));
+            toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
+            return Pair.of(fromDate, toDate);
+        }
+        if (now.isAfter(midOfCurrentMonth) && monthlyReportService.isMonthConfirmedFromEmployee(employee, firstOfPreviousMonth)) {
+            fromDate = getFirstDayOfCurrentMonth(now);
+            toDate = getLastDayOfCurrentMonth(now);
+            return Pair.of(fromDate, toDate);
+        }
+
+        fromDate = formatDate(firstOfPreviousMonth);
+        toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
+        return Pair.of(fromDate, toDate);
+
+
+    }
     private List<Bill> getBillsInternal(Employee employee, String fromDate, String toDate) {
         List<ZepReceipt> allReceiptsForYearMonth = receiptService.getAllReceiptsForYearMonth(employee, fromDate, toDate);
         List<ZepReceipt> allReceiptsForYearMonthAndEmployee;

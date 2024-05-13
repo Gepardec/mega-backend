@@ -2,6 +2,7 @@ package com.gepardec.mega.zep.rest.service;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.zep.ZepServiceException;
+import com.gepardec.mega.zep.ZepServiceTooManyRequestsException;
 import com.gepardec.mega.zep.rest.client.ZepReceiptRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepReceipt;
 import com.gepardec.mega.zep.rest.dto.ZepReceiptAmount;
@@ -57,8 +58,8 @@ public class ReceiptService {
                     page -> zepReceiptRestClient.getAllReceiptsForMonth(dateForSearchRequestFrom, dateForSearchRequestTo, page),
                     ZepReceipt.class
             );
-        } catch (ZepServiceException ignored) {
-            // no operation needed because there can be months without receipts
+        } catch (ZepServiceTooManyRequestsException | ZepServiceException e) {
+            logger.warn(e.getMessage());
         }
         return List.of();
     }
@@ -69,8 +70,8 @@ public class ReceiptService {
                     zepReceiptRestClient.getAttachmentForReceipt(receiptId),
                     ZepReceiptAttachment.class
             );
-        } catch (ZepServiceException ignored) {
-            // no operation needed because some receipts can have no attachment
+        } catch (ZepServiceTooManyRequestsException | ZepServiceException e) {
+            logger.warn(e.getMessage());
         }
         return Optional.empty();
     }
@@ -82,9 +83,8 @@ public class ReceiptService {
                     zepReceiptRestClient.getAmountForReceipt(receiptId),
                     ZepReceiptAmount[].class
             ).map(x -> x[0]);
-        } catch (ZepServiceException e) {
-            logger.warn("Error retrieving amount for receipt + \"%d\" from ZEP: No /data field in response"
-                    .formatted(receiptId), e);
+        } catch (ZepServiceTooManyRequestsException | ZepServiceException e) {
+            logger.warn(e.getMessage());
         }
         return Optional.empty();
     }
