@@ -1,21 +1,18 @@
 package com.gepardec.mega.zep.rest.service;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
-import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.ZepServiceTooManyRequestsException;
 import com.gepardec.mega.zep.rest.client.ZepReceiptRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepReceipt;
 import com.gepardec.mega.zep.rest.dto.ZepReceiptAmount;
 import com.gepardec.mega.zep.rest.dto.ZepReceiptAttachment;
 import com.gepardec.mega.zep.util.ResponseParser;
-import com.google.common.base.Function;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
@@ -26,7 +23,6 @@ import java.util.Optional;
 
 import static io.smallrye.common.constraint.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
