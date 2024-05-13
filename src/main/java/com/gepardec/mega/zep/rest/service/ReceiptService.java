@@ -80,10 +80,11 @@ public class ReceiptService {
 
     public Optional<ZepReceiptAmount> getAmountByReceiptId(int receiptId) {
         try {
-            return responseParser.retrieveSingle(
+            Optional<ZepReceiptAmount[]> zepReceiptAmounts = responseParser.retrieveSingle(
                     zepReceiptRestClient.getAmountForReceipt(receiptId),
                     ZepReceiptAmount[].class
-            ).map(x -> x[0]);
+            );
+            return zepReceiptAmounts.map(x -> x[0]);
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving amount for receipt + \"%d\" from ZEP: No /data field in response"
                     .formatted(receiptId), e);
