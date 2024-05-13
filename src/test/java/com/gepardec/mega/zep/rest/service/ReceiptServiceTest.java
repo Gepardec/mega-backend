@@ -159,6 +159,4 @@ public class ReceiptServiceTest {
 
         assertTrue(result.isEmpty());
     }
-
-
 }
