@@ -157,6 +157,7 @@ public class ReceiptServiceTest {
 
         List<ZepReceipt> result = receiptService.getAllReceiptsForYearMonth(employee, firstOfPreviousMonth.toString(), DateUtils.getLastDayOfCurrentMonth(firstOfPreviousMonth));
 
+        assertTrue(result != null);
         assertTrue(result.isEmpty());
     }
 }

@@ -11,6 +11,7 @@ public record ZepReceipt (
         String employeeId,
         LocalDate receiptDate,
         Double bruttoValue,
+
         String receiptTypeName,
         PaymentMethodType paymentMethodType,
         int projectId,
@@ -47,6 +48,7 @@ public record ZepReceipt (
         @JsonProperty("amount")
         private Double bruttoValue;
 
+        // was an object beforehand and is still one in the zep-documentation but was changed to string -> 10.5.2024
         @JsonProperty("receipt_type_id")
         private String receiptTypeName;
         @JsonProperty("payment_method")
