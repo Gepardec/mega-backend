@@ -79,7 +79,7 @@ class NotificationHelperTest {
 
     @Test
     void whenPrefixNull_thenNoPrefixAdded() {
-        when(notificationConfig.getSubjectPrefix()).thenReturn(null);
+        when(notificationConfig.getSubjectPrefix()).thenReturn(Optional.empty());
         when(resourceBundleProducer.getResourceBundle(any(Locale.class)).getString("mail.EMPLOYEE_CHECK_PROJECTTIME.subject"))
                 .thenReturn("Subject");
         final String subject = notificationHelper.subjectForMail(Mail.EMPLOYEE_CHECK_PROJECTTIME, Locale.GERMAN);
