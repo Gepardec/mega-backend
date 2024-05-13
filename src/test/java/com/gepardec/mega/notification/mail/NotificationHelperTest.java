@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
@@ -88,7 +89,7 @@ class NotificationHelperTest {
 
     @Test
     void whenPrefixSet_thenNoPrefixAdded() {
-        when(notificationConfig.getSubjectPrefix()).thenReturn("DEV: ");
+        when(notificationConfig.getSubjectPrefix()).thenReturn(Optional.of("DEV: "));
         when(resourceBundleProducer.getResourceBundle(any(Locale.class)).getString("mail.EMPLOYEE_CHECK_PROJECTTIME.subject"))
                 .thenReturn("Subject");
         final String subject = notificationHelper.subjectForMail(Mail.EMPLOYEE_CHECK_PROJECTTIME, Locale.GERMAN);

@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class NotificationConfig {
@@ -13,7 +14,7 @@ public class NotificationConfig {
 
     @Inject
     @ConfigProperty(name = "mega.mail.subject-prefix", defaultValue = "")
-    String subjectPrefix;
+    Optional<String> subjectPrefix;
 
     @Inject
     @ConfigProperty(name = "mega.wiki.eom-url")
@@ -31,7 +32,7 @@ public class NotificationConfig {
     @ConfigProperty(name = "mega.mail.employees.notification")
     boolean employeesNotification;
 
-    public String getSubjectPrefix() {
+    public Optional<String> getSubjectPrefix() {
         return subjectPrefix;
     }
 
