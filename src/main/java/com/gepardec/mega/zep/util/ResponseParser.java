@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 @ApplicationScoped
 public class ResponseParser {
@@ -86,7 +85,7 @@ public class ResponseParser {
     private String readResponse(Response response) {
         try (response) {
             //If we reach the rate limit, we throw an exception
-            if (response.getStatus() == 429 ) {
+            if (response.getStatus() == Response.Status.TOO_MANY_REQUESTS.getStatusCode() ) {
                 throw new ZepServiceTooManyRequestsException("Too many requests to ZEP REST");
             }
 

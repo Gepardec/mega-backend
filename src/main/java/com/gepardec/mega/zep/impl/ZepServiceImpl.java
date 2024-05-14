@@ -73,6 +73,6 @@ public class ZepServiceImpl implements ZepService {
 
     @Override
     public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
-        return null;
+        return zepServiceRest.getBillsForEmployeeByMonth(employee, yearMonth);
     }
 }

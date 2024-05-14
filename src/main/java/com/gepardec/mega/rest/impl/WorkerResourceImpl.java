@@ -12,6 +12,7 @@ import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.impl.Rest;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -34,7 +35,7 @@ public class WorkerResourceImpl implements WorkerResource {
     @Inject
     BillMapper billMapper;
 
-    @Inject
+    @Inject @Rest
     ZepService zepService;
 
     @Inject

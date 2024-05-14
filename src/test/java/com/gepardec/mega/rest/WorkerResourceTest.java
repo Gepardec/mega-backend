@@ -12,6 +12,8 @@ import com.gepardec.mega.rest.model.MonthlyReportDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.impl.Rest;
+import com.gepardec.mega.zep.impl.Soap;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
@@ -29,8 +31,8 @@ import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @QuarkusTest
 @TestSecurity(user = "test")
@@ -45,7 +47,7 @@ public class WorkerResourceTest {
     @InjectMock
     EmployeeService employeeService;
 
-    @InjectMock
+    @InjectMock @Rest
     ZepService zepService;
 
     @InjectMock
@@ -291,11 +293,7 @@ public class WorkerResourceTest {
         when(employeeService.getEmployee(userAsEmployee.getUserId()))
                 .thenReturn(userAsEmployee);
 
-
-        when(zepService.getBillsForEmployeeByMonth(userAsEmployee, YearMonth.of(2024, 4)))
-                .thenReturn(
-                    getBillsForEmployee()
-                );
+        doReturn(getBillsForEmployee()).when(zepService).getBillsForEmployeeByMonth(any(Employee.class), any(YearMonth.class));
 
         List<BillDto> actual = workerResource.getBillsForEmployeeByMonth(userAsEmployee.getUserId(), YearMonth.of(2024, 4));
 
