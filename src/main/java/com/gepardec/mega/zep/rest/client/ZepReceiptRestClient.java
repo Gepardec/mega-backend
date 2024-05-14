@@ -13,7 +13,6 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @Path("/receipts")
 @RegisterRestClient(configKey = "zep")
 @RegisterClientHeaders(AuthHeaders.class)
-@JsonIgnoreProperties(ignoreUnknown = true)
 @ApplicationScoped
 public interface ZepReceiptRestClient {
     @GET

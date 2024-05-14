@@ -9,10 +9,25 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.rest.dto.*;
+import com.gepardec.mega.zep.rest.dto.ZepAbsence;
+import com.gepardec.mega.zep.rest.dto.ZepAttendance;
+import com.gepardec.mega.zep.rest.dto.ZepEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.rest.dto.ZepProject;
+import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepReceipt;
+import com.gepardec.mega.zep.rest.dto.ZepReceiptAmount;
+import com.gepardec.mega.zep.rest.dto.ZepReceiptAttachment;
+import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
 import com.gepardec.mega.zep.rest.mapper.Mapper;
 import com.gepardec.mega.zep.rest.mapper.ProjectEmployeesMapper;
-import com.gepardec.mega.zep.rest.service.*;
+import com.gepardec.mega.zep.rest.service.AbsenceService;
+import com.gepardec.mega.zep.rest.service.AttendanceService;
+import com.gepardec.mega.zep.rest.service.EmployeeService;
+import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
+import com.gepardec.mega.zep.rest.service.ProjectService;
+import com.gepardec.mega.zep.rest.service.ReceiptService;
+import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -30,7 +45,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.gepardec.mega.domain.utils.DateUtils.*;
+import static com.gepardec.mega.domain.utils.DateUtils.formatDate;
+import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfCurrentMonth;
+import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
+
 
 @ApplicationScoped
 @Rest
@@ -200,30 +218,37 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
-        Pair<String, String> fromToDatePair = dateToDo(employee, yearMonth);
+        Pair<String, String> fromToDatePair = getCorrectDateForBills(employee, yearMonth);
         return getBillsInternal(employee, fromToDatePair.getLeft(), fromToDatePair.getRight());
     }
 
-    private Pair<String, String> dateToDo(Employee employee, YearMonth yearMonth) {
+    private Pair<String, String> getCorrectDateForBills(Employee employee, YearMonth yearMonth) {
         LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
         LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
 
-        String fromDate;
-        String toDate;
         if (yearMonth != null) {
-            fromDate = formatDate(yearMonth.atDay(1));
-            toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
-            return Pair.of(fromDate, toDate);
+            return getDateWhenYearMonthProvided(yearMonth);
         }
         if (now.isAfter(midOfCurrentMonth) && monthlyReportService.isMonthConfirmedFromEmployee(employee, firstOfPreviousMonth)) {
-            fromDate = getFirstDayOfCurrentMonth(now);
-            toDate = getLastDayOfCurrentMonth(now);
-            return Pair.of(fromDate, toDate);
+            return getDateWhenMonthIsConfirmedFromEmployeeAndMidOfMonthIsReached();
         }
 
-        fromDate = formatDate(firstOfPreviousMonth);
-        toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
+        String fromDate = formatDate(firstOfPreviousMonth);
+        String toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
+        return Pair.of(fromDate,toDate);
+    }
+
+    private Pair<String, String> getDateWhenYearMonthProvided(YearMonth yearMonth) {
+        String fromDate = formatDate(yearMonth.atDay(1));
+        String toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
+        return Pair.of(fromDate, toDate);
+    }
+
+    private Pair<String, String> getDateWhenMonthIsConfirmedFromEmployeeAndMidOfMonthIsReached() {
+        LocalDate now = LocalDate.now();
+        String fromDate = getFirstDayOfCurrentMonth(now);
+        String toDate = getLastDayOfCurrentMonth(now);
         return Pair.of(fromDate, toDate);
     }
 
@@ -232,35 +257,41 @@ public class ZepRestServiceImpl implements ZepService {
         List<ZepReceipt> allReceiptsForYearMonthAndEmployee;
         List<Bill> resultBillList = new ArrayList<>();
 
+
         if (!allReceiptsForYearMonth.isEmpty()) {
             allReceiptsForYearMonthAndEmployee = allReceiptsForYearMonth.stream()
                                                                         .filter(receipt -> receipt.employeeId().equals(employee.getUserId()))
                                                                         .toList();
 
             allReceiptsForYearMonthAndEmployee.forEach(zepReceipt -> {
+
                 Optional<ZepProject> zepProject = projectService.getProjectById(zepReceipt.projectId());
                 Optional<ZepReceiptAttachment> attachment = receiptService.getAttachmentByReceiptId(zepReceipt.id());
                 Optional<ZepReceiptAmount> receiptAmount = receiptService.getAmountByReceiptId(zepReceipt.id());
 
-
-                zepProject.ifPresent(project ->
-                        resultBillList.add(
-                                Bill.builder()
-                                    .billDate(zepReceipt.receiptDate())
-                                    .bruttoValue(receiptAmount.map(receipt -> receipt.amount() * receipt.quantity()).orElse(null))
-                                    .billType(zepReceipt.receiptTypeName())
-                                    .paymentMethodType(zepReceipt.paymentMethodType())
-                                    .projectName(project.name())
-                                    .attachmentBase64(attachment.map(ZepReceiptAttachment::fileContent).orElse(null))
-                                    .attachmentFileName(zepReceipt.attachmentFileName())
-                                    .build()
-                        ));
-
+                resultBillList.addAll(createBillList(zepReceipt, zepProject, attachment, receiptAmount));
             });
         }
         return resultBillList;
     }
 
+    private List<Bill> createBillList(ZepReceipt zepReceipt, Optional<ZepProject> zepProject, Optional<ZepReceiptAttachment> attachment, Optional<ZepReceiptAmount> receiptAmount) {
+        List<Bill> resultBillList = new ArrayList<>();
+        zepProject.ifPresent(project ->
+                resultBillList.add(
+                        Bill.builder()
+                            .billDate(zepReceipt.receiptDate())
+                            .bruttoValue(receiptAmount.map(receipt -> receipt.amount() * receipt.quantity()).orElse(null))
+                            .billType(zepReceipt.receiptTypeName())
+                            .paymentMethodType(zepReceipt.paymentMethodType())
+                            .projectName(project.name())
+                            .attachmentBase64(attachment.map(ZepReceiptAttachment::fileContent).orElse(null))
+                            .attachmentFileName(zepReceipt.attachmentFileName())
+                            .build()
+                ));
+
+        return resultBillList;
+    }
 
     private void addProjectEmployeesToBuilder(Project.Builder projectBuilder, ZepProject zepProject) {
         List<ZepProjectEmployee> zepProjectEmployees = projectService.getProjectEmployeesForId(zepProject.id());

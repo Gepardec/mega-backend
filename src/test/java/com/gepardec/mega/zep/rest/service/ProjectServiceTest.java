@@ -3,7 +3,6 @@ package com.gepardec.mega.zep.rest.service;
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepBillingType;
 import com.gepardec.mega.zep.rest.dto.ZepProject;
-import com.gepardec.mega.zep.util.ResponseParser;
 import com.gepardec.mega.helper.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
@@ -19,8 +18,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -36,8 +35,6 @@ public class ProjectServiceTest {
     @Inject
     ResourceFileService resourceFileService;
 
-    @Inject
-    ResponseParser responseParser;
 
     @Test
     public void test() {
