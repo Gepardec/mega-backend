@@ -28,6 +28,7 @@ import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
 import com.gepardec.mega.zep.rest.service.ProjectService;
 import com.gepardec.mega.zep.rest.service.ReceiptService;
 import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
+import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -157,6 +158,7 @@ public class ZepRestServiceImpl implements ZepService {
         return projectEntryMapper.mapList(zepAttendances);
     }
 
+    @CacheResult(cacheName = "projectTimesForEmployeePerProject")
     @Override
     public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, LocalDate curDate) {
         List<ZepAttendance> allZepAttendancesForProject = new ArrayList<>();
