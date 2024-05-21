@@ -230,31 +230,59 @@ public class ZepRestServiceImpl implements ZepService {
         Optional<ZepEmployee> employeeRetrieved = employeeService.getZepEmployeeByUsername(employee.getUserId());
 
 
-        if(employeeRetrieved.isPresent()) {
-            return getProjectsForMonthAndEmployeeInternal(employeeRetrieved.get(), yearMonth);
-        }
-        return null;
+        return employeeRetrieved.map(zepEmployee -> getProjectsForMonthAndEmployeeInternal(zepEmployee, yearMonth)).orElse(null);
     }
 
     private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth yearMonth) {
         Employee employeeForRequest = employeeMapper.map(employee);
         String dateString = getCorrectDateForRequest(employeeForRequest, yearMonth).getLeft();
         LocalDate dateForRequest = DateUtils.parseDate(dateString);
+        List<ProjectHoursSummary> resultProjectHoursSummary = new ArrayList<>();
 
         List<ZepProject> projectsRetrieved = projectService.getProjectsForMonthYear(dateForRequest);
         projectsRetrieved.forEach(
                 project -> {
-                    List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(project.id());
-                    projectEmployees.forEach(
-                            projectEmployee -> {
-                                List<ZepAttendance> attendancesForEmployeeAndProject = attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.username(), dateForRequest, project.id());
+                    Optional<ZepProjectEmployee> projectEmployee = projectService.getProjectEmployeesForId(project.id())
+                                                                                 .stream()
+                                                                                 .filter(e -> e.username().equals(employee.username()))
+                                                                                 .findFirst();
+                    if(projectEmployee.isPresent()) {
+                        List<ZepAttendance> attendancesForEmployeeAndProject = attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.get().username(), dateForRequest, project.id());
+                        if(!attendancesForEmployeeAndProject.isEmpty()){
+                            Optional<ProjectHoursSummary> optionalProjectHoursSummary = createProjectsHoursSummary(attendancesForEmployeeAndProject);
+                            optionalProjectHoursSummary.ifPresent(resultProjectHoursSummary::add);
+                        }
+                    }
+                });
+        return resultProjectHoursSummary;
+    }
 
-                            }
-                    );
+    private Optional<ProjectHoursSummary> createProjectsHoursSummary(List<ZepAttendance> attendances) {
+        Optional<ZepProject> project = projectService.getProjectById(attendances.get(0).projectId());
+        String projectName = "";
+        double billableHoursSum = 0.0;
+        double nonBillableHoursSum = 0.0;
 
-                }
-        );
-        return List.of();
+        if(project.isPresent()){
+             projectName = project.get().name();
+
+             billableHoursSum += attendances.stream()
+                                            .filter(ZepAttendance::billable)
+                                            .mapToDouble(ZepAttendance::duration)
+                                            .sum();
+
+             nonBillableHoursSum += attendances.stream()
+                                               .filter(a -> !a.billable())
+                                               .mapToDouble(ZepAttendance::duration)
+                                               .sum();
+
+             return Optional.of(ProjectHoursSummary.builder()
+                                                   .projectName(projectName)
+                                                   .billableHoursSum(billableHoursSum)
+                                                   .nonBillableHoursSum(nonBillableHoursSum)
+                                                   .build());
+        }
+        return Optional.empty();
     }
 
     private Pair<String, String> getCorrectDateForRequest(Employee employee, YearMonth yearMonth) {
