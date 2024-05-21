@@ -368,6 +368,8 @@ public class WorkerResourceTest {
                                   .projectName(projectName)
                                   .billableHoursSum(billableHoursSum)
                                   .nonBillableHoursSum(nonBillableHours)
+                                  .chargeability(25.0)
+                                  .isInternalProject(true)
                                   .build();
     }
 
