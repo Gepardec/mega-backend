@@ -75,4 +75,9 @@ public class ZepServiceImpl implements ZepService {
     public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
         return zepServiceRest.getBillsForEmployeeByMonth(employee, yearMonth);
     }
+
+    @Override
+    public List<Project> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
+        return zepServiceRest.getAllProjectsForMonthAndEmployee(employee, yearMonth);
+    }
 }

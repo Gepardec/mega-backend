@@ -33,4 +33,6 @@ public interface ZepService {
     List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date);
 
     List<Bill> getBillsForEmployeeByMonth(final Employee employee, YearMonth yearMonth);
+
+    List<Project> getAllProjectsForMonthAndEmployee(final Employee employee, YearMonth yearMonth); //TODO maybe change return type
 }

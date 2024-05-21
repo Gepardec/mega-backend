@@ -4,6 +4,7 @@ import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
+import com.gepardec.mega.domain.model.ProjectEmployees;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
@@ -218,11 +219,40 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
-        Pair<String, String> fromToDatePair = getCorrectDateForBills(employee, yearMonth);
+        Pair<String, String> fromToDatePair = getCorrectDateForRequest(employee, yearMonth);
         return getBillsInternal(employee, fromToDatePair.getLeft(), fromToDatePair.getRight());
     }
 
-    private Pair<String, String> getCorrectDateForBills(Employee employee, YearMonth yearMonth) {
+    @Override
+    public List<Project> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
+        Optional<ZepEmployee> employeeRetrieved = employeeService.getZepEmployeeByUsername(employee.getUserId());
+
+
+        if(employeeRetrieved.isPresent()) {
+            Employee employeeForRequest = employeeMapper.map(employeeRetrieved.get());
+            String dateString = getCorrectDateForRequest(employeeForRequest, yearMonth).getLeft();
+            LocalDate dateForRequest = DateUtils.parseDate(dateString);
+
+            List<ZepProject> projectsRetrieved = projectService.getProjectsForMonthYear(dateForRequest);
+            projectsRetrieved.forEach(
+                    project -> {
+                        List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(project.id());
+                        projectEmployees.forEach(
+                                projectEmployee -> {
+                                    List<ZepAttendance> attendancesForEmployeeAndProject = attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.username(), dateForRequest, project.id());
+                                }
+                        );
+
+                    }
+            );
+
+        }
+        return null;
+    }
+
+    private List<>
+
+    private Pair<String, String> getCorrectDateForRequest(Employee employee, YearMonth yearMonth) {
         LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
         LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
