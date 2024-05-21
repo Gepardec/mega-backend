@@ -228,7 +228,12 @@ public class ZepRestServiceImpl implements ZepService {
     @Override
     public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
         Optional<ZepEmployee> employeeRetrieved = employeeService.getZepEmployeeByUsername(employee.getUserId());
-        return employeeRetrieved.map(zepEmployee -> getProjectsForMonthAndEmployeeInternal(zepEmployee, yearMonth)).orElse(null);
+        List<ProjectHoursSummary> resultProjectHoursSummary = new ArrayList<>();
+
+        if(employeeRetrieved.isPresent()) {
+            resultProjectHoursSummary = getProjectsForMonthAndEmployeeInternal(employeeRetrieved.get(), yearMonth);
+        }
+        return resultProjectHoursSummary;
     }
 
     private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth yearMonth) {
