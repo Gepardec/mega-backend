@@ -9,7 +9,7 @@ quarkus:
   http:
     cors:
       ~: true
-      origins: "/https://mega-frontend([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/,/https://gepardec-sso([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/,/https://mega-backend([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/"
+      origins: ""
       access-control-allow-credentials: true
     root-path: "/"
     non-application-root-path: "/"
@@ -96,7 +96,7 @@ mega:
 
   oauth:
     client-id: "mega"
-    issuer: "https://gepardec-sso.apps.c-gepa-play.gepa.vshnmanaged.net/realms/gepardec"
+    issuer: ""
     scope: "openid profile email microprofile-jwt"
 
   mail:
@@ -160,7 +160,7 @@ mp:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
 
     oauth:
-      issuer: "https://gepardec-sso-dev.play.run.gepardec.com/realms/gepardec"
+      issuer: ""
 
     mail:
       subject-prefix: "LOCAL: "
@@ -205,7 +205,7 @@ mp:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
 
     oauth:
-      issuer: "https://gepardec-sso-dev.play.run.geaprdec.com/realms/gepardec"
+      issuer: ""
 
     mail:
       subject-prefix: "UNIT-TEST: "
