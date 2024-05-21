@@ -9,7 +9,7 @@ quarkus:
   http:
     cors:
       ~: true
-      origins: ""
+      origins: "" # this needs to be set during the deployment depending on the environment configuration
       access-control-allow-credentials: true
     root-path: "/"
     non-application-root-path: "/"
@@ -96,7 +96,7 @@ mega:
 
   oauth:
     client-id: "mega"
-    issuer: ""
+    issuer: "" # this needs to be set during the deployment depending on the environment configuration
     scope: "openid profile email microprofile-jwt"
 
   mail:
