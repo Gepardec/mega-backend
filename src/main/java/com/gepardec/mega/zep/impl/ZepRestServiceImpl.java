@@ -5,6 +5,7 @@ import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectEmployees;
+import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
@@ -225,33 +226,36 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     @Override
-    public List<Project> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
+    public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
         Optional<ZepEmployee> employeeRetrieved = employeeService.getZepEmployeeByUsername(employee.getUserId());
 
 
         if(employeeRetrieved.isPresent()) {
-            Employee employeeForRequest = employeeMapper.map(employeeRetrieved.get());
-            String dateString = getCorrectDateForRequest(employeeForRequest, yearMonth).getLeft();
-            LocalDate dateForRequest = DateUtils.parseDate(dateString);
-
-            List<ZepProject> projectsRetrieved = projectService.getProjectsForMonthYear(dateForRequest);
-            projectsRetrieved.forEach(
-                    project -> {
-                        List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(project.id());
-                        projectEmployees.forEach(
-                                projectEmployee -> {
-                                    List<ZepAttendance> attendancesForEmployeeAndProject = attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.username(), dateForRequest, project.id());
-                                }
-                        );
-
-                    }
-            );
-
+            return getProjectsForMonthAndEmployeeInternal(employeeRetrieved.get(), yearMonth);
         }
         return null;
     }
 
-    private List<>
+    private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth yearMonth) {
+        Employee employeeForRequest = employeeMapper.map(employee);
+        String dateString = getCorrectDateForRequest(employeeForRequest, yearMonth).getLeft();
+        LocalDate dateForRequest = DateUtils.parseDate(dateString);
+
+        List<ZepProject> projectsRetrieved = projectService.getProjectsForMonthYear(dateForRequest);
+        projectsRetrieved.forEach(
+                project -> {
+                    List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(project.id());
+                    projectEmployees.forEach(
+                            projectEmployee -> {
+                                List<ZepAttendance> attendancesForEmployeeAndProject = attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.username(), dateForRequest, project.id());
+
+                            }
+                    );
+
+                }
+        );
+        return List.of();
+    }
 
     private Pair<String, String> getCorrectDateForRequest(Employee employee, YearMonth yearMonth) {
         LocalDate now = LocalDate.now();

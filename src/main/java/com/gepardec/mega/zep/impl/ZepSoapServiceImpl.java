@@ -253,7 +253,7 @@ public class ZepSoapServiceImpl implements ZepService {
     }
 
     @Override
-    public List<Project> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
+    public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
         throw new NotImplementedException("This method is not provided in SOAP, use REST instead"); // not provided due to using REST
     }
 

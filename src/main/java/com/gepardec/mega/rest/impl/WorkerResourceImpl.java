@@ -3,12 +3,15 @@ package com.gepardec.mega.rest.impl;
 import com.gepardec.mega.application.interceptor.RolesAllowed;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.rest.api.WorkerResource;
 import com.gepardec.mega.rest.mapper.BillMapper;
 import com.gepardec.mega.rest.mapper.MonthlyReportMapper;
+import com.gepardec.mega.rest.mapper.ProjectHoursSummaryMapper;
 import com.gepardec.mega.rest.model.BillDto;
+import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.zep.ZepService;
@@ -34,6 +37,9 @@ public class WorkerResourceImpl implements WorkerResource {
 
     @Inject
     BillMapper billMapper;
+
+    @Inject
+    ProjectHoursSummaryMapper projectHoursSummaryMapper;
 
     @Inject @Rest
     ZepService zepService;
@@ -63,6 +69,16 @@ public class WorkerResourceImpl implements WorkerResource {
 
         return resultBillList.stream()
                 .map(billMapper::mapToDto)
+                .toList();
+    }
+
+    @Override
+    public List<ProjectHoursSummaryDto> getAllProjectsForMonthAndEmployee(String employeeId, YearMonth from) {
+        Employee employee = employeeService.getEmployee(employeeId);
+        List<ProjectHoursSummary> resultProjectsHoursSummaryList = zepService.getAllProjectsForMonthAndEmployee(employee, from);
+
+        return resultProjectsHoursSummaryList.stream()
+                .map(projectHoursSummaryMapper::mapToDto)
                 .toList();
     }
 }
