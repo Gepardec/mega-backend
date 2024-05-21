@@ -32,6 +32,7 @@ import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedMap;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
@@ -148,7 +149,7 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public void updateEmployeesReleaseDate(String userId, String releaseDate) {
-        return;         // Currently not supported by REST - use SOAP instead
+        throw new NotImplementedException("This method is not provided in REST, use SOAP instead.");         // Currently not supported by REST - use SOAP instead
     }
 
     @Override
