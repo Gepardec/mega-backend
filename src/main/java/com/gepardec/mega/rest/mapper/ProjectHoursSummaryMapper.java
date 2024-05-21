@@ -13,6 +13,7 @@ public class ProjectHoursSummaryMapper implements DtoMapper<ProjectHoursSummary,
                 .billableHoursSum(object.getBillableHoursSum())
                 .nonBillableHoursSum(object.getNonBillableHoursSum())
                 .chargeability(object.getChargeability())
+                .isInternalProject(object.getIsInternalProject())
                 .build();
     }
 
@@ -23,6 +24,7 @@ public class ProjectHoursSummaryMapper implements DtoMapper<ProjectHoursSummary,
                 .billableHoursSum(object.getBillableHoursSum())
                 .nonBillableHoursSum(object.getNonBillableHoursSum())
                 .chargeability(object.getChargeability())
+                .isInternalProject(object.getIsInternalProject())
                 .build();
     }
 }

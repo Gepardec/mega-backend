@@ -13,12 +13,14 @@ public class ProjectHoursSummaryDto {
     private final double billableHoursSum;
     private final double nonBillableHoursSum;
     private final double chargeability;
+    private final boolean isInternalProject;
 
     private ProjectHoursSummaryDto(Builder builder){
         this.projectName = builder.projectName;
         this.billableHoursSum = builder.billableHoursSum;
         this.nonBillableHoursSum = builder.nonBillableHoursSum;
         this.chargeability = builder.chargeability;
+        this.isInternalProject = builder.isInternalProject;
     }
 
     public static Builder builder() {return Builder.aProjectHoursSummaryDto();}
@@ -39,6 +41,9 @@ public class ProjectHoursSummaryDto {
         return chargeability;
     }
 
+    public boolean getIsInternalProject() {
+        return isInternalProject;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -59,6 +64,7 @@ public class ProjectHoursSummaryDto {
         private double billableHoursSum;
         private double nonBillableHoursSum;
         private double chargeability;
+        private boolean isInternalProject;
         private Builder(){}
         public static Builder aProjectHoursSummaryDto(){return new Builder();}
         public Builder projectName(String projectName) {
@@ -78,6 +84,11 @@ public class ProjectHoursSummaryDto {
 
         public Builder chargeability(double chargeability) {
             this.chargeability = chargeability;
+            return this;
+        }
+
+        public Builder isInternalProject(boolean isInternalProject) {
+            this.isInternalProject = isInternalProject;
             return this;
         }
 

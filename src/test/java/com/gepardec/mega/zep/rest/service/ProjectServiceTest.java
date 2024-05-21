@@ -81,6 +81,7 @@ public class ProjectServiceTest {
                 .startDate(LocalDateTime.of(2020, 12, 1, 0,0,0))
                 .endDate(LocalDateTime.of(2026, 1, 20, 0,0,0))
                 .billingType(new ZepBillingType(1))
+                .customerId(1)
                 .build();
 
 

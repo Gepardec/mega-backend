@@ -254,7 +254,7 @@ public class ZepRestServiceImpl implements ZepService {
                     if(projectEmployee.isPresent()) {
                         List<ZepAttendance> attendancesForEmployeeAndProject = attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.get().username(), dateForRequest, project.id());
                         if(!attendancesForEmployeeAndProject.isEmpty()){
-                            Optional<ProjectHoursSummary> optionalProjectHoursSummary = createProjectsHoursSummary(attendancesForEmployeeAndProject);
+                            Optional<ProjectHoursSummary> optionalProjectHoursSummary = createProjectsHoursSummary(attendancesForEmployeeAndProject, project);
                             optionalProjectHoursSummary.ifPresent(resultProjectHoursSummary::add);
                         }
                     }
@@ -262,15 +262,15 @@ public class ZepRestServiceImpl implements ZepService {
         return resultProjectHoursSummary;
     }
 
-    private Optional<ProjectHoursSummary> createProjectsHoursSummary(List<ZepAttendance> attendances) {
-        Optional<ZepProject> project = projectService.getProjectById(attendances.get(0).projectId());
+    private Optional<ProjectHoursSummary> createProjectsHoursSummary(List<ZepAttendance> attendances, ZepProject project) {
+        Optional<ZepProject> projectRetrieved = projectService.getProjectById(attendances.get(0).projectId());
         String projectName = "";
         double billableHoursSum = 0.0;
         double nonBillableHoursSum = 0.0;
         double chargeability = 0.0;
 
-        if(project.isPresent()){
-             projectName = project.get().name();
+        if(projectRetrieved.isPresent()){
+             projectName = projectRetrieved.get().name();
 
              billableHoursSum += attendances.stream()
                                             .filter(ZepAttendance::billable)
@@ -291,11 +291,13 @@ public class ZepRestServiceImpl implements ZepService {
                                            .doubleValue();
              }
 
+
              return Optional.of(ProjectHoursSummary.builder()
                                                    .projectName(projectName)
                                                    .billableHoursSum(billableHoursSum)
                                                    .nonBillableHoursSum(nonBillableHoursSum)
                                                    .chargeability(chargeability * 100)
+                                                   .isInternalProject(project.customerId() == null)
                                                    .build());
         }
         return Optional.empty();
