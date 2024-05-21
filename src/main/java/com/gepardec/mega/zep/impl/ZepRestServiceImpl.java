@@ -37,6 +37,8 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -265,6 +267,7 @@ public class ZepRestServiceImpl implements ZepService {
         String projectName = "";
         double billableHoursSum = 0.0;
         double nonBillableHoursSum = 0.0;
+        double chargeability = 0.0;
 
         if(project.isPresent()){
              projectName = project.get().name();
@@ -279,10 +282,20 @@ public class ZepRestServiceImpl implements ZepService {
                                                .mapToDouble(ZepAttendance::duration)
                                                .sum();
 
+             double totalHours = Double.sum(billableHoursSum, nonBillableHoursSum);
+
+             if(!(Double.compare(totalHours, 0.0d) == 0)){
+                 chargeability = billableHoursSum/totalHours;
+                 chargeability = BigDecimal.valueOf(chargeability)
+                                           .setScale(2, RoundingMode.HALF_UP)
+                                           .doubleValue();
+             }
+
              return Optional.of(ProjectHoursSummary.builder()
                                                    .projectName(projectName)
                                                    .billableHoursSum(billableHoursSum)
                                                    .nonBillableHoursSum(nonBillableHoursSum)
+                                                   .chargeability(chargeability * 100)
                                                    .build());
         }
         return Optional.empty();

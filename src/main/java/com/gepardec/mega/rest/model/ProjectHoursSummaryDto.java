@@ -12,11 +12,13 @@ public class ProjectHoursSummaryDto {
     private final String projectName;
     private final double billableHoursSum;
     private final double nonBillableHoursSum;
+    private final double chargeability;
 
     private ProjectHoursSummaryDto(Builder builder){
         this.projectName = builder.projectName;
         this.billableHoursSum = builder.billableHoursSum;
         this.nonBillableHoursSum = builder.nonBillableHoursSum;
+        this.chargeability = builder.chargeability;
     }
 
     public static Builder builder() {return Builder.aProjectHoursSummaryDto();}
@@ -32,6 +34,11 @@ public class ProjectHoursSummaryDto {
     public double getNonBillableHoursSum() {
         return nonBillableHoursSum;
     }
+
+    public double getChargeability() {
+        return chargeability;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -51,6 +58,7 @@ public class ProjectHoursSummaryDto {
         private String projectName;
         private double billableHoursSum;
         private double nonBillableHoursSum;
+        private double chargeability;
         private Builder(){}
         public static Builder aProjectHoursSummaryDto(){return new Builder();}
         public Builder projectName(String projectName) {
@@ -65,6 +73,11 @@ public class ProjectHoursSummaryDto {
 
         public Builder nonBillableHoursSum(double nonBillableHoursSum) {
             this.nonBillableHoursSum = nonBillableHoursSum;
+            return this;
+        }
+
+        public Builder chargeability(double chargeability) {
+            this.chargeability = chargeability;
             return this;
         }
 
