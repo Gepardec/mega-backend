@@ -228,8 +228,6 @@ public class ZepRestServiceImpl implements ZepService {
     @Override
     public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
         Optional<ZepEmployee> employeeRetrieved = employeeService.getZepEmployeeByUsername(employee.getUserId());
-
-
         return employeeRetrieved.map(zepEmployee -> getProjectsForMonthAndEmployeeInternal(zepEmployee, yearMonth)).orElse(null);
     }
 
@@ -238,8 +236,8 @@ public class ZepRestServiceImpl implements ZepService {
         String dateString = getCorrectDateForRequest(employeeForRequest, yearMonth).getLeft();
         LocalDate dateForRequest = DateUtils.parseDate(dateString);
         List<ProjectHoursSummary> resultProjectHoursSummary = new ArrayList<>();
-
         List<ZepProject> projectsRetrieved = projectService.getProjectsForMonthYear(dateForRequest);
+
         projectsRetrieved.forEach(
                 project -> {
                     Optional<ZepProjectEmployee> projectEmployee = projectService.getProjectEmployeesForId(project.id())
