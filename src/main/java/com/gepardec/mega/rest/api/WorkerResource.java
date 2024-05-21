@@ -65,5 +65,6 @@ public interface WorkerResource {
             in = ParameterIn.QUERY,
             schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
     @Path("/{id}/projects")
+    @GET
     List<ProjectHoursSummaryDto> getAllProjectsForMonthAndEmployee(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
 }

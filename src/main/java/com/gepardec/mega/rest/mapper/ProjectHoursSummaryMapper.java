@@ -2,7 +2,9 @@ package com.gepardec.mega.rest.mapper;
 
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
+import jakarta.enterprise.context.ApplicationScoped;
 
+@ApplicationScoped
 public class ProjectHoursSummaryMapper implements DtoMapper<ProjectHoursSummary, ProjectHoursSummaryDto> {
     @Override
     public ProjectHoursSummaryDto mapToDto(ProjectHoursSummary object) {
