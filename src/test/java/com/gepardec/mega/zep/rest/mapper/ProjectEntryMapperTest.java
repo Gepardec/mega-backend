@@ -133,7 +133,7 @@ public class ProjectEntryMapperTest {
                 .journeyDirection(JourneyDirection.TO)
                 .workingLocation(WorkingLocation.A)
                 .vehicle(Vehicle.OTHER_INACTIVE)
-                .workingLocation(WorkingLocation.OTHER)
+                .workingLocation(WorkingLocation.MAIN)
                 .build();
     }
 
