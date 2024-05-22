@@ -48,6 +48,9 @@ public class ProjectService {
     public Optional<ZepProject> getProjectByName(String name, LocalDate date) {
         String startDate = date.withDayOfMonth(1).toString();
         String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
+        if (name == null) {
+            return Optional.empty();
+        }
         try {
             return responseParser.retrieveSingle(
                     zepProjectRestClient.getProjectByName(startDate, endDate, name),
