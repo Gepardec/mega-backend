@@ -74,7 +74,7 @@ public record ZepAttendance (
         @JsonProperty("work_location_is_project_relevant")
         private Boolean workLocationIsProjectRelevant;
 
-        @JsonProperty
+        @JsonProperty("activity_id")
         private String activity;
 
         @JsonProperty
