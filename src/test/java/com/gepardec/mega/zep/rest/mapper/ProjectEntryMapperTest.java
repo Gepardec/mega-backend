@@ -3,6 +3,7 @@ package com.gepardec.mega.zep.rest.mapper;
 import com.gepardec.mega.domain.model.monthlyreport.*;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
+import com.gepardec.mega.zep.rest.dto.ZepAttendanceDirectionOfTravel;
 import com.gepardec.mega.zep.rest.dto.ZepBillable;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -35,9 +36,13 @@ public class ProjectEntryMapperTest {
     @Test
     public void mapZepAttendanceJourneyTimeEntry() {
         ZepAttendance.Builder zepAttendance = generateZepAttendanceBuilder();
+        ZepAttendanceDirectionOfTravel zepAttendanceDirectionOfTravel = ZepAttendanceDirectionOfTravel.builder()
+                                                                                                    .id("0")
+                                                                                                    .name("return")
+                                                                                                    .build();
         zepAttendance.activity("reisen");
         zepAttendance.workLocation("A");
-        zepAttendance.directionOfTravel("0");
+        zepAttendance.directionOfTravel(zepAttendanceDirectionOfTravel);
         zepAttendance.vehicle("Auto (PKW passiv)");
 
         ProjectEntry mappedProjectEntry = projectEntryMapper.map(zepAttendance.build());

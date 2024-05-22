@@ -20,7 +20,7 @@ public record ZepAttendance (
     Boolean workLocationIsProjectRelevant,
     String activity,
     String vehicle,
-    String directionOfTravel
+    ZepAttendanceDirectionOfTravel directionOfTravel
 ) {
 
 
@@ -81,7 +81,7 @@ public record ZepAttendance (
         private String vehicle;
 
         @JsonProperty("direction_of_travel")
-        private String directionOfTravel;
+        private ZepAttendanceDirectionOfTravel directionOfTravel;
 
         public Builder id(Integer id) {
             this.id = id;
@@ -151,7 +151,7 @@ public record ZepAttendance (
         }
 
 
-        public Builder directionOfTravel(String directionOfTravel) {
+        public Builder directionOfTravel(ZepAttendanceDirectionOfTravel directionOfTravel) {
             this.directionOfTravel = directionOfTravel;
             return this;
         }

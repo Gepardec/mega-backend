@@ -77,7 +77,7 @@ public class InvalidWorkingLocationInJourneyCalculator implements WarningCalcula
     }
 
     private boolean hasJourneyEntries(final List<ProjectEntry> projectEntries) {
-        return projectEntries.stream().anyMatch(entry -> Task.isTask(entry.getTask()));
+        return projectEntries.stream().anyMatch(entry -> Task.isJourney(entry.getTask()));
     }
 
     private JourneyWarning createJourneyWarningWithEnumType(ProjectEntry projectEntry, JourneyWarningType warning) {

@@ -3,6 +3,7 @@ package com.gepardec.mega.zep.rest.mapper;
 import com.gepardec.mega.domain.model.monthlyreport.*;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
+import com.gepardec.mega.zep.rest.dto.ZepAttendanceDirectionOfTravel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -87,8 +88,11 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
                 .orElseThrow(() -> new IllegalArgumentException("Vehicle '" + vehicle + "' is not mapped in Enum Vehicle"));
     }
 
-    private JourneyDirection toJourneyDirection(final String direction) {
-        return JourneyDirection.fromString(direction)
+    private JourneyDirection toJourneyDirection(final ZepAttendanceDirectionOfTravel direction) {
+        if(direction == null) {
+            return JourneyDirection.TO;
+        }
+        return JourneyDirection.fromString(direction.id())
                 .orElseThrow(() -> new IllegalArgumentException("JourneyDirection '" + direction + "' is not mapped in Enum JourneyDirection"));
     }
 

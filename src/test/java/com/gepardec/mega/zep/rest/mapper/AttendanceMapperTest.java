@@ -2,6 +2,7 @@ package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
+import com.gepardec.mega.zep.rest.dto.ZepAttendanceDirectionOfTravel;
 import com.gepardec.mega.zep.rest.dto.ZepBillable;
 import org.junit.jupiter.api.Test;
 
@@ -15,6 +16,10 @@ public class AttendanceMapperTest {
     @Test
     void withFullSettings_thenReturnsAbsenceTimeObject() {
         AttendanceMapper attendanceMapper = new AttendanceMapper();
+        ZepAttendanceDirectionOfTravel zepAttendanceDirectionOfTravel = ZepAttendanceDirectionOfTravel.builder()
+                                                                                                    .id("2")
+                                                                                                    .name("return")
+                                                                                                    .build();
         ZepAttendance zepAttendance = ZepAttendance.builder()
                 .id(2)
                 .date(LocalDate.of(2015,2,11))
@@ -29,7 +34,7 @@ public class AttendanceMapperTest {
                 .workLocationIsProjectRelevant(false)
                 .activity("bearbeiten")
                 .vehicle("Elektrotriebwagen 4020")
-                .directionOfTravel("Meidling")
+                .directionOfTravel(zepAttendanceDirectionOfTravel)
                 .build();
 
         ProjectTime pt = attendanceMapper.map(zepAttendance);
