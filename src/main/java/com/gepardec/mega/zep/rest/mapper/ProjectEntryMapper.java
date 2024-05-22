@@ -6,6 +6,7 @@ import com.gepardec.mega.zep.rest.dto.ZepAttendance;
 import com.gepardec.mega.zep.rest.dto.ZepAttendanceDirectionOfTravel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.time.LocalDateTime;
@@ -80,7 +81,7 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
     }
 
     private WorkingLocation toWorkingLocation(final String ort) {
-        return WorkingLocation.fromZepOrt(ort);
+        return WorkingLocation.fromZepOrt(ort == null ? WorkingLocation.MAIN.getZepOrt() : ort);
     }
 
     private Vehicle toVehicle(final String vehicle) {

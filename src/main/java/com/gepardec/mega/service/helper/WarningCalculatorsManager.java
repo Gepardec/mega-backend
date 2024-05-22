@@ -67,7 +67,7 @@ public class WarningCalculatorsManager {
 
         journeyWarningCalculators.forEach(calculator -> {
             final List<JourneyWarning> calculatedWarnings = calculator.calculate(projectTimeList);
-            calculatedWarnings.forEach(System.out::println);
+            calculatedWarnings.forEach(warning -> warning.getWarnings().forEach(System.out::println));
             calculatedWarnings.forEach(warning -> addToJourneyWarnings(warnings, warning));
         });
 
