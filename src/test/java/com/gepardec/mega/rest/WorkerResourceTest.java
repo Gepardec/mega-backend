@@ -331,10 +331,10 @@ public class WorkerResourceTest {
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
 
-        when(employeeService.getEmployee(userAsEmployee.getUserId()))
+        when(employeeService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
 
-        when(zepService.getAllProjectsForMonthAndEmployee(userAsEmployee, YearMonth.of(2024, 5)))
+        when(zepService.getAllProjectsForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(getProjectsHoursSummaryForEmployee());
 
         List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 5));
@@ -350,10 +350,10 @@ public class WorkerResourceTest {
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
 
-        when(employeeService.getEmployee(userAsEmployee.getUserId()))
+        when(employeeService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
 
-        when(zepService.getAllProjectsForMonthAndEmployee(userAsEmployee, YearMonth.of(2024, 5)))
+        when(zepService.getAllProjectsForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(List.of());
 
         List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 5));

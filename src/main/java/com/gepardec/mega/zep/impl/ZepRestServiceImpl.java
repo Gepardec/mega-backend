@@ -251,12 +251,13 @@ public class ZepRestServiceImpl implements ZepService {
                                                                                  .stream()
                                                                                  .filter(e -> e.username().equals(employee.username()))
                                                                                  .findFirst();
-                    if(projectEmployee.isPresent()) {
-                        List<ZepAttendance> attendancesForEmployeeAndProject = attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.get().username(), dateForRequest, project.id());
-                        if(!attendancesForEmployeeAndProject.isEmpty()){
-                            Optional<ProjectHoursSummary> optionalProjectHoursSummary = createProjectsHoursSummary(attendancesForEmployeeAndProject, project);
-                            optionalProjectHoursSummary.ifPresent(resultProjectHoursSummary::add);
-                        }
+                    if(projectEmployee.isEmpty()) {
+                        return;
+                    }
+                    List<ZepAttendance> attendancesForEmployeeAndProject = attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.get().username(), dateForRequest, project.id());
+                    if(!attendancesForEmployeeAndProject.isEmpty()){
+                        Optional<ProjectHoursSummary> optionalProjectHoursSummary = createProjectsHoursSummary(attendancesForEmployeeAndProject, project);
+                        optionalProjectHoursSummary.ifPresent(resultProjectHoursSummary::add);
                     }
                 });
         return resultProjectHoursSummary;
@@ -269,38 +270,39 @@ public class ZepRestServiceImpl implements ZepService {
         double nonBillableHoursSum = 0.0;
         double chargeability = 0.0;
 
-        if(projectRetrieved.isPresent()){
-             projectName = projectRetrieved.get().name();
-
-             billableHoursSum += attendances.stream()
-                                            .filter(ZepAttendance::billable)
-                                            .mapToDouble(ZepAttendance::duration)
-                                            .sum();
-
-             nonBillableHoursSum += attendances.stream()
-                                               .filter(a -> !a.billable())
-                                               .mapToDouble(ZepAttendance::duration)
-                                               .sum();
-
-             double totalHours = Double.sum(billableHoursSum, nonBillableHoursSum);
-
-             if(!(Double.compare(totalHours, 0.0d) == 0)){
-                 chargeability = billableHoursSum/totalHours;
-                 chargeability = BigDecimal.valueOf(chargeability)
-                                           .setScale(2, RoundingMode.HALF_UP)
-                                           .doubleValue();
-             }
-
-
-             return Optional.of(ProjectHoursSummary.builder()
-                                                   .projectName(projectName)
-                                                   .billableHoursSum(billableHoursSum)
-                                                   .nonBillableHoursSum(nonBillableHoursSum)
-                                                   .chargeability(chargeability * 100)
-                                                   .isInternalProject(project.customerId() == null)
-                                                   .build());
+        if(projectRetrieved.isEmpty()) {
+            return Optional.empty();
         }
-        return Optional.empty();
+
+         projectName = projectRetrieved.get().name();
+
+         billableHoursSum += attendances.stream()
+                                        .filter(ZepAttendance::billable)
+                                        .mapToDouble(ZepAttendance::duration)
+                                        .sum();
+
+         nonBillableHoursSum += attendances.stream()
+                                           .filter(a -> !a.billable())
+                                           .mapToDouble(ZepAttendance::duration)
+                                           .sum();
+
+         double totalHours = Double.sum(billableHoursSum, nonBillableHoursSum);
+
+         if(!(Double.compare(totalHours, 0.0d) == 0)){
+             chargeability = billableHoursSum/totalHours;
+             chargeability = BigDecimal.valueOf(chargeability)
+                                       .setScale(2, RoundingMode.HALF_UP)
+                                       .doubleValue();
+         }
+
+
+         return Optional.of(ProjectHoursSummary.builder()
+                                               .projectName(projectName)
+                                               .billableHoursSum(billableHoursSum)
+                                               .nonBillableHoursSum(nonBillableHoursSum)
+                                               .chargeability(chargeability * 100)
+                                               .isInternalProject(project.customerId() == null)
+                                               .build());
     }
 
     private Pair<String, String> getCorrectDateForRequest(Employee employee, YearMonth yearMonth) {
