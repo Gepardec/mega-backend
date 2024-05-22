@@ -58,6 +58,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -251,6 +252,10 @@ public class ZepSoapServiceImpl implements ZepService {
                 .toList();
     }
 
+    @Override
+    public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
+        throw new NotImplementedException("This method is not provided in SOAP, use REST instead"); // not provided due to using REST
+    }
 
 
     @Override

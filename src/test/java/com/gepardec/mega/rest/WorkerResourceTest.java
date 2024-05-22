@@ -9,6 +9,7 @@ import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.MonthlyReportDto;
+import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.zep.ZepService;
@@ -321,6 +322,64 @@ public class WorkerResourceTest {
 
         assertThat(actual).isNotNull();
         assertThat(actual).isEmpty();
+    }
+
+    @Test
+    void getAllProjectsForMonthAndEmployee_whenEmployeeHasProjectTimes_thenReturnListOfProjects() {
+        User userForRole = createUserForRole(Role.EMPLOYEE);
+        when(userContext.getUser()).thenReturn(userForRole);
+        final Employee userAsEmployee = createEmployeeForUser(userForRole);
+
+
+        when(employeeService.getEmployee(anyString()))
+                .thenReturn(userAsEmployee);
+
+        when(zepService.getAllProjectsForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
+                .thenReturn(getProjectsHoursSummaryForEmployee());
+
+        List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 5));
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.size()).isEqualTo(4);
+    }
+
+    @Test
+    void getAllProjectsForMonthAndEmployee_whenEmployeeHasNoProjectTimes_thenReturnListOf() {
+        User userForRole = createUserForRole(Role.EMPLOYEE);
+        when(userContext.getUser()).thenReturn(userForRole);
+        final Employee userAsEmployee = createEmployeeForUser(userForRole);
+
+
+        when(employeeService.getEmployee(anyString()))
+                .thenReturn(userAsEmployee);
+
+        when(zepService.getAllProjectsForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
+                .thenReturn(List.of());
+
+        List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 5));
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.size()).isEqualTo(0);
+    }
+
+
+    private ProjectHoursSummary createProjectHourSummary(String projectName, double billableHoursSum, double nonBillableHours) {
+        return ProjectHoursSummary.builder()
+                                  .projectName(projectName)
+                                  .billableHoursSum(billableHoursSum)
+                                  .nonBillableHoursSum(nonBillableHours)
+                                  .chargeability(25.0)
+                                  .isInternalProject(true)
+                                  .build();
+    }
+
+    private List<ProjectHoursSummary> getProjectsHoursSummaryForEmployee() {
+        return List.of(
+            createProjectHourSummary("Testproject", 45.5, 21.5),
+            createProjectHourSummary("Testproject2", 49.5, 20.5),
+            createProjectHourSummary("Testproject3", 55.5, 20.5),
+            createProjectHourSummary("Testproject4", 70.0, 20.5)
+        );
     }
 
     private Bill createBillForEmployee(LocalDate billDate, double bruttoValue, String billType,

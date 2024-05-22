@@ -4,6 +4,7 @@ import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
+import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
@@ -32,9 +33,12 @@ import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedMap;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -148,7 +152,7 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public void updateEmployeesReleaseDate(String userId, String releaseDate) {
-        return;         // Currently not supported by REST - use SOAP instead
+        throw new NotImplementedException("This method is not provided in REST, use SOAP instead.");         // Currently not supported by REST - use SOAP instead
     }
 
     @Override
@@ -220,11 +224,89 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
-        Pair<String, String> fromToDatePair = getCorrectDateForBills(employee, yearMonth);
+        Pair<String, String> fromToDatePair = getCorrectDateForRequest(employee, yearMonth);
         return getBillsInternal(employee, fromToDatePair.getLeft(), fromToDatePair.getRight());
     }
 
-    private Pair<String, String> getCorrectDateForBills(Employee employee, YearMonth yearMonth) {
+    @Override
+    public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
+        Optional<ZepEmployee> employeeRetrieved = employeeService.getZepEmployeeByUsername(employee.getUserId());
+        List<ProjectHoursSummary> resultProjectHoursSummary = new ArrayList<>();
+
+        if(employeeRetrieved.isPresent()) {
+            resultProjectHoursSummary = getProjectsForMonthAndEmployeeInternal(employeeRetrieved.get(), yearMonth);
+        }
+        return resultProjectHoursSummary;
+    }
+
+    private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth yearMonth) {
+        Employee employeeForRequest = employeeMapper.map(employee);
+        String dateString = getCorrectDateForRequest(employeeForRequest, yearMonth).getLeft();
+        LocalDate dateForRequest = DateUtils.parseDate(dateString);
+        List<ProjectHoursSummary> resultProjectHoursSummary = new ArrayList<>();
+        List<ZepProject> projectsRetrieved = projectService.getProjectsForMonthYear(dateForRequest);
+
+        projectsRetrieved.forEach(
+                project -> {
+                    Optional<ZepProjectEmployee> projectEmployee = projectService.getProjectEmployeesForId(project.id())
+                                                                                 .stream()
+                                                                                 .filter(e -> e.username().equals(employee.username()))
+                                                                                 .findFirst();
+                    if(projectEmployee.isEmpty()) {
+                        return;
+                    }
+                    List<ZepAttendance> attendancesForEmployeeAndProject = attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.get().username(), dateForRequest, project.id());
+                    if(!attendancesForEmployeeAndProject.isEmpty()){
+                        Optional<ProjectHoursSummary> optionalProjectHoursSummary = createProjectsHoursSummary(attendancesForEmployeeAndProject, project);
+                        optionalProjectHoursSummary.ifPresent(resultProjectHoursSummary::add);
+                    }
+                });
+        return resultProjectHoursSummary;
+    }
+
+    private Optional<ProjectHoursSummary> createProjectsHoursSummary(List<ZepAttendance> attendances, ZepProject project) {
+        Optional<ZepProject> projectRetrieved = projectService.getProjectById(attendances.get(0).projectId());
+        String projectName = "";
+        double billableHoursSum = 0.0;
+        double nonBillableHoursSum = 0.0;
+        double chargeability = 0.0;
+
+        if(projectRetrieved.isEmpty()) {
+            return Optional.empty();
+        }
+
+         projectName = projectRetrieved.get().name();
+
+         billableHoursSum += attendances.stream()
+                                        .filter(ZepAttendance::billable)
+                                        .mapToDouble(ZepAttendance::duration)
+                                        .sum();
+
+         nonBillableHoursSum += attendances.stream()
+                                           .filter(a -> !a.billable())
+                                           .mapToDouble(ZepAttendance::duration)
+                                           .sum();
+
+         double totalHours = Double.sum(billableHoursSum, nonBillableHoursSum);
+
+         if(!(Double.compare(totalHours, 0.0d) == 0)){
+             chargeability = billableHoursSum/totalHours;
+             chargeability = BigDecimal.valueOf(chargeability)
+                                       .setScale(2, RoundingMode.HALF_UP)
+                                       .doubleValue();
+         }
+
+
+         return Optional.of(ProjectHoursSummary.builder()
+                                               .projectName(projectName)
+                                               .billableHoursSum(billableHoursSum)
+                                               .nonBillableHoursSum(nonBillableHoursSum)
+                                               .chargeability(chargeability * 100)
+                                               .isInternalProject(project.customerId() == null)
+                                               .build());
+    }
+
+    private Pair<String, String> getCorrectDateForRequest(Employee employee, YearMonth yearMonth) {
         LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
         LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);

@@ -11,7 +11,8 @@ public record ZepProject (
         String name,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        ZepBillingType billingType
+        ZepBillingType billingType,
+        Integer customerId
 ) {
 
       public static Builder builder() {
@@ -25,7 +26,8 @@ public record ZepProject (
                     builder.name,
                     builder.startDate,
                     builder.endDate,
-                    builder.billingType
+                    builder.billingType,
+                    builder.customerId
             );
 
       }
@@ -44,6 +46,10 @@ public record ZepProject (
             private LocalDateTime endDate;
             @JsonProperty("billing_type")
             private ZepBillingType billingType;
+
+            @JsonProperty("customer_id")
+            private Integer customerId;
+
 
             private Builder() {
             }
@@ -74,6 +80,11 @@ public record ZepProject (
 
             public Builder billingType(ZepBillingType billingType) {
                   this.billingType = billingType;
+                  return this;
+            }
+
+            public Builder customerId(Integer customerId) {
+                  this.customerId = customerId;
                   return this;
             }
 

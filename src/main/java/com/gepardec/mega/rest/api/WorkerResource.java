@@ -1,6 +1,8 @@
 package com.gepardec.mega.rest.api;
 
+import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.rest.model.BillDto;
+import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -46,4 +48,23 @@ public interface WorkerResource {
     @Path("/{id}/bills")
     @GET
     List<BillDto> getBillsForEmployeeByMonth(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
+
+    @Operation(operationId = "getAllProjectsForMonthAndEmployee", description = "Get all projects for the employee with given id and for current month.")
+    @APIResponse(responseCode = "200",
+            description = "Successfully retrieved projects for employee.",
+            content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = ProjectHoursSummaryDto[].class))
+            }
+    )
+    @Parameter(name = "id", description = "ID of the employee for whom the projects are to be retrieved.")
+    @Parameter(name = "from",
+            description = "If not given uses the whole current month. <br> " +
+                    "If given uses the whole month of the parameter-date. <br>" +
+                    "For example if 2024-03 is given it retrieves all bills from 2024-03-01 to 2024-03-31.",
+            in = ParameterIn.QUERY,
+            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+    @Path("/{id}/projects")
+    @GET
+    List<ProjectHoursSummaryDto> getAllProjectsForMonthAndEmployee(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
 }
