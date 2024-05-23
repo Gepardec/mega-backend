@@ -244,18 +244,15 @@ public class ZepRestServiceImpl implements ZepService {
     public double getDoctorsVisitingTimeForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
         String startDateString = getCorrectDateForRequest(employee, yearMonth).getLeft();
         LocalDate startDate = DateUtils.parseDate(startDateString);
-        double visitingHours = 0.0;
 
         List<ZepAttendance> doctorsAttendances = attendanceService.getAttendanceForUserProjectAndMonth(employee.getUserId(), startDate, ProjectTaskType.PROJECT_INTERNAL.getId())
                                                                   .stream()
                                                                   .filter(attendance -> attendance.projectTaskId().equals(ProjectTaskType.TASK_DOCTOR_VISIT.getId()))
                                                                   .toList();
 
-        visitingHours = doctorsAttendances.stream()
-                                          .mapToDouble(ZepAttendance::duration)
-                                          .sum();
-
-        return visitingHours;
+        return doctorsAttendances.stream()
+                                  .mapToDouble(ZepAttendance::duration)
+                                  .sum();
     }
 
     private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth yearMonth) {

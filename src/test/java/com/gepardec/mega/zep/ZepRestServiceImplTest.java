@@ -57,12 +57,16 @@ public class ZepRestServiceImplTest {
 
     @Test
     public void getDoctorsVisitingTimeForMonthAndEmployee_whenUserHadDoctorsAppointments_thenReturnHours() {
+        List<ZepAttendance> zepAttendancesForDoctorsAppointment = getZepAttendancesForDoctorsAppointment();
         when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(LocalDate.class), anyInt()))
-                .thenReturn(getZepAttendancesForDoctorsAppointment());
+                .thenReturn(zepAttendancesForDoctorsAppointment);
 
         double actual = zepRestService.getDoctorsVisitingTimeForMonthAndEmployee(createEmployee(), YearMonth.of(2024, 5));
 
-        assertThat(actual).isEqualTo(3.75);
+        assertThat(actual).isEqualTo(zepAttendancesForDoctorsAppointment.stream()
+                                                                        .map(ZepAttendance::duration)
+                                                                        .reduce(Double::sum)
+                                                                        .get());
     }
 
     @Test
