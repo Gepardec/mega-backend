@@ -84,7 +84,7 @@ public class ZepServiceImpl implements ZepService {
     }
 
     @Override
-    public double getDoctorsVisitTimeForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
-        return zepServiceRest.getDoctorsVisitTimeForMonthAndEmployee(employee, yearMonth);
+    public double getDoctorsVisitingTimeForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
+        return zepServiceRest.getDoctorsVisitingTimeForMonthAndEmployee(employee, yearMonth);
     }
 }

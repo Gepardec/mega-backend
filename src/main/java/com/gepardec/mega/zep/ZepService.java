@@ -37,5 +37,5 @@ public interface ZepService {
 
     List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(final Employee employee, YearMonth yearMonth);
 
-    double getDoctorsVisitTimeForMonthAndEmployee(final Employee employee, YearMonth yearMonth);
+    double getDoctorsVisitingTimeForMonthAndEmployee(final Employee employee, YearMonth yearMonth);
 }

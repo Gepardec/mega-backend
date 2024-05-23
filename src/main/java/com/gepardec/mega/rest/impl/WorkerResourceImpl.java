@@ -81,4 +81,5 @@ public class WorkerResourceImpl implements WorkerResource {
                 .map(projectHoursSummaryMapper::mapToDto)
                 .toList();
     }
+
 }
