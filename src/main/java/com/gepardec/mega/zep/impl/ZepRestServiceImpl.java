@@ -239,6 +239,13 @@ public class ZepRestServiceImpl implements ZepService {
         return resultProjectHoursSummary;
     }
 
+    @Override
+    public double getDoctorsVisitTimeForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
+
+        attendanceService.getAttendanceForUserProjectAndMonth()
+        return 0.0;
+    }
+
     private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth yearMonth) {
         Employee employeeForRequest = employeeMapper.map(employee);
         String dateString = getCorrectDateForRequest(employeeForRequest, yearMonth).getLeft();

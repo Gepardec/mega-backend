@@ -35,5 +35,7 @@ public interface ZepService {
 
     List<Bill> getBillsForEmployeeByMonth(final Employee employee, YearMonth yearMonth);
 
-    List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(final Employee employee, YearMonth yearMonth); //TODO maybe change return type
+    List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(final Employee employee, YearMonth yearMonth);
+
+    double getDoctorsVisitTimeForMonthAndEmployee(final Employee employee, YearMonth yearMonth);
 }
