@@ -1,5 +1,6 @@
 package com.gepardec.mega.db.entity.common;
 
+// used avoiding hard coded numbers when retrieving doctor's visiting hours
 public enum ProjectTaskType {
     PROJECT_INTERNAL(3, "Intern"),
     TASK_DOCTOR_VISIT(233, "Arztbesuch");
