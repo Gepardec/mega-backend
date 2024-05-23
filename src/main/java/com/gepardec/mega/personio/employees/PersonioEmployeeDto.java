@@ -38,6 +38,7 @@ public record PersonioEmployeeDto(
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
+        @JsonProperty("id")
         private Attribute<Integer> id;
 
         @JsonProperty("first_name")
