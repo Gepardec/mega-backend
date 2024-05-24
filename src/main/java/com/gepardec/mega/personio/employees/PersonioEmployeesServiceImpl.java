@@ -34,7 +34,13 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
     }
 
     public int getAvailableVacationDaysForEmployeeByEmail(Employee employee, YearMonth yearMonth){
-        // TODO: implement
+        Optional<PersonioEmployeeDto> dto = getPersonioEmployeeDtoByEmail(employee.getEmail());
+        int id;
+
+        if(dto.isPresent()){
+            id = dto.get().id().getValue();
+            //TODO use this for request to personio to retrieve available vacation days
+        }
         throw new NotImplementedException();
     }
 
