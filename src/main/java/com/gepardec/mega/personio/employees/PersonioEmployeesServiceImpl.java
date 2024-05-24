@@ -39,6 +39,7 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
 
         if(dto.isPresent()){
             id = dto.get().id().getValue();
+
             //TODO use this for request to personio to retrieve available vacation days
         }
         throw new NotImplementedException();

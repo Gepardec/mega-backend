@@ -5,13 +5,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-@Path("/company")
+@Path("/company/employees")
 @ApplicationScoped
 @RegisterRestClient(configKey = "personio-api-v1")
 @RegisterClientHeaders( PersonioHeadersFactory.class)
@@ -26,7 +27,10 @@ public interface PersonioEmployeesClient {
      * @return Response which is actually a {@code BaseResponse<List<EmployeesResponse>>}.
      */
     @GET
-    @Path("/employees")
     @Consumes(MediaType.APPLICATION_JSON)
     Response getByEmail(@QueryParam("email") String email);
+
+    @GET
+    @Path("/{id}/absences/balance")
+    Response getAbsenceBalanceForEmployeeById(@PathParam("id") int id);
 }
