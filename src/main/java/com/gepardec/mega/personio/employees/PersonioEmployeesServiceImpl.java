@@ -1,6 +1,4 @@
 package com.gepardec.mega.personio.employees;
-
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.personio.commons.constants.AbsenceConstants;
 import com.gepardec.mega.personio.employees.absenceBalance.AbsenceBalanceResponse;
 import com.gepardec.mega.rest.mapper.PersonioEmployeeMapper;
@@ -11,8 +9,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.GenericType;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
-
-import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,13 +43,14 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
             if (absenceBalanceResponse.isSuccess()) {
                 var absenceBalanceResponseDataForVacation = absenceBalanceResponse.getData()
                         .stream()
-                        .filter(absenceBalanceObject -> absenceBalanceObject.getId().equals(AbsenceConstants.PAID_VACATION_ID)) // only paid vacation is relevant in this case
+                        .filter(absenceBalanceObject -> absenceBalanceObject.getId().equals(AbsenceConstants.PAID_VACATION_ID)) // only paid vacation (id = 104066) is relevant in this case
                         .findFirst(); // there is only one
 
                 if (absenceBalanceResponseDataForVacation.isPresent()) {
                     return absenceBalanceResponseDataForVacation.get().getAvailableBalance();
                 }
-
+            } else {
+                logger.info("Fehler bei Aufruf der Personio-Schnittstelle: {}", absenceBalanceResponse.getError().getMessage());
             }
         }
         return 0;
