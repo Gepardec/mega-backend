@@ -82,4 +82,9 @@ public class ZepServiceImpl implements ZepService {
     public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
         return zepServiceRest.getAllProjectsForMonthAndEmployee(employee, yearMonth);
     }
+
+    @Override
+    public double getDoctorsVisitingTimeForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
+        return zepServiceRest.getDoctorsVisitingTimeForMonthAndEmployee(employee, yearMonth);
+    }
 }

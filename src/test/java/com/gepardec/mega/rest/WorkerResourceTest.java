@@ -1,7 +1,12 @@
 package com.gepardec.mega.rest;
 import com.gepardec.mega.db.entity.common.PaymentMethodType;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.domain.model.*;
+import com.gepardec.mega.domain.model.Bill;
+import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.ProjectHoursSummary;
+import com.gepardec.mega.domain.model.Role;
+import com.gepardec.mega.domain.model.User;
+import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.rest.api.WorkerResource;
@@ -14,7 +19,6 @@ import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.impl.Rest;
-import com.gepardec.mega.zep.impl.Soap;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
@@ -33,7 +37,9 @@ import java.util.Set;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestSecurity(user = "test")

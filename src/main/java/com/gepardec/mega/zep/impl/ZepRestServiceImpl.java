@@ -1,5 +1,6 @@
 package com.gepardec.mega.zep.impl;
 
+import com.gepardec.mega.db.entity.common.ProjectTaskType;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
@@ -237,6 +238,21 @@ public class ZepRestServiceImpl implements ZepService {
             resultProjectHoursSummary = getProjectsForMonthAndEmployeeInternal(employeeRetrieved.get(), yearMonth);
         }
         return resultProjectHoursSummary;
+    }
+
+    @Override
+    public double getDoctorsVisitingTimeForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
+        String startDateString = getCorrectDateForRequest(employee, yearMonth).getLeft();
+        LocalDate startDate = DateUtils.parseDate(startDateString);
+
+        List<ZepAttendance> doctorsAttendances = attendanceService.getAttendanceForUserProjectAndMonth(employee.getUserId(), startDate, ProjectTaskType.PROJECT_INTERNAL.getId())
+                                                                  .stream()
+                                                                  .filter(attendance -> attendance.projectTaskId().equals(ProjectTaskType.TASK_DOCTOR_VISIT.getId()))
+                                                                  .toList();
+
+        return doctorsAttendances.stream()
+                                  .mapToDouble(ZepAttendance::duration)
+                                  .sum();
     }
 
     private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth yearMonth) {
