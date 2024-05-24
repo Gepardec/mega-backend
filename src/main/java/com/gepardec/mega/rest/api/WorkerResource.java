@@ -67,4 +67,5 @@ public interface WorkerResource {
     @Path("/{id}/projects")
     @GET
     List<ProjectHoursSummaryDto> getAllProjectsForMonthAndEmployee(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
+
 }
