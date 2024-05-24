@@ -9,6 +9,6 @@ import java.util.Optional;
 public interface PersonioEmployeesService {
 
     Optional<PersonioEmployee> getPersonioEmployeeByEmail(String email);
-    int getAvailableVacationDaysForEmployeeByEmail(Employee employee, YearMonth yearMonth);
+    int getAvailableVacationDaysForEmployeeByEmail(String email);
 
 }

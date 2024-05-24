@@ -1,13 +1,14 @@
 package com.gepardec.mega.personio.employees;
 
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.personio.commons.constants.AbsenceConstants;
+import com.gepardec.mega.personio.employees.absenceBalance.AbsenceBalanceResponse;
 import com.gepardec.mega.rest.mapper.PersonioEmployeeMapper;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.personio.commons.model.BaseResponse;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.GenericType;
-import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 
@@ -28,21 +29,34 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
     @Inject
     PersonioEmployeeMapper mapper;
 
+
     public Optional<PersonioEmployee> getPersonioEmployeeByEmail(String email) {
         Optional<PersonioEmployeeDto> dto = getPersonioEmployeeDtoByEmail(email);
         return dto.map(mapper::mapToDomain);
     }
 
-    public int getAvailableVacationDaysForEmployeeByEmail(Employee employee, YearMonth yearMonth){
-        Optional<PersonioEmployeeDto> dto = getPersonioEmployeeDtoByEmail(employee.getEmail());
+    public int getAvailableVacationDaysForEmployeeByEmail(String email) {
+        Optional<PersonioEmployeeDto> dto = getPersonioEmployeeDtoByEmail(email);
         int id;
 
-        if(dto.isPresent()){
+        if (dto.isPresent()) {
             id = dto.get().id().getValue();
+            var response = personioEmployeesClient.getAbsenceBalanceForEmployeeById(id);
+            var absenceBalanceResponse = response.readEntity(new GenericType<BaseResponse<List<AbsenceBalanceResponse>>>() {
+            });
+            if (absenceBalanceResponse.isSuccess()) {
+                var absenceBalanceResponseDataForVacation = absenceBalanceResponse.getData()
+                        .stream()
+                        .filter(absenceBalanceObject -> absenceBalanceObject.getId().equals(AbsenceConstants.PAID_VACATION_ID)) // only paid vacation is relevant in this case
+                        .findFirst(); // there is only one
 
-            //TODO use this for request to personio to retrieve available vacation days
+                if (absenceBalanceResponseDataForVacation.isPresent()) {
+                    return absenceBalanceResponseDataForVacation.get().getAvailableBalance();
+                }
+
+            }
         }
-        throw new NotImplementedException();
+        return 0;
     }
 
     private Optional<PersonioEmployeeDto> getPersonioEmployeeDtoByEmail(String email) {
