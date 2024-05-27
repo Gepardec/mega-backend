@@ -11,7 +11,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-public class RegularWorkingHoursMapMapperTest {
+class RegularWorkingHoursMapMapperTest {
 
 
 
@@ -31,13 +31,13 @@ public class RegularWorkingHoursMapMapperTest {
 
         Map<DayOfWeek, Duration> regularWorkingHours = regularWorkingHoursMapMapper.map(zepRegularWorkingTimes);
 
-        assertThat(regularWorkingHours.get(DayOfWeek.MONDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(regularWorkingHours.get(DayOfWeek.TUESDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(regularWorkingHours.get(DayOfWeek.WEDNESDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(regularWorkingHours.get(DayOfWeek.THURSDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(regularWorkingHours.get(DayOfWeek.FRIDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(regularWorkingHours.get(DayOfWeek.SATURDAY)).isEqualTo(Duration.ofHours(0));
-        assertThat(regularWorkingHours.get(DayOfWeek.SUNDAY)).isEqualTo(Duration.ofHours(0));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.MONDAY, Duration.ofHours(8));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.TUESDAY, Duration.ofHours(8));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.WEDNESDAY, Duration.ofHours(8));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.THURSDAY, Duration.ofHours(8));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.FRIDAY, Duration.ofHours(8));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.SATURDAY, Duration.ofHours(0));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.SUNDAY, Duration.ofHours(0));
 
     }
 

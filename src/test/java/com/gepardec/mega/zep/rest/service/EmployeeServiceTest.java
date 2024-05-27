@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class EmployeeServiceTest {
+class EmployeeServiceTest {
 
     @RestClient
     @InjectMock
@@ -38,7 +38,7 @@ public class EmployeeServiceTest {
     ResourceFileService resourceFileService;
 
     @BeforeEach
-    public void init() {
+    void init() {
         resourceFileService.getSingleFile("/user007.json").ifPresent(json -> {
             Response response = Response.ok().entity(json).build();
             when(zepEmployeeRestClient.getByPersonalNumber("007")).thenReturn(response);
@@ -56,7 +56,7 @@ public class EmployeeServiceTest {
     }
 
     @Test
-    public void getEmployeeJson_thenReturnZepEmployee() {
+    void getEmployeeJson_thenReturnZepEmployee() {
 
         List<ZepEmploymentPeriod> zepEmploymentPeriods = List.of(
                 ZepEmploymentPeriod.builder()
@@ -91,7 +91,7 @@ public class EmployeeServiceTest {
 
 
     @Test
-    public void getZepEmployees_whenEmployeesList() {
+    void getZepEmployees_whenEmployeesList() {
         var periods000 = List.of(
                 ZepEmploymentPeriod.builder()
                         .startDate(LocalDateTime.of(2017, 8, 7, 0, 0, 0))

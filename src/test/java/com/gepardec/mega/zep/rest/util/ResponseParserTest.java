@@ -22,7 +22,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class ResponseParserTest {
+class ResponseParserTest {
 
     @RestClient
     @InjectMock
@@ -35,7 +35,7 @@ public class ResponseParserTest {
     ResponseParser responseParser;
 
     @Test
-    public void withFullPaginatedJsons_thenReturnList() {
+    void withFullPaginatedJsons_thenReturnList() {
         List<String> responseJsons = resourceFileService.getDirContents("projects");
 
         when(zepProjectRestClient.getProjects(eq(1)))
@@ -54,7 +54,7 @@ public class ResponseParserTest {
         Arrays.stream(names).forEach(name -> assertThat(projectNames.contains(name)).isTrue());
     }
     @Test
-    public void withEmptyData_thenReturnEmptyList() {
+    void withEmptyData_thenReturnEmptyList() {
         List<ZepProject> list = responseParser.retrieveAll(
                 page -> Response.ok().entity("{ \"data\": [], \"links\": {\"next\": null}}").build(),
                 ZepProject.class);
@@ -62,7 +62,7 @@ public class ResponseParserTest {
     }
 
     @Test
-    public void withEmptyPages_thenReturnEmptyList() {
+    void withEmptyPages_thenReturnEmptyList() {
         String anyPage = resourceFileService.getSingleFile("paginator/emptyPage.json").get();
         String lastPage = resourceFileService.getSingleFile("paginator/emptyPageLast.json").get();
 
@@ -82,7 +82,7 @@ public class ResponseParserTest {
     }
 
     @Test
-    public void withEmptyPages_thenReturnNullSearch() {
+    void withEmptyPages_thenReturnNullSearch() {
         String anyPage = resourceFileService.getSingleFile("paginator/emptyPage.json").get();
         String lastPage = resourceFileService.getSingleFile("paginator/emptyPageLast.json").get();
         int pages = 3;
@@ -101,7 +101,7 @@ public class ResponseParserTest {
         assertThat(projectOpt).isEmpty();
     }
     @Test
-    public void withEmptyData_thenReturnNullSearch() {
+    void withEmptyData_thenReturnNullSearch() {
         String anyPage = resourceFileService.getSingleFile("paginator/emptyPageLast.json").get();
 
         Optional<ZepProject> projectOpt = responseParser.searchInAll(
@@ -113,7 +113,7 @@ public class ResponseParserTest {
     }
 
     @Test
-    public void withNullData_thenReturnNullSearch() {
+    void withNullData_thenReturnNullSearch() {
         String anyPage = resourceFileService.getSingleFile("paginator/nullPage.json").get();
 
         Optional<ZepProject> projectOpt = responseParser.searchInAll(
@@ -124,7 +124,7 @@ public class ResponseParserTest {
         assertThat(projectOpt).isEmpty();
     }
     @Test
-    public void withNullData_thenReturnEmptyList() {
+    void withNullData_thenReturnEmptyList() {
         String anyPage = resourceFileService.getSingleFile("paginator/nullPage.json").get();
         List<ZepProject> list = responseParser.retrieveAll(
                 page -> Response.ok().entity(anyPage).build(),
@@ -134,7 +134,7 @@ public class ResponseParserTest {
     }
 
     @Test
-    public void withFullPaginatedJsons_thenReturnSearch() {
+    void withFullPaginatedJsons_thenReturnSearch() {
         List<String> responseJsons = resourceFileService.getDirContents("projects");
 
 
@@ -155,7 +155,7 @@ public class ResponseParserTest {
     }
 
     @Test
-    public void withFullPaginatedJsons_thenReturnNullSearch() {
+    void withFullPaginatedJsons_thenReturnNullSearch() {
         List<String> responseJsons = resourceFileService.getDirContents("projects");
 
 

@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class ProjectServiceTest {
+class ProjectServiceTest {
 
     @InjectMock
     @RestClient
@@ -36,12 +36,12 @@ public class ProjectServiceTest {
 
 
     @Test
-    public void test() {
+    void test() {
         System.out.println(resourceFileService.getFilesDir().getPath());
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.getPaginatedProjectsMock();
     }
 
@@ -72,7 +72,7 @@ public class ProjectServiceTest {
     }
 
     @Test
-    public void getSingleFullZepProject() {
+    void getSingleFullZepProject() {
 
         ZepProject referenceZepProject = ZepProject.builder()
                 .id(1)
@@ -91,12 +91,12 @@ public class ProjectServiceTest {
     }
 
     @Test
-    public void getProjectByName() {
+    void getProjectByName() {
         Optional<ZepProject> project = projectService.getProjectByName("mega", LocalDate.of(2022, 1, 2));
         assertThat(project.get().id()).isEqualTo(1);
     }
     @Test
-    public void getProjectByName_whenNoProjectOfName() {
+    void getProjectByName_whenNoProjectOfName() {
         Optional<ZepProject> project = projectService.getProjectByName("empty",
                 LocalDate.of(2022, 1, 2));
         assertThat(project.isEmpty()).isTrue();
@@ -104,13 +104,13 @@ public class ProjectServiceTest {
     }
 
     @Test
-    public void getProjectById() {
+    void getProjectById() {
         Optional<ZepProject> project = projectService.getProjectById(12);
         assertThat(project.isPresent()).isTrue();
     }
 
     @Test
-    public void getProjectById_whenNoProjectWithId() {
+    void getProjectById_whenNoProjectWithId() {
         Optional<ZepProject> project = projectService.getProjectById(1);
         assertThat(project.isEmpty()).isTrue();
     }

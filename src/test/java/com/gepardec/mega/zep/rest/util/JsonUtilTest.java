@@ -9,10 +9,10 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class JsonUtilTest {
+class JsonUtilTest {
 
     @Test
-    public void getEmptyJson_thenThrowException() {
+    void getEmptyJson_thenThrowException() {
         String json = "";
         assertThatThrownBy(() -> {
             JsonUtil.parseJson(json, "/data", List.class);
@@ -21,7 +21,7 @@ public class JsonUtilTest {
     }
 
     @Test
-    public void getData_thenReturnObject() {
+    void getData_thenReturnObject() {
         String json = "{" +
                 "\"data\": {" +
                 "   \"id\": 1," +
@@ -34,7 +34,7 @@ public class JsonUtilTest {
         assertThat(demoOpt.get().name).isEqualTo("mega");
     }
     @Test
-    public void getDataUnderOtherFields_thenReturnObject() {
+    void getDataUnderOtherFields_thenReturnObject() {
         String json = "{" +
                 "\"data\": {" +
                 "   \"id\": 1," +
@@ -54,21 +54,21 @@ public class JsonUtilTest {
         assertThat(demoOpt.get().name).isEqualTo("mega3");
     }
     @Test
-    public void getEmptyData_thenReturnEmpty() {
+    void getEmptyData_thenReturnEmpty() {
         String json = "{\"data\": {}}";
 
         Optional<Demo> demoOpt = JsonUtil.parseJson(json, "/data", Demo.class);
         assertThat(demoOpt.isEmpty()).isTrue();
     }
     @Test
-    public void getEmptyArr_thenReturnEmpty() {
+    void getEmptyArr_thenReturnEmpty() {
         String json = "{\"data\": []}";
 
         Optional<Demo> demoOpt = JsonUtil.parseJson(json, "/data", Demo.class);
         assertThat(demoOpt.isEmpty()).isTrue();
     }
     @Test
-    public void getArr_thenReturnArr() {
+    void getArr_thenReturnArr() {
         String json = "{\"data\": [" +
                 "{\"id\": 1, \"name\": \"MEGA\"}," +
                 "{\"id\": 2, \"name\": \"GEMA\"}" +

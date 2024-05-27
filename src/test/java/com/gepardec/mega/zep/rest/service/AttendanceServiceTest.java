@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @QuarkusTest
-public class AttendanceServiceTest {
+class AttendanceServiceTest {
     @RestClient
     @InjectMock
     ZepAttendanceRestClient zepAttendanceRestClient;
@@ -38,9 +38,6 @@ public class AttendanceServiceTest {
 
     @Inject
     ResourceFileService resourceFileService;
-
-    @Inject
-    ResponseParser responseParser;
 
     @BeforeEach
     public void init() {

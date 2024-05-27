@@ -68,7 +68,7 @@ class ZepRestIntegrationTest {
     @Test
     public void getProjectTimes_valid() {
         List<ProjectEntry> projectEntries = zepService.getProjectTimes(zepService.getEmployee("001-hwirnsberger"), LocalDate.of(2020, 4, 1));
-        assertThat(projectEntries.size()).isGreaterThan(0);
+        assertThat(projectEntries.size()).isPositive();
         for (ProjectEntry projectEntry : projectEntries) {
             assertThat(projectEntry.getDurationInHours()).isNotNull();
             assertThat(projectEntry.getDate().getMonthValue()).isEqualTo(4);
@@ -78,7 +78,7 @@ class ZepRestIntegrationTest {
     @Test
     public void getProjectTimes_noEntries() {
         List<ProjectEntry> projectEntries = zepService.getProjectTimes(zepService.getEmployee("082-tmeindl"), LocalDate.of(2020, 4, 1));
-        assertThat(projectEntries.size()).isEqualTo(0);
+        assertThat(projectEntries.size()).isZero();
     }
 
     @Test
@@ -94,7 +94,7 @@ class ZepRestIntegrationTest {
     public void getProjectsForMonthYear_valid() {
         for (int i = 1; i < 10; i++) {
             List<Project> projects = zepService.getProjectsForMonthYear(LocalDate.of(2020, i, 1));
-            assertThat(projects.size()).isGreaterThan(0);
+            assertThat(projects.size()).isPositive();
         }
         List<Project> projects = zepService.getProjectsForMonthYear(LocalDate.of(2021, 1, 1));
         assertThat(projects.size()).isEqualTo(33);
@@ -114,7 +114,7 @@ class ZepRestIntegrationTest {
     @Test
     public void getProjectByName_valid() {
         Project project = zepService.getProjectByName("BVAEB-KAP-2021", LocalDate.of(2021, 1, 5)).get();
-        System.out.println(project.getZepId());
+        assertThat(project.getZepId()).isEqualTo(158);
     }
 
 
