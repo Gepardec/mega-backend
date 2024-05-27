@@ -17,9 +17,6 @@ import com.gepardec.mega.rest.model.ProjectManagementEntryDto;
 import com.gepardec.mega.service.api.*;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.impl.Rest;
-import com.gepardec.mega.zep.impl.Soap;
-import de.provantis.zep.ProjektzeitType;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -300,7 +297,7 @@ public class ManagementResourceImpl implements ManagementResource {
                 employeeCheckState = State.OPEN;
                 Long userId = stepEntries.stream().findFirst().map(StepEntry::getOwner).map(User::getId).orElse(null);
 
-                logger.error(String.format("Für Mitarbeiter [ID: %s] wurde kein CONTROL_TIMES step gefunden.", userId));
+                logger.error("Für Mitarbeiter [ID: {}] wurde kein CONTROL_TIMES step gefunden.", userId);
             } else {
                 employeeCheckState = employeeCheckStatePair.getLeft();
                 employeeCheckStateReason = employeeCheckStatePair.getRight();

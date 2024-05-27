@@ -8,8 +8,6 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectFilter;
 import com.gepardec.mega.service.api.ProjectService;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.impl.Rest;
-import com.gepardec.mega.zep.impl.Soap;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 

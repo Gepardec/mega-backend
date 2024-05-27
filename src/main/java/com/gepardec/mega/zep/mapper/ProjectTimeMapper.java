@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class ProjectTimeMapper {
 
+    private ProjectTimeMapper() {
+    }
+
     public static List<ProjectTime> mapList(List<ProjektzeitType> projectTimes) {
         if (projectTimes == null) {
             return null;

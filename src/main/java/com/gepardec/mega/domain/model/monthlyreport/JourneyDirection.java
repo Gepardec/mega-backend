@@ -33,3 +33,4 @@ public enum JourneyDirection {
         return direction;
     }
 }
+
