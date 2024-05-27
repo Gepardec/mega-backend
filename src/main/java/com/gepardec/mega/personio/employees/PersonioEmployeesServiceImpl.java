@@ -40,18 +40,20 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
             var response = personioEmployeesClient.getAbsenceBalanceForEmployeeById(id);
             var absenceBalanceResponse = response.readEntity(new GenericType<BaseResponse<List<AbsenceBalanceResponse>>>() {
             });
-            if (absenceBalanceResponse.isSuccess()) {
-                var absenceBalanceResponseDataForVacation = absenceBalanceResponse.getData()
-                        .stream()
-                        .filter(absenceBalanceObject -> absenceBalanceObject.getId().equals(AbsenceConstants.PAID_VACATION_ID)) // only paid vacation (id = 104066) is relevant in this case
-                        .findFirst(); // there is only one
-
-                if (absenceBalanceResponseDataForVacation.isPresent()) {
-                    return absenceBalanceResponseDataForVacation.get().getAvailableBalance();
-                }
-            } else {
+            if (!absenceBalanceResponse.isSuccess()) {
                 logger.info("Fehler bei Aufruf der Personio-Schnittstelle: {}", absenceBalanceResponse.getError().getMessage());
+                return 0;
             }
+
+            var absenceBalanceResponseDataForVacation = absenceBalanceResponse.getData()
+                    .stream()
+                    .filter(absenceBalanceObject -> absenceBalanceObject.getId().equals(AbsenceConstants.PAID_VACATION_ID)) // only paid vacation (id = 104066) is relevant in this case
+                    .findFirst(); // there is only one
+
+            if (absenceBalanceResponseDataForVacation.isEmpty()) {
+                return 0;
+            }
+            return absenceBalanceResponseDataForVacation.get().getAvailableBalance();
         }
         return 0;
     }
@@ -60,12 +62,13 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
         var response = personioEmployeesClient.getByEmail(email);
         var employeesResponse = response.readEntity(new GenericType<BaseResponse<List<EmployeesResponse>>>() {
         });
-        if (employeesResponse.isSuccess()) {
-            if (employeesResponse.getData().size() == 1) {
-                return Optional.ofNullable(employeesResponse.getData().get(0).getAttributes());
-            }
-        } else {
+        if (!employeesResponse.isSuccess()) {
             logger.info("Fehler bei Aufruf der Personio-Schnittstelle: {}", employeesResponse.getError().getMessage());
+            return Optional.empty();
+        }
+
+        if (employeesResponse.getData().size() == 1) {
+            return Optional.ofNullable(employeesResponse.getData().get(0).getAttributes());
         }
         return Optional.empty();
     }
