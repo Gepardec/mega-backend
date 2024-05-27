@@ -35,27 +35,27 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
         Optional<PersonioEmployeeDto> dto = getPersonioEmployeeDtoByEmail(email);
         int id;
 
-        if (dto.isPresent()) {
-            id = dto.get().id().getValue();
-            var response = personioEmployeesClient.getAbsenceBalanceForEmployeeById(id);
-            var absenceBalanceResponse = response.readEntity(new GenericType<BaseResponse<List<AbsenceBalanceResponse>>>() {
-            });
-            if (!absenceBalanceResponse.isSuccess()) {
-                logger.info("Fehler bei Aufruf der Personio-Schnittstelle: {}", absenceBalanceResponse.getError().getMessage());
-                return 0;
-            }
-
-            var absenceBalanceResponseDataForVacation = absenceBalanceResponse.getData()
-                    .stream()
-                    .filter(absenceBalanceObject -> absenceBalanceObject.getId().equals(AbsenceConstants.PAID_VACATION_ID)) // only paid vacation (id = 104066) is relevant in this case
-                    .findFirst(); // there is only one
-
-            if (absenceBalanceResponseDataForVacation.isEmpty()) {
-                return 0;
-            }
-            return absenceBalanceResponseDataForVacation.get().getAvailableBalance();
+        if (dto.isEmpty()) {
+            return 0;
         }
-        return 0;
+        id = dto.get().id().getValue();
+        var response = personioEmployeesClient.getAbsenceBalanceForEmployeeById(id);
+        var absenceBalanceResponse = response.readEntity(new GenericType<BaseResponse<List<AbsenceBalanceResponse>>>() {
+        });
+        if (!absenceBalanceResponse.isSuccess()) {
+            logger.info("Fehler bei Aufruf der Personio-Schnittstelle: {}", absenceBalanceResponse.getError().getMessage());
+            return 0;
+        }
+
+        var absenceBalanceResponseDataForVacation = absenceBalanceResponse.getData()
+                .stream()
+                .filter(absenceBalanceObject -> absenceBalanceObject.getId().equals(AbsenceConstants.PAID_VACATION_ID)) // only paid vacation (id = 104066) is relevant in this case
+                .findFirst(); // there is only one
+
+        if (absenceBalanceResponseDataForVacation.isEmpty()) {
+            return 0;
+        }
+        return absenceBalanceResponseDataForVacation.get().getAvailableBalance();
     }
 
     private Optional<PersonioEmployeeDto> getPersonioEmployeeDtoByEmail(String email) {
