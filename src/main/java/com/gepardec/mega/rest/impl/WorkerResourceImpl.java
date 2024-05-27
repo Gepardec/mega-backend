@@ -11,6 +11,7 @@ import com.gepardec.mega.rest.mapper.BillMapper;
 import com.gepardec.mega.rest.mapper.MonthlyReportMapper;
 import com.gepardec.mega.rest.mapper.ProjectHoursSummaryMapper;
 import com.gepardec.mega.rest.model.BillDto;
+import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
@@ -80,6 +81,11 @@ public class WorkerResourceImpl implements WorkerResource {
         return resultProjectsHoursSummaryList.stream()
                 .map(projectHoursSummaryMapper::mapToDto)
                 .toList();
+    }
+
+    @Override
+    public List<MonthlyAbsencesDto> getAllAbsencesForMonthAndEmployee(String employeeId, YearMonth from) {
+        return null;
     }
 
 }
