@@ -28,18 +28,12 @@ import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.service.mapper.TimeWarningMapper;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.impl.Rest;
-import com.gepardec.mega.zep.impl.Soap;
-import de.provantis.zep.FehlzeitType;
-import de.provantis.zep.ProjektzeitType;
 import jakarta.enterprise.context.RequestScoped;
-import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
