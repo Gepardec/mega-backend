@@ -1,5 +1,6 @@
 package com.gepardec.mega.zep.rest.service;
 
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepAbsenceRestClient;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
@@ -32,15 +33,27 @@ public class AbsenceService {
     public List<ZepAbsence> getZepAbsencesByEmployeeNameForDateRange(String employeeName, LocalDate start, LocalDate end) {
         try {
             List<ZepAbsence> absences = responseParser.retrieveAll(
-                    page -> zepEmployeeRestClient.getAbsencesByUsername(employeeName, start, end, page),
+                    page -> zepEmployeeRestClient.getAbsencesByUsername(employeeName, page),
                     ZepAbsence.class
             );
-            return getFullZepAbsences(absences);
+
+            List<ZepAbsence> filteredAbsences = absences.stream()
+                                                        .filter(absence -> absenceIsInRange(absence, start, end))
+                                                        .toList();
+            return getFullZepAbsences(filteredAbsences);
         }  catch (ZepServiceException e) {
             logger.warn("Error retrieving employee + \"%s\" from ZEP: No /data field in response".formatted(employeeName),
                     e);
             return List.of();
         }
+    }
+
+    // this also checks if startDate or endDate is exact match
+    private boolean absenceIsInRange(ZepAbsence absence, LocalDate fromDateForRequest, LocalDate toDateForRequest) {
+        return ((absence.startDate().equals(fromDateForRequest) && absence.endDate().equals(toDateForRequest)) ||
+                (absence.startDate().equals(fromDateForRequest) && absence.endDate().isBefore(toDateForRequest)) ||
+                (absence.startDate().isAfter(fromDateForRequest) && absence.endDate().equals(toDateForRequest)) ||
+                (absence.startDate().isAfter(fromDateForRequest) && absence.endDate().isBefore(toDateForRequest)));
     }
 
     public ZepAbsence getZepAbsenceById(int id) {

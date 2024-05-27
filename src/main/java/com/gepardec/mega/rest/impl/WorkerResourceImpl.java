@@ -112,22 +112,9 @@ public class WorkerResourceImpl implements WorkerResource {
         double doctorsVisitingHours = zepService.getDoctorsVisitingTimeForMonthAndEmployee(employee, from);
         Pair<String, String> correctDatePairForRequest = dateHelperService.getCorrectDateForRequest(employee, from);
         LocalDate fromDateForRequest = DateUtils.parseDate(correctDatePairForRequest.getLeft());
-        LocalDate toDateForRequest = DateUtils.parseDate(correctDatePairForRequest.getRight());
-
-        List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee,fromDateForRequest)
-                                               .stream()
-                                               .filter(absence -> absenceIsInRange(absence, fromDateForRequest, toDateForRequest))
-                                               .toList();
+        List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee,fromDateForRequest);
 
         return monthlyAbsencesMapper.mapToDto(createMonthlyAbsences(availableVacationDays, doctorsVisitingHours, absences, fromDateForRequest));
-    }
-
-    // this also checks if startDate or endDate is exact match
-    private boolean absenceIsInRange(AbsenceTime absence, LocalDate fromDateForRequest, LocalDate toDateForRequest) {
-        return ((absence.fromDate().equals(fromDateForRequest) && absence.toDate().equals(toDateForRequest)) ||
-                (absence.fromDate().equals(fromDateForRequest) && absence.toDate().isBefore(toDateForRequest)) ||
-                (absence.fromDate().isAfter(fromDateForRequest) && absence.toDate().equals(toDateForRequest)) ||
-                (absence.fromDate().isAfter(fromDateForRequest) && absence.toDate().isBefore(toDateForRequest)));
     }
 
     private MonthlyAbsences createMonthlyAbsences(int availableVacationDays, double doctorsVisitingHours, List<AbsenceTime> absences, LocalDate fromDateForRequest){
