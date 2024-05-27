@@ -9,6 +9,7 @@ import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
+import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
@@ -84,6 +85,9 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Inject
     EmploymentPeriodService employmentPeriodService;
+
+    @Inject
+    DateHelperService dateHelperService;
 
     @Inject
     Mapper<Employee, ZepEmployee> employeeMapper;
@@ -225,7 +229,7 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
-        Pair<String, String> fromToDatePair = getCorrectDateForRequest(employee, yearMonth);
+        Pair<String, String> fromToDatePair = dateHelperService.getCorrectDateForRequest(employee, yearMonth);
         return getBillsInternal(employee, fromToDatePair.getLeft(), fromToDatePair.getRight());
     }
 
@@ -242,7 +246,7 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public double getDoctorsVisitingTimeForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
-        String startDateString = getCorrectDateForRequest(employee, yearMonth).getLeft();
+        String startDateString = dateHelperService.getCorrectDateForRequest(employee, yearMonth).getLeft();
         LocalDate startDate = DateUtils.parseDate(startDateString);
 
         List<ZepAttendance> doctorsAttendances = attendanceService.getAttendanceForUserProjectAndMonth(employee.getUserId(), startDate, ProjectTaskType.PROJECT_INTERNAL.getId())
@@ -257,7 +261,7 @@ public class ZepRestServiceImpl implements ZepService {
 
     private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth yearMonth) {
         Employee employeeForRequest = employeeMapper.map(employee);
-        String dateString = getCorrectDateForRequest(employeeForRequest, yearMonth).getLeft();
+        String dateString = dateHelperService.getCorrectDateForRequest(employeeForRequest, yearMonth).getLeft();
         LocalDate dateForRequest = DateUtils.parseDate(dateString);
         List<ProjectHoursSummary> resultProjectHoursSummary = new ArrayList<>();
         List<ZepProject> projectsRetrieved = projectService.getProjectsForMonthYear(dateForRequest);
@@ -322,35 +326,6 @@ public class ZepRestServiceImpl implements ZepService {
                                                .build());
     }
 
-    private Pair<String, String> getCorrectDateForRequest(Employee employee, YearMonth yearMonth) {
-        LocalDate now = LocalDate.now();
-        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
-        LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
-
-        if (yearMonth != null) {
-            return getDateWhenYearMonthProvided(yearMonth);
-        }
-        if (now.isAfter(midOfCurrentMonth) && monthlyReportService.isMonthConfirmedFromEmployee(employee, firstOfPreviousMonth)) {
-            return getDateWhenMonthIsConfirmedFromEmployeeAndMidOfMonthIsReached();
-        }
-
-        String fromDate = formatDate(firstOfPreviousMonth);
-        String toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
-        return Pair.of(fromDate,toDate);
-    }
-
-    private Pair<String, String> getDateWhenYearMonthProvided(YearMonth yearMonth) {
-        String fromDate = formatDate(yearMonth.atDay(1));
-        String toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
-        return Pair.of(fromDate, toDate);
-    }
-
-    private Pair<String, String> getDateWhenMonthIsConfirmedFromEmployeeAndMidOfMonthIsReached() {
-        LocalDate now = LocalDate.now();
-        String fromDate = getFirstDayOfCurrentMonth(now);
-        String toDate = getLastDayOfCurrentMonth(now);
-        return Pair.of(fromDate, toDate);
-    }
 
     private List<Bill> getBillsInternal(Employee employee, String fromDate, String toDate) {
         List<ZepReceipt> allReceiptsForYearMonth = receiptService.getAllReceiptsForYearMonth(employee, fromDate, toDate);
