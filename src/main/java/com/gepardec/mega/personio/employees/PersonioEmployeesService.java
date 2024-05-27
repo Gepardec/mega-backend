@@ -1,9 +1,7 @@
 package com.gepardec.mega.personio.employees;
 
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 
-import java.time.YearMonth;
 import java.util.Optional;
 
 public interface PersonioEmployeesService {
