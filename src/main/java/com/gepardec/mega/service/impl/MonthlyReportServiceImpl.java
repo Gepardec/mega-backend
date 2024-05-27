@@ -220,7 +220,6 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .prematureEmployeeCheck(prematureEmployeeCheck.orElse(null))
                 .initialDate(initialDate);
 
-        personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail("christoph.ruhsam@gepardec.com");
         return addPersonioEmployee(builder, employee.getEmail()).build();
     }
 
