@@ -18,7 +18,6 @@ import static java.util.Locale.filter;
 
 @ApplicationScoped
 public class AttendanceService {
-    final int BILLABLE_TYPE_BORDER = 2;
     @RestClient
     private ZepAttendanceRestClient zepAttendanceRestClient;
 

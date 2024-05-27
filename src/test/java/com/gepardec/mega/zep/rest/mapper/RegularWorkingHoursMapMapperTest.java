@@ -19,7 +19,7 @@ public class RegularWorkingHoursMapMapperTest {
     public void mapZepRegularWorkingTimesToRegularWorkingHoursMap() {
         RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
         ZepRegularWorkingTimes zepRegularWorkingTimes = ZepRegularWorkingTimes.builder()
-                .start_date(LocalDateTime.of(2019, 1, 2, 8, 1, 32))
+                .startDate(LocalDateTime.of(2019, 1, 2, 8, 1, 32))
                 .monday(8.0)
                 .tuesday(8.0)
                 .wednesday(8.0)
@@ -46,7 +46,7 @@ public class RegularWorkingHoursMapMapperTest {
         RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
 
         ZepRegularWorkingTimes zepRegularWorkingTimes = ZepRegularWorkingTimes.builder()
-                .start_date(LocalDateTime.of(2019, 1, 2, 8, 1, 32))
+                .startDate(LocalDateTime.of(2019, 1, 2, 8, 1, 32))
                 .monday(null)
                 .tuesday(8.0)
                 .wednesday(8.0)

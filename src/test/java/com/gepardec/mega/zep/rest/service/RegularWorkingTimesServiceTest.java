@@ -32,7 +32,7 @@ public class RegularWorkingTimesServiceTest {
     public void getRegularWorkingTimesByUsername_receiveValidWorkingTime_then_returnValidZepWorkingTime(){
 
         ZepRegularWorkingTimes regularWorkingTimes = ZepRegularWorkingTimes.builder()
-                .start_date(null)
+                .startDate(null)
                 .monday(8.0)
                 .tuesday(8.0)
                 .wednesday(8.0)

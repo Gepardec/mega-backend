@@ -1,6 +1,5 @@
 package com.gepardec.mega.zep.rest.mapper;
 
-import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
@@ -27,10 +26,6 @@ public class AttendanceMapper implements Mapper<ProjectTime, ZepAttendance> {
         try {
 
             Boolean isBillable = zepAttendance.billable();
-            Boolean locationPrRelevant = null;
-            if (zepAttendance.workLocationIsProjectRelevant() != null) {
-                locationPrRelevant = zepAttendance.workLocationIsProjectRelevant();
-            }
 
             String duration = null;
             if (zepAttendance.duration() != null ) {
