@@ -33,6 +33,8 @@ public class MonthlyAbsencesDto {
         this.availableVacationDays = builder.availableVacationDays;
     }
 
+    public static Builder builder() {return Builder.aMonthlyAbsencesDto();}
+
     public int getVacationDays() {
         return vacationDays;
     }
@@ -107,7 +109,7 @@ public class MonthlyAbsencesDto {
 
         private Builder(){}
 
-        public static Builder aMonthlyAbsences() {return new Builder();}
+        public static Builder aMonthlyAbsencesDto() {return new Builder();}
 
         public Builder vacationDays(int vacationDays){
             this.vacationDays = vacationDays;
@@ -124,14 +126,16 @@ public class MonthlyAbsencesDto {
             return this;
         }
 
-        public Builder maternityLeaveDays(int maternityLeaveDays){
-            this.maternityLeaveDays = maternityLeaveDays;
-            return this;
-        }
         public Builder nursingDays(int nursingDays){
             this.nursingDays = nursingDays;
             return this;
         }
+
+        public Builder maternityLeaveDays(int maternityLeaveDays){
+            this.maternityLeaveDays = maternityLeaveDays;
+            return this;
+        }
+
         public Builder externalTrainingDays(int externalTrainingDays){
             this.externalTrainingDays = externalTrainingDays;
             return this;
@@ -144,6 +148,11 @@ public class MonthlyAbsencesDto {
 
         public Builder maternityProtectionDays(int maternityProtectionDays){
             this.maternityProtectionDays = maternityProtectionDays;
+            return this;
+        }
+
+        public Builder fatherMonthDays(int fatherMonthDays){
+            this.fatherMonthDays = fatherMonthDays;
             return this;
         }
 

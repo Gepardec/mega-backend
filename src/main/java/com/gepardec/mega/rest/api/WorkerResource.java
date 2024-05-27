@@ -74,7 +74,7 @@ public interface WorkerResource {
             description = "Successfully retrieved absences for employee.",
             content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = MonthlyAbsencesDto[].class))
+                            schema = @Schema(implementation = MonthlyAbsencesDto.class))
             }
     )
     @Parameter(name = "id", description = "ID of the employee for whom the projects are to be retrieved.")
@@ -86,6 +86,6 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
     @Path("/{id}/absences")
     @GET
-    List<MonthlyAbsencesDto> getAllAbsencesForMonthAndEmployee(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
+    MonthlyAbsencesDto getAllAbsencesForMonthAndEmployee(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
 
 }
