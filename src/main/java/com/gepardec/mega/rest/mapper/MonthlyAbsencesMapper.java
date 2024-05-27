@@ -10,7 +10,6 @@ public class MonthlyAbsencesMapper implements DtoMapper<MonthlyAbsences, Monthly
     public MonthlyAbsencesDto mapToDto(MonthlyAbsences object) {
         return MonthlyAbsencesDto.builder()
                 .vacationDays(object.getVacationDays())
-                .homeofficeDays(object.getHomeofficeDays())
                 .compensatoryDays(object.getCompensatoryDays())
                 .nursingDays(object.getNursingDays())
                 .maternityLeaveDays(object.getMaternityLeaveDays())
@@ -30,7 +29,6 @@ public class MonthlyAbsencesMapper implements DtoMapper<MonthlyAbsences, Monthly
     public MonthlyAbsences mapToDomain(MonthlyAbsencesDto object) {
         return MonthlyAbsences.builder()
                 .vacationDays(object.getVacationDays())
-                .homeofficeDays(object.getHomeofficeDays())
                 .compensatoryDays(object.getCompensatoryDays())
                 .nursingDays(object.getNursingDays())
                 .maternityLeaveDays(object.getMaternityLeaveDays())

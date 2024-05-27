@@ -2,7 +2,6 @@ package com.gepardec.mega.rest.model;
 
 public class MonthlyAbsencesDto {
     private final int vacationDays;
-    private final int homeofficeDays;
     private final int compensatoryDays;
     private final int nursingDays;
     private final int maternityLeaveDays;
@@ -18,7 +17,6 @@ public class MonthlyAbsencesDto {
 
     private MonthlyAbsencesDto(Builder builder) {
         this.vacationDays =  builder.vacationDays;
-        this.homeofficeDays = builder.homeofficeDays;
         this.compensatoryDays = builder.compensatoryDays;
         this.nursingDays = builder.nursingDays;
         this.maternityLeaveDays = builder.maternityLeaveDays;
@@ -37,10 +35,6 @@ public class MonthlyAbsencesDto {
 
     public int getVacationDays() {
         return vacationDays;
-    }
-
-    public int getHomeofficeDays() {
-        return homeofficeDays;
     }
 
     public int getCompensatoryDays() {
@@ -93,7 +87,6 @@ public class MonthlyAbsencesDto {
 
     public static final class Builder {
         private int vacationDays;
-        private int homeofficeDays;
         private int compensatoryDays;
         private int nursingDays;
         private int maternityLeaveDays;
@@ -113,11 +106,6 @@ public class MonthlyAbsencesDto {
 
         public Builder vacationDays(int vacationDays){
             this.vacationDays = vacationDays;
-            return this;
-        }
-
-        public Builder homeofficeDays(int homeofficeDays){
-            this.homeofficeDays = homeofficeDays;
             return this;
         }
 
