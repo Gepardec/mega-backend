@@ -365,7 +365,7 @@ public class WorkerResourceTest {
         List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 5));
 
         assertThat(actual).isNotNull();
-        assertThat(actual.size()).isEqualTo(0);
+        assertThat(actual.size()).isZero();
     }
 
 

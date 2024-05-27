@@ -5,12 +5,10 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.impl.Rest;
 
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -21,13 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 
 //Integration tests for the getEmployee method in ZepRestService
 @QuarkusTest
 @Disabled
-public class ZepRestIntegrationTest {
+class ZepRestIntegrationTest {
 
 
     @Inject

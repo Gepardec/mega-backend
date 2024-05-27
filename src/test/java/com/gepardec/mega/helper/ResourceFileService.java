@@ -57,8 +57,12 @@ public class ResourceFileService {
     }
 
     private File getFileOfResourcesPath(String path) {
+        try{
         String resourcesPath = this.getClass().getResource("/").getPath();
         String absPath = resourcesPath + path;
         return new File(absPath);
+        }catch(Exception e){
+            throw new RuntimeException("Error reading resource Path for test resources", e);
+        }
     }
 }

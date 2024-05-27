@@ -2,7 +2,6 @@ package com.gepardec.mega.zep.mapper;
 
 import de.provantis.zep.AttributeType;
 import de.provantis.zep.AttributesType;
-import com.gepardec.mega.domain.model.ProjectTime;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -12,12 +11,13 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MapperUtilTest {
+class MapperUtilTest {
     @Test
     void DateString_convertsToLocalDate() {
         String dateString = "2002-11-23";
+        LocalDate actualDate = LocalDate.of(2002, 11, 23);
         LocalDate date = MapperUtil.convertStringToDate(dateString);
-        assertThat(date.toString()).isEqualTo(dateString);
+        assertThat(date).isEqualTo(actualDate);
     }
 
     @Test

@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 
 @QuarkusTest
-public class ZepRestServiceImplTest {
+class ZepRestServiceImplTest {
     @Inject
     RegularWorkingTimesService regularWorkingTimesService;
 
@@ -47,7 +47,7 @@ public class ZepRestServiceImplTest {
 
     @Test
     @Disabled("Local test")
-    public void integrationTest_getProjectTimesForEmployeePerProject(){
+    void integrationTest_getProjectTimesForEmployeePerProject(){
         List<ProjectTime> projectTimes = zepRestService.getProjectTimesForEmployeePerProject("ITSV-VAEB-2018", LocalDate.of(2018, 12, 12));
         for (ProjectTime projectTime : projectTimes) {
             System.out.println(projectTime.getUserId() + ": " + projectTime.getDuration() + " " + projectTime.getBillable());
@@ -56,7 +56,7 @@ public class ZepRestServiceImplTest {
     }
 
     @Test
-    public void getDoctorsVisitingTimeForMonthAndEmployee_whenUserHadDoctorsAppointments_thenReturnHours() {
+    void getDoctorsVisitingTimeForMonthAndEmployee_whenUserHadDoctorsAppointments_thenReturnHours() {
         List<ZepAttendance> zepAttendancesForDoctorsAppointment = getZepAttendancesForDoctorsAppointment();
         when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(LocalDate.class), anyInt()))
                 .thenReturn(zepAttendancesForDoctorsAppointment);
@@ -70,7 +70,7 @@ public class ZepRestServiceImplTest {
     }
 
     @Test
-    public void getDoctorsVisitingTimeForMonthAndEmployee_whenUserHadNoDoctorsAppointments_thenReturnZeroHours() {
+    void getDoctorsVisitingTimeForMonthAndEmployee_whenUserHadNoDoctorsAppointments_thenReturnZeroHours() {
         when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(LocalDate.class), anyInt()))
                 .thenReturn(List.of());
 

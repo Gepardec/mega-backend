@@ -18,7 +18,7 @@ import java.util.Set;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @QuarkusTest
-public class WorkingTimeUtilTest {
+class WorkingTimeUtilTest {
 
     @Inject
     WorkingTimeUtil workingTimeUtil;
@@ -80,7 +80,7 @@ public class WorkingTimeUtilTest {
         List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
 
         double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
-        assertThat(overtimeforEmployee).isEqualTo(0);
+        assertThat(overtimeforEmployee).isZero();
     }
 
     @Test
