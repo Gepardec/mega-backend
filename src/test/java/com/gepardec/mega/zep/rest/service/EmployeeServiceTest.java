@@ -49,7 +49,7 @@ public class EmployeeServiceTest {
         IntStream.range(0, responseJson.size()).forEach(
                 i -> {
                     when(zepEmployeeRestClient
-                            .getAllEmployeesOfPage(eq(i + 1)))
+                            .getAllEmployeesOfPage(i + 1))
                             .thenReturn(Response.ok().entity(responseJson.get(i)).build());
                 }
         );

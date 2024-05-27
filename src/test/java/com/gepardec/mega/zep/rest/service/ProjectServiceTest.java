@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -55,17 +54,17 @@ public class ProjectServiceTest {
 
 
 
-        when(zepProjectRestClient.getProjectByStartEnd(any(), any(),eq(2)))
+        when(zepProjectRestClient.getProjectByStartEnd(anyString(), anyString(),eq(2)))
                 .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
-        when(zepProjectRestClient.getProjectByStartEnd(any(), any(),eq(3)))
+        when(zepProjectRestClient.getProjectByStartEnd(anyString(), anyString(),eq(3)))
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
 
-        when(zepProjectRestClient.getProjectByName(any(), any(),eq("mega")))
+        when(zepProjectRestClient.getProjectByName(anyString(), anyString(),eq("mega")))
                 .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
-        when(zepProjectRestClient.getProjectByName(any(), any(),eq("empty")))
+        when(zepProjectRestClient.getProjectByName(anyString(), anyString(),eq("empty")))
                 .thenReturn(Response.ok().entity(responseJsons.get(5)).build());
 
-       when(zepProjectRestClient.getProjectById(eq(12)))
+       when(zepProjectRestClient.getProjectById(12))
                 .thenReturn(Response.ok().entity(resourceFileService.getSingleFile("projects/singlePage2.json").get()).build());
 
         when(zepProjectRestClient.getProjectById(eq(1)))

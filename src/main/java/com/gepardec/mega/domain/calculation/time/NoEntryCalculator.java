@@ -123,7 +123,7 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
         return absenceEntries.stream()
                 .filter(fzt -> fzt.reason().equals(type))
                 .flatMap(this::extractFehlzeitenDateRange)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Stream<LocalDate> extractFehlzeitenDateRange(AbsenceTime fzt) {

@@ -54,7 +54,7 @@ public class AttendanceServiceTest {
         IntStream.range(0, responseJson.size()).forEach(
                 i -> {
                     when(zepAttendanceRestClient
-                            .getAttendance(any(), any(), eq(user), eq(i + 1)))
+                            .getAttendance(anyString(), anyString(), eq(user), eq(i + 1)))
                             .thenReturn(Response.ok().entity(responseJson.get(i)).build());
                     System.out.println(responseJson.get(i));
                 }
