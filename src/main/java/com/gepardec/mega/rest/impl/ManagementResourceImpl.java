@@ -156,11 +156,11 @@ public class ManagementResourceImpl implements ManagementResource {
 
             Duration billable = calculateProjectDuration(entries.stream()
                     .map(ManagementEntryDto::getBillableTime)
-                    .collect(Collectors.toList()));
+                    .toList());
 
             Duration nonBillable = calculateProjectDuration(entries.stream()
                     .map(ManagementEntryDto::getNonBillableTime)
-                    .collect(Collectors.toList()));
+                    .toList());
 
             // it is guaranteed that the same Project instance is obtained for every ProjectEntry
             Integer zepId = Optional.ofNullable(projectEntries.get(0))
@@ -221,7 +221,7 @@ public class ManagementResourceImpl implements ManagementResource {
                         .comment("Dieses Projekt hat keinen Projektleiter zugewiesen. Bitte in ZEP hinzufügen!")
                         .zepId(project.getZepId())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         return Response.ok(customerProjectsWithoutLeadsDto).build();
     }
@@ -380,7 +380,7 @@ public class ManagementResourceImpl implements ManagementResource {
                     }
                 })
                 .map(StepEntry::getState)
-                .collect(Collectors.toList());
+                .toList();
 
         if (projectStateLogicSingle) {
             return collectedStates.stream()

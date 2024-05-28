@@ -23,7 +23,7 @@ public class ProjectEntryMapper {
                 .map(this::map)
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(ProjectEntry::getFromTime))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ProjectEntry map(ProjektzeitType projektzeitType) {

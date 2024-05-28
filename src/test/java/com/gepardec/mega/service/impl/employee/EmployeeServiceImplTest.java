@@ -174,7 +174,7 @@ class EmployeeServiceImplTest {
             }
         }).when(managedExecutor).execute(Mockito.any());
 
-        final List<Employee> employees = IntStream.range(0, 40).mapToObj(i -> createEmployee(i).build()).collect(Collectors.toList());
+        final List<Employee> employees = IntStream.range(0, 40).mapToObj(i -> createEmployee(i).build()).toList();
 
         final List<String> result = employeeService.updateEmployeesReleaseDate(employees);
 

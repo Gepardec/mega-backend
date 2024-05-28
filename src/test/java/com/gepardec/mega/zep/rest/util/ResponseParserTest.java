@@ -49,7 +49,7 @@ public class ResponseParserTest {
 
 
         List<ZepProject> projectList = responseParser.retrieveAll(page -> zepProjectRestClient.getProjects(page), ZepProject.class);
-        List<String> projectNames = projectList.stream().map(ZepProject::name).peek(System.out::println).collect(Collectors.toList());
+        List<String> projectNames = projectList.stream().map(ZepProject::name).peek(System.out::println).toList();
         System.out.println(projectNames);
         Arrays.stream(names).forEach(name -> assertThat(projectNames.contains(name)).isTrue());
     }

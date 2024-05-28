@@ -57,6 +57,6 @@ public class AbsenceService {
     private List<ZepAbsence> getFullZepAbsences(List<ZepAbsence> zepAbsences) {
         return zepAbsences.stream()
                 .map(absence -> getZepAbsenceById(absence.id()))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

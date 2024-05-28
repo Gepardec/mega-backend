@@ -26,7 +26,7 @@ public class DoctorAppointmentCalculator extends AbstractTimeWarningCalculationS
         final List<ProjectTimeEntry> projectTimeEntries = projectEntries.stream()
                 .filter(projectEntry -> projectEntry.getClass() == ProjectTimeEntry.class)
                 .map(ProjectTimeEntry.class::cast)
-                .collect(Collectors.toList());
+                .toList();
 
 
         LocalTime projectEntryFromTime, projectEntryToTime;

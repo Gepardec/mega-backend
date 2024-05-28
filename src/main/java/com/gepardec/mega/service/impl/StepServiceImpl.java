@@ -27,6 +27,6 @@ public class StepServiceImpl implements StepService {
                         .ordinal(s.getOrdinal())
                         .role(s.getRole())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 }

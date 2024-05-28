@@ -67,7 +67,7 @@ public class WorkingTimeUtil {
         // In case there are absences that do not affect the current month, filter them out
         fehlzeitTypeList = fehlzeitTypeList.stream()
                 .filter(ftl -> ftl.fromDate().getMonthValue() == date.getMonthValue())
-                .collect(Collectors.toList());
+                .toList();
 
         //FIXME
         var workingDaysCountMap = getWorkingDaysBetween(date, DateUtils.getLastDayOfCurrentMonth(date.toString()))

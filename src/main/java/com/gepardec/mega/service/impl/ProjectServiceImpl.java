@@ -43,7 +43,7 @@ public class ProjectServiceImpl implements ProjectService {
         return zepService.getProjectsForMonthYear(monthYear)
                 .stream()
                 .filter(project -> filterProject(project, Optional.ofNullable(projectFilters).orElse(List.of())))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

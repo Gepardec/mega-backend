@@ -86,7 +86,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
                 .map(project -> createProjectEntityFromProject(activeUsers, project, date))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Optional<com.gepardec.mega.db.entity.project.Project> createProjectEntityFromProject(List<User> activeUsers, Project project, LocalDate date) {
@@ -99,7 +99,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
                 .map(userid -> findUserByUserId(activeUsers, userid))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toList());
+                .toList();
 
         if (leads.isEmpty()) {
             return Optional.empty();

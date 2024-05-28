@@ -20,7 +20,7 @@ public class ProjectTimeMapper {
         return projectTimes.stream()
                 .map(ProjectTimeMapper::map)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static ProjectTime map(ProjektzeitType projektzeitType) {

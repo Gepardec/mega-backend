@@ -197,7 +197,7 @@ public class StepEntryServiceImpl implements StepEntryService {
                 .entrySet()
                 .stream()
                 .map(e -> ProjectEmployees.builder().projectId(e.getKey()).employees(e.getValue()).build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -213,7 +213,7 @@ public class StepEntryServiceImpl implements StepEntryService {
                 .entrySet()
                 .stream()
                 .map(e -> ProjectEmployees.builder().projectId(e.getKey()).employees(e.getValue()).build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

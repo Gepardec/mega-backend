@@ -301,7 +301,7 @@ class EmployeeMapperTest {
                 bt.setEnddatum(Optional.ofNullable(x.getRight()).map(LocalDate::toString).orElse(null));
 
                 return bt;
-            }).collect(Collectors.toList());
+            }).toList();
 
 
             // Mocking needed because no setter methods provided

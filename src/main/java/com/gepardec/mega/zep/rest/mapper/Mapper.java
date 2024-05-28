@@ -15,6 +15,6 @@ public interface Mapper <D, T>{
         return tList.stream()
                 .map(this::map)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

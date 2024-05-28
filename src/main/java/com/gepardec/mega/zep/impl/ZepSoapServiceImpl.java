@@ -472,7 +472,7 @@ public class ZepSoapServiceImpl implements ZepService {
                 .stream()
                 .filter(e -> filterActiveEmployees(monthYear, e.getVon(), e.getBis()))
                 .map(ProjektMitarbeiterType::getUserId)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean filterActiveEmployees(final LocalDate monthYear, final String inProjectFrom, final String inProjectUntil) {

@@ -23,7 +23,7 @@ public class AbsenceTimeMapper {
                    .map(AbsenceTimeMapper::map)
                    .filter(Objects::nonNull)
                    .sorted(Comparator.comparing(AbsenceTime::fromDate))
-                   .collect(Collectors.toList());
+                   .toList();
         }
 
         public static AbsenceTime map(FehlzeitType fehlzeitType) {

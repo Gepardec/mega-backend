@@ -72,7 +72,7 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
                 .map(this::map)
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(ProjectEntry::getFromTime))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Task toTask(String activity) {

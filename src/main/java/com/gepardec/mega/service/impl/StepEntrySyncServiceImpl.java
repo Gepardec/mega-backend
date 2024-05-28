@@ -85,7 +85,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
                 .map(email -> findUserByEmail(activeUsers, email))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toList());
+                .toList();
 
         logger.info("Loaded projects: {}", projectsForMonthYear.size());
         logger.debug("projects are {}", projectsForMonthYear);
@@ -121,7 +121,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
             toBeCreatedFilteredStepEntries = toBeCreatedStepEntries.stream()
                     .filter(stepEntry -> allEntityStepEntries.stream()
                             .noneMatch(stepEntry1 -> modelEqualsEntityStepEntry(stepEntry, stepEntry1)))
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
 
@@ -149,7 +149,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
         return users.stream()
                 .map(owner -> createStepEntriesForOwnerProjects(date, step, projects, users, owner))
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<StepEntry> createStepEntriesForOwnerProjects(final LocalDate date, final Step step, final List<Project> projects, final List<User> users, final User ownerUser) {
@@ -157,7 +157,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
                 .filter(project -> project.getEmployees().contains(ownerUser.getUserId()))
                 .map(project -> createStepEntriesForOwnerProject(date, step, project, users, ownerUser))
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<StepEntry> createStepEntriesForOwnerProject(final LocalDate date, final Step step, final Project project, final List<User> users, final User ownerUser) {
@@ -174,14 +174,14 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
                         .assignee(leadUser)
                         .step(step)
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<StepEntry> createStepEntriesOmForUsers(final LocalDate date, final Step step, final List<User> omUsers, final List<User> users) {
         return users.stream()
                 .map(ownerUser -> createStepEntriesForOwnerOmUsers(date, step, omUsers, ownerUser))
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<StepEntry> createStepEntriesForOwnerOmUsers(final LocalDate date, final Step step, final List<User> omUsers, final User ownerUser) {
@@ -194,7 +194,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
                         .assignee(omUser)
                         .step(step)
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<StepEntry> createStepEntriesForUsers(final LocalDate date, final Step step, final List<User> users) {
@@ -207,7 +207,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
                         .assignee(ownerUser)
                         .step(step)
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Optional<User> findUserByUserId(final List<User> users, final String userId) {

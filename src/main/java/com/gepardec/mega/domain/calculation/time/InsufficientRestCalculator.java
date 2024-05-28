@@ -59,7 +59,7 @@ public class InsufficientRestCalculator extends AbstractTimeWarningCalculationSt
         return projectTimeEntries.stream()
                 .filter(filterTask.or(filterActiveTravelTime))
                 .sorted(Comparator.comparing(ProjectEntry::getFromTime).thenComparing(ProjectEntry::getToTime))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private ProjectEntry getNextEntryOrNull(final int idx, final List<ProjectEntry> projectTimeEntries) {
