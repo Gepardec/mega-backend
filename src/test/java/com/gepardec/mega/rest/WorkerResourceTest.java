@@ -386,6 +386,7 @@ public class WorkerResourceTest {
         User userForRole = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
+
         int availableVacationDays = 20;
         double doctorsVisitingTime = 1.75;
         LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(LocalDate.now().toString());
@@ -442,7 +443,7 @@ public class WorkerResourceTest {
                 .thenReturn(datePair);
 
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class)))
-                .thenReturn(createAbsenceListForEmployeeWithNoAbsenses());
+                .thenReturn(createAbsenceListForEmployeeWithNoAbsences());
 
 
 
@@ -474,7 +475,7 @@ public class WorkerResourceTest {
         );
     }
 
-    private List<AbsenceTime> createAbsenceListForEmployeeWithNoAbsenses() {
+    private List<AbsenceTime> createAbsenceListForEmployeeWithNoAbsences() {
         return List.of();
     }
 

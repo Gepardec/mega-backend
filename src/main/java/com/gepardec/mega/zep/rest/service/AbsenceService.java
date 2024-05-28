@@ -38,7 +38,7 @@ public class AbsenceService {
             );
 
             List<ZepAbsence> filteredAbsences = absences.stream()
-                                                        .filter(absence -> absenceIsInRange(absence, start, end))
+                                                        .filter(absence -> datesInRange(absence.startDate(), absence.endDate(), start, end))
                                                         .toList();
             return getFullZepAbsences(filteredAbsences);
         }  catch (ZepServiceException e) {
@@ -49,11 +49,11 @@ public class AbsenceService {
     }
 
     // this also checks if startDate or endDate is exact match
-    private boolean absenceIsInRange(ZepAbsence absence, LocalDate fromDateForRequest, LocalDate toDateForRequest) {
-        return ((absence.startDate().equals(fromDateForRequest) && absence.endDate().equals(toDateForRequest)) ||
-                (absence.startDate().equals(fromDateForRequest) && absence.endDate().isBefore(toDateForRequest)) ||
-                (absence.startDate().isAfter(fromDateForRequest) && absence.endDate().equals(toDateForRequest)) ||
-                (absence.startDate().isAfter(fromDateForRequest) && absence.endDate().isBefore(toDateForRequest)));
+    private boolean datesInRange(LocalDate startDate, LocalDate endDate, LocalDate fromDateForRequest, LocalDate toDateForRequest) {
+        return ((startDate.equals(fromDateForRequest) && endDate.equals(toDateForRequest)) ||
+                (startDate.equals(fromDateForRequest) && endDate.isBefore(toDateForRequest)) ||
+                (startDate.isAfter(fromDateForRequest) && endDate.equals(toDateForRequest)) ||
+                (startDate.isAfter(fromDateForRequest) && endDate.isBefore(toDateForRequest)));
     }
 
     public ZepAbsence getZepAbsenceById(int id) {
