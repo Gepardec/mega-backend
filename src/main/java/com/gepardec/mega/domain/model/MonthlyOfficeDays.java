@@ -1,13 +1,13 @@
-package com.gepardec.mega.rest.model;
+package com.gepardec.mega.domain.model;
 
-public class MonthlyOfficeTimesDto {
+public class MonthlyOfficeDays {
     private final int homeofficeDays;
     private final int fridaysAtTheOffice;
     private final int officeDays;
 
-    public static Builder builder(){return Builder.aMonthlyOfficeTimesDto();}
+    public static Builder builder(){return Builder.aMonthlyOfficeDays();}
 
-    private MonthlyOfficeTimesDto(Builder builder) {
+    private MonthlyOfficeDays(Builder builder) {
         this.homeofficeDays = builder.homeofficeDays;
         this.fridaysAtTheOffice = builder.fridaysAtTheOffice;
         this.officeDays = builder.officeDays;
@@ -31,7 +31,7 @@ public class MonthlyOfficeTimesDto {
         private int officeDays;
 
         private Builder(){}
-        public static Builder aMonthlyOfficeTimesDto(){return new Builder();}
+        public static Builder aMonthlyOfficeDays(){return new Builder();}
 
         public Builder homeOfficeDays(int homeofficeDays){
             this.homeofficeDays = homeofficeDays;
@@ -48,6 +48,6 @@ public class MonthlyOfficeTimesDto {
             return this;
         }
 
-        public MonthlyOfficeTimesDto build(){return new MonthlyOfficeTimesDto(this);}
+        public MonthlyOfficeDays build(){return new MonthlyOfficeDays(this);}
     }
 }

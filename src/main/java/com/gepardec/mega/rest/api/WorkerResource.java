@@ -1,9 +1,8 @@
 package com.gepardec.mega.rest.api;
 
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
-import com.gepardec.mega.rest.model.MonthlyOfficeTimesDto;
+import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -94,7 +93,7 @@ public interface WorkerResource {
             description = "Successfully retrieved office days for employee.",
             content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = MonthlyOfficeTimesDto.class))
+                            schema = @Schema(implementation = MonthlyOfficeDaysDto.class))
             }
     )
     @Parameter(name = "id", description = "ID of the employee for whom the office days are to be retrieved.")
@@ -104,8 +103,8 @@ public interface WorkerResource {
                     "For example if 2024-03 is given it retrieves all office days from 2024-03-01 to 2024-03-31.",
             in = ParameterIn.QUERY,
             schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
-    @Path("/{id}/officetimes")
+    @Path("/{id}/officedays")
     @GET
-    MonthlyOfficeTimesDto getOfficeDaysForMonthAndEmployee(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
+    MonthlyOfficeDaysDto getOfficeDaysForMonthAndEmployee(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
 
 }
