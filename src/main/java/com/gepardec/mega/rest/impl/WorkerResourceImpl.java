@@ -18,6 +18,7 @@ import com.gepardec.mega.rest.mapper.MonthlyReportMapper;
 import com.gepardec.mega.rest.mapper.ProjectHoursSummaryMapper;
 import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
+import com.gepardec.mega.rest.model.MonthlyOfficeTimesDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -115,6 +116,11 @@ public class WorkerResourceImpl implements WorkerResource {
         List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee,fromDateForRequest);
 
         return monthlyAbsencesMapper.mapToDto(createMonthlyAbsences(availableVacationDays, doctorsVisitingHours, absences, fromDateForRequest));
+    }
+
+    @Override
+    public MonthlyOfficeTimesDto getOfficeTimesForMonthAndEmployee(String employeeId, YearMonth from) {
+        return null;
     }
 
     private MonthlyAbsences createMonthlyAbsences(int availableVacationDays, double doctorsVisitingHours, List<AbsenceTime> absences, LocalDate fromDateForRequest){
