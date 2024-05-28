@@ -38,7 +38,7 @@ public class AbsenceServiceImpl implements AbsenceService {
             LocalDate toDate = a.toDate();
 
             if (fromDate.equals(toDate)) {
-                if (!holidays.contains(fromDate)) {
+                if (!holidays.contains(fromDate) && OfficeCalendarUtil.isWorkingDay(fromDate)) {
                     count += 1;
                 }
             } else {
