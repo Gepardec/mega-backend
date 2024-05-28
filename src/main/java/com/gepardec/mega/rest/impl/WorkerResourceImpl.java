@@ -118,6 +118,7 @@ public class WorkerResourceImpl implements WorkerResource {
         return monthlyAbsencesMapper.mapToDto(createMonthlyAbsences(availableVacationDays, doctorsVisitingHours, absences, fromDateForRequest));
     }
 
+    // includes homeoffice and fridays in office as well
     @Override
     public MonthlyOfficeTimesDto getOfficeTimesForMonthAndEmployee(String employeeId, YearMonth from) {
         return null;
