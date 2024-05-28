@@ -89,23 +89,23 @@ public interface WorkerResource {
     @GET
     MonthlyAbsencesDto getAllAbsencesForMonthAndEmployee(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
 
-    @Operation(operationId = "getOfficeTimesForMonthAndEmployee", description = "Get office times, homeoffice times and fridays spent in the office for the employee with given id and for current month.")
+    @Operation(operationId = "getOfficeDaysForMonthAndEmployee", description = "Get office days, homeoffice days and fridays spent in the office for the employee with given id and for current month.")
     @APIResponse(responseCode = "200",
-            description = "Successfully retrieved office times for employee.",
+            description = "Successfully retrieved office days for employee.",
             content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON,
                             schema = @Schema(implementation = MonthlyOfficeTimesDto.class))
             }
     )
-    @Parameter(name = "id", description = "ID of the employee for whom the office times are to be retrieved.")
+    @Parameter(name = "id", description = "ID of the employee for whom the office days are to be retrieved.")
     @Parameter(name = "from",
             description = "If not given uses the whole current month. <br> " +
                     "If given uses the whole month of the parameter-date. <br>" +
-                    "For example if 2024-03 is given it retrieves all office times from 2024-03-01 to 2024-03-31.",
+                    "For example if 2024-03 is given it retrieves all office days from 2024-03-01 to 2024-03-31.",
             in = ParameterIn.QUERY,
             schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
     @Path("/{id}/officetimes")
     @GET
-    MonthlyOfficeTimesDto getOfficeTimesForMonthAndEmployee(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
+    MonthlyOfficeTimesDto getOfficeDaysForMonthAndEmployee(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
 
 }
