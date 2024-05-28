@@ -35,7 +35,12 @@ public class ResourceFileService {
 
     public List<String> getDirContents(String path) {
         File filesSubDir = new File(filesDir.getPath() + "/" + path);
-        return Arrays.stream(filesSubDir.listFiles())
+        File[] files = filesSubDir.listFiles();
+        if (files == null) {
+            throw   new RuntimeException("No test files found in directory: " + filesSubDir.getPath());
+        }
+
+        return Arrays.stream(files)
                 .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
 //                .peek(f -> System.out.println(f.getName()))
                 .map(ResourceFileService::readFile)
@@ -52,8 +57,12 @@ public class ResourceFileService {
     }
 
     private File getFileOfResourcesPath(String path) {
+        try{
         String resourcesPath = this.getClass().getResource("/").getPath();
         String absPath = resourcesPath + path;
         return new File(absPath);
+        }catch(Exception e){
+            throw new RuntimeException("Error reading resource Path for test resources", e);
+        }
     }
 }

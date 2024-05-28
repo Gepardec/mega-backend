@@ -28,7 +28,7 @@ public class RegularWorkingTimesService {
     public Optional<ZepRegularWorkingTimes> getRegularWorkingTimesByUsername(String username) {
         try  {
             List<ZepRegularWorkingTimes> zepRegularWorkingTimes = responseParser.retrieveAll(
-                    (page) -> zepEmployeeRestClient.getRegularWorkingTimesByUsername(username, page),
+                    page -> zepEmployeeRestClient.getRegularWorkingTimesByUsername(username, page),
                     ZepRegularWorkingTimes.class);
 
             if (zepRegularWorkingTimes.isEmpty()) {

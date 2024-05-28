@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.gepardec.mega.zep.ZepServiceException;
+import jakarta.ws.rs.InternalServerErrorException;
+
 import java.util.Optional;
 
 
@@ -30,7 +32,7 @@ public class JsonUtil {
             return Optional.of(objectMapper.treeToValue(jsonNode, resultClass));
         }  catch (JsonProcessingException e) {
             if (e instanceof MismatchedInputException mme) {
-                throw new RuntimeException(mme.getMessage());
+                throw new InternalServerErrorException(mme.getMessage());
             }
             throw new ZepServiceException("Error while parsing json to " + resultClass.getName(), e);
         }

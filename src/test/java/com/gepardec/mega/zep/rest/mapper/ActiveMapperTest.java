@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-public class ActiveMapperTest {
+class ActiveMapperTest {
     @Inject
     ActiveMapper activeMapper;
 

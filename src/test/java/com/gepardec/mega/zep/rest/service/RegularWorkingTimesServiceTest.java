@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class RegularWorkingTimesServiceTest {
+class RegularWorkingTimesServiceTest {
 
 
     @RestClient
@@ -29,10 +29,10 @@ public class RegularWorkingTimesServiceTest {
     ResourceFileService resourceFileService;
 
     @Test
-    public void getRegularWorkingTimesByUsername_receiveValidWorkingTime_then_returnValidZepWorkingTime(){
+    void getRegularWorkingTimesByUsername_receiveValidWorkingTime_then_returnValidZepWorkingTime(){
 
         ZepRegularWorkingTimes regularWorkingTimes = ZepRegularWorkingTimes.builder()
-                .start_date(null)
+                .startDate(null)
                 .monday(8.0)
                 .tuesday(8.0)
                 .wednesday(8.0)

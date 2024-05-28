@@ -5,6 +5,7 @@ import de.provantis.zep.AttributeType;
 import de.provantis.zep.AttributesType;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 public class MapperUtil {
     public static Map<String, String> convertAttributesToMap(AttributesType attributes) {
         if (attributes == null) {
-            return null;
+            return Collections.emptyMap();
         }
         return attributes.getAttribute().stream()
                 .filter(Objects::nonNull)

@@ -5,12 +5,10 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.impl.Rest;
 
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -21,13 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 
 //Integration tests for the getEmployee method in ZepRestService
 @QuarkusTest
 @Disabled
-public class ZepRestIntegrationTest {
+class ZepRestIntegrationTest {
 
 
     @Inject
@@ -72,7 +68,7 @@ public class ZepRestIntegrationTest {
     @Test
     public void getProjectTimes_valid() {
         List<ProjectEntry> projectEntries = zepService.getProjectTimes(zepService.getEmployee("001-hwirnsberger"), LocalDate.of(2020, 4, 1));
-        assertThat(projectEntries.size()).isGreaterThan(0);
+        assertThat(projectEntries.size()).isPositive();
         for (ProjectEntry projectEntry : projectEntries) {
             assertThat(projectEntry.getDurationInHours()).isNotNull();
             assertThat(projectEntry.getDate().getMonthValue()).isEqualTo(4);
@@ -82,7 +78,7 @@ public class ZepRestIntegrationTest {
     @Test
     public void getProjectTimes_noEntries() {
         List<ProjectEntry> projectEntries = zepService.getProjectTimes(zepService.getEmployee("082-tmeindl"), LocalDate.of(2020, 4, 1));
-        assertThat(projectEntries.size()).isEqualTo(0);
+        assertThat(projectEntries.size()).isZero();
     }
 
     @Test
@@ -98,7 +94,7 @@ public class ZepRestIntegrationTest {
     public void getProjectsForMonthYear_valid() {
         for (int i = 1; i < 10; i++) {
             List<Project> projects = zepService.getProjectsForMonthYear(LocalDate.of(2020, i, 1));
-            assertThat(projects.size()).isGreaterThan(0);
+            assertThat(projects.size()).isPositive();
         }
         List<Project> projects = zepService.getProjectsForMonthYear(LocalDate.of(2021, 1, 1));
         assertThat(projects.size()).isEqualTo(33);
@@ -118,7 +114,7 @@ public class ZepRestIntegrationTest {
     @Test
     public void getProjectByName_valid() {
         Project project = zepService.getProjectByName("BVAEB-KAP-2021", LocalDate.of(2021, 1, 5)).get();
-        System.out.println(project.getZepId());
+        assertThat(project.getZepId()).isEqualTo(158);
     }
 
 

@@ -5,10 +5,8 @@ import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.utils.DateUtils;
-import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.time.DayOfWeek;

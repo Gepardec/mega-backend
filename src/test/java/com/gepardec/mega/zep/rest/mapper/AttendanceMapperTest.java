@@ -3,7 +3,6 @@ package com.gepardec.mega.zep.rest.mapper;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
 import com.gepardec.mega.zep.rest.dto.ZepAttendanceDirectionOfTravel;
-import com.gepardec.mega.zep.rest.dto.ZepBillable;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -11,7 +10,7 @@ import java.time.LocalTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AttendanceMapperTest {
+class AttendanceMapperTest {
 
     @Test
     void withFullSettings_thenReturnsAbsenceTimeObject() {

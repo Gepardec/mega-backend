@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public class RegularWorkingHoursMapMapper implements Mapper<Map<DayOfWeek, Durat
 
         try{
 
-            Map<DayOfWeek, Duration> regularWorkingHours = new HashMap<>();
+            Map<DayOfWeek, Duration> regularWorkingHours = new EnumMap<>(DayOfWeek.class);
 
             if (zepRegularWorkingTimes != null) {
                 regularWorkingHours.put(DayOfWeek.MONDAY, Duration.ofHours(zepRegularWorkingTimes.monday() == null ? 0 : zepRegularWorkingTimes.monday().longValue()));

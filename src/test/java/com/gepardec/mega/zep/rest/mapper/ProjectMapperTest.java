@@ -16,7 +16,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-public class ProjectMapperTest {
+class ProjectMapperTest {
     @Test
     public void fullZepProject_thenFullProject() {
         ProjectMapper projectMapper = new ProjectMapper();

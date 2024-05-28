@@ -1,21 +1,16 @@
 package com.gepardec.mega.zep.mapper;
 
-import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.ProjectTime;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import de.provantis.zep.ProjektzeitType;
-import de.provantis.zep.AttributesType;
-import de.provantis.zep.AttributeType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ProjectTimeMapperTest {
+class ProjectTimeMapperTest {
 
 
 

@@ -1,25 +1,16 @@
 package com.gepardec.mega.zep.mapper;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
-import com.gepardec.mega.domain.model.monthlyreport.*;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import de.provantis.zep.ProjektzeitType;
 import de.provantis.zep.FehlzeitType;
-import de.provantis.zep.AttributesType;
-import de.provantis.zep.AttributeType;
 
-public class AbsenceTimeMapperTest {
+class AbsenceTimeMapperTest {
 
     @Test
     void whenNull_thenReturnsNull() {

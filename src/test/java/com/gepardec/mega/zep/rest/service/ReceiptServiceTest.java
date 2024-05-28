@@ -28,7 +28,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @QuarkusTest
-public class ReceiptServiceTest {
+class ReceiptServiceTest {
 
     @InjectMock
     @RestClient
@@ -46,7 +46,7 @@ public class ReceiptServiceTest {
 
 
     @Test
-    public void testGetAmountByReceiptId_whenAmountPresent_thenReturnZepReceiptAmount() {
+    void testGetAmountByReceiptId_whenAmountPresent_thenReturnZepReceiptAmount() {
         int receiptId = 123;
 
         ZepReceiptAmount expectedAmount = ZepReceiptAmount.builder()
@@ -68,7 +68,7 @@ public class ReceiptServiceTest {
     }
 
     @Test
-    public void testGetAmountByReceiptId_whenNoAmountPresent_thenReturnEmptyOptional() {
+    void testGetAmountByReceiptId_whenNoAmountPresent_thenReturnEmptyOptional() {
         int receiptId = 123;
 
         when(zepReceiptRestClient.getAmountForReceipt(receiptId))
@@ -80,7 +80,7 @@ public class ReceiptServiceTest {
     }
 
     @Test
-    public void testGetAmountByReceiptId_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
+    void testGetAmountByReceiptId_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
         int receiptId = 123;
         Response tooManyRequestsResponse = Response.status(Response.Status.TOO_MANY_REQUESTS).build();
 
@@ -97,7 +97,7 @@ public class ReceiptServiceTest {
     }
 
     @Test
-    public void testGetAttachmentByReceiptId_whenAttachmentIsPresent_thenReturnZepReceiptAttachment() {
+    void testGetAttachmentByReceiptId_whenAttachmentIsPresent_thenReturnZepReceiptAttachment() {
         int receiptId = 123;
 
         ZepReceiptAttachment expectedAttachment = ZepReceiptAttachment.builder()
@@ -117,7 +117,7 @@ public class ReceiptServiceTest {
     }
 
     @Test
-    public void testGetAttachmentByReceiptId_whenNoAttachmentPresent_thenReturnEmptyOptional() {
+    void testGetAttachmentByReceiptId_whenNoAttachmentPresent_thenReturnEmptyOptional() {
         int receiptId = 123;
 
         when(zepReceiptRestClient.getAttachmentForReceipt(receiptId))
@@ -132,7 +132,7 @@ public class ReceiptServiceTest {
     }
 
     @Test
-    public void testGetAttachmentByReceiptId_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
+    void testGetAttachmentByReceiptId_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
         int receiptId = 123;
         Response tooManyRequestsResponse = Response.status(Response.Status.TOO_MANY_REQUESTS).build();
 
@@ -149,7 +149,7 @@ public class ReceiptServiceTest {
     }
 
     @Test
-    public void testGetAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonth_thenReturnListOfReceipts() {
+    void testGetAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonth_thenReturnListOfReceipts() {
         List<ZepReceipt> expectedReceipts = new ArrayList<>();
         expectedReceipts.add(ZepReceipt.builder()
                                       .id(1)
@@ -182,7 +182,7 @@ public class ReceiptServiceTest {
     }
 
     @Test
-    public void testGetAllReceiptsForYearMonth_whenNoReceiptsArePresentForYearMonth_thenReturnEmptyList() {
+    void testGetAllReceiptsForYearMonth_whenNoReceiptsArePresentForYearMonth_thenReturnEmptyList() {
         when(zepReceiptRestClient.getAllReceiptsForMonth(anyString(), anyString(), anyInt()))
                 .thenReturn(Response.noContent().build());
 
@@ -203,7 +203,7 @@ public class ReceiptServiceTest {
     }
 
     @Test
-    public void testGetAllReceiptsForYearMonth_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
+    void testGetAllReceiptsForYearMonth_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
         Response tooManyRequestsResponse = Response.status(Response.Status.TOO_MANY_REQUESTS).build();
 
         when(zepReceiptRestClient.getAllReceiptsForMonth(anyString(), anyString(), anyInt()))

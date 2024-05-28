@@ -4,7 +4,6 @@ import com.gepardec.mega.domain.model.monthlyreport.*;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
 import com.gepardec.mega.zep.rest.dto.ZepAttendanceDirectionOfTravel;
-import com.gepardec.mega.zep.rest.dto.ZepBillable;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @QuarkusTest
-public class ProjectEntryMapperTest {
+class ProjectEntryMapperTest {
 
     @Inject
     ProjectEntryMapper projectEntryMapper;

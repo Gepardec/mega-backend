@@ -1,6 +1,5 @@
 package com.gepardec.mega.rest.api;
 
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import jakarta.ws.rs.*;
