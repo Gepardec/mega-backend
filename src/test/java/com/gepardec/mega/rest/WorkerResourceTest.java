@@ -1,6 +1,8 @@
 package com.gepardec.mega.rest;
+import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.db.entity.common.PaymentMethodType;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
@@ -9,12 +11,16 @@ import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
+import com.gepardec.mega.domain.utils.DateUtils;
+import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.api.WorkerResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
+import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyReportDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
+import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.zep.ZepService;
@@ -26,6 +32,7 @@ import io.quarkus.test.security.jwt.Claim;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
@@ -54,6 +61,9 @@ public class WorkerResourceTest {
     @InjectMock
     EmployeeService employeeService;
 
+    @InjectMock
+    PersonioEmployeesService personioEmployeesService;
+
     @InjectMock @Rest
     ZepService zepService;
 
@@ -62,6 +72,9 @@ public class WorkerResourceTest {
 
     @InjectMock
     EmployeeMapper mapper;
+
+    @InjectMock
+    DateHelperService dateHelperService;
 
     @Inject
     WorkerResource workerResource;
@@ -343,7 +356,7 @@ public class WorkerResourceTest {
         when(zepService.getAllProjectsForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(getProjectsHoursSummaryForEmployee());
 
-        List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 5));
+        List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 6));
 
         assertThat(actual).isNotNull();
         assertThat(actual.size()).isEqualTo(4);
@@ -362,12 +375,118 @@ public class WorkerResourceTest {
         when(zepService.getAllProjectsForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(List.of());
 
-        List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 5));
+        List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 6));
 
         assertThat(actual).isNotNull();
         assertThat(actual.size()).isZero();
     }
 
+    @Test
+    void getAllAbsencesForMonthAndEmployee_whenEmployeeHasAbsences_thenReturnAbsenceObjectWithValues() {
+        User userForRole = createUserForRole(Role.EMPLOYEE);
+        when(userContext.getUser()).thenReturn(userForRole);
+        final Employee userAsEmployee = createEmployeeForUser(userForRole);
+
+        int availableVacationDays = 20;
+        double doctorsVisitingTime = 1.75;
+        LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(LocalDate.now().toString());
+        String toDateString = DateUtils.getLastDayOfCurrentMonth(fromDate);
+        Pair<String, String> datePair = Pair.of(fromDate.toString(), toDateString);
+
+
+        when(employeeService.getEmployee(anyString()))
+                .thenReturn(userAsEmployee);
+
+        when(personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail(anyString()))
+                .thenReturn(availableVacationDays);
+
+        when(zepService.getDoctorsVisitingTimeForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
+                .thenReturn(doctorsVisitingTime);
+
+        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
+                .thenReturn(datePair);
+
+        when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class)))
+                .thenReturn(createAbsenceListForEmployee());
+
+
+
+        MonthlyAbsencesDto actual = workerResource.getAllAbsencesForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+
+        assertThat(actual.getAvailableVacationDays()).isEqualTo(availableVacationDays);
+        assertThat(actual.getDoctorsVisitingTime()).isEqualTo(doctorsVisitingTime);
+        assertThat(actual.getConferenceDays()).isOne();
+    }
+
+    @Test
+    void getAllAbsencesForMonthAndEmployee_whenEmployeeHasNoAbsences_thenReturnAbsenceObjectWithAllZeros() {
+        User userForRole = createUserForRole(Role.EMPLOYEE);
+        when(userContext.getUser()).thenReturn(userForRole);
+        final Employee userAsEmployee = createEmployeeForUser(userForRole);
+        int availableVacationDays = 0;
+        double doctorsVisitingTime = 0.0;
+        LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(LocalDate.now().toString());
+        String toDateString = DateUtils.getLastDayOfCurrentMonth(fromDate);
+        Pair<String, String> datePair = Pair.of(fromDate.toString(), toDateString);
+
+
+        when(employeeService.getEmployee(anyString()))
+                .thenReturn(userAsEmployee);
+
+        when(personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail(anyString()))
+                .thenReturn(availableVacationDays);
+
+        when(zepService.getDoctorsVisitingTimeForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
+                .thenReturn(doctorsVisitingTime);
+
+        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
+                .thenReturn(datePair);
+
+        when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class)))
+                .thenReturn(createAbsenceListForEmployeeWithNoAbsences());
+
+
+
+        MonthlyAbsencesDto actual = workerResource.getAllAbsencesForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+
+
+        assertThat(actual.getAvailableVacationDays()).isEqualTo(availableVacationDays);
+        assertThat(actual.getDoctorsVisitingTime()).isEqualTo(doctorsVisitingTime);
+        assertThat(actual.getVacationDays()).isZero();
+        assertThat(actual.getCompensatoryDays()).isZero();
+        assertThat(actual.getNursingDays()).isZero();
+        assertThat(actual.getMaternityLeaveDays()).isZero();
+        assertThat(actual.getExternalTrainingDays()).isZero();
+        assertThat(actual.getConferenceDays()).isZero();
+        assertThat(actual.getMaternityProtectionDays()).isZero();
+        assertThat(actual.getFatherMonthDays()).isZero();
+        assertThat(actual.getPaidSpecialLeaveDays()).isZero();
+        assertThat(actual.getNonPaidVacationDays()).isZero();
+        assertThat(actual.getPaidSickLeave()).isZero();
+    }
+
+
+    private List<AbsenceTime> createAbsenceListForEmployee() {
+        return List.of(
+                createAbsenceTime(LocalDate.now(), LocalDate.now(), AbsenceType.CONFERENCE_DAYS.getAbsenceName()),
+                createAbsenceTime(LocalDate.now(), LocalDate.now(), AbsenceType.VACATION_DAYS.getAbsenceName()),
+                createAbsenceTime(LocalDate.now(), LocalDate.now(), AbsenceType.MATERNITY_LEAVE_DAYS.getAbsenceName()),
+                createAbsenceTime(LocalDate.now(), LocalDate.now(), AbsenceType.PAID_SICK_LEAVE.getAbsenceName())
+        );
+    }
+
+    private List<AbsenceTime> createAbsenceListForEmployeeWithNoAbsences() {
+        return List.of();
+    }
+
+    private AbsenceTime createAbsenceTime(LocalDate startDate, LocalDate endDate, String reason) {
+        return AbsenceTime.builder()
+                    .fromDate(startDate)
+                    .toDate(endDate)
+                    .reason(reason)
+                    .accepted(true)
+                    .build();
+    }
 
     private ProjectHoursSummary createProjectHourSummary(String projectName, double billableHoursSum, double nonBillableHours) {
         return ProjectHoursSummary.builder()

@@ -40,8 +40,6 @@ public interface ZepEmployeeRestClient {
     @GET
     @Path("/{username}/absences")
     Response getAbsencesByUsername(@PathParam("username") String username,
-                                   @QueryParam("start_date") LocalDate startDate,
-                                   @QueryParam("end_date") LocalDate endDate,
                                    @QueryParam("page") int page);
 
 }
