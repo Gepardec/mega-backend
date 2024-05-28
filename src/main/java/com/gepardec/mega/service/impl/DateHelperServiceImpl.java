@@ -47,7 +47,7 @@ public class DateHelperServiceImpl implements DateHelperService {
         int fridayCounter = 0;
 
         for (LocalDate day = fromDate; !day.isAfter(toDate); day = day.plusDays(1)) {
-            if(OfficeCalendarUtil.isFriday(day)){
+            if(OfficeCalendarUtil.isFriday(day) && OfficeCalendarUtil.isWorkingDay(day)){
                 fridayCounter++;
             }
         }
@@ -63,7 +63,6 @@ public class DateHelperServiceImpl implements DateHelperService {
                 count++;
             }
         }
-
         return count;
     }
 
