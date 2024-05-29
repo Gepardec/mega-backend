@@ -35,7 +35,7 @@ public interface ZepService {
 
     List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date);
 
-    MonthlyBillInfo getMonthlyBillInfoForEmployeeByMonth(PersonioEmployee personioEmployee, final Employee employee, YearMonth yearMonth);
+    MonthlyBillInfo getMonthlyBillInfoForEmployee(PersonioEmployee personioEmployee, final Employee employee, YearMonth yearMonth);
 
     List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(final Employee employee, YearMonth yearMonth);
 

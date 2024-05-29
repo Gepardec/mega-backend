@@ -197,45 +197,10 @@ public class ZepSoapServiceImpl implements ZepService {
     }
 
     @Override
-    public MonthlyBillInfo getMonthlyBillInfoForEmployeeByMonth(PersonioEmployee personioEmployee, Employee employee, YearMonth yearMonth) {
-        String fromDate = getFirstDayOfCurrentMonth(LocalDate.now());
-        String toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
-
-        if(yearMonth != null){
-            fromDate = formatDate(yearMonth.atDay(1));
-            toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
-        }
-
-        final ReadBelegResponseType readBelegResponseType = getBillsInternal(employee, fromDate, toDate);
-        BelegListeType billList = readBelegResponseType.getBelegListe();
-
-        return createMonthlyBillInfo(billList, personioEmployee);
+    public MonthlyBillInfo getMonthlyBillInfoForEmployee(PersonioEmployee personioEmployee, Employee employee, YearMonth yearMonth) {
+        throw new NotImplementedException("This method is not provided in SOAP, use REST instead"); // not provided due to using REST
     }
 
-    private MonthlyBillInfo createMonthlyBillInfo(final BelegListeType belegListeType, PersonioEmployee personioEmployee) {
-        int sumBills = belegListeType.getLength();
-        boolean hasAttachmentWarnings = false;
-        int sumPrivateBills = 0;
-
-        for(BelegType bill : belegListeType.getBeleg()) {
-            ReadBelegAnhangResponseType readBelegAnhangResponseType = getAttachmentForBill(bill.getBelegNr());
-            if(readBelegAnhangResponseType.getAnhang().getInhalt() == null) {
-                hasAttachmentWarnings = true;
-            }
-
-            if(bill.getZahlungsart().equals(PaymentMethodType.PRIVATE.name())){
-                sumPrivateBills++;
-            }
-        }
-
-        return MonthlyBillInfo.builder()
-                .sumBills(sumBills)
-                .sumPrivateBills(sumPrivateBills)
-                .sumCompanyBills(sumBills - sumPrivateBills)
-                .hasAttachmentWarnings(hasAttachmentWarnings)
-                .employeeHasCreditCard(personioEmployee.getHasCreditCard())
-                .build();
-    }
 
     @CacheResult(cacheName = "projectentry")
     @Override
@@ -274,27 +239,6 @@ public class ZepSoapServiceImpl implements ZepService {
                 .map(pt -> createProject(pt, monthYear))
                 .toList();
     }
-
-
-   /* @Override
-    public List<Bill> getBillsForEmployeeByMonth(final Employee employee, YearMonth yearMonth) {
-        String fromDate = getFirstDayOfCurrentMonth(LocalDate.now());
-        String toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
-
-        if(yearMonth != null){
-            fromDate = formatDate(yearMonth.atDay(1));
-            toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
-        }
-
-        final ReadBelegResponseType readBelegResponseType = getBillsInternal(employee, fromDate, toDate);
-
-        BelegListeType billList = readBelegResponseType.getBelegListe();
-        return billList.getBeleg().stream()
-                .map(this::createBill)
-                .toList();
-    }*/
-
-
 
     @Override
     public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {

@@ -13,7 +13,6 @@ import java.time.YearMonth;
 import java.util.List;
 
 @ApplicationScoped
-@Named("InternalAbsenceService")
 public class AbsenceServiceImpl implements AbsenceService {
 
     @Inject

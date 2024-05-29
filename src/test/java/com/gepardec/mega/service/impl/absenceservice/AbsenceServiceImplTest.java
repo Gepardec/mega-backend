@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 @QuarkusTest
 public class AbsenceServiceImplTest {
 
-    @Inject @Named("InternalAbsenceService")
+    @Inject
     AbsenceService absenceService;
 
     @InjectMock

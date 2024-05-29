@@ -139,47 +139,6 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void testGetBillsForEmployeeByMonth_whenEmployeeHasBills_returnsBills() {
-        when(zepSoapPortType.readBeleg(Mockito.any(ReadBelegRequestType.class)))
-                .thenReturn(createReadBelegResponseType(
-                                List.of(
-                                        createBelegType(19874),
-                                        createBelegType(19875)
-                                )
-                        )
-                );
-
-        when(zepSoapPortType.readBelegAnhang(Mockito.any(ReadBelegAnhangRequestType.class)))
-                .thenReturn(createReadBelegAnhangResponseType());
-
-        when(monthlyReportService.isMonthConfirmedFromEmployee(createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-03-31"), LocalDate.of(2024, 3, 1)))
-                .thenReturn(true);
-
-        List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-03-31"), YearMonth.of(2024, 3));
-
-        assertThat(actual).isNotNull().size().isEqualTo(2);
-        assertThat(actual.get(0).getProjectName()).isEqualTo("3BankenIT - JBoss");
-    }
-
-    @Test
-    void testGetBillsForEmployeeByMonth_whenEmployeeHasNoBills_returnsEmptyList() {
-        when(zepSoapPortType.readBeleg(Mockito.any(ReadBelegRequestType.class)))
-                .thenReturn(createReadBelegResponseType(
-                                List.of()
-                        )
-                );
-
-        when(zepSoapPortType.readBelegAnhang(Mockito.any(ReadBelegAnhangRequestType.class)))
-                .thenReturn(createReadBelegAnhangResponseType());
-
-        when(monthlyReportService.isMonthConfirmedFromEmployee(createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-02-29"), LocalDate.of(2024, 3, 1)))
-                .thenReturn(true);
-
-        List<Bill> actual = zepService.getBillsForEmployeeByMonth(createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-02-29"), YearMonth.of(2024, 3));
-
-        assertThat(actual).isNotNull().isEmpty();
-    }
-    @Test
     void getEmployee_releaseDateFromZepNullString_releaseDateMappedToNull() {
         MitarbeiterType mitarbeiter = createMitarbeiterType(0);
         mitarbeiter.setFreigabedatum(null);

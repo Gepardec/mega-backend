@@ -32,7 +32,7 @@ public interface WorkerResource {
     @Path("/monthendreports/{year}/{month}")
     Response monthlyReport(@PathParam("year") Integer year, @PathParam("month") Integer month);
 
-    @Operation(operationId = "getBillInformationForEmployeeByMonth", description = "Get total sum of bills (and if every bill has an attachment), get sum of private and company bills and info about credit card that the user with given id uploaded for current month.")
+    @Operation(operationId = "getBillInformationForEmployee", description = "Get total sum of bills (and if every bill has an attachment), get sum of private and company bills and info about credit card that the user with given id uploaded for current month.")
     @APIResponse(responseCode = "200",
             description = "Successfully retrieved bill information for employee.",
             content = {
@@ -49,7 +49,7 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
     @Path("/{id}/bills")
     @GET
-    MonthlyBillInfoDto getBillInfoForEmployeeByMonth(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
+    MonthlyBillInfoDto getBillInfoForEmployee(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
 
     @Operation(operationId = "getAllProjectsForMonthAndEmployee", description = "Get all projects for the employee with given id and for current month.")
     @APIResponse(responseCode = "200",

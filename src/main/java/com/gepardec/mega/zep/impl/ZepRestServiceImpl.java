@@ -231,7 +231,7 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     @Override
-    public MonthlyBillInfo getMonthlyBillInfoForEmployeeByMonth(PersonioEmployee personioEmployee, Employee employee, YearMonth yearMonth) {
+    public MonthlyBillInfo getMonthlyBillInfoForEmployee(PersonioEmployee personioEmployee, Employee employee, YearMonth yearMonth) {
         Pair<String, String> fromToDatePair = dateHelperService.getCorrectDateForRequest(employee, yearMonth);
         return getMonthlyBillInfoInternal(personioEmployee, employee, fromToDatePair.getLeft(), fromToDatePair.getRight());
     }
@@ -342,7 +342,17 @@ public class ZepRestServiceImpl implements ZepService {
             int sumBills = allReceiptsForYearMonthAndEmployee.size();
             return createMonthlyBillInfo(personioEmployee, allReceiptsForYearMonthAndEmployee, sumBills);
         }
-        return null;
+        return createMonthlyBillInfoWhenNoBills(personioEmployee);
+    }
+
+    private MonthlyBillInfo createMonthlyBillInfoWhenNoBills(PersonioEmployee personioEmployee){
+        return MonthlyBillInfo.builder()
+                .sumBills(0)
+                .sumPrivateBills(0)
+                .sumCompanyBills(0)
+                .hasAttachmentWarnings(false) // no bills -> no warnings
+                .employeeHasCreditCard(personioEmployee.getHasCreditCard())
+                .build();
     }
 
     private MonthlyBillInfo createMonthlyBillInfo(PersonioEmployee personioEmployee, List<ZepReceipt> zepReceipts, int sumBills) {
@@ -355,11 +365,10 @@ public class ZepRestServiceImpl implements ZepService {
                 hasAttachmentWarnings = true;
             }
 
-            if(receipt.paymentMethodType().getPaymentMethodName().equals(PaymentMethodType.PRIVATE.name())) {
+            if(receipt.paymentMethodType().getPaymentMethodName().equals(PaymentMethodType.PRIVATE.getPaymentMethodName())) {
                 sumPrivateBills++;
             }
         }
-
         return MonthlyBillInfo.builder()
                 .sumBills(sumBills)
                 .sumPrivateBills(sumPrivateBills)
