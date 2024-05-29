@@ -628,7 +628,7 @@ public class WorkerResourceTest {
     }
 
     @Test
-    void getOfficeDaysForMonthAndEmployee_whenEmployeeHasNoAbsences_thenReturnAbsenceObjectWithZeroHomeofficeDaysAndAllFridaysAtOffice() {
+    void getOfficeDaysForMonthAndEmployee_whenEmployeeHasNoAbsences_thenReturnAbsenceObjectWithZeroHomeOfficeDaysAndAllFridaysAtOffice() {
         User userForRole = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
