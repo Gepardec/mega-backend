@@ -5,6 +5,7 @@ import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.MonthlyAbsences;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
@@ -15,6 +16,7 @@ import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.api.WorkerResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
 import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
@@ -82,6 +84,9 @@ public class WorkerResourceTest {
 
     @InjectMock
     EmployeeMapper mapper;
+
+    @InjectMock
+    MonthlyAbsencesMapper monthlyAbsencesMapper;
 
     @InjectMock
     DateHelperService dateHelperService;
@@ -419,7 +424,17 @@ public class WorkerResourceTest {
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class)))
                 .thenReturn(createAbsenceListForEmployee());
 
-
+        when(monthlyAbsencesMapper.mapToDto(any(MonthlyAbsences.class)))
+                .thenReturn(
+                        MonthlyAbsencesDto.builder()
+                                .availableVacationDays(availableVacationDays)
+                                .doctorsVisitingTime(doctorsVisitingTime)
+                                .conferenceDays(1)
+                                .vacationDays(1)
+                                .maternityLeaveDays(1)
+                                .paidSickLeave(1)
+                                .build()
+                );
 
         MonthlyAbsencesDto actual = workerResource.getAllAbsencesForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
 
