@@ -231,6 +231,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                     builder.internalProjectLead(employee.getInternalProjectLead());
                     builder.guildLead(employee.getGuildLead());
                     builder.vacationDayBalance(employee.getVacationDayBalance());
+                    builder.hasCreditCard(employee.getHasCreditCard());
                 }
         );
 

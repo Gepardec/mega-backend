@@ -3,6 +3,8 @@ package com.gepardec.mega.zep.impl;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.MonthlyBillInfo;
+import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
@@ -74,8 +76,8 @@ public class ZepServiceImpl implements ZepService {
     }
 
     @Override
-    public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
-        return zepServiceRest.getBillsForEmployeeByMonth(employee, yearMonth);
+    public MonthlyBillInfo getMonthlyBillInfoForEmployeeByMonth(PersonioEmployee personioEmployee, Employee employee, YearMonth yearMonth) {
+        return zepServiceRest.getMonthlyBillInfoForEmployeeByMonth(personioEmployee, employee, yearMonth);
     }
 
     @Override

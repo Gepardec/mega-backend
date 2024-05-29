@@ -47,6 +47,7 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .overtime(object.getOvertime())
                 .guildLead(emptyToDtoFormat(object.getGuildLead()))
                 .internalProjectLead(emptyToDtoFormat(object.getInternalProjectLead()))
+                .hasCreditCard(object.getHasCreditCard())
                 .prematureEmployeeCheck(
                         Optional.ofNullable(object.getPrematureEmployeeCheck())
                                 .map(prematureEmployeeCheckMapper::mapToDto)
@@ -87,6 +88,7 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .overtime(object.getOvertime())
                 .guildLead(emptyToDomainFormat(object.getGuildLead()))
                 .internalProjectLead(emptyToDomainFormat(object.getInternalProjectLead()))
+                .hasCreditCard(object.getHasCreditCard())
                 .prematureEmployeeCheck(prematureEmployeeCheckMapper.mapToDomain(object.getPrematureEmployeeCheck()))
                 .build();
     }

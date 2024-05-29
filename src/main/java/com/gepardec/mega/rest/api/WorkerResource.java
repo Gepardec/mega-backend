@@ -2,6 +2,7 @@ package com.gepardec.mega.rest.api;
 
 import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
+import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import jakarta.ws.rs.*;
@@ -31,15 +32,15 @@ public interface WorkerResource {
     @Path("/monthendreports/{year}/{month}")
     Response monthlyReport(@PathParam("year") Integer year, @PathParam("month") Integer month);
 
-    @Operation(operationId = "getBillsForEmployeeByMonth", description = "Get all bills that the user with given id uploaded for current month.")
+    @Operation(operationId = "getBillInformationForEmployeeByMonth", description = "Get total sum of bills (and if every bill has an attachment), get sum of private and company bills and info about credit card that the user with given id uploaded for current month.")
     @APIResponse(responseCode = "200",
-            description = "Successfully retrieved bills for employee.",
+            description = "Successfully retrieved bill information for employee.",
             content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = BillDto[].class))
+                            schema = @Schema(implementation = MonthlyBillInfoDto.class))
             }
     )
-    @Parameter(name = "id", description = "ID of the employee for whom the bills are to be retrieved.")
+    @Parameter(name = "id", description = "ID of the employee for whom the bill info is to be retrieved.")
     @Parameter(name = "from",
             description = "If not given uses the whole current month. <br> " +
                     "If given uses the whole month of the parameter-date. <br>" +
@@ -48,7 +49,7 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
     @Path("/{id}/bills")
     @GET
-    List<BillDto> getBillsForEmployeeByMonth(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
+    MonthlyBillInfoDto getBillInfoForEmployeeByMonth(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
 
     @Operation(operationId = "getAllProjectsForMonthAndEmployee", description = "Get all projects for the employee with given id and for current month.")
     @APIResponse(responseCode = "200",

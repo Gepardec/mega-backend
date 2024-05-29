@@ -3,6 +3,8 @@ package com.gepardec.mega.zep;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.MonthlyBillInfo;
+import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
@@ -33,7 +35,7 @@ public interface ZepService {
 
     List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date);
 
-    List<Bill> getBillsForEmployeeByMonth(final Employee employee, YearMonth yearMonth);
+    MonthlyBillInfo getMonthlyBillInfoForEmployeeByMonth(PersonioEmployee personioEmployee, final Employee employee, YearMonth yearMonth);
 
     List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(final Employee employee, YearMonth yearMonth);
 

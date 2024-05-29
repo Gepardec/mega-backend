@@ -6,7 +6,9 @@ import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.MonthlyAbsences;
+import com.gepardec.mega.domain.model.MonthlyBillInfo;
 import com.gepardec.mega.domain.model.MonthlyOfficeDays;
+import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
@@ -15,11 +17,13 @@ import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.api.WorkerResource;
 import com.gepardec.mega.rest.mapper.BillMapper;
 import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
+import com.gepardec.mega.rest.mapper.MonthlyBillInfoMapper;
 import com.gepardec.mega.rest.mapper.MonthlyOfficeDaysMapper;
 import com.gepardec.mega.rest.mapper.MonthlyReportMapper;
 import com.gepardec.mega.rest.mapper.ProjectHoursSummaryMapper;
 import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
+import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import com.gepardec.mega.service.api.AbsenceService;
@@ -39,6 +43,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @RequestScoped
@@ -66,7 +71,7 @@ public class WorkerResourceImpl implements WorkerResource {
     MonthlyOfficeDaysMapper monthlyOfficeDaysMapper;
 
     @Inject
-    BillMapper billMapper;
+    MonthlyBillInfoMapper monthlyBillInfoMapper;
 
     @Inject
     ProjectHoursSummaryMapper projectHoursSummaryMapper;
@@ -99,13 +104,10 @@ public class WorkerResourceImpl implements WorkerResource {
     }
 
     @Override
-    public List<BillDto> getBillsForEmployeeByMonth(String employeeId, YearMonth from) {
+    public MonthlyBillInfoDto getBillInfoForEmployeeByMonth(String employeeId, YearMonth from) {
         Employee employee = employeeService.getEmployee(employeeId);
-        List<Bill> resultBillList = zepService.getBillsForEmployeeByMonth(employee, from);
-
-        return resultBillList.stream()
-                .map(billMapper::mapToDto)
-                .toList();
+        Optional<PersonioEmployee> personioEmployee = personioEmployeesService.getPersonioEmployeeByEmail(employee.getEmail());
+        return personioEmployee.map(value -> monthlyBillInfoMapper.mapToDto(zepService.getMonthlyBillInfoForEmployeeByMonth(value, employee, from))).orElse(null);
     }
 
     @Override
