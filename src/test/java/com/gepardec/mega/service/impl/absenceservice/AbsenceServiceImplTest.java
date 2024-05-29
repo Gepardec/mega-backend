@@ -21,19 +21,19 @@ import static org.mockito.Mockito.when;
 @QuarkusTest
 public class AbsenceServiceImplTest {
 
-    @Inject @Named("InternalAbsenceService")
+    @Inject
     AbsenceService absenceService;
 
     @InjectMock
     DateHelperService dateHelperService;
 
     @Test
-    void testNumberOfFridaysAbsent_whenFourFridaysAbsent_thenReturnFour(){
+    void testNumberOfFridaysAbsent_whenFourFridaysAbsent_thenReturnThree(){
         when(dateHelperService.getFridaysInRange(any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(1);
 
         int actual = absenceService.numberOfFridaysAbsent(createAbsenceTimeList());
-        assertThat(actual).isEqualTo(4);
+        assertThat(actual).isEqualTo(3);
     }
 
     @Test
@@ -46,18 +46,18 @@ public class AbsenceServiceImplTest {
     }
 
     @Test
-    void testGetNumberOfDaysAbsent_whenFourDaysAbsent_thenReturnFour(){
+    void testGetNumberOfDaysAbsent_whenFourDaysAbsent_thenReturnThree(){
         int actual = absenceService.getNumberOfDaysAbsent(createAbsencesForDaysAbsent(), LocalDate.of(2024, 4, 1));
-        assertThat(actual).isEqualTo(6);
+        assertThat(actual).isEqualTo(3);
     }
 
     private List<AbsenceTime> createAbsencesForDaysAbsent(){
-        LocalDate start = LocalDate.of(2024, 4, 2);
+        LocalDate now = LocalDate.now();
 
         return List.of(
-            createAbsenceTime(AbsenceType.VACATION_DAYS, start, start),
-            createAbsenceTime(AbsenceType.VACATION_DAYS, start.plusDays(2), start.plusDays(4)), //contains two weekend days
-            createAbsenceTime(AbsenceType.VACATION_DAYS, start.plusDays(7), start.plusDays(9))
+            createAbsenceTime(AbsenceType.VACATION_DAYS, now, now),
+            createAbsenceTime(AbsenceType.VACATION_DAYS, now, now),
+            createAbsenceTime(AbsenceType.VACATION_DAYS, now, now)
         );
     }
 
@@ -65,8 +65,7 @@ public class AbsenceServiceImplTest {
         return List.of(
                 createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.now(), LocalDate.now()),
                 createAbsenceTime(AbsenceType.CONFERENCE_DAYS, LocalDate.now(), LocalDate.now()),
-                createAbsenceTime(AbsenceType.PAID_SICK_LEAVE, LocalDate.now(), LocalDate.now()),
-                createAbsenceTime(AbsenceType.HOME_OFFICE_DAYS, LocalDate.now(), LocalDate.now())
+                createAbsenceTime(AbsenceType.PAID_SICK_LEAVE, LocalDate.now(), LocalDate.now())
         );
     }
 

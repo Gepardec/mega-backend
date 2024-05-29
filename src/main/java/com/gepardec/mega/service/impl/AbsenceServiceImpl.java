@@ -6,14 +6,12 @@ import com.gepardec.mega.service.api.AbsenceService;
 import com.gepardec.mega.service.api.DateHelperService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
 @ApplicationScoped
-@Named("InternalAbsenceService")
 public class AbsenceServiceImpl implements AbsenceService {
 
     @Inject

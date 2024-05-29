@@ -53,7 +53,6 @@ public class WorkerResourceImpl implements WorkerResource {
     DateHelperService dateHelperService;
 
     @Inject
-    @Named("InternalAbsenceService")
     AbsenceService absenceService;
 
     @Inject
@@ -143,14 +142,14 @@ public class WorkerResourceImpl implements WorkerResource {
 
 
     private MonthlyOfficeDays createMonthlyOfficeDays(List<AbsenceTime> absences, LocalDate fromDateForRequest){
-        int homeofficeDaysCount = workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.HOME_OFFICE_DAYS.getAbsenceName(), fromDateForRequest);
-        int numberOfDaysInMonth = dateHelperService.getNumberOfWorkingDaysForMonthWithoutHolidays(fromDateForRequest);
+        int homeOfficeDaysCount = workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.HOME_OFFICE_DAYS.getAbsenceName(), fromDateForRequest);
+        int numberOfWorkingDaysInMonth = dateHelperService.getNumberOfWorkingDaysForMonthWithoutHolidays(fromDateForRequest);
         int numberOfFridaysInMonth = dateHelperService.getNumberOfFridaysInMonth(fromDateForRequest);
         int numberOfDaysAbsent = absenceService.getNumberOfDaysAbsent(absences, fromDateForRequest);
 
         return MonthlyOfficeDays.builder()
-                .homeOfficeDays(homeofficeDaysCount)
-                .officeDays(numberOfDaysInMonth - numberOfDaysAbsent)
+                .homeOfficeDays(homeOfficeDaysCount)
+                .officeDays(numberOfWorkingDaysInMonth - numberOfDaysAbsent)
                 .fridaysAtTheOffice(numberOfFridaysInMonth - absenceService.numberOfFridaysAbsent(absences))
                 .build();
     }
