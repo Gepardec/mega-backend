@@ -10,11 +10,7 @@ import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
-import io.quarkus.cache.CacheInvalidate;
-import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Default;
-import jakarta.inject.Inject;
 
 import java.time.LocalDate;
 import java.time.YearMonth;

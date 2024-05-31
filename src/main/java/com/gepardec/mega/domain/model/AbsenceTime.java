@@ -1,14 +1,13 @@
 package com.gepardec.mega.domain.model;
 
 import java.time.LocalDate;
-import java.util.Map;
 
 public record AbsenceTime (
         String userId,
-      LocalDate fromDate,
-      LocalDate toDate,
-      String reason,
-      Boolean accepted
+        LocalDate fromDate,
+        LocalDate toDate,
+        String reason,
+        Boolean accepted
 ) {
     public AbsenceTime(Builder builder) {
         this(

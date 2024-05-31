@@ -11,7 +11,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-public class RegularWorkingHoursMapMapperTest {
+class RegularWorkingHoursMapMapperTest {
 
 
 
@@ -19,7 +19,7 @@ public class RegularWorkingHoursMapMapperTest {
     public void mapZepRegularWorkingTimesToRegularWorkingHoursMap() {
         RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
         ZepRegularWorkingTimes zepRegularWorkingTimes = ZepRegularWorkingTimes.builder()
-                .start_date(LocalDateTime.of(2019, 1, 2, 8, 1, 32))
+                .startDate(LocalDateTime.of(2019, 1, 2, 8, 1, 32))
                 .monday(8.0)
                 .tuesday(8.0)
                 .wednesday(8.0)
@@ -31,13 +31,13 @@ public class RegularWorkingHoursMapMapperTest {
 
         Map<DayOfWeek, Duration> regularWorkingHours = regularWorkingHoursMapMapper.map(zepRegularWorkingTimes);
 
-        assertThat(regularWorkingHours.get(DayOfWeek.MONDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(regularWorkingHours.get(DayOfWeek.TUESDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(regularWorkingHours.get(DayOfWeek.WEDNESDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(regularWorkingHours.get(DayOfWeek.THURSDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(regularWorkingHours.get(DayOfWeek.FRIDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(regularWorkingHours.get(DayOfWeek.SATURDAY)).isEqualTo(Duration.ofHours(0));
-        assertThat(regularWorkingHours.get(DayOfWeek.SUNDAY)).isEqualTo(Duration.ofHours(0));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.MONDAY, Duration.ofHours(8));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.TUESDAY, Duration.ofHours(8));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.WEDNESDAY, Duration.ofHours(8));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.THURSDAY, Duration.ofHours(8));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.FRIDAY, Duration.ofHours(8));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.SATURDAY, Duration.ofHours(0));
+        assertThat(regularWorkingHours).containsEntry(DayOfWeek.SUNDAY, Duration.ofHours(0));
 
     }
 
@@ -46,7 +46,7 @@ public class RegularWorkingHoursMapMapperTest {
         RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
 
         ZepRegularWorkingTimes zepRegularWorkingTimes = ZepRegularWorkingTimes.builder()
-                .start_date(LocalDateTime.of(2019, 1, 2, 8, 1, 32))
+                .startDate(LocalDateTime.of(2019, 1, 2, 8, 1, 32))
                 .monday(null)
                 .tuesday(8.0)
                 .wednesday(8.0)

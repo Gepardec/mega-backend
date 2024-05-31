@@ -1,14 +1,4 @@
 package com.gepardec.mega.domain.model;
-
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlType;
-
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Map;
-
 public class ProjectTime {
     private String userId;
     private String duration;

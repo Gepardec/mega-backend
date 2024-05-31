@@ -19,11 +19,9 @@ public class AbsenceServiceImpl implements AbsenceService {
 
     @Override
     public int numberOfFridaysAbsent(List<AbsenceTime> absences) {
-        int count = 0;
-        for(AbsenceTime absence : absences) {
-            count += dateHelperService.getFridaysInRange(absence.fromDate(), absence.toDate());
-        }
-        return count;
+        return absences.stream()
+            .mapToInt(absence -> dateHelperService.getFridaysInRange(absence.fromDate(), absence.toDate()))
+            .sum();
     }
 
     @Override
@@ -39,11 +37,11 @@ public class AbsenceServiceImpl implements AbsenceService {
                 if (!holidays.contains(fromDate) && OfficeCalendarUtil.isWorkingDay(fromDate)) {
                     count += 1;
                 }
-            } else {
-                for (LocalDate currentDate = fromDate; !currentDate.isAfter(toDate); currentDate = currentDate.plusDays(1)) {
-                    if (!holidays.contains(currentDate) && OfficeCalendarUtil.isWorkingDay(currentDate)) {
-                        count += 1;
-                    }
+                continue;
+            }
+            for (LocalDate currentDate = fromDate; !currentDate.isAfter(toDate); currentDate = currentDate.plusDays(1)) {
+                if (!holidays.contains(currentDate) && OfficeCalendarUtil.isWorkingDay(currentDate)) {
+                    count += 1;
                 }
             }
         }

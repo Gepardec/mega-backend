@@ -51,7 +51,7 @@ public class EmployeeService{
 
     public List<ZepEmployee> getZepEmployees() {
         return responseParser.retrieveAll(
-                (page) -> zepEmployeeRestClient.getAllEmployeesOfPage(page),
+                page -> zepEmployeeRestClient.getAllEmployeesOfPage(page),
                 ZepEmployee.class);
     }
 

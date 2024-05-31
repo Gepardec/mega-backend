@@ -194,7 +194,7 @@ public class SyncServiceImpl implements SyncService {
         return employees.stream()
                 .filter(zepEmployee -> !zepIdToUser.containsKey(zepEmployee.getUserId()))
                 .map(employee -> mapper.mapEmployeeToNewUser(employee, projects, defaultLocale))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<User> filterUserNotMappedToEmployeesAndMarkUserDeactivated(final List<Employee> employees, final List<User> users) {
@@ -202,7 +202,7 @@ public class SyncServiceImpl implements SyncService {
         return users.stream()
                 .filter(user -> !zepIdToEmployee.containsKey(user.getZepId()))
                 .map(mapper::mapToDeactivatedUser)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<User> filterModifiedEmployeesAndUpdateUsers(final List<Employee> employees, final List<User> users, final List<Project> projects) {
@@ -213,7 +213,7 @@ public class SyncServiceImpl implements SyncService {
         final Locale defaultLocale = applicationConfig.getDefaultLocale();
         return existingUserToEmployee.entrySet().stream()
                 .map(entry -> mapper.mapEmployeeToUser(entry.getKey(), entry.getValue(), projects, defaultLocale))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Map<String, User> mapZepIdToUser(final List<User> users) {

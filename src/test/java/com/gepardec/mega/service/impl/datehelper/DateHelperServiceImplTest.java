@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @QuarkusTest
-public class DateHelperServiceImplTest {
+class DateHelperServiceImplTest {
 
     @Inject
     DateHelperService dateHelperService;

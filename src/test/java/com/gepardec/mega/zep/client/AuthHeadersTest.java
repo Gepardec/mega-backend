@@ -6,6 +6,7 @@ import com.gepardec.mega.zep.rest.client.AuthHeaders;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.ws.rs.core.MultivaluedMap;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ public class AuthHeadersTest {
         when(zepConfig.getRestBearerToken()).thenReturn("token");
 
         MultivaluedMap<String, String> reference = new MultivaluedHashMap<>();
-        reference.add("Authorization", "Bearer token");
+        reference.add(HttpHeaders.AUTHORIZATION, "Bearer token");
 
         assertThat(headers.update(null, null))
                 .usingRecursiveComparison()

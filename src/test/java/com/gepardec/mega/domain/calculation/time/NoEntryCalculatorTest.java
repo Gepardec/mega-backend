@@ -154,7 +154,7 @@ class NoEntryCalculatorTest {
         List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), List.of(createProjectTimeEntryForFuture(LocalDate.now())), createAbsenceListFromType(AbsenteeType.NON_PAID_VACATION_DAYS));
         List<TimeWarning> resultsAfterToday = result.stream()
                 .filter(timeWarning -> timeWarning.getDate().isAfter(LocalDate.now()))
-                .collect(Collectors.toList());
+                .toList();
 
 
         assertThat(resultsAfterToday).isEmpty();
@@ -165,7 +165,7 @@ class NoEntryCalculatorTest {
         List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), List.of(createProjectTimeEntryForFuture(LocalDate.now())), createAbsenceListFromType(AbsenteeType.NON_PAID_VACATION_DAYS));
         List<TimeWarning> resultsAfterToday = result.stream()
                 .filter(timeWarning -> timeWarning.getDate().isEqual(LocalDate.now()))
-                .collect(Collectors.toList());
+                .toList();
 
 
         assertThat(resultsAfterToday).isEmpty();

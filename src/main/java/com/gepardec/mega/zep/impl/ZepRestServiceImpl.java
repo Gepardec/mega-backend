@@ -202,7 +202,7 @@ public class ZepRestServiceImpl implements ZepService {
                 .forEach(i -> addProjectEmployeesToBuilder(projects.get(i), zepProjects.get(i)));
         return projects.stream()
                 .map(Project.Builder::build)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

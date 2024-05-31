@@ -1,9 +1,7 @@
 package com.gepardec.mega.application.configuration;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.net.URL;

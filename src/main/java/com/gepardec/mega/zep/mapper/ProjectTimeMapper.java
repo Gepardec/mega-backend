@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class ProjectTimeMapper {
 
+    private ProjectTimeMapper() {
+    }
+
     public static List<ProjectTime> mapList(List<ProjektzeitType> projectTimes) {
         if (projectTimes == null) {
             return null;
@@ -20,7 +23,7 @@ public class ProjectTimeMapper {
         return projectTimes.stream()
                 .map(ProjectTimeMapper::map)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static ProjectTime map(ProjektzeitType projektzeitType) {

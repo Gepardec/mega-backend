@@ -12,23 +12,23 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @QuarkusTest
-public class ResourceFileServiceTests {
+class ResourceFileServiceTests {
     @Inject
     ResourceFileService resourceFileService;
 
     @Test
-    public void testEnv_thenReturnCorrectJsonRespPath() {
+    void testEnv_thenReturnCorrectJsonRespPath() {
         String expectedPath = this.getClass().getResource("/zep/rest/testresponses").getPath();
         assertThat(resourceFileService.getFilesDir().getPath()).isEqualTo(expectedPath);
     }
 
     @Test
-    public void testEnv_thenReturnCorrectFileContent() {
+    void testEnv_thenReturnCorrectFileContent() {
         assertThat(resourceFileService.getSingleFile("_test").get()).startsWith("ok");
     }
 
     @Test
-    public void testEnv_thenReturnCorrectDirContents() {
+    void testEnv_thenReturnCorrectDirContents() {
         resourceFileService.getDirContents("_dirtest").forEach(
             content -> assertThat(content).startsWith("ok")
         );

@@ -1,6 +1,5 @@
 package com.gepardec.mega.zep.rest.client;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

@@ -15,7 +15,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-public class EmployeeMapperTest {
+class EmployeeMapperTest {
 
     @Inject
     Mapper<Employee, ZepEmployee> employeeMapper;

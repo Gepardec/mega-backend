@@ -39,7 +39,7 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
         List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = prematureEmployeeCheckService.findAllForMonth(selectedMonth)
                 .stream()
                 .filter(pec -> pec.getState().equals(PrematureEmployeeCheckState.DONE) || pec.getState().equals(PrematureEmployeeCheckState.IN_PROGRESS))
-                .collect(Collectors.toList());
+                .toList();
 
         logger.info(
                 String.format("Syncing %s PrematureEmployeeChecks with StepEntries for Month: %s",

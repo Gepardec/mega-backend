@@ -22,10 +22,8 @@ public class ProjectEmployeesMapper implements Mapper<MultivaluedMap<String, Str
             zepProjectEmployees.forEach(zepProjectEmployee -> {
                 map.add(USER, zepProjectEmployee.username());
 
-                if (zepProjectEmployee.type() != null) {
-                    if (zepProjectEmployee.type().id() != 0) {
+                if (zepProjectEmployee.type() != null && zepProjectEmployee.type().id() != 0) {
                         map.add(LEAD, String.valueOf(zepProjectEmployee.username()));
-                    }
                 }
             });
             return map;

@@ -43,7 +43,6 @@ import io.quarkus.test.security.jwt.Claim;
 import io.quarkus.test.security.jwt.JwtSecurity;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -659,7 +658,7 @@ public class WorkerResourceTest {
 
         MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
 
-        assertThat(actual.getHomeofficeDays()).isEqualTo(0);
+        assertThat(actual.getHomeofficeDays()).isZero();
         assertThat(actual.getOfficeDays()).isEqualTo(21);
         assertThat(actual.getFridaysAtTheOffice()).isEqualTo(4);
     }

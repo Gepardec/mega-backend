@@ -5,9 +5,6 @@ import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.impl.EmployeeServiceImpl;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.ZepServiceException;
-import com.gepardec.mega.zep.impl.Rest;
-import com.gepardec.mega.zep.impl.Soap;
-import groovy.util.logging.Slf4j;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
@@ -174,7 +171,7 @@ class EmployeeServiceImplTest {
             }
         }).when(managedExecutor).execute(Mockito.any());
 
-        final List<Employee> employees = IntStream.range(0, 40).mapToObj(i -> createEmployee(i).build()).collect(Collectors.toList());
+        final List<Employee> employees = IntStream.range(0, 40).mapToObj(i -> createEmployee(i).build()).toList();
 
         final List<String> result = employeeService.updateEmployeesReleaseDate(employees);
 

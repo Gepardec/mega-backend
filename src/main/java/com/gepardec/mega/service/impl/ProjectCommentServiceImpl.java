@@ -32,7 +32,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
     @Override
     public List<ProjectCommentDto> findForProjectNameInRange(String projectName, LocalDate from, LocalDate to) {
         List<ProjectComment> entities = projectCommentRepository.findByProjectNameAndDateBetween(projectName, from, to);
-        return entities.stream().map(e -> projectCommentMapper.mapToDto(e)).collect(Collectors.toList());
+        return entities.stream().map(e -> projectCommentMapper.mapToDto(e)).toList();
     }
 
     @Override

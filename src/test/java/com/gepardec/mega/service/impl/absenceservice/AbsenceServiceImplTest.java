@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class AbsenceServiceImplTest {
+class AbsenceServiceImplTest {
 
     @Inject
     AbsenceService absenceService;

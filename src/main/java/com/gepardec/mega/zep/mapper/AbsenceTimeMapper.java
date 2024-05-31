@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class AbsenceTimeMapper {
 
+        private AbsenceTimeMapper() {
+        }
+        
         public static List<AbsenceTime> mapList(List<FehlzeitType> absenceTimes) {
            if (absenceTimes == null) {
                return null;
@@ -23,7 +26,7 @@ public class AbsenceTimeMapper {
                    .map(AbsenceTimeMapper::map)
                    .filter(Objects::nonNull)
                    .sorted(Comparator.comparing(AbsenceTime::fromDate))
-                   .collect(Collectors.toList());
+                   .toList();
         }
 
         public static AbsenceTime map(FehlzeitType fehlzeitType) {

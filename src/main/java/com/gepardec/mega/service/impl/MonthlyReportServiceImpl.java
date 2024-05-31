@@ -170,7 +170,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(PmProgressDto::ofStepEntry)
-                .collect(Collectors.toList());
+                .toList();
 
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
         var prematureEmployeeCheck = prematureEmployeeCheckService.findByEmailAndMonth(employee.getEmail(), date);

@@ -56,7 +56,7 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
         List<LocalDate> nonPaidVacationDays = filterAbsenceTypesAndCompileLocalDateList(AbsenteeType.NON_PAID_VACATION_DAYS.getType(), absenceEntries);
         List<LocalDate> bookedDays = projectEntries.stream()
                 .map(ProjectEntry::getDate)
-                .collect(Collectors.toList());
+                .toList();
 
         return businessDays.stream()
                 .filter(date -> !compensatoryDays.contains(date))
@@ -75,7 +75,7 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
                 .filter(date -> !futureDays.contains(date))
                 .map(this::createTimeWarning)
                 .distinct()
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<LocalDate> getBusinessDaysOfMonth(int year, int month) {
@@ -108,7 +108,7 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
     private List<LocalDate> getFutureDays() {
         LocalDate today = LocalDate.now();
         return today.datesUntil(today.with(TemporalAdjusters.firstDayOfNextMonth()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private TimeWarning createTimeWarning(final LocalDate date) {
@@ -123,7 +123,7 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
         return absenceEntries.stream()
                 .filter(fzt -> fzt.reason().equals(type))
                 .flatMap(this::extractFehlzeitenDateRange)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Stream<LocalDate> extractFehlzeitenDateRange(AbsenceTime fzt) {

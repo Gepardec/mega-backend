@@ -20,7 +20,7 @@ public record ZepRegularWorkingTimes (
         @JsonCreator
         public ZepRegularWorkingTimes(Builder builder) {
                 this(
-                        builder.start_date,
+                        builder.startDate,
                         builder.monday,
                         builder.tuesday,
                         builder.wednesday,
@@ -38,8 +38,8 @@ public record ZepRegularWorkingTimes (
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Builder {
-                @JsonProperty
-                private LocalDateTime start_date;
+                @JsonProperty("start_date")
+                private LocalDateTime startDate;
                 @JsonProperty
                 private Double monday;
                 @JsonProperty
@@ -56,8 +56,8 @@ public record ZepRegularWorkingTimes (
                 private Double sunday;
 
 
-                public Builder start_date(LocalDateTime start_date) {
-                        this.start_date = start_date;
+                public Builder startDate(LocalDateTime startDate) {
+                        this.startDate = startDate;
                         return this;
                 }
 

@@ -23,7 +23,7 @@ public class OfficeCalendarUtil {
     public static List<LocalDate> getWorkingDaysBetween(LocalDate startDate, LocalDate endDateInclusive) {
         return startDate.datesUntil(endDateInclusive.plusDays(1))
                 .filter(isWeekend.or(isHoliday).negate())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static boolean isHoliday(LocalDate date) {

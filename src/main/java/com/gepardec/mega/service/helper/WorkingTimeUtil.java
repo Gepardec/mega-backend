@@ -5,10 +5,8 @@ import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.utils.DateUtils;
-import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.time.DayOfWeek;
@@ -67,7 +65,7 @@ public class WorkingTimeUtil {
         // In case there are absences that do not affect the current month, filter them out
         fehlzeitTypeList = fehlzeitTypeList.stream()
                 .filter(ftl -> ftl.fromDate().getMonthValue() == date.getMonthValue())
-                .collect(Collectors.toList());
+                .toList();
 
         //FIXME
         var workingDaysCountMap = getWorkingDaysBetween(date, DateUtils.getLastDayOfCurrentMonth(date.toString()))
