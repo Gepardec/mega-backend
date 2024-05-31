@@ -7,8 +7,6 @@ import com.gepardec.mega.service.api.DateHelperService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
-import jakarta.inject.Named;
-import jdk.jfr.Name;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

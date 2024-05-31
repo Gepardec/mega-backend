@@ -1,9 +1,7 @@
 package com.gepardec.mega.rest;
 import com.gepardec.mega.db.entity.common.AbsenceType;
-import com.gepardec.mega.db.entity.common.PaymentMethodType;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.AbsenceTime;
-import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.MonthlyAbsences;
 import com.gepardec.mega.domain.model.MonthlyBillInfo;
@@ -20,7 +18,6 @@ import com.gepardec.mega.rest.api.WorkerResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
 import com.gepardec.mega.rest.mapper.MonthlyBillInfoMapper;
-import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
@@ -34,8 +31,6 @@ import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.impl.Rest;
-import com.gepardec.mega.zep.rest.dto.ZepReceipt;
-import com.gepardec.mega.zep.rest.service.ReceiptService;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
@@ -56,9 +51,7 @@ import java.util.Set;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -727,15 +720,6 @@ public class WorkerResourceTest {
         );
     }
 
-    private MonthlyBillInfoDto getMonthlyBillInfoForEmployee() {
-        return MonthlyBillInfoDto.builder()
-                .sumBills(2)
-                .sumPrivateBills(1)
-                .sumCompanyBills(1)
-                .hasAttachmentWarnings(true)
-                .employeeHasCreditCard(false)
-                .build();
-    }
     private Employee createEmployeeForUser(final User user) {
         return Employee.builder()
                 .email(user.getEmail())
