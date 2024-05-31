@@ -16,6 +16,8 @@ import com.gepardec.mega.zep.ZepSoapProvider;
 import com.gepardec.mega.zep.mapper.AbsenceTimeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
 import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
+import com.gepardec.mega.zep.rest.dto.ZepReceipt;
+import com.gepardec.mega.zep.rest.dto.ZepReceiptAttachment;
 import de.provantis.zep.*;
 import de.provantis.zep.BelegListeType;
 import de.provantis.zep.BelegType;
@@ -194,6 +196,11 @@ public class ZepSoapServiceImpl implements ZepService {
         return Collections.emptyList();
     }
 
+    @Override
+    public MonthlyBillInfo getMonthlyBillInfoForEmployee(PersonioEmployee personioEmployee, Employee employee, YearMonth yearMonth) {
+        throw new NotImplementedException("This method is not provided in SOAP, use REST instead"); // not provided due to using REST
+    }
+
 
     @CacheResult(cacheName = "projectentry")
     @Override
@@ -230,25 +237,6 @@ public class ZepSoapServiceImpl implements ZepService {
         ProjektListeType projektListe = readProjekteResponseType.getProjektListe();
         return projektListe.getProjekt().stream()
                 .map(pt -> createProject(pt, monthYear))
-                .toList();
-    }
-
-
-    @Override
-    public List<Bill> getBillsForEmployeeByMonth(final Employee employee, YearMonth yearMonth) {
-        String fromDate = getFirstDayOfCurrentMonth(LocalDate.now());
-        String toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
-
-        if(yearMonth != null){
-            fromDate = formatDate(yearMonth.atDay(1));
-            toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
-        }
-
-        final ReadBelegResponseType readBelegResponseType = getBillsInternal(employee, fromDate, toDate);
-
-        BelegListeType billList = readBelegResponseType.getBelegListe();
-        return billList.getBeleg().stream()
-                .map(this::createBill)
                 .toList();
     }
 
@@ -410,37 +398,7 @@ public class ZepSoapServiceImpl implements ZepService {
         return searchCriteria;
     }
 
-    private Bill createBill(final BelegType belegType) {
-        List<BelegbetragType> amountList = belegType.getBelegbetragListe().getBelegbetrag();
-        ReadBelegAnhangResponseType readBelegAnhangResponseType = getAttachmentForBill(belegType.getBelegNr());
 
-        //because it is not possible to store a byte[] in json
-        String attachmentBase64String = null;
-        String attachmentFilename = null;
-
-        if(readBelegAnhangResponseType.getAnhang().getInhalt() != null){
-            byte[] attachmentBase64 = readBelegAnhangResponseType.getAnhang().getInhalt();
-            attachmentBase64String = Base64.encodeBase64String(attachmentBase64);
-            attachmentFilename = readBelegAnhangResponseType.getAnhang().getName();
-        }
-
-        // would be different if there is more than one tax rate on one bill
-        // -> is not our case, if it would be one should consider changing structure of Bill-Object and iterate over all entries of amountList
-        double bruttoValue = 0.0;
-        if(amountList.size() == 1){
-            bruttoValue = amountList.get(0).getBetrag() * amountList.get(0).getMenge();
-        }
-
-        return Bill.builder()
-                .billDate(DateUtils.parseDate(belegType.getDatum()))
-                .bruttoValue(bruttoValue)
-                .billType(belegType.getBelegart())
-                .paymentMethodType(PaymentMethodType.getByName(belegType.getZahlungsart()).orElse(null)) //can actually never be null, because it is required in ZEP -> Optional<...> due to Enum
-                .projectName(belegType.getProjektNr())
-                .attachmentBase64(attachmentBase64String)
-                .attachmentFileName(attachmentFilename)
-                .build();
-    }
 
     private Project createProject(final ProjektType projektType, final LocalDate monthYear) {
         Optional<String> endDateString = Optional.ofNullable(projektType.getEndeDatum());

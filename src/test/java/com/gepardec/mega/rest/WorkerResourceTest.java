@@ -1,11 +1,11 @@
 package com.gepardec.mega.rest;
 import com.gepardec.mega.db.entity.common.AbsenceType;
-import com.gepardec.mega.db.entity.common.PaymentMethodType;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.AbsenceTime;
-import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.MonthlyAbsences;
+import com.gepardec.mega.domain.model.MonthlyBillInfo;
+import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
@@ -17,9 +17,10 @@ import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.api.WorkerResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
-import com.gepardec.mega.rest.model.BillDto;
+import com.gepardec.mega.rest.mapper.MonthlyBillInfoMapper;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
+import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.MonthlyReportDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
@@ -44,13 +45,13 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -71,6 +72,9 @@ public class WorkerResourceTest {
 
     @InjectMock
     AbsenceService absenceService;
+
+    @InjectMock
+    MonthlyBillInfoMapper monthlyBillInfoMapper;
 
     @InjectMock
     PersonioEmployeesService personioEmployeesService;
@@ -318,45 +322,116 @@ public class WorkerResourceTest {
 
 
     @Test
-    void getBillsForEmployeeByMonth_whenEmployeeHasBills_thenReturnBills(){
+    void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithoutAttachmentAndCreditCard_thenReturnObjectWithAttachmentWarningsAndNoCreditCard(){
         User userForRole = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
-
+        PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(false).build();
 
         when(employeeService.getEmployee(userAsEmployee.getUserId()))
                 .thenReturn(userAsEmployee);
 
-        doReturn(getBillsForEmployee()).when(zepService).getBillsForEmployeeByMonth(any(Employee.class), any(YearMonth.class));
+        when(personioEmployeesService.getPersonioEmployeeByEmail(anyString()))
+                .thenReturn(Optional.of(personioEmployee));
 
-        List<BillDto> actual = workerResource.getBillsForEmployeeByMonth(userAsEmployee.getUserId(), YearMonth.of(2024, 4));
+       when(zepService.getMonthlyBillInfoForEmployee(any(PersonioEmployee.class), any(Employee.class), any(YearMonth.class)))
+               .thenReturn(createMonthlyBillInfo(2, 1, 1, true, false));
 
-        assertThat(actual).isNotNull().size().isEqualTo(3);
-        assertThat(actual.get(0).getBillType()).isEqualTo("Lebensmittel");
+       when(monthlyBillInfoMapper.mapToDto(any(MonthlyBillInfo.class)))
+               .thenReturn(createMonthlyBillInfoDto(2, 1, 1, true, false));
+
+        MonthlyBillInfoDto actual = workerResource.getBillInfoForEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 4));
+
+        assertThat(actual.getEmployeeHasCreditCard()).isFalse();
+        assertThat(actual.getSumBills()).isEqualTo(2);
+        assertThat(actual.getSumPrivateBills()).isOne();
+        assertThat(actual.getSumCompanyBills()).isOne();
+        assertThat(actual.getHasAttachmentWarnings()).isTrue();
     }
 
     @Test
-    void getBillsForEmployeeByMonth_whenEmployeeHasNoBills_thenReturnEmptyList(){
+    void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithAllAttachmentsAndNoCreditCard_thenReturnObjectWithoutAttachmentWarningsAndNoCreditCard(){
         User userForRole = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
-
+        PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(false).build();
 
         when(employeeService.getEmployee(userAsEmployee.getUserId()))
                 .thenReturn(userAsEmployee);
 
+        when(personioEmployeesService.getPersonioEmployeeByEmail(anyString()))
+                .thenReturn(Optional.of(personioEmployee));
 
-        when(zepService.getBillsForEmployeeByMonth(userAsEmployee, YearMonth.of(2024, 4)))
-                .thenReturn(
-                        List.of()
-                );
+        when(zepService.getMonthlyBillInfoForEmployee(any(PersonioEmployee.class), any(Employee.class), any(YearMonth.class)))
+                .thenReturn(createMonthlyBillInfo(3, 2, 1, false, false));
 
-        List<BillDto> actual = workerResource.getBillsForEmployeeByMonth(userAsEmployee.getUserId(), YearMonth.of(2024, 4));
+        when(monthlyBillInfoMapper.mapToDto(any(MonthlyBillInfo.class)))
+                .thenReturn(createMonthlyBillInfoDto(3, 2, 1, false, false));
 
-        assertThat(actual).isNotNull();
-        assertThat(actual).isEmpty();
+        MonthlyBillInfoDto actual = workerResource.getBillInfoForEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 4));
+
+        assertThat(actual.getEmployeeHasCreditCard()).isFalse();
+        assertThat(actual.getSumBills()).isEqualTo(3);
+        assertThat(actual.getSumPrivateBills()).isEqualTo(2);
+        assertThat(actual.getSumCompanyBills()).isOne();
+        assertThat(actual.getHasAttachmentWarnings()).isFalse();
     }
 
+    @Test
+    void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithAllAttachmentsAndCreditCard_thenReturnObjectWithoutAttachmentWarningsAndWithCreditCard(){
+        User userForRole = createUserForRole(Role.EMPLOYEE);
+        when(userContext.getUser()).thenReturn(userForRole);
+        final Employee userAsEmployee = createEmployeeForUser(userForRole);
+        PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(false).build();
+
+        when(employeeService.getEmployee(userAsEmployee.getUserId()))
+                .thenReturn(userAsEmployee);
+
+        when(personioEmployeesService.getPersonioEmployeeByEmail(anyString()))
+                .thenReturn(Optional.of(personioEmployee));
+
+        when(zepService.getMonthlyBillInfoForEmployee(any(PersonioEmployee.class), any(Employee.class), any(YearMonth.class)))
+                .thenReturn(createMonthlyBillInfo(3, 1, 2, false, true));
+
+        when(monthlyBillInfoMapper.mapToDto(any(MonthlyBillInfo.class)))
+                .thenReturn(createMonthlyBillInfoDto(3, 1, 2, false, true));
+
+        MonthlyBillInfoDto actual = workerResource.getBillInfoForEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 4));
+
+        assertThat(actual.getEmployeeHasCreditCard()).isTrue();
+        assertThat(actual.getSumBills()).isEqualTo(3);
+        assertThat(actual.getSumPrivateBills()).isOne();
+        assertThat(actual.getSumCompanyBills()).isEqualTo(2);
+        assertThat(actual.getHasAttachmentWarnings()).isFalse();
+    }
+
+    @Test
+    void getBillsForEmployeeByMonth_whenEmployeeHasNoBills_thenReturnObjectWithSumZero(){
+        User userForRole = createUserForRole(Role.EMPLOYEE);
+        when(userContext.getUser()).thenReturn(userForRole);
+        final Employee userAsEmployee = createEmployeeForUser(userForRole);
+        PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(false).build();
+
+        when(employeeService.getEmployee(userAsEmployee.getUserId()))
+                .thenReturn(userAsEmployee);
+
+        when(personioEmployeesService.getPersonioEmployeeByEmail(anyString()))
+                .thenReturn(Optional.of(personioEmployee));
+
+        when(zepService.getMonthlyBillInfoForEmployee(any(PersonioEmployee.class), any(Employee.class), any(YearMonth.class)))
+                .thenReturn(createMonthlyBillInfo(0, 0, 0, false, true));
+
+        when(monthlyBillInfoMapper.mapToDto(any(MonthlyBillInfo.class)))
+                .thenReturn(createMonthlyBillInfoDto(0, 0, 0, false, true));
+
+        MonthlyBillInfoDto actual = workerResource.getBillInfoForEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 4));
+
+        assertThat(actual.getEmployeeHasCreditCard()).isTrue();
+        assertThat(actual.getSumBills()).isZero();
+        assertThat(actual.getSumPrivateBills()).isZero();
+        assertThat(actual.getSumCompanyBills()).isZero();
+        assertThat(actual.getHasAttachmentWarnings()).isFalse();
+    }
     @Test
     void getAllProjectsForMonthAndEmployee_whenEmployeeHasProjectTimes_thenReturnListOfProjects() {
         User userForRole = createUserForRole(Role.EMPLOYEE);
@@ -435,7 +510,6 @@ public class WorkerResourceTest {
                                 .build()
                 );
 
-
         MonthlyAbsencesDto actual = workerResource.getAllAbsencesForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
 
         assertThat(actual.getAvailableVacationDays()).isEqualTo(availableVacationDays);
@@ -470,6 +544,7 @@ public class WorkerResourceTest {
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class)))
                 .thenReturn(createAbsenceListForEmployeeWithNoAbsences());
 
+
         when(monthlyAbsencesMapper.mapToDto(any(MonthlyAbsences.class)))
                 .thenReturn(
                         MonthlyAbsencesDto.builder()
@@ -488,8 +563,6 @@ public class WorkerResourceTest {
                                 .paidSickLeave(0)
                                 .build()
                 );
-
-
 
         MonthlyAbsencesDto actual = workerResource.getAllAbsencesForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
 
@@ -593,6 +666,28 @@ public class WorkerResourceTest {
         );
     }
 
+
+    private MonthlyBillInfo createMonthlyBillInfo(int sumBills, int sumPrivateBills, int sumCompanyBills, boolean hasAttachmentWarnings, boolean hasCreditCard) {
+        return MonthlyBillInfo.builder()
+                .sumBills(sumBills)
+                .sumPrivateBills(sumPrivateBills)
+                .sumCompanyBills(sumCompanyBills)
+                .hasAttachmentWarnings(hasAttachmentWarnings)
+                .employeeHasCreditCard(hasCreditCard)
+                .build();
+    }
+
+    private MonthlyBillInfoDto createMonthlyBillInfoDto(int sumBills, int sumPrivateBills, int sumCompanyBills, boolean hasAttachmentWarnings, boolean hasCreditCard) {
+        return MonthlyBillInfoDto.builder()
+                .sumBills(sumBills)
+                .sumPrivateBills(sumPrivateBills)
+                .sumCompanyBills(sumCompanyBills)
+                .hasAttachmentWarnings(hasAttachmentWarnings)
+                .employeeHasCreditCard(hasCreditCard)
+                .build();
+    }
+
+
     private List<AbsenceTime> createAbsenceListForEmployeeWithNoAbsences() {
         return List.of();
     }
@@ -625,41 +720,6 @@ public class WorkerResourceTest {
         );
     }
 
-    private Bill createBillForEmployee(LocalDate billDate, double bruttoValue, String billType,
-                                       PaymentMethodType paymentMethodType, String projectName,
-                                       String attachmentBase64String){
-        return Bill.builder()
-                .billDate(billDate)
-                .bruttoValue(bruttoValue)
-                .billType(billType)
-                .paymentMethodType(paymentMethodType)
-                .projectName(projectName)
-                .attachmentBase64(attachmentBase64String)
-                .build();
-    }
-
-    private List<Bill> getBillsForEmployee() {
-        return List.of(
-                createBillForEmployee(LocalDate.of(2024, 4, 11),
-                        12.0,
-                        "Lebensmittel",
-                        PaymentMethodType.COMPANY,
-                        "3BankenIT - JBoss",
-                        null),
-                createBillForEmployee(LocalDate.of(2024, 4, 10),
-                        12.0,
-                        "Büromaterial",
-                        PaymentMethodType.PRIVATE,
-                        "3BankenIT - JBoss",
-                        null),
-                createBillForEmployee(LocalDate.of(2024, 4, 9),
-                        30.0,
-                        "Lebensmittel",
-                        PaymentMethodType.PRIVATE,
-                        "3BankenIT - JBoss",
-                        null)
-        );
-    }
     private Employee createEmployeeForUser(final User user) {
         return Employee.builder()
                 .email(user.getEmail())

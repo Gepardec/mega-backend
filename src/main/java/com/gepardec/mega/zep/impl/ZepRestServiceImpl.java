@@ -1,9 +1,12 @@
 package com.gepardec.mega.zep.impl;
 
+import com.gepardec.mega.db.entity.common.PaymentMethodType;
 import com.gepardec.mega.db.entity.common.ProjectTaskType;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.MonthlyBillInfo;
+import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
@@ -228,9 +231,9 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     @Override
-    public List<Bill> getBillsForEmployeeByMonth(Employee employee, YearMonth yearMonth) {
+    public MonthlyBillInfo getMonthlyBillInfoForEmployee(PersonioEmployee personioEmployee, Employee employee, YearMonth yearMonth) {
         Pair<String, String> fromToDatePair = dateHelperService.getCorrectDateForRequest(employee, yearMonth);
-        return getBillsInternal(employee, fromToDatePair.getLeft(), fromToDatePair.getRight());
+        return getMonthlyBillInfoInternal(personioEmployee, employee, fromToDatePair.getLeft(), fromToDatePair.getRight());
     }
 
     @Override
@@ -327,45 +330,52 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
 
-    private List<Bill> getBillsInternal(Employee employee, String fromDate, String toDate) {
+    private MonthlyBillInfo getMonthlyBillInfoInternal(PersonioEmployee personioEmployee, Employee employee, String fromDate, String toDate) {
         List<ZepReceipt> allReceiptsForYearMonth = receiptService.getAllReceiptsForYearMonth(employee, fromDate, toDate);
         List<ZepReceipt> allReceiptsForYearMonthAndEmployee;
-        List<Bill> resultBillList = new ArrayList<>();
-
 
         if (!allReceiptsForYearMonth.isEmpty()) {
             allReceiptsForYearMonthAndEmployee = allReceiptsForYearMonth.stream()
                                                                         .filter(receipt -> receipt.employeeId().equals(employee.getUserId()))
                                                                         .toList();
 
-            allReceiptsForYearMonthAndEmployee.forEach(zepReceipt -> {
-
-                Optional<ZepProject> zepProject = projectService.getProjectById(zepReceipt.projectId());
-                Optional<ZepReceiptAttachment> attachment = receiptService.getAttachmentByReceiptId(zepReceipt.id());
-                Optional<ZepReceiptAmount> receiptAmount = receiptService.getAmountByReceiptId(zepReceipt.id());
-
-                resultBillList.addAll(createBillList(zepReceipt, zepProject, attachment, receiptAmount));
-            });
+            int sumBills = allReceiptsForYearMonthAndEmployee.size();
+            return createMonthlyBillInfo(personioEmployee, allReceiptsForYearMonthAndEmployee, sumBills);
         }
-        return resultBillList;
+        return createMonthlyBillInfoWhenNoBills(personioEmployee);
     }
 
-    private List<Bill> createBillList(ZepReceipt zepReceipt, Optional<ZepProject> zepProject, Optional<ZepReceiptAttachment> attachment, Optional<ZepReceiptAmount> receiptAmount) {
-        List<Bill> resultBillList = new ArrayList<>();
-        zepProject.ifPresent(project ->
-                resultBillList.add(
-                        Bill.builder()
-                            .billDate(zepReceipt.receiptDate())
-                            .bruttoValue(receiptAmount.map(receipt -> receipt.amount() * receipt.quantity()).orElse(null))
-                            .billType(zepReceipt.receiptTypeName())
-                            .paymentMethodType(zepReceipt.paymentMethodType())
-                            .projectName(project.name())
-                            .attachmentBase64(attachment.map(ZepReceiptAttachment::fileContent).orElse(null))
-                            .attachmentFileName(zepReceipt.attachmentFileName())
-                            .build()
-                ));
+    private MonthlyBillInfo createMonthlyBillInfoWhenNoBills(PersonioEmployee personioEmployee){
+        return MonthlyBillInfo.builder()
+                .sumBills(0)
+                .sumPrivateBills(0)
+                .sumCompanyBills(0)
+                .hasAttachmentWarnings(false) // no bills -> no warnings
+                .employeeHasCreditCard(personioEmployee.getHasCreditCard())
+                .build();
+    }
 
-        return resultBillList;
+    private MonthlyBillInfo createMonthlyBillInfo(PersonioEmployee personioEmployee, List<ZepReceipt> zepReceipts, int sumBills) {
+        boolean hasAttachmentWarnings = false;
+        int sumPrivateBills = 0;
+
+        for(ZepReceipt receipt : zepReceipts) {
+            Optional<ZepReceiptAttachment> attachment = receiptService.getAttachmentByReceiptId(receipt.id());
+            if(attachment.isEmpty()) {
+                hasAttachmentWarnings = true;
+            }
+
+            if(receipt.paymentMethodType().getPaymentMethodName().equals(PaymentMethodType.PRIVATE.getPaymentMethodName())) {
+                sumPrivateBills++;
+            }
+        }
+        return MonthlyBillInfo.builder()
+                .sumBills(sumBills)
+                .sumPrivateBills(sumPrivateBills)
+                .sumCompanyBills(sumBills - sumPrivateBills)
+                .hasAttachmentWarnings(hasAttachmentWarnings)
+                .employeeHasCreditCard(personioEmployee.getHasCreditCard())
+                .build();
     }
 
     private void addProjectEmployeesToBuilder(Project.Builder projectBuilder, ZepProject zepProject) {

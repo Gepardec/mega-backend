@@ -15,7 +15,8 @@ public record PersonioEmployeeDto(
         Attribute<List<TimeOffType>> absenceEntitlement,
         Attribute<String> personalnummer,
         Attribute<String> guildLead,
-        Attribute<String> internalProjectLead
+        Attribute<String> internalProjectLead,
+        Attribute<String> hasCreditCard
 ) {
 
     @JsonCreator
@@ -28,7 +29,8 @@ public record PersonioEmployeeDto(
                 builder.absenceEntitlement,
                 builder.personalnummer,
                 builder.guildLead,
-                builder.internalProjectLead
+                builder.internalProjectLead,
+                builder.hasCreditCard
         );
     }
 
@@ -60,6 +62,10 @@ public record PersonioEmployeeDto(
 
         @JsonProperty("dynamic_10177735")
         private Attribute<String> internalProjectLead;
+
+        @JsonProperty("dynamic_12159545")
+        private Attribute<String> hasCreditCard;
+
 
         public Builder id(Attribute<Integer> id) {
             this.id = id;
@@ -98,6 +104,11 @@ public record PersonioEmployeeDto(
 
         public Builder internalProjectLead(Attribute<String> internalProjectLead) {
             this.internalProjectLead = internalProjectLead;
+            return this;
+        }
+
+        public Builder hasCreditCard(Attribute<String> hasCreditCard) {
+            this.hasCreditCard = hasCreditCard;
             return this;
         }
 

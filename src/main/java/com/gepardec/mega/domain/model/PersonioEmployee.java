@@ -9,6 +9,7 @@ public class PersonioEmployee {
     private final String guildLead;
 
     private final String internalProjectLead;
+    private final boolean hasCreditCard;
 
 
     public String getEmail() {
@@ -28,11 +29,16 @@ public class PersonioEmployee {
         return internalProjectLead;
     }
 
+    public boolean getHasCreditCard() {
+        return hasCreditCard;
+    }
+
     private PersonioEmployee(Builder builder) {
         this.email = builder.email;
         this.vacationDayBalance = builder.vacationDayBalance;
         this.guildLead = builder.guildLead;
         this.internalProjectLead = builder.internalProjectLead;
+        this.hasCreditCard = builder.hasCreditCard;
     }
 
     public static Builder builder() {
@@ -44,6 +50,7 @@ public class PersonioEmployee {
         private Double vacationDayBalance;
         private String guildLead;
         private String internalProjectLead;
+        private boolean hasCreditCard;
 
         public Builder email(String email) {
             this.email = email;
@@ -63,6 +70,11 @@ public class PersonioEmployee {
 
         public Builder internalProjectLead(String internalProjectLead) {
             this.internalProjectLead = internalProjectLead;
+            return this;
+        }
+
+        public Builder hasCreditCard(boolean hasCreditCard){
+            this.hasCreditCard = hasCreditCard;
             return this;
         }
 

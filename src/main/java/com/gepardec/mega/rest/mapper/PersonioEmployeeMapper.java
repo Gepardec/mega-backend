@@ -17,6 +17,7 @@ public class PersonioEmployeeMapper implements DtoMapper<PersonioEmployee, Perso
                 .email(Attribute.ofValue(domain.getEmail()))
                 .guildLead(Attribute.ofValue(domain.getGuildLead()))
                 .internalProjectLead(Attribute.ofValue(domain.getInternalProjectLead()))
+                .hasCreditCard(domain.getHasCreditCard() ? Attribute.ofValue("Ja") : Attribute.ofValue(""))
                 .build();
     }
 
@@ -35,6 +36,7 @@ public class PersonioEmployeeMapper implements DtoMapper<PersonioEmployee, Perso
                         null : dto.guildLead().getValue())
                 .internalProjectLead(dto.internalProjectLead() == null ?
                         null : dto.internalProjectLead().getValue())
+                .hasCreditCard(dto.hasCreditCard().getValue().equals("Ja"))
                 .build();
     }
 }

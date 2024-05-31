@@ -173,6 +173,7 @@ class PersonioEmployeesServiceImplTest {
                 .id(Attribute.ofValue(123))
                 .guildLead(Attribute.ofValue("guildLead"))
                 .internalProjectLead(Attribute.ofValue("internalProjectLead"))
+                .hasCreditCard(Attribute.ofValue("Ja"))
                 .build();
     }
 
