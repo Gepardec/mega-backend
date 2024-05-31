@@ -19,11 +19,9 @@ public class AbsenceServiceImpl implements AbsenceService {
 
     @Override
     public int numberOfFridaysAbsent(List<AbsenceTime> absences) {
-        int count = 0;
-        for(AbsenceTime absence : absences) {
-            count += dateHelperService.getFridaysInRange(absence.fromDate(), absence.toDate());
-        }
-        return count;
+        return absences.stream()
+            .mapToInt(absence -> dateHelperService.getFridaysInRange(absence.fromDate(), absence.toDate()))
+            .sum();
     }
 
     @Override
