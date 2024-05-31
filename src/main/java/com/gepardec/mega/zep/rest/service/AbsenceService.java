@@ -1,6 +1,5 @@
 package com.gepardec.mega.zep.rest.service;
 
-import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepAbsenceRestClient;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
@@ -48,14 +47,6 @@ public class AbsenceService {
         }
     }
 
-    // this also checks if startDate or endDate is exact match
-    private boolean datesInRange(LocalDate startDate, LocalDate endDate, LocalDate fromDateForRequest, LocalDate toDateForRequest) {
-        return ((startDate.equals(fromDateForRequest) && endDate.equals(toDateForRequest)) ||
-                (startDate.equals(fromDateForRequest) && endDate.isBefore(toDateForRequest)) ||
-                (startDate.isAfter(fromDateForRequest) && endDate.equals(toDateForRequest)) ||
-                (startDate.isAfter(fromDateForRequest) && endDate.isBefore(toDateForRequest)));
-    }
-
     public ZepAbsence getZepAbsenceById(int id) {
         try {
             return responseParser.retrieveSingle(zepAbsenceRestClient.getAbsenceById(id),
@@ -71,5 +62,13 @@ public class AbsenceService {
         return zepAbsences.stream()
                 .map(absence -> getZepAbsenceById(absence.id()))
                 .toList();
+    }
+
+    // this also checks if startDate or endDate is exact match
+    private boolean datesInRange(LocalDate startDate, LocalDate endDate, LocalDate fromDateForRequest, LocalDate toDateForRequest) {
+        return ((startDate.equals(fromDateForRequest) && endDate.equals(toDateForRequest)) ||
+                (startDate.equals(fromDateForRequest) && endDate.isBefore(toDateForRequest)) ||
+                (startDate.isAfter(fromDateForRequest) && endDate.equals(toDateForRequest)) ||
+                (startDate.isAfter(fromDateForRequest) && endDate.isBefore(toDateForRequest)));
     }
 }

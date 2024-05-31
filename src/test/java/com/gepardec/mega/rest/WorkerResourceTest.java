@@ -5,6 +5,7 @@ import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.MonthlyAbsences;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
@@ -15,14 +16,18 @@ import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.api.WorkerResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
+import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
 import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
+import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.MonthlyReportDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
+import com.gepardec.mega.service.api.AbsenceService;
 import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
+import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.impl.Rest;
 import io.quarkus.test.junit.QuarkusTest;
@@ -62,6 +67,12 @@ public class WorkerResourceTest {
     EmployeeService employeeService;
 
     @InjectMock
+    WorkingTimeUtil workingTimeUtil;
+
+    @InjectMock
+    AbsenceService absenceService;
+
+    @InjectMock
     PersonioEmployeesService personioEmployeesService;
 
     @InjectMock @Rest
@@ -72,6 +83,9 @@ public class WorkerResourceTest {
 
     @InjectMock
     EmployeeMapper mapper;
+
+    @InjectMock
+    MonthlyAbsencesMapper monthlyAbsencesMapper;
 
     @InjectMock
     DateHelperService dateHelperService;
@@ -409,6 +423,17 @@ public class WorkerResourceTest {
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class)))
                 .thenReturn(createAbsenceListForEmployee());
 
+        when(monthlyAbsencesMapper.mapToDto(any(MonthlyAbsences.class)))
+                .thenReturn(
+                        MonthlyAbsencesDto.builder()
+                                .availableVacationDays(availableVacationDays)
+                                .doctorsVisitingTime(doctorsVisitingTime)
+                                .conferenceDays(1)
+                                .vacationDays(1)
+                                .maternityLeaveDays(1)
+                                .paidSickLeave(1)
+                                .build()
+                );
 
 
         MonthlyAbsencesDto actual = workerResource.getAllAbsencesForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
@@ -445,6 +470,25 @@ public class WorkerResourceTest {
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class)))
                 .thenReturn(createAbsenceListForEmployeeWithNoAbsences());
 
+        when(monthlyAbsencesMapper.mapToDto(any(MonthlyAbsences.class)))
+                .thenReturn(
+                        MonthlyAbsencesDto.builder()
+                                .availableVacationDays(availableVacationDays)
+                                .doctorsVisitingTime(doctorsVisitingTime)
+                                .vacationDays(0)
+                                .compensatoryDays(0)
+                                .nursingDays(0)
+                                .maternityLeaveDays(0)
+                                .externalTrainingDays(0)
+                                .conferenceDays(0)
+                                .maternityProtectionDays(0)
+                                .fatherMonthDays(0)
+                                .paidSpecialLeaveDays(0)
+                                .nonPaidVacationDays(0)
+                                .paidSickLeave(0)
+                                .build()
+                );
+
 
 
         MonthlyAbsencesDto actual = workerResource.getAllAbsencesForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
@@ -463,6 +507,80 @@ public class WorkerResourceTest {
         assertThat(actual.getPaidSpecialLeaveDays()).isZero();
         assertThat(actual.getNonPaidVacationDays()).isZero();
         assertThat(actual.getPaidSickLeave()).isZero();
+    }
+
+    @Test
+    void getOfficeDaysForMonthAndEmployee_whenEmployeeHasAbsences_thenReturnAbsenceObjectWithValues() {
+        User userForRole = createUserForRole(Role.EMPLOYEE);
+        when(userContext.getUser()).thenReturn(userForRole);
+        final Employee userAsEmployee = createEmployeeForUser(userForRole);
+
+        LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(LocalDate.now().toString());
+        String toDateString = DateUtils.getLastDayOfCurrentMonth(fromDate);
+
+        when(employeeService.getEmployee(anyString()))
+                .thenReturn(userAsEmployee);
+
+        when(workingTimeUtil.getAbsenceTimesForEmployee(any(), any(), any(LocalDate.class)))
+                .thenReturn(4);
+
+        when(dateHelperService.getNumberOfWorkingDaysForMonthWithoutHolidays(any(LocalDate.class)))
+                .thenReturn(21);
+
+        when(dateHelperService.getNumberOfFridaysInMonth(any(LocalDate.class)))
+                .thenReturn(4); //mostly the case in reality
+
+        when(absenceService.getNumberOfDaysAbsent(any(), any(LocalDate.class)))
+                .thenReturn(7);
+
+        when(absenceService.numberOfFridaysAbsent(any()))
+                .thenReturn(1);
+
+        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
+                .thenReturn(Pair.of(fromDate.toString(), toDateString));
+
+        MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+
+        assertThat(actual.getHomeofficeDays()).isEqualTo(4);
+        assertThat(actual.getOfficeDays()).isEqualTo(14);
+        assertThat(actual.getFridaysAtTheOffice()).isEqualTo(3);
+    }
+
+    @Test
+    void getOfficeDaysForMonthAndEmployee_whenEmployeeHasNoAbsences_thenReturnAbsenceObjectWithZeroHomeOfficeDaysAndAllFridaysAtOffice() {
+        User userForRole = createUserForRole(Role.EMPLOYEE);
+        when(userContext.getUser()).thenReturn(userForRole);
+        final Employee userAsEmployee = createEmployeeForUser(userForRole);
+
+        LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(LocalDate.now().toString());
+        String toDateString = DateUtils.getLastDayOfCurrentMonth(fromDate);
+
+        when(employeeService.getEmployee(anyString()))
+                .thenReturn(userAsEmployee);
+
+        when(workingTimeUtil.getAbsenceTimesForEmployee(any(), any(), any(LocalDate.class)))
+                .thenReturn(0);
+
+        when(dateHelperService.getNumberOfWorkingDaysForMonthWithoutHolidays(any(LocalDate.class)))
+                .thenReturn(21);
+
+        when(dateHelperService.getNumberOfFridaysInMonth(any(LocalDate.class)))
+                .thenReturn(4); //mostly the case in reality
+
+        when(absenceService.getNumberOfDaysAbsent(any(), any(LocalDate.class)))
+                .thenReturn(0);
+
+        when(absenceService.numberOfFridaysAbsent(any()))
+                .thenReturn(0);
+
+        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
+                .thenReturn(Pair.of(fromDate.toString(), toDateString));
+
+        MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+
+        assertThat(actual.getHomeofficeDays()).isZero();
+        assertThat(actual.getOfficeDays()).isEqualTo(21);
+        assertThat(actual.getFridaysAtTheOffice()).isEqualTo(4);
     }
 
 

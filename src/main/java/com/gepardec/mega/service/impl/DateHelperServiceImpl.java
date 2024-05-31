@@ -1,6 +1,8 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.utils.DateUtils;
+import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
 import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.service.api.MonthlyReportService;
 import jakarta.enterprise.context.RequestScoped;
@@ -9,6 +11,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 
 import static com.gepardec.mega.domain.utils.DateUtils.formatDate;
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
@@ -35,6 +38,48 @@ public class DateHelperServiceImpl implements DateHelperService {
         String fromDate = formatDate(firstOfPreviousMonth);
         String toDate = formatDate(getLastDayOfCurrentMonth(fromDate));
         return Pair.of(fromDate,toDate);
+    }
+
+    @Override
+    public int getNumberOfFridaysInMonth(LocalDate fromDate) {
+        LocalDate toDate = DateUtils.getLastDayOfCurrentMonth(fromDate.toString());
+        int fridayCounter = 0;
+
+        for (LocalDate day = fromDate; !day.isAfter(toDate); day = day.plusDays(1)) {
+            if(OfficeCalendarUtil.isFriday(day) && OfficeCalendarUtil.isWorkingDay(day)){
+                fridayCounter++;
+            }
+        }
+        return fridayCounter;
+    }
+
+    @Override
+    public int getFridaysInRange(LocalDate fromDate, LocalDate toDate) {
+        int count = 0;
+
+        for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plusDays(1)) {
+            if (OfficeCalendarUtil.isFriday(date) && OfficeCalendarUtil.isWorkingDay(date)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public int getNumberOfWorkingDaysForMonthWithoutHolidays(LocalDate fromDate) {
+        LocalDate toDate = DateUtils.getLastDayOfCurrentMonth(fromDate.toString());
+        int totalNumberOfDaysInMonth = toDate.getDayOfMonth();
+        List<LocalDate> holidays = OfficeCalendarUtil.getHolidaysForMonth(YearMonth.of(fromDate.getYear(), fromDate.getMonth())).toList();
+        int count = 0;
+
+        for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plusDays(1)) {
+            if(holidays.contains(date)){
+                count++;
+            } else if (!OfficeCalendarUtil.isWorkingDay(date)) {
+                count++;
+            }
+        }
+        return (totalNumberOfDaysInMonth - count);
     }
 
     private Pair<String, String> getDateWhenYearMonthProvided(YearMonth yearMonth) {

@@ -18,6 +18,7 @@ public class OfficeCalendarUtil {
     private static final HolidayManager HOLIDAY_MANAGER = HolidayManager.getInstance(ManagerParameters.create(HolidayCalendar.AUSTRIA));
     private static final Predicate<LocalDate> isWeekend = date -> date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
     private static final Predicate<LocalDate> isHoliday = OfficeCalendarUtil::isHoliday;
+    private static final Predicate<LocalDate> dayIsFriday = date -> date.getDayOfWeek() == DayOfWeek.FRIDAY;
 
     public static List<LocalDate> getWorkingDaysBetween(LocalDate startDate, LocalDate endDateInclusive) {
         return startDate.datesUntil(endDateInclusive.plusDays(1))
@@ -32,6 +33,8 @@ public class OfficeCalendarUtil {
     public static boolean isWorkingDay(LocalDate date) {
         return isWeekend.or(isHoliday).negate().test(date);
     }
+
+    public static boolean isFriday(LocalDate date){return dayIsFriday.test(date);}
 
     public static Stream<LocalDate> getHolidaysForYear(int year) {
         return HOLIDAY_MANAGER.getHolidays(year).stream().map(Holiday::getDate);
