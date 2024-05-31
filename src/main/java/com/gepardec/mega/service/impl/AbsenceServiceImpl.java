@@ -37,11 +37,11 @@ public class AbsenceServiceImpl implements AbsenceService {
                 if (!holidays.contains(fromDate) && OfficeCalendarUtil.isWorkingDay(fromDate)) {
                     count += 1;
                 }
-            } else {
-                for (LocalDate currentDate = fromDate; !currentDate.isAfter(toDate); currentDate = currentDate.plusDays(1)) {
-                    if (!holidays.contains(currentDate) && OfficeCalendarUtil.isWorkingDay(currentDate)) {
-                        count += 1;
-                    }
+                continue;
+            }
+            for (LocalDate currentDate = fromDate; !currentDate.isAfter(toDate); currentDate = currentDate.plusDays(1)) {
+                if (!holidays.contains(currentDate) && OfficeCalendarUtil.isWorkingDay(currentDate)) {
+                    count += 1;
                 }
             }
         }

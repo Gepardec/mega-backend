@@ -578,7 +578,7 @@ public class WorkerResourceTest {
 
         MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
 
-        assertThat(actual.getHomeofficeDays()).isEqualTo(0);
+        assertThat(actual.getHomeofficeDays()).isZero();
         assertThat(actual.getOfficeDays()).isEqualTo(21);
         assertThat(actual.getFridaysAtTheOffice()).isEqualTo(4);
     }
