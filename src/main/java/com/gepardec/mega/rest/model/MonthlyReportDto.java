@@ -75,8 +75,6 @@ public class MonthlyReportDto {
 
     private final String internalProjectLead;
 
-    private final boolean hasCreditCard;
-
     private final PrematureEmployeeCheckDto prematureEmployeeCheck;
 
     private MonthlyReportDto(Builder builder) {
@@ -109,7 +107,6 @@ public class MonthlyReportDto {
         this.prematureEmployeeCheck = builder.prematureEmployeeCheck;
         this.guildLead = builder.guildLead;
         this.internalProjectLead = builder.internalProjectLead;
-        this.hasCreditCard = builder.hasCreditCard;
     }
 
     public static Builder builder() {
@@ -237,8 +234,6 @@ public class MonthlyReportDto {
         return guildLead;
     }
 
-    public boolean getHasCreditCard() {return hasCreditCard;}
-
     public String getInternalProjectLead() {
         return internalProjectLead;
     }
@@ -279,8 +274,6 @@ public class MonthlyReportDto {
         private String guildLead;
 
         private String internalProjectLead;
-
-        private boolean hasCreditCard;
 
         private PrematureEmployeeCheckDto prematureEmployeeCheck;
 
@@ -433,11 +426,6 @@ public class MonthlyReportDto {
 
         public Builder internalProjectLead(String internalProjectLead) {
             this.internalProjectLead = internalProjectLead;
-            return this;
-        }
-
-        public Builder hasCreditCard(boolean hasCreditCard) {
-            this.hasCreditCard = hasCreditCard;
             return this;
         }
 

@@ -70,7 +70,6 @@ public class MonthlyReport {
 
     private final String internalProjectLead;
 
-    private final boolean hasCreditCard;
 
     private MonthlyReport(Builder builder) {
         this.employee = builder.employee;
@@ -102,7 +101,6 @@ public class MonthlyReport {
         this.prematureEmployeeCheck = builder.prematureEmployeeCheck;
         this.guildLead = builder.guildLead;
         this.internalProjectLead = builder.internalProjectLead;
-        this.hasCreditCard = builder.hasCreditCard;
     }
 
 
@@ -226,9 +224,6 @@ public class MonthlyReport {
         return internalProjectLead;
     }
 
-    public boolean getHasCreditCard() {
-        return hasCreditCard;
-    }
 
     @Nullable
     public PrematureEmployeeCheck getPrematureEmployeeCheck() {
@@ -265,7 +260,6 @@ public class MonthlyReport {
         private PrematureEmployeeCheck prematureEmployeeCheck;
         private String guildLead;
         private String internalProjectLead;
-        private boolean hasCreditCard;
 
         private Builder() {
         }
@@ -419,10 +413,6 @@ public class MonthlyReport {
             return this;
         }
 
-        public Builder hasCreditCard(boolean hasCreditCard){
-            this.hasCreditCard = hasCreditCard;
-            return this;
-        }
 
         public MonthlyReport build() {
             return new MonthlyReport(this);
