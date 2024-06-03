@@ -20,6 +20,9 @@ public interface ZepAttendanceRestClient {
     Response getAttendance(@QueryParam("start_date") String startDate, @QueryParam("end_date") String endDate, @QueryParam("employee_id") String username, @QueryParam("page") int page);
 
     @GET
+    Response getAttendanceForUserAndProject(@QueryParam("start_date") String startDate, @QueryParam("end_date") String endDate, @QueryParam("employee_id") String username, @QueryParam("project_id") Integer projectId, @QueryParam("page") int page);
+
+    @GET
     Response getAttendancesByUsername(@QueryParam("employee_id") String username, @QueryParam("page") int page);
 
     @GET

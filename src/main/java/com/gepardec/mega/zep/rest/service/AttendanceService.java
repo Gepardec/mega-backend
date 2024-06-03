@@ -61,13 +61,10 @@ public class AttendanceService {
         String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
 
         try {
-            List<ZepAttendance> attendances = responseParser.retrieveAll(
-                    page -> zepAttendanceRestClient.getAttendance(startDate, endDate, username, page),
+            return responseParser.retrieveAll(
+                    page -> zepAttendanceRestClient.getAttendanceForUserAndProject(startDate, endDate, username, projectId, page),
                     ZepAttendance.class);
 
-            return attendances.stream()
-                    .filter(attendance -> Objects.equals(attendance.projectId(), projectId))
-                    .toList();
         } catch (ZepServiceException e) {
             logger.warn(("Error retrieving billable attendances for user \"%s\" and project \"%d\" from ZEP: " +
                     "No /data field in response")

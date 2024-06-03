@@ -43,6 +43,7 @@ class AttendanceServiceTest {
     public void init() {
         List<String> users = List.of("001-duser", "002-tuser");
         users.forEach(this::createMockForUser);
+        createMockForUserAndProject("003-tuser");
     }
 
     private void createMockForUser(String user) {
@@ -57,6 +58,19 @@ class AttendanceServiceTest {
                 }
         );
     }
+
+    private void createMockForUserAndProject(String user) {
+            List<String> responseJson = resourceFileService.getDirContents("/attendances/" + user);
+
+            IntStream.range(0, responseJson.size()).forEach(
+                    i -> {
+                        when(zepAttendanceRestClient
+                                .getAttendanceForUserAndProject(anyString(), anyString(), eq(user), eq(1), eq(i + 1)))
+                                .thenReturn(Response.ok().entity(responseJson.get(i)).build());
+                        System.out.println(responseJson.get(i));
+                    }
+            );
+        }
 
     @Test
     public void getAttendances() {
@@ -144,9 +158,9 @@ class AttendanceServiceTest {
 
     @Test
     public void filterAttendanceResponse_thenReturnProjectEntriesWithGivenID(){
-        List<ZepAttendance> result = attendanceService.getAttendanceForUserProjectAndMonth("002-tuser", LocalDate.of(2021, 12, 10), 3);
+        List<ZepAttendance> result = attendanceService.getAttendanceForUserProjectAndMonth("003-tuser", LocalDate.of(2021, 12, 10), 1);
 
-        assertThat(result.size()).isEqualTo(3);
+        assertThat(result.size()).isEqualTo(2);
     }
 
 
