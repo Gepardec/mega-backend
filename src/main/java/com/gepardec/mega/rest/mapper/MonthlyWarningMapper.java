@@ -6,11 +6,17 @@ import com.gepardec.mega.rest.model.MonthlyWarningDto;
 public class MonthlyWarningMapper implements DtoMapper<MonthlyWarning, MonthlyWarningDto> {
     @Override
     public MonthlyWarningDto mapToDto(MonthlyWarning object) {
-        return null;
+        return MonthlyWarningDto.builder()
+                .name(object.getName())
+                .dateValuesWhenWarningsOccurred(object.getDateValuesWhenWarningsOccurred())
+                .build();
     }
 
     @Override
     public MonthlyWarning mapToDomain(MonthlyWarningDto object) {
-        return null;
+        return MonthlyWarning.builder()
+                .name(object.getName())
+                .dateValuesWhenWarningsOccurred(object.getDateValuesWhenWarningsOccurred())
+                .build();
     }
 }
