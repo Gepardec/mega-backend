@@ -197,7 +197,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .employeeProgresses(pmProgressDtos)
                 .otherChecksDone(isMonthCompletedForEmployee(employee, date))
                 .billableTime(workingTimeUtil.getBillableTimesForEmployee(billableEntries, employee))
-                .totalWorkingTime(workingTimeUtil.getTotalWorkingTimeForEmployee(billableEntries, employee))
+                .totalWorkingTime(workingTimeUtil.getTotalWorkingTimeForEmployee(projectEntries, employee))
                 .compensatoryDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.COMPENSATORY_DAYS.getAbsenceName(), date))
                 .homeofficeDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.HOME_OFFICE_DAYS.getAbsenceName(), date))
                 .vacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.VACATION_DAYS.getAbsenceName(), date))

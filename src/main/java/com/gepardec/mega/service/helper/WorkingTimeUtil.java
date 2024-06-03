@@ -4,6 +4,7 @@ import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.ProjectTime;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -49,8 +50,8 @@ public class WorkingTimeUtil {
 
     }
 
-    public String getTotalWorkingTimeForEmployee(@Nonnull List<ProjectTime> projektzeitTypeList, @Nonnull Employee employee) {
-        Duration totalWorkingTimeForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, $ -> true);
+    public String getTotalWorkingTimeForEmployee(@Nonnull List<ProjectEntry> projektzeitTypeList, @Nonnull Employee employee) {
+        Duration totalWorkingTimeForEmployee = getWorkingTimes(projektzeitTypeList);
         return DurationFormatUtils.formatDuration(totalWorkingTimeForEmployee.toMillis(), BILLABLE_TIME_FORMAT);
     }
 
@@ -103,6 +104,13 @@ public class WorkingTimeUtil {
                 .filter(billableFilter)
                 .map(pzt -> LocalTime.parse(pzt.getDuration()))
                 .map(lt -> Duration.between(LocalTime.MIN, lt))
+                .reduce(Duration.ZERO, Duration::plus);
+    }
+
+    private Duration getWorkingTimes(List<ProjectEntry> projectEntries) {
+        return projectEntries.stream()
+                .map(ProjectEntry::getDurationInHours)
+                .map(hours -> Duration.ofMinutes(Double.valueOf(hours * 60).longValue()))
                 .reduce(Duration.ZERO, Duration::plus);
     }
 

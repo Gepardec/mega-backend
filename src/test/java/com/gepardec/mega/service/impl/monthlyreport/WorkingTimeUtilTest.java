@@ -2,6 +2,11 @@ package com.gepardec.mega.service.impl.monthlyreport;
 
 
 import com.gepardec.mega.domain.model.*;
+import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
+import com.gepardec.mega.domain.model.monthlyreport.Task;
+import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -10,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,12 +48,11 @@ class WorkingTimeUtilTest {
     }
 
     @Test
-    void getTotalWorkingTimeForEmployee() {
+    void getTotalWorkingTimes_ProjectTime(){
         Employee employee = createEmployee().build();
-
-        List<ProjectTime> projectTimes = returnNormalDayProjectTimes(5);
-        String internalTimesForEmployee = workingTimeUtil.getTotalWorkingTimeForEmployee(projectTimes, employee);
-        assertThat(internalTimesForEmployee).isEqualTo("40:00");
+        List<ProjectEntry> projectEntries = getProjectentries();
+        String totalWorkingTimes = workingTimeUtil.getTotalWorkingTimeForEmployee(projectEntries, employee);
+        assertThat(totalWorkingTimes).isEqualTo("24:15");
     }
 
     @Test
@@ -174,5 +179,50 @@ class WorkingTimeUtilTest {
                         Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
                         Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)))
                 );
+    }
+
+    private List<ProjectEntry> getProjectentries() {
+        return List.of(
+                ProjectTimeEntry.builder()
+                        .fromTime(LocalDateTime.of(2023, 11, 1, 8, 0))
+                        .toTime(LocalDateTime.of(2023, 11, 1, 12, 15))
+                        .task(Task.BEARBEITEN)
+                        .workingLocation(WorkingLocation.MAIN)
+                        .process("1")
+                        .build(),
+                ProjectTimeEntry.builder()
+                        .fromTime(LocalDateTime.of(2023, 11, 1, 13, 0))
+                        .toTime(LocalDateTime.of(2023, 11, 1, 17, 0))
+                        .task(Task.BEARBEITEN)
+                        .workingLocation(WorkingLocation.MAIN)
+                        .process("1")
+                        .build(),
+                ProjectTimeEntry.builder()
+                        .fromTime(LocalDateTime.of(2023, 11, 2, 8, 0))
+                        .toTime(LocalDateTime.of(2023, 11, 2, 12, 0))
+                        .task(Task.BEARBEITEN)
+                        .workingLocation(WorkingLocation.MAIN)
+                        .process("1")
+                        .build(),
+                ProjectTimeEntry.builder()
+                        .fromTime(LocalDateTime.of(2023, 11, 2, 13, 0))
+                        .toTime(LocalDateTime.of(2023, 11, 2, 17, 0))
+                        .task(Task.BEARBEITEN)
+                        .workingLocation(WorkingLocation.MAIN)
+                        .process("1")
+                        .build(),
+                JourneyTimeEntry.builder()
+                        .fromTime(LocalDateTime.of(2023, 11, 3, 8, 0))
+                        .toTime(LocalDateTime.of(2023, 11, 3, 12, 0))
+                        .task(Task.REISEN)
+                        .workingLocation(WorkingLocation.MAIN)
+                        .build(),
+                JourneyTimeEntry.builder()
+                        .fromTime(LocalDateTime.of(2023, 11, 3, 13, 0))
+                        .toTime(LocalDateTime.of(2023, 11, 3, 17, 0))
+                        .task(Task.REISEN)
+                        .workingLocation(WorkingLocation.MAIN)
+                        .build()
+        );
     }
 }
