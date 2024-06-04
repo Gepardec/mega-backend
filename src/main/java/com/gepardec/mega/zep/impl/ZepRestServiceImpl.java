@@ -170,11 +170,15 @@ public class ZepRestServiceImpl implements ZepService {
         return projectEntryMapper.mapList(zepAttendances);
     }
 
+    //TODO: This method name is misleading as it is not returning the project times for a specific employee but for all employees of a project
+    //The misleading name is the result of the original method name in the ZepService interface being not well named
     @CacheResult(cacheName = "projectTimesForEmployeePerProject")
     @Override
     public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, LocalDate curDate) {
         List<ZepAttendance> allZepAttendancesForProject = new ArrayList<>();
+
         logger.debug("Retrieving project %s from ZEP".formatted(project));
+
         Optional<ZepProject> projectOpt = projectService.getProjectByName(project, curDate);
         if (projectOpt.isEmpty()) {
             logger.warn("No project found for name {}", project);
