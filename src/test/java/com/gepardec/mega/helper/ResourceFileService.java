@@ -34,10 +34,13 @@ public class ResourceFileService {
     }
 
     public List<String> getDirContents(String path) {
+        if (path == null) {
+            return List.of();
+        }
         File filesSubDir = new File(filesDir.getPath() + "/" + path);
         File[] files = filesSubDir.listFiles();
         if (files == null) {
-            throw   new RuntimeException("No test files found in directory: " + filesSubDir.getPath());
+            throw new RuntimeException("No test files found in directory: " + filesSubDir.getPath());
         }
 
         return Arrays.stream(files)

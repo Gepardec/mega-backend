@@ -2,7 +2,6 @@ package com.gepardec.mega.zep.rest.service;
 
 import com.gepardec.mega.zep.rest.client.ZepAttendanceRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
-import com.gepardec.mega.zep.rest.dto.ZepBillable;
 import com.gepardec.mega.zep.util.ResponseParser;
 import com.gepardec.mega.helper.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
@@ -14,7 +13,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -33,8 +34,12 @@ class AttendanceServiceTest {
     @InjectMock
     ZepAttendanceRestClient zepAttendanceRestClient;
 
-    @Inject
+    @InjectMocks
     AttendanceService attendanceService;
+
+    @Inject
+    @Mock
+    ResponseParser responseParser;
 
     @Inject
     ResourceFileService resourceFileService;
@@ -127,36 +132,37 @@ class AttendanceServiceTest {
     }
 
     @Test
-    @Disabled
     public void extractCorrectMonthFromGivenDate_thenCallPaginator() {
-        ArgumentCaptor<String> startDateCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> endDateCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> usernameCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Function> functionCaptor = ArgumentCaptor.forClass(Function.class);
+        try (AutoCloseable ignored = MockitoAnnotations.openMocks(this)) {
+            ArgumentCaptor<String> startDateCaptor = ArgumentCaptor.forClass(String.class);
+            ArgumentCaptor<String> endDateCaptor = ArgumentCaptor.forClass(String.class);
+            ArgumentCaptor<String> usernameCaptor = ArgumentCaptor.forClass(String.class);
+            ArgumentCaptor<Function> functionCaptor = ArgumentCaptor.forClass(Function.class);
 
-        ResponseParser mockedResponseParser = Mockito.mock(ResponseParser.class);
+            when(responseParser.retrieveAll(any(), any()))
+                    .thenReturn(new ArrayList<>());
 
-        when(mockedResponseParser.retrieveAll(any(), any()))
-                .thenReturn(new ArrayList<>());
+            //Call the Method under test
+            attendanceService.getAttendanceForUserAndMonth("username", LocalDate.of(2021, 1, 10));
 
-        //Call the Method under test
-        attendanceService.getAttendanceForUserAndMonth("username", LocalDate.of(2021, 1, 10));
+            //Retrieve the function called in the method under test
+            verify(responseParser).retrieveAll(functionCaptor.capture(), any());
+            Function<Integer, Response> function = functionCaptor.getValue();
+            //Run the Function
+            function.apply(1);
 
-        //Retrieve the function called in the method under test
-        verify(mockedResponseParser.retrieveAll(functionCaptor.capture(), any()));
-        Function<Integer, Response> function = functionCaptor.getValue();
-        //Run the Function
-        function.apply(1);
+            //Verify the function retrieved has been called with the right parameters
+            verify(zepAttendanceRestClient).getAttendance(startDateCaptor.capture(), endDateCaptor.capture(), usernameCaptor.capture(), eq(1));
+            assertThat(startDateCaptor.getValue()).isEqualTo("2021-01-01");
+            assertThat(endDateCaptor.getValue()).isEqualTo("2021-01-31");
+            assertThat(usernameCaptor.getValue()).isEqualTo("username");
 
-        //Verify the function retrieved has been called with the right parameters
-        verify(zepAttendanceRestClient).getAttendance(startDateCaptor.capture(), endDateCaptor.capture(), usernameCaptor.capture(), eq(1));
-        assertThat(startDateCaptor.getValue()).isEqualTo("2021-01-01");
-        assertThat(endDateCaptor.getValue()).isEqualTo("2021-01-31");
-        assertThat(usernameCaptor.getValue()).isEqualTo("username");
-
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    @Test
+        @Test
     public void filterAttendanceResponse_thenReturnProjectEntriesWithGivenID(){
         List<ZepAttendance> result = attendanceService.getAttendanceForUserProjectAndMonth("003-tuser", LocalDate.of(2021, 12, 10), 1);
 
