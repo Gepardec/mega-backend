@@ -105,6 +105,7 @@ public class TimeWarningServiceImpl implements TimeWarningService {
             }
         }
 
+        // if we do not check this we get empty objects
         if (!name.isEmpty()) {
             return MonthlyWarning.builder()
                     .name(name)
