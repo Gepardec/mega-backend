@@ -6,10 +6,12 @@ import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.MonthlyAbsences;
 import com.gepardec.mega.domain.model.MonthlyOfficeDays;
+import com.gepardec.mega.domain.model.MonthlyWarning;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.api.WorkerResource;
@@ -17,15 +19,18 @@ import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
 import com.gepardec.mega.rest.mapper.MonthlyBillInfoMapper;
 import com.gepardec.mega.rest.mapper.MonthlyOfficeDaysMapper;
 import com.gepardec.mega.rest.mapper.MonthlyReportMapper;
+import com.gepardec.mega.rest.mapper.MonthlyWarningMapper;
 import com.gepardec.mega.rest.mapper.ProjectHoursSummaryMapper;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
+import com.gepardec.mega.rest.model.MonthlyWarningDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import com.gepardec.mega.service.api.AbsenceService;
 import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.MonthlyReportService;
+import com.gepardec.mega.service.api.TimeWarningService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.impl.Rest;
@@ -50,6 +55,12 @@ public class WorkerResourceImpl implements WorkerResource {
 
     @Inject
     DateHelperService dateHelperService;
+
+    @Inject
+    TimeWarningService timeWarningService;
+
+    @Inject
+    MonthlyWarningMapper monthlyWarningMapper;
 
     @Inject
     AbsenceService absenceService;
@@ -134,6 +145,20 @@ public class WorkerResourceImpl implements WorkerResource {
         List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee,fromDateForRequest);
 
         return monthlyOfficeDaysMapper.mapToDto(createMonthlyOfficeDays(absences, fromDateForRequest));
+    }
+
+    @Override
+    public List<MonthlyWarningDto> getAllWarningsForEmployeeAndMonth(String employeeId, YearMonth from) {
+        Employee employee = employeeService.getEmployee(employeeId);
+        Pair<String, String> correctDatePairForRequest = dateHelperService.getCorrectDateForRequest(employee, from);
+        LocalDate fromDateForRequest = DateUtils.parseDate(correctDatePairForRequest.getLeft());
+        List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee,fromDateForRequest);
+        List<ProjectEntry> projectEntries = zepService.getProjectTimes(employee, fromDateForRequest);
+
+        return timeWarningService.getAllTimeWarningsForEmployeeAndMonth(absences, projectEntries, employee)
+                .stream()
+                .map(monthlyWarningMapper::mapToDto)
+                .toList();
     }
 
 

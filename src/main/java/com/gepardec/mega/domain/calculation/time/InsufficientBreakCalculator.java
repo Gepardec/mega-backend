@@ -7,6 +7,7 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
+import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -92,6 +93,7 @@ public class InsufficientBreakCalculator extends AbstractTimeWarningCalculationS
                         .subtract(BigDecimal.valueOf(breakTime))
                         .setScale(2, RoundingMode.HALF_EVEN)
                         .doubleValue());
+        timeWarning.getWarningTypes().add(TimeWarningType.MISSING_BREAK_TIME);
         return timeWarning;
     }
 }
