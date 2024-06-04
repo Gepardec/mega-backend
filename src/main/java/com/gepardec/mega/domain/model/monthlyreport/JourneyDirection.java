@@ -26,7 +26,7 @@ public enum JourneyDirection {
     }
 
     public static Optional<JourneyDirection> fromString(String direction) {
-        return Optional.ofNullable(enumMap.get(StringUtils.defaultIfEmpty(direction, "0").toUpperCase()));
+        return Optional.ofNullable(enumMap.get(StringUtils.defaultIfEmpty(direction, TO.getDirection()).toUpperCase()));
     }
 
     public String getDirection() {
