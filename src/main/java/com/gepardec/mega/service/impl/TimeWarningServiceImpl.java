@@ -32,7 +32,6 @@ import static com.gepardec.mega.domain.model.monthlyreport.TimeWarningType.WRONG
 
 @ApplicationScoped
 public class TimeWarningServiceImpl implements TimeWarningService {
-
     @Inject
     WarningCalculatorsManager warningCalculatorsManager;
 
