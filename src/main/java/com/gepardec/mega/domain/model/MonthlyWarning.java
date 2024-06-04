@@ -4,26 +4,26 @@ import java.util.List;
 
 public class MonthlyWarning {
     private final String name;
-    private final List<String> dateValuesWhenWarningsOccurred;
+    private final List<String> datesWhenWarningOccurred;
 
     private MonthlyWarning(Builder builder) {
         this.name = builder.name;
-        this.dateValuesWhenWarningsOccurred = builder.dateValuesWhenWarningsOccurred;
+        this.datesWhenWarningOccurred = builder.datesWhenWarningOccurred;
     }
 
     public String getName() {
         return name;
     }
 
-    public List<String> getDateValuesWhenWarningsOccurred() {
-        return dateValuesWhenWarningsOccurred;
+    public List<String> getDatesWhenWarningOccurred() {
+        return datesWhenWarningOccurred;
     }
 
     public static Builder builder() {return Builder.aMonthlyWarning();}
 
     public static class Builder {
         private String name;
-        private List<String> dateValuesWhenWarningsOccurred;
+        private List<String> datesWhenWarningOccurred;
 
         private Builder() {}
 
@@ -34,8 +34,8 @@ public class MonthlyWarning {
             return this;
         }
 
-        public Builder dateValuesWhenWarningsOccurred(List<String> dateValuesWhenWarningsOccurred) {
-            this.dateValuesWhenWarningsOccurred = dateValuesWhenWarningsOccurred;
+        public Builder datesWhenWarningOccurred(List<String> datesWhenWarningOccurred) {
+            this.datesWhenWarningOccurred = datesWhenWarningOccurred;
             return this;
         }
 

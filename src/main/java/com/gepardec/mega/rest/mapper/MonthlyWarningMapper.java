@@ -10,7 +10,7 @@ public class MonthlyWarningMapper implements DtoMapper<MonthlyWarning, MonthlyWa
     public MonthlyWarningDto mapToDto(MonthlyWarning object) {
         return MonthlyWarningDto.builder()
                 .name(object.getName())
-                .dateValuesWhenWarningsOccurred(object.getDateValuesWhenWarningsOccurred())
+                .datesWhenWarningOccurred(object.getDatesWhenWarningOccurred())
                 .build();
     }
 
@@ -18,7 +18,7 @@ public class MonthlyWarningMapper implements DtoMapper<MonthlyWarning, MonthlyWa
     public MonthlyWarning mapToDomain(MonthlyWarningDto object) {
         return MonthlyWarning.builder()
                 .name(object.getName())
-                .dateValuesWhenWarningsOccurred(object.getDateValuesWhenWarningsOccurred())
+                .datesWhenWarningOccurred(object.getDatesWhenWarningOccurred())
                 .build();
     }
 }

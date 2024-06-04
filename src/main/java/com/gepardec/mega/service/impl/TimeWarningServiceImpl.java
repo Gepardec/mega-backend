@@ -9,14 +9,12 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntryWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
-import com.gepardec.mega.domain.model.monthlyreport.WarningType;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.TimeWarningService;
 import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -51,7 +49,7 @@ public class TimeWarningServiceImpl implements TimeWarningService {
             EXCESS_WORKING_TIME_PRESENT
     );
 
-    private static final List<WarningType> journeyWarningTypes = List.of(
+    private static final List<JourneyWarningType> journeyWarningTypes = List.of(
             JourneyWarningType.BACK_MISSING,
             JourneyWarningType.TO_MISSING,
             JourneyWarningType.INVALID_WORKING_LOCATION
@@ -68,7 +66,14 @@ public class TimeWarningServiceImpl implements TimeWarningService {
 
         timeWarningTypes.forEach(warningType -> {
             MonthlyWarning warningEntry = createMonthlyTimeWarning(timeWarnings, warningType);
-            if(warningEntry != null){
+            if (warningEntry != null) {
+                monthlyWarnings.add(warningEntry);
+            }
+        });
+
+        journeyWarningTypes.forEach(warningType -> {
+            MonthlyWarning warningEntry = createMonthlyJourneyWarning(journeyWarnings, warningType);
+            if (warningEntry != null) {
                 monthlyWarnings.add(warningEntry);
             }
         });
@@ -80,8 +85,7 @@ public class TimeWarningServiceImpl implements TimeWarningService {
         List<String> datesWhenWarningsOccurred = new ArrayList<>();
 
         for (TimeWarning timeWarning : timeWarnings) {
-            boolean test = timeWarning.getWarningTypes().contains(warningType);
-            if (test) {
+            if (timeWarning.getWarningTypes().contains(warningType)) {
                 if (name.isEmpty()) {
                     name = switch (warningType) {
                         case TIME_OVERLAP -> "Zeiten überschneiden sich";
@@ -96,14 +100,44 @@ public class TimeWarningServiceImpl implements TimeWarningService {
                         case EXCESS_WORKING_TIME_PRESENT -> "Zu viel Arbeitszeit gebucht";
                     };
                 }
-                datesWhenWarningsOccurred.add(DateUtils.formatDate(timeWarning.getDate()));
+                if (timeWarning.getDate() != null) {
+                    datesWhenWarningsOccurred.add(DateUtils.formatDate(timeWarning.getDate()));
+                }
+            }
+        }
+
+        if (!name.isEmpty()) {
+            return MonthlyWarning.builder()
+                    .name(name)
+                    .datesWhenWarningOccurred(datesWhenWarningsOccurred)
+                    .build();
+        }
+        return null;
+    }
+
+    private MonthlyWarning createMonthlyJourneyWarning(List<JourneyWarning> journeyWarnings, JourneyWarningType warningType) {
+        String name = "";
+        List<String> datesWhenWarningsOccurred = new ArrayList<>();
+
+        for (JourneyWarning journeyWarning : journeyWarnings) {
+            if (journeyWarning.getWarningTypes().contains(warningType)) {
+                if (name.isEmpty()) {
+                    name = switch (warningType) {
+                        case BACK_MISSING -> "Rückreise fehlt oder ist nach dem Zeitraum";
+                        case TO_MISSING -> "Hinreise fehlt oder ist vor dem Zeitraum";
+                        case INVALID_WORKING_LOCATION -> "Ungültiger Arbeitsort während einer Reise";
+                    };
+                }
+                if(journeyWarning.getDate() != null) {
+                    datesWhenWarningsOccurred.add(DateUtils.formatDate(journeyWarning.getDate()));
+                }
             }
         }
 
         if(!name.isEmpty()) {
             return MonthlyWarning.builder()
                     .name(name)
-                    .dateValuesWhenWarningsOccurred(datesWhenWarningsOccurred)
+                    .datesWhenWarningOccurred(datesWhenWarningsOccurred)
                     .build();
         }
         return null;
