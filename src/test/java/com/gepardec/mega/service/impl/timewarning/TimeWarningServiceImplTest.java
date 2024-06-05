@@ -23,7 +23,6 @@ import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
