@@ -78,7 +78,7 @@ public class NotificationHelper {
     }
 
     public String subjectPrefixOrEmptyString() {
-        return Optional.ofNullable(notificationConfig.getSubjectPrefix()).orElse("");
+        return notificationConfig.getSubjectPrefix().orElse("");
     }
 
     private String localizedEmailOrNull(final Mail mail, final Locale locale) {
