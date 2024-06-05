@@ -23,6 +23,7 @@ import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -68,6 +69,29 @@ public class TimeWarningServiceImplTest {
 
         assertThat(actual.isEmpty()).isFalse();
         assertThat(actual.size()).isEqualTo(9);
+    }
+
+    @Test
+    void testGetAllWarningsForEmployeeAndMonth_whenNoWarningsPresent_thenReturnEmptyList(){
+        User user = createUserForRole(Role.EMPLOYEE);
+        when(userContext.getUser()).thenReturn(user);
+
+        Employee employee = createEmployeeForUser(user);
+
+        when(warningCalculatorsManager.determineJourneyWarnings(any()))
+                .thenReturn(new ArrayList<>());
+
+        when(warningCalculatorsManager.determineTimeWarnings(any()))
+                .thenReturn(new ArrayList<>());
+
+        when(warningCalculatorsManager.determineNoTimeEntries(any(Employee.class), any(), any()))
+                .thenReturn(new ArrayList<>());
+
+
+        List<ProjectEntry> projectEntries = createProjectEntryListForMonth(employee.getUserId());
+        List<MonthlyWarning> actual = timeWarningService.getAllTimeWarningsForEmployeeAndMonth(new ArrayList<>(), projectEntries, employee);
+
+        assertThat(actual.isEmpty()).isTrue();
     }
 
     private List<AbsenceTime> createAbsenceTimeListForRequest(String userId) {
@@ -124,6 +148,113 @@ public class TimeWarningServiceImplTest {
                 .process("1033")
                 .build();
     }
+
+    private List<ProjectEntry> createProjectEntryListForMonth(String userId) {
+        List<ProjectEntry> projectEntries = new ArrayList<>();
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 3, 7, 0),
+                LocalDateTime.of(2024, 6, 3, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 3, 12, 0),
+                LocalDateTime.of(2024, 6, 3, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 4, 7, 0),
+                LocalDateTime.of(2024, 6, 4, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 4, 12, 0),
+                LocalDateTime.of(2024, 6, 4, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 5, 7, 0),
+                LocalDateTime.of(2024, 6, 5, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 5, 12, 0),
+                LocalDateTime.of(2024, 6, 5, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 6, 7, 0),
+                LocalDateTime.of(2024, 6, 6, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 6, 12, 0),
+                LocalDateTime.of(2024, 6, 6, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 7, 7, 0),
+                LocalDateTime.of(2024, 6, 7, 12, 0)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 7, 12, 30),
+                LocalDateTime.of(2024, 6, 7, 14, 0)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 10, 7, 0),
+                LocalDateTime.of(2024, 6, 10, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 10, 12, 0),
+                LocalDateTime.of(2024, 6, 10, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 11, 7, 0),
+                LocalDateTime.of(2024, 6, 11, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 11, 12, 0),
+                LocalDateTime.of(2024, 6, 11, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 12, 7, 0),
+                LocalDateTime.of(2024, 6, 12, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 12, 12, 0),
+                LocalDateTime.of(2024, 6, 12, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 13, 7, 0),
+                LocalDateTime.of(2024, 6, 13, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 13, 12, 0),
+                LocalDateTime.of(2024, 6, 13, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 14, 7, 0),
+                LocalDateTime.of(2024, 6, 14, 12, 0)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 14, 12, 30),
+                LocalDateTime.of(2024, 6, 14, 14, 0)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 17, 7, 0),
+                LocalDateTime.of(2024, 6, 17, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 17, 12, 0),
+                LocalDateTime.of(2024, 6, 17, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 18, 7, 0),
+                LocalDateTime.of(2024, 6, 18, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 18, 12, 0),
+                LocalDateTime.of(2024, 6, 18, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 19, 7, 0),
+                LocalDateTime.of(2024, 6, 19, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 19, 12, 0),
+                LocalDateTime.of(2024, 6, 19, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 20, 7, 0),
+                LocalDateTime.of(2024, 6, 20, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 20, 12, 0),
+                LocalDateTime.of(2024, 6, 20, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 21, 7, 0),
+                LocalDateTime.of(2024, 6, 21, 12, 0)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 21, 12, 30),
+                LocalDateTime.of(2024, 6, 21, 14, 0)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 24, 7, 0),
+                LocalDateTime.of(2024, 6, 24, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 24, 12, 0),
+                LocalDateTime.of(2024, 6, 24, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 25, 7, 0),
+                LocalDateTime.of(2024, 6, 25, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 25, 12, 0),
+                LocalDateTime.of(2024, 6, 25, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 26, 7, 0),
+                LocalDateTime.of(2024, 6, 26, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 26, 12, 0),
+                LocalDateTime.of(2024, 6, 26, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 27, 7, 0),
+                LocalDateTime.of(2024, 6, 27, 11, 30)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 27, 12, 0),
+                LocalDateTime.of(2024, 6, 27, 15, 30)));
+
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 28, 7, 0),
+                LocalDateTime.of(2024, 6, 28, 12, 0)));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 28, 12, 30),
+                LocalDateTime.of(2024, 6, 28, 14, 0)));
+
+        return projectEntries;
+    }
+
+
 
     private JourneyTimeEntry createJourneyTimeEntry(LocalDateTime from, LocalDateTime to) {
         return JourneyTimeEntry.builder()
