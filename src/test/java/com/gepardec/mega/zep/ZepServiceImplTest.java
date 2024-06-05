@@ -1,10 +1,8 @@
 package com.gepardec.mega.zep;
 
 import com.gepardec.mega.db.entity.common.PaymentMethodType;
-import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
-import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.impl.ZepSoapServiceImpl;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
@@ -19,9 +17,7 @@ import de.provantis.zep.ProjektListeType;
 import de.provantis.zep.ProjektMitarbeiterListeType;
 import de.provantis.zep.ProjektMitarbeiterType;
 import de.provantis.zep.ProjektType;
-import de.provantis.zep.ReadBelegAnhangRequestType;
 import de.provantis.zep.ReadBelegAnhangResponseType;
-import de.provantis.zep.ReadBelegRequestType;
 import de.provantis.zep.ReadBelegResponseType;
 import de.provantis.zep.ReadMitarbeiterRequestType;
 import de.provantis.zep.ReadMitarbeiterResponseType;
@@ -43,7 +39,6 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Stream;
@@ -71,9 +66,6 @@ class ZepServiceImplTest {
     Logger logger;
 
     ZepSoapServiceImpl zepService;
-
-    @InjectMock
-    MonthlyReportService monthlyReportService;
 
     private ProjektMitarbeiterListeType projektMitarbeiterListeType;
 
@@ -104,7 +96,7 @@ class ZepServiceImplTest {
     void setUp() {
         zepSoapPortType = mock(ZepSoapPortType.class);
 
-        zepService = new ZepSoapServiceImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper, monthlyReportService);
+        zepService = new ZepSoapServiceImpl(new EmployeeMapper(), logger, zepSoapPortType, zepSoapProvider, projectEntryMapper);
 
         final ReadProjekteResponseType readProjekteResponseType = new ReadProjekteResponseType();
         final ProjektListeType projektListeType = new ProjektListeType();

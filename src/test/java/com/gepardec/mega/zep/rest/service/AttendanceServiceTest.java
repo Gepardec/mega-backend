@@ -10,10 +10,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -34,7 +32,7 @@ class AttendanceServiceTest {
     @InjectMock
     ZepAttendanceRestClient zepAttendanceRestClient;
 
-    @InjectMocks
+    @InjectMock
     AttendanceService attendanceService;
 
     @Inject

@@ -1,14 +1,11 @@
 package com.gepardec.mega.zep.impl;
 
 import com.gepardec.mega.domain.model.*;
-import com.gepardec.mega.db.entity.common.PaymentMethodType;
-import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
-import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.ZepServiceException;
@@ -16,12 +13,6 @@ import com.gepardec.mega.zep.ZepSoapProvider;
 import com.gepardec.mega.zep.mapper.AbsenceTimeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
 import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
-import com.gepardec.mega.zep.rest.dto.ZepReceipt;
-import com.gepardec.mega.zep.rest.dto.ZepReceiptAttachment;
-import de.provantis.zep.*;
-import de.provantis.zep.BelegListeType;
-import de.provantis.zep.BelegType;
-import de.provantis.zep.BelegbetragType;
 import de.provantis.zep.FehlzeitType;
 import de.provantis.zep.KategorieListeType;
 import de.provantis.zep.KategorieType;
@@ -32,12 +23,6 @@ import de.provantis.zep.ProjektMitarbeiterType;
 import de.provantis.zep.ProjektNrListeType;
 import de.provantis.zep.ProjektType;
 import de.provantis.zep.ProjektzeitType;
-import de.provantis.zep.ReadBelegAnhangRequestType;
-import de.provantis.zep.ReadBelegAnhangResponseType;
-import de.provantis.zep.ReadBelegAnhangSearchCriteriaType;
-import de.provantis.zep.ReadBelegRequestType;
-import de.provantis.zep.ReadBelegResponseType;
-import de.provantis.zep.ReadBelegSearchCriteriaType;
 import de.provantis.zep.ReadFehlzeitRequestType;
 import de.provantis.zep.ReadFehlzeitResponseType;
 import de.provantis.zep.ReadFehlzeitSearchCriteriaType;
@@ -57,9 +42,7 @@ import de.provantis.zep.ZepSoapPortType;
 import io.quarkus.cache.CacheInvalidate;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.RequestScoped;
-import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
@@ -75,9 +58,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import static com.gepardec.mega.domain.utils.DateUtils.formatDate;
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
 import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfCurrentMonth;
 
@@ -98,21 +78,17 @@ public class ZepSoapServiceImpl implements ZepService {
 
     private final ProjectEntryMapper projectEntryMapper;
 
-    private final MonthlyReportService monthlyReportService;
-
     @Inject
     public ZepSoapServiceImpl(final EmployeeMapper employeeMapper,
                               final Logger logger,
                               final ZepSoapPortType zepSoapPortType,
                               final ZepSoapProvider zepSoapProvider,
-                              final ProjectEntryMapper projectEntryMapper,
-                              final MonthlyReportService monthlyReportService) {
+                              final ProjectEntryMapper projectEntryMapper) {
         this.employeeMapper = employeeMapper;
         this.logger = logger;
         this.zepSoapPortType = zepSoapPortType;
         this.zepSoapProvider = zepSoapProvider;
         this.projectEntryMapper = projectEntryMapper;
-        this.monthlyReportService = monthlyReportService;
     }
 
     @Override
@@ -305,50 +281,6 @@ public class ZepSoapServiceImpl implements ZepService {
         return zepSoapPortType.readProjekte(readProjekteRequestType);
     }
 
-    private ReadBelegResponseType getBillsInternal(final Employee employee, final String from, final String to) {
-        LocalDate now = LocalDate.now();
-        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
-        LocalDate midOfCurrentMonth = LocalDate.now().withDayOfMonth(14);
-
-        String dateForSearchCriteriaFrom = "";
-        String dateForSearchCriteriaTo ="";
-
-
-        if(from == null && to == null) {
-            if (now.isAfter(midOfCurrentMonth) && monthlyReportService.isMonthConfirmedFromEmployee(employee, firstOfPreviousMonth)) {
-                dateForSearchCriteriaFrom = getFirstDayOfCurrentMonth(now);
-                dateForSearchCriteriaTo = getLastDayOfCurrentMonth(now);
-            }
-        } else {
-            dateForSearchCriteriaFrom = from;
-            dateForSearchCriteriaTo = to;
-        }
-
-        final ReadBelegSearchCriteriaType readBelegSearchCriteriaType = createBillSearchCriteria(employee, dateForSearchCriteriaFrom, dateForSearchCriteriaTo);
-
-        final ReadBelegRequestType readBelegRequestType = new ReadBelegRequestType();
-        readBelegRequestType.setRequestHeader(zepSoapProvider.createRequestHeaderType());
-        readBelegRequestType.setReadBelegSearchCriteria(readBelegSearchCriteriaType);
-
-        return zepSoapPortType.readBeleg(readBelegRequestType);
-    }
-
-    private ReadBelegAnhangResponseType getAttachmentForBill(int billNumber) {
-        final ReadBelegAnhangSearchCriteriaType readBelegAnhangSearchCriteriaType = createAttachmentSearchCriteria(billNumber);
-
-        final ReadBelegAnhangRequestType readBelegAnhangRequestType = new ReadBelegAnhangRequestType();
-        readBelegAnhangRequestType.setRequestHeader(zepSoapProvider.createRequestHeaderType());
-        readBelegAnhangRequestType.setReadBelegAnhangSearchCriteria(readBelegAnhangSearchCriteriaType);
-
-        return zepSoapPortType.readBelegAnhang(readBelegAnhangRequestType);
-    }
-
-    private ReadBelegAnhangSearchCriteriaType createAttachmentSearchCriteria(int billNumber) {
-        ReadBelegAnhangSearchCriteriaType searchCriteria = new ReadBelegAnhangSearchCriteriaType();
-        searchCriteria.setBelegNr(billNumber);
-        return searchCriteria;
-    }
-
     private ReadProjektzeitenSearchCriteriaType createProjectTimeSearchCriteria(Employee employee, LocalDate date) {
         ReadProjektzeitenSearchCriteriaType searchCriteria = new ReadProjektzeitenSearchCriteriaType();
 
@@ -383,21 +315,6 @@ public class ZepSoapServiceImpl implements ZepService {
         searchCriteria.setUserId(employee.getUserId());
         return searchCriteria;
     }
-
-    private ReadBelegSearchCriteriaType createBillSearchCriteria(Employee employee, String from, String to){
-        ReadBelegSearchCriteriaType searchCriteria = new ReadBelegSearchCriteriaType();
-
-        //setUserIdListe needs this special parameter below, could be more than one id but in this case only one is useful
-        UserIdListeType userIdListe = new UserIdListeType();
-        userIdListe.setUserId(List.of(employee.getUserId()));
-
-        searchCriteria.setUserIdListe(userIdListe);
-        searchCriteria.setVon(from);
-        searchCriteria.setBis(to);
-
-        return searchCriteria;
-    }
-
 
 
     private Project createProject(final ProjektType projektType, final LocalDate monthYear) {
