@@ -87,6 +87,7 @@ public class TimeWarning implements ProjectEntryWarning {
         this.warnings = warnings;
     }
 
+
     public List<TimeWarningType> getWarningTypes() {
         return warningTypes;
     }
