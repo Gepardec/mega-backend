@@ -1,9 +1,9 @@
 package com.gepardec.mega.rest.api;
 
-import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
+import com.gepardec.mega.rest.model.MonthlyWarningDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -107,5 +107,24 @@ public interface WorkerResource {
     @Path("/{id}/officedays")
     @GET
     MonthlyOfficeDaysDto getOfficeDaysForMonthAndEmployee(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
+
+    @Operation(operationId = "getAllWarningsForEmployeeAndMonth", description = "Get all warnings (no matter if time or journey warning) for the employee with given id and for current month.")
+    @APIResponse(responseCode = "200",
+            description = "Successfully retrieved all warnings for employee.",
+            content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON,
+                            schema = @Schema(implementation = MonthlyWarningDto[].class))
+            }
+    )
+    @Parameter(name = "id", description = "ID of the employee for whom the warnings are to be retrieved.")
+    @Parameter(name = "from",
+            description = "If not given uses the whole current month. <br> " +
+                    "If given uses the whole month of the parameter-date. <br>" +
+                    "For example if 2024-03 is given it retrieves all warnings from 2024-03-01 to 2024-03-31.",
+            in = ParameterIn.QUERY,
+            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+    @Path("/{id}/warnings")
+    @GET
+    List<MonthlyWarningDto> getAllWarningsForEmployeeAndMonth(@PathParam(value = "id") String employeeId, @QueryParam("from") YearMonth from);
 
 }

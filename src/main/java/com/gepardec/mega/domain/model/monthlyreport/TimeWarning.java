@@ -56,6 +56,10 @@ public class TimeWarning implements ProjectEntryWarning {
         warnings = new ArrayList<>(newTimeWarning.warnings);
         warningTypes = new ArrayList<>(warningTypes);
 
+        if (!newTimeWarning.getWarningTypes().isEmpty() && !warningTypes.contains(newTimeWarning.getWarningTypes().get(0))) {
+            warningTypes.add(newTimeWarning.getWarningTypes().get(0));
+        }
+
         if (newTimeWarning.missingBreakTime != null) {
             missingBreakTime = newTimeWarning.missingBreakTime;
         }
@@ -82,6 +86,7 @@ public class TimeWarning implements ProjectEntryWarning {
     public void setWarnings(List<String> warnings) {
         this.warnings = warnings;
     }
+
 
     public List<TimeWarningType> getWarningTypes() {
         return warningTypes;
