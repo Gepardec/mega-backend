@@ -58,9 +58,9 @@ public class TimeWarningServiceImpl implements TimeWarningService {
     public List<MonthlyWarning> getAllTimeWarningsForEmployeeAndMonth(List<AbsenceTime> absences, List<ProjectEntry> projectEntries, Employee employee) {
         final List<JourneyWarning> journeyWarnings = warningCalculatorsManager.determineJourneyWarnings(projectEntries);
         final List<TimeWarning> timeWarnings = warningCalculatorsManager.determineTimeWarnings(projectEntries);
-        List<MonthlyWarning> monthlyWarnings = new ArrayList<>();
         timeWarnings.addAll(warningCalculatorsManager.determineNoTimeEntries(employee, projectEntries, absences));
         timeWarnings.sort(Comparator.comparing(ProjectEntryWarning::getDate));
+        List<MonthlyWarning> monthlyWarnings = new ArrayList<>();
 
 
         timeWarningTypes.forEach(warningType -> {

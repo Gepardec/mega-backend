@@ -734,14 +734,10 @@ public class WorkerResourceTest {
         when(timeWarningService.getAllTimeWarningsForEmployeeAndMonth(any(), any(), any(Employee.class)))
                 .thenReturn(new ArrayList<>());
 
-        List<MonthlyWarningDto> mappedWarnings = createMonthlyWarningListForRequest().stream()
-                .map(monthlyWarningMapper::mapToDto)
-                .toList();
 
         List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
 
         assertThat(actual.isEmpty()).isTrue();
-
     }
 
 

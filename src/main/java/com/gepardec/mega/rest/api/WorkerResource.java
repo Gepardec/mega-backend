@@ -1,6 +1,5 @@
 package com.gepardec.mega.rest.api;
 
-import com.gepardec.mega.rest.model.BillDto;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
