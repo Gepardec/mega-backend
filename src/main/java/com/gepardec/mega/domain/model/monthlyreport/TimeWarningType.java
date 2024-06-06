@@ -8,7 +8,6 @@ public enum TimeWarningType implements WarningType {
     HOLIDAY,
     WEEKEND,
     WRONG_DOCTOR_APPOINTMENT,
-    // new due to new endpoint for new frontend
     EXCESS_WORKING_TIME_PRESENT,
     MISSING_REST_TIME,
     MISSING_BREAK_TIME;
