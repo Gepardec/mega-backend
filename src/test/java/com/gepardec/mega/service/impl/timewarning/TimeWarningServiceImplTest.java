@@ -63,7 +63,7 @@ public class TimeWarningServiceImplTest {
                 .thenReturn(createNoTimeEntries());
 
         List<AbsenceTime> absenceTimes = createAbsenceTimeListForRequest(employee.getUserId());
-        List<ProjectEntry> projectEntries = createProjectEntryListForRequest(employee.getUserId());
+        List<ProjectEntry> projectEntries = createProjectEntryListForRequest();
         List<MonthlyWarning> actual = timeWarningService.getAllTimeWarningsForEmployeeAndMonth(absenceTimes, projectEntries, employee);
 
         assertThat(actual.isEmpty()).isFalse();
@@ -87,7 +87,7 @@ public class TimeWarningServiceImplTest {
                 .thenReturn(new ArrayList<>());
 
 
-        List<ProjectEntry> projectEntries = createProjectEntryListForMonth(employee.getUserId());
+        List<ProjectEntry> projectEntries = createProjectEntryListForMonth();
         List<MonthlyWarning> actual = timeWarningService.getAllTimeWarningsForEmployeeAndMonth(new ArrayList<>(), projectEntries, employee);
 
         assertThat(actual.isEmpty()).isTrue();
@@ -110,7 +110,7 @@ public class TimeWarningServiceImplTest {
                 .build();
     }
 
-    private List<ProjectEntry> createProjectEntryListForRequest(String userId) {
+    private List<ProjectEntry> createProjectEntryListForRequest() {
        List<ProjectEntry> projectEntries = new ArrayList<>();
         projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 5, 1, 15, 0),
                 LocalDateTime.of(2024, 5, 1, 0, 0)));
@@ -148,7 +148,7 @@ public class TimeWarningServiceImplTest {
                 .build();
     }
 
-    private List<ProjectEntry> createProjectEntryListForMonth(String userId) {
+    private List<ProjectEntry> createProjectEntryListForMonth() {
         List<ProjectEntry> projectEntries = new ArrayList<>();
         projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 6, 3, 7, 0),
                 LocalDateTime.of(2024, 6, 3, 11, 30)));

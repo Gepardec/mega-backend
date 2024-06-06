@@ -114,6 +114,7 @@ class ReceiptServiceTest {
 
         assertTrue(result.isPresent());
         assertEquals(expectedAttachment, result.get());
+
     }
 
     @Test
