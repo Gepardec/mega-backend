@@ -8,6 +8,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
+//TODO direction_of_travel can be null in the REP REST Response, for now we default to 0 if that is the case
+// decide if we want to keep it that way
 public enum JourneyDirection {
     TO("0"),
     FURTHER("1"),
@@ -23,10 +26,11 @@ public enum JourneyDirection {
     }
 
     public static Optional<JourneyDirection> fromString(String direction) {
-        return Optional.ofNullable(enumMap.get(StringUtils.defaultIfEmpty(direction, StringUtils.EMPTY).toUpperCase()));
+        return Optional.ofNullable(enumMap.get(StringUtils.defaultIfEmpty(direction, TO.getDirection()).toUpperCase()));
     }
 
     public String getDirection() {
         return direction;
     }
 }
+

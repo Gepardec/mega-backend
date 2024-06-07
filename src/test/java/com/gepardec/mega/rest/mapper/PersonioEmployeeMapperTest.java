@@ -26,12 +26,14 @@ public class PersonioEmployeeMapperTest {
                 .email("testuser@testmail.com")
                 .vacationDayBalance(0.0)
                 .guildLead("TestGuildLead")
+                .hasCreditCard(true)
                 .internalProjectLead("TestLead")
                 .build();
 
         dto = PersonioEmployeeDto.builder()
                 .email(Attribute.ofValue("testuser@testmail.com"))
                 .guildLead(Attribute.ofValue("TestGuildLead"))
+                .hasCreditCard(Attribute.ofValue("Ja"))
                 .internalProjectLead(Attribute.ofValue("TestLead"))
                 .build();
     }

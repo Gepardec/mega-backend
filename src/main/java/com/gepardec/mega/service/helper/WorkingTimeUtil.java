@@ -1,14 +1,13 @@
 package com.gepardec.mega.service.helper;
 
 import com.gepardec.mega.db.entity.common.AbsenceType;
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.ProjectTime;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
-import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
-import de.provantis.zep.FehlzeitType;
-import de.provantis.zep.ProjektzeitType;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.time.DayOfWeek;
@@ -38,27 +37,27 @@ public class WorkingTimeUtil {
     );
 
 
-    // Calculator functions for ProjektzeitType
+    // Calculator functions for ProjectTime
 
-    public String getInternalTimesForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
-        Duration internalTimesForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, Predicate.not(ProjektzeitType::isIstFakturierbar));
+    public String getInternalTimesForEmployee(@Nonnull List<ProjectTime> projektzeitTypeList, @Nonnull Employee employee) {
+        Duration internalTimesForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, Predicate.not(ProjectTime::getBillable));
         return DurationFormatUtils.formatDuration(internalTimesForEmployee.toMillis(), BILLABLE_TIME_FORMAT);
     }
 
-    public String getBillableTimesForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
-        Duration billableTimesForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, ProjektzeitType::isIstFakturierbar);
+    public String getBillableTimesForEmployee(@Nonnull List<ProjectTime> projektzeitTypeList, @Nonnull Employee employee) {
+        Duration billableTimesForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, ProjectTime::getBillable);
         return DurationFormatUtils.formatDuration(billableTimesForEmployee.toMillis(), BILLABLE_TIME_FORMAT);
 
     }
 
-    public String getTotalWorkingTimeForEmployee(@Nonnull List<ProjektzeitType> projektzeitTypeList, @Nonnull Employee employee) {
-        Duration totalWorkingTimeForEmployee = getWorkingTimesForEmployee(projektzeitTypeList, employee, $ -> true);
+    public String getTotalWorkingTimeForEmployee(@Nonnull List<ProjectEntry> projektzeitTypeList, @Nonnull Employee employee) {
+        Duration totalWorkingTimeForEmployee = getWorkingTimes(projektzeitTypeList);
         return DurationFormatUtils.formatDuration(totalWorkingTimeForEmployee.toMillis(), BILLABLE_TIME_FORMAT);
     }
 
     public double getOvertimeForEmployee(Employee employee,
-                                         List<ProjektzeitType> billableEntries,
-                                         List<FehlzeitType> fehlzeitTypeList,
+                                         List<ProjectTime> billableEntries,
+                                         List<AbsenceTime> fehlzeitTypeList,
                                          LocalDate date) {
         if (employee.getRegularWorkingHours() == null) {
             return 0.0;
@@ -66,8 +65,8 @@ public class WorkingTimeUtil {
 
         // In case there are absences that do not affect the current month, filter them out
         fehlzeitTypeList = fehlzeitTypeList.stream()
-                .filter(ftl -> DateUtils.parseDate(ftl.getStartdatum()).getMonthValue() == date.getMonthValue())
-                .collect(Collectors.toList());
+                .filter(ftl -> ftl.fromDate().getMonthValue() == date.getMonthValue())
+                .toList();
 
         //FIXME
         var workingDaysCountMap = getWorkingDaysBetween(date, DateUtils.getLastDayOfCurrentMonth(date.toString()))
@@ -97,39 +96,46 @@ public class WorkingTimeUtil {
         );
     }
 
-    private Duration getWorkingTimesForEmployee(List<ProjektzeitType> projektzeitTypeList,
+    private Duration getWorkingTimesForEmployee(List<ProjectTime> projektzeitTypeList,
                                                 Employee employee,
-                                                Predicate<ProjektzeitType> billableFilter) {
+                                                Predicate<ProjectTime> billableFilter) {
         return projektzeitTypeList.stream()
                 .filter(pzt -> pzt.getUserId().equals(employee.getUserId()))
                 .filter(billableFilter)
-                .map(pzt -> LocalTime.parse(pzt.getDauer()))
+                .map(pzt -> LocalTime.parse(pzt.getDuration()))
                 .map(lt -> Duration.between(LocalTime.MIN, lt))
                 .reduce(Duration.ZERO, Duration::plus);
     }
 
-    // Calculator functions for FehlzeitType
+    private Duration getWorkingTimes(List<ProjectEntry> projectEntries) {
+        return projectEntries.stream()
+                .map(ProjectEntry::getDurationInHours)
+                .map(hours -> Duration.ofMinutes(Double.valueOf(hours * 60).longValue()))
+                .reduce(Duration.ZERO, Duration::plus);
+    }
 
-    public int getAbsenceTimesForEmployee(@Nonnull List<FehlzeitType> fehlZeitTypeList, String absenceType, LocalDate date) {
+    // Calculator functions for AbsenceTime
+
+    public int getAbsenceTimesForEmployee(@Nonnull List<AbsenceTime> fehlZeitTypeList, String absenceType, LocalDate date) {
         return (int) fehlZeitTypeList.stream()
-                .filter(fzt -> fzt.getFehlgrund().equals(absenceType))
-                .filter(FehlzeitType::isGenehmigt)
+                .filter(fzt -> fzt.reason().equals(absenceType))
+                .filter(AbsenceTime::accepted)
                 .map(fehlzeitType -> trimDurationToCurrentMonth(fehlzeitType, date))
                 .mapToLong(ftl ->
                         getWorkingDaysBetween(
-                                LocalDate.parse(ftl.getStartdatum()),
-                                LocalDate.parse(ftl.getEnddatum())
+                                ftl.fromDate(),
+                                ftl.toDate()
                         ).size()
                 )
                 .sum();
     }
 
-    public Map<DayOfWeek, Long> getAbsenceDaysCountMap(@Nonnull List<FehlzeitType> fehlZeitTypeList, LocalDate date) {
+    public Map<DayOfWeek, Long> getAbsenceDaysCountMap(@Nonnull List<AbsenceTime> fehlZeitTypeList, LocalDate date) {
         return fehlZeitTypeList.stream()
-                .filter(ftl -> !BOOKABLE_ABSENCES.contains(ftl.getFehlgrund()))
-                .filter(FehlzeitType::isGenehmigt)
+                .filter(ftl -> !BOOKABLE_ABSENCES.contains(ftl.reason()))
+                .filter(AbsenceTime::accepted)
                 .map(fehlzeitType -> trimDurationToCurrentMonth(fehlzeitType, date))
-                .map(ftl -> getWorkingDaysBetween(LocalDate.parse(ftl.getStartdatum()), LocalDate.parse(ftl.getEnddatum())))
+                .map(ftl -> getWorkingDaysBetween(ftl.fromDate(), ftl.toDate()))
                 .flatMap(this::getDayOfWeeks)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
     }
@@ -138,13 +144,22 @@ public class WorkingTimeUtil {
         return dates.stream().map(LocalDate::getDayOfWeek);
     }
 
-    private FehlzeitType trimDurationToCurrentMonth(FehlzeitType fehlzeit, LocalDate date) {
-        if (LocalDate.parse(fehlzeit.getEnddatum()).getMonthValue() > date.getMonthValue()) {
-            fehlzeit.setEnddatum(date.with(TemporalAdjusters.lastDayOfMonth()).toString());
+    private AbsenceTime trimDurationToCurrentMonth(AbsenceTime fehlzeit, LocalDate date) {
+        LocalDate toDate = fehlzeit.toDate();
+        if (toDate.getMonthValue() > date.getMonthValue()) {
+            toDate = date.with(TemporalAdjusters.lastDayOfMonth());
         }
-        if (LocalDate.parse(fehlzeit.getStartdatum()).getMonthValue() < date.getMonthValue()) {
-            fehlzeit.setStartdatum(date.with(TemporalAdjusters.firstDayOfMonth()).toString());
+        LocalDate fromDate = fehlzeit.fromDate();
+        if (fromDate.getMonthValue() < date.getMonthValue()) {
+            fromDate = date.with(TemporalAdjusters.firstDayOfMonth());
         }
-        return fehlzeit;
+
+        return AbsenceTime.builder()
+            .accepted(fehlzeit.accepted())
+            .reason(fehlzeit.reason())
+            .toDate(toDate)
+            .fromDate(fromDate)
+            .build();
+
     }
 }

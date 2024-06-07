@@ -17,7 +17,6 @@ import com.gepardec.mega.rest.model.ProjectManagementEntryDto;
 import com.gepardec.mega.service.api.*;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
-import de.provantis.zep.ProjektzeitType;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -154,11 +153,11 @@ public class ManagementResourceImpl implements ManagementResource {
 
             Duration billable = calculateProjectDuration(entries.stream()
                     .map(ManagementEntryDto::getBillableTime)
-                    .collect(Collectors.toList()));
+                    .toList());
 
             Duration nonBillable = calculateProjectDuration(entries.stream()
                     .map(ManagementEntryDto::getNonBillableTime)
-                    .collect(Collectors.toList()));
+                    .toList());
 
             // it is guaranteed that the same Project instance is obtained for every ProjectEntry
             Integer zepId = Optional.ofNullable(projectEntries.get(0))
@@ -219,7 +218,7 @@ public class ManagementResourceImpl implements ManagementResource {
                         .comment("Dieses Projekt hat keinen Projektleiter zugewiesen. Bitte in ZEP hinzufügen!")
                         .zepId(project.getZepId())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
 
         return Response.ok(customerProjectsWithoutLeadsDto).build();
     }
@@ -285,7 +284,7 @@ public class ManagementResourceImpl implements ManagementResource {
     private ManagementEntryDto createManagementEntryForEmployee(Employee employee, String projectId, List<StepEntry> stepEntries, LocalDate from, LocalDate to, List<PmProgressDto> pmProgressDtos, boolean projectStateLogicSingle) {
         FinishedAndTotalComments finishedAndTotalComments = commentService.countFinishedAndTotalComments(employee.getEmail(), from, to);
 
-        List<ProjektzeitType> projektzeitTypes = zepService.getProjectTimesForEmployeePerProject(projectId, from);
+        List<ProjectTime> projectTime = zepService.getProjectTimesForEmployeePerProject(projectId, from);
 
         if (!stepEntries.isEmpty()) {
             Pair<State, String> employeeCheckStatePair = extractEmployeeCheckState(stepEntries);
@@ -298,7 +297,7 @@ public class ManagementResourceImpl implements ManagementResource {
                 employeeCheckState = State.OPEN;
                 Long userId = stepEntries.stream().findFirst().map(StepEntry::getOwner).map(User::getId).orElse(null);
 
-                logger.error(String.format("Für Mitarbeiter [ID: %s] wurde kein CONTROL_TIMES step gefunden.", userId));
+                logger.error("Für Mitarbeiter [ID: {}] wurde kein CONTROL_TIMES step gefunden.", userId);
             } else {
                 employeeCheckState = employeeCheckStatePair.getLeft();
                 employeeCheckStateReason = employeeCheckStatePair.getRight();
@@ -314,8 +313,8 @@ public class ManagementResourceImpl implements ManagementResource {
                     .finishedComments(finishedAndTotalComments.getFinishedComments())
                     .totalComments(finishedAndTotalComments.getTotalComments())
                     .entryDate(stepEntries.get(0).getDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN)))
-                    .billableTime(workingTimeUtil.getBillableTimesForEmployee(projektzeitTypes, employee))
-                    .nonBillableTime(workingTimeUtil.getInternalTimesForEmployee(projektzeitTypes, employee))
+                    .billableTime(workingTimeUtil.getBillableTimesForEmployee(projectTime, employee))
+                    .nonBillableTime(workingTimeUtil.getInternalTimesForEmployee(projectTime, employee))
                     .build();
         }
 
@@ -378,7 +377,7 @@ public class ManagementResourceImpl implements ManagementResource {
                     }
                 })
                 .map(StepEntry::getState)
-                .collect(Collectors.toList());
+                .toList();
 
         if (projectStateLogicSingle) {
             return collectedStates.stream()

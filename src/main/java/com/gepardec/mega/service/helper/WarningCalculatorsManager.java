@@ -12,13 +12,13 @@ import com.gepardec.mega.domain.calculation.time.InsufficientRestCalculator;
 import com.gepardec.mega.domain.calculation.time.NoEntryCalculator;
 import com.gepardec.mega.domain.calculation.time.TimeOverlapCalculator;
 import com.gepardec.mega.domain.calculation.time.WeekendCalculator;
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntryWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.WarningType;
-import de.provantis.zep.FehlzeitType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -75,7 +75,7 @@ public class WarningCalculatorsManager {
     }
 
 
-    public List<TimeWarning> determineNoTimeEntries(Employee employee, List<ProjectEntry> projectEntries, List<FehlzeitType> absenceEntries) {
+    public List<TimeWarning> determineNoTimeEntries(Employee employee, List<ProjectEntry> projectEntries, List<AbsenceTime> absenceEntries) {
         NoEntryCalculator calculator = new NoEntryCalculator();
         final List<TimeWarning> warnings = new ArrayList<>();
 

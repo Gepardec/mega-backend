@@ -21,7 +21,7 @@ public class InvalidJourneyCalculator implements WarningCalculationStrategy<Jour
                 .filter(entry -> Task.isJourney(entry.getTask()))
                 .map(JourneyTimeEntry.class::cast)
                 .sorted(Comparator.comparing(ProjectEntry::getFromTime).thenComparing(ProjectEntry::getToTime))
-                .collect(Collectors.toList());
+                .toList();
 
         final List<JourneyWarning> warnings = new ArrayList<>();
         final JourneyDirectionValidator journeyDirectionValidator = new JourneyDirectionValidator();

@@ -13,12 +13,12 @@ public interface EntityMapper<D, E> {
     default List<E> mapListToEntity(List<D> objects) {
         return objects.stream()
                 .map(this::mapToEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     default List<D> mapListToDomain(List<E> objects) {
         return objects.stream()
                 .map(this::mapToDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

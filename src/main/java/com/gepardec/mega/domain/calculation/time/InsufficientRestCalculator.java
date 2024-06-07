@@ -7,6 +7,7 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
+import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -59,7 +60,7 @@ public class InsufficientRestCalculator extends AbstractTimeWarningCalculationSt
         return projectTimeEntries.stream()
                 .filter(filterTask.or(filterActiveTravelTime))
                 .sorted(Comparator.comparing(ProjectEntry::getFromTime).thenComparing(ProjectEntry::getToTime))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private ProjectEntry getNextEntryOrNull(final int idx, final List<ProjectEntry> projectTimeEntries) {
@@ -85,7 +86,7 @@ public class InsufficientRestCalculator extends AbstractTimeWarningCalculationSt
                         .subtract(BigDecimal.valueOf(restHours))
                         .setScale(2, RoundingMode.HALF_EVEN)
                         .doubleValue());
-
+        timeWarning.getWarningTypes().add(TimeWarningType.MISSING_REST_TIME);
         return timeWarning;
     }
 

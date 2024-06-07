@@ -244,4 +244,7 @@ $RECYCLE.BIN/
 # Secrets
 .env
 
+#IntelliJ
+*.http
+
 # End of https://www.toptal.com/developers/gitignore/api/windows,linux,macos,intellij+all,maven,git,patch,vim,notepadpp,java

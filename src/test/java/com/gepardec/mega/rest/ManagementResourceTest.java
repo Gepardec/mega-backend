@@ -15,7 +15,6 @@ import com.gepardec.mega.service.api.ProjectEntryService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
-import de.provantis.zep.ProjektzeitType;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
@@ -599,24 +598,18 @@ class ManagementResourceTest {
         return p;
     }
 
-    private List<ProjektzeitType> getProjectTimeTypeList() {
-        List<ProjektzeitType> timeType = new ArrayList<>();
-        ProjektzeitType projektzeitType = new ProjektzeitType();
-        projektzeitType.setDauer("4");
-        projektzeitType.setVon("08:00");
-        projektzeitType.setBis("12:00");
-        projektzeitType.setIstFakturierbar(true);
+    private List<ProjectTime> getProjectTimeTypeList() {
+        List<ProjectTime> timeType = new ArrayList<>();
+        ProjectTime projektzeitType = ProjectTime.builder().build();
+        projektzeitType.setDuration("4");
+        projektzeitType.setBillable(true);
 
-        ProjektzeitType projektzeitType1 = new ProjektzeitType();
-        projektzeitType1.setDauer("0");
-        projektzeitType1.setVon("00:00");
-        projektzeitType1.setBis("00:00");
+        ProjectTime projektzeitType1 = ProjectTime.builder().build();
+        projektzeitType1.setDuration("0");
 
-        ProjektzeitType projektzeitType2 = new ProjektzeitType();
-        projektzeitType2.setDauer("2");
-        projektzeitType2.setVon("13:00");
-        projektzeitType2.setBis("15:00");
-        projektzeitType2.setIstFakturierbar(false);
+        ProjectTime projektzeitType2 = ProjectTime.builder().build();
+        projektzeitType2.setDuration("2");
+        projektzeitType2.setBillable(false);
 
         timeType.add(projektzeitType);
         timeType.add(projektzeitType1);

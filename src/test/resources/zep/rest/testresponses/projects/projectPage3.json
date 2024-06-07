@@ -1,0 +1,17 @@
+{
+  "data": [
+    {
+      "id": 5,
+      "name": "mega",
+      "start_date": "2020-11-11T00:00:00.0000Z",
+      "end_date": null
+    },
+    {
+      "id": 6,
+      "name": "ega"
+    }
+  ],
+  "links": {
+    "next": null
+  }
+}

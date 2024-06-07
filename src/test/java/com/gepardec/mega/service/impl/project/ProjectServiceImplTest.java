@@ -6,6 +6,8 @@ import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.service.impl.ProjectServiceImpl;
 import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.impl.Rest;
+import com.gepardec.mega.zep.impl.Soap;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
@@ -101,7 +103,7 @@ class ProjectServiceImplTest {
                                         .lastname("Gepardec")
                                         .email(String.format("%s%s.%s@gepardec.com", "Gepard", 1, "Gepardec"))
                                         .roles(Set.of(Role.EMPLOYEE)).build())
-                                .stream().map(User::getUserId).collect(Collectors.toList()))
+                                .stream().map(User::getUserId).toList())
                         .employees(List.of())
                         .categories(List.of())
                         .startDate(LocalDate.now())

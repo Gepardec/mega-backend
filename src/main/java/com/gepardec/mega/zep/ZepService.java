@@ -1,11 +1,14 @@
 package com.gepardec.mega.zep;
 
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.MonthlyBillInfo;
+import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.Project;
+import com.gepardec.mega.domain.model.ProjectHoursSummary;
+import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
-import de.provantis.zep.FehlzeitType;
-import de.provantis.zep.ProjektzeitType;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -22,15 +25,19 @@ public interface ZepService {
 
     List<ProjectEntry> getProjectTimes(Employee employee, LocalDate date);
 
-    List<ProjektzeitType> getProjectTimesForEmployeePerProject(String project, LocalDate curDate);
+    List<ProjectTime> getProjectTimesForEmployeePerProject(String project, LocalDate curDate);
 
     List<Project> getProjectsForMonthYear(final LocalDate monthYear);
 
     Optional<Project> getProjectByName(final String projectName, final LocalDate monthYear);
 
-    List<FehlzeitType> getAbsenceForEmployee(Employee employee, LocalDate date);
+    List<AbsenceTime> getAbsenceForEmployee(Employee employee, LocalDate date);
 
-    List<ProjektzeitType> getBillableForEmployee(Employee employee, LocalDate date);
+    List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date);
 
-    List<Bill> getBillsForEmployeeByMonth(final Employee employee, YearMonth yearMonth);
+    MonthlyBillInfo getMonthlyBillInfoForEmployee(PersonioEmployee personioEmployee, final Employee employee, YearMonth yearMonth);
+
+    List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(final Employee employee, YearMonth yearMonth);
+
+    double getDoctorsVisitingTimeForMonthAndEmployee(final Employee employee, YearMonth yearMonth);
 }

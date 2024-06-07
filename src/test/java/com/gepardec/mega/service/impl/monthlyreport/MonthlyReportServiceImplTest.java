@@ -1,5 +1,6 @@
 package com.gepardec.mega.service.impl.monthlyreport;
 
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.Role;
@@ -13,14 +14,12 @@ import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
-import com.gepardec.mega.personio.commons.model.Attribute;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
 import com.gepardec.mega.zep.ZepService;
-import de.provantis.zep.FehlzeitType;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
@@ -167,12 +166,16 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<FehlzeitType> absenceList = new ArrayList<>();
-        FehlzeitType nursingDay = new FehlzeitType();
-        nursingDay.setFehlgrund("PU");
-        nursingDay.setGenehmigt(true);
-        nursingDay.setEnddatum(LocalDate.of(2020, 2, 29).toString());
-        nursingDay.setStartdatum(LocalDate.of(2020, 2, 27).toString());
+        List<AbsenceTime> absenceList = new ArrayList<>();
+        AbsenceTime nursingDay = new AbsenceTime(
+                "0",
+                LocalDate.of(2020, 2, 27),
+                LocalDate.of(2020, 2, 29),
+                "PU",
+                true
+
+        );
+
         absenceList.add(nursingDay);
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
@@ -197,12 +200,14 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<FehlzeitType> absenceList = new ArrayList<>();
-        FehlzeitType maternityLeaveDay = new FehlzeitType();
-        maternityLeaveDay.setFehlgrund("KA");
-        maternityLeaveDay.setGenehmigt(true);
-        maternityLeaveDay.setEnddatum(LocalDate.of(2020, 2, 29).toString());
-        maternityLeaveDay.setStartdatum(LocalDate.of(2020, 2, 27).toString());
+        List<AbsenceTime> absenceList = new ArrayList<>();
+        AbsenceTime maternityLeaveDay = new AbsenceTime(
+                "0",
+                LocalDate.of(2020, 2, 27),
+                LocalDate.of(2020, 2, 29),
+                "KA",
+                true
+        );
         absenceList.add(maternityLeaveDay);
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
@@ -227,12 +232,8 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<FehlzeitType> absenceList = new ArrayList<>();
-        FehlzeitType externalTrainingAbsence = new FehlzeitType();
-        externalTrainingAbsence.setFehlgrund("EW");
-        externalTrainingAbsence.setGenehmigt(true);
-        externalTrainingAbsence.setEnddatum(LocalDate.of(2020, 2, 29).toString());
-        externalTrainingAbsence.setStartdatum(LocalDate.of(2020, 2, 27).toString());
+        List<AbsenceTime> absenceList = new ArrayList<>();
+        AbsenceTime externalTrainingAbsence = createAbsenceFromType("EW");
         absenceList.add(externalTrainingAbsence);
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
@@ -257,12 +258,8 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<FehlzeitType> absenceList = new ArrayList<>();
-        FehlzeitType conferenceDaysAbsence = new FehlzeitType();
-        conferenceDaysAbsence.setFehlgrund("KO");
-        conferenceDaysAbsence.setGenehmigt(true);
-        conferenceDaysAbsence.setEnddatum(LocalDate.of(2020, 2, 29).toString());
-        conferenceDaysAbsence.setStartdatum(LocalDate.of(2020, 2, 27).toString());
+        List<AbsenceTime> absenceList = new ArrayList<>();
+        AbsenceTime conferenceDaysAbsence = createAbsenceFromType("KO");
         absenceList.add(conferenceDaysAbsence);
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
@@ -287,12 +284,8 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<FehlzeitType> absenceList = new ArrayList<>();
-        FehlzeitType maternityProtectionDaysAbsence = new FehlzeitType();
-        maternityProtectionDaysAbsence.setFehlgrund("MU");
-        maternityProtectionDaysAbsence.setGenehmigt(true);
-        maternityProtectionDaysAbsence.setEnddatum(LocalDate.of(2020, 2, 29).toString());
-        maternityProtectionDaysAbsence.setStartdatum(LocalDate.of(2020, 2, 27).toString());
+        List<AbsenceTime> absenceList = new ArrayList<>();
+        AbsenceTime maternityProtectionDaysAbsence = createAbsenceFromType("MU");
         absenceList.add(maternityProtectionDaysAbsence);
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
@@ -319,12 +312,8 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<FehlzeitType> absenceList = new ArrayList<>();
-        FehlzeitType fatherMonthDaysAbsence = new FehlzeitType();
-        fatherMonthDaysAbsence.setFehlgrund("PA");
-        fatherMonthDaysAbsence.setGenehmigt(true);
-        fatherMonthDaysAbsence.setEnddatum(LocalDate.of(2020, 2, 29).toString());
-        fatherMonthDaysAbsence.setStartdatum(LocalDate.of(2020, 2, 27).toString());
+        List<AbsenceTime> absenceList = new ArrayList<>();
+        AbsenceTime fatherMonthDaysAbsence = createAbsenceFromType("PA");
         absenceList.add(fatherMonthDaysAbsence);
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
@@ -349,12 +338,8 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<FehlzeitType> absenceList = new ArrayList<>();
-        FehlzeitType paidSpecialLeaveDaysAbsence = new FehlzeitType();
-        paidSpecialLeaveDaysAbsence.setFehlgrund("SU");
-        paidSpecialLeaveDaysAbsence.setGenehmigt(true);
-        paidSpecialLeaveDaysAbsence.setEnddatum(LocalDate.of(2020, 2, 29).toString());
-        paidSpecialLeaveDaysAbsence.setStartdatum(LocalDate.of(2020, 2, 27).toString());
+        List<AbsenceTime> absenceList = new ArrayList<>();
+        AbsenceTime paidSpecialLeaveDaysAbsence = createAbsenceFromType("SU");
         absenceList.add(paidSpecialLeaveDaysAbsence);
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
@@ -379,12 +364,8 @@ class MonthlyReportServiceImplTest {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<FehlzeitType> absenceList = new ArrayList<>();
-        FehlzeitType nonPaidVacationDaysAbsence = new FehlzeitType();
-        nonPaidVacationDaysAbsence.setFehlgrund("UU");
-        nonPaidVacationDaysAbsence.setGenehmigt(true);
-        nonPaidVacationDaysAbsence.setEnddatum(LocalDate.of(2020, 2, 29).toString());
-        nonPaidVacationDaysAbsence.setStartdatum(LocalDate.of(2020, 2, 27).toString());
+        List<AbsenceTime> absenceList = new ArrayList<>();
+        AbsenceTime nonPaidVacationDaysAbsence = createAbsenceFromType("UU");
         absenceList.add(nonPaidVacationDaysAbsence);
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
@@ -412,11 +393,11 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(createVacationAbsenceList());
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee, null);
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2020, 2, employee, null);
 
         assertAll(
                 () -> assertThat(monthendReportForUser).isNotNull(),
-                () -> assertThat(monthendReportForUser.getVacationDays()).isEqualTo(5)
+                () -> assertThat(monthendReportForUser.getVacationDays()).isEqualTo(2)
         );
     }
 
@@ -443,11 +424,11 @@ class MonthlyReportServiceImplTest {
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
 
-        List<FehlzeitType> absenceList = new ArrayList<>();
+        List<AbsenceTime> absenceList = new ArrayList<>();
 
-        FehlzeitType vacationDaysAbsence = new FehlzeitType();
-        vacationDaysAbsence.setFehlgrund(AbsenteeType.VACATION_DAYS.getType());
-        vacationDaysAbsence.setGenehmigt(true);
+        var vacationDaysAbsenceBuilder = AbsenceTime.builder()
+                .reason(AbsenteeType.VACATION_DAYS.getType())
+                .accepted(true);
 
         LocalDate firstOfCurrentMonth = LocalDate.now();
         LocalDate firstOfLastMonth = LocalDate.now().withMonth(firstOfCurrentMonth.getMonthValue() - 1);
@@ -463,9 +444,9 @@ class MonthlyReportServiceImplTest {
             endDate = firstOfLastMonth.withDayOfMonth(10);
         }
 
-        vacationDaysAbsence.setStartdatum(startDate.toString());
-        vacationDaysAbsence.setEnddatum(endDate.toString());
-        absenceList.add(vacationDaysAbsence);
+        vacationDaysAbsenceBuilder.fromDate(startDate);
+        vacationDaysAbsenceBuilder.toDate(endDate);
+        absenceList.add(vacationDaysAbsenceBuilder.build());
 
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(absenceList);
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
@@ -486,11 +467,11 @@ class MonthlyReportServiceImplTest {
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class))).thenReturn(createHomeOfficeListWhichExtendsOverWeekend());
         when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
 
-        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2022, 4, employee, null);
+        final MonthlyReport monthendReportForUser = monthlyReportService.getMonthEndReportForUser(2020, 2, employee, null);
 
         assertAll(
                 () -> assertThat(monthendReportForUser).isNotNull(),
-                () -> assertThat(monthendReportForUser.getHomeofficeDays()).isEqualTo(5),
+                () -> assertThat(monthendReportForUser.getHomeofficeDays()).isEqualTo(2),
                 () -> assertThat(monthendReportForUser.getTimeWarnings()).isEmpty()
         );
     }
@@ -546,79 +527,75 @@ class MonthlyReportServiceImplTest {
         );
     }
 
-    private List<FehlzeitType> createVacationAbsenceList() {
-        List<FehlzeitType> absenceList = new ArrayList<>();
+    private List<AbsenceTime> createVacationAbsenceList() {
+        List<AbsenceTime> absenceList = new ArrayList<>();
 
-        FehlzeitType vacationDaysAbsence = new FehlzeitType();
-        vacationDaysAbsence.setFehlgrund("UB");
-        vacationDaysAbsence.setGenehmigt(true);
-        vacationDaysAbsence.setEnddatum(LocalDate.of(2022, 4, 29).toString());
-        vacationDaysAbsence.setStartdatum(LocalDate.of(2022, 4, 25).toString());
+        AbsenceTime vacationDaysAbsence = createAbsenceFromType("UB");
         absenceList.add(vacationDaysAbsence);
 
         return absenceList;
     }
 
-    private List<FehlzeitType> createHomeOfficeListWhichExtendsOverWeekend() {
-        List<FehlzeitType> absenceList = new ArrayList<>();
+    private List<AbsenceTime> createHomeOfficeListWhichExtendsOverWeekend() {
+        List<AbsenceTime> absenceList = new ArrayList<>();
 
-        FehlzeitType vacationDaysAbsence = new FehlzeitType();
-        vacationDaysAbsence.setFehlgrund("HO");
-        vacationDaysAbsence.setGenehmigt(true);
-        vacationDaysAbsence.setEnddatum(LocalDate.of(2022, 4, 29).toString());
-        vacationDaysAbsence.setStartdatum(LocalDate.of(2022, 4, 25).toString());
+        AbsenceTime vacationDaysAbsence = createAbsenceFromType("HO");
         absenceList.add(vacationDaysAbsence);
 
         return absenceList;
     }
 
-    private List<FehlzeitType> createHomeOfficeListWhichExtendsOverMonth() {
-        List<FehlzeitType> absenceList = new ArrayList<>();
+    private List<AbsenceTime> createHomeOfficeListWhichExtendsOverMonth() {
+        List<AbsenceTime> absenceList = new ArrayList<>();
 
-        FehlzeitType vacationDaysAbsence = new FehlzeitType();
-        vacationDaysAbsence.setFehlgrund("HO");
-        vacationDaysAbsence.setGenehmigt(true);
-        vacationDaysAbsence.setEnddatum(LocalDate.of(2022, 5, 3).toString());
-        vacationDaysAbsence.setStartdatum(LocalDate.of(2022, 4, 25).toString());
+        AbsenceTime vacationDaysAbsence = AbsenceTime.builder()
+            .reason("HO")
+            .accepted(true)
+            .toDate(LocalDate.of(2022, 5, 3))
+            .fromDate(LocalDate.of(2022, 4, 25))
+            .build();
         absenceList.add(vacationDaysAbsence);
 
         return absenceList;
     }
 
-    private List<FehlzeitType> createTimeCompensationWhichExtendsOverWeekend() {
-        List<FehlzeitType> absenceList = new ArrayList<>();
+    private List<AbsenceTime> createTimeCompensationWhichExtendsOverWeekend() {
+        List<AbsenceTime> absenceList = new ArrayList<>();
 
-        FehlzeitType vacationDaysAbsence = new FehlzeitType();
-        vacationDaysAbsence.setFehlgrund(AbsenteeType.COMPENSATORY_DAYS.getType());
-        vacationDaysAbsence.setGenehmigt(true);
-        vacationDaysAbsence.setEnddatum(LocalDate.of(2022, 4, 29).toString());
-        vacationDaysAbsence.setStartdatum(LocalDate.of(2022, 4, 25).toString());
+        AbsenceTime vacationDaysAbsence = AbsenceTime.builder()
+            .reason(AbsenteeType.COMPENSATORY_DAYS.getType())
+            .accepted(true)
+            .toDate(LocalDate.of(2022, 4, 29))
+            .fromDate(LocalDate.of(2022, 4, 25))
+            .build();
         absenceList.add(vacationDaysAbsence);
 
         return absenceList;
     }
 
-    private List<FehlzeitType> createTimeCompensationWhichExtendsOverWeekendAndMonth() {
-        List<FehlzeitType> absenceList = new ArrayList<>();
+    private List<AbsenceTime> createTimeCompensationWhichExtendsOverWeekendAndMonth() {
+        List<AbsenceTime> absenceList = new ArrayList<>();
 
-        FehlzeitType vacationDaysAbsence = new FehlzeitType();
-        vacationDaysAbsence.setFehlgrund(AbsenteeType.COMPENSATORY_DAYS.getType());
-        vacationDaysAbsence.setGenehmigt(true);
-        vacationDaysAbsence.setEnddatum(LocalDate.of(2022, 5, 3).toString());
-        vacationDaysAbsence.setStartdatum(LocalDate.of(2022, 4, 25).toString());
+        AbsenceTime vacationDaysAbsence = AbsenceTime.builder()
+            .reason(AbsenteeType.COMPENSATORY_DAYS.getType())
+            .accepted(true)
+            .toDate(LocalDate.of(2022, 5, 3))
+            .fromDate(LocalDate.of(2022, 4, 25))
+            .build();
         absenceList.add(vacationDaysAbsence);
 
         return absenceList;
     }
 
-    private List<FehlzeitType> createVacationAbsenceListWhichExtendsOverMonthEnd() {
-        List<FehlzeitType> absenceList = new ArrayList<>();
+    private List<AbsenceTime> createVacationAbsenceListWhichExtendsOverMonthEnd() {
+        List<AbsenceTime> absenceList = new ArrayList<>();
 
-        FehlzeitType vacationDaysAbsence = new FehlzeitType();
-        vacationDaysAbsence.setFehlgrund(AbsenteeType.VACATION_DAYS.getType());
-        vacationDaysAbsence.setGenehmigt(true);
-        vacationDaysAbsence.setEnddatum(LocalDate.of(2022, 5, 3).toString());
-        vacationDaysAbsence.setStartdatum(LocalDate.of(2022, 4, 25).toString());
+        AbsenceTime vacationDaysAbsence = AbsenceTime.builder()
+            .reason(AbsenteeType.VACATION_DAYS.getType())
+            .accepted(true)
+            .toDate(LocalDate.of(2022, 5, 3))
+            .fromDate(LocalDate.of(2022, 4, 25))
+            .build();
         absenceList.add(vacationDaysAbsence);
 
         return absenceList;
@@ -715,6 +692,15 @@ class MonthlyReportServiceImplTest {
                 .firstname("Max")
                 .lastname("Mustermann")
                 .roles(Set.of(role))
+                .build();
+    }
+
+    private AbsenceTime createAbsenceFromType(String type) {
+        return AbsenceTime.builder()
+                .reason(type)
+                .accepted(true)
+                .toDate(LocalDate.of(2020, 2, 29))
+                .fromDate(LocalDate.of(2020, 2, 27))
                 .build();
     }
 }

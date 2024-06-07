@@ -1,0 +1,55 @@
+{ 
+  "data": [
+    {
+      "username": "007-jbond",
+      "firstname": "James",
+      "lastname": "Bond",
+      "personal_number": "007",
+      "street": "Herzgasse 9",
+      "zip": "1100",
+      "city": "Wien",
+      "country": "Austria",
+      "abbreviation": "JBO",
+      "salutation": {
+        "id": "Herr",
+        "name": "Sir"
+      },
+      "title": "BSc",
+      "email": "james.bond@gepardec.com",
+      "phone": "+4300707",
+      "mobile": "+43007",
+      "fax": "007",
+      "private_phone": "+39 007007",
+      "birthdate": "2007-07-07",
+      "iban": "AT07 0707 0707 0707 0707",
+      "bic": "JBANK3",
+      "account_no": "7",
+      "bank_name": "James Bank",
+      "bank_code": "007",
+      "currency": "Bonds",
+      "release_date": "2022-02-28T00:00:00.000000Z",
+      "vat": 20,
+      "price_group": "03",
+      "employment": {
+        "id": 0,
+        "name": "Employee"
+      },
+      "rights": {
+        "id": 7,
+        "name": "bond"
+      },
+      "department_id": 7,
+      "language": {"id": "en", "name": "English"},
+      "personio_id": 7,
+      "cost_bearer": null,
+      "tax_id": null,
+      "created": "2023-05-24T11:27:29.000000Z",
+      "modified": "2024-01-10T06:46:37.000000Z",
+      "creditor_number": null,
+      "categories": [],
+      "absences_count": 7
+  }],
+  "links": {
+    "next": null
+  }
+}

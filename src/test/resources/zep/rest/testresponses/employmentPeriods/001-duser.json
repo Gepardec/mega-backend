@@ -1,0 +1,78 @@
+{
+  "data": [
+    {
+      "id": 23,
+      "employee_id": "001-duser",
+      "start_date": "2017-08-07T00:00:00.000000Z",
+      "end_date": "2017-09-08T00:00:00.000000Z",
+      "note": "Praktikant",
+      "beginning_of_year": null,
+      "annual_leave_entitlement": null,
+      "period_holiday_entitlement": 2,
+      "is_holiday_per_year": false,
+      "day_absent_in_hours": null,
+      "created": "2017-07-26T13:39:22.000000Z",
+      "modified": "2020-11-21T08:35:23.000000Z"
+    },
+    {
+      "id": 42,
+      "employee_id": "001-duser",
+      "start_date": "2019-01-11T00:00:00.000000Z",
+      "end_date": "2019-12-31T00:00:00.000000Z",
+      "note": null,
+      "beginning_of_year": null,
+      "annual_leave_entitlement": null,
+      "period_holiday_entitlement": 25,
+      "is_holiday_per_year": false,
+      "day_absent_in_hours": null,
+      "created": "2018-12-27T17:18:38.000000Z",
+      "modified": "2020-11-21T08:35:23.000000Z"
+    },
+    {
+      "id": 129,
+      "employee_id": "001-duser",
+      "start_date": "2020-01-01T00:00:00.000000Z",
+      "end_date": null,
+      "note": null,
+      "beginning_of_year": null,
+      "annual_leave_entitlement": 0,
+      "period_holiday_entitlement": 0,
+      "is_holiday_per_year": true,
+      "day_absent_in_hours": 0,
+      "created": "2020-11-21T08:35:23.000000Z",
+      "modified": "2024-01-18T12:56:26.000000Z"
+    }
+  ],
+  "links": {
+    "first": "http:\\/\\/www.zep-online.de\\/zepgepardecservices_test\\/next\\/api\\/v1\\/employees\\/001-duser\\/employment-periods?page=1",
+    "last": "http:\\/\\/www.zep-online.de\\/zepgepardecservices_test\\/next\\/api\\/v1\\/employees\\/001-duser\\/employment-periods?page=1",
+    "prev": null,
+    "next": null
+  },
+  "meta": {
+    "current_page": 1,
+    "from": 1,
+    "last_page": 1,
+    "links": [
+      {
+        "url": null,
+        "label": "&laquo; Previous",
+        "active": false
+      },
+      {
+        "url": "http:\\/\\/www.zep-online.de\\/zepgepardecservices_test\\/next\\/api\\/v1\\/employees\\/001-duser\\/employment-periods?page=1",
+        "label": "1",
+        "active": true
+      },
+      {
+        "url": null,
+        "label": "Next &raquo;",
+        "active": false
+      }
+    ],
+    "path": "http:\\/\\/www.zep-online.de\\/zepgepardecservices_test\\/next\\/api\\/v1\\/employees\\/001-duser\\/employment-periods",
+    "per_page": 15,
+    "to": 3,
+    "total": 3
+  }
+}

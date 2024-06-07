@@ -1,9 +1,11 @@
 package com.gepardec.mega.personio.employees;
 
 import com.gepardec.mega.domain.model.PersonioEmployee;
+import com.gepardec.mega.personio.commons.constants.AbsenceConstants;
 import com.gepardec.mega.personio.commons.model.Attribute;
 import com.gepardec.mega.personio.commons.model.BaseResponse;
 import com.gepardec.mega.personio.commons.model.ErrorResponse;
+import com.gepardec.mega.personio.employees.absenceBalance.AbsenceBalanceResponse;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
@@ -11,11 +13,11 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
-import org.w3c.dom.Attr;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -92,10 +94,67 @@ class PersonioEmployeesServiceImplTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    void getAvailableVacationDaysForEmployeeByEmail_whenDaysAvailable_thenReturnDaysCount() {
+        var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
+        employeesResponse.setSuccess(true);
+        employeesResponse.setData(createValidEmployeesResponseData());
+
+        var responseEmployee = Response.ok(employeesResponse).build();
+
+        when(personioEmployeesClient.getByEmail(anyString()))
+                .thenReturn(responseEmployee);
+
+        var absenceBalanceResponse = new BaseResponse<List<AbsenceBalanceResponse>>();
+        absenceBalanceResponse.setSuccess(true);
+        absenceBalanceResponse.setData(createValidAbsenceBalanceResponseData());
+
+        var responseAbsence = Response.ok(absenceBalanceResponse).build();
+
+        when(personioEmployeesClient.getAbsenceBalanceForEmployeeById(anyInt()))
+                .thenReturn(responseAbsence);
+
+        var result = personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail("mega.test@gepardec.com");
+        assertThat(result).isEqualTo(createValidAbsenceBalanceResponseData().get(0).getAvailableBalance());
+    }
+
+    @Test
+    void getAvailableVacationDaysForEmployeeByEmail_whenNotSuccessful_thenReturnZero() {
+        var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
+        employeesResponse.setSuccess(true);
+        employeesResponse.setData(createValidEmployeesResponseData());
+
+        var responseEmployee = Response.ok(employeesResponse).build();
+
+
+        var absenceBalanceResponse = new BaseResponse<List<AbsenceBalanceResponse>>();
+        absenceBalanceResponse.setSuccess(false);
+        absenceBalanceResponse.setError(createErrorResponse());
+
+        var responseAbsence = Response.status(Response.Status.NOT_FOUND).entity(absenceBalanceResponse).build();
+
+        when(personioEmployeesClient.getByEmail(anyString()))
+                .thenReturn(responseEmployee);
+
+        when(personioEmployeesClient.getAbsenceBalanceForEmployeeById(anyInt()))
+                .thenReturn(responseAbsence);
+
+
+        var result = personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail("mega.test@gepardec.com");
+
+        verify(logger).info("Fehler bei Aufruf der Personio-Schnittstelle: {}", "Personio-Fehler");
+        assertThat(result).isZero();
+    }
+
     private static List<EmployeesResponse> createValidEmployeesResponseData() {
         var data = new EmployeesResponse();
         data.setAttributes(createPersonioEmployee());
 
+        return List.of(data);
+    }
+
+    private static List<AbsenceBalanceResponse> createValidAbsenceBalanceResponseData() {
+        var data = new AbsenceBalanceResponse(AbsenceConstants.PAID_VACATION_ID, "", List.of(), 2, 12);
         return List.of(data);
     }
 
@@ -111,8 +170,10 @@ class PersonioEmployeesServiceImplTest {
 
     private static PersonioEmployeeDto createPersonioEmployee() {
         return PersonioEmployeeDto.builder()
+                .id(Attribute.ofValue(123))
                 .guildLead(Attribute.ofValue("guildLead"))
                 .internalProjectLead(Attribute.ofValue("internalProjectLead"))
+                .hasCreditCard(Attribute.ofValue("Ja"))
                 .build();
     }
 

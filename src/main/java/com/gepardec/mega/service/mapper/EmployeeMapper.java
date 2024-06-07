@@ -62,7 +62,7 @@ public class EmployeeMapper {
                 .flatMap(Collection::stream)
                 .filter(range -> range.getStartdatum() != null && range.getEnddatum() != null)
                 .map(this::mapBeschaeftigungszeitTypeToRange)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     LocalDate determineNewestExitDateOfEmploymentPeriods(List<Range<LocalDate>> periods) {
