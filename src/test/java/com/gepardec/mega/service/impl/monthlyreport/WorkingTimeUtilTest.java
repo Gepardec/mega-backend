@@ -11,6 +11,8 @@ import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -22,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @QuarkusTest
 class WorkingTimeUtilTest {
@@ -119,6 +122,20 @@ class WorkingTimeUtilTest {
         List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
         int absenceTimesForEmployee = workingTimeUtil.getAbsenceTimesForEmployee(fehlzeitTypes, "UB", LocalDate.of(2023, 11, 6));
         assertThat(absenceTimesForEmployee).isEqualTo(2);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "01:30, PT1H30M",
+            "00:45, PT0H45M",
+            "12:00, PT12H0M",
+            "23:59, PT23H59M",
+            "00:00, PT0H0M"
+    })
+    void testGetDurationFromTimeString(String input, String expected) {
+        Duration expectedDuration = Duration.parse(expected);
+        Duration actualDuration = workingTimeUtil.getDurationFromTimeString(input);
+        assertEquals(expectedDuration, actualDuration);
     }
 
     private List<AbsenceTime> returnFehlzeitTypeList() {

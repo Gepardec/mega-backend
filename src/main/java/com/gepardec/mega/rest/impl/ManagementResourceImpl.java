@@ -17,6 +17,7 @@ import com.gepardec.mega.rest.model.ProjectManagementEntryDto;
 import com.gepardec.mega.service.api.*;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.impl.Rest;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -25,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -65,6 +68,9 @@ public class ManagementResourceImpl implements ManagementResource {
 
     @Inject
     EmployeeMapper employeeMapper;
+
+    @Inject @Rest
+    ZepService zepRestService;
 
     @Inject
     Logger logger;
@@ -303,6 +309,23 @@ public class ManagementResourceImpl implements ManagementResource {
                 employeeCheckStateReason = employeeCheckStatePair.getRight();
             }
 
+            // used later on to compute the percentage of hours which were spent in this project (both billable and non-billable)
+            List<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry> projectEntriesForEmployee = zepRestService.getProjectTimes(employee, from);
+            long totalWorkingHoursInMinutesForMonthAndEmployee = workingTimeUtil.getDurationFromTimeString(workingTimeUtil.getTotalWorkingTimeForEmployee(projectEntriesForEmployee, employee)).toMinutes();
+
+            String billableTimeString = workingTimeUtil.getBillableTimesForEmployee(projectTime, employee);
+            String nonBillableTimeString = workingTimeUtil.getInternalTimesForEmployee(projectTime, employee);
+            long billableTimeInMinutes = workingTimeUtil.getDurationFromTimeString(billableTimeString).toMinutes();
+            long nonBillableTimeInMinutes = workingTimeUtil.getDurationFromTimeString(nonBillableTimeString).toMinutes();
+
+            double percentageOfHoursSpentInThisProject = 0.0;
+            if(!(Double.compare(totalWorkingHoursInMinutesForMonthAndEmployee, 0.0d) == 0)){
+                percentageOfHoursSpentInThisProject = (double) (billableTimeInMinutes + nonBillableTimeInMinutes) / totalWorkingHoursInMinutesForMonthAndEmployee;
+                percentageOfHoursSpentInThisProject = (BigDecimal.valueOf(percentageOfHoursSpentInThisProject)
+                                                                .setScale(2, RoundingMode.HALF_UP)
+                                                                .doubleValue()) * 100;
+            }
+
             return ManagementEntryDto.builder()
                     .employee(employeeMapper.mapToDto(employee))
                     .employeeCheckState(employeeCheckState)
@@ -313,8 +336,9 @@ public class ManagementResourceImpl implements ManagementResource {
                     .finishedComments(finishedAndTotalComments.getFinishedComments())
                     .totalComments(finishedAndTotalComments.getTotalComments())
                     .entryDate(stepEntries.get(0).getDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN)))
-                    .billableTime(workingTimeUtil.getBillableTimesForEmployee(projectTime, employee))
-                    .nonBillableTime(workingTimeUtil.getInternalTimesForEmployee(projectTime, employee))
+                    .billableTime(billableTimeString)
+                    .nonBillableTime(nonBillableTimeString)
+                    .percentageOfHoursSpentInThisProject(percentageOfHoursSpentInThisProject)
                     .build();
         }
 

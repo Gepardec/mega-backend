@@ -14,6 +14,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +88,12 @@ public class WorkingTimeUtil {
 
         return (double) overtime.toMinutes() / 60;
     }
+
+    public Duration getDurationFromTimeString(String timeString) {
+        String[] parts = timeString.split(":");
+        return Duration.parse(String.format("PT%sH%sM", parts[0], parts[1]));
+    }
+
 
     private static Map.Entry<DayOfWeek, Long> removeAbsenceDays(Map.Entry<DayOfWeek, Long> workingDayEntry,
                                                                 Map<DayOfWeek, Long> absenceDaysCountMap) {
