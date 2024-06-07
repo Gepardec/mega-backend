@@ -9,7 +9,6 @@ import com.gepardec.mega.personio.employees.absenceBalance.AbsenceBalanceRespons
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -36,15 +35,13 @@ class PersonioEmployeesServiceImplTest {
     Logger logger;
 
     @Test
-    void getVacationDayBalance_ValidResponse_Ten() {
+    void getPersonioEmployeeByEmail_ValidResponse_Ten() {
         //GIVEN
         var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
         employeesResponse.setSuccess(true);
         employeesResponse.setData(createValidEmployeesResponseData());
 
-        var response = Response.ok(employeesResponse).build();
-
-        when(personioEmployeesClient.getByEmail(anyString())).thenReturn(response);
+        when(personioEmployeesClient.getByEmail(anyString())).thenReturn(employeesResponse);
 
         //WHEN
         var result = personioEmployeesService.getPersonioEmployeeByEmail("mega.test@gepardec.com");
@@ -57,15 +54,13 @@ class PersonioEmployeesServiceImplTest {
     }
 
     @Test
-    void getVacationDayBalance_InvalidResponseWithTwoEmployees_Zero() {
+    void getPersonioEmployeeByEmail_InvalidResponseWithTwoEmployees_Zero() {
         //GIVEN
         var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
         employeesResponse.setSuccess(true);
         employeesResponse.setData(createInvalidEmployeesResponseData());
 
-        var response = Response.ok(employeesResponse).build();
-
-        when(personioEmployeesClient.getByEmail(anyString())).thenReturn(response);
+        when(personioEmployeesClient.getByEmail(anyString())).thenReturn(employeesResponse);
 
         //WHEN
         var result = personioEmployeesService.getPersonioEmployeeByEmail(("mega.test@gepardec.com"));
@@ -75,73 +70,67 @@ class PersonioEmployeesServiceImplTest {
     }
 
     @Test
-    void getVacationDayBalance_NotSuccessful_Zero() {
+    void getPersonioEmployeeByEmail_NotSuccessful_Zero() {
         //GIVEN
         var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
         employeesResponse.setSuccess(false);
         employeesResponse.setError(createErrorResponse());
 
-        var response = Response.status(404).entity(employeesResponse).build();
-
-        when(personioEmployeesClient.getByEmail(anyString())).thenReturn(response);
+        when(personioEmployeesClient.getByEmail(anyString())).thenReturn(employeesResponse);
 
         //WHEN
         var result = personioEmployeesService.getPersonioEmployeeByEmail("mega.test@gepardec.com");
 
         //THEN
         verify(logger).info("Fehler bei Aufruf der Personio-Schnittstelle: {}", "Personio-Fehler");
-
         assertThat(result).isEmpty();
     }
 
     @Test
     void getAvailableVacationDaysForEmployeeByEmail_whenDaysAvailable_thenReturnDaysCount() {
+        //GIVEN
         var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
         employeesResponse.setSuccess(true);
         employeesResponse.setData(createValidEmployeesResponseData());
 
-        var responseEmployee = Response.ok(employeesResponse).build();
-
         when(personioEmployeesClient.getByEmail(anyString()))
-                .thenReturn(responseEmployee);
+                .thenReturn(employeesResponse);
 
         var absenceBalanceResponse = new BaseResponse<List<AbsenceBalanceResponse>>();
         absenceBalanceResponse.setSuccess(true);
         absenceBalanceResponse.setData(createValidAbsenceBalanceResponseData());
 
-        var responseAbsence = Response.ok(absenceBalanceResponse).build();
-
         when(personioEmployeesClient.getAbsenceBalanceForEmployeeById(anyInt()))
-                .thenReturn(responseAbsence);
+                .thenReturn(absenceBalanceResponse);
 
+        //WHEN
         var result = personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail("mega.test@gepardec.com");
+
+        //THEN
         assertThat(result).isEqualTo(createValidAbsenceBalanceResponseData().get(0).getAvailableBalance());
     }
 
     @Test
     void getAvailableVacationDaysForEmployeeByEmail_whenNotSuccessful_thenReturnZero() {
+        //GIVEN
         var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
         employeesResponse.setSuccess(true);
         employeesResponse.setData(createValidEmployeesResponseData());
-
-        var responseEmployee = Response.ok(employeesResponse).build();
-
 
         var absenceBalanceResponse = new BaseResponse<List<AbsenceBalanceResponse>>();
         absenceBalanceResponse.setSuccess(false);
         absenceBalanceResponse.setError(createErrorResponse());
 
-        var responseAbsence = Response.status(Response.Status.NOT_FOUND).entity(absenceBalanceResponse).build();
-
         when(personioEmployeesClient.getByEmail(anyString()))
-                .thenReturn(responseEmployee);
+                .thenReturn(employeesResponse);
 
         when(personioEmployeesClient.getAbsenceBalanceForEmployeeById(anyInt()))
-                .thenReturn(responseAbsence);
+                .thenReturn(absenceBalanceResponse);
 
-
+        //WHEN
         var result = personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail("mega.test@gepardec.com");
 
+        //THEN
         verify(logger).info("Fehler bei Aufruf der Personio-Schnittstelle: {}", "Personio-Fehler");
         assertThat(result).isZero();
     }
