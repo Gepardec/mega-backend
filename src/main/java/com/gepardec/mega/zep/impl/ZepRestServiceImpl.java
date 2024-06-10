@@ -3,7 +3,6 @@ package com.gepardec.mega.zep.impl;
 import com.gepardec.mega.db.entity.common.PaymentMethodType;
 import com.gepardec.mega.db.entity.common.ProjectTaskType;
 import com.gepardec.mega.domain.model.AbsenceTime;
-import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.MonthlyBillInfo;
 import com.gepardec.mega.domain.model.PersonioEmployee;
@@ -13,7 +12,6 @@ import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.DateHelperService;
-import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
@@ -22,7 +20,6 @@ import com.gepardec.mega.zep.rest.dto.ZepEmploymentPeriod;
 import com.gepardec.mega.zep.rest.dto.ZepProject;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.rest.dto.ZepReceipt;
-import com.gepardec.mega.zep.rest.dto.ZepReceiptAmount;
 import com.gepardec.mega.zep.rest.dto.ZepReceiptAttachment;
 import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
 import com.gepardec.mega.zep.rest.mapper.Mapper;
@@ -52,12 +49,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.gepardec.mega.domain.utils.DateUtils.formatDate;
-import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfCurrentMonth;
-import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
 
 
 @ApplicationScoped
@@ -65,12 +58,11 @@ import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth
 public class ZepRestServiceImpl implements ZepService {
 
     @Inject
-    EmployeeService employeeService;
+    EmployeeService zepEmployeeService;
 
     @Inject
-    MonthlyReportService monthlyReportService;
-    @Inject
     ProjectService projectService;
+
     @Inject
     AttendanceService attendanceService;
 
@@ -120,7 +112,7 @@ public class ZepRestServiceImpl implements ZepService {
     public Employee getEmployee(String userId) {
         logger.debug("Retrieving employee %s from ZEP".formatted(userId));
 
-        Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByUsername(userId);
+        Optional<ZepEmployee> zepEmployee = zepEmployeeService.getZepEmployeeByUsername(userId);
         if (zepEmployee.isEmpty()) {
             logger.warn("No employee found for user {}", userId);
             return null;
@@ -146,7 +138,7 @@ public class ZepRestServiceImpl implements ZepService {
     public List<Employee> getEmployees() {
         logger.debug("Retrieving employees from ZEP");
 
-        List<ZepEmployee> zepEmployees = employeeService.getZepEmployees();
+        List<ZepEmployee> zepEmployees = zepEmployeeService.getZepEmployees();
         List<Employee> employees = employeeMapper.mapList(zepEmployees);
         employees.forEach(
                 employee -> {
@@ -242,7 +234,7 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
-        Optional<ZepEmployee> employeeRetrieved = employeeService.getZepEmployeeByUsername(employee.getUserId());
+        Optional<ZepEmployee> employeeRetrieved = zepEmployeeService.getZepEmployeeByUsername(employee.getUserId());
         List<ProjectHoursSummary> resultProjectHoursSummary = new ArrayList<>();
 
         if(employeeRetrieved.isPresent()) {

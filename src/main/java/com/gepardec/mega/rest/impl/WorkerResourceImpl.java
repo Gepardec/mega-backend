@@ -9,6 +9,7 @@ import com.gepardec.mega.domain.model.MonthlyOfficeDays;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.Role;
+import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
@@ -86,6 +87,9 @@ public class WorkerResourceImpl implements WorkerResource {
     EmployeeService employeeService;
 
     @Inject
+    UserContext userContext;
+
+    @Inject
     PersonioEmployeesService personioEmployeesService;
 
     @Inject
@@ -107,15 +111,15 @@ public class WorkerResourceImpl implements WorkerResource {
     }
 
     @Override
-    public MonthlyBillInfoDto getBillInfoForEmployee(String employeeId, YearMonth from) {
-        Employee employee = employeeService.getEmployee(employeeId);
+    public MonthlyBillInfoDto getBillInfoForEmployee(YearMonth from) {
+        Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
         Optional<PersonioEmployee> personioEmployee = personioEmployeesService.getPersonioEmployeeByEmail(employee.getEmail());
         return personioEmployee.map(value -> monthlyBillInfoMapper.mapToDto(zepService.getMonthlyBillInfoForEmployee(value, employee, from))).orElse(null);
     }
 
     @Override
-    public List<ProjectHoursSummaryDto> getAllProjectsForMonthAndEmployee(String employeeId, YearMonth from) {
-        Employee employee = employeeService.getEmployee(employeeId);
+    public List<ProjectHoursSummaryDto> getAllProjectsForMonthAndEmployee(YearMonth from) {
+        Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
         List<ProjectHoursSummary> resultProjectsHoursSummaryList = zepService.getAllProjectsForMonthAndEmployee(employee, from);
 
         return resultProjectsHoursSummaryList.stream()
@@ -124,8 +128,8 @@ public class WorkerResourceImpl implements WorkerResource {
     }
 
     @Override
-    public MonthlyAbsencesDto getAllAbsencesForMonthAndEmployee(String employeeId, YearMonth from) {
-        Employee employee = employeeService.getEmployee(employeeId);
+    public MonthlyAbsencesDto getAllAbsencesForMonthAndEmployee(YearMonth from) {
+        Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
         int availableVacationDays = personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail(employee.getEmail());
         double doctorsVisitingHours = zepService.getDoctorsVisitingTimeForMonthAndEmployee(employee, from);
         Pair<String, String> correctDatePairForRequest = dateHelperService.getCorrectDateForRequest(employee, from);
@@ -137,8 +141,8 @@ public class WorkerResourceImpl implements WorkerResource {
 
     // includes homeoffice and fridays in office as well
     @Override
-    public MonthlyOfficeDaysDto getOfficeDaysForMonthAndEmployee(String employeeId, YearMonth from) {
-        Employee employee = employeeService.getEmployee(employeeId);
+    public MonthlyOfficeDaysDto getOfficeDaysForMonthAndEmployee(YearMonth from) {
+        Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
         Pair<String, String> correctDatePairForRequest = dateHelperService.getCorrectDateForRequest(employee, from);
         LocalDate fromDateForRequest = DateUtils.parseDate(correctDatePairForRequest.getLeft());
         List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee,fromDateForRequest);
@@ -147,8 +151,8 @@ public class WorkerResourceImpl implements WorkerResource {
     }
 
     @Override
-    public List<MonthlyWarningDto> getAllWarningsForEmployeeAndMonth(String employeeId, YearMonth from) {
-        Employee employee = employeeService.getEmployee(employeeId);
+    public List<MonthlyWarningDto> getAllWarningsForEmployeeAndMonth(YearMonth from) {
+        Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
         Pair<String, String> correctDatePairForRequest = dateHelperService.getCorrectDateForRequest(employee, from);
         LocalDate fromDateForRequest = DateUtils.parseDate(correctDatePairForRequest.getLeft());
         List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee,fromDateForRequest);

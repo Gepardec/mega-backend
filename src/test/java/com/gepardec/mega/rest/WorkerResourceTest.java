@@ -359,7 +359,7 @@ public class WorkerResourceTest {
        when(monthlyBillInfoMapper.mapToDto(any(MonthlyBillInfo.class)))
                .thenReturn(createMonthlyBillInfoDto(2, 1, 1, true, false));
 
-        MonthlyBillInfoDto actual = workerResource.getBillInfoForEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 4));
+        MonthlyBillInfoDto actual = workerResource.getBillInfoForEmployee(YearMonth.of(2024, 4));
 
         assertThat(actual.getEmployeeHasCreditCard()).isFalse();
         assertThat(actual.getSumBills()).isEqualTo(2);
@@ -387,7 +387,7 @@ public class WorkerResourceTest {
         when(monthlyBillInfoMapper.mapToDto(any(MonthlyBillInfo.class)))
                 .thenReturn(createMonthlyBillInfoDto(3, 2, 1, false, false));
 
-        MonthlyBillInfoDto actual = workerResource.getBillInfoForEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 4));
+        MonthlyBillInfoDto actual = workerResource.getBillInfoForEmployee(YearMonth.of(2024, 4));
 
         assertThat(actual.getEmployeeHasCreditCard()).isFalse();
         assertThat(actual.getSumBills()).isEqualTo(3);
@@ -415,7 +415,7 @@ public class WorkerResourceTest {
         when(monthlyBillInfoMapper.mapToDto(any(MonthlyBillInfo.class)))
                 .thenReturn(createMonthlyBillInfoDto(3, 1, 2, false, true));
 
-        MonthlyBillInfoDto actual = workerResource.getBillInfoForEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 4));
+        MonthlyBillInfoDto actual = workerResource.getBillInfoForEmployee(YearMonth.of(2024, 4));
 
         assertThat(actual.getEmployeeHasCreditCard()).isTrue();
         assertThat(actual.getSumBills()).isEqualTo(3);
@@ -443,7 +443,7 @@ public class WorkerResourceTest {
         when(monthlyBillInfoMapper.mapToDto(any(MonthlyBillInfo.class)))
                 .thenReturn(createMonthlyBillInfoDto(0, 0, 0, false, true));
 
-        MonthlyBillInfoDto actual = workerResource.getBillInfoForEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 4));
+        MonthlyBillInfoDto actual = workerResource.getBillInfoForEmployee(YearMonth.of(2024, 4));
 
         assertThat(actual.getEmployeeHasCreditCard()).isTrue();
         assertThat(actual.getSumBills()).isZero();
@@ -464,7 +464,7 @@ public class WorkerResourceTest {
         when(zepService.getAllProjectsForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(getProjectsHoursSummaryForEmployee());
 
-        List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 6));
+        List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(YearMonth.of(2024, 6));
 
         assertThat(actual).isNotNull();
         assertThat(actual.size()).isEqualTo(4);
@@ -483,7 +483,7 @@ public class WorkerResourceTest {
         when(zepService.getAllProjectsForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(List.of());
 
-        List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(2024, 6));
+        List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(YearMonth.of(2024, 6));
 
         assertThat(actual).isNotNull();
         assertThat(actual.size()).isZero();
@@ -529,7 +529,7 @@ public class WorkerResourceTest {
                                 .build()
                 );
 
-        MonthlyAbsencesDto actual = workerResource.getAllAbsencesForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+        MonthlyAbsencesDto actual = workerResource.getAllAbsencesForMonthAndEmployee(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
 
         assertThat(actual.getAvailableVacationDays()).isEqualTo(availableVacationDays);
         assertThat(actual.getDoctorsVisitingTime()).isEqualTo(doctorsVisitingTime);
@@ -583,7 +583,7 @@ public class WorkerResourceTest {
                                 .build()
                 );
 
-        MonthlyAbsencesDto actual = workerResource.getAllAbsencesForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+        MonthlyAbsencesDto actual = workerResource.getAllAbsencesForMonthAndEmployee(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
 
 
         assertThat(actual.getAvailableVacationDays()).isEqualTo(availableVacationDays);
@@ -631,7 +631,7 @@ public class WorkerResourceTest {
         when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(Pair.of(fromDate.toString(), toDateString));
 
-        MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+        MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
 
         assertThat(actual.getHomeofficeDays()).isEqualTo(4);
         assertThat(actual.getOfficeDays()).isEqualTo(14);
@@ -668,7 +668,7 @@ public class WorkerResourceTest {
         when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(Pair.of(fromDate.toString(), toDateString));
 
-        MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+        MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
 
         assertThat(actual.getHomeofficeDays()).isZero();
         assertThat(actual.getOfficeDays()).isEqualTo(21);
@@ -703,7 +703,7 @@ public class WorkerResourceTest {
                 .map(monthlyWarningMapper::mapToDto)
                 .toList();
 
-        List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+        List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
 
         assertThat(actual.isEmpty()).isFalse();
         assertThat(actual.size()).isEqualTo(mappedWarnings.size());
@@ -735,7 +735,7 @@ public class WorkerResourceTest {
                 .thenReturn(new ArrayList<>());
 
 
-        List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(userAsEmployee.getUserId(), YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+        List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
 
         assertThat(actual.isEmpty()).isTrue();
     }
