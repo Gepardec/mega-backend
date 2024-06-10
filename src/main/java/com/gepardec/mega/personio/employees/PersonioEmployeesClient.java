@@ -1,6 +1,8 @@
 package com.gepardec.mega.personio.employees;
 
 import com.gepardec.mega.personio.commons.factory.PersonioHeadersFactory;
+import com.gepardec.mega.personio.commons.model.BaseResponse;
+import com.gepardec.mega.personio.employees.absenceBalance.AbsenceBalanceResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -8,14 +10,15 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
+
+import java.util.List;
 
 @Path("/company/employees")
 @ApplicationScoped
 @RegisterRestClient(configKey = "personio-api-v1")
-@RegisterClientHeaders( PersonioHeadersFactory.class)
+@RegisterClientHeaders(PersonioHeadersFactory.class)
 public interface PersonioEmployeesClient {
 
     /**
@@ -28,9 +31,9 @@ public interface PersonioEmployeesClient {
      */
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
-    Response getByEmail(@QueryParam("email") String email);
+    BaseResponse<List<EmployeesResponse>> getByEmail(@QueryParam("email") String email);
 
     @GET
     @Path("/{id}/absences/balance")
-    Response getAbsenceBalanceForEmployeeById(@PathParam("id") int id);
+    BaseResponse<List<AbsenceBalanceResponse>> getAbsenceBalanceForEmployeeById(@PathParam("id") int id);
 }

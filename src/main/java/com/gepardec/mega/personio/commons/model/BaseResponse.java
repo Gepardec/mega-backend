@@ -3,9 +3,7 @@ package com.gepardec.mega.personio.commons.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class
-
-BaseResponse<T> {
+public class BaseResponse<T> {
 
     private boolean success;
     private T data;
