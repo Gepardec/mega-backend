@@ -32,7 +32,7 @@ class OfficeCalendarUtilTest {
 
     @Test
     void doesHolidayApiReturnCorrectHolidays() {
-        List<LocalDate> actual = OfficeCalendarUtil.getHolidaysForYear(2022).collect(Collectors.toList());
+        List<LocalDate> actual = OfficeCalendarUtil.getHolidaysForYear(2022).toList();
 
         assertThat(actual).containsExactlyInAnyOrderElementsOf(holidates);
     }

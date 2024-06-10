@@ -41,7 +41,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
         }
         return violations.stream()
                 .map(this::createValidationViolationForConstraintViolation)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private ValidationViolation createValidationViolationForConstraintViolation(final ConstraintViolation<?> violation) {

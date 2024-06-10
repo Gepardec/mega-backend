@@ -3,9 +3,11 @@ package com.gepardec.mega.service.impl;
 import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
+import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
@@ -26,8 +28,6 @@ import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.service.mapper.TimeWarningMapper;
 import com.gepardec.mega.zep.ZepService;
-import de.provantis.zep.FehlzeitType;
-import de.provantis.zep.ProjektzeitType;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
@@ -114,6 +114,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
             employee = employeeService.getEmployee(userContext.getUser().getUserId());
         }
 
+
         return buildMonthlyReport(
                 employee,
                 date,
@@ -148,8 +149,8 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
             Employee employee,
             LocalDate date,
             List<ProjectEntry> projectEntries,
-            List<ProjektzeitType> billableEntries,
-            List<FehlzeitType> absenceEntries,
+            List<ProjectTime> billableEntries,
+            List<AbsenceTime> absenceEntries,
             Optional<Pair<EmployeeState, String>> employeeCheckState,
             Optional<EmployeeState> internalCheckState,
             LocalDate initialDate
@@ -169,7 +170,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(PmProgressDto::ofStepEntry)
-                .collect(Collectors.toList());
+                .toList();
 
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
         var prematureEmployeeCheck = prematureEmployeeCheckService.findByEmailAndMonth(employee.getEmail(), date);
@@ -196,7 +197,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .employeeProgresses(pmProgressDtos)
                 .otherChecksDone(isMonthCompletedForEmployee(employee, date))
                 .billableTime(workingTimeUtil.getBillableTimesForEmployee(billableEntries, employee))
-                .totalWorkingTime(workingTimeUtil.getTotalWorkingTimeForEmployee(billableEntries, employee))
+                .totalWorkingTime(workingTimeUtil.getTotalWorkingTimeForEmployee(projectEntries, employee))
                 .compensatoryDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.COMPENSATORY_DAYS.getAbsenceName(), date))
                 .homeofficeDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.HOME_OFFICE_DAYS.getAbsenceName(), date))
                 .vacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.VACATION_DAYS.getAbsenceName(), date))

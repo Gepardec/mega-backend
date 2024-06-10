@@ -70,6 +70,7 @@ public class MonthlyReport {
 
     private final String internalProjectLead;
 
+
     private MonthlyReport(Builder builder) {
         this.employee = builder.employee;
         this.initialDate = builder.initialDate;
@@ -222,6 +223,7 @@ public class MonthlyReport {
     public String getInternalProjectLead() {
         return internalProjectLead;
     }
+
 
     @Nullable
     public PrematureEmployeeCheck getPrematureEmployeeCheck() {
@@ -410,6 +412,7 @@ public class MonthlyReport {
             this.internalProjectLead = internalProjectLead;
             return this;
         }
+
 
         public MonthlyReport build() {
             return new MonthlyReport(this);

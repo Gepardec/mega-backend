@@ -48,7 +48,7 @@ public class WeekendCalculator extends AbstractTimeWarningCalculationStrategy im
         endDate = endDate.plusDays(1);
         return startDate.datesUntil(endDate)
                 .filter(isWeekend)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean isWeekEndDay(LocalDate date, List<LocalDate> listOfWeekendDays) {

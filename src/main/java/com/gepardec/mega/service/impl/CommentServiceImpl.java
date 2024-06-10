@@ -51,7 +51,7 @@ public class CommentServiceImpl implements CommentService {
                 )
                 .stream()
                 .map(commentMapper::mapToDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

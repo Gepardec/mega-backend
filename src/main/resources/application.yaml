@@ -68,6 +68,8 @@ quarkus:
   rest-client:
     personio-api-v1:
       url: "https://api.personio.de/v1"
+    zep:
+      url: "${mega.zep.origin}/next/api/v1/"
 
 # disables the DefaultResponseExceptionMapper of the microprofile resteasy client
 microprofile:
@@ -93,6 +95,10 @@ mega:
   zep:
     admin-token: "${TOKEN:default}"
     soap-path: "/sync/soap.php?v=${SOAP_PATH_VERSION:7}"
+    rest-token: "${ZEP_REST_TOKEN:default}"
+    origin: "https://www.zep-online.de/zepgepardecservices_test"
+
+
 
   oauth:
     client-id: "mega"
@@ -112,6 +118,8 @@ mega:
         - "robin.fischer@gepardec.com"
         - "alexandra.stummer@gepardec.com"
         - "simon.bauer@gepardec.com"
+        - "simon.gartner@gepardec.com"
+        - "tobias.meindl@gepardec.com"
         - "paul.waldecker@gepardec.com"
         - "paul.proemer@gepardec.com"
         - "chiara.gattringer@gepardec.com"
@@ -122,7 +130,7 @@ mega:
       port: 993
       username: "service@gepardec.com"
       password: "${MAILER_PASSWORD:default}"
-      sender: "nobody@zep.de"
+      sender: "nobody@provantis.de"
       cron-expr: "disabled"
 
   personio:
@@ -154,13 +162,14 @@ mp:
     http:
       cors:
         origins: "/.*/"
+    rest-client:
+      zep:
+        url: "${mega.zep.origin}/next/api/v1/"
   mega:
     dash-url: "http://localhost:4444/index.html"
-    zep:
-      origin: "https://www.zep-online.de/zepgepardecservices_test"
 
     oauth:
-      issuer: ""
+      issuer: "https://gepardec-sso-qa.apps.cloudscale-lpg-2.appuio.cloud/realms/gepardec"
 
     mail:
       subject-prefix: "LOCAL: "
@@ -176,6 +185,9 @@ mp:
 ## TEST Properties
 "%test":
   quarkus:
+    rest-client:
+        zep:
+          url: "${mega.zep.origin}/next/api/v1/"
     log:
       console:
         format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
@@ -205,7 +217,7 @@ mp:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
 
     oauth:
-      issuer: ""
+      issuer: "https://gepardec-sso-qa.apps.cloudscale-lpg-2.appuio.cloud/realms/gepardec"
 
     mail:
       subject-prefix: "UNIT-TEST: "

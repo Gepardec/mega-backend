@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
         final List<com.gepardec.mega.db.entity.employee.User> activeUsers = userRepository.findActive();
         return activeUsers.stream()
                 .map(mapper::mapToDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -72,6 +72,6 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.findByRoles(roles).stream()
                 .map(mapper::mapToDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

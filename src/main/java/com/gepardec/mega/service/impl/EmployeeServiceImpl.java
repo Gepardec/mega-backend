@@ -57,7 +57,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return zepService.getEmployees().stream()
                 .filter(Employee::isActive)
                 .filter(employee -> Objects.nonNull(employee.getEmail()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return zepService.getEmployees().stream()
                 .filter(checkEmployeeExitDate(selectedYearMonth))
                 .filter(employee -> Objects.nonNull(employee.getEmail()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -123,7 +123,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     private List<String> getUserIds(final List<Employee> employees) {
-        return employees.stream().map(Employee::getUserId).collect(Collectors.toList());
+        return employees.stream().map(Employee::getUserId).toList();
     }
 
     private Predicate<? super Employee> checkEmployeeExitDate(YearMonth selectedYearMonth) {

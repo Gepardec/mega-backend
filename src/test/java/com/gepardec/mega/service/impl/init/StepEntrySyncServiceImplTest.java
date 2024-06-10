@@ -66,35 +66,35 @@ class StepEntrySyncServiceImplTest {
                 projectFor(1)
                         .leads(
                                 List.of(userForProjectLead(1))
-                                        .stream().map(User::getUserId).collect(Collectors.toList()))
+                                        .stream().map(User::getUserId).toList())
                         .employees(
                                 List.of(userForProjectLead(1),
                                                 userForEmployee(4),
                                                 userForEmployee(5),
                                                 userForEmployee(6))
-                                        .stream().map(User::getUserId).collect(Collectors.toList()))
+                                        .stream().map(User::getUserId).toList())
                         .startDate(LocalDate.now())
                         .build(),
                 projectFor(2)
                         .leads(
                                 List.of(userForProjectLead(2))
-                                        .stream().map(User::getUserId).collect(Collectors.toList()))
+                                        .stream().map(User::getUserId).toList())
                         .employees(
                                 List.of(userForProjectLead(2),
                                                 userForEmployee(5),
                                                 userForEmployee(6))
-                                        .stream().map(User::getUserId).collect(Collectors.toList()))
+                                        .stream().map(User::getUserId).toList())
                         .startDate(LocalDate.now())
                         .build(),
                 projectFor(3)
                         .leads(
                                 List.of(userForProjectLead(1))
-                                        .stream().map(User::getUserId).collect(Collectors.toList()))
+                                        .stream().map(User::getUserId).toList())
                         .employees(
                                 List.of(userForProjectLead(1),
                                                 userForEmployee(5),
                                                 userForEmployee(6))
-                                        .stream().map(User::getUserId).collect(Collectors.toList()))
+                                        .stream().map(User::getUserId).toList())
                         .startDate(LocalDate.now())
                         .build()
         ));
@@ -191,13 +191,13 @@ class StepEntrySyncServiceImplTest {
         when(projectService.getProjectsForMonthYear(Mockito.any(), Mockito.anyList())).thenReturn(List.of(projectFor(1)
                 .leads(
                         List.of(userForProjectLead(7))
-                                .stream().map(User::getUserId).collect(Collectors.toList()))
+                                .stream().map(User::getUserId).toList())
                 .employees(
                         List.of(userForProjectLead(1),
                                         userForEmployee(4),
                                         userForEmployee(5),
                                         userForEmployee(6))
-                                .stream().map(User::getUserId).collect(Collectors.toList()))
+                                .stream().map(User::getUserId).toList())
                 .startDate(LocalDate.now())
                 .build()));
 

@@ -1,0 +1,66 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "MEGA",
+      "description": "MEGA",
+      "start_date": "2020-12-01T00:00:00.000000Z",
+      "end_date": "2026-01-20T00:00:00.000000Z",
+      "status": "active",
+      "comments": "Comment MEGA",
+      "cost_object": null,
+      "cost_object_identifier": null,
+      "created": "2020-12-05T08:56:09.000000Z",
+      "modified": "2021-06-03T21:20:23.000000Z",
+      "keywords": [
+        "intern"
+      ],
+      "reference_order": null,
+      "reference_commission": null,
+      "reference_procurement": null,
+      "reference_object": null,
+      "language": null,
+      "currency": "EUR",
+      "url": null,
+      "location_address": null,
+      "location_city": null,
+      "location_state": null,
+      "location_country": null,
+      "revenue_account": null,
+      "customer_id": "001",
+      "customer_contact_id": 1,
+      "customer_project_reference": "B187",
+      "customer_billing_address_id": null,
+      "customer_shipping_address_id": null,
+      "has_multiple_customers": null,
+      "department_id": 1,
+      "billing_type": {
+        "id": 1
+      },
+      "billing_tasks": 0,
+      "plan_hours": "55.5",
+      "plan_hours_per_day": null,
+      "plan_can_exceed": true,
+      "plan_warning_percent": "80.00",
+      "plan_warning_percent_2": "60.00",
+      "plan_warning_percent_3": "40.00",
+      "plan_wage": null,
+      "plan_expenses": null,
+      "plan_expenses_travel": null,
+      "plan_hours_done": "100.00",
+      "plan_hours_invoiced": "100.00",
+      "tasks_count": 1,
+      "employees_count": 1,
+      "activities_count": 0
+    },
+    {
+      "id": 2,
+      "name": "gema",
+      "start_date": "2020-11-11T00:00:00.0000Z",
+      "end_date": "2022-11-11T00:00:00.0000Z"
+    }
+  ],
+  "links": {
+    "next": null
+  }
+}

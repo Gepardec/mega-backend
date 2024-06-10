@@ -1,21 +1,22 @@
 package com.gepardec.mega.personio.employees;
 
 import com.gepardec.mega.domain.model.PersonioEmployee;
+import com.gepardec.mega.personio.commons.constants.AbsenceConstants;
 import com.gepardec.mega.personio.commons.model.Attribute;
 import com.gepardec.mega.personio.commons.model.BaseResponse;
 import com.gepardec.mega.personio.commons.model.ErrorResponse;
+import com.gepardec.mega.personio.employees.absenceBalance.AbsenceBalanceResponse;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
-import org.w3c.dom.Attr;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,15 +35,13 @@ class PersonioEmployeesServiceImplTest {
     Logger logger;
 
     @Test
-    void getVacationDayBalance_ValidResponse_Ten() {
+    void getPersonioEmployeeByEmail_ValidResponse_Ten() {
         //GIVEN
         var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
         employeesResponse.setSuccess(true);
         employeesResponse.setData(createValidEmployeesResponseData());
 
-        var response = Response.ok(employeesResponse).build();
-
-        when(personioEmployeesClient.getByEmail(anyString())).thenReturn(response);
+        when(personioEmployeesClient.getByEmail(anyString())).thenReturn(employeesResponse);
 
         //WHEN
         var result = personioEmployeesService.getPersonioEmployeeByEmail("mega.test@gepardec.com");
@@ -55,15 +54,13 @@ class PersonioEmployeesServiceImplTest {
     }
 
     @Test
-    void getVacationDayBalance_InvalidResponseWithTwoEmployees_Zero() {
+    void getPersonioEmployeeByEmail_InvalidResponseWithTwoEmployees_Zero() {
         //GIVEN
         var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
         employeesResponse.setSuccess(true);
         employeesResponse.setData(createInvalidEmployeesResponseData());
 
-        var response = Response.ok(employeesResponse).build();
-
-        when(personioEmployeesClient.getByEmail(anyString())).thenReturn(response);
+        when(personioEmployeesClient.getByEmail(anyString())).thenReturn(employeesResponse);
 
         //WHEN
         var result = personioEmployeesService.getPersonioEmployeeByEmail(("mega.test@gepardec.com"));
@@ -73,29 +70,80 @@ class PersonioEmployeesServiceImplTest {
     }
 
     @Test
-    void getVacationDayBalance_NotSuccessful_Zero() {
+    void getPersonioEmployeeByEmail_NotSuccessful_Zero() {
         //GIVEN
         var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
         employeesResponse.setSuccess(false);
         employeesResponse.setError(createErrorResponse());
 
-        var response = Response.status(404).entity(employeesResponse).build();
-
-        when(personioEmployeesClient.getByEmail(anyString())).thenReturn(response);
+        when(personioEmployeesClient.getByEmail(anyString())).thenReturn(employeesResponse);
 
         //WHEN
         var result = personioEmployeesService.getPersonioEmployeeByEmail("mega.test@gepardec.com");
 
         //THEN
         verify(logger).info("Fehler bei Aufruf der Personio-Schnittstelle: {}", "Personio-Fehler");
-
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void getAvailableVacationDaysForEmployeeByEmail_whenDaysAvailable_thenReturnDaysCount() {
+        //GIVEN
+        var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
+        employeesResponse.setSuccess(true);
+        employeesResponse.setData(createValidEmployeesResponseData());
+
+        when(personioEmployeesClient.getByEmail(anyString()))
+                .thenReturn(employeesResponse);
+
+        var absenceBalanceResponse = new BaseResponse<List<AbsenceBalanceResponse>>();
+        absenceBalanceResponse.setSuccess(true);
+        absenceBalanceResponse.setData(createValidAbsenceBalanceResponseData());
+
+        when(personioEmployeesClient.getAbsenceBalanceForEmployeeById(anyInt()))
+                .thenReturn(absenceBalanceResponse);
+
+        //WHEN
+        var result = personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail("mega.test@gepardec.com");
+
+        //THEN
+        assertThat(result).isEqualTo(createValidAbsenceBalanceResponseData().get(0).getAvailableBalance());
+    }
+
+    @Test
+    void getAvailableVacationDaysForEmployeeByEmail_whenNotSuccessful_thenReturnZero() {
+        //GIVEN
+        var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
+        employeesResponse.setSuccess(true);
+        employeesResponse.setData(createValidEmployeesResponseData());
+
+        var absenceBalanceResponse = new BaseResponse<List<AbsenceBalanceResponse>>();
+        absenceBalanceResponse.setSuccess(false);
+        absenceBalanceResponse.setError(createErrorResponse());
+
+        when(personioEmployeesClient.getByEmail(anyString()))
+                .thenReturn(employeesResponse);
+
+        when(personioEmployeesClient.getAbsenceBalanceForEmployeeById(anyInt()))
+                .thenReturn(absenceBalanceResponse);
+
+        //WHEN
+        var result = personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail("mega.test@gepardec.com");
+
+        //THEN
+        verify(logger).info("Fehler bei Aufruf der Personio-Schnittstelle: {}", "Personio-Fehler");
+        assertThat(result).isZero();
     }
 
     private static List<EmployeesResponse> createValidEmployeesResponseData() {
         var data = new EmployeesResponse();
         data.setAttributes(createPersonioEmployee());
 
+        return List.of(data);
+    }
+
+    private static List<AbsenceBalanceResponse> createValidAbsenceBalanceResponseData() {
+        var data = new AbsenceBalanceResponse(AbsenceConstants.PAID_VACATION_ID, "", List.of(), 2, 12);
         return List.of(data);
     }
 
@@ -111,8 +159,10 @@ class PersonioEmployeesServiceImplTest {
 
     private static PersonioEmployeeDto createPersonioEmployee() {
         return PersonioEmployeeDto.builder()
+                .id(Attribute.ofValue(123))
                 .guildLead(Attribute.ofValue("guildLead"))
                 .internalProjectLead(Attribute.ofValue("internalProjectLead"))
+                .hasCreditCard(Attribute.ofValue("Ja"))
                 .build();
     }
 

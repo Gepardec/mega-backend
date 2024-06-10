@@ -6,6 +6,8 @@ import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
+import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
+import com.gepardec.mega.domain.model.monthlyreport.WarningType;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -48,7 +50,7 @@ public class ExceededMaximumWorkingHoursPerDayCalculator extends AbstractTimeWar
         TimeWarning timeWarning = new TimeWarning();
         timeWarning.setDate(date);
         timeWarning.setExcessWorkTime(workDurationOfDay - MAX_HOURS_A_DAY);
-
+        timeWarning.setWarningTypes(List.of(TimeWarningType.EXCESS_WORKING_TIME_PRESENT));
         return timeWarning;
     }
 }

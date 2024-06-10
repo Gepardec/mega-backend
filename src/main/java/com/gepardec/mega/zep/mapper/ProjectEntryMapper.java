@@ -7,6 +7,7 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
+
 import de.provantis.zep.ProjektzeitType;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -29,7 +30,7 @@ public class ProjectEntryMapper {
                 .map(this::map)
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(ProjectEntry::getFromTime))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ProjectEntry map(ProjektzeitType projektzeitType) {

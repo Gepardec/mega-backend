@@ -13,12 +13,12 @@ public interface DtoMapper<D, T> {
     default List<T> mapListToDto(List<D> objects) {
         return objects.stream()
                 .map(this::mapToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     default List<D> mapListToDomain(List<T> objects) {
         return objects.stream()
                 .map(this::mapToDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

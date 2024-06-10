@@ -3,6 +3,7 @@ package com.gepardec.mega.rest;
 import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 
 
@@ -13,7 +14,6 @@ import com.gepardec.mega.service.api.EmployeeService;
 
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.zep.ZepService;
-import de.provantis.zep.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
@@ -65,7 +65,7 @@ public class SyncResourceTest {
 
         LocalDate now = LocalDate.now();
         LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
-        List<FehlzeitType> fehlzeitList = createFehlzeitTypeListForUser(
+        List<AbsenceTime> fehlzeitList = createAbsenceTimeListForUser(
                 "099-testUser",
                 new AbsenceEntry(firstOfPreviousMonth.toString(), DateUtils.getLastDayOfMonth(firstOfPreviousMonth.getYear(), firstOfPreviousMonth.getMonth().getValue()).toString(), AbsenceType.PAID_SICK_LEAVE.getAbsenceName())
         );
@@ -119,7 +119,7 @@ public class SyncResourceTest {
                 );
 
 
-        List<FehlzeitType> fehlzeitList = createFehlzeitTypeListForUser(
+        List<AbsenceTime> fehlzeitList = createAbsenceTimeListForUser(
                 "099-testUser",
                 new AbsenceEntry("2024-03-01", "2024-03-01", AbsenceType.PAID_SICK_LEAVE.getAbsenceName()),
                 new AbsenceEntry("2024-03-04", "2024-03-08", AbsenceType.VACATION_DAYS.getAbsenceName()),
@@ -152,7 +152,7 @@ public class SyncResourceTest {
                 );
 
 
-        List<FehlzeitType> fehlzeitList = createFehlzeitTypeListForUser(
+        List<AbsenceTime> fehlzeitList = createAbsenceTimeListForUser(
                 "099-testuser",
                 new AbsenceEntry("2024-03-01", "2024-03-01", AbsenceType.VACATION_DAYS.getAbsenceName()),
                 new AbsenceEntry("2024-03-18", "2024-03-22", AbsenceType.VACATION_DAYS.getAbsenceName()),
@@ -184,7 +184,7 @@ public class SyncResourceTest {
                 );
 
 
-        List<FehlzeitType> fehlzeitList = createFehlzeitTypeListForUser(
+        List<AbsenceTime> fehlzeitList = createAbsenceTimeListForUser(
                 "e02-externalUser",
                 new AbsenceEntry("2024-03-01", "2024-03-01", AbsenceType.VACATION_DAYS.getAbsenceName()),
                 new AbsenceEntry("2024-03-04", "2024-03-08", AbsenceType.VACATION_DAYS.getAbsenceName()),
@@ -217,13 +217,14 @@ public class SyncResourceTest {
     }
 
 
-    private static FehlzeitType createFehlzeitTypeForUser(final String userId, final String startDate, final String endDate, final String reason){
-        FehlzeitType fehlzeitType = new FehlzeitType();
-        fehlzeitType.setUserId(userId);
-        fehlzeitType.setStartdatum(startDate);
-        fehlzeitType.setEnddatum(endDate);
-        fehlzeitType.setFehlgrund(reason);
-        return fehlzeitType;
+    private static AbsenceTime createFehlzeitTypeForUser(final String userId, final String startDate, final String endDate, final String reason){
+        return new AbsenceTime(
+                userId,
+                LocalDate.parse(startDate),
+                LocalDate.parse(endDate),
+                reason,
+                true
+        );
     }
 
     private static StepEntry createStepEntry(){
@@ -245,8 +246,8 @@ public class SyncResourceTest {
         }
     }
 
-    private static List<FehlzeitType> createFehlzeitTypeListForUser(String userId, AbsenceEntry... entries) {
-        List<FehlzeitType> fehlzeitTypeList = new ArrayList<>();
+    private static List<AbsenceTime> createAbsenceTimeListForUser(String userId, AbsenceEntry... entries) {
+        List<AbsenceTime> fehlzeitTypeList = new ArrayList<>();
         for (AbsenceEntry entry : entries) {
             fehlzeitTypeList.add(createFehlzeitTypeForUser(userId, entry.startDate, entry.endDate, entry.reason));
         }
