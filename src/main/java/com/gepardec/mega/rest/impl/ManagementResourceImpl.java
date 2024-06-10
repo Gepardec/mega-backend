@@ -69,7 +69,8 @@ public class ManagementResourceImpl implements ManagementResource {
     @Inject
     EmployeeMapper employeeMapper;
 
-    @Inject @Rest
+    @Inject
+    @Rest
     ZepService zepRestService;
 
     @Inject
@@ -319,11 +320,12 @@ public class ManagementResourceImpl implements ManagementResource {
             long nonBillableTimeInMinutes = workingTimeUtil.getDurationFromTimeString(nonBillableTimeString).toMinutes();
 
             double percentageOfHoursSpentInThisProject = 0.0;
-            if(!(Double.compare(totalWorkingHoursInMinutesForMonthAndEmployee, 0.0d) == 0)){
+            if (!(Double.compare(totalWorkingHoursInMinutesForMonthAndEmployee, 0.0d) == 0)) {
                 percentageOfHoursSpentInThisProject = (double) (billableTimeInMinutes + nonBillableTimeInMinutes) / totalWorkingHoursInMinutesForMonthAndEmployee;
-                percentageOfHoursSpentInThisProject = (BigDecimal.valueOf(percentageOfHoursSpentInThisProject)
-                                                                .setScale(2, RoundingMode.HALF_UP)
-                                                                .doubleValue()) * 100;
+                percentageOfHoursSpentInThisProject =
+                        BigDecimal.valueOf(percentageOfHoursSpentInThisProject)
+                                .setScale(2, RoundingMode.HALF_UP)
+                                .doubleValue() * 100;
             }
 
             return ManagementEntryDto.builder()

@@ -59,7 +59,8 @@ class ManagementResourceTest {
     @InjectMock
     ProjectEntryService projectEntryService;
 
-    @InjectMock @Rest
+    @InjectMock
+    @Rest
     ZepService zepService;
 
     @InjectMock
@@ -323,9 +324,9 @@ class ManagementResourceTest {
         when(workingTimeUtil.getTotalWorkingTimeForEmployee(any(), any(Employee.class))).thenReturn("25:00");
         when(workingTimeUtil.getInternalTimesForEmployee(anyList(), any(Employee.class))).thenReturn("01:00");
         when(workingTimeUtil.getBillableTimesForEmployee(anyList(), any(Employee.class))).thenReturn("02:00");
-        when(workingTimeUtil.getDurationFromTimeString(("01:00"))).thenReturn(getDurationFromTimeString("01:00"));
-        when(workingTimeUtil.getDurationFromTimeString(("02:00"))).thenReturn(getDurationFromTimeString("02:00"));
-        when(workingTimeUtil.getDurationFromTimeString(("25:00"))).thenReturn(getDurationFromTimeString("25:00"));
+        when(workingTimeUtil.getDurationFromTimeString(("01:00"))).thenReturn(Duration.ofHours(1));
+        when(workingTimeUtil.getDurationFromTimeString(("02:00"))).thenReturn(Duration.ofHours(2));
+        when(workingTimeUtil.getDurationFromTimeString(("25:00"))).thenReturn(Duration.ofHours(25));
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
                 .get("/management/projectmanagemententries/2020/09")
@@ -559,11 +560,6 @@ class ManagementResourceTest {
         assertThat(result).isEmpty();
     }
 
-    private Duration getDurationFromTimeString(String timeString) {
-        String[] parts = timeString.split(":");
-        return Duration.parse(String.format("PT%sH%sM", parts[0], parts[1]));
-    }
-
     private Step createStep(StepName stepName) {
         Step step = new Step();
         step.setName(stepName.name());
@@ -644,13 +640,13 @@ class ManagementResourceTest {
         List<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry> projectEntries = new ArrayList<>();
         projectEntries.add(
                 createEntry(LocalDateTime.of(2024, 5, 21, 14, 30),
-                LocalDateTime.of(2024, 5, 21, 16, 30))
+                        LocalDateTime.of(2024, 5, 21, 16, 30))
         );
 
         projectEntries.add(
                 createEntry(LocalDateTime.of(2024, 5, 21, 16, 30),
                         LocalDateTime.of(2024, 5, 21, 18, 30))
-                );
+        );
 
         projectEntries.add(
                 createEntry(LocalDateTime.of(2024, 5, 27, 8, 0),
