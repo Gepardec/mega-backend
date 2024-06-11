@@ -1,7 +1,7 @@
 # GLOBAL Properties
 quarkus:
   scheduler:
-    enabled: false
+    enabled: true
 
   swagger-ui:
     always-include: true
@@ -190,8 +190,6 @@ mega:
 ## DEV Properties
 "%dev":
   quarkus:
-    scheduler:
-      enabled: true
     mailer:
       mock: true
     datasource:
