@@ -20,7 +20,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -32,6 +32,7 @@ import java.util.Objects;
         @NamedQuery(name = "Comment.findAllCommentsBetweenStartAndEndDateForEmail", query = "SELECT c FROM Comment c WHERE c.stepEntry.owner.email = :email AND ((c.stepEntry.date BETWEEN :start AND :end) OR (c.stepEntry.date < :start))")
 })
 public class Comment {
+    static final int MAX_MESSAGE_LENGTH = 500;
 
     @Id
     @Column(name = "id", insertable = false, updatable = false)
@@ -57,8 +58,8 @@ public class Comment {
      * The message of the comment for the related step entry
      */
     @NotNull
-    @Length(min = 1, max = 500)
-    @Column(name = "message", length = 500)
+    @Size(max = MAX_MESSAGE_LENGTH)
+    @Column(name = "message", length = MAX_MESSAGE_LENGTH)
     private String message;
 
     /**
@@ -139,7 +140,17 @@ public class Comment {
     }
 
     public void setMessage(String message) {
-        this.message = message;
+        this.message = shortenTooLongMessage(message);
+    }
+
+    private static String shortenTooLongMessage(String message) {
+        if (message == null) {
+            return null;
+        }
+        if (message.length() > MAX_MESSAGE_LENGTH) {
+            return message.substring(0, MAX_MESSAGE_LENGTH - 3) + "...";
+        }
+        return message;
     }
 
     public EmployeeState getState() {
