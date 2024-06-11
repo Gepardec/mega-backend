@@ -11,6 +11,9 @@ import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -20,14 +23,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 @QuarkusTest
 class WorkingTimeUtilTest {
 
     @Inject
     WorkingTimeUtil workingTimeUtil;
+
+
+    static Stream<String> invalidTimeStrings() {
+        return Stream.of(
+                "01.30",
+                "2.00",
+                "",
+                null
+        );
+    }
 
     @Test
     void getInternalTimesForEmployeeTest() {
@@ -48,7 +63,7 @@ class WorkingTimeUtilTest {
     }
 
     @Test
-    void getTotalWorkingTimes_ProjectTime(){
+    void getTotalWorkingTimes_ProjectTime() {
         Employee employee = createEmployee().build();
         List<ProjectEntry> projectEntries = getProjectentries();
         String totalWorkingTimes = workingTimeUtil.getTotalWorkingTimeForEmployee(projectEntries, employee);
@@ -120,6 +135,28 @@ class WorkingTimeUtilTest {
         int absenceTimesForEmployee = workingTimeUtil.getAbsenceTimesForEmployee(fehlzeitTypes, "UB", LocalDate.of(2023, 11, 6));
         assertThat(absenceTimesForEmployee).isEqualTo(2);
     }
+
+    @ParameterizedTest
+    @CsvSource({
+            "01:30, PT1H30M",
+            "00:45, PT0H45M",
+            "12:00, PT12H0M",
+            "23:59, PT23H59M",
+            "00:00, PT0H0M"
+    })
+    void getDurationFromTimeString_whenInputStringIsValid_ReturnsDuration(String input, String expected) {
+        Duration expectedDuration = Duration.parse(expected);
+        Duration actualDuration = workingTimeUtil.getDurationFromTimeString(input);
+        assertThat(expectedDuration).isEqualTo(actualDuration);
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("invalidTimeStrings")
+    void getDurationFromTimeString_whenInputStringIsInvalid_ThrowsIllegalArgumentException(String input) {
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> workingTimeUtil.getDurationFromTimeString(input));
+    }
+
 
     private List<AbsenceTime> returnFehlzeitTypeList() {
         AbsenceTime fehlzeitType = AbsenceTime.builder()

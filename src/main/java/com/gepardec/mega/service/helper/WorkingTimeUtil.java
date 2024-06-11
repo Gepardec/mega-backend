@@ -88,6 +88,17 @@ public class WorkingTimeUtil {
         return (double) overtime.toMinutes() / 60;
     }
 
+    public Duration getDurationFromTimeString(String timeString) {
+        if (timeString == null || timeString.isEmpty()) {
+            throw new IllegalArgumentException("Time string cannot be null or empty.");
+        }
+        if (!timeString.contains(":")) {
+            throw new IllegalArgumentException(String.format("Invalid time string %s. Expected format is 'HH:MM'.", timeString));
+        }
+        String[] parts = timeString.split(":");
+        return Duration.parse(String.format("PT%sH%sM", parts[0], parts[1]));
+    }
+
     private static Map.Entry<DayOfWeek, Long> removeAbsenceDays(Map.Entry<DayOfWeek, Long> workingDayEntry,
                                                                 Map<DayOfWeek, Long> absenceDaysCountMap) {
         return Map.entry(
@@ -155,11 +166,10 @@ public class WorkingTimeUtil {
         }
 
         return AbsenceTime.builder()
-            .accepted(fehlzeit.accepted())
-            .reason(fehlzeit.reason())
-            .toDate(toDate)
-            .fromDate(fromDate)
-            .build();
-
+                .accepted(fehlzeit.accepted())
+                .reason(fehlzeit.reason())
+                .toDate(toDate)
+                .fromDate(fromDate)
+                .build();
     }
 }

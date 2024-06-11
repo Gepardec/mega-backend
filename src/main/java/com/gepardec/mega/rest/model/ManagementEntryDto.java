@@ -35,6 +35,8 @@ public class ManagementEntryDto {
 
     private final String nonBillableTime;
 
+    private final double percentageOfHoursSpentInThisProject;
+
     private ManagementEntryDto(Builder builder) {
         this.employee = builder.employee;
         this.employeeCheckState = builder.employeeCheckState;
@@ -47,6 +49,7 @@ public class ManagementEntryDto {
         this.entryDate = builder.entryDate;
         this.billableTime = builder.billableTime;
         this.nonBillableTime = builder.nonBillableTime;
+        this.percentageOfHoursSpentInThisProject = builder.percentageOfHoursSpentInThisProject;
     }
 
     public static Builder builder() {
@@ -112,6 +115,10 @@ public class ManagementEntryDto {
         return nonBillableTime;
     }
 
+    public double getPercentageOfHoursSpentInThisProject() {
+        return percentageOfHoursSpentInThisProject;
+    }
+
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
         private EmployeeDto employee;
@@ -125,6 +132,7 @@ public class ManagementEntryDto {
         private String entryDate;
         private String billableTime;
         private String nonBillableTime;
+        private double percentageOfHoursSpentInThisProject;
 
         private Builder() {
         }
@@ -185,6 +193,11 @@ public class ManagementEntryDto {
 
         public Builder nonBillableTime(String nonBillableTime) {
             this.nonBillableTime = nonBillableTime;
+            return this;
+        }
+
+        public Builder percentageOfHoursSpentInThisProject(double percentageOfHoursSpentInThisProject) {
+            this.percentageOfHoursSpentInThisProject = percentageOfHoursSpentInThisProject;
             return this;
         }
 

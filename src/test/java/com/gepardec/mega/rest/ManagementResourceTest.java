@@ -7,6 +7,9 @@ import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.project.ProjectEntry;
 import com.gepardec.mega.db.entity.project.ProjectStep;
 import com.gepardec.mega.domain.model.*;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
+import com.gepardec.mega.domain.model.monthlyreport.Task;
+import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.rest.model.ManagementEntryDto;
 import com.gepardec.mega.rest.model.ProjectManagementEntryDto;
 import com.gepardec.mega.service.api.CommentService;
@@ -15,6 +18,7 @@ import com.gepardec.mega.service.api.ProjectEntryService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.impl.Rest;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import io.quarkus.test.security.TestSecurity;
@@ -28,6 +32,7 @@ import org.mockito.ArgumentMatchers;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static io.restassured.RestAssured.given;
@@ -55,6 +60,7 @@ class ManagementResourceTest {
     ProjectEntryService projectEntryService;
 
     @InjectMock
+    @Rest
     ZepService zepService;
 
     @InjectMock
@@ -312,8 +318,15 @@ class ManagementResourceTest {
                 ArgumentMatchers.anyString(), any(LocalDate.class)
         )).thenReturn(getProjectTimeTypeList());
 
+        when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class)))
+                .thenReturn(createProjectEntries());
+
+        when(workingTimeUtil.getTotalWorkingTimeForEmployee(any(), any(Employee.class))).thenReturn("25:00");
         when(workingTimeUtil.getInternalTimesForEmployee(anyList(), any(Employee.class))).thenReturn("01:00");
         when(workingTimeUtil.getBillableTimesForEmployee(anyList(), any(Employee.class))).thenReturn("02:00");
+        when(workingTimeUtil.getDurationFromTimeString(("01:00"))).thenReturn(Duration.ofHours(1));
+        when(workingTimeUtil.getDurationFromTimeString(("02:00"))).thenReturn(Duration.ofHours(2));
+        when(workingTimeUtil.getDurationFromTimeString(("25:00"))).thenReturn(Duration.ofHours(25));
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
                 .get("/management/projectmanagemententries/2020/09")
@@ -350,6 +363,7 @@ class ManagementResourceTest {
         // assert billable/non billable time
         assertThat(result.get(0).getAggregatedBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(240));
         assertThat(result.get(0).getAggregatedNonBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(120));
+        assertThat(result.get(0).getEntries().get(0).getPercentageOfHoursSpentInThisProject()).isEqualTo(12);
     }
 
     @Test
@@ -395,6 +409,9 @@ class ManagementResourceTest {
                 ArgumentMatchers.anyString(), any(LocalDate.class)
         )).thenReturn(getProjectTimeTypeList());
 
+        when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class)))
+                .thenReturn(List.of());
+
         when(workingTimeUtil.getBillableTimesForEmployee(anyList(), any(Employee.class))).thenReturn("00:00");
         when(workingTimeUtil.getInternalTimesForEmployee(anyList(), any(Employee.class))).thenReturn("00:00");
 
@@ -433,6 +450,7 @@ class ManagementResourceTest {
         // assert billable/non billable time
         assertThat(result.get(0).getAggregatedBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(0));
         assertThat(result.get(0).getAggregatedNonBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(0));
+        assertThat(result.get(0).getEntries().get(0).getPercentageOfHoursSpentInThisProject()).isEqualTo(0);
     }
 
     @Test
@@ -616,5 +634,50 @@ class ManagementResourceTest {
         timeType.add(projektzeitType2);
 
         return timeType;
+    }
+
+    private List<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry> createProjectEntries() {
+        List<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry> projectEntries = new ArrayList<>();
+        projectEntries.add(
+                createEntry(LocalDateTime.of(2024, 5, 21, 14, 30),
+                        LocalDateTime.of(2024, 5, 21, 16, 30))
+        );
+
+        projectEntries.add(
+                createEntry(LocalDateTime.of(2024, 5, 21, 16, 30),
+                        LocalDateTime.of(2024, 5, 21, 18, 30))
+        );
+
+        projectEntries.add(
+                createEntry(LocalDateTime.of(2024, 5, 27, 8, 0),
+                        LocalDateTime.of(2024, 5, 27, 14, 0))
+        );
+
+        projectEntries.add(
+                createEntry(LocalDateTime.of(2024, 5, 28, 8, 0),
+                        LocalDateTime.of(2024, 5, 28, 14, 0))
+        );
+
+        projectEntries.add(
+                createEntry(LocalDateTime.of(2024, 5, 29, 8, 0),
+                        LocalDateTime.of(2024, 5, 29, 14, 0))
+        );
+
+        projectEntries.add(
+                createEntry(LocalDateTime.of(2024, 5, 31, 9, 0),
+                        LocalDateTime.of(2024, 5, 31, 12, 0))
+        );
+
+        return projectEntries;
+    }
+
+    private com.gepardec.mega.domain.model.monthlyreport.ProjectEntry createEntry(LocalDateTime from, LocalDateTime to) {
+        return ProjectTimeEntry.builder()
+                .fromTime(from)
+                .toTime(to)
+                .task(Task.BEARBEITEN)
+                .workingLocation(WorkingLocation.MAIN)
+                .process("1033")
+                .build();
     }
 }
