@@ -4,11 +4,8 @@ import com.gepardec.mega.domain.model.ProjectTime;
 import de.provantis.zep.ProjektzeitType;
 import jakarta.enterprise.context.ApplicationScoped;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ProjectTimeMapper {

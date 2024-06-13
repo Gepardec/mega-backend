@@ -10,11 +10,15 @@ import com.gepardec.mega.domain.model.*;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
+import com.gepardec.mega.domain.utils.DateUtils;
+import com.gepardec.mega.rest.api.ManagementResource;
+import com.gepardec.mega.rest.model.CustomerProjectWithoutLeadsDto;
 import com.gepardec.mega.rest.model.ManagementEntryDto;
 import com.gepardec.mega.rest.model.ProjectManagementEntryDto;
 import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.ProjectEntryService;
+import com.gepardec.mega.service.api.ProjectService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
@@ -26,9 +30,12 @@ import io.quarkus.test.security.oidc.Claim;
 import io.quarkus.test.security.oidc.OidcSecurity;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.MockedStatic;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -37,7 +44,9 @@ import java.util.*;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -68,6 +77,12 @@ class ManagementResourceTest {
 
     @InjectMock
     UserContext userContext;
+
+    @InjectMock
+    ProjectService projectService;
+
+    @Inject
+    ManagementResource managementResource;
 
     @Test
     @TestSecurity
@@ -558,6 +573,55 @@ class ManagementResourceTest {
                 });
 
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void getProjectsWithoutLeads_whenUserIsNotNull_thenReturnDto() {
+        final User user = createUserForRole(Role.PROJECT_LEAD);
+        when(userContext.getUser())
+                .thenReturn(user);
+
+        try (MockedStatic<DateUtils> dateUtilsMockedStatic = mockStatic(DateUtils.class)) {
+            dateUtilsMockedStatic.when(DateUtils::getFirstDayOfCurrentMonth)
+                    .thenReturn(LocalDate.of(2024, 5, 4));
+
+            when(projectService.getProjectsForMonthYear(any(LocalDate.class), any()))
+                    .thenReturn(createProjectList());
+
+            Response actual = managementResource.getProjectsWithoutLeads();
+
+            assertThat(actual.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+            List<CustomerProjectWithoutLeadsDto> resultList = (List<CustomerProjectWithoutLeadsDto>) actual.getEntity();
+
+            assertThat(resultList).hasSize(2);
+            assertThat(resultList.get(0).getProjectName()).isEqualTo(createProjectList().get(0).getProjectId());
+
+        }
+
+    }
+
+    private List<Project> createProjectList() {
+        List<Project> projects = new ArrayList<>();
+        projects.add(
+                Project.builder()
+                        .projectId("ABC")
+                        .zepId(1)
+                        .leads(List.of())
+                        .categories(List.of("CUST"))
+                        .build()
+        );
+
+        projects.add(
+                Project.builder()
+                        .projectId("DEF")
+                        .zepId(2)
+                        .leads(List.of())
+                        .categories(List.of("CUST"))
+                        .build()
+        );
+
+       return projects;
     }
 
     private Step createStep(StepName stepName) {

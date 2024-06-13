@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
 import static org.assertj.core.api.Assertions.assertThat;
