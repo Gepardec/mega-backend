@@ -17,6 +17,11 @@ class AbsenceTimeMapperTest {
         assertThat(AbsenceTimeMapper.map(null)).isNull();
     }
 
+    @Test
+    void mapList_whenNull_thenReturnsNull() {
+        assertThat(AbsenceTimeMapper.mapList(null)).isNull();
+    }
+
 
     @Test
     void withFullSettings_thenReturnsAbsenceTimeObject() {

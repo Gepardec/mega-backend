@@ -56,6 +56,12 @@ class ProjectTimeMapperTest {
     void whenEmptyList_thenReturnsEmptyList() {
         assertThat(ProjectTimeMapper.mapList(List.of())).isEmpty();
     }
+
+    @Test
+    void whenListIsNull_thenReturnNull() {
+        assertThat(ProjectTimeMapper.mapList(null)).isNull();
+    }
+
     @Test
     void whenList_thenReturnList() {
         ProjektzeitType pzt = new ProjektzeitType();

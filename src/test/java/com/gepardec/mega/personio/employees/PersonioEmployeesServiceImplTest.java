@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -108,6 +109,23 @@ class PersonioEmployeesServiceImplTest {
 
         //THEN
         assertThat(result).isEqualTo(createValidAbsenceBalanceResponseData().get(0).getAvailableBalance());
+    }
+
+    @Test
+    void getAvailableVacationDaysForEmployeeByEmail_whenNoDaysAvailable_thenReturnZero() {
+        //GIVEN
+        var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
+        employeesResponse.setSuccess(true);
+        employeesResponse.setData(List.of());
+
+        when(personioEmployeesClient.getByEmail(anyString()))
+                .thenReturn(employeesResponse);
+
+        //WHEN
+        var result = personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail("mega.test@gepardec.com");
+
+        //THEN
+        assertThat(result).isZero();
     }
 
     @Test

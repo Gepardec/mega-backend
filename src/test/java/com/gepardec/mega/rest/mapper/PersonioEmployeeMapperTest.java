@@ -42,6 +42,38 @@ public class PersonioEmployeeMapperTest {
     public void mapToDto_whenFullDomain_thenReturnDtoWithRelevantFields() {
         assertThat(personioEmployeeMapper.mapToDto(domain)).usingRecursiveComparison().isEqualTo(dto);
     }
+
+    @Test
+    public void mapToDto_whenHasCreditCardFalse_thenReturnDtoWithRelevantFields() {
+        PersonioEmployee domain = PersonioEmployee.builder()
+                .email("testuser@testmail.com")
+                .vacationDayBalance(0.0)
+                .guildLead(null)
+                .hasCreditCard(false)
+                .internalProjectLead(null)
+                .build();
+
+        PersonioEmployeeDto actual = personioEmployeeMapper.mapToDto(domain);
+
+        assertThat(actual.hasCreditCard().getValue()).isEqualTo("");
+    }
+
+
+    @Test
+    public void mapToDomain_whenDtoWithGuildLeadAndInternalProjectLeadNull_thenReturnFullDomain() {
+        PersonioEmployeeDto personioEmployeeDto = PersonioEmployeeDto.builder()
+                .email(Attribute.ofValue("testuser@testmail.com"))
+                .hasCreditCard(Attribute.ofValue("Ja"))
+                .build();
+
+
+        PersonioEmployee actualDomain = personioEmployeeMapper.mapToDomain(personioEmployeeDto);
+
+        assertThat(actualDomain.getGuildLead()).isNull();
+        assertThat(actualDomain.getInternalProjectLead()).isNull();
+
+    }
+
     @Test
     public void mapToDomain_whenDtoWithRelevantFields_thenReturnFullDomain() {
         assertThat(personioEmployeeMapper.mapToDomain(dto)).usingRecursiveComparison().isEqualTo(domain);

@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class AbsenceService {

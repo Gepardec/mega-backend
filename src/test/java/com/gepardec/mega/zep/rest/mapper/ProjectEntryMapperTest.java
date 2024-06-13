@@ -1,12 +1,20 @@
 package com.gepardec.mega.zep.rest.mapper;
 
-import com.gepardec.mega.domain.model.monthlyreport.*;
+import com.gepardec.mega.domain.model.monthlyreport.JourneyDirection;
+import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
+import com.gepardec.mega.domain.model.monthlyreport.Task;
+import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
+import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
 import com.gepardec.mega.zep.rest.dto.ZepAttendanceDirectionOfTravel;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,12 +24,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
 
 @QuarkusTest
 class ProjectEntryMapperTest {
 
     @Inject
     ProjectEntryMapper projectEntryMapper;
+
+    @InjectMock
+    Logger logger;
 
     @Test
     public void mapZepAttendanceToProjectEntry() {
@@ -61,6 +73,17 @@ class ProjectEntryMapperTest {
         JourneyTimeEntry expectedProjectEntry = generateJourneyTimeWithOtherValuesEntry();
 
         assertThat(mappedProjectEntry).usingRecursiveComparison().isEqualTo(expectedProjectEntry);
+    }
+
+    @Test
+    void map_whenZepAttendanceIsNull_thenReturnNullAndLogMessage() {
+        assertThat(projectEntryMapper.map(null)).isNull();
+        verify(logger).info("ZEP REST implementation -- While trying to map zepAttendance to ProjectEntry, zepAttendance was null");
+    }
+
+    @Test
+    void mapList_whenZepAttendanceListIsNull_thenReturnNull() {
+        assertThat(projectEntryMapper.mapList(null)).isNull();
     }
 
     @Test

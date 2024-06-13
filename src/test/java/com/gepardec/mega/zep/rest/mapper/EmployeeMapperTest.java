@@ -4,9 +4,12 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.zep.rest.dto.ZepEmployee;
 import com.gepardec.mega.zep.rest.dto.ZepLanguage;
 import com.gepardec.mega.zep.rest.dto.ZepSalutation;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.Iterator;
@@ -18,12 +21,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 class EmployeeMapperTest {
 
     @Inject
-    Mapper<Employee, ZepEmployee> employeeMapper;
+    EmployeeMapper employeeMapper;
+
+    @InjectMock
+    Logger logger;
     
 
 
     @Test
-    public void mapZepEmployeeToEmployee() {
+    void mapZepEmployeeToEmployee() {
 //    List<ZepEmploymentPeriod> employmentPeriods = List.of(
 //            ZepEmploymentPeriod.builder()
 //                    .startDate(LocalDateTime.of(2010,1,2, 23, 32, 48))
@@ -68,7 +74,7 @@ class EmployeeMapperTest {
     }
 
     @Test
-    public void mapZepEmployeesToEmployees() {
+    void mapZepEmployeesToEmployees() {
         ZepEmployee[] zepEmployeesArr = {
                 ZepEmployee.builder()
                         .username("000")
@@ -92,5 +98,12 @@ class EmployeeMapperTest {
                             assertThat(employee.getUserId()).isEqualTo(zepEmployee.username());
                             assertThat(employee.getEmail()).isEqualTo(zepEmployee.email());
                         });
+    }
+
+    @Test
+    void map_whenZepEmployeeIsNull_returnsNullAndLogsMessage() {
+        assertThat(employeeMapper.map(null)).isNull();
+
+        Mockito.verify(logger).info("ZEP REST implementation -- While trying to map ZepEmployee to Employee, ZepEmployee was null");
     }
 }

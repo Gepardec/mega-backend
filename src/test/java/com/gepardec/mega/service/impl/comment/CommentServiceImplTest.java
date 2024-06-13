@@ -235,6 +235,43 @@ class CommentServiceImplTest {
         assertThat(updatedComment.getMessage()).isEqualTo("Updated message");
     }
 
+    @Test
+    void deleteComment_whenSuccess_thenDeleteAndSendMail() {
+        Long commentId = 1L;
+        com.gepardec.mega.db.entity.employee.Comment commentEntity = createComment(commentId, EmployeeState.IN_PROGRESS);
+        when(commentRepository.findById(commentId)).thenReturn(commentEntity);
+        when(commentRepository.deleteComment(commentId)).thenReturn(true);
+
+        doNothing().when(mailSender).send(
+                ArgumentMatchers.any(Mail.class),
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.anyString(),
+                ArgumentMatchers.any(Locale.class),
+                ArgumentMatchers.anyMap(),
+                ArgumentMatchers.anyList()
+        );
+
+        boolean deleted = commentService.delete(commentId);
+
+        assertThat(deleted).isTrue();
+        verify(commentRepository, times(1)).findById(commentId);
+        verify(commentRepository, times(1)).deleteComment(commentId);
+    }
+
+    @Test
+    void deleteComment_whenNoSuccess_thenReturnFalse() {
+        Long commentId = 1L;
+        com.gepardec.mega.db.entity.employee.Comment commentEntity = createComment(commentId, EmployeeState.IN_PROGRESS);
+        when(commentRepository.findById(commentId)).thenReturn(commentEntity);
+        when(commentRepository.deleteComment(commentId)).thenReturn(false);
+
+        boolean deleted = commentService.delete(commentId);
+
+        assertThat(deleted).isFalse();
+        verify(commentRepository, times(1)).findById(commentId);
+        verify(commentRepository, times(1)).deleteComment(commentId);
+    }
+
     private com.gepardec.mega.db.entity.employee.Comment createComment(Long id, EmployeeState employeeState) {
         com.gepardec.mega.db.entity.employee.Comment comment = new com.gepardec.mega.db.entity.employee.Comment();
         comment.setId(id);

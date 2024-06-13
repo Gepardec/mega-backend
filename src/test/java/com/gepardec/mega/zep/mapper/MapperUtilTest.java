@@ -42,4 +42,9 @@ class MapperUtilTest {
         assertThat(attributesMap.get(attribute2.getName())).isEqualTo(attribute2.getValue());
 
     }
+
+    @Test
+    void whenNoAttributes_thenReturnsEmptyMap() {
+        assertThat(MapperUtil.convertAttributesToMap(null)).isEmpty();
+    }
 }

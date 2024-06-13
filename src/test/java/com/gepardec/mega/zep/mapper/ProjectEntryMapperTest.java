@@ -50,6 +50,11 @@ class ProjectEntryMapperTest {
     }
 
     @Test
+    void mapList_whenNull_thenReturnsNull() {
+        assertThat(mapper.mapList(null)).isNull();
+    }
+
+    @Test
     void withTaetigkeitIsNotATask_thenThrowsIllegalArgumentException() {
         ProjektzeitType projektzeitType = projektzeitTypeFor("testen", WorkingLocation.MAIN.zepOrt, JourneyDirection.TO.getDirection(),
                 Vehicle.OTHER_INACTIVE.id);

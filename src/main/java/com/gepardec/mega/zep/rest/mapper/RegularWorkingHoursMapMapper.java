@@ -7,7 +7,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
 @ApplicationScoped

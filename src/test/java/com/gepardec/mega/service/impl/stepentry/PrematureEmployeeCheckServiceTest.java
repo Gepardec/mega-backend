@@ -15,6 +15,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -71,6 +72,85 @@ public class PrematureEmployeeCheckServiceTest {
 //        When & Then
         assertThat(prematureEmployeeCheckService.create(prematureEmployeeCheck)).isFalse();
     }
+
+    @Test
+    public void updatePrematureEmployeeCheck_validUpdate_returnTrue() {
+        PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
+                .id(1L)
+                .user(createUserForRole(Role.EMPLOYEE))
+                .forMonth(LocalDate.of(2023, 10, 1))
+                .state(PrematureEmployeeCheckState.DONE)
+                .build();
+
+        PrematureEmployeeCheckEntity entity = createDBPrematureEmployeeCheck(1L);
+
+        when(prematureEmployeeCheckRepository.findById(any())).thenReturn(entity);
+        when(prematureEmployeeCheckMapper.mapToEntity(any(), any())).thenReturn(entity);
+        when(prematureEmployeeCheckRepository.update(any())).thenReturn(entity);
+
+        assertThat(prematureEmployeeCheckService.update(prematureEmployeeCheck)).isTrue();
+    }
+
+    @Test
+    public void updatePrematureEmployeeCheck_updateFails_returnFalse() {
+        PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
+                .id(1L)
+                .user(createUserForRole(Role.EMPLOYEE))
+                .forMonth(LocalDate.of(2023, 10, 1))
+                .state(PrematureEmployeeCheckState.DONE)
+                .build();
+
+        PrematureEmployeeCheckEntity entity = createDBPrematureEmployeeCheck(null);
+
+        when(prematureEmployeeCheckRepository.findById(any())).thenReturn(entity);
+        when(prematureEmployeeCheckMapper.mapToEntity(any(), any())).thenReturn(entity);
+        when(prematureEmployeeCheckRepository.update(any())).thenReturn(entity);
+
+        assertThat(prematureEmployeeCheckService.update(prematureEmployeeCheck)).isFalse();
+    }
+
+    @Test
+    public void findAllForMonth_validMonth_returnList() {
+        LocalDate date = LocalDate.of(2023, 10, 1);
+        List<PrematureEmployeeCheckEntity> entityList = List.of(createDBPrematureEmployeeCheck(1L));
+        List<PrematureEmployeeCheck> dtoList = List.of(PrematureEmployeeCheck.builder().build());
+
+        when(prematureEmployeeCheckRepository.findAllForMonth(date)).thenReturn(entityList);
+        when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(dtoList);
+
+        assertThat(prematureEmployeeCheckService.findAllForMonth(date)).isEqualTo(dtoList);
+    }
+
+    @Test
+    public void deleteAllForMonthWithState_validRequest_returnCount() {
+        LocalDate date = LocalDate.of(2023, 10, 1);
+        List<PrematureEmployeeCheckState> states = List.of(PrematureEmployeeCheckState.DONE);
+        long expectedCount = 5L;
+
+        when(prematureEmployeeCheckRepository.deleteByMonthAndStates(date, states)).thenReturn(expectedCount);
+
+        assertThat(prematureEmployeeCheckService.deleteAllForMonthWithState(date, states)).isEqualTo(expectedCount);
+    }
+
+    @Test
+    public void deleteById_validId_returnTrue() {
+        Long id = 1L;
+
+        when(prematureEmployeeCheckRepository.delete(id)).thenReturn(true);
+
+        assertThat(prematureEmployeeCheckService.deleteById(id)).isTrue();
+    }
+
+    @Test
+    public void deleteById_invalidId_returnFalse() {
+        Long id = 1L;
+
+        when(prematureEmployeeCheckRepository.delete(id)).thenReturn(false);
+
+        assertThat(prematureEmployeeCheckService.deleteById(id)).isFalse();
+    }
+
+
 
     private User createUserForRole(final Role role) {
         return User.builder()
