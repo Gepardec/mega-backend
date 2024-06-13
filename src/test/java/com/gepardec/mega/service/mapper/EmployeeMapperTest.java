@@ -5,6 +5,7 @@ import com.gepardec.mega.domain.utils.DateUtils;
 import de.provantis.zep.BeschaeftigungszeitListeType;
 import de.provantis.zep.BeschaeftigungszeitType;
 import de.provantis.zep.MitarbeiterType;
+import io.quarkus.test.junit.QuarkusTest;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,10 +18,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@QuarkusTest
 class EmployeeMapperTest {
 
     private EmployeeMapper mapper;

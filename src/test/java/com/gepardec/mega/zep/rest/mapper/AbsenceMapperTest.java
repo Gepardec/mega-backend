@@ -3,15 +3,18 @@ package com.gepardec.mega.zep.rest.mapper;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
 import com.gepardec.mega.zep.rest.dto.ZepAbsenceReason;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 @QuarkusTest
 class AbsenceMapperTest {
@@ -19,8 +22,11 @@ class AbsenceMapperTest {
     @Inject
     AbsenceMapper absenceMapper;
 
+    @InjectMock
+    Logger logger;
+
     @Test
-    public void mapZepAbsenceToAbsenceTime() {
+    void mapZepAbsenceToAbsenceTime() {
         ZepAbsenceReason zepAbsenceReason = ZepAbsenceReason.builder().name("KR").build();
         ZepAbsence zepAbsence = ZepAbsence.builder()
                 .id(1)
@@ -41,7 +47,37 @@ class AbsenceMapperTest {
     }
 
     @Test
-    public void mapZepAbsencesToAbsenceTimes() {
+    void mapZepAbsenceToAbsenceTime_whenReasonIsNull_thenReturnAbsenceTimeWithoutReason() {
+        ZepAbsence zepAbsence = ZepAbsence.builder()
+                .id(1)
+                .employeeId("001")
+                .startDate(LocalDate.of(2019, 1, 2))
+                .endDate(LocalDate.of(2019, 1, 5))
+                .absenceReason(null)
+                .approved(true)
+                .build();
+
+        AbsenceTime absence = absenceMapper.map(zepAbsence);
+
+        assertThat(absence.userId()).isEqualTo(zepAbsence.employeeId());
+        assertThat(absence.fromDate()).isEqualTo(zepAbsence.startDate());
+        assertThat(absence.toDate()).isEqualTo(zepAbsence.endDate());
+        assertThat(absence.reason()).isEqualTo("");
+        assertThat(absence.accepted()).isEqualTo(zepAbsence.approved());
+    }
+
+    @Test
+    void mapZepAbsenceToAbsenceTime_whenZepAbsenceIsNull_thenReturnNullAndLogMessage() {
+        ZepAbsence zepAbsence = null;
+
+        AbsenceTime absence = absenceMapper.map(zepAbsence);
+
+        assertThat(absence).isNull();
+        verify(logger).info("ZEP REST implementation -- While trying to map ZepAbsence to AbsenceTime, ZepAbsence was null");
+    }
+
+    @Test
+    void mapZepAbsencesToAbsenceTimes() {
         ZepAbsence[] zepAbsencesArr = {
                 ZepAbsence.builder()
                         .id(1)

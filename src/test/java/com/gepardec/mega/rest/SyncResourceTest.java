@@ -9,7 +9,11 @@ import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.SyncResource;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
+import com.gepardec.mega.service.api.EnterpriseSyncService;
+import com.gepardec.mega.service.api.PrematureEmployeeCheckSyncService;
+import com.gepardec.mega.service.api.ProjectSyncService;
 import com.gepardec.mega.service.api.StepEntryService;
+import com.gepardec.mega.service.api.StepEntrySyncService;
 import com.gepardec.mega.zep.ZepService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -17,13 +21,19 @@ import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.oidc.Claim;
 import io.quarkus.test.security.oidc.OidcSecurity;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,6 +41,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -38,7 +49,7 @@ import static org.mockito.Mockito.when;
 @OidcSecurity(claims = {
         @Claim(key = "email", value = "test@gepardec.com")
 })
-public class SyncResourceTest {
+class SyncResourceTest {
 
     @InjectMock
     EmployeeService employeeService;
@@ -204,6 +215,69 @@ public class SyncResourceTest {
         List<EmployeeDto> actual = syncResource.updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
 
         assertThat(actual).isEmpty();
+    }
+
+    @Test
+    void testSyncEmployees_returnsStatusOK() {
+        Response response = syncResource.syncEmployees();
+        assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    static Stream<Arguments> parameters() {
+        return Stream.of(
+                Arguments.of(null, YearMonth.of(2023, 6)),
+                Arguments.of(YearMonth.of(2023, 6), null),
+                Arguments.of(YearMonth.of(2023, 3), YearMonth.of(2023, 6))
+
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("parameters")
+    public void testSyncProjects(YearMonth from, YearMonth to) {
+        ProjectSyncService projectSyncService = mock(ProjectSyncService.class);
+        when(projectSyncService.generateProjects(any()))
+                .thenReturn(true);
+
+        Response response = syncResource.syncProjects(from, to);
+
+        assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+    }
+
+    @ParameterizedTest
+    @MethodSource("parameters")
+    public void testGenerateEnterpriseEntries(YearMonth from, YearMonth to) {
+        EnterpriseSyncService enterpriseSyncService = mock(EnterpriseSyncService.class);
+        when(enterpriseSyncService.generateEnterpriseEntries(any(LocalDate.class)))
+                .thenReturn(true);
+
+        Response response = syncResource.generateEnterpriseEntries(from, to);
+
+        assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+    }
+
+    @ParameterizedTest
+    @MethodSource("parameters")
+    public void testGenerateStepEntries(YearMonth from, YearMonth to) {
+        StepEntrySyncService stepEntrySyncService = mock(StepEntrySyncService.class);
+        when(stepEntrySyncService.generateStepEntries(any()))
+                .thenReturn(true);
+
+        Response response = syncResource.generateStepEntries(from, to);
+
+        assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+    }
+
+    @ParameterizedTest
+    @MethodSource("parameters")
+    public void testSyncPrematureEmployeeChecks(YearMonth from, YearMonth to) {
+        PrematureEmployeeCheckSyncService prematureEmployeeCheckSyncService = mock(PrematureEmployeeCheckSyncService.class);
+        when(prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(any()))
+                .thenReturn(true);
+
+        Response response = syncResource.syncPrematureEmployeeChecks(from, to);
+
+        assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
     }
 
     //helpers

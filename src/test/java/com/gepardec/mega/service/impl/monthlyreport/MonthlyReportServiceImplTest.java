@@ -31,7 +31,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -46,6 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -77,7 +77,7 @@ class MonthlyReportServiceImplTest {
 
     @BeforeEach
     void init() {
-        mockStatic = Mockito.mockStatic(UserContext.class);
+        mockStatic = mockStatic(UserContext.class);
 
         User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
@@ -526,6 +526,7 @@ class MonthlyReportServiceImplTest {
                 () -> assertThat(monthendReportForUser.getTimeWarnings()).isEmpty()
         );
     }
+
 
     private List<AbsenceTime> createVacationAbsenceList() {
         List<AbsenceTime> absenceList = new ArrayList<>();

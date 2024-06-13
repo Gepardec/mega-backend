@@ -18,7 +18,7 @@ class ActiveMapperTest {
     ActiveMapper activeMapper;
 
     @Test
-    public void map_whenPastStartDateFutureEndDate_isActive() {
+    void map_whenPastStartDateFutureEndDate_isActive() {
         var employmentPeriods = createEmploymentPeriodListFromTodayOffset(
                 new DateOffset(-10, 2)
         );
@@ -28,7 +28,7 @@ class ActiveMapperTest {
         assertThat(active).isTrue();
     }
     @Test
-    public void map_whenTodayStartEndDate_isActive() {
+    void map_whenTodayStartEndDate_isActive() {
         var employmentPeriods = createEmploymentPeriodListFromTodayOffset(
                 new DateOffset(0, 0)
         );
@@ -39,7 +39,7 @@ class ActiveMapperTest {
     }
 
     @Test
-    public void map_whenPastStartDateTodayEndDate_isActive() {
+    void map_whenPastStartDateTodayEndDate_isActive() {
         var employmentPeriods = createEmploymentPeriodListFromTodayOffset(
                 new DateOffset(-2, 0)
         );
@@ -50,7 +50,7 @@ class ActiveMapperTest {
     }
 
     @Test
-    public void map_whenTodayStartDateFutureEndDate_isActive() {
+    void map_whenTodayStartDateFutureEndDate_isActive() {
         var employmentPeriods = createEmploymentPeriodListFromTodayOffset(
                 new DateOffset(0, 1)
         );
@@ -61,7 +61,7 @@ class ActiveMapperTest {
     }
 
     @Test
-    public void map_whenNullEndDate_isActive() {
+    void map_whenNullEndDate_isActive() {
         var employmentPeriods = List.of(
             createEmploymentPeriodWithNullEndDate(-2)
         );
@@ -72,7 +72,7 @@ class ActiveMapperTest {
     }
 
     @Test
-    public void map_whenMultipleInactiveDatesWithOneNullEndDate_isActive() {
+    void map_whenMultipleInactiveDatesWithOneNullEndDate_isActive() {
         var employmentPeriods = createEmploymentPeriodListFromTodayOffset(
                 new DateOffset(-100, -50),
                 new DateOffset(-50, -25),
@@ -87,7 +87,7 @@ class ActiveMapperTest {
     }
 
     @Test
-    public void map_whenMultipleInactiveDatesWithFutureEndDate_isActive() {
+    void map_whenMultipleInactiveDatesWithFutureEndDate_isActive() {
         var employmentPeriods = createEmploymentPeriodListFromTodayOffset(
                 new DateOffset(-100, -50),
                 new DateOffset(-50, -25),
@@ -101,7 +101,7 @@ class ActiveMapperTest {
     }
 
     @Test
-    public void map_whenActiveDatePlusNullDate_isActive() {
+    void map_whenActiveDatePlusNullDate_isActive() {
         var employmentPeriods = createEmploymentPeriodListFromTodayOffset(
                 new DateOffset(-100, 2)
         );
@@ -113,7 +113,7 @@ class ActiveMapperTest {
     }
 
     @Test
-    public void map_whenMultipleActiveDates_isActive() {
+    void map_whenMultipleActiveDates_isActive() {
         var employmentPeriods = createEmploymentPeriodListFromTodayOffset(
                 new DateOffset(-2, 10),
                 new DateOffset(-2, 10)
@@ -125,7 +125,7 @@ class ActiveMapperTest {
     }
 
     @Test
-    public void map_whenPastStartEndDate_isInactive() {
+    void map_whenPastStartEndDate_isInactive() {
         var employmentPeriods = createEmploymentPeriodListFromTodayOffset(
             new DateOffset(-10, -2)
         );
@@ -136,7 +136,7 @@ class ActiveMapperTest {
     }
 
     @Test
-    public void map_whenFutureStartEndDate_isInactive() {
+    void map_whenFutureStartEndDate_isInactive() {
         var employmentPeriods = createEmploymentPeriodListFromTodayOffset(
             new DateOffset(2, 2)
         );
@@ -147,7 +147,7 @@ class ActiveMapperTest {
     }
 
     @Test
-    public void map_whenEmptyList_isInactive() {
+    void map_whenEmptyList_isInactive() {
         List<ZepEmploymentPeriod> employmentPeriods = List.of();
 
         boolean active = activeMapper.map(employmentPeriods);
@@ -156,7 +156,7 @@ class ActiveMapperTest {
     }
 
     @Test
-    public void map_whenNullStartDate_isInactive() {
+    void map_whenNullStartDate_isInactive() {
         var employmentPeriods = List.of(
             createEmploymentPeriodWithNullStartDate(2)
         );
@@ -166,13 +166,18 @@ class ActiveMapperTest {
     }
 
     @Test
-    public void map_whenNullPeriod_isInactive() {
+    void map_whenNullPeriod_isInactive() {
         var employmentPeriods = List.of(
             createEmploymentPeriodWithNullDates()
         );
 
         boolean active = activeMapper.map(employmentPeriods);
         assertThat(active).isFalse();
+    }
+
+    @Test
+    void map_whenEmploymentPeriodListIsEmpty_thenReturnFalse() {
+        assertThat(activeMapper.map(null)).isFalse();
     }
 
     private ZepEmploymentPeriod createEmploymentPeriodWithNullEndDate(int offsetStart) {
