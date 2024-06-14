@@ -62,14 +62,29 @@ quarkus:
     password: "${DB_PASSWORD}"
     jdbc:
       url: "${DB_JDBC_URL}"
+      telemetry: true
     metrics:
       enabled: true
+
 
   rest-client:
     personio-api-v1:
       url: "https://api.personio.de/v1"
     zep:
       url: "${mega.zep.origin}/next/api/v1/"
+
+
+  otel:
+    exporter:
+      otlp:
+        traces:
+          endpoint: "https://tempo-prod-10-prod-eu-west-2.grafana.net/tempo"
+          headers: "authorization=Basic ${TEMPO_TOKEN}"
+    resource-attributes: "service.name=mega-backend,stage.name=${STAGE}"
+
+
+
+
 
 # disables the DefaultResponseExceptionMapper of the microprofile resteasy client
 microprofile:
@@ -78,6 +93,7 @@ microprofile:
       disable:
         default:
           mapper: true
+
 
 mega:
   info:
@@ -186,9 +202,10 @@ mp:
 "%test":
   quarkus:
     rest-client:
-        zep:
-          url: "${mega.zep.origin}/next/api/v1/"
+      zep:
+        url: "${mega.zep.origin}/next/api/v1/"
     log:
+      level: "DEBUG"
       console:
         format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
 
