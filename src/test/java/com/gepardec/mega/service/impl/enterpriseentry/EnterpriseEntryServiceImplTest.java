@@ -3,7 +3,6 @@ package com.gepardec.mega.service.impl.enterpriseentry;
 import com.gepardec.mega.db.entity.common.State;
 import com.gepardec.mega.db.entity.enterprise.EnterpriseEntry;
 import com.gepardec.mega.db.repository.EnterpriseEntryRepository;
-import com.gepardec.mega.domain.model.ProjectEntry;
 import com.gepardec.mega.domain.model.ProjectState;
 import com.gepardec.mega.rest.model.EnterpriseEntryDto;
 import com.gepardec.mega.service.api.EnterpriseEntryService;
@@ -18,7 +17,6 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
