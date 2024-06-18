@@ -7,7 +7,6 @@ import com.gepardec.mega.domain.model.MonthlyBillInfo;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
-import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.zep.impl.Rest;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
@@ -27,7 +26,6 @@ import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
