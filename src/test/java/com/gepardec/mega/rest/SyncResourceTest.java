@@ -12,18 +12,23 @@ import com.gepardec.mega.rest.api.SyncResource;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
 
+import com.gepardec.mega.service.api.ProjectSyncService;
 import com.gepardec.mega.service.api.StepEntryService;
+import com.gepardec.mega.service.api.SyncService;
 import com.gepardec.mega.zep.ZepService;
+import io.quarkus.arc.properties.IfBuildProperty;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
 
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +41,6 @@ import static org.mockito.Mockito.*;
 public class SyncResourceTest {
     @InjectMock
     EmployeeService employeeService;
-
 
     @InjectMock
     ZepService zepService;
@@ -205,6 +209,47 @@ public class SyncResourceTest {
 
         assertThat(actual).isEmpty();
     }
+
+    @Test
+    void testSyncEmployees_returnsStatusOK() {
+        Response response = syncResource.syncEmployees();
+        assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    public void testSyncProjects_whenFromNull() {
+        ProjectSyncService projectSyncService = mock(ProjectSyncService.class);
+        when(projectSyncService.generateProjects())
+                .thenReturn(true);
+
+        Response response = syncResource.syncProjects(null, YearMonth.of(2023, 6));
+
+        assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+    }
+
+    @Test
+    public void testSyncProjects_whenToNull() {
+        ProjectSyncService projectSyncService = mock(ProjectSyncService.class);
+        when(projectSyncService.generateProjects())
+                .thenReturn(true);
+
+        Response response = syncResource.syncProjects(YearMonth.of(2023, 6), null);
+
+        assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+    }
+
+
+    @Test
+    public void testSyncProjects_WithFromAndTo() {
+        ProjectSyncService projectSyncService = mock(ProjectSyncService.class);
+        YearMonth from = YearMonth.of(2023, 1);
+        YearMonth to = YearMonth.of(2023, 6);
+
+        Response response = syncResource.syncProjects(from, to);
+
+        assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+    }
+
 
     //helpers
     private Employee createEmployeeForId(final String id, final String email, final String releaseDate){
