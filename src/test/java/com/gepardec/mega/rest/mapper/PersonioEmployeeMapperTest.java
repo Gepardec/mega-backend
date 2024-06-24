@@ -45,13 +45,6 @@ public class PersonioEmployeeMapperTest {
 
     @Test
     public void mapToDto_whenHasCreditCardFalse_thenReturnDtoWithRelevantFields() {
-        PersonioEmployeeDto expectedDto = PersonioEmployeeDto.builder()
-                .email(Attribute.ofValue("testuser@testmail.com"))
-                .guildLead(Attribute.ofValue(null))
-                .hasCreditCard(Attribute.ofValue(""))
-                .internalProjectLead(Attribute.ofValue(null))
-                .build();
-
         PersonioEmployee domain = PersonioEmployee.builder()
                 .email("testuser@testmail.com")
                 .vacationDayBalance(0.0)
