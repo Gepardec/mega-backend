@@ -68,6 +68,28 @@ class AbsenceServiceImplTest {
         }
     }
 
+    @Test
+    void testGetNumberOfDaysAbsent_whenTwoDaysAreHoliday_thenReturnNumberOfDaysWithoutTheseDay() {
+        try (MockedStatic<OfficeCalendarUtil> officeCalendarUtilMock = Mockito.mockStatic(OfficeCalendarUtil.class)) {
+
+            officeCalendarUtilMock.when(() -> OfficeCalendarUtil.isWorkingDay(any(LocalDate.class)))
+                    .thenReturn(true);
+            officeCalendarUtilMock.when(() -> OfficeCalendarUtil.getHolidaysForMonth(any(YearMonth.class)))
+                    .thenReturn(Stream.of(
+                            LocalDate.of(2024,5,6),
+                            LocalDate.of(2024,5,10)
+                    ));
+
+
+            int actual = absenceService.getNumberOfDaysAbsent(List.of(
+                    createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.of(2024,5,6), LocalDate.of(2024,5,6)),
+                    createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.of(2024,5,9), LocalDate.of(2024,5,12))
+            ), LocalDate.of(2024, 4, 1));
+
+            assertThat(actual).isEqualTo(3);
+        }
+    }
+
     private List<AbsenceTime> createAbsencesForDaysAbsent(){
         LocalDate fromDate = LocalDate.now();
         LocalDate toDate = LocalDate.now();
