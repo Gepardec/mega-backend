@@ -79,6 +79,8 @@ public class ProjectCommentServiceImplTest {
         assertThat(result.get(0)).isEqualTo(projectCommentDto);
     }
 
+
+
     @Test
     public void findForProjectNameWithCurrentYearMonth_shouldReturnCommentForCurrentYearMonth() {
         when(projectCommentRepository.findByProjectNameAndDateBetween(anyString(), any(LocalDate.class), any(LocalDate.class)))
@@ -90,6 +92,17 @@ public class ProjectCommentServiceImplTest {
 
         assertThat(result).isEqualTo(projectCommentDto);
     }
+
+    @Test
+    public void findForProjectNameWithCurrentYearMonth_whenNoComment_shouldReturnNull() {
+        when(projectCommentRepository.findByProjectNameAndDateBetween(anyString(), any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(List.of());
+
+        ProjectCommentDto result = projectCommentService.findForProjectNameWithCurrentYearMonth("Test Project", "2023-10-01");
+
+        assertThat(result).isNull();
+    }
+
 
     @Test
     public void create_whenNoExistingComment_savesNewComment() {
