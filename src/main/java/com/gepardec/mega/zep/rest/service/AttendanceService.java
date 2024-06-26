@@ -11,10 +11,6 @@ import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static java.util.Locale.filter;
 
 @ApplicationScoped
 public class AttendanceService {
