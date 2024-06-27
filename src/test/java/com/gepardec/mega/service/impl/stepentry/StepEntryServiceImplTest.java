@@ -7,7 +7,6 @@ import com.gepardec.mega.db.repository.StepEntryRepository;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectEmployees;
-import com.gepardec.mega.domain.model.State;
 import com.gepardec.mega.domain.model.Step;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.StepEntryService;
@@ -15,13 +14,13 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.MockedStatic;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -286,27 +285,97 @@ class StepEntryServiceImplTest {
     }
 
     @Test
-    public void testAddStepEntry() {
-        com.gepardec.mega.domain.model.User owner = com.gepardec.mega.domain.model.User.builder().userId("12").build();
-        com.gepardec.mega.domain.model.User assignee = com.gepardec.mega.domain.model.User.builder().userId("123").build();
-        Step step = Step.builder().dbId(12L).build();
-
-        Project project = Project.builder().projectId("xyz").build();
-
+    void addStepEntry_whenProjectIsNotNull_thenCreateStepEntry() {
         com.gepardec.mega.domain.model.StepEntry stepEntry = com.gepardec.mega.domain.model.StepEntry.builder()
-                .date(LocalDate.now())
-                .project(project)
-                .state(State.OPEN)
-                .owner(owner)
-                .assignee(assignee)
-                .step(step)
+                .owner(com.gepardec.mega.domain.model.User.builder().dbId(1L).build())
+                .step(Step.builder().dbId(1L).build())
+                .assignee(com.gepardec.mega.domain.model.User.builder().dbId(1L).build())
+                .date(LocalDate.of(2024,5,12))
+                .project(Project.builder().projectId("ABC").build())
                 .build();
 
+        User ownerDb = new User();
+        ownerDb.setId(stepEntry.getOwner().getDbId());
+
+        User assigneeDb = new User();
+        assigneeDb.setId(stepEntry.getAssignee().getDbId());
+
+        com.gepardec.mega.db.entity.employee.Step step = new com.gepardec.mega.db.entity.employee.Step();
+        step.setId(stepEntry.getStep().getDbId());
+
+
+        StepEntry expectedStepEntry = new StepEntry();
+        expectedStepEntry.setDate(stepEntry.getDate());
+        expectedStepEntry.setProject(stepEntry.getProject().getProjectId());
+        expectedStepEntry.setState(EmployeeState.OPEN);
+        expectedStepEntry.setOwner(ownerDb);
+        expectedStepEntry.setAssignee(assigneeDb);
+        expectedStepEntry.setStep(step);
 
         stepEntryService.addStepEntry(stepEntry);
 
-        verify(stepEntryRepository, times(1)).persist(any(StepEntry.class));
-        verify(logger, times(1)).debug(eq("inserting step entry {}"), any(StepEntry.class));
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(logger).debug(eq("inserting step entry {}"), argumentCaptor.capture());
+
+        StepEntry capturedStepEntry = (StepEntry) argumentCaptor.getValue();
+        assertThat(capturedStepEntry.getProject()).isEqualTo(expectedStepEntry.getProject());
+    }
+
+    @Test
+    void addStepEntry_whenProjectIsNull_thenCreateStepEntry() {
+        com.gepardec.mega.domain.model.StepEntry stepEntry = com.gepardec.mega.domain.model.StepEntry.builder()
+                .owner(com.gepardec.mega.domain.model.User.builder().dbId(1L).build())
+                .step(Step.builder().dbId(1L).build())
+                .assignee(com.gepardec.mega.domain.model.User.builder().dbId(1L).build())
+                .date(LocalDate.of(2024,5,12))
+                .project(null)
+                .build();
+
+        User ownerDb = new User();
+        ownerDb.setId(stepEntry.getOwner().getDbId());
+
+        User assigneeDb = new User();
+        assigneeDb.setId(stepEntry.getAssignee().getDbId());
+
+        com.gepardec.mega.db.entity.employee.Step step = new com.gepardec.mega.db.entity.employee.Step();
+        step.setId(stepEntry.getStep().getDbId());
+
+
+        StepEntry expectedStepEntry = new StepEntry();
+        expectedStepEntry.setDate(stepEntry.getDate());
+        expectedStepEntry.setProject(null);
+        expectedStepEntry.setState(EmployeeState.OPEN);
+        expectedStepEntry.setOwner(ownerDb);
+        expectedStepEntry.setAssignee(assigneeDb);
+        expectedStepEntry.setStep(step);
+
+        stepEntryService.addStepEntry(stepEntry);
+
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(logger).debug(eq("inserting step entry {}"), argumentCaptor.capture());
+
+        StepEntry capturedStepEntry = (StepEntry) argumentCaptor.getValue();
+        assertThat(capturedStepEntry.getProject()).isEqualTo(expectedStepEntry.getProject());
+    }
+
+    @Test
+    void findEmployeeCheckState_whenEmployeeIsNull_thenReturnOptionalEmpty() {
+        assertThat(stepEntryService.findEmployeeCheckState(null)).isEmpty();
+    }
+
+    @Test
+    void findStepEntryForEmployeeAndProjectAtStep_whenNoEntriesFound_thenThrowsException() {
+        when(stepEntryRepository.findStepEntryForEmployeeAndProjectAtStepInRange(any(LocalDate.class),
+                        any(LocalDate.class),
+                        anyString(),
+                        anyLong(),
+                        anyString(),
+                        anyString()
+                )
+        ).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAndProjectAtStep(1L, "max.mustermann@gmail.com", "max.mustermann@gmail.com", "ABC", "2024-05-01"))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
