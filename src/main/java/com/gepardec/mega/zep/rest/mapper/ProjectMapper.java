@@ -16,9 +16,9 @@ import java.util.List;
 
 @ApplicationScoped
 public class ProjectMapper implements Mapper<Project.Builder, ZepProject> {
-
     @Inject
     Logger logger;
+
     public Project.Builder map(ZepProject zepProject) {
         if (zepProject == null) {
             logger.info("ZEP REST implementation -- While trying to map ZepProject to Project, ZepProject was null");

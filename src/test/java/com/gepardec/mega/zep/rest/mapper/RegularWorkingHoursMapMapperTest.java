@@ -82,4 +82,11 @@ class RegularWorkingHoursMapMapperTest {
         assertThat(regularWorkingHours.get(DayOfWeek.SATURDAY)).isEqualTo(Duration.ofHours(0));
         assertThat(regularWorkingHours.get(DayOfWeek.SUNDAY)).isEqualTo(Duration.ofHours(0));
     }
+
+    @Test
+    void map_whenZepRegularWorkingTimes_thenReturnEmptyMap() {
+        RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
+
+        assertThat(regularWorkingHoursMapMapper.map(null)).isEmpty();
+    }
 }

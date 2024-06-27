@@ -1,6 +1,7 @@
 package com.gepardec.mega.service.impl.mapper;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
+import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.domain.mapper.PrematureEmployeeCheckMapper;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.domain.model.Role;
@@ -54,6 +55,43 @@ public class PrematureEmployeeCheckMapperTest {
         assertThat(prematureEmployeeChecks.size()).isEqualTo(2);
     }
 
+    @Test
+    void mapToEntity() {
+        PrematureEmployeeCheck domain = createPrematureEmployeeCheck(1L, User.builder().userId("001-maxmustermann").build(), "Test reason");
+        PrematureEmployeeCheckEntity actual = prematureEmployeeCheckMapper
+                .mapToEntity(domain);
+
+        assertThat(actual.getState()).isEqualTo(domain.getState());
+        assertThat(actual.getReason()).isEqualTo(domain.getReason());
+        assertThat(actual.getId()).isEqualTo(domain.getId());
+    }
+
+    @Test
+    void mapToEntityWithTwoParams_whenReasonNotNull() {
+        PrematureEmployeeCheck domain = createPrematureEmployeeCheck(1L, User.builder().userId("001-maxmustermann").build(), "Test reason");
+        PrematureEmployeeCheckEntity entity = new PrematureEmployeeCheckEntity();
+        entity.setId(domain.getId());
+
+        PrematureEmployeeCheckEntity actual = prematureEmployeeCheckMapper.mapToEntity(domain, entity);
+
+        assertThat(actual.getState()).isEqualTo(domain.getState());
+        assertThat(actual.getReason()).isEqualTo(domain.getReason());
+        assertThat(actual.getForMonth()).isEqualTo(domain.getForMonth());
+    }
+
+    @Test
+    void mapToEntityWithTwoParams_whenReasonIsNull() {
+        PrematureEmployeeCheck domain = createPrematureEmployeeCheck(1L, User.builder().userId("001-maxmustermann").build(), null);
+        PrematureEmployeeCheckEntity entity = new PrematureEmployeeCheckEntity();
+        entity.setId(domain.getId());
+
+        PrematureEmployeeCheckEntity actual = prematureEmployeeCheckMapper.mapToEntity(domain, entity);
+
+        assertThat(actual.getState()).isEqualTo(domain.getState());
+        assertThat(actual.getReason()).isEqualTo(domain.getReason());
+        assertThat(actual.getForMonth()).isEqualTo(domain.getForMonth());
+    }
+
 
     private com.gepardec.mega.db.entity.employee.User createDBUserForRole(final Role role) {
         com.gepardec.mega.db.entity.employee.User user = new com.gepardec.mega.db.entity.employee.User();
@@ -62,6 +100,17 @@ public class PrematureEmployeeCheckMapperTest {
         user.setEmail("max@mustermann.com");
         return user;
     }
+
+    private PrematureEmployeeCheck createPrematureEmployeeCheck(Long id, User user, String reason) {
+        return PrematureEmployeeCheck.builder()
+                .id(id)
+                .user(user)
+                .forMonth(LocalDate.of(2024,6,1))
+                .reason(reason)
+                .state(PrematureEmployeeCheckState.IN_PROGRESS)
+                .build();
+    }
+
 
     private PrematureEmployeeCheckEntity createDBPrematureEmployeeCheck(Long id) {
         PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
