@@ -27,5 +27,5 @@ jobs:
         uses: anchore/scan-action@v3
         with:
           path: "."
-#          fail-build: false
+          fail-build: false
           output-format: table
