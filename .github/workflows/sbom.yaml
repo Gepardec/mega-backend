@@ -28,3 +28,4 @@ jobs:
         with:
           path: "."
           fail-build: false
+          output-format: table
