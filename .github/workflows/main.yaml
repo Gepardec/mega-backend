@@ -3,10 +3,34 @@ name: Release Containerimage
 on:
   push:
     branches:
-      - main
+      - feature/trivy_findings
   workflow_dispatch:
 
+
 jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          scanners: 'vuln,secret,config'
+          ignore-unfixed: false
+          format: 'sarif'
+          exit-code: '1'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: 'code'
+
   build-test-push:
     runs-on: ubuntu-latest
     steps:
@@ -28,20 +52,76 @@ jobs:
 
       - name: Set outputs
         id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        run: echo "SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Set image name
+        run: echo "IMAGE_ID=$(echo ${{ github.repository }} | tr '[A-Z]' '[a-z]')" >> $GITHUB_ENV
 
       # set the env.COMMIT variable
       - run: echo "COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      # build the container image and release it as a package in this repository
-      - uses: mr-smithers-excellent/docker-build-push@v6
-        name: push-container-image
+      #, enable=${{ github.ref != 'refs/heads/main' }}
+      # type=raw,value=${{ github.head_ref }}-${{ github.sha }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ env.IMAGE_ID }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=raw,value=${{ github.head_ref }}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - run : echo "${{ steps.meta.outputs.tags }}"
+
+      - name: Buildah Action
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
         with:
           image: mega-backend
-          registry: ghcr.io
-          dockerfile: Containerfile
+          tags: ${{ steps.meta.outputs.tags }}
           buildArgs: COMMIT=${{ env.COMMIT}}, BRANCH=${{ env.BRANCH_NAME}}, VERSION=${{ env.COMMIT}}
+          containerfiles: |
+            ./Containerfile
+
+      - name: Log in to the GitHub Container registry
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          # if the branch is main, add the latest tag
-          addLatest: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: push image to trivy
+        run: |
+          buildah push ${{ steps.build-image.outputs.image-with-tag }} oci:./mega-backend-oci
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          input: 'mega-backend-oci'
+          format: 'sarif'
+          ignore-unfixed: false
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: 'container'
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+      - name: Push to GitHub Container Repository
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: ${{ env.REGISTRY }}
