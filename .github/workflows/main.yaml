@@ -15,8 +15,8 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: './tmp/rootfs'
+          scan-type: 'rootfs'
+          scan-ref: '.'
           scanners: 'vuln,secret,config'
           ignore-unfixed: false
           format: 'sarif'
