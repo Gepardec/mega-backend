@@ -16,7 +16,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
-          scan-ref: '.'
+          scan-ref: './tmp/rootfs'
           scanners: 'vuln,secret,config'
           ignore-unfixed: false
           format: 'sarif'
