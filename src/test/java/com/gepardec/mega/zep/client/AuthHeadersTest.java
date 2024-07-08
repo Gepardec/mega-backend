@@ -3,8 +3,8 @@ package com.gepardec.mega.zep.client;
 
 import com.gepardec.mega.application.configuration.ZepConfig;
 import com.gepardec.mega.zep.rest.client.AuthHeaders;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MultivaluedHashMap;

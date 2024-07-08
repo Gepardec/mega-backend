@@ -2,8 +2,9 @@ package com.gepardec.mega.notification.mail;
 
 import com.gepardec.mega.application.configuration.NotificationConfig;
 import com.gepardec.mega.application.producer.ResourceBundleProducer;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
+import io.quarkus.test.junit.mockito.MockitoConfig;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
@@ -22,10 +23,12 @@ class NotificationHelperTest {
     @Inject
     NotificationHelper notificationHelper;
 
-    @InjectMock(returnsDeepMocks = true)
+    @InjectMock
+            @MockitoConfig (returnsDeepMocks = true)
     private NotificationConfig notificationConfig;
 
-    @InjectMock(returnsDeepMocks = true)
+    @InjectMock
+            @MockitoConfig (returnsDeepMocks = true)
     private ResourceBundleProducer resourceBundleProducer;
 
     @Test

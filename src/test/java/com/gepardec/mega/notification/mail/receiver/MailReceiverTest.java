@@ -2,8 +2,8 @@ package com.gepardec.mega.notification.mail.receiver;
 
 import com.gepardec.mega.application.configuration.MailReceiverConfig;
 import com.sun.mail.imap.IMAPMessage;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 import jakarta.mail.Folder;
 import jakarta.mail.Message;
