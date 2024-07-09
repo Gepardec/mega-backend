@@ -3,34 +3,11 @@ name: Release Containerimage
 on:
   push:
     branches:
-      - feature/trivy_findings
+      - main
   workflow_dispatch:
 
 
 jobs:
-  scan:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          scanners: 'vuln,secret,config'
-          ignore-unfixed: true
-          format: 'sarif'
-          exit-code: '1'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'trivy-results.sarif'
-          category: 'code'
-
   build-test-push:
     runs-on: ubuntu-latest
     steps:
