@@ -21,8 +21,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.version>3.8.1</maven.version>
 
-        <commons-lang3.version>3.12.0</commons-lang3.version>
-        <commons-io.version>2.11.0</commons-io.version>
         <guava.version>33.2.1-jre</guava.version>
 
         <quarkus-plugin.version>3.12.1</quarkus-plugin.version>
@@ -222,11 +220,6 @@
             <groupId>jakarta.mail</groupId>
             <artifactId>jakarta.mail-api</artifactId>
             <version>${jakarta.mail-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.angus</groupId>
-            <artifactId>angus-mail</artifactId>
-            <version>1.0.0</version>
         </dependency>
     </dependencies>
     <build>

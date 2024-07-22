@@ -12,10 +12,10 @@ import com.gepardec.mega.notification.mail.MailSender;
 import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.ProjectService;
 import com.gepardec.mega.service.api.UserService;
-import com.sun.mail.imap.IMAPMessage;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -74,7 +74,7 @@ class ZepMailToCommentServiceTest {
         );
 
         //WHEN
-        testedObject.saveAsComment(mock(IMAPMessage.class));
+        testedObject.saveAsComment(mock(Message.class));
 
         //THEN
         verify(commentService, times(1)).create(
@@ -106,7 +106,7 @@ class ZepMailToCommentServiceTest {
         );
 
         //WHEN
-        testedObject.saveAsComment(mock(IMAPMessage.class));
+        testedObject.saveAsComment(mock(Message.class));
 
         //THEN
         verify(commentService, times(1)).create(
@@ -131,7 +131,7 @@ class ZepMailToCommentServiceTest {
 
         //WHEN
         //THEN
-        assertThatCode(() -> testedObject.saveAsComment(mock(IMAPMessage.class)))
+        assertThatCode(() -> testedObject.saveAsComment(mock(Message.class)))
                 .doesNotThrowAnyException();
         verify(logger).error(any());
         verify(commentService, times(0)).create(any(), any(), any(), any(), any(), any(), any());
@@ -148,7 +148,7 @@ class ZepMailToCommentServiceTest {
 
         //WHEN
         //THEN
-        assertThatCode(() -> testedObject.saveAsComment(mock(IMAPMessage.class)))
+        assertThatCode(() -> testedObject.saveAsComment(mock(Message.class)))
                 .doesNotThrowAnyException();
         verify(commentService, times(0)).create(any(), any(), any(), any(), any(), any(), any());
         verify(mailSender, times(1)).send(

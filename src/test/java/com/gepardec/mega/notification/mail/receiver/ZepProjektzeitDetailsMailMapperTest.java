@@ -1,6 +1,5 @@
 package com.gepardec.mega.notification.mail.receiver;
 
-import com.sun.mail.imap.IMAPMessage;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -64,7 +63,7 @@ class ZepProjektzeitDetailsMailMapperTest {
         var multipart = mock(Multipart.class);
         when(multipart.getBodyPart(0)).thenReturn(bodyPart);
 
-        givenMessage = mock(IMAPMessage.class);
+        givenMessage = mock(Message.class);
         when(givenMessage.getContent()).thenReturn(multipart);
         when(givenMessage.getSubject()).thenReturn(SUBJECT);
     }

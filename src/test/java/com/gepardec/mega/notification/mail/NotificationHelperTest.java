@@ -24,11 +24,11 @@ class NotificationHelperTest {
     NotificationHelper notificationHelper;
 
     @InjectMock
-            @MockitoConfig (returnsDeepMocks = true)
+    @MockitoConfig (returnsDeepMocks = true)
     private NotificationConfig notificationConfig;
 
     @InjectMock
-            @MockitoConfig (returnsDeepMocks = true)
+    @MockitoConfig (returnsDeepMocks = true)
     private ResourceBundleProducer resourceBundleProducer;
 
     @Test

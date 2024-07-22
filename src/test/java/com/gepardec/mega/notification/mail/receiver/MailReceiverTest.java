@@ -1,7 +1,6 @@
 package com.gepardec.mega.notification.mail.receiver;
 
 import com.gepardec.mega.application.configuration.MailReceiverConfig;
-import com.sun.mail.imap.IMAPMessage;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -50,7 +49,7 @@ class MailReceiverTest {
         //GIVEN
         try (var mockedStatic = Mockito.mockStatic(Session.class)) {
             var inbox = mock(Folder.class);
-            when(inbox.search(any())).thenReturn(new Message[]{mock(IMAPMessage.class)});
+            when(inbox.search(any())).thenReturn(new Message[]{mock(Message.class)});
 
             var store = mock(Store.class);
             when(store.getFolder(anyString())).thenReturn(inbox);
