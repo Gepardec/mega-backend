@@ -51,10 +51,9 @@ public class ProjectMapper implements Mapper<Project.Builder, ZepProject> {
                     .employees(employees)
                     .leads(leads)
                     .categories(List.of("CONS"));
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new ZepServiceException("While trying to map ZepProject to Project, an error occurred", e);
         }
-
     }
 
 }

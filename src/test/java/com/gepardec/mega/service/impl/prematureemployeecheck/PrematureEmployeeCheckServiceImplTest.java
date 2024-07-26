@@ -21,7 +21,8 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class PrematureEmployeeCheckServiceImplTest {
+class PrematureEmployeeCheckServiceImplTest {
+
     @Inject
     PrematureEmployeeCheckService prematureEmployeeCheckService;
 
@@ -62,13 +63,13 @@ public class PrematureEmployeeCheckServiceImplTest {
         when(checkRepository.deleteByMonthAndStates(any(LocalDate.class), any()))
                 .thenReturn(1L);
 
-        assertThat(prematureEmployeeCheckService.deleteAllForMonthWithState(LocalDate.of(2024,3,1), List.of(PrematureEmployeeCheckState.IN_PROGRESS, PrematureEmployeeCheckState.DONE))).isEqualTo(1L);
+        assertThat(prematureEmployeeCheckService.deleteAllForMonthWithState(LocalDate.of(2024, 3, 1), List.of(PrematureEmployeeCheckState.IN_PROGRESS, PrematureEmployeeCheckState.DONE))).isEqualTo(1L);
     }
 
     @Test
     void update_whenSuccessful_thenReturnTrue() {
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder().id(1L)
-                .forMonth(LocalDate.of(2024,6,1))
+                .forMonth(LocalDate.of(2024, 6, 1))
                 .reason("Test reason")
                 .build();
 
@@ -89,7 +90,7 @@ public class PrematureEmployeeCheckServiceImplTest {
     @Test
     void update_whenNotSuccessful_thenReturnFalse() {
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder().id(1L)
-                .forMonth(LocalDate.of(2024,6,1))
+                .forMonth(LocalDate.of(2024, 6, 1))
                 .reason("Test reason")
                 .build();
 
@@ -110,7 +111,7 @@ public class PrematureEmployeeCheckServiceImplTest {
     private PrematureEmployeeCheckEntity createEntity() {
         PrematureEmployeeCheckEntity entity = new PrematureEmployeeCheckEntity();
         entity.setId(1L);
-        entity.setForMonth(LocalDate.of(2024,6, 1));
+        entity.setForMonth(LocalDate.of(2024, 6, 1));
         entity.setReason("Test reason");
 
         return entity;
@@ -119,7 +120,7 @@ public class PrematureEmployeeCheckServiceImplTest {
     private PrematureEmployeeCheckEntity createEntityWithIdNull() {
         PrematureEmployeeCheckEntity entity = new PrematureEmployeeCheckEntity();
         entity.setId(null);
-        entity.setForMonth(LocalDate.of(2024,6, 1));
+        entity.setForMonth(LocalDate.of(2024, 6, 1));
         entity.setReason("Test reason");
 
         return entity;

@@ -1,13 +1,13 @@
 package com.gepardec.mega.zep.rest.service;
 
+import com.gepardec.mega.helper.ResourceFileService;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepBillingType;
 import com.gepardec.mega.zep.rest.dto.ZepProject;
-import io.quarkus.test.InjectMock;
-import com.gepardec.mega.helper.ResourceFileService;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.util.ResponseParser;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,13 +48,6 @@ class ProjectServiceTest {
     @InjectMock
     Logger logger;
 
-
-
-    @Test
-    void test() {
-        System.out.println(resourceFileService.getFilesDir().getPath());
-    }
-
     @BeforeEach
     void setup() {
         this.getPaginatedProjectsMock();
@@ -66,18 +61,17 @@ class ProjectServiceTest {
                 .thenReturn(Response.ok().entity(resourceFileService.getSingleFile("projects/projectPage1.json").get()).build());
 
 
-
-        when(zepProjectRestClient.getProjectByStartEnd(anyString(), anyString(),eq(2)))
+        when(zepProjectRestClient.getProjectByStartEnd(anyString(), anyString(), eq(2)))
                 .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
-        when(zepProjectRestClient.getProjectByStartEnd(anyString(), anyString(),eq(3)))
+        when(zepProjectRestClient.getProjectByStartEnd(anyString(), anyString(), eq(3)))
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
 
-        when(zepProjectRestClient.getProjectByName(anyString(), anyString(),eq("mega")))
+        when(zepProjectRestClient.getProjectByName(anyString(), anyString(), eq("mega")))
                 .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
-        when(zepProjectRestClient.getProjectByName(anyString(), anyString(),eq("empty")))
+        when(zepProjectRestClient.getProjectByName(anyString(), anyString(), eq("empty")))
                 .thenReturn(Response.ok().entity(responseJsons.get(5)).build());
 
-       when(zepProjectRestClient.getProjectById(12))
+        when(zepProjectRestClient.getProjectById(12))
                 .thenReturn(Response.ok().entity(resourceFileService.getSingleFile("projects/singlePage2.json").get()).build());
 
         when(zepProjectRestClient.getProjectById(eq(1)))
@@ -90,8 +84,8 @@ class ProjectServiceTest {
         ZepProject referenceZepProject = ZepProject.builder()
                 .id(1)
                 .name("MEGA")
-                .startDate(LocalDateTime.of(2020, 12, 1, 0,0,0))
-                .endDate(LocalDateTime.of(2026, 1, 20, 0,0,0))
+                .startDate(LocalDateTime.of(2020, 12, 1, 0, 0, 0))
+                .endDate(LocalDateTime.of(2026, 1, 20, 0, 0, 0))
                 .billingType(new ZepBillingType(1))
                 .customerId(1)
                 .build();
@@ -112,7 +106,7 @@ class ProjectServiceTest {
         LocalDateTime end = LocalDateTime.of(endStr.getYear(), endStr.getMonth(), endStr.getDayOfMonth(), 0, 0, 0);
 
         ZepProject project = ZepProject.builder().id(1).name("XYZ").startDate(start).endDate(end).build();
-        ZepProject[] projectsArray = new ZepProject[] { project };
+        ZepProject[] projectsArray = new ZepProject[]{project};
 
         when(responseParser.retrieveSingle(any(), eq(ZepProject[].class)))
                 .thenReturn(Optional.of(projectsArray));
@@ -200,7 +194,7 @@ class ProjectServiceTest {
         when(responseParser.retrieveAll(any(), eq(ZepProject.class)))
                 .thenThrow(new ZepServiceException("Something went wrong"));
 
-        List<ZepProject> result = projectService.getProjectsForMonthYear(LocalDate.of(2024,5,1));
+        List<ZepProject> result = projectService.getProjectsForMonthYear(LocalDate.of(2024, 5, 1));
         assertThat(result.isEmpty()).isTrue();
         verify(logger).warn(anyString(), any(ZepServiceException.class));
 

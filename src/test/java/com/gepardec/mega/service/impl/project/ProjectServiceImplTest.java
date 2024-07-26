@@ -152,7 +152,7 @@ class ProjectServiceImplTest {
     }
 
     @Test
-    void testAddProject_whenProjectDoesNotExistHasLeadsAndNoProjectEntries_createsNewProject() {
+    void addProject_whenProjectDoesNotExistHasLeadsAndNoProjectEntries_createsNewProject() {
         String projectName = "ProjectA";
         com.gepardec.mega.db.entity.project.Project project = new com.gepardec.mega.db.entity.project.Project();
         project.setName(projectName);
@@ -184,7 +184,7 @@ class ProjectServiceImplTest {
     }
 
     @Test
-    void testAddProject_whenProjectExistsHasLeadsAndProjectEntries_addsExistingProject() {
+    void addProject_whenProjectExistsHasLeadsAndProjectEntries_addsExistingProject() {
         String projectName = "ProjectA";
         HashSet<ProjectEntry> projectEntries = new HashSet<>();
         HashSet<com.gepardec.mega.db.entity.employee.User> projectLeads = new HashSet<>();

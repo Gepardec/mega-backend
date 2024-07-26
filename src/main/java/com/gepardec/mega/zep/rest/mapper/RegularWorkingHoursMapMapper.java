@@ -15,8 +15,7 @@ public class RegularWorkingHoursMapMapper implements Mapper<Map<DayOfWeek, Durat
     @Override
     public Map<DayOfWeek, Duration> map(ZepRegularWorkingTimes zepRegularWorkingTimes) {
 
-        try{
-
+        try {
             Map<DayOfWeek, Duration> regularWorkingHours = new EnumMap<>(DayOfWeek.class);
 
             if (zepRegularWorkingTimes != null) {
@@ -29,7 +28,7 @@ public class RegularWorkingHoursMapMapper implements Mapper<Map<DayOfWeek, Durat
                 regularWorkingHours.put(DayOfWeek.SUNDAY, Duration.ofHours(zepRegularWorkingTimes.sunday() == null ? 0 : zepRegularWorkingTimes.sunday().longValue()));
             }
             return regularWorkingHours;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new ZepServiceException("While trying to map ZepRegularWorkingTimes to Map<DayOfWeek, Duration>, an error occurred", e);
         }
     }

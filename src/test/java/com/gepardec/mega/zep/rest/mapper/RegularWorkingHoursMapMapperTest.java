@@ -8,15 +8,14 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 class RegularWorkingHoursMapMapperTest {
 
-
-
     @Test
-    public void mapZepRegularWorkingTimesToRegularWorkingHoursMap() {
+    void mapZepRegularWorkingTimesToRegularWorkingHoursMap() {
         RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
         ZepRegularWorkingTimes zepRegularWorkingTimes = ZepRegularWorkingTimes.builder()
                 .startDate(LocalDateTime.of(2019, 1, 2, 8, 1, 32))
@@ -42,7 +41,7 @@ class RegularWorkingHoursMapMapperTest {
     }
 
     @Test
-    public void mapZepRegularWorkingHoursToRegularWorkingHoursMap_NullMappedToZero() {
+    void mapZepRegularWorkingHoursToRegularWorkingHoursMap_NullMappedToZero() {
         RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
 
         ZepRegularWorkingTimes zepRegularWorkingTimes = ZepRegularWorkingTimes.builder()
@@ -67,7 +66,7 @@ class RegularWorkingHoursMapMapperTest {
     }
 
     @Test
-    public void mapZepRegularWorkingHoursToRegularWorkingHoursMap_EmptyObjectMappedToZero() {
+    void mapZepRegularWorkingHoursToRegularWorkingHoursMap_EmptyObjectMappedToZero() {
         RegularWorkingHoursMapMapper regularWorkingHoursMapMapper = new RegularWorkingHoursMapMapper();
 
         ZepRegularWorkingTimes zepRegularWorkingTimes = ZepRegularWorkingTimes.builder().build();

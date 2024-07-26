@@ -1,14 +1,13 @@
 package com.gepardec.mega.zep.mapper;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
+import de.provantis.zep.FehlzeitType;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import de.provantis.zep.FehlzeitType;
 
 class AbsenceTimeMapperTest {
 
@@ -55,6 +54,7 @@ class AbsenceTimeMapperTest {
     void whenEmptyList_thenReturnsEmptyList() {
         assertThat(AbsenceTimeMapper.mapList(List.of())).isEmpty();
     }
+
     @Test
     void whenList_thenReturnList() {
         FehlzeitType fzt = new FehlzeitType();

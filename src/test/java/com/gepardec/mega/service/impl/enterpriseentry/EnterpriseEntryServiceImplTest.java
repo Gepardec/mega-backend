@@ -23,7 +23,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class EnterpriseEntryServiceImplTest {
+class EnterpriseEntryServiceImplTest {
+
     @InjectMock
     EnterpriseEntryRepository enterpriseEntryRepository;
 
@@ -43,7 +44,7 @@ public class EnterpriseEntryServiceImplTest {
     }
 
     @Test
-    void testFindByDate() {
+    void findByDate() {
         EnterpriseEntry entry = new EnterpriseEntry();
         EnterpriseEntryDto entryDto = EnterpriseEntryDto.builder().build();
 
@@ -61,7 +62,7 @@ public class EnterpriseEntryServiceImplTest {
     }
 
     @Test
-    void testUpdate_whenEntryExists_thenResultIsTrue() {
+    void update_whenEntryExists_thenResultIsTrue() {
         EnterpriseEntry entry = new EnterpriseEntry();
         EnterpriseEntryDto entryDto = EnterpriseEntryDto.builder()
                 .zepTimesReleased(ProjectState.DONE)
@@ -83,7 +84,7 @@ public class EnterpriseEntryServiceImplTest {
     }
 
     @Test
-    void testUpdate_whenEntryDoesNotExist_thenResultIsFalse() {
+    void update_whenEntryDoesNotExist_thenResultIsFalse() {
         EnterpriseEntryDto entryDto = EnterpriseEntryDto.builder().build();
 
         when(enterpriseEntryRepository.findByDate(fromDate, toDate)).thenReturn(Optional.empty());

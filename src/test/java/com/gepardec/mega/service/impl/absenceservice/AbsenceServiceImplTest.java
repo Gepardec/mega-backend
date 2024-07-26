@@ -31,7 +31,7 @@ class AbsenceServiceImplTest {
     DateHelperService dateHelperService;
 
     @Test
-    void testNumberOfFridaysAbsent_whenFourFridaysAbsent_thenReturnThree() {
+    void numberOfFridaysAbsent_whenFourFridaysAbsent_thenReturnThree() {
         when(dateHelperService.getFridaysInRange(any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(1);
 
@@ -40,7 +40,7 @@ class AbsenceServiceImplTest {
     }
 
     @Test
-    void testNumberOfFridaysAbsent_whenNoFridaysAbsent_thenReturnZero() {
+    void numberOfFridaysAbsent_whenNoFridaysAbsent_thenReturnZero() {
         when(dateHelperService.getFridaysInRange(any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(0);
 
@@ -49,13 +49,13 @@ class AbsenceServiceImplTest {
     }
 
     @Test
-    void testGetNumberOfDaysAbsent_whenThreeDaysAbsent_thenReturnThree() {
+    void getNumberOfDaysAbsent_whenThreeDaysAbsent_thenReturnThree() {
         try (MockedStatic<OfficeCalendarUtil> officeCalendarUtilMock = Mockito.mockStatic(OfficeCalendarUtil.class)) {
 
             officeCalendarUtilMock.when(() -> OfficeCalendarUtil.isWorkingDay(any(LocalDate.class)))
                     .thenReturn(true);
             officeCalendarUtilMock.when(() -> OfficeCalendarUtil.getHolidaysForMonth(any(YearMonth.class)))
-                    .thenReturn(Stream.of());
+                    .thenReturn(Stream.empty());
 
 
             int actual = absenceService.getNumberOfDaysAbsent(createAbsencesForDaysAbsent(), LocalDate.of(2024, 4, 1));
@@ -65,7 +65,7 @@ class AbsenceServiceImplTest {
     }
 
     @Test
-    void testGetNumberOfDaysAbsent_whenTwoDaysAreHoliday_thenReturnNumberOfDaysWithoutTheseDay() {
+    void getNumberOfDaysAbsent_whenTwoDaysAreHoliday_thenReturnNumberOfDaysWithoutTheseDay() {
         try (MockedStatic<OfficeCalendarUtil> officeCalendarUtilMock = Mockito.mockStatic(OfficeCalendarUtil.class)) {
 
             officeCalendarUtilMock.when(() -> OfficeCalendarUtil.isWorkingDay(any(LocalDate.class)))
@@ -106,7 +106,6 @@ class AbsenceServiceImplTest {
     }
 
     private List<AbsenceTime> createAbsenceTimeList() {
-
         return List.of(
                 createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.now(), LocalDate.now()),
                 createAbsenceTime(AbsenceType.CONFERENCE_DAYS, LocalDate.now(), LocalDate.now()),

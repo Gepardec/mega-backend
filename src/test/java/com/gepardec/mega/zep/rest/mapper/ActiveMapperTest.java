@@ -27,6 +27,7 @@ class ActiveMapperTest {
 
         assertThat(active).isTrue();
     }
+
     @Test
     void map_whenTodayStartEndDate_isActive() {
         var employmentPeriods = createEmploymentPeriodListFromTodayOffset(
@@ -63,7 +64,7 @@ class ActiveMapperTest {
     @Test
     void map_whenNullEndDate_isActive() {
         var employmentPeriods = List.of(
-            createEmploymentPeriodWithNullEndDate(-2)
+                createEmploymentPeriodWithNullEndDate(-2)
         );
 
         boolean active = activeMapper.map(employmentPeriods);
@@ -127,7 +128,7 @@ class ActiveMapperTest {
     @Test
     void map_whenPastStartEndDate_isInactive() {
         var employmentPeriods = createEmploymentPeriodListFromTodayOffset(
-            new DateOffset(-10, -2)
+                new DateOffset(-10, -2)
         );
 
         boolean active = activeMapper.map(employmentPeriods);
@@ -138,7 +139,7 @@ class ActiveMapperTest {
     @Test
     void map_whenFutureStartEndDate_isInactive() {
         var employmentPeriods = createEmploymentPeriodListFromTodayOffset(
-            new DateOffset(2, 2)
+                new DateOffset(2, 2)
         );
 
         boolean active = activeMapper.map(employmentPeriods);
@@ -158,7 +159,7 @@ class ActiveMapperTest {
     @Test
     void map_whenNullStartDate_isInactive() {
         var employmentPeriods = List.of(
-            createEmploymentPeriodWithNullStartDate(2)
+                createEmploymentPeriodWithNullStartDate(2)
         );
 
         boolean active = activeMapper.map(employmentPeriods);
@@ -168,7 +169,7 @@ class ActiveMapperTest {
     @Test
     void map_whenNullPeriod_isInactive() {
         var employmentPeriods = List.of(
-            createEmploymentPeriodWithNullDates()
+                createEmploymentPeriodWithNullDates()
         );
 
         boolean active = activeMapper.map(employmentPeriods);
@@ -209,9 +210,9 @@ class ActiveMapperTest {
     private ZepEmploymentPeriod createEmploymentPeriodFromTodayOffset(DateOffset dateOffset) {
         LocalDateTime now = LocalDateTime.now();
         return ZepEmploymentPeriod.builder()
-            .startDate(now.plusDays(dateOffset.offsetStart()))
-            .endDate(now.plusDays(dateOffset.offsetEnd()))
-            .build();
+                .startDate(now.plusDays(dateOffset.offsetStart()))
+                .endDate(now.plusDays(dateOffset.offsetEnd()))
+                .build();
     }
 
     private record DateOffset(int offsetStart, int offsetEnd) {

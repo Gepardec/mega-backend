@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class AuthHeadersTest {
+class AuthHeadersTest {
 
     @InjectMock
     ZepConfig zepConfig;
