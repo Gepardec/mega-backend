@@ -24,8 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static io.smallrye.common.constraint.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -51,7 +50,7 @@ class ReceiptServiceTest {
 
 
     @Test
-    void testGetAmountByReceiptId_whenAmountPresent_thenReturnZepReceiptAmount() {
+    void getAmountByReceiptId_whenAmountPresent_thenReturnZepReceiptAmount() {
         int receiptId = 123;
 
         ZepReceiptAmount expectedAmount = ZepReceiptAmount.builder()
@@ -68,12 +67,12 @@ class ReceiptServiceTest {
 
         Optional<ZepReceiptAmount> result = receiptService.getAmountByReceiptId(receiptId);
 
-        assertTrue(result.isPresent());
-        assertEquals(expectedAmount, result.get());
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(expectedAmount);
     }
 
     @Test
-    void testGetAmountByReceiptId_whenNoAmountPresent_thenReturnEmptyOptional() {
+    void getAmountByReceiptId_whenNoAmountPresent_thenReturnEmptyOptional() {
         int receiptId = 123;
 
         when(zepReceiptRestClient.getAmountForReceipt(receiptId))
@@ -81,11 +80,11 @@ class ReceiptServiceTest {
 
         Optional<ZepReceiptAmount> result = receiptService.getAmountByReceiptId(receiptId);
 
-        assertTrue(result.isEmpty());
+        assertThat(result).isEmpty();
     }
 
     @Test
-    void testGetAmountByReceiptId_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
+    void getAmountByReceiptId_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
         int receiptId = 123;
         Response tooManyRequestsResponse = Response.status(Response.Status.TOO_MANY_REQUESTS).build();
 
@@ -98,11 +97,11 @@ class ReceiptServiceTest {
         Optional<ZepReceiptAmount> actual = receiptService.getAmountByReceiptId(receiptId);
 
         verify(logger, times(1)).warn(anyString());
-        assertEquals(Optional.empty(), actual);
+        assertThat(actual).isEmpty();
     }
 
     @Test
-    void testGetAttachmentByReceiptId_whenAttachmentIsPresent_thenReturnZepReceiptAttachment() {
+    void getAttachmentByReceiptId_whenAttachmentIsPresent_thenReturnZepReceiptAttachment() {
         int receiptId = 123;
 
         ZepReceiptAttachment expectedAttachment = ZepReceiptAttachment.builder()
@@ -117,13 +116,12 @@ class ReceiptServiceTest {
 
         Optional<ZepReceiptAttachment> result = receiptService.getAttachmentByReceiptId(receiptId);
 
-        assertTrue(result.isPresent());
-        assertEquals(expectedAttachment, result.get());
-
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(expectedAttachment);
     }
 
     @Test
-    void testGetAttachmentByReceiptId_whenNoAttachmentPresent_thenReturnEmptyOptional() {
+    void getAttachmentByReceiptId_whenNoAttachmentPresent_thenReturnEmptyOptional() {
         int receiptId = 123;
 
         when(zepReceiptRestClient.getAttachmentForReceipt(receiptId))
@@ -134,11 +132,11 @@ class ReceiptServiceTest {
 
         Optional<ZepReceiptAttachment> result = receiptService.getAttachmentByReceiptId(receiptId);
 
-        assertTrue(result.isEmpty());
+        assertThat(result).isEmpty();
     }
 
     @Test
-    void testGetAttachmentByReceiptId_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
+    void getAttachmentByReceiptId_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
         int receiptId = 123;
         Response tooManyRequestsResponse = Response.status(Response.Status.TOO_MANY_REQUESTS).build();
 
@@ -151,11 +149,11 @@ class ReceiptServiceTest {
         Optional<ZepReceiptAttachment> actual = receiptService.getAttachmentByReceiptId(receiptId);
 
         verify(logger, times(1)).warn(anyString());
-        assertEquals(Optional.empty(), actual);
+        assertThat(actual).isEmpty();
     }
 
     @Test
-    void testGetAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonth_thenReturnListOfReceipts() {
+    void getAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonth_thenReturnListOfReceipts() {
         List<ZepReceipt> expectedReceipts = new ArrayList<>();
         expectedReceipts.add(ZepReceipt.builder()
                 .id(1)
@@ -183,12 +181,11 @@ class ReceiptServiceTest {
 
         List<ZepReceipt> result = receiptService.getAllReceiptsForYearMonth(employee, firstOfPreviousMonth.toString(), DateUtils.getLastDayOfCurrentMonth(firstOfPreviousMonth));
 
-        assertFalse(result.isEmpty());
-        assertEquals(expectedReceipts.size(), result.size());
+        assertThat(result).hasSize(expectedReceipts.size());
     }
 
     @Test
-    void testGetAllReceiptsForYearMonth_whenNoReceiptsArePresentForYearMonth_thenReturnEmptyList() {
+    void getAllReceiptsForYearMonth_whenNoReceiptsArePresentForYearMonth_thenReturnEmptyList() {
         when(zepReceiptRestClient.getAllReceiptsForMonth(anyString(), anyString(), anyInt()))
                 .thenReturn(Response.noContent().build());
 
@@ -204,12 +201,11 @@ class ReceiptServiceTest {
 
         List<ZepReceipt> result = receiptService.getAllReceiptsForYearMonth(employee, firstOfPreviousMonth.toString(), DateUtils.getLastDayOfCurrentMonth(firstOfPreviousMonth));
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
+        assertThat(result).isEmpty();
     }
 
     @Test
-    void testGetAllReceiptsForYearMonth_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
+    void getAllReceiptsForYearMonth_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
         Response tooManyRequestsResponse = Response.status(Response.Status.TOO_MANY_REQUESTS).build();
 
         when(zepReceiptRestClient.getAllReceiptsForMonth(anyString(), anyString(), anyInt()))
@@ -228,11 +224,11 @@ class ReceiptServiceTest {
         List<ZepReceipt> actual = receiptService.getAllReceiptsForYearMonth(employee, firstOfPreviousMonth.toString(), DateUtils.getLastDayOfCurrentMonth(firstOfPreviousMonth));
 
         verify(logger, times(1)).warn(anyString());
-        assertEquals(List.of(), actual);
+        assertThat(actual).isEmpty();
     }
 
     @Test
-    void testGetAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonthAndToFromDateNullAndMonthNotConfirmed_thenReturnListOfReceipts() {
+    void getAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonthAndToFromDateNullAndMonthNotConfirmed_thenReturnListOfReceipts() {
         List<ZepReceipt> expectedReceipts = new ArrayList<>();
         expectedReceipts.add(ZepReceipt.builder()
                 .id(1)
@@ -272,13 +268,12 @@ class ReceiptServiceTest {
 
             List<ZepReceipt> result = receiptService.getAllReceiptsForYearMonth(employee, null, null);
 
-            assertFalse(result.isEmpty());
-            assertEquals(expectedReceipts.size(), result.size());
+            assertThat(result).hasSize(expectedReceipts.size());
         }
     }
 
     @Test
-    void testGetAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonthAndToFromDateNullAndMonthConfirmed_thenReturnListOfReceipts() {
+    void getAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonthAndToFromDateNullAndMonthConfirmed_thenReturnListOfReceipts() {
         List<ZepReceipt> expectedReceipts = new ArrayList<>();
         expectedReceipts.add(ZepReceipt.builder()
                 .id(1)
@@ -326,14 +321,13 @@ class ReceiptServiceTest {
 
                 List<ZepReceipt> result = receiptService.getAllReceiptsForYearMonth(employee, null, null);
 
-                assertFalse(result.isEmpty());
-                assertEquals(expectedReceipts.size(), result.size());
+                assertThat(result).hasSize(expectedReceipts.size());
             }
         }
     }
 
     @Test
-    void testGetAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonthAndToFromDateNullAndMonthConfirmedAndAfterMidOfMonth_thenReturnListOfReceipts() {
+    void getAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonthAndToFromDateNullAndMonthConfirmedAndAfterMidOfMonth_thenReturnListOfReceipts() {
         List<ZepReceipt> expectedReceipts = new ArrayList<>();
         expectedReceipts.add(ZepReceipt.builder()
                 .id(1)
@@ -381,10 +375,8 @@ class ReceiptServiceTest {
 
                 List<ZepReceipt> result = receiptService.getAllReceiptsForYearMonth(employee, null, null);
 
-                assertFalse(result.isEmpty());
-                assertEquals(expectedReceipts.size(), result.size());
+                assertThat(result).hasSize(expectedReceipts.size());
             }
         }
     }
-
 }

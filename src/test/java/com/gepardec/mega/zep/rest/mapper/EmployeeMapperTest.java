@@ -25,8 +25,6 @@ class EmployeeMapperTest {
 
     @InjectMock
     Logger logger;
-    
-
 
     @Test
     void mapZepEmployeeToEmployee() {
@@ -49,7 +47,7 @@ class EmployeeMapperTest {
 //    );
         boolean employeeActive = true;
 
-            //TODO: Add regularWorkingHours + workDescription
+        //TODO: Add regularWorkingHours + workDescription
         ZepEmployee zepEmployee = ZepEmployee.builder()
                 .username("000-duser")
                 .email("demo@gepardec.com")
@@ -57,7 +55,7 @@ class EmployeeMapperTest {
                 .firstname("Demo")
                 .lastname("User")
                 .salutation(ZepSalutation.builder().name("Mr.").build())
-                .releaseDate(LocalDate.of(2022, 12,1))
+                .releaseDate(LocalDate.of(2022, 12, 1))
                 .language(ZepLanguage.builder().id("de").build())
                 .build();
 
@@ -94,10 +92,10 @@ class EmployeeMapperTest {
         List<Employee> employees = employeeMapper.mapList(zepEmployees);
         Iterator<ZepEmployee> zepEmployeesIterator = zepEmployees.iterator();
         employees.forEach(employee -> {
-                            ZepEmployee zepEmployee = zepEmployeesIterator.next();
-                            assertThat(employee.getUserId()).isEqualTo(zepEmployee.username());
-                            assertThat(employee.getEmail()).isEqualTo(zepEmployee.email());
-                        });
+            ZepEmployee zepEmployee = zepEmployeesIterator.next();
+            assertThat(employee.getUserId()).isEqualTo(zepEmployee.username());
+            assertThat(employee.getEmail()).isEqualTo(zepEmployee.email());
+        });
     }
 
     @Test

@@ -6,7 +6,6 @@ import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.impl.Rest;
-
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Disabled;
@@ -30,9 +29,8 @@ class ZepRestIntegrationTest {
     @Rest
     ZepService zepService;
 
-
     @Test
-    public void fetchValidEmployee_thenReturnEmployee() {
+    void fetchValidEmployee_thenReturnEmployee() {
 
         Employee expected = Employee.builder()
                 .userId("001-hwirnsberger")
@@ -61,12 +59,12 @@ class ZepRestIntegrationTest {
     }
 
     @Test
-    public void getEmployees_InvalidUsername_thenThrowException() {
+    void getEmployees_InvalidUsername_thenThrowException() {
         assertThat(zepService.getEmployee("001-testtestnothere")).isNull();
     }
 
     @Test
-    public void getProjectTimes_valid() {
+    void getProjectTimes_valid() {
         List<ProjectEntry> projectEntries = zepService.getProjectTimes(zepService.getEmployee("001-hwirnsberger"), LocalDate.of(2020, 4, 1));
         assertThat(projectEntries.size()).isPositive();
         for (ProjectEntry projectEntry : projectEntries) {
@@ -76,13 +74,13 @@ class ZepRestIntegrationTest {
     }
 
     @Test
-    public void getProjectTimes_noEntries() {
+    void getProjectTimes_noEntries() {
         List<ProjectEntry> projectEntries = zepService.getProjectTimes(zepService.getEmployee("082-tmeindl"), LocalDate.of(2020, 4, 1));
         assertThat(projectEntries.size()).isZero();
     }
 
     @Test
-    public void getProjectTimesForEmployeePerProject_valid() {
+    void getProjectTimesForEmployeePerProject_valid() {
         List<ProjectTime> projectTimes = zepService.getProjectTimesForEmployeePerProject("BVAEB-KAP-2021", LocalDate.of(2021, 1, 1));
         assertThat(projectTimes.size()).isEqualTo(4);
         for (ProjectTime projectTime : projectTimes) {
@@ -91,7 +89,7 @@ class ZepRestIntegrationTest {
     }
 
     @Test
-    public void getProjectsForMonthYear_valid() {
+    void getProjectsForMonthYear_valid() {
         for (int i = 1; i < 10; i++) {
             List<Project> projects = zepService.getProjectsForMonthYear(LocalDate.of(2020, i, 1));
             assertThat(projects.size()).isPositive();
@@ -104,7 +102,7 @@ class ZepRestIntegrationTest {
     }
 
     @Test
-    public void getProjectForFuture_then() {
+    void getProjectForFuture_then() {
         List<Project> projects = zepService.getProjectsForMonthYear(LocalDate.of(2033, 1, 1));
         for (Project project : projects) {
             //TODO Wait for ProjectMapper todo to be resolved
@@ -112,10 +110,8 @@ class ZepRestIntegrationTest {
     }
 
     @Test
-    public void getProjectByName_valid() {
+    void getProjectByName_valid() {
         Project project = zepService.getProjectByName("BVAEB-KAP-2021", LocalDate.of(2021, 1, 5)).get();
         assertThat(project.getZepId()).isEqualTo(158);
     }
-
-
 }

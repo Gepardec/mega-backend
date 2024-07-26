@@ -290,7 +290,7 @@ class StepEntryServiceImplTest {
                 .owner(com.gepardec.mega.domain.model.User.builder().dbId(1L).build())
                 .step(Step.builder().dbId(1L).build())
                 .assignee(com.gepardec.mega.domain.model.User.builder().dbId(1L).build())
-                .date(LocalDate.of(2024,5,12))
+                .date(LocalDate.of(2024, 5, 12))
                 .project(Project.builder().projectId("ABC").build())
                 .build();
 
@@ -327,7 +327,7 @@ class StepEntryServiceImplTest {
                 .owner(com.gepardec.mega.domain.model.User.builder().dbId(1L).build())
                 .step(Step.builder().dbId(1L).build())
                 .assignee(com.gepardec.mega.domain.model.User.builder().dbId(1L).build())
-                .date(LocalDate.of(2024,5,12))
+                .date(LocalDate.of(2024, 5, 12))
                 .project(null)
                 .build();
 
@@ -379,7 +379,7 @@ class StepEntryServiceImplTest {
     }
 
     @Test
-    public void testUpdateStepEntryStateForEmployeeInProject() {
+    void updateStepEntryStateForEmployeeInProject() {
         Employee employee = Employee.builder().userId("007-JBond")
                 .firstname("James")
                 .lastname("Bond")
@@ -388,9 +388,9 @@ class StepEntryServiceImplTest {
 
         try (MockedStatic<DateUtils> dateUtilsMockedStatic = mockStatic(DateUtils.class)) {
             dateUtilsMockedStatic.when(() -> DateUtils.getFirstDayOfCurrentMonth("2024-05"))
-                    .thenReturn(LocalDate.of(2024,5,1));
+                    .thenReturn(LocalDate.of(2024, 5, 1));
             dateUtilsMockedStatic.when(() -> DateUtils.getLastDayOfCurrentMonth("2024-05"))
-                    .thenReturn(LocalDate.of(2024,5,30));
+                    .thenReturn(LocalDate.of(2024, 5, 30));
 
             when(stepEntryRepository.updateStateAssigned(
                     any(LocalDate.class),
@@ -406,7 +406,7 @@ class StepEntryServiceImplTest {
             boolean result = stepEntryService.updateStepEntryStateForEmployeeInProject(employee, 123L, "PROJECT123", "2024-05", EmployeeState.OPEN);
 
             verify(stepEntryRepository, times(1))
-                    .updateStateAssigned(LocalDate.of(2024,5,1), LocalDate.of(2024,5,30),
+                    .updateStateAssigned(LocalDate.of(2024, 5, 1), LocalDate.of(2024, 5, 30),
                             "james.bond@gmail.com", 123L, "PROJECT123", EmployeeState.OPEN);
 
             assertThat(result).isTrue();
@@ -501,7 +501,7 @@ class StepEntryServiceImplTest {
                     .thenReturn(toDate);
 
             when(stepEntryRepository.findStepEntryForEmployeeAndProjectAtStepInRange(
-                    any(LocalDate.class),  any(LocalDate.class), anyString(), anyLong(), anyString(), anyString()))
+                    any(LocalDate.class), any(LocalDate.class), anyString(), anyLong(), anyString(), anyString()))
                     .thenReturn(Optional.of(expectedStepEntry));
 
             StepEntry result = stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, currentMonthYear);

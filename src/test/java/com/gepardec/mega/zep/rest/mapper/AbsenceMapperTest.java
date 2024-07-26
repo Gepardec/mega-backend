@@ -101,7 +101,7 @@ class AbsenceMapperTest {
         };
         List<ZepAbsence> zepAbsences = List.of(zepAbsencesArr);
 
-        List<AbsenceTime> absences =  absenceMapper.mapList(zepAbsences);
+        List<AbsenceTime> absences = absenceMapper.mapList(zepAbsences);
         Iterator<ZepAbsence> zepAbsencesIterator = zepAbsences.iterator();
         absences.forEach(absence -> {
             ZepAbsence zepAbsence = zepAbsencesIterator.next();

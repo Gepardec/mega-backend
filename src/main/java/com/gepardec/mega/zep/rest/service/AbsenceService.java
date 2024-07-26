@@ -36,10 +36,10 @@ public class AbsenceService {
             );
 
             List<ZepAbsence> filteredAbsences = absences.stream()
-                                                        .filter(absence -> datesInRange(absence.startDate(), absence.endDate(), start, end))
-                                                        .toList();
+                    .filter(absence -> datesInRange(absence.startDate(), absence.endDate(), start, end))
+                    .toList();
             return getFullZepAbsences(filteredAbsences);
-        }  catch (ZepServiceException e) {
+        } catch (ZepServiceException e) {
             logger.warn("Error retrieving employee + \"%s\" from ZEP: No /data field in response".formatted(employeeName),
                     e);
             return List.of();

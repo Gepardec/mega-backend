@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class PrematureEmployeeCheckSyncServiceTest {
+class PrematureEmployeeCheckSyncServiceTest {
 
     @Inject
     PrematureEmployeeCheckSyncService prematureEmployeeCheckSyncService;

@@ -29,7 +29,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class ProjectCommentServiceImplTest {
+class ProjectCommentServiceImplTest {
+
     @InjectMock
     ProjectCommentRepository projectCommentRepository;
 
@@ -47,12 +48,12 @@ public class ProjectCommentServiceImplTest {
     private Project project;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         projectCommentDto = ProjectCommentDto.builder()
-                                            .comment("New comment")
-                                            .date(LocalDate.of(2023, 10, 1))
-                                            .projectName("Test Project")
-                                            .build();
+                .comment("New comment")
+                .date(LocalDate.of(2023, 10, 1))
+                .projectName("Test Project")
+                .build();
 
         projectComment = new ProjectComment();
         projectComment.setId(1L);
@@ -64,7 +65,7 @@ public class ProjectCommentServiceImplTest {
     }
 
     @Test
-    public void findForProjectNameInRange_shouldReturnListOfCommentsInRange() {
+    void findForProjectNameInRange_shouldReturnListOfCommentsInRange() {
         when(projectCommentRepository.findByProjectNameAndDateBetween(anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(Collections.singletonList(projectComment));
 
@@ -79,10 +80,8 @@ public class ProjectCommentServiceImplTest {
         assertThat(result.get(0)).isEqualTo(projectCommentDto);
     }
 
-
-
     @Test
-    public void findForProjectNameWithCurrentYearMonth_shouldReturnCommentForCurrentYearMonth() {
+    void findForProjectNameWithCurrentYearMonth_shouldReturnCommentForCurrentYearMonth() {
         when(projectCommentRepository.findByProjectNameAndDateBetween(anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(Collections.singletonList(projectComment));
         when(projectCommentMapper.mapToDto(projectComment))
@@ -94,7 +93,7 @@ public class ProjectCommentServiceImplTest {
     }
 
     @Test
-    public void findForProjectNameWithCurrentYearMonth_whenNoComment_shouldReturnNull() {
+    void findForProjectNameWithCurrentYearMonth_whenNoComment_shouldReturnNull() {
         when(projectCommentRepository.findByProjectNameAndDateBetween(anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(List.of());
 
@@ -103,9 +102,8 @@ public class ProjectCommentServiceImplTest {
         assertThat(result).isNull();
     }
 
-
     @Test
-    public void create_whenNoExistingComment_savesNewComment() {
+    void create_whenNoExistingComment_savesNewComment() {
         when(projectRepository.findByName(anyString()))
                 .thenReturn(project);
         when(projectCommentRepository.findByProjectNameWithDate(anyString(), any(LocalDate.class)))
@@ -121,7 +119,7 @@ public class ProjectCommentServiceImplTest {
     }
 
     @Test
-    public void create_whenExistingComment_updatesExistingComment() {
+    void create_whenExistingComment_updatesExistingComment() {
         when(projectRepository.findByName(anyString()))
                 .thenReturn(project);
         when(projectCommentRepository.findByProjectNameWithDate(anyString(), any(LocalDate.class)))
@@ -137,7 +135,7 @@ public class ProjectCommentServiceImplTest {
     }
 
     @Test
-    public void update_shouldThrowEntityNotFoundException_whenCommentNotFound() {
+    void update_shouldThrowEntityNotFoundException_whenCommentNotFound() {
         when(projectCommentRepository.findById(anyLong()))
                 .thenReturn(null);
 
@@ -146,7 +144,7 @@ public class ProjectCommentServiceImplTest {
     }
 
     @Test
-    public void update_shouldUpdateCommentIfCommentExists() {
+    void update_shouldUpdateCommentIfCommentExists() {
         when(projectCommentRepository.findById(anyLong()))
                 .thenReturn(projectComment);
 
@@ -160,7 +158,4 @@ public class ProjectCommentServiceImplTest {
         assertThat(result).isTrue();
         assertThat(projectComment.getComment()).isEqualTo("Updated comment");
     }
-
-
-
 }

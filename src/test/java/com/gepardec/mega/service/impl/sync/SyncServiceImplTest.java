@@ -37,7 +37,7 @@ class SyncServiceImplTest {
     SyncService syncService;
 
     @Test
-    public void testSyncEmployees() {
+    void syncEmployees() {
         // Mock projects
         Project project = Project.builder()
                 .projectId("xyz")
