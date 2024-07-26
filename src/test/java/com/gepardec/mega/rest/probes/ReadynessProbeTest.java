@@ -1,6 +1,6 @@
 package com.gepardec.mega.rest.probes;
 
-import com.gepardec.mega.zep.rest.client.ZepHealthRestClient;
+import com.gepardec.mega.zep.rest.client.ZepLivenessRestClient;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.ws.rs.core.Response;
@@ -15,14 +15,14 @@ import static io.restassured.RestAssured.given;
 @QuarkusTest
 class ReadynessProbeTest {
 
-    @InjectMock @RestClient
-    ZepHealthRestClient zepHealthRestClient;
+    @InjectMock
+    @RestClient
+    ZepLivenessRestClient zepLivenessRestClient;
 
     @BeforeEach
     void setUp() {
-        Mockito.when(zepHealthRestClient.health())
+        Mockito.when(zepLivenessRestClient.liveness())
                 .thenReturn(Response.ok().build());
-
     }
 
     @Test
@@ -34,7 +34,6 @@ class ReadynessProbeTest {
 
     @Test
     void live_whenCalled_thenReturnsHttpStatusOK() {
-
         given().when()
                 .get("/health/live")
                 .then().assertThat().statusCode(HttpStatus.SC_OK);

@@ -1,5 +1,6 @@
 package com.gepardec.mega.zep.rest.client;
 
+import com.gepardec.mega.application.health.LivenessApi;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -11,10 +12,10 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @RegisterRestClient(configKey = "zep-health")
 @RegisterClientHeaders(AuthHeaders.class)
 @ApplicationScoped
-public interface ZepHealthRestClient {
+public interface ZepLivenessRestClient extends LivenessApi {
 
     @GET
     @Path("/")
-    Response health();
-
+    @Override
+    Response liveness();
 }

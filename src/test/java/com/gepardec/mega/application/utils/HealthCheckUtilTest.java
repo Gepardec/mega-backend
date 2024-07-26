@@ -1,45 +1,42 @@
 package com.gepardec.mega.application.utils;
 
-import com.gepardec.mega.application.health.LivenessUtil;
-import com.gepardec.mega.personio.PersonioHealthClient;
-import com.gepardec.mega.zep.rest.client.ZepHealthRestClient;
+import com.gepardec.mega.application.health.HealthCheckUtil;
+import com.gepardec.mega.personio.PersonioLivenessClient;
+import com.gepardec.mega.zep.rest.client.ZepLivenessRestClient;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class LivenessUtilTest {
-    @Inject
-    LivenessUtil livenessUtil;
+public class HealthCheckUtilTest {
 
     @InjectMock
     @RestClient
-    PersonioHealthClient personioHealthClient;
+    PersonioLivenessClient personioLivenessClient;
 
     @InjectMock
     @RestClient
-    ZepHealthRestClient zepHealthRestClient;
-
+    ZepLivenessRestClient zepLivenessRestClient;
 
     @Test
-    void getResponseForPersonio_whenPersonioIsUp_returnHealthCheckResponseWithStatusUp() {
-        when(personioHealthClient.health()).thenReturn(getOkResponse());
-        HealthCheckResponse actual = livenessUtil.getResponseForPersonio();
+    void checkApi_whenPersonioIsUp_returnHealthCheckResponseWithStatusUp() {
+        when(personioLivenessClient.liveness()).thenReturn(getOkResponse());
+        HealthCheckResponse actual = HealthCheckUtil.checkApi("Personio", personioLivenessClient);
 
-       assertThat(actual.getName()).isEqualTo("Personio Liveness");
-       assertThat(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.UP);
+        assertThat(actual.getName()).isEqualTo("Personio Liveness");
+        assertThat(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.UP);
     }
 
     @Test
-    void getResponseForPersonio_whenPersonioIsDown_returnHealthCheckResponseWithStatusDown() {
-        when(personioHealthClient.health()).thenReturn(getErrorResponse());
-        HealthCheckResponse actual = livenessUtil.getResponseForPersonio();
+    void checkApi_whenPersonioIsDown_returnHealthCheckResponseWithStatusDown() {
+        when(personioLivenessClient.liveness()).thenReturn(getErrorResponse());
+        HealthCheckResponse actual = HealthCheckUtil.checkApi("Personio", personioLivenessClient);
 
         assertThat(actual.getName()).isEqualTo("Personio Liveness");
         assertThat(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.DOWN);
@@ -47,8 +44,8 @@ public class LivenessUtilTest {
 
     @Test
     void getResponseForZep_whenZepIsUp_returnHealthCheckResponseWithStatusUp() {
-        when(zepHealthRestClient.health()).thenReturn(getOkResponse());
-        HealthCheckResponse actual = livenessUtil.getResponseForZep();
+        when(zepLivenessRestClient.liveness()).thenReturn(getOkResponse());
+        HealthCheckResponse actual = HealthCheckUtil.checkApi("Zep", zepLivenessRestClient);
 
         assertThat(actual.getName()).isEqualTo("Zep Liveness");
         assertThat(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.UP);
@@ -56,8 +53,8 @@ public class LivenessUtilTest {
 
     @Test
     void getResponseForZep_whenZepIsDown_returnHealthCheckResponseWithStatusDown() {
-        when(zepHealthRestClient.health()).thenReturn(getErrorResponse());
-        HealthCheckResponse actual = livenessUtil.getResponseForZep();
+        when(zepLivenessRestClient.liveness()).thenReturn(getErrorResponse());
+        HealthCheckResponse actual = HealthCheckUtil.checkApi("Zep", zepLivenessRestClient);
 
         assertThat(actual.getName()).isEqualTo("Zep Liveness");
         assertThat(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.DOWN);
