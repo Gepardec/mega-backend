@@ -16,7 +16,7 @@ public class AbsenceMapper implements Mapper<AbsenceTime, ZepAbsence> {
     @Override
     public AbsenceTime map(ZepAbsence zepAbsence) {
 
-        if (zepAbsence == null){
+        if (zepAbsence == null) {
             logger.info("ZEP REST implementation -- While trying to map ZepAbsence to AbsenceTime, ZepAbsence was null");
             return null;
         }
@@ -36,7 +36,7 @@ public class AbsenceMapper implements Mapper<AbsenceTime, ZepAbsence> {
             logger.debug("Mapped ZepAbsence to AbsenceTime -- some values have been hardcoded and not fetched from the ZEP rest client");
             return absenceTime;
 
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new ZepServiceException("While trying to map ZepAbsence to AbsenceTime, an error occurred", e);
         }
 

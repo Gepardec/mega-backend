@@ -28,7 +28,7 @@ class ProjectMapperTest {
     Logger logger;
 
     @Test
-    public void fullZepProject_thenFullProject() {
+    void fullZepProject_thenFullProject() {
         List<ZepProjectEmployee> zepProjectEmployees = List.of(
                 ZepProjectEmployee.builder()
                         .username("Anton")

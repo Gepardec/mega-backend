@@ -27,7 +27,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class ProjectSyncServiceImplTest {
+class ProjectSyncServiceImplTest {
+
     @Inject
     ProjectSyncService projectSyncService;
 
@@ -41,7 +42,7 @@ public class ProjectSyncServiceImplTest {
     ProjectService projectService;
 
     @Test
-    void testGenerateProjectsWithDate() {
+    void generateProjectsWithDate() {
         LocalDate date = LocalDate.of(2024, 5, 1);
         List<User> activeUsers = List.of(mock(User.class), mock(User.class));
         List<Project> projectsForMonthYear = List.of(mock(Project.class), mock(Project.class));
@@ -64,7 +65,7 @@ public class ProjectSyncServiceImplTest {
     }
 
     @Test
-    void testGenerateProjects() {
+    void generateProjects() {
         LocalDate expectedDate = LocalDate.now().minusMonths(1).withDayOfMonth(1);
         List<User> activeUsers = List.of(mock(User.class), mock(User.class));
         List<Project> projectsForMonthYear = List.of(mock(Project.class), mock(Project.class));

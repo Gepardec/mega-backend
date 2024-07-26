@@ -25,7 +25,8 @@ import static org.mockito.Mockito.when;
 
 
 @QuarkusTest
-public class PrematureEmployeeCheckServiceTest {
+class PrematureEmployeeCheckServiceTest {
+
     @Inject
     PrematureEmployeeCheckService prematureEmployeeCheckService;
 
@@ -40,7 +41,7 @@ public class PrematureEmployeeCheckServiceTest {
 
 
     @Test
-    public void addPrematureEmployeeCheck_addValid_returnTrue() {
+    void addPrematureEmployeeCheck_addValid_returnTrue() {
 //        Given
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .user(createUserForRole(Role.EMPLOYEE))
@@ -57,7 +58,7 @@ public class PrematureEmployeeCheckServiceTest {
     }
 
     @Test
-    public void addPrematureEmployeeCheck_dbFails_returnFalse() {
+    void addPrematureEmployeeCheck_dbFails_returnFalse() {
 //        Given
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .user(createUserForRole(Role.EMPLOYEE))
@@ -74,7 +75,7 @@ public class PrematureEmployeeCheckServiceTest {
     }
 
     @Test
-    public void updatePrematureEmployeeCheck_validUpdate_returnTrue() {
+    void updatePrematureEmployeeCheck_validUpdate_returnTrue() {
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .id(1L)
                 .user(createUserForRole(Role.EMPLOYEE))
@@ -92,7 +93,7 @@ public class PrematureEmployeeCheckServiceTest {
     }
 
     @Test
-    public void updatePrematureEmployeeCheck_updateFails_returnFalse() {
+    void updatePrematureEmployeeCheck_updateFails_returnFalse() {
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .id(1L)
                 .user(createUserForRole(Role.EMPLOYEE))
@@ -110,7 +111,7 @@ public class PrematureEmployeeCheckServiceTest {
     }
 
     @Test
-    public void findAllForMonth_validMonth_returnList() {
+    void findAllForMonth_validMonth_returnList() {
         LocalDate date = LocalDate.of(2023, 10, 1);
         List<PrematureEmployeeCheckEntity> entityList = List.of(createDBPrematureEmployeeCheck(1L));
         List<PrematureEmployeeCheck> dtoList = List.of(PrematureEmployeeCheck.builder().build());
@@ -122,7 +123,7 @@ public class PrematureEmployeeCheckServiceTest {
     }
 
     @Test
-    public void deleteAllForMonthWithState_validRequest_returnCount() {
+    void deleteAllForMonthWithState_validRequest_returnCount() {
         LocalDate date = LocalDate.of(2023, 10, 1);
         List<PrematureEmployeeCheckState> states = List.of(PrematureEmployeeCheckState.DONE);
         long expectedCount = 5L;
@@ -133,7 +134,7 @@ public class PrematureEmployeeCheckServiceTest {
     }
 
     @Test
-    public void deleteById_validId_returnTrue() {
+    void deleteById_validId_returnTrue() {
         Long id = 1L;
 
         when(prematureEmployeeCheckRepository.delete(id)).thenReturn(true);
@@ -142,15 +143,13 @@ public class PrematureEmployeeCheckServiceTest {
     }
 
     @Test
-    public void deleteById_invalidId_returnFalse() {
+    void deleteById_invalidId_returnFalse() {
         Long id = 1L;
 
         when(prematureEmployeeCheckRepository.delete(id)).thenReturn(false);
 
         assertThat(prematureEmployeeCheckService.deleteById(id)).isFalse();
     }
-
-
 
     private User createUserForRole(final Role role) {
         return User.builder()

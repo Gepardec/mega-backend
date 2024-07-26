@@ -4,7 +4,6 @@ import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
 import com.gepardec.mega.domain.mapper.PrematureEmployeeCheckMapper;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
-import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -17,14 +16,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @QuarkusTest
-public class PrematureEmployeeCheckMapperTest {
+class PrematureEmployeeCheckMapperTest {
 
     @Inject
     PrematureEmployeeCheckMapper prematureEmployeeCheckMapper;
 
 
     @Test
-    public void mapToDomain_dbEntity_mappedCorrectly() {
+    void mapToDomain_dbEntity_mappedCorrectly() {
 //        Given
         PrematureEmployeeCheckEntity dbPrematureEmployeeCheck = createDBPrematureEmployeeCheck(1L);
 
@@ -44,7 +43,7 @@ public class PrematureEmployeeCheckMapperTest {
     }
 
     @Test
-    public void mapListToDomain_dbEntityList_correctLength() {
+    void mapListToDomain_dbEntityList_correctLength() {
 //        Given
         List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntity = List.of(createDBPrematureEmployeeCheck(1L), createDBPrematureEmployeeCheck(1L));
 
@@ -80,7 +79,7 @@ public class PrematureEmployeeCheckMapperTest {
     }
 
     @Test
-    void mapToEntityWithTwoParams_whenReasonIsNull() {
+    void mapToEntity_WithTwoParams_whenReasonIsNull() {
         PrematureEmployeeCheck domain = createPrematureEmployeeCheck(1L, User.builder().userId("001-maxmustermann").build(), null);
         PrematureEmployeeCheckEntity entity = new PrematureEmployeeCheckEntity();
         entity.setId(domain.getId());
@@ -93,7 +92,7 @@ public class PrematureEmployeeCheckMapperTest {
     }
 
 
-    private com.gepardec.mega.db.entity.employee.User createDBUserForRole(final Role role) {
+    private com.gepardec.mega.db.entity.employee.User createDBUserForRole() {
         com.gepardec.mega.db.entity.employee.User user = new com.gepardec.mega.db.entity.employee.User();
         user.setId(1L);
         user.setActive(true);
@@ -105,20 +104,18 @@ public class PrematureEmployeeCheckMapperTest {
         return PrematureEmployeeCheck.builder()
                 .id(id)
                 .user(user)
-                .forMonth(LocalDate.of(2024,6,1))
+                .forMonth(LocalDate.of(2024, 6, 1))
                 .reason(reason)
                 .state(PrematureEmployeeCheckState.IN_PROGRESS)
                 .build();
     }
 
-
     private PrematureEmployeeCheckEntity createDBPrematureEmployeeCheck(Long id) {
         PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
         prematureEmployeeCheckEntity.setId(id);
-        prematureEmployeeCheckEntity.setUser(createDBUserForRole(Role.EMPLOYEE));
+        prematureEmployeeCheckEntity.setUser(createDBUserForRole());
         prematureEmployeeCheckEntity.setForMonth(LocalDate.of(2023, 10, 1));
         prematureEmployeeCheckEntity.setReason("reason");
         return prematureEmployeeCheckEntity;
     }
-
 }

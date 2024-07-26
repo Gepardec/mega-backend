@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class ProjectEntryServiceImplTest {
+class ProjectEntryServiceImplTest {
 
     @Inject
     ProjectEntryService projectEntryService;
@@ -32,10 +32,10 @@ public class ProjectEntryServiceImplTest {
 
     @Test
     void findByNameAndDate_returnsProjectEntryList() {
-        when(projectEntryRepository.findByNameAndDate(anyString(),any(LocalDate.class), any(LocalDate.class)))
+        when(projectEntryRepository.findByNameAndDate(anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(createProjectEntryList());
 
-        List<ProjectEntry> actual = projectEntryService.findByNameAndDate("ABC", LocalDate.of(2024,6,1), LocalDate.of(2024,6,30));
+        List<ProjectEntry> actual = projectEntryService.findByNameAndDate("ABC", LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 30));
 
         assertThat(actual.size()).isOne();
         assertThat(actual.get(0).getName()).isEqualTo("ABC");
@@ -43,7 +43,7 @@ public class ProjectEntryServiceImplTest {
 
     @Test
     void updateProjectEntry_returnsTrue() {
-        when(projectEntryRepository.findByNameAndEntryDateAndStep(anyString(),any(LocalDate.class), any(ProjectStep.class)))
+        when(projectEntryRepository.findByNameAndEntryDateAndStep(anyString(), any(LocalDate.class), any(ProjectStep.class)))
                 .thenReturn(createProjectEntry());
 
         when(projectEntryRepository.updateProjectEntry(any(ProjectEntry.class)))
@@ -55,12 +55,12 @@ public class ProjectEntryServiceImplTest {
     }
 
     private List<ProjectEntry> createProjectEntryList() {
-       List<ProjectEntry> projectEntryList = new ArrayList<>();
-       ProjectEntry projectEntry = new ProjectEntry();
-       projectEntry.setName("ABC");
-       projectEntry.setDate(LocalDate.now());
-       projectEntryList.add(projectEntry);
-       return projectEntryList;
+        List<ProjectEntry> projectEntryList = new ArrayList<>();
+        ProjectEntry projectEntry = new ProjectEntry();
+        projectEntry.setName("ABC");
+        projectEntry.setDate(LocalDate.now());
+        projectEntryList.add(projectEntry);
+        return projectEntryList;
     }
 
     private ProjectEntry createProjectEntry() {

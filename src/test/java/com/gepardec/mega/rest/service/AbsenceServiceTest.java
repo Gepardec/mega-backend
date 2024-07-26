@@ -9,10 +9,8 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-import org.junit.jupiter.api.BeforeEach;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
@@ -27,10 +25,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class AbsenceServiceTest {
-    @Mock
-    ZepAbsenceRestClient zepAbsenceRestClient;
+class AbsenceServiceTest {
 
+    @InjectMock
+    @RestClient
+    ZepAbsenceRestClient zepAbsenceRestClient;
 
     @InjectMock
     ResponseParser responseParser;
@@ -41,28 +40,23 @@ public class AbsenceServiceTest {
     @InjectMock
     Logger logger;
 
-    @BeforeEach
-    void initMocks() {
-        MockitoAnnotations.initMocks(this);
-    }
-
     @Test
-    void testGetZepAbsencesByEmployeeNameForDateRange_whenAbsencesPresent_thenReturnListOfEmployees(){
+    void getZepAbsencesByEmployeeNameForDateRange_whenAbsencesPresent_thenReturnListOfEmployees() {
         String employeeName = "testUser";
-        LocalDate start = LocalDate.of(2024,5,1);
-        LocalDate end = LocalDate.of(2024,5,30);
+        LocalDate start = LocalDate.of(2024, 5, 1);
+        LocalDate end = LocalDate.of(2024, 5, 30);
 
         List<ZepAbsence> mockAbsences = List.of(
                 ZepAbsence.builder()
                         .employeeId(employeeName)
-                        .startDate(LocalDate.of(2024,5,1))
-                        .endDate(LocalDate.of(2024,5,5))
+                        .startDate(LocalDate.of(2024, 5, 1))
+                        .endDate(LocalDate.of(2024, 5, 5))
                         .id(1)
                         .build(),
                 ZepAbsence.builder()
                         .employeeId(employeeName)
-                        .startDate(LocalDate.of(2024,5,8))
-                        .endDate(LocalDate.of(2024,5,14))
+                        .startDate(LocalDate.of(2024, 5, 8))
+                        .endDate(LocalDate.of(2024, 5, 14))
                         .id(2)
                         .build()
         );
@@ -74,11 +68,11 @@ public class AbsenceServiceTest {
                 .thenReturn(mockAbsences);
         when(responseParser.retrieveSingle(eq(res1), eq(ZepAbsence.class)))
                 .thenReturn(
-                    Optional.of(mockAbsences.get(0))
+                        Optional.of(mockAbsences.get(0))
                 );
         when(responseParser.retrieveSingle(eq(res2), eq(ZepAbsence.class)))
                 .thenReturn(
-                    Optional.of(mockAbsences.get(1))
+                        Optional.of(mockAbsences.get(1))
                 );
 
         when(zepAbsenceRestClient.getAbsenceById(eq(1)))
@@ -94,7 +88,7 @@ public class AbsenceServiceTest {
     }
 
     @Test
-    void testGetZepAbsencesByEmployeeNameForDateRange_whenZepServiceExceptionThrown_thenLogError() {
+    void getZepAbsencesByEmployeeNameForDateRange_whenZepServiceExceptionThrown_thenLogError() {
         String employeeName = "testUser";
         LocalDate start = LocalDate.of(2024, 5, 1);
         LocalDate end = LocalDate.of(2024, 5, 30);
@@ -108,8 +102,9 @@ public class AbsenceServiceTest {
         assertThat(result.size()).isZero();
         verify(logger).warn(anyString(), any(ZepServiceException.class));
     }
+
     @Test
-    void testGeZepAbsenceById_whenNoAbsenceWithId_thenLogError() {
+    void geZepAbsenceById_whenNoAbsenceWithId_thenLogError() {
         when(responseParser.retrieveSingle(any(), eq(ZepAbsence.class)))
                 .thenThrow(new ZepServiceException("Service unavailable"));
 

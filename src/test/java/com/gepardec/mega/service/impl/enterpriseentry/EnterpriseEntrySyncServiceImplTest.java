@@ -10,8 +10,6 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 
 import java.time.Instant;
@@ -30,9 +28,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class EnterpriseEntrySyncServiceImplTest {
+class EnterpriseEntrySyncServiceImplTest {
+
     @InjectMock
-    EnterpriseEntryRepository   enterpriseEntryRepository;
+    EnterpriseEntryRepository enterpriseEntryRepository;
 
     @Inject
     EnterpriseSyncService enterpriseSyncService;
@@ -45,7 +44,7 @@ public class EnterpriseEntrySyncServiceImplTest {
     private LocalDate date;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         date = LocalDate.of(2023, 10, 1);
         enterpriseEntry = new EnterpriseEntry();
         enterpriseEntry.setDate(date);
@@ -57,8 +56,8 @@ public class EnterpriseEntrySyncServiceImplTest {
     }
 
     @Test
-    public void generateEnterpriseEntries_noExistingEntry_createsEntry() {
-       // returns Optional empty when reached for the first time, Optional.of() any other time
+    void generateEnterpriseEntries_noExistingEntry_createsEntry() {
+        // returns Optional empty when reached for the first time, Optional.of() any other time
         when(enterpriseEntryRepository.findByDate(any(LocalDate.class)))
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.of(enterpriseEntry));
@@ -84,7 +83,7 @@ public class EnterpriseEntrySyncServiceImplTest {
     }
 
     @Test
-    public void generateEnterpriseEntries_existingEntry_logsDebugMessage() {
+    void generateEnterpriseEntries_existingEntry_logsDebugMessage() {
         when(enterpriseEntryRepository.findByDate(any(LocalDate.class))).thenReturn(Optional.of(enterpriseEntry));
 
         boolean result = enterpriseSyncService.generateEnterpriseEntries(date);
@@ -98,5 +97,4 @@ public class EnterpriseEntrySyncServiceImplTest {
 
         assertThat(result).isTrue();
     }
-
 }

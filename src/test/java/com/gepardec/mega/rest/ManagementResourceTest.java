@@ -44,8 +44,9 @@ import java.util.*;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
@@ -596,9 +597,7 @@ class ManagementResourceTest {
 
             assertThat(resultList).hasSize(2);
             assertThat(resultList.get(0).getProjectName()).isEqualTo(createProjectList().get(0).getProjectId());
-
         }
-
     }
 
     private List<Project> createProjectList() {
@@ -621,7 +620,7 @@ class ManagementResourceTest {
                         .build()
         );
 
-       return projects;
+        return projects;
     }
 
     private Step createStep(StepName stepName) {

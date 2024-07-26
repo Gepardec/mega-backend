@@ -218,9 +218,10 @@ class SyncResourceTest {
     }
 
     @Test
-    void testSyncEmployees_returnsStatusOK() {
-        Response response = syncResource.syncEmployees();
-        assertThat(response.getStatus()).isEqualTo(200);
+    void syncEmployees_returnsStatusOK() {
+        try (Response response = syncResource.syncEmployees()) {
+            assertThat(response.getStatus()).isEqualTo(200);
+        }
     }
 
     static Stream<Arguments> parameters() {
@@ -234,50 +235,50 @@ class SyncResourceTest {
 
     @ParameterizedTest
     @MethodSource("parameters")
-    public void testSyncProjects(YearMonth from, YearMonth to) {
+    void syncProjects(YearMonth from, YearMonth to) {
         ProjectSyncService projectSyncService = mock(ProjectSyncService.class);
         when(projectSyncService.generateProjects(any()))
                 .thenReturn(true);
 
-        Response response = syncResource.syncProjects(from, to);
-
-        assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+        try (Response response = syncResource.syncProjects(from, to)) {
+            assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+        }
     }
 
     @ParameterizedTest
     @MethodSource("parameters")
-    public void testGenerateEnterpriseEntries(YearMonth from, YearMonth to) {
+    void generateEnterpriseEntries(YearMonth from, YearMonth to) {
         EnterpriseSyncService enterpriseSyncService = mock(EnterpriseSyncService.class);
         when(enterpriseSyncService.generateEnterpriseEntries(any(LocalDate.class)))
                 .thenReturn(true);
 
-        Response response = syncResource.generateEnterpriseEntries(from, to);
-
-        assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+        try (Response response = syncResource.generateEnterpriseEntries(from, to)) {
+            assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+        }
     }
 
     @ParameterizedTest
     @MethodSource("parameters")
-    public void testGenerateStepEntries(YearMonth from, YearMonth to) {
+    void generateStepEntries(YearMonth from, YearMonth to) {
         StepEntrySyncService stepEntrySyncService = mock(StepEntrySyncService.class);
         when(stepEntrySyncService.generateStepEntries(any()))
                 .thenReturn(true);
 
-        Response response = syncResource.generateStepEntries(from, to);
-
-        assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+        try (Response response = syncResource.generateStepEntries(from, to)) {
+            assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+        }
     }
 
     @ParameterizedTest
     @MethodSource("parameters")
-    public void testSyncPrematureEmployeeChecks(YearMonth from, YearMonth to) {
+    void syncPrematureEmployeeChecks(YearMonth from, YearMonth to) {
         PrematureEmployeeCheckSyncService prematureEmployeeCheckSyncService = mock(PrematureEmployeeCheckSyncService.class);
         when(prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(any()))
                 .thenReturn(true);
 
-        Response response = syncResource.syncPrematureEmployeeChecks(from, to);
-
-        assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+        try (Response response = syncResource.syncPrematureEmployeeChecks(from, to)) {
+            assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());
+        }
     }
 
     //helpers
@@ -289,7 +290,6 @@ class SyncResourceTest {
                 .active(true)
                 .build();
     }
-
 
     private static AbsenceTime createFehlzeitTypeForUser(final String userId, final String startDate, final String endDate, final String reason) {
         return new AbsenceTime(

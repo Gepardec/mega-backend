@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-public class CommentTest {
+class CommentTest {
 
     @Test
-    public void setMessage_whenSmallMessage_thenSetsSameMessage() {
+    void setMessage_whenSmallMessage_thenSetsSameMessage() {
         // given
         String input = "Hello";
 
@@ -22,7 +22,7 @@ public class CommentTest {
     }
 
     @Test
-    public void setMessage_whenMessageSizeIsLimit_thenSetsSameMessage() {
+    void setMessage_whenMessageSizeIsLimit_thenSetsSameMessage() {
         // given
         String inputMessage = "a".repeat(Comment.MAX_MESSAGE_LENGTH);
 
@@ -35,7 +35,7 @@ public class CommentTest {
     }
 
     @Test
-    public void setMessage_whenLargeMessage_thenSetsShortenedMessage() {
+    void setMessage_whenLargeMessage_thenSetsShortenedMessage() {
         // given
         String inputMessage = "a".repeat(Comment.MAX_MESSAGE_LENGTH + 10);
 
@@ -49,7 +49,7 @@ public class CommentTest {
     }
 
     @Test
-    public void setMessage_whenNull_thenMessageNull() {
+    void setMessage_whenNull_thenMessageNull() {
         Comment messageComment = new Comment();
         messageComment.setMessage("becomes null");
 

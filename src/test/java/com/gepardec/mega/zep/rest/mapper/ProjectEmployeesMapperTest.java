@@ -13,7 +13,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 
 @QuarkusTest
-public class ProjectEmployeesMapperTest {
+class ProjectEmployeesMapperTest {
+
     @Inject
     ProjectEmployeesMapper mapper;
 

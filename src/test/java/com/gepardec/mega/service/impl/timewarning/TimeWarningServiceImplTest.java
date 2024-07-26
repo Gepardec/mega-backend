@@ -35,7 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class TimeWarningServiceImplTest {
+class TimeWarningServiceImplTest {
 
     @Inject
     TimeWarningService timeWarningService;
@@ -47,7 +47,7 @@ public class TimeWarningServiceImplTest {
     UserContext userContext;
 
     @Test
-    void testGetAllWarningsForEmployeeAndMonth_whenWarningsPresent_thenReturnListOfMonthlyWarning(){
+    void getAllWarningsForEmployeeAndMonth_whenWarningsPresent_thenReturnListOfMonthlyWarning() {
         User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
@@ -71,7 +71,7 @@ public class TimeWarningServiceImplTest {
     }
 
     @Test
-    void testGetAllWarningsForEmployeeAndMonth_whenNoWarningsPresent_thenReturnEmptyList(){
+    void getAllWarningsForEmployeeAndMonth_whenNoWarningsPresent_thenReturnEmptyList() {
         User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
@@ -111,7 +111,7 @@ public class TimeWarningServiceImplTest {
     }
 
     private List<ProjectEntry> createProjectEntryListForRequest() {
-       List<ProjectEntry> projectEntries = new ArrayList<>();
+        List<ProjectEntry> projectEntries = new ArrayList<>();
         projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 5, 1, 15, 0),
                 LocalDateTime.of(2024, 5, 1, 0, 0)));
         projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2024, 5, 3, 12, 45),
@@ -253,8 +253,6 @@ public class TimeWarningServiceImplTest {
         return projectEntries;
     }
 
-
-
     private JourneyTimeEntry createJourneyTimeEntry(LocalDateTime from, LocalDateTime to) {
         return JourneyTimeEntry.builder()
                 .fromTime(from)
@@ -289,7 +287,7 @@ public class TimeWarningServiceImplTest {
                 .build();
     }
 
-    private List<TimeWarning> createNoTimeEntries(){
+    private List<TimeWarning> createNoTimeEntries() {
         List<TimeWarning> timeWarnings = new ArrayList<>();
         timeWarnings.add(createNoTimeEntry("2024-05-06"));
         timeWarnings.add(createNoTimeEntry("2024-05-07"));
@@ -306,7 +304,7 @@ public class TimeWarningServiceImplTest {
         return timeWarnings;
     }
 
-    private List<TimeWarning> createTimeWarnings(){
+    private List<TimeWarning> createTimeWarnings() {
         List<TimeWarning> timeWarnings = new ArrayList<>();
         timeWarnings.add(createTimeWarning("2024-05-01", List.of(TimeWarningType.HOLIDAY)));
         timeWarnings.add(createTimeWarning("2024-05-03", List.of(TimeWarningType.EXCESS_WORKING_TIME_PRESENT, TimeWarningType.MISSING_BREAK_TIME, TimeWarningType.MISSING_REST_TIME)));
@@ -319,21 +317,21 @@ public class TimeWarningServiceImplTest {
         return timeWarnings;
     }
 
-    private TimeWarning createNoTimeEntry(String date){
+    private TimeWarning createNoTimeEntry(String date) {
         TimeWarning timeWarning = new TimeWarning();
         timeWarning.setWarningTypes(List.of(TimeWarningType.NO_TIME_ENTRY));
         timeWarning.setDate(DateUtils.parseDate(date));
         return timeWarning;
     }
 
-    private TimeWarning createTimeWarning(String date, List<TimeWarningType> types){
+    private TimeWarning createTimeWarning(String date, List<TimeWarningType> types) {
         TimeWarning timeWarning = new TimeWarning();
         timeWarning.setWarningTypes(types);
         timeWarning.setDate(DateUtils.parseDate(date));
         return timeWarning;
     }
 
-    private JourneyWarning createJourneyWarning(String date){
+    private JourneyWarning createJourneyWarning(String date) {
         JourneyWarning journeyWarning = new JourneyWarning();
         journeyWarning.setWarningTypes(List.of(JourneyWarningType.BACK_MISSING, JourneyWarningType.INVALID_WORKING_LOCATION));
         journeyWarning.setDate(DateUtils.parseDate(date));

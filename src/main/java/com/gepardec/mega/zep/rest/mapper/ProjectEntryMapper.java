@@ -26,7 +26,7 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
             return null;
         }
 
-        try{
+        try {
 
             Task task = toTask(zepAttendance.activity());
             LocalDateTime from = LocalDateTime.of(zepAttendance.date(), zepAttendance.from());
@@ -58,11 +58,9 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
                         .process(process)
                         .build();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new ZepServiceException("While trying to map ZepAttendance to ProjectEntry, an error occurred", e);
         }
-
-    
     }
 
     @Override
@@ -92,7 +90,7 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
     }
 
     private JourneyDirection toJourneyDirection(final ZepAttendanceDirectionOfTravel direction) {
-        if(direction == null) {
+        if (direction == null) {
             return JourneyDirection.TO;
         }
         return JourneyDirection.fromString(direction.id())

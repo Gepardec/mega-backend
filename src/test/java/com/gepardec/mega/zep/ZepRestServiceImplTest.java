@@ -74,7 +74,8 @@ class ZepRestServiceImplTest {
     @InjectMock
     RegularWorkingTimesService regularWorkingTimesService;
 
-    @Inject @Rest
+    @Inject
+    @Rest
     ZepService zepRestService;
 
     @InjectMock
@@ -147,15 +148,15 @@ class ZepRestServiceImplTest {
 
     @Test
     void getMonthlyBillInfoForEmployee_whenEmployeeHasBillInfoWithWarnings_thenReturnMonthlyBillInfo() {
-        LocalDate fromDate = LocalDate.of(2024,6,13);
-        String toDateString = LocalDate.of(2024,6,30).toString();
+        LocalDate fromDate = LocalDate.of(2024, 6, 13);
+        String toDateString = LocalDate.of(2024, 6, 30).toString();
         Pair<String, String> datePair = Pair.of(fromDate.toString(), toDateString);
 
         List<ZepReceipt> allReceipts = new ArrayList<>();
-        ZepReceipt receipt= ZepReceipt.builder().employeeId("007-jbond").paymentMethodType(PaymentMethodType.PRIVATE.getPaymentMethodName()).id(1).build();
-        ZepReceiptAttachment receiptAttachment= ZepReceiptAttachment.builder().fileContent("ABC").build();
+        ZepReceipt receipt = ZepReceipt.builder().employeeId("007-jbond").paymentMethodType(PaymentMethodType.PRIVATE.getPaymentMethodName()).id(1).build();
+        ZepReceiptAttachment receiptAttachment = ZepReceiptAttachment.builder().fileContent("ABC").build();
         ZepReceipt receipt2 = ZepReceipt.builder().employeeId("007-jbond").paymentMethodType(PaymentMethodType.COMPANY.getPaymentMethodName()).id(2).build();
-        ZepReceiptAttachment receipt2Attachment= ZepReceiptAttachment.builder().fileContent("DEF").build();
+        ZepReceiptAttachment receipt2Attachment = ZepReceiptAttachment.builder().fileContent("DEF").build();
         allReceipts.add(receipt);
         allReceipts.add(receipt2);
 
@@ -172,7 +173,7 @@ class ZepRestServiceImplTest {
                 .thenReturn(Optional.of(receiptAttachment))
                 .thenReturn(Optional.empty());
 
-        MonthlyBillInfo result = zepRestService.getMonthlyBillInfoForEmployee(personioEmployee, employee, YearMonth.of(2024,6));
+        MonthlyBillInfo result = zepRestService.getMonthlyBillInfoForEmployee(personioEmployee, employee, YearMonth.of(2024, 6));
 
         assertThat(result).isNotNull();
         assertThat(result.getSumBills()).isEqualTo(2);
@@ -184,8 +185,8 @@ class ZepRestServiceImplTest {
 
     @Test
     void getMonthlyBillInfoForEmployee_whenEmployeeHasNoBillInfo_thenReturnEmptyMonthlyBillInfo() {
-        LocalDate fromDate = LocalDate.of(2024,6,13);
-        String toDateString = LocalDate.of(2024,6,30).toString();
+        LocalDate fromDate = LocalDate.of(2024, 6, 13);
+        String toDateString = LocalDate.of(2024, 6, 30).toString();
         Pair<String, String> datePair = Pair.of(fromDate.toString(), toDateString);
 
         List<ZepReceipt> allReceipts = new ArrayList<>();
@@ -200,7 +201,7 @@ class ZepRestServiceImplTest {
                 .thenReturn(allReceipts);
 
 
-        MonthlyBillInfo result = zepRestService.getMonthlyBillInfoForEmployee(personioEmployee, employee, YearMonth.of(2024,6));
+        MonthlyBillInfo result = zepRestService.getMonthlyBillInfoForEmployee(personioEmployee, employee, YearMonth.of(2024, 6));
 
         assertThat(result).isNotNull();
         assertThat(result.getSumBills()).isZero();
@@ -215,8 +216,8 @@ class ZepRestServiceImplTest {
         Employee employee = Employee.builder().userId("007-jbond").build();
         ZepEmployee zepEmployee = ZepEmployee.builder().username("007-jbond").build();
         ZepProjectEmployee zepProjectEmployee = ZepProjectEmployee.builder().username("007-jbond").build();
-        LocalDate fromDate = LocalDate.of(2024,6,1);
-        String toDateString = LocalDate.of(2024,6,30).toString();
+        LocalDate fromDate = LocalDate.of(2024, 6, 1);
+        String toDateString = LocalDate.of(2024, 6, 30).toString();
         Pair<String, String> datePair = Pair.of(fromDate.toString(), toDateString);
 
 
@@ -238,9 +239,9 @@ class ZepRestServiceImplTest {
 
         when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(LocalDate.class), anyInt()))
                 .thenReturn(List.of(
-                        ZepAttendance.builder().billable(true).duration(2.0).projectId(1).date(LocalDate.of(2024,6,1)).build(),
-                        ZepAttendance.builder().billable(false).duration(2.0).projectId(1).date(LocalDate.of(2024,6,4)).build(),
-                        ZepAttendance.builder().billable(true).duration(4.0).projectId(1).date(LocalDate.of(2024,6,12)).build()
+                        ZepAttendance.builder().billable(true).duration(2.0).projectId(1).date(LocalDate.of(2024, 6, 1)).build(),
+                        ZepAttendance.builder().billable(false).duration(2.0).projectId(1).date(LocalDate.of(2024, 6, 4)).build(),
+                        ZepAttendance.builder().billable(true).duration(4.0).projectId(1).date(LocalDate.of(2024, 6, 12)).build()
                 ));
 
         var zepProjectDetail = new ZepProjectDetail();
@@ -248,7 +249,7 @@ class ZepRestServiceImplTest {
         when(projectService.getProjectById(anyInt()))
                 .thenReturn(Optional.of(zepProjectDetail));
 
-        List<ProjectHoursSummary> result = zepRestService.getAllProjectsForMonthAndEmployee(employee, YearMonth.of(2024,6));
+        List<ProjectHoursSummary> result = zepRestService.getAllProjectsForMonthAndEmployee(employee, YearMonth.of(2024, 6));
 
         assertThat(result).isNotNull();
         assertThat(result.get(0).getBillableHoursSum()).isEqualTo(6.0);
@@ -262,7 +263,7 @@ class ZepRestServiceImplTest {
         when(employeeService.getZepEmployeeByUsername(anyString()))
                 .thenReturn(Optional.empty());
 
-        List<ProjectHoursSummary> result = zepRestService.getAllProjectsForMonthAndEmployee(employee, YearMonth.of(2024,6));
+        List<ProjectHoursSummary> result = zepRestService.getAllProjectsForMonthAndEmployee(employee, YearMonth.of(2024, 6));
 
         assertThat(result).isNotNull();
         assertThat(result.size()).isZero();
@@ -288,7 +289,7 @@ class ZepRestServiceImplTest {
                 .friday(6.5)
                 .saturday(0.0)
                 .sunday(0.0)
-                .startDate(LocalDateTime.of(2024,2,10,0,0,0))
+                .startDate(LocalDateTime.of(2024, 2, 10, 0, 0, 0))
                 .build();
 
         when(employeeService.getZepEmployeeByUsername(anyString()))
@@ -346,9 +347,9 @@ class ZepRestServiceImplTest {
         when(projectService.getProjectByName(anyString(), any(LocalDate.class)))
                 .thenReturn(Optional.of(
                         ZepProject.builder()
-                                    .id(1)
-                                    .name("ABC")
-                                    .build()
+                                .id(1)
+                                .name("ABC")
+                                .build()
                 ));
 
         when(projectService.getProjectEmployeesForId(anyInt()))
@@ -357,7 +358,7 @@ class ZepRestServiceImplTest {
         when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(LocalDate.class), anyInt()))
                 .thenReturn(createAttendancesList());
 
-        List<ProjectTime> actual = zepRestService.getProjectTimesForEmployeePerProject("ABC", LocalDate.of(2024,6,3));
+        List<ProjectTime> actual = zepRestService.getProjectTimesForEmployeePerProject("ABC", LocalDate.of(2024, 6, 3));
 
         assertThat(actual).isNotNull();
         assertThat(actual.size()).isEqualTo(6);
@@ -396,19 +397,19 @@ class ZepRestServiceImplTest {
 
     @Test
     void getProjectByName_whenProjectIsPresent_thenReturnProject() {
-         when(projectService.getProjectByName(anyString(), any(LocalDate.class)))
+        when(projectService.getProjectByName(anyString(), any(LocalDate.class)))
                 .thenReturn(Optional.of(
                         ZepProject.builder()
                                 .name("ABC")
                                 .id(1)
-                                .startDate(LocalDateTime.of(2024,6,12,10,0))
+                                .startDate(LocalDateTime.of(2024, 6, 12, 10, 0))
                                 .build()
                 ));
 
         when(projectMapper.map(any(ZepProject.class)))
-                .thenReturn(Project.builder().projectId("ABC").startDate(LocalDate.of(2024,6,12)));
+                .thenReturn(Project.builder().projectId("ABC").startDate(LocalDate.of(2024, 6, 12)));
 
-        Optional<Project> actual = zepRestService.getProjectByName("ABC", LocalDate.of(2024,6,12));
+        Optional<Project> actual = zepRestService.getProjectByName("ABC", LocalDate.of(2024, 6, 12));
 
         assertThat(actual).isPresent();
         assertThat(actual.get().getProjectId()).isEqualTo("ABC");
@@ -431,7 +432,7 @@ class ZepRestServiceImplTest {
             when(absenceMapper.mapList(any()))
                     .thenReturn(absenceTimes);
 
-            List<AbsenceTime> actual = zepRestService.getAbsenceForEmployee(employee, LocalDate.of(2024,5,1));
+            List<AbsenceTime> actual = zepRestService.getAbsenceForEmployee(employee, LocalDate.of(2024, 5, 1));
 
             assertThat(actual).isNotNull();
             assertThat(actual.size()).isEqualTo(2);
@@ -444,15 +445,15 @@ class ZepRestServiceImplTest {
         List<AbsenceTime> absenceTimes = new ArrayList<>();
         absenceTimes.add(
                 AbsenceTime.builder()
-                        .fromDate(LocalDate.of(2024,5,6))
-                        .toDate(LocalDate.of(2024,5,8))
+                        .fromDate(LocalDate.of(2024, 5, 6))
+                        .toDate(LocalDate.of(2024, 5, 8))
                         .build()
         );
 
         absenceTimes.add(
                 AbsenceTime.builder()
-                        .fromDate(LocalDate.of(2024,5,6))
-                        .toDate(LocalDate.of(2024,5,15))
+                        .fromDate(LocalDate.of(2024, 5, 6))
+                        .toDate(LocalDate.of(2024, 5, 15))
                         .build()
         );
 
@@ -481,42 +482,43 @@ class ZepRestServiceImplTest {
         zepAbsences.add(
                 ZepAbsence.builder()
                         .id(1)
-                        .startDate(LocalDate.of(2024,5,6))
-                        .endDate(LocalDate.of(2024,5,8))
+                        .startDate(LocalDate.of(2024, 5, 6))
+                        .endDate(LocalDate.of(2024, 5, 8))
                         .build()
         );
 
         zepAbsences.add(
                 ZepAbsence.builder()
                         .id(2)
-                        .startDate(LocalDate.of(2024,5,15))
-                        .endDate(LocalDate.of(2024,5,18))
+                        .startDate(LocalDate.of(2024, 5, 15))
+                        .endDate(LocalDate.of(2024, 5, 18))
                         .build()
         );
 
         return zepAbsences;
     }
+
     private List<ProjectEntry> createProjectEntries() {
         List<ProjectEntry> projectEntries = new ArrayList<>();
 
         projectEntries.add(
                 ProjectTimeEntry.builder()
-                        .fromTime(LocalDateTime.of(2024,6,3,13,20))
-                        .toTime(LocalDateTime.of(2024,6,3,16,20))
+                        .fromTime(LocalDateTime.of(2024, 6, 3, 13, 20))
+                        .toTime(LocalDateTime.of(2024, 6, 3, 16, 20))
                         .build()
         );
 
         projectEntries.add(
                 ProjectTimeEntry.builder()
-                        .fromTime(LocalDateTime.of(2024,6,4,13,20))
-                        .toTime(LocalDateTime.of(2024,6,4,16,20))
+                        .fromTime(LocalDateTime.of(2024, 6, 4, 13, 20))
+                        .toTime(LocalDateTime.of(2024, 6, 4, 16, 20))
                         .build()
         );
 
         projectEntries.add(
                 ProjectTimeEntry.builder()
-                        .fromTime(LocalDateTime.of(2024,6,5,13,20))
-                        .toTime(LocalDateTime.of(2024,6,5,16,20))
+                        .fromTime(LocalDateTime.of(2024, 6, 5, 13, 20))
+                        .toTime(LocalDateTime.of(2024, 6, 5, 16, 20))
                         .build()
         );
 
@@ -530,9 +532,9 @@ class ZepRestServiceImplTest {
                         .id(1)
                         .duration(3.0)
                         .projectId(1)
-                        .date(LocalDate.of(2024,6,3))
-                        .from(LocalTime.of(13,20))
-                        .to(LocalTime.of(16,30))
+                        .date(LocalDate.of(2024, 6, 3))
+                        .from(LocalTime.of(13, 20))
+                        .to(LocalTime.of(16, 30))
                         .build()
         );
 
@@ -541,9 +543,9 @@ class ZepRestServiceImplTest {
                         .id(2)
                         .duration(5.0)
                         .projectId(1)
-                        .date(LocalDate.of(2024,6,4))
-                        .from(LocalTime.of(13,20))
-                        .to(LocalTime.of(16,30))
+                        .date(LocalDate.of(2024, 6, 4))
+                        .from(LocalTime.of(13, 20))
+                        .to(LocalTime.of(16, 30))
                         .build()
         );
 
@@ -552,9 +554,9 @@ class ZepRestServiceImplTest {
                         .id(3)
                         .duration(4.0)
                         .projectId(1)
-                        .date(LocalDate.of(2024,6,5))
-                        .from(LocalTime.of(13,20))
-                        .to(LocalTime.of(16,30))
+                        .date(LocalDate.of(2024, 6, 5))
+                        .from(LocalTime.of(13, 20))
+                        .to(LocalTime.of(16, 30))
                         .build()
         );
 
@@ -599,7 +601,7 @@ class ZepRestServiceImplTest {
         List<ZepEmploymentPeriod> employmentPeriods = new ArrayList<>();
         employmentPeriods.add(
                 ZepEmploymentPeriod.builder()
-                        .startDate(LocalDateTime.of(2024,2,10,0,0,0))
+                        .startDate(LocalDateTime.of(2024, 2, 10, 0, 0, 0))
                         .build()
         );
         return employmentPeriods;

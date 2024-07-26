@@ -14,7 +14,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-public class EnterpriseEntryMapperTest {
+class EnterpriseEntryMapperTest {
+
     @Inject
     EnterpriseEntryMapper mapper;
 
@@ -31,8 +32,8 @@ public class EnterpriseEntryMapperTest {
         entry.setZepTimesReleased(State.OPEN);
         entry.setChargeabilityExternalEmployeesRecorded(State.OPEN);
         entry.setPayrollAccountingSent(State.DONE);
-        entry.setDate(LocalDate.of(2024,5,3));
-        entry.setCreationDate(LocalDateTime.of(2024,4,20, 13, 20));
+        entry.setDate(LocalDate.of(2024, 5, 3));
+        entry.setCreationDate(LocalDateTime.of(2024, 4, 20, 13, 20));
 
         EnterpriseEntryDto actual = mapper.map(Optional.of(entry));
         assertThat(actual).isNotNull();

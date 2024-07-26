@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class UserServiceImplTest {
+class UserServiceImplTest {
 
     @Inject
     UserService userService;

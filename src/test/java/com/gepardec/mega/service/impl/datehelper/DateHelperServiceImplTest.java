@@ -3,7 +3,6 @@ package com.gepardec.mega.service.impl.datehelper;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.DateHelperService;
-
 import com.gepardec.mega.service.api.MonthlyReportService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -33,26 +32,26 @@ class DateHelperServiceImplTest {
     MonthlyReportService monthlyReportService;
 
     @Test
-    void testGetNumberOfFridaysInMonth_whenMonthIsNovember2024_thenReturnFour(){
-        int actual = dateHelperService.getNumberOfFridaysInMonth(LocalDate.of(2024, 11,1));
+    void getNumberOfFridaysInMonth_whenMonthIsNovember2024_thenReturnFour() {
+        int actual = dateHelperService.getNumberOfFridaysInMonth(LocalDate.of(2024, 11, 1));
         assertThat(actual).isEqualTo(4);
     }
 
     @Test
-    void testGetNumberOfFridaysInRange_whenRangeContainsTwo_thenReturnTwo(){
-        int actual = dateHelperService.getFridaysInRange(LocalDate.of(2024, 11,7), LocalDate.of(2024, 11, 15));
+    void getNumberOfFridaysInRange_whenRangeContainsTwo_thenReturnTwo() {
+        int actual = dateHelperService.getFridaysInRange(LocalDate.of(2024, 11, 7), LocalDate.of(2024, 11, 15));
         assertThat(actual).isEqualTo(2);
     }
 
     @Test
-    void testGetNumberOfWorkingDaysForMonthWithoutHolidays_whenMonthIsApril2024_thenReturnTwentyOne() {
+    void getNumberOfWorkingDaysForMonthWithoutHolidays_whenMonthIsApril2024_thenReturnTwentyOne() {
         int actual = dateHelperService.getNumberOfWorkingDaysForMonthWithoutHolidays(LocalDate.of(2024, 4, 1));
         assertThat(actual).isEqualTo(21);
     }
 
     @Test
-    void getCorrectDateForRequest_whenYearMonthProvided_thenReturnCorrectDate(){
-        LocalDate mockCurrentDate = LocalDate.of(2024,5,15);
+    void getCorrectDateForRequest_whenYearMonthProvided_thenReturnCorrectDate() {
+        LocalDate mockCurrentDate = LocalDate.of(2024, 5, 15);
         LocalDate previousMonth = mockCurrentDate.minusMonths(1);
         LocalDate firstOfPreviousMonth = previousMonth.withDayOfMonth(1);
         LocalDate mockMidOfMonth = mockCurrentDate.withDayOfMonth(14);
@@ -71,34 +70,34 @@ class DateHelperServiceImplTest {
             mockedStatic.when(() -> LocalDate.now().withMonth(LocalDate.now().getMonth().minus(1).getValue()).withDayOfMonth(1)).thenReturn(firstOfPreviousMonth);
             mockedStatic.when(() -> LocalDate.now().withDayOfMonth(14)).thenReturn(mockMidOfMonth);
 
-            try(MockedStatic<DateUtils> dateUtils = mockStatic(DateUtils.class)) {
+            try (MockedStatic<DateUtils> dateUtils = mockStatic(DateUtils.class)) {
                 try (MockedStatic<YearMonth> yearMonth = mockStatic(YearMonth.class)) {
 
                     yearMonth.when(() -> YearMonth.of(2024, 5)).thenReturn(yearMonthMock);
                     yearMonth.when(() -> yearMonthMock.atDay(1)).thenReturn(firstOfCurrentMonth);
                 }
 
-                    dateUtils.when(() -> DateUtils.getLastDayOfCurrentMonth(anyString()))
-                            .thenReturn(lastOfCurrentMonth);
+                dateUtils.when(() -> DateUtils.getLastDayOfCurrentMonth(anyString()))
+                        .thenReturn(lastOfCurrentMonth);
 
-                    dateUtils.when(() -> DateUtils.formatDate(firstOfCurrentMonth))
-                            .thenReturn(expectedFrom);
+                dateUtils.when(() -> DateUtils.formatDate(firstOfCurrentMonth))
+                        .thenReturn(expectedFrom);
 
-                    dateUtils.when(() -> DateUtils.formatDate(lastOfCurrentMonth))
-                            .thenReturn(expectedTo);
-                }
+                dateUtils.when(() -> DateUtils.formatDate(lastOfCurrentMonth))
+                        .thenReturn(expectedTo);
             }
-
-            Pair<String, String> actual = dateHelperService.getCorrectDateForRequest(Employee.builder().userId("007-jbond").build(), YearMonth.of(2024,5));
-
-            assertThat(actual).isNotNull();
-            assertThat(actual.getLeft()).isEqualTo(expectedFrom);
-            assertThat(actual.getRight()).isEqualTo(expectedTo);
         }
 
+        Pair<String, String> actual = dateHelperService.getCorrectDateForRequest(Employee.builder().userId("007-jbond").build(), YearMonth.of(2024, 5));
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.getLeft()).isEqualTo(expectedFrom);
+        assertThat(actual.getRight()).isEqualTo(expectedTo);
+    }
+
     @Test
-    void getCorrectDateForRequest_whenYearMonthIsNotProvidedAndNowIsAfterMidOfMonthAndConfirmed_thenReturnCorrectDate(){
-        LocalDate mockCurrentDate = LocalDate.of(2024,5,15);
+    void getCorrectDateForRequest_whenYearMonthIsNotProvidedAndNowIsAfterMidOfMonthAndConfirmed_thenReturnCorrectDate() {
+        LocalDate mockCurrentDate = LocalDate.of(2024, 5, 15);
         LocalDate previousMonth = mockCurrentDate.minusMonths(1);
         LocalDate firstOfPreviousMonth = previousMonth.withDayOfMonth(1);
         LocalDate mockMidOfMonth = mockCurrentDate.withDayOfMonth(14);
@@ -106,13 +105,13 @@ class DateHelperServiceImplTest {
         String expectedFrom = "2024-05-01";
         String expectedTo = "2024-05-31";
 
-        try(MockedStatic<LocalDate> mockedStatic = mockStatic(LocalDate.class, Mockito.CALLS_REAL_METHODS)) {
+        try (MockedStatic<LocalDate> mockedStatic = mockStatic(LocalDate.class, Mockito.CALLS_REAL_METHODS)) {
             mockedStatic.when(LocalDate::now).thenReturn(mockCurrentDate).thenReturn(mockCurrentDate);
             mockedStatic.when(() -> LocalDate.now().minusMonths(1)).thenReturn(previousMonth);
             mockedStatic.when(() -> LocalDate.now().withMonth(LocalDate.now().getMonth().minus(1).getValue()).withDayOfMonth(1)).thenReturn(firstOfPreviousMonth);
             mockedStatic.when(() -> LocalDate.now().withDayOfMonth(14)).thenReturn(mockMidOfMonth);
 
-            try(MockedStatic<DateUtils> dateUtils = mockStatic(DateUtils.class)) {
+            try (MockedStatic<DateUtils> dateUtils = mockStatic(DateUtils.class)) {
                 dateUtils.when(() -> DateUtils.getFirstDayOfCurrentMonth(any(LocalDate.class)))
                         .thenReturn(expectedFrom);
 
@@ -129,8 +128,8 @@ class DateHelperServiceImplTest {
     }
 
     @Test
-    void getCorrectDateForRequest_whenYearMonthIsNotProvidedAndNowIsAfterMidOfMonthAndNotConfirmed_thenReturnCorrectDate(){
-        LocalDate mockCurrentDate = LocalDate.of(2024,5,15);
+    void getCorrectDateForRequest_whenYearMonthIsNotProvidedAndNowIsAfterMidOfMonthAndNotConfirmed_thenReturnCorrectDate() {
+        LocalDate mockCurrentDate = LocalDate.of(2024, 5, 15);
         LocalDate previousMonth = mockCurrentDate.minusMonths(1);
         LocalDate firstOfPreviousMonth = previousMonth.withDayOfMonth(1);
         LocalDate mockMidOfMonth = mockCurrentDate.withDayOfMonth(14);
@@ -141,13 +140,13 @@ class DateHelperServiceImplTest {
         String expectedFrom = "2024-04-01";
         String expectedTo = "2024-04-30";
 
-        try(MockedStatic<LocalDate> mockedStatic = mockStatic(LocalDate.class, Mockito.CALLS_REAL_METHODS)) {
+        try (MockedStatic<LocalDate> mockedStatic = mockStatic(LocalDate.class, Mockito.CALLS_REAL_METHODS)) {
             mockedStatic.when(LocalDate::now).thenReturn(mockCurrentDate).thenReturn(mockCurrentDate);
             mockedStatic.when(() -> LocalDate.now().minusMonths(1)).thenReturn(previousMonth);
             mockedStatic.when(() -> LocalDate.now().withMonth(LocalDate.now().getMonth().minus(1).getValue()).withDayOfMonth(1)).thenReturn(firstOfPreviousMonth);
             mockedStatic.when(() -> LocalDate.now().withDayOfMonth(14)).thenReturn(mockMidOfMonth);
 
-            try(MockedStatic<DateUtils> dateUtils = mockStatic(DateUtils.class)) {
+            try (MockedStatic<DateUtils> dateUtils = mockStatic(DateUtils.class)) {
 
                 dateUtils.when(() -> DateUtils.getLastDayOfCurrentMonth(any(LocalDate.class)))
                         .thenReturn(expectedTo);
@@ -167,6 +166,3 @@ class DateHelperServiceImplTest {
         }
     }
 }
-
-
-

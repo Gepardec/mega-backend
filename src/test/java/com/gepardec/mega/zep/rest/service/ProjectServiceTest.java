@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -47,13 +48,6 @@ class ProjectServiceTest {
 
     @InjectMock
     Logger logger;
-
-
-
-    @Test
-    void test() {
-        System.out.println(resourceFileService.getFilesDir().getPath());
-    }
 
     @BeforeEach
     void setup() {
@@ -113,7 +107,7 @@ class ProjectServiceTest {
         LocalDateTime end = LocalDateTime.of(endStr.getYear(), endStr.getMonth(), endStr.getDayOfMonth(), 0, 0, 0);
 
         ZepProject project = ZepProject.builder().id(1).name("XYZ").startDate(start).endDate(end).build();
-        ZepProject[] projectsArray = new ZepProject[] { project };
+        ZepProject[] projectsArray = new ZepProject[]{project};
 
         when(responseParser.retrieveSingle(any(), eq(ZepProject[].class)))
                 .thenReturn(Optional.of(projectsArray));
@@ -203,7 +197,7 @@ class ProjectServiceTest {
         when(responseParser.retrieveAll(any(), eq(ZepProject.class)))
                 .thenThrow(new ZepServiceException("Something went wrong"));
 
-        List<ZepProject> result = projectService.getProjectsForMonthYear(LocalDate.of(2024,5,1));
+        List<ZepProject> result = projectService.getProjectsForMonthYear(LocalDate.of(2024, 5, 1));
         assertThat(result.isEmpty()).isTrue();
         verify(logger).warn(anyString(), any(ZepServiceException.class));
 

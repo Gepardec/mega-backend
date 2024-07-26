@@ -28,8 +28,7 @@ import static org.mockito.Mockito.when;
 @OidcSecurity(claims = {
         @Claim(key = "email", value = "test@gepardec.com")
 })
-public class PrematureEmployeeCheckResourceTest {
-
+class PrematureEmployeeCheckResourceTest {
 
     @InjectMock
     private UserContext userContext;
@@ -41,7 +40,7 @@ public class PrematureEmployeeCheckResourceTest {
     @Test
     @TestSecurity
     @OidcSecurity
-    public void add_unauthorized_status401() {
+    void add_unauthorized_status401() {
 //        Given
         when(userContext.getUser()).thenReturn(createUserForRole(Role.EMPLOYEE));
 
@@ -51,7 +50,7 @@ public class PrematureEmployeeCheckResourceTest {
     }
 
     @Test
-    public void add_authorized_success() {
+    void add_authorized_success() {
 //        Given
         when(userContext.getUser()).thenReturn(createUserForRole(Role.EMPLOYEE));
 
