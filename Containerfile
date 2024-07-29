@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/openjdk-17:latest
+FROM registry.access.redhat.com/ubi9/openjdk-17:1.20-2.1721231695
 ENV TZ="Europe/Vienna"
 
 USER jboss

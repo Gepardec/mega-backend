@@ -4,8 +4,8 @@ import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.service.api.AbsenceService;
 import com.gepardec.mega.service.api.DateHelperService;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 

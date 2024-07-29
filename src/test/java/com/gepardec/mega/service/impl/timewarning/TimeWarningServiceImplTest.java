@@ -20,8 +20,8 @@ import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.TimeWarningService;
 import com.gepardec.mega.service.helper.WarningCalculatorsManager;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
