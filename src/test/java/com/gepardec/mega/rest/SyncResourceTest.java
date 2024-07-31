@@ -5,38 +5,43 @@ import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
-
-
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.SyncResource;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
-
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.zep.ZepService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
+import io.quarkus.test.security.oidc.Claim;
+import io.quarkus.test.security.oidc.OidcSecurity;
 import jakarta.inject.Inject;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
-
 import java.util.ArrayList;
 import java.util.List;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
+@TestSecurity(user = "test", roles = "mega-cron:sync")
+@OidcSecurity(claims = {
+        @Claim(key = "email", value = "test@gepardec.com")
+})
 public class SyncResourceTest {
+
     @InjectMock
     EmployeeService employeeService;
-
 
     @InjectMock
     ZepService zepService;
@@ -44,22 +49,19 @@ public class SyncResourceTest {
     @InjectMock
     StepEntryService stepEntryService;
 
-
     @Inject
     SyncResource syncResource;
 
-
-
     @Test
-    void testUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeHasNoTimesAndAllAbsences_thenSetStepStateDone() {
+    void updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeHasNoTimesAndAllAbsences_thenSetStepStateDone() {
         Employee userUnderTest = createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-02-29");
         when(employeeService.getAllActiveEmployees())
                 .thenReturn(
-                            List.of(
-                                    createEmployeeForId("e02-testExternal", "external.user@gepardec.com", "2024-02-29"),
-                                    userUnderTest,
-                                    createEmployeeForId("100-testUser2", "test.user2@gepardec.com", "2024-02-29")
-                            )
+                        List.of(
+                                createEmployeeForId("e02-testExternal", "external.user@gepardec.com", "2024-02-29"),
+                                userUnderTest,
+                                createEmployeeForId("100-testUser2", "test.user2@gepardec.com", "2024-02-29")
+                        )
                 );
 
 
@@ -83,13 +85,13 @@ public class SyncResourceTest {
         ArgumentCaptor<LocalDate> localEndDateCaptor = ArgumentCaptor.forClass(LocalDate.class);
 
         when(stepEntryService.setOpenAndAssignedStepEntriesDone(
-                employeeArgumentCaptor.capture(),
-                longArgumentCaptor.capture(),
-                localStartDateCaptor.capture(),
-                localEndDateCaptor.capture()
+                        employeeArgumentCaptor.capture(),
+                        longArgumentCaptor.capture(),
+                        localStartDateCaptor.capture(),
+                        localEndDateCaptor.capture()
                 )
-            )
-            .thenReturn(true);
+        )
+                .thenReturn(true);
 
         when(stepEntryService.findStepEntryForEmployeeAtStep(anyLong(), anyString(), anyString(), anyString()))
                 .thenReturn(createStepEntry());
@@ -105,17 +107,16 @@ public class SyncResourceTest {
     }
 
 
-
     @Test
-    void testUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeHasNoTimesAndAllAbsencesWithHomeOfficeAndVacation_thenReturnEmptyList(){
+    void updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeHasNoTimesAndAllAbsencesWithHomeOfficeAndVacation_thenReturnEmptyList() {
         Employee userUnderTest = createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-02-29");
         when(employeeService.getAllActiveEmployees())
                 .thenReturn(
-                            List.of(
-                                    createEmployeeForId("e02-externalUser", "external.user@gepardec.com", "2024-02-29"),
-                                    userUnderTest,
-                                    createEmployeeForId("100-testUser2", "test.user2@gepardec.com", "2024-02-29")
-                            )
+                        List.of(
+                                createEmployeeForId("e02-externalUser", "external.user@gepardec.com", "2024-02-29"),
+                                userUnderTest,
+                                createEmployeeForId("100-testUser2", "test.user2@gepardec.com", "2024-02-29")
+                        )
                 );
 
 
@@ -138,17 +139,16 @@ public class SyncResourceTest {
     }
 
 
-
     @Test
-    void testUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeHasNoTimesAndSomeAbsences_thenReturnEmptyList(){
+    void updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeHasNoTimesAndSomeAbsences_thenReturnEmptyList() {
         Employee userUnderTest = createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-02-29");
         when(employeeService.getAllActiveEmployees())
                 .thenReturn(
-                            List.of(
-                                    createEmployeeForId("e02-externalUser", "external.user@gepardec.com", "2024-02-29"),
-                                    createEmployeeForId("100-testUser2", "test.user2@gepardec.com", "2024-02-29"),
-                                    userUnderTest
-                            )
+                        List.of(
+                                createEmployeeForId("e02-externalUser", "external.user@gepardec.com", "2024-02-29"),
+                                createEmployeeForId("100-testUser2", "test.user2@gepardec.com", "2024-02-29"),
+                                userUnderTest
+                        )
                 );
 
 
@@ -172,15 +172,15 @@ public class SyncResourceTest {
     }
 
     @Test
-    void testUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeIsExternal_thenReturnEmptyList() {
-        Employee userUnderTest =  createEmployeeForId("e02-externalUser", "external.user@gepardec.com", "2024-02-29");
+    void updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth_whenEmployeeIsExternal_thenReturnEmptyList() {
+        Employee userUnderTest = createEmployeeForId("e02-externalUser", "external.user@gepardec.com", "2024-02-29");
         when(employeeService.getAllActiveEmployees())
                 .thenReturn(
-                            List.of(
-                                    userUnderTest,
-                                    createEmployeeForId("099-testUser", "test.user@gepardec.com","2024-02-29"),
-                                    createEmployeeForId("100-testUser2", "test.user2@gepardec.com", "2024-02-29")
-                            )
+                        List.of(
+                                userUnderTest,
+                                createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-02-29"),
+                                createEmployeeForId("100-testUser2", "test.user2@gepardec.com", "2024-02-29")
+                        )
                 );
 
 
@@ -207,7 +207,7 @@ public class SyncResourceTest {
     }
 
     //helpers
-    private Employee createEmployeeForId(final String id, final String email, final String releaseDate){
+    private Employee createEmployeeForId(final String id, final String email, final String releaseDate) {
         return Employee.builder()
                 .userId(id)
                 .email(email)
@@ -217,7 +217,7 @@ public class SyncResourceTest {
     }
 
 
-    private static AbsenceTime createFehlzeitTypeForUser(final String userId, final String startDate, final String endDate, final String reason){
+    private static AbsenceTime createFehlzeitTypeForUser(final String userId, final String startDate, final String endDate, final String reason) {
         return new AbsenceTime(
                 userId,
                 LocalDate.parse(startDate),
@@ -227,7 +227,7 @@ public class SyncResourceTest {
         );
     }
 
-    private static StepEntry createStepEntry(){
+    private static StepEntry createStepEntry() {
         StepEntry entry = new StepEntry();
         entry.setState(EmployeeState.OPEN);
         return entry;

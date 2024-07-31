@@ -1,6 +1,6 @@
 package com.gepardec.mega.rest.impl;
 
-import com.gepardec.mega.application.interceptor.RolesAllowed;
+import com.gepardec.mega.application.interceptor.MegaRolesAllowed;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.employee.User;
@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 
 @RequestScoped
 @Authenticated
-@RolesAllowed(value = {Role.PROJECT_LEAD, Role.OFFICE_MANAGEMENT})
+@MegaRolesAllowed(value = {Role.PROJECT_LEAD, Role.OFFICE_MANAGEMENT})
 public class ManagementResourceImpl implements ManagementResource {
 
     private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd";

@@ -1,6 +1,5 @@
 package com.gepardec.mega.application.schedule;
 
-import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.notification.mail.ReminderEmailSender;
 import com.gepardec.mega.notification.mail.receiver.MailReceiver;
 import com.gepardec.mega.rest.api.SyncResource;
@@ -13,10 +12,17 @@ import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import java.time.LocalDate;
 import java.util.concurrent.TimeUnit;
 
+import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
+
 /**
+ * This class contains all scheduled tasks which are executed by the scheduler.
+ * Attention: The scheduler is only active in the dev profile.
+ * When deployed to a staging environment such as main, dev, qa or prod, the scheduler is disabled.
+ * This is because in a staging environment the services called by the scheduler are invoked via dedicated endpoints
+ * using a cronjob of OpenShift.
+ *
  * @author Thomas Herzog <herzog.thomas81@gmail.com>
  * @since 10/3/2020
  */
@@ -51,27 +57,27 @@ public class Schedules {
             every = "PT30M",
             delay = 15, delayUnit = TimeUnit.SECONDS)
         // We need to wait for liquibase to finish, but is executed in parallel
-    void syncEmployeesWithDatabase() {
+    void syncEmployees() {
         syncService.syncEmployees();
     }
 
     @Scheduled(identity = "Generate step entries on the last day of a month at 00:00",
             cron = "0 0 0 L * ? *")
-    void generateStepEntriesDefault() {
-        stepEntrySyncService.generateStepEntriesFromScheduler();
+    void generateStepEntries() {
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
     }
 
     @Scheduled(identity = "Update project entries every 30 minutes",
             every = "PT30M",
             delay = 30, delayUnit = TimeUnit.SECONDS)
     void generateProjects() {
-        projectSyncService.generateProjects();
+        projectSyncService.generateProjects(getFirstDayOfCurrentMonth());
     }
 
     @Scheduled(identity = "Generate enterprise entries on the last day of a month at 00:00",
             cron = "0 0 0 L * ? *")
     void generateEnterpriseEntries() {
-        enterpriseSyncService.generateEnterpriseEntries(LocalDate.now().withDayOfMonth(1));
+        enterpriseSyncService.generateEnterpriseEntries(getFirstDayOfCurrentMonth());
     }
 
     @Scheduled(identity = "Send E-Mail reminder to Users",
@@ -91,7 +97,7 @@ public class Schedules {
     @Scheduled(identity = "Take existing PrematureEmployeeChecks and update StepEntries accordingly on the last day of a month at 06:00",
             cron = "0 0 6 L * ? *")
     void syncPrematureEmployeeChecksWithStepEntries() {
-        prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(DateUtils.getCurrentYearMonth());
+        prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(getFirstDayOfCurrentMonth());
     }
 
     @Scheduled(identity = "Set state of step id 1 to DONE for any employee who was absent the whole month and had no time bookings - on the first day of a month at 07:00",

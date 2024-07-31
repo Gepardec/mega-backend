@@ -1,7 +1,7 @@
 # GLOBAL Properties
 quarkus:
   scheduler:
-    enabled: true
+    enabled: false
 
   swagger-ui:
     always-include: true
@@ -14,6 +14,8 @@ quarkus:
     root-path: "/"
     non-application-root-path: "/"
     port: 8080
+    auth:
+      proactive: false
 
   log:
     console:
@@ -71,6 +73,29 @@ quarkus:
     zep:
       url: "${mega.zep.origin}/next/api/v1/"
 
+  oidc:
+    # for the default client (mega) we verify the access token locally
+    auth-server-url: "${mega.oauth.issuer}"
+    application-type: "service"
+    token:
+      audience: "${mega.oauth.client-id}"
+    # for the server to server client (mega-cron) we verify the token with token introspection
+    mega-cron:
+      auth-server-url: "${mega.oauth.issuer}"
+      application-type: "service"
+      token:
+        require-jwt-introspection-only: true
+      client-id: "${mega.oauth.mega-cron.client-id}"
+      credentials:
+        client-secret:
+          value: "${MEGA_CRON_CLIENT_SECRET:default}"
+      roles:
+        source: accesstoken
+        role-claim-path: "resource_access/mega-cron/roles"
+mp:
+  openapi:
+    filter: com.gepardec.mega.application.filter.MegaCronSecuritySchemaOASFilter
+
 # disables the DefaultResponseExceptionMapper of the microprofile resteasy client
 microprofile:
   rest:
@@ -82,8 +107,8 @@ microprofile:
 mega:
   info:
     build:
-      version: "${revision}"
-      date: "${timestamp}"
+      version: "${revision:local}"
+      date: "${timestamp:2007-12-03T10:15:30}"
 
     git:
       branch: "${BRANCH:local}"
@@ -98,12 +123,12 @@ mega:
     rest-token: "${ZEP_REST_TOKEN:default}"
     origin: "https://www.zep-online.de/zepgepardecservices_test"
 
-
-
   oauth:
     client-id: "mega"
     issuer: "https://gepardec-sso-qa.apps.cloudscale-lpg-2.appuio.cloud/realms/gepardec"
     scope: "openid profile email microprofile-jwt"
+    mega-cron:
+      client-id: "mega-cron"
 
   mail:
     employees:
@@ -130,7 +155,7 @@ mega:
       port: 993
       username: "service@gepardec.com"
       password: "${MAILER_PASSWORD:default}"
-      sender: "nobody@provantis.de"
+      sender: "nobody@zep.de"
       cron-expr: "disabled"
 
   personio:
@@ -141,17 +166,22 @@ mega:
     token:
       expires-in-minutes: 1200 # 20h - real token expires in 24h
 
-mp:
-  jwt:
-    verify:
-      issuer: "${mega.oauth.issuer}"
-      audiences: "${mega.oauth.client-id}"
-      publickey:
-        location: "${mega.oauth.issuer}/protocol/openid-connect/certs"
+  google:
+    service-account-key: "${GOOGLE_CLOUD_SERVICE_ACCOUNT_GEPARDEC_MAIL:default}"
+    gmail:
+      api:
+        application-name: "MEGA"
+        workspace-user: "service@gepardec.com"
+        label-filter:
+          - "Label_5632925620975792127" # ID of name "ZEP_TEST" of workspace-user
+    pubsub:
+      topic: "projects/mega-260510/topics/MegaWebhookEmail"
 
 ## DEV Properties
 "%dev":
   quarkus:
+    scheduler:
+      enabled: true
     mailer:
       mock: true
     datasource:
@@ -167,9 +197,6 @@ mp:
         url: "${mega.zep.origin}/next/api/v1/"
   mega:
     dash-url: "http://localhost:4444/index.html"
-
-    oauth:
-      issuer: "https://gepardec-sso-qa.apps.cloudscale-lpg-2.appuio.cloud/realms/gepardec"
 
     mail:
       subject-prefix: "LOCAL: "
@@ -215,9 +242,6 @@ mp:
 
     zep:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
-
-    oauth:
-      issuer: "https://gepardec-sso-qa.apps.cloudscale-lpg-2.appuio.cloud/realms/gepardec"
 
     mail:
       subject-prefix: "UNIT-TEST: "
