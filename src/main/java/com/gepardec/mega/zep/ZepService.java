@@ -1,7 +1,6 @@
 package com.gepardec.mega.zep;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
-import com.gepardec.mega.domain.model.Bill;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.MonthlyBillInfo;
 import com.gepardec.mega.domain.model.PersonioEmployee;

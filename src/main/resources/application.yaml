@@ -68,8 +68,12 @@ quarkus:
   rest-client:
     personio-api-v1:
       url: "https://api.personio.de/v1"
+    personio-health:
+      url: "https://api.personio.de"
     zep:
       url: "${mega.zep.origin}/next/api/v1/"
+    zep-health:
+      url: "${mega.zep.origin}/2‚"
 
 # disables the DefaultResponseExceptionMapper of the microprofile resteasy client
 microprofile:
@@ -165,6 +169,8 @@ mp:
     rest-client:
       zep:
         url: "${mega.zep.origin}/next/api/v1/"
+      zep-health:
+        url: "${mega.zep.origin}"
   mega:
     dash-url: "http://localhost:4444/index.html"
 
@@ -188,6 +194,8 @@ mp:
     rest-client:
         zep:
           url: "${mega.zep.origin}/next/api/v1/"
+        zep-health:
+          url: "${mega.zep.origin}"
     log:
       console:
         format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
