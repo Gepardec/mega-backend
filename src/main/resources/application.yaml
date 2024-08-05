@@ -40,6 +40,12 @@ quarkus:
         expire-after-write: 3M
       "project":
         expire-after-write: 3M
+      "zep-liveness":
+        maximum-size: 1
+        expire-after-write: 1M
+      "personio-liveness":
+        maximum-size: 1
+        expire-after-write: 1M
 
   mailer:
     auth-methods: "DIGEST-MD5 CRAM-SHA256 CRAM-SHA1 CRAM-MD5 PLAIN LOGIN"

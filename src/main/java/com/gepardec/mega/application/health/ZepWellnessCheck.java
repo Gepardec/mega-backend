@@ -1,6 +1,7 @@
 package com.gepardec.mega.application.health;
 
 import com.gepardec.mega.zep.rest.client.ZepLivenessRestClient;
+import io.quarkus.cache.CacheResult;
 import io.smallrye.health.api.Wellness;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -17,6 +18,7 @@ public class ZepWellnessCheck implements HealthCheck {
     ZepLivenessRestClient zepLivenessRestClient;
 
     @Override
+    @CacheResult(cacheName = "zep-liveness")
     public HealthCheckResponse call() {
         return HealthCheckUtil.checkApi("ZEP", zepLivenessRestClient);
     }
