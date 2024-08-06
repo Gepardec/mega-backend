@@ -1,28 +1,33 @@
 package com.gepardec.mega.rest.probes;
 
+import com.gepardec.mega.personio.PersonioLivenessClient;
 import com.gepardec.mega.zep.rest.client.ZepLivenessRestClient;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.ws.rs.core.Response;
 import org.apache.http.HttpStatus;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static io.restassured.RestAssured.given;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
-class ReadynessProbeTest {
+class HealthCheckTest {
 
     @InjectMock
     @RestClient
     ZepLivenessRestClient zepLivenessRestClient;
 
+    @InjectMock
+    @RestClient
+    PersonioLivenessClient personioLivenessClient;
+
     @BeforeEach
     void setUp() {
-        Mockito.when(zepLivenessRestClient.liveness())
-                .thenReturn(Response.ok().build());
+        when(zepLivenessRestClient.liveness()).thenReturn(Response.ok().build());
+        when(personioLivenessClient.liveness()).thenReturn(Response.ok().build());
     }
 
     @Test
@@ -36,6 +41,13 @@ class ReadynessProbeTest {
     void live_whenCalled_thenReturnsHttpStatusOK() {
         given().when()
                 .get("/health/live")
+                .then().assertThat().statusCode(HttpStatus.SC_OK);
+    }
+
+    @Test
+    void well_whenCalled_thenReturnsHttpStatusOK() {
+        given().when()
+                .get("/health/well")
                 .then().assertThat().statusCode(HttpStatus.SC_OK);
     }
 

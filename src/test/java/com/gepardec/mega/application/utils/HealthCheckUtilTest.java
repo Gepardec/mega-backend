@@ -3,8 +3,8 @@ package com.gepardec.mega.application.utils;
 import com.gepardec.mega.application.health.HealthCheckUtil;
 import com.gepardec.mega.personio.PersonioLivenessClient;
 import com.gepardec.mega.zep.rest.client.ZepLivenessRestClient;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.mockito.InjectMock;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -29,7 +29,7 @@ public class HealthCheckUtilTest {
         when(personioLivenessClient.liveness()).thenReturn(getOkResponse());
         HealthCheckResponse actual = HealthCheckUtil.checkApi("Personio", personioLivenessClient);
 
-        assertThat(actual.getName()).isEqualTo("Personio Liveness");
+        assertThat(actual.getName()).isEqualTo("Personio");
         assertThat(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.UP);
     }
 
@@ -38,7 +38,7 @@ public class HealthCheckUtilTest {
         when(personioLivenessClient.liveness()).thenReturn(getErrorResponse());
         HealthCheckResponse actual = HealthCheckUtil.checkApi("Personio", personioLivenessClient);
 
-        assertThat(actual.getName()).isEqualTo("Personio Liveness");
+        assertThat(actual.getName()).isEqualTo("Personio");
         assertThat(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.DOWN);
     }
 
@@ -47,7 +47,7 @@ public class HealthCheckUtilTest {
         when(zepLivenessRestClient.liveness()).thenReturn(getOkResponse());
         HealthCheckResponse actual = HealthCheckUtil.checkApi("Zep", zepLivenessRestClient);
 
-        assertThat(actual.getName()).isEqualTo("Zep Liveness");
+        assertThat(actual.getName()).isEqualTo("Zep");
         assertThat(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.UP);
     }
 
@@ -56,7 +56,7 @@ public class HealthCheckUtilTest {
         when(zepLivenessRestClient.liveness()).thenReturn(getErrorResponse());
         HealthCheckResponse actual = HealthCheckUtil.checkApi("Zep", zepLivenessRestClient);
 
-        assertThat(actual.getName()).isEqualTo("Zep Liveness");
+        assertThat(actual.getName()).isEqualTo("Zep");
         assertThat(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.DOWN);
     }
 
