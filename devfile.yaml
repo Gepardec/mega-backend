@@ -33,8 +33,10 @@ projects:
     git:
       remotes:
         origin: 'https://github.com/Gepardec/mega-frontend.git'
-      checkoutFrom:
-        revision: main
+  - name: mega-backend
+    git:
+      remotes:
+        origin: 'https://github.com/Gepardec/mega-backend.git'
 components:
   - name: tools
     container:
