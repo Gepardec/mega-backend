@@ -1,0 +1,71 @@
+schemaVersion: 2.2.0
+metadata:
+  name: mega-dev
+commands:
+  - id: clean-install
+    exec:
+      component: tools
+      commandLine: 'mvn clean install -Dmaven.repo.local=/home/user/.m2/repository -DskipTests'
+      workingDir: ${PROJECT_SOURCE}
+  - id: dev-run
+    exec:
+      component: tools
+      commandLine: 'mvn -Dmaven.repo.local=/home/user/.m2/repository quarkus:dev -Dquarkus.http.host=0.0.0.0'
+      hotReloadCapable: true
+      group:
+        kind: run
+        isDefault: true
+      workingDir: ${PROJECT_SOURCE}
+  - id: dev-debug
+    exec:
+      component: tools
+      commandLine: 'mvn -Dmaven.repo.local=/home/user/.m2/repository quarkus:dev -Dquarkus.http.host=0.0.0.0 -Ddebug=${DEBUG_PORT}'
+      hotReloadCapable: true
+      group:
+        kind: debug
+        isDefault: true
+      workingDir: ${PROJECT_SOURCE}
+events:
+  postStart:
+    - clean-install
+projects:
+  - name: mega-frontend
+    git:
+      remotes:
+        origin: 'https://github.com/Gepardec/mega-frontend.git'
+      checkoutFrom:
+        revision: main
+components:
+  - name: tools
+    container:
+      image: quay.io/devfile/universal-developer-image:latest
+      memoryLimit: 8Gi
+      memoryRequest: 1Gi
+      cpuLimit: "2"
+      cpuRequest: 200m
+      volumeMounts:
+        - name: m2
+          path: /home/user/.m2
+      endpoints:
+        - name: https-quarkus
+          targetPort: 8080
+          protocol: https
+        - exposure: none
+          name: debug
+          targetPort: 5858
+      env:
+        - name: DEBUG_PORT
+          value: '5858'
+  - name: m2
+    volume:
+      size: 10G
+  - name: postgresql
+    container:
+      image: quay.io/fedora/postgresql-16
+      env:
+        - name: POSTGRESQL_USER
+          value: mega
+        - name: POSTGRESQL_PASSWORD
+          value: mega
+        - name: POSTGRESQL_DATABASE
+          value: mega
