@@ -6,7 +6,7 @@ commands:
     exec:
       component: tools
       commandLine: 'mvn clean install -Dmaven.repo.local=/home/user/.m2/repository -DskipTests'
-      workingDir: ${PROJECT_SOURCE}
+      workingDir: ${PROJECT_SOURCE}/mega-backend
   - id: dev-run
     exec:
       component: tools
@@ -15,7 +15,7 @@ commands:
       group:
         kind: run
         isDefault: true
-      workingDir: ${PROJECT_SOURCE}
+      workingDir: ${PROJECT_SOURCE}/mega-backend
   - id: dev-debug
     exec:
       component: tools
@@ -24,11 +24,11 @@ commands:
       group:
         kind: debug
         isDefault: true
-      workingDir: ${PROJECT_SOURCE}
+      workingDir: ${PROJECT_SOURCE}/mega-backend
 events:
   postStart:
     - clean-install
-projects:
+projects: # hier bekommt man dann immer den default branch, was wir aber nicht wollen...
   - name: mega-frontend
     git:
       remotes:
