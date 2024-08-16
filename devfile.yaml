@@ -6,7 +6,7 @@ commands:
     exec:
       component: tools
       commandLine: 'mvn clean install -Dmaven.repo.local=/home/user/.m2/repository -DskipTests'
-      workingDir: ${PROJECT_SOURCE}/mega-backend
+      workingDir: /projects/mega-backend
   - id: dev-run
     exec:
       component: tools
@@ -15,7 +15,7 @@ commands:
       group:
         kind: run
         isDefault: true
-      workingDir: ${PROJECT_SOURCE}/mega-backend
+      workingDir: /projects/mega-backend
   - id: dev-debug
     exec:
       component: tools
@@ -24,7 +24,7 @@ commands:
       group:
         kind: debug
         isDefault: true
-      workingDir: ${PROJECT_SOURCE}/mega-backend
+      workingDir: /projects/mega-backend
 events:
   postStart:
     - clean-install
