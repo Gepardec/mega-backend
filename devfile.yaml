@@ -6,8 +6,8 @@ commands:
     exec:
       component: tools
       commandLine: 'mvn clean install -Dmaven.repo.local=/home/user/.m2/repository -DskipTests'
-      workingDir: /projects/mega-backend
-  - id: backend-dev-run
+      workingDir: ${PROJECT_SOURCE}
+  - id: backend-quarkus-run
     exec:
       component: tools
       commandLine: 'mvn -Dmaven.repo.local=/home/user/.m2/repository quarkus:dev -Dquarkus.http.host=0.0.0.0'
@@ -15,8 +15,8 @@ commands:
       group:
         kind: run
         isDefault: true
-      workingDir: /projects/mega-backend
-  - id: backend-dev-debug
+      workingDir: ${PROJECT_SOURCE}
+  - id: backend-quarkus-debug
     exec:
       component: tools
       commandLine: 'mvn -Dmaven.repo.local=/home/user/.m2/repository quarkus:dev -Dquarkus.http.host=0.0.0.0 -Ddebug=${DEBUG_PORT}'
@@ -24,7 +24,7 @@ commands:
       group:
         kind: debug
         isDefault: true
-      workingDir: /projects/mega-backend
+      workingDir: ${PROJECT_SOURCE}
   - id: frontend-npm-install
     exec:
       component: tools
@@ -33,7 +33,7 @@ commands:
       group:
         kind: debug
         isDefault: true
-      workingDir: /projects/mega-frontend
+      workingDir: ${PROJECT_SOURCE}/mega-frontend
   - id: frontend-ng-serve
     exec:
       component: tools
@@ -42,22 +42,21 @@ commands:
       group:
         kind: debug
         isDefault: true
-      workingDir: /projects/mega-frontend
+      workingDir: ${PROJECT_SOURCE}/mega-frontend
+  - id: clone-frontend
+    exec:
+      component: tools
+      commandLine: 'git clone https://github.com/Gepardec/mega-frontend.git'
+      hotReloadCapable: true
+      group:
+        kind: debug
+        isDefault: true
+      workingDir: ${PROJECT_SOURCE}
 events:
   postStart:
+    - clone-frontend
     - backend-mvn-clean-install
     - frontend-npm-install
-projects: # hier bekommt man dann immer den default branch, was wir aber nicht wollen...
-   #mögliche Lösungen. vielelicht kann man bei der devspace url variablen mitgeben.
-   # postStart: Clone frontend + git branch -n
-  - name: mega-frontend
-    git:
-      remotes:
-        origin: 'https://github.com/Gepardec/mega-frontend.git'
-  - name: mega-backend
-    git:
-      remotes:
-        origin: 'https://github.com/Gepardec/mega-backend.git'
 components:
   - name: tools
     container:
@@ -73,6 +72,9 @@ components:
         - name: https-quarkus
           targetPort: 8080
           protocol: https
+        - name: http-frontend
+          targetPort: 4200
+          protocol: http
         - exposure: none
           name: debug
           targetPort: 5858
