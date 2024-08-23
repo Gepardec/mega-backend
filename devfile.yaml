@@ -25,10 +25,10 @@ commands:
         kind: debug
         isDefault: true
       workingDir: /projects/mega-backend
-  - id: frontend-npm-build
+  - id: frontend-npm-install
     exec:
       component: tools
-      commandLine: 'npm run build'
+      commandLine: 'npm install'
       hotReloadCapable: true
       group:
         kind: debug
@@ -37,7 +37,7 @@ commands:
   - id: frontend-ng-serve
     exec:
       component: tools
-      commandLine: 'npm run start'
+      commandLine: 'npm start'
       hotReloadCapable: true
       group:
         kind: debug
@@ -46,7 +46,7 @@ commands:
 events:
   postStart:
     - backend-mvn-clean-install
-    - frontend-npm-build
+    - frontend-npm-install
 projects: # hier bekommt man dann immer den default branch, was wir aber nicht wollen...
    #mögliche Lösungen. vielelicht kann man bei der devspace url variablen mitgeben.
    # postStart: Clone frontend + git branch -n
