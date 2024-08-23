@@ -33,7 +33,7 @@ commands:
       group:
         kind: debug
         isDefault: true
-      workingDir: ${PROJECT_SOURCE}/mega-frontend
+      workingDir: ${PROJECT_SOURCE}/../mega-frontend
   - id: frontend-ng-serve
     exec:
       component: tools
@@ -42,7 +42,7 @@ commands:
       group:
         kind: debug
         isDefault: true
-      workingDir: ${PROJECT_SOURCE}/mega-frontend
+      workingDir: ${PROJECT_SOURCE}/../mega-frontend
   - id: clone-frontend
     exec:
       component: tools
@@ -51,7 +51,7 @@ commands:
       group:
         kind: debug
         isDefault: true
-      workingDir: ${PROJECT_SOURCE}
+      workingDir: ${PROJECT_SOURCE}/../
 events:
   postStart:
     - clone-frontend
