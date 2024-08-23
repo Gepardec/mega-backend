@@ -2,12 +2,12 @@ schemaVersion: 2.2.0
 metadata:
   name: mega-dev
 commands:
-  - id: clean-install
+  - id: backend-mvn-clean-install
     exec:
       component: tools
       commandLine: 'mvn clean install -Dmaven.repo.local=/home/user/.m2/repository -DskipTests'
       workingDir: /projects/mega-backend
-  - id: dev-run
+  - id: backend-dev-run
     exec:
       component: tools
       commandLine: 'mvn -Dmaven.repo.local=/home/user/.m2/repository quarkus:dev -Dquarkus.http.host=0.0.0.0'
@@ -16,7 +16,7 @@ commands:
         kind: run
         isDefault: true
       workingDir: /projects/mega-backend
-  - id: dev-debug
+  - id: backend-dev-debug
     exec:
       component: tools
       commandLine: 'mvn -Dmaven.repo.local=/home/user/.m2/repository quarkus:dev -Dquarkus.http.host=0.0.0.0 -Ddebug=${DEBUG_PORT}'
@@ -25,10 +25,31 @@ commands:
         kind: debug
         isDefault: true
       workingDir: /projects/mega-backend
+  - id: frontend-npm-build
+    exec:
+      component: tools
+      commandLine: 'npm run build'
+      hotReloadCapable: true
+      group:
+        kind: debug
+        isDefault: true
+      workingDir: /projects/mega-frontend
+  - id: frontend-ng-serve
+    exec:
+      component: tools
+      commandLine: 'npm run start'
+      hotReloadCapable: true
+      group:
+        kind: debug
+        isDefault: true
+      workingDir: /projects/mega-frontend
 events:
   postStart:
-    - clean-install
+    - backend-mvn-clean-install
+    - frontend-npm-build
 projects: # hier bekommt man dann immer den default branch, was wir aber nicht wollen...
+   #mögliche Lösungen. vielelicht kann man bei der devspace url variablen mitgeben.
+   # postStart: Clone frontend + git branch -n
   - name: mega-frontend
     git:
       remotes:
