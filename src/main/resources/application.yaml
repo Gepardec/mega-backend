@@ -172,11 +172,7 @@ mp:
     http:
       cors:
         origins: "/.*/"
-    rest-client:
-      zep:
-        url: "${mega.zep.origin}/next/api/v1/"
-      zep-health:
-        url: "${mega.zep.origin}"
+
   mega:
     dash-url: "http://localhost:4444/index.html"
 
@@ -197,11 +193,6 @@ mp:
 ## TEST Properties
 "%test":
   quarkus:
-    rest-client:
-        zep:
-          url: "${mega.zep.origin}/next/api/v1/"
-        zep-health:
-          url: "${mega.zep.origin}"
     log:
       console:
         format: "%d{HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n"
