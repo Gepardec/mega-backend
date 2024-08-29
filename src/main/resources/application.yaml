@@ -79,7 +79,7 @@ quarkus:
     zep:
       url: "${mega.zep.origin}/next/api/v1/"
     zep-health:
-      url: "${mega.zep.origin}/2‚"
+      url: "${mega.zep.origin}‚"
 
 # disables the DefaultResponseExceptionMapper of the microprofile resteasy client
 microprofile:
