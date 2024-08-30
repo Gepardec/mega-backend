@@ -72,6 +72,7 @@ components:
         - name: https-quarkus
           targetPort: 8080
           protocol: https
+          path: mega-backend-123
         - name: http-frontend
           targetPort: 4200
           protocol: http
@@ -95,7 +96,7 @@ components:
         - name: POSTGRESQL_DATABASE
           value: mega
 # TEST gattma not working at the moment
-  - name: mega-backend-route
+  - name: mega-svc
     openshift:
       deployByDefault: true
       inlined: |
@@ -146,7 +147,10 @@ components:
           sessionAffinity: None
           selector:
             controller.devfile.io/devworkspace_name: mega-dev
-        ---
+  - name: mega-backend-route
+    openshift:
+      deployByDefault: true
+      inlined: |
         kind: Route
         apiVersion: route.openshift.io/v1
         metadata:
