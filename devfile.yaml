@@ -82,8 +82,11 @@ components:
       env:
         - name: DEBUG_PORT
           value: '5858'
-      labels:
-        marko: test
+    attributes:
+      kubernetes:
+        deployment:
+          labels:
+            my-label: "my-value"
   - name: m2
     volume:
       size: 10G
