@@ -94,3 +94,77 @@ components:
           value: mega
         - name: POSTGRESQL_DATABASE
           value: mega
+# TEST gattma
+  - name: mega-backend-route
+    kubernetes:
+      inlined: |
+        kind: Service
+        apiVersion: v1
+        metadata:
+          annotations:
+            che.routing.controller.devfile.io/che-name: devspaces
+            che.routing.controller.devfile.io/che-namespace: crw
+          name: mega
+          namespace: marko-gattringer-dev
+          labels:
+            app.kubernetes.io/component: exposure
+            app.kubernetes.io/name: devspaces
+            app.kubernetes.io/part-of: che.eclipse.org
+        spec:
+          clusterIP: 172.30.44.209
+          ipFamilies:
+            - IPv4
+          ports:
+            - name: ws-route
+              protocol: TCP
+              port: 3030
+              targetPort: 3030
+            - name: code-redirect-1
+              protocol: TCP
+              port: 13131
+              targetPort: 13131
+            - name: code-redirect-2
+              protocol: TCP
+              port: 13132
+              targetPort: 13132
+            - name: code-redirect-3
+              protocol: TCP
+              port: 13133
+              targetPort: 13133
+            - name: https-quarkus
+              protocol: TCP
+              port: 8080
+              targetPort: 8080
+            - name: http-frontend
+              protocol: TCP
+              port: 4200
+              targetPort: 4200
+          internalTrafficPolicy: Cluster
+          type: ClusterIP
+          ipFamilyPolicy: SingleStack
+          sessionAffinity: None
+          selector:
+            controller.devfile.io/devworkspace_name: mega-dev
+        ---
+        kind: Route
+        apiVersion: route.openshift.io/v1
+        metadata:
+          name: mega-backend-route
+          namespace: christoph-ruhsam-dev
+          labels:
+            app.kubernetes.io/component: exposure
+            app.kubernetes.io/name: devspaces
+            app.kubernetes.io/part-of: che.eclipse.org
+            type: sharded
+        spec:
+          subdomain: mega-backend
+          to:
+            kind: Service
+            name: mega
+            weight: 100
+          port:
+            targetPort: 8080
+          tls:
+            termination: edge
+            insecureEdgeTerminationPolicy: Redirect
+          wildcardPolicy: None
