@@ -94,9 +94,11 @@ components:
           value: mega
         - name: POSTGRESQL_DATABASE
           value: mega
-# TEST gattma
+# TEST gattma not working at the moment
   - name: mega-backend-route
-    kubernetes:
+    deployByDefault: true
+    openshift:
+      deployByDefault: true
       inlined: |
         kind: Service
         apiVersion: v1
