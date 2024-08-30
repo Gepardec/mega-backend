@@ -56,7 +56,7 @@ events:
   postStart:
     - clone-frontend
     - backend-mvn-clean-install
-    - frontend-npm-install
+    # - frontend-npm-install
 components:
   - name: tools
     container:
