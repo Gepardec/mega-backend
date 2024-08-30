@@ -82,11 +82,6 @@ components:
       env:
         - name: DEBUG_PORT
           value: '5858'
-    attributes:
-      kubernetes:
-        deployment:
-          labels:
-            my-label: "my-value"
   - name: m2
     volume:
       size: 10G
@@ -100,7 +95,7 @@ components:
           value: mega
         - name: POSTGRESQL_DATABASE
           value: mega
-# TEST gattma not working at the moment
+# TEST gattma labelselector hardcoded, can we set labels on the workspace pod?
   - name: mega-svc
     openshift:
       deployByDefault: true
