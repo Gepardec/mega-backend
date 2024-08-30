@@ -96,7 +96,6 @@ components:
           value: mega
 # TEST gattma not working at the moment
   - name: mega-backend-route
-    deployByDefault: true
     openshift:
       deployByDefault: true
       inlined: |
