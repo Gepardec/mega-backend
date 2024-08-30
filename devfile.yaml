@@ -82,6 +82,8 @@ components:
       env:
         - name: DEBUG_PORT
           value: '5858'
+      labels:
+        marko: test
   - name: m2
     volume:
       size: 10G
