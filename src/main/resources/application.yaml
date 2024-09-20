@@ -183,9 +183,9 @@ mega:
         application-name: "MEGA"
         workspace-user: "service@gepardec.com"
         label-filter:
-          - "Label_5632925620975792127" # ID of name "ZEP_TEST" of workspace-user
+          - "Label_5632925620975792127" # ID of name "ZEP_TEST" of workspace-user (stage-specific)
     pubsub:
-      topic: "projects/mega-260510/topics/MegaWebhookEmail"
+      topic: "projects/mega-260510/topics/MegaWebhookEmail-QA" #stage-specific
 
 ## DEV Properties
 "%dev":
