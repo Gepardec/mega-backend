@@ -102,6 +102,12 @@ quarkus:
       roles:
         source: accesstoken
         role-claim-path: "resource_access/mega-cron/roles"
+    pubsub:
+      provider: google
+      application-type: "service"
+      token:
+        verify-access-token-with-user-info: false
+
 mp:
   openapi:
     filter: com.gepardec.mega.application.filter.MegaCronSecuritySchemaOASFilter

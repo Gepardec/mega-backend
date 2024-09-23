@@ -2,7 +2,6 @@ package com.gepardec.mega.rest.api;
 
 import io.quarkus.oidc.Tenant;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
@@ -48,17 +47,6 @@ public interface MailResource {
     @GET
     @Path("/retrieve-zep-mails")
     Response retrieveZepEmailsFromInbox();
-
-    /**
-     * This endpoint serves as a webhook for new emails from ZEP to trigger comment creation.
-     * A Google Cloud Pub/Sub subscription is set up to call this endpoint when a new email is received.
-     *
-     * @return
-     */
-    @Operation(operationId = "gmailMessageReceivedWebhook", description = "Webhook for new emails from ZEP to trigger comment creation.")
-    @POST
-    @Path("/message-received")
-    Response gmailMessageReceivedWebhook(String payload);
 
     @Path("/ping")
     @GET

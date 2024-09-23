@@ -49,19 +49,6 @@ public class MailResourceImpl implements MailResource {
     }
 
     @Override
-    public Response gmailMessageReceivedWebhook(String payload) {
-        try {
-            logger.info("Received payload: {}", payload);
-            mailReceiver.retrieveZepEmailsFromInbox();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return Response.serverError().entity(e.getMessage()).build();
-        }
-
-        return Response.ok().build();
-    }
-
-    @Override
     public LocalDateTime ping() {
         return LocalDateTime.now();
     }
