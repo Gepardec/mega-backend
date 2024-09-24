@@ -18,9 +18,7 @@ quarkus:
       proactive: false
 
   log:
-    console:
-      enable: true
-      level: "ALL"
+    level: INFO
   smallrye-metrics:
     jaxrs:
       enabled: true
