@@ -31,7 +31,7 @@ import java.time.LocalDateTime;
 public class PrematureEmployeeCheckEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PrematureEmployeeCheck_GEN")
-    @SequenceGenerator(name = "PrematureEmployeeCheck_GEN", sequenceName = "PrematureEmployeeCheck_SEQ")
+    @SequenceGenerator(name = "PrematureEmployeeCheck_GEN", sequenceName = "PrematureEmployeeCheck_SEQ", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Long id;
 

@@ -10,8 +10,8 @@ import com.gepardec.mega.service.api.StepEntryService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.jwt.Claim;
-import io.quarkus.test.security.jwt.JwtSecurity;
+import io.quarkus.test.security.oidc.Claim;
+import io.quarkus.test.security.oidc.OidcSecurity;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestSecurity(user = "test")
-@JwtSecurity(claims = {
+@OidcSecurity(claims = {
         @Claim(key = "email", value = "test@gepardec.com")
 })
 class StepEntryResourceTest {
@@ -47,7 +47,7 @@ class StepEntryResourceTest {
 
     @Test
     @TestSecurity
-    @JwtSecurity
+    @OidcSecurity
     void close_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         final User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);

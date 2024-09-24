@@ -1,7 +1,10 @@
 package com.gepardec.mega.application.observer;
 
 import com.gepardec.mega.application.configuration.ApplicationConfig;
+import com.gepardec.mega.service.api.GmailService;
+import io.quarkus.arc.profile.IfBuildProfile;
 import io.quarkus.runtime.StartupEvent;
+import io.quarkus.runtime.configuration.ConfigUtils;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.event.Observes;
 import liquibase.Contexts;
@@ -36,6 +39,15 @@ public class LifecycleObserver {
             logger.info("Initialized database with liquibase");
         } catch (Exception e) {
             logger.error("Initialization of the database with liquibase failed", e);
+        }
+    }
+
+    void watchGmailInbox(final @Observes StartupEvent event,
+                         final GmailService gmailService,
+                         final Logger logger) {
+        if (ConfigUtils.isProfileActive("prod")) {
+            logger.info("Starting to watch the Gmail inbox. Renewals will be handled by the corresponding scheduled task.");
+            gmailService.watchInbox();
         }
     }
 }

@@ -15,7 +15,6 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,7 +51,7 @@ public class PrematureEmployeeCheckSyncServiceTest {
 
 //        When
         boolean updatedAllEntries = prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(
-                YearMonth.of(testDate.getYear(), testDate.getMonth())
+                testDate.withDayOfMonth(1)
         );
 
 //        Then
@@ -77,7 +76,7 @@ public class PrematureEmployeeCheckSyncServiceTest {
 
 //        When
         boolean updatedAllEntries = prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(
-                YearMonth.of(testDate.getYear(), testDate.getMonth())
+                testDate.withDayOfMonth(1)
         );
 
 //        Then
@@ -97,7 +96,7 @@ public class PrematureEmployeeCheckSyncServiceTest {
 
 //        When
         boolean updatedAllEntries = prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(
-                YearMonth.of(testDate.getYear(), testDate.getMonth())
+                testDate.withDayOfMonth(1)
         );
 
 //        Then
@@ -124,7 +123,7 @@ public class PrematureEmployeeCheckSyncServiceTest {
 
 //        When
         boolean updatedAllEntries = prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(
-                YearMonth.of(testDate.getYear(), testDate.getMonth())
+                testDate.withDayOfMonth(1)
         );
 
 //        Then
