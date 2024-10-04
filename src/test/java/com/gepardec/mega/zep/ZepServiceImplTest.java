@@ -116,7 +116,7 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void testGetEmployee() {
+    void getEmployee() {
         Mockito.when(zepSoapPortType.readMitarbeiter(Mockito.any(ReadMitarbeiterRequestType.class))).thenReturn(createReadMitarbeiterResponseType(
                 List.of(createMitarbeiterType(0))
         ));
@@ -146,7 +146,7 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void testGetEmployeesMitarbeiterZepResponseNull() {
+    void getEmployeesMitarbeiterZepResponseNull() {
         Mockito.when(zepSoapPortType.readMitarbeiter(Mockito.any(ReadMitarbeiterRequestType.class))).thenReturn(null);
 
         final List<Employee> employee = zepService.getEmployees();
@@ -158,7 +158,7 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void testGetEmployeesMitarbeiterZepResponseMitarbeiterListeNull() {
+    void getEmployeesMitarbeiterZepResponseMitarbeiterListeNull() {
         Mockito.when(zepSoapPortType.readMitarbeiter(Mockito.any(ReadMitarbeiterRequestType.class))).thenReturn(new ReadMitarbeiterResponseType());
 
         final List<Employee> employee = zepService.getEmployees();
@@ -171,7 +171,7 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void testGetEmployeesMitarbeiterZepResponseMitarbeiterListeEmpty() {
+    void getEmployeesMitarbeiterZepResponseMitarbeiterListeEmpty() {
         Mockito.when(zepSoapPortType.readMitarbeiter(Mockito.any(ReadMitarbeiterRequestType.class))).thenReturn(new ReadMitarbeiterResponseType());
 
         final List<Employee> employee = zepService.getEmployees();
@@ -183,7 +183,7 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void testGetEmployees() {
+    void getEmployees() {
         Mockito.when(zepSoapPortType.readMitarbeiter(Mockito.any(ReadMitarbeiterRequestType.class))).thenReturn(createReadMitarbeiterResponseType(
                 List.of(createMitarbeiterType(0), createMitarbeiterType(1), createMitarbeiterType(2))
         ));
@@ -201,7 +201,7 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void testUpdateEmployeesReleaseDateException() {
+    void updateEmployeesReleaseDateException() {
         Mockito.when(zepSoapPortType.updateMitarbeiter(Mockito.any(UpdateMitarbeiterRequestType.class)))
                 .thenReturn(createUpaUpdateMitarbeiterResponseType(createResponseHeaderType("1337")));
 
@@ -215,7 +215,7 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void testUpdateEmployeesReleaseDateResponseNull() {
+    void updateEmployeesReleaseDateResponseNull() {
         Mockito.when(zepSoapPortType.updateMitarbeiter(Mockito.any(UpdateMitarbeiterRequestType.class))).thenReturn(null);
 
         zepService.updateEmployeesReleaseDate("0", "2020-01-01");
@@ -226,7 +226,7 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void testUpdateEmployeesReleaseDateResponseHeaderNull() {
+    void updateEmployeesReleaseDateResponseHeaderNull() {
         Mockito.when(zepSoapPortType.updateMitarbeiter(Mockito.any(UpdateMitarbeiterRequestType.class))).thenReturn(createUpaUpdateMitarbeiterResponseType(null));
 
         zepService.updateEmployeesReleaseDate("0", "2020-01-01");
@@ -237,7 +237,7 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void testUpdateEmployeesReleaseDate() {
+    void updateEmployeesReleaseDate() {
         Mockito.when(zepSoapPortType.updateMitarbeiter(Mockito.any(UpdateMitarbeiterRequestType.class)))
                 .thenReturn(createUpaUpdateMitarbeiterResponseType(createResponseHeaderType("0")));
 

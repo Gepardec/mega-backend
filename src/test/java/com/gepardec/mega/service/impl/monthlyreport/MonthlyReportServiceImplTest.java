@@ -31,7 +31,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -46,6 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -77,7 +77,7 @@ class MonthlyReportServiceImplTest {
 
     @BeforeEach
     void init() {
-        mockStatic = Mockito.mockStatic(UserContext.class);
+        mockStatic = mockStatic(UserContext.class);
 
         User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
@@ -86,10 +86,10 @@ class MonthlyReportServiceImplTest {
         when(employeeService.getEmployee(anyString())).thenReturn(employee1);
 
         PersonioEmployee personioEmployee = PersonioEmployee.builder()
-            .guildLead("guildLead")
-            .internalProjectLead("internalProjectLead")
-            .vacationDayBalance(0d)
-            .build();
+                .guildLead("guildLead")
+                .internalProjectLead("internalProjectLead")
+                .vacationDayBalance(0d)
+                .build();
 
         when(personioEmployeesService.getPersonioEmployeeByEmail(any()))
                 .thenReturn(Optional.of(personioEmployee));
@@ -101,7 +101,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    void testGetMonthendReportForUser_MitarbeiterValid() {
+    void getMonthendReportForUser_MitarbeiterValid() {
         final Employee employee = createEmployeeWithReleaseDate(0, "NULL");
         when(zepService.getEmployee(anyString())).thenReturn(employee);
 
@@ -110,7 +110,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    void testGetMonthendReportForUser_MitarbeiterValid_ProjektzeitenValid() {
+    void getMonthendReportForUser_MitarbeiterValid_ProjektzeitenValid() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(new ArrayList<>());
@@ -121,7 +121,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    void testGetMonthendReportForUser_MitarbeiterValid_ProjektzeitenValid_NoWarning() {
+    void getMonthendReportForUser_MitarbeiterValid_ProjektzeitenValid_NoWarning() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(10));
@@ -140,7 +140,7 @@ class MonthlyReportServiceImplTest {
     }
 
     @Test
-    void testGetMonthendReportForUser_MitarbeiterValid_ProjektzeitenValid_Warning() {
+    void getMonthendReportForUser_MitarbeiterValid_ProjektzeitenValid_Warning() {
         final Employee employee = createEmployee(0);
         when(zepService.getEmployee(anyString())).thenReturn(employee);
         when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class))).thenReturn(createReadProjektzeitenResponseType(18));
@@ -549,11 +549,11 @@ class MonthlyReportServiceImplTest {
         List<AbsenceTime> absenceList = new ArrayList<>();
 
         AbsenceTime vacationDaysAbsence = AbsenceTime.builder()
-            .reason("HO")
-            .accepted(true)
-            .toDate(LocalDate.of(2022, 5, 3))
-            .fromDate(LocalDate.of(2022, 4, 25))
-            .build();
+                .reason("HO")
+                .accepted(true)
+                .toDate(LocalDate.of(2022, 5, 3))
+                .fromDate(LocalDate.of(2022, 4, 25))
+                .build();
         absenceList.add(vacationDaysAbsence);
 
         return absenceList;
@@ -563,11 +563,11 @@ class MonthlyReportServiceImplTest {
         List<AbsenceTime> absenceList = new ArrayList<>();
 
         AbsenceTime vacationDaysAbsence = AbsenceTime.builder()
-            .reason(AbsenteeType.COMPENSATORY_DAYS.getType())
-            .accepted(true)
-            .toDate(LocalDate.of(2022, 4, 29))
-            .fromDate(LocalDate.of(2022, 4, 25))
-            .build();
+                .reason(AbsenteeType.COMPENSATORY_DAYS.getType())
+                .accepted(true)
+                .toDate(LocalDate.of(2022, 4, 29))
+                .fromDate(LocalDate.of(2022, 4, 25))
+                .build();
         absenceList.add(vacationDaysAbsence);
 
         return absenceList;
@@ -577,11 +577,11 @@ class MonthlyReportServiceImplTest {
         List<AbsenceTime> absenceList = new ArrayList<>();
 
         AbsenceTime vacationDaysAbsence = AbsenceTime.builder()
-            .reason(AbsenteeType.COMPENSATORY_DAYS.getType())
-            .accepted(true)
-            .toDate(LocalDate.of(2022, 5, 3))
-            .fromDate(LocalDate.of(2022, 4, 25))
-            .build();
+                .reason(AbsenteeType.COMPENSATORY_DAYS.getType())
+                .accepted(true)
+                .toDate(LocalDate.of(2022, 5, 3))
+                .fromDate(LocalDate.of(2022, 4, 25))
+                .build();
         absenceList.add(vacationDaysAbsence);
 
         return absenceList;
@@ -591,11 +591,11 @@ class MonthlyReportServiceImplTest {
         List<AbsenceTime> absenceList = new ArrayList<>();
 
         AbsenceTime vacationDaysAbsence = AbsenceTime.builder()
-            .reason(AbsenteeType.VACATION_DAYS.getType())
-            .accepted(true)
-            .toDate(LocalDate.of(2022, 5, 3))
-            .fromDate(LocalDate.of(2022, 4, 25))
-            .build();
+                .reason(AbsenteeType.VACATION_DAYS.getType())
+                .accepted(true)
+                .toDate(LocalDate.of(2022, 5, 3))
+                .fromDate(LocalDate.of(2022, 4, 25))
+                .build();
         absenceList.add(vacationDaysAbsence);
 
         return absenceList;

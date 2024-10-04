@@ -11,10 +11,6 @@ import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static java.util.Locale.filter;
 
 @ApplicationScoped
 public class AttendanceService {
@@ -40,6 +36,7 @@ public class AttendanceService {
         return List.of();
 
     }
+
     //Return the attendances for a user for a given month. The month in which the date is located determines the month to be queried.
     public List<ZepAttendance> getAttendanceForUserAndMonth(String username, LocalDate date) {
         String startDate = date.withDayOfMonth(1).toString();

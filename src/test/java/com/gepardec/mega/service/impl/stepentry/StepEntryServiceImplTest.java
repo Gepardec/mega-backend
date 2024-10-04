@@ -5,14 +5,19 @@ import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.StepEntryRepository;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectEmployees;
+import com.gepardec.mega.domain.model.Step;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.StepEntryService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
+import org.mockito.MockedStatic;
+import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,6 +41,9 @@ class StepEntryServiceImplTest {
 
     @InjectMock
     StepEntryRepository stepEntryRepository;
+
+    @InjectMock
+    Logger logger;
 
     @Test
     void findEmployeeCheckState_whenValidStepEntries_thenValidState() {
@@ -58,6 +67,12 @@ class StepEntryServiceImplTest {
                 ArgumentMatchers.anyString())).thenReturn(List.of());
 
         Optional<EmployeeState> states = stepEntryService.findEmployeeCheckState(createEmployee());
+        assertThat(states).isEmpty();
+    }
+
+    @Test
+    void findEmployeeCheckState_whenNoEmployee_thenEmpty() {
+        Optional<EmployeeState> states = stepEntryService.findEmployeeCheckState(null);
         assertThat(states).isEmpty();
     }
 
@@ -268,6 +283,312 @@ class StepEntryServiceImplTest {
                 () -> assertThat(projectEmployees.get(0).getEmployees()).containsExactlyInAnyOrder("008", "010", "012", "020")
         );
     }
+
+    @Test
+    void addStepEntry_whenProjectIsNotNull_thenCreateStepEntry() {
+        com.gepardec.mega.domain.model.StepEntry stepEntry = com.gepardec.mega.domain.model.StepEntry.builder()
+                .owner(com.gepardec.mega.domain.model.User.builder().dbId(1L).build())
+                .step(Step.builder().dbId(1L).build())
+                .assignee(com.gepardec.mega.domain.model.User.builder().dbId(1L).build())
+                .date(LocalDate.of(2024, 5, 12))
+                .project(Project.builder().projectId("ABC").build())
+                .build();
+
+        User ownerDb = new User();
+        ownerDb.setId(stepEntry.getOwner().getDbId());
+
+        User assigneeDb = new User();
+        assigneeDb.setId(stepEntry.getAssignee().getDbId());
+
+        com.gepardec.mega.db.entity.employee.Step step = new com.gepardec.mega.db.entity.employee.Step();
+        step.setId(stepEntry.getStep().getDbId());
+
+
+        StepEntry expectedStepEntry = new StepEntry();
+        expectedStepEntry.setDate(stepEntry.getDate());
+        expectedStepEntry.setProject(stepEntry.getProject().getProjectId());
+        expectedStepEntry.setState(EmployeeState.OPEN);
+        expectedStepEntry.setOwner(ownerDb);
+        expectedStepEntry.setAssignee(assigneeDb);
+        expectedStepEntry.setStep(step);
+
+        stepEntryService.addStepEntry(stepEntry);
+
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(logger).debug(eq("inserting step entry {}"), argumentCaptor.capture());
+
+        StepEntry capturedStepEntry = (StepEntry) argumentCaptor.getValue();
+        assertThat(capturedStepEntry.getProject()).isEqualTo(expectedStepEntry.getProject());
+    }
+
+    @Test
+    void addStepEntry_whenProjectIsNull_thenCreateStepEntry() {
+        com.gepardec.mega.domain.model.StepEntry stepEntry = com.gepardec.mega.domain.model.StepEntry.builder()
+                .owner(com.gepardec.mega.domain.model.User.builder().dbId(1L).build())
+                .step(Step.builder().dbId(1L).build())
+                .assignee(com.gepardec.mega.domain.model.User.builder().dbId(1L).build())
+                .date(LocalDate.of(2024, 5, 12))
+                .project(null)
+                .build();
+
+        User ownerDb = new User();
+        ownerDb.setId(stepEntry.getOwner().getDbId());
+
+        User assigneeDb = new User();
+        assigneeDb.setId(stepEntry.getAssignee().getDbId());
+
+        com.gepardec.mega.db.entity.employee.Step step = new com.gepardec.mega.db.entity.employee.Step();
+        step.setId(stepEntry.getStep().getDbId());
+
+
+        StepEntry expectedStepEntry = new StepEntry();
+        expectedStepEntry.setDate(stepEntry.getDate());
+        expectedStepEntry.setProject(null);
+        expectedStepEntry.setState(EmployeeState.OPEN);
+        expectedStepEntry.setOwner(ownerDb);
+        expectedStepEntry.setAssignee(assigneeDb);
+        expectedStepEntry.setStep(step);
+
+        stepEntryService.addStepEntry(stepEntry);
+
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(logger).debug(eq("inserting step entry {}"), argumentCaptor.capture());
+
+        StepEntry capturedStepEntry = (StepEntry) argumentCaptor.getValue();
+        assertThat(capturedStepEntry.getProject()).isEqualTo(expectedStepEntry.getProject());
+    }
+
+    @Test
+    void findEmployeeCheckState_whenEmployeeIsNull_thenReturnOptionalEmpty() {
+        assertThat(stepEntryService.findEmployeeCheckState(null)).isEmpty();
+    }
+
+    @Test
+    void findStepEntryForEmployeeAndProjectAtStep_whenNoEntriesFound_thenThrowsException() {
+        when(stepEntryRepository.findStepEntryForEmployeeAndProjectAtStepInRange(any(LocalDate.class),
+                        any(LocalDate.class),
+                        anyString(),
+                        anyLong(),
+                        anyString(),
+                        anyString()
+                )
+        ).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAndProjectAtStep(1L, "max.mustermann@gmail.com", "max.mustermann@gmail.com", "ABC", "2024-05-01"))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void updateStepEntryStateForEmployeeInProject() {
+        Employee employee = Employee.builder().userId("007-JBond")
+                .firstname("James")
+                .lastname("Bond")
+                .email("james.bond@gmail.com")
+                .build();
+
+        try (MockedStatic<DateUtils> dateUtilsMockedStatic = mockStatic(DateUtils.class)) {
+            dateUtilsMockedStatic.when(() -> DateUtils.getFirstDayOfCurrentMonth("2024-05"))
+                    .thenReturn(LocalDate.of(2024, 5, 1));
+            dateUtilsMockedStatic.when(() -> DateUtils.getLastDayOfCurrentMonth("2024-05"))
+                    .thenReturn(LocalDate.of(2024, 5, 30));
+
+            when(stepEntryRepository.updateStateAssigned(
+                    any(LocalDate.class),
+                    any(LocalDate.class),
+                    anyString(),
+                    anyLong(),
+                    anyString(),
+                    any(EmployeeState.class))
+            )
+                    .thenReturn(1);
+
+
+            boolean result = stepEntryService.updateStepEntryStateForEmployeeInProject(employee, 123L, "PROJECT123", "2024-05", EmployeeState.OPEN);
+
+            verify(stepEntryRepository, times(1))
+                    .updateStateAssigned(LocalDate.of(2024, 5, 1), LocalDate.of(2024, 5, 30),
+                            "james.bond@gmail.com", 123L, "PROJECT123", EmployeeState.OPEN);
+
+            assertThat(result).isTrue();
+        }
+    }
+
+    @Test
+    void getAllProjectEmployeesForPM_whenValidRange_thenReturnProjectEmployees() {
+        LocalDate from = LocalDate.of(2024, 1, 1);
+        LocalDate to = LocalDate.of(2024, 1, 31);
+
+        List<StepEntry> stepEntries = List.of(
+                createStepEntryWithProjectAndOwner("Project1", "employee1"),
+                createStepEntryWithProjectAndOwner("Project1", "employee2"),
+                createStepEntryWithProjectAndOwner("Project2", "employee3")
+        );
+
+        when(stepEntryRepository.findAllStepEntriesForAllPMInRange(any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(stepEntries);
+
+        List<ProjectEmployees> result = stepEntryService.getAllProjectEmployeesForPM(from, to);
+
+        assertThat(result).hasSize(2);
+
+        ProjectEmployees project1 = result.stream()
+                .filter(pe -> "Project1".equals(pe.getProjectId()))
+                .findFirst()
+                .orElse(null);
+        assertThat(project1).isNotNull();
+        assertThat(project1.getEmployees()).containsExactlyInAnyOrder("employee1", "employee2");
+
+        ProjectEmployees project2 = result.stream()
+                .filter(pe -> "Project2".equals(pe.getProjectId()))
+                .findFirst()
+                .orElse(null);
+        assertThat(project2).isNotNull();
+        assertThat(project2.getEmployees()).containsExactly("employee3");
+
+        verify(stepEntryRepository, times(1)).findAllStepEntriesForAllPMInRange(from, to);
+    }
+
+    @Test
+    void findAllStepEntriesForEmployeeAndProject_whenValidInputs_thenReturnStepEntries() {
+        Employee employee = createEmployee();
+        String projectId = "Project1";
+        String assigneeEmail = "assignee@example.com";
+        LocalDate from = LocalDate.of(2024, 1, 1);
+        LocalDate to = LocalDate.of(2024, 1, 31);
+
+        List<StepEntry> stepEntriesProjectSpecific = List.of(
+                createStepEntryWithDetails(1L, projectId, employee.getEmail(), assigneeEmail),
+                createStepEntryWithDetails(2L, projectId, employee.getEmail(), assigneeEmail)
+        );
+
+        List<StepEntry> stepEntriesGeneral = List.of(
+                createStepEntryWithDetails(1L, "Project2", employee.getEmail(), assigneeEmail),
+                createStepEntryWithDetails(2L, "Project3", employee.getEmail(), assigneeEmail)
+        );
+
+        when(stepEntryRepository.findAllOwnedStepEntriesInRange(any(LocalDate.class), any(LocalDate.class), anyString(), anyString(), anyString()))
+                .thenReturn(stepEntriesProjectSpecific);
+        when(stepEntryRepository.findAllOwnedStepEntriesInRange(from, to, employee.getEmail()))
+                .thenReturn(stepEntriesGeneral);
+
+        List<StepEntry> result = stepEntryService.findAllStepEntriesForEmployeeAndProject(employee, projectId, assigneeEmail, from, to);
+
+        assertThat(result).hasSize(4);
+        assertThat(result).containsAll(stepEntriesProjectSpecific);
+        assertThat(result).containsAll(stepEntriesGeneral);
+
+        verify(stepEntryRepository, times(1)).findAllOwnedStepEntriesInRange(from, to, employee.getEmail(), projectId, assigneeEmail);
+        verify(stepEntryRepository, times(1)).findAllOwnedStepEntriesInRange(from, to, employee.getEmail());
+    }
+
+    @Test
+    void findStepEntryForEmployeeAndProjectAtStep_whenValidInputs_thenReturnStepEntry() {
+        Long stepId = 1L;
+        String employeeEmail = "employee@example.com";
+        String assigneeEmail = "assignee@example.com";
+        String project = "Project1";
+        String currentMonthYear = "2024-01";
+
+        LocalDate fromDate = LocalDate.of(2024, 1, 1);
+        LocalDate toDate = LocalDate.of(2024, 1, 31);
+
+        StepEntry expectedStepEntry = createStepEntryWithDetails(stepId, project, employeeEmail, assigneeEmail);
+
+        try (MockedStatic<DateUtils> dateUtilsMockedStatic = mockStatic(DateUtils.class)) {
+            dateUtilsMockedStatic.when(() -> DateUtils.getFirstDayOfCurrentMonth(anyString()))
+                    .thenReturn(fromDate);
+            dateUtilsMockedStatic.when(() -> DateUtils.getLastDayOfCurrentMonth(anyString()))
+                    .thenReturn(toDate);
+
+            when(stepEntryRepository.findStepEntryForEmployeeAndProjectAtStepInRange(
+                    any(LocalDate.class), any(LocalDate.class), anyString(), anyLong(), anyString(), anyString()))
+                    .thenReturn(Optional.of(expectedStepEntry));
+
+            StepEntry result = stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, currentMonthYear);
+
+            assertThat(result).isNotNull();
+            assertThat(result).isEqualTo(expectedStepEntry);
+            verify(stepEntryRepository, times(1)).findStepEntryForEmployeeAndProjectAtStepInRange(
+                    fromDate, toDate, employeeEmail, stepId, assigneeEmail, project);
+        }
+    }
+
+    @Test
+    void findStepEntryForEmployeeAndProjectAtStep_whenNoEntryFound_thenThrowsException() {
+        Long stepId = 1L;
+        String employeeEmail = "employee@example.com";
+        String assigneeEmail = "assignee@example.com";
+        String project = "Project1";
+        String currentMonthYear = "2024-01";
+
+        LocalDate fromDate = LocalDate.of(2024, 1, 1);
+        LocalDate toDate = LocalDate.of(2024, 1, 31);
+
+        try (MockedStatic<DateUtils> dateUtilsMockedStatic = mockStatic(DateUtils.class)) {
+            dateUtilsMockedStatic.when(() -> DateUtils.getFirstDayOfCurrentMonth(anyString()))
+                    .thenReturn(fromDate);
+            dateUtilsMockedStatic.when(() -> DateUtils.getLastDayOfCurrentMonth(anyString()))
+                    .thenReturn(toDate);
+
+            when(stepEntryRepository.findStepEntryForEmployeeAndProjectAtStepInRange(
+                    any(LocalDate.class), any(LocalDate.class), anyString(), anyLong(), anyString(), anyString()))
+                    .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, currentMonthYear))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining(String.format("No StepEntries found for Employee %s", employeeEmail));
+            verify(stepEntryRepository, times(1)).findStepEntryForEmployeeAndProjectAtStepInRange(
+                    fromDate, toDate, employeeEmail, stepId, assigneeEmail, project);
+        }
+    }
+
+
+    @Test
+    void updateStepEntryStateForEmployee_whenUpdateSuccessful_thenReturnTrue() {
+        Employee employee = createEmployee();
+        Long stepId = 1L;
+        LocalDate from = LocalDate.of(2024, 1, 1);
+        LocalDate to = LocalDate.of(2024, 1, 31);
+        EmployeeState newState = EmployeeState.DONE;
+        String reason = "Task completed";
+
+        when(stepEntryRepository.updateStateAssignedWithReason(any(LocalDate.class), any(LocalDate.class), anyString(), anyLong(), any(EmployeeState.class), anyString()))
+                .thenReturn(1);
+
+        boolean result = stepEntryService.updateStepEntryStateForEmployee(employee, stepId, from, to, newState, reason);
+
+        assertThat(result).isTrue();
+        verify(stepEntryRepository, times(1)).updateStateAssignedWithReason(from, to, employee.getEmail(), stepId, newState, reason);
+    }
+
+    private StepEntry createStepEntryWithDetails(Long id, String project, String ownerEmail, String assigneeEmail) {
+        StepEntry stepEntry = new StepEntry();
+        stepEntry.setProject(project);
+        stepEntry.setId(id);
+
+        User owner = new User();
+        owner.setEmail(ownerEmail);
+        stepEntry.setOwner(owner);
+
+        User assignee = new User();
+        assignee.setEmail(assigneeEmail);
+        stepEntry.setAssignee(assignee);
+
+        return stepEntry;
+    }
+
+
+    private StepEntry createStepEntryWithProjectAndOwner(String project, String ownerZepId) {
+        StepEntry stepEntry = new StepEntry();
+        stepEntry.setProject(project);
+
+        User owner = new User();
+        owner.setZepId(ownerZepId);
+        stepEntry.setOwner(owner);
+
+        return stepEntry;
+    }
+
 
     private List<StepEntry> createStepEntriesForPM() {
         return List.of(

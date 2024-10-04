@@ -1,4 +1,5 @@
 package com.gepardec.mega.rest;
+
 import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.AbsenceTime;
@@ -72,7 +73,7 @@ import static org.mockito.Mockito.when;
 @OidcSecurity(claims = {
         @Claim(key = "email", value = "test@gepardec.com")
 })
-public class WorkerResourceTest {
+class WorkerResourceTest {
 
     @InjectMock
     MonthlyReportService monthlyReportService;
@@ -95,7 +96,8 @@ public class WorkerResourceTest {
     @InjectMock
     PersonioEmployeesService personioEmployeesService;
 
-    @InjectMock @Rest
+    @InjectMock
+    @Rest
     ZepService zepService;
 
     @InjectMock
@@ -341,7 +343,7 @@ public class WorkerResourceTest {
 
 
     @Test
-    void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithoutAttachmentAndCreditCard_thenReturnObjectWithAttachmentWarningsAndNoCreditCard(){
+    void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithoutAttachmentAndCreditCard_thenReturnObjectWithAttachmentWarningsAndNoCreditCard() {
         User userForRole = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
@@ -353,11 +355,11 @@ public class WorkerResourceTest {
         when(personioEmployeesService.getPersonioEmployeeByEmail(anyString()))
                 .thenReturn(Optional.of(personioEmployee));
 
-       when(zepService.getMonthlyBillInfoForEmployee(any(PersonioEmployee.class), any(Employee.class), any(YearMonth.class)))
-               .thenReturn(createMonthlyBillInfo(2, 1, 1, true, false));
+        when(zepService.getMonthlyBillInfoForEmployee(any(PersonioEmployee.class), any(Employee.class), any(YearMonth.class)))
+                .thenReturn(createMonthlyBillInfo(2, 1, 1, true, false));
 
-       when(monthlyBillInfoMapper.mapToDto(any(MonthlyBillInfo.class)))
-               .thenReturn(createMonthlyBillInfoDto(2, 1, 1, true, false));
+        when(monthlyBillInfoMapper.mapToDto(any(MonthlyBillInfo.class)))
+                .thenReturn(createMonthlyBillInfoDto(2, 1, 1, true, false));
 
         MonthlyBillInfoDto actual = workerResource.getBillInfoForEmployee(YearMonth.of(2024, 4));
 
@@ -369,7 +371,7 @@ public class WorkerResourceTest {
     }
 
     @Test
-    void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithAllAttachmentsAndNoCreditCard_thenReturnObjectWithoutAttachmentWarningsAndNoCreditCard(){
+    void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithAllAttachmentsAndNoCreditCard_thenReturnObjectWithoutAttachmentWarningsAndNoCreditCard() {
         User userForRole = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
@@ -397,7 +399,7 @@ public class WorkerResourceTest {
     }
 
     @Test
-    void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithAllAttachmentsAndCreditCard_thenReturnObjectWithoutAttachmentWarningsAndWithCreditCard(){
+    void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithAllAttachmentsAndCreditCard_thenReturnObjectWithoutAttachmentWarningsAndWithCreditCard() {
         User userForRole = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
@@ -425,7 +427,7 @@ public class WorkerResourceTest {
     }
 
     @Test
-    void getBillsForEmployeeByMonth_whenEmployeeHasNoBills_thenReturnObjectWithSumZero(){
+    void getBillsForEmployeeByMonth_whenEmployeeHasNoBills_thenReturnObjectWithSumZero() {
         User userForRole = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
@@ -451,6 +453,7 @@ public class WorkerResourceTest {
         assertThat(actual.getSumCompanyBills()).isZero();
         assertThat(actual.getHasAttachmentWarnings()).isFalse();
     }
+
     @Test
     void getAllProjectsForMonthAndEmployee_whenEmployeeHasProjectTimes_thenReturnListOfProjects() {
         User userForRole = createUserForRole(Role.EMPLOYEE);
@@ -878,7 +881,7 @@ public class WorkerResourceTest {
         return List.of(
                 createMonthlyWarning("Zeit-Buchung außerhalb der Kernarbeitszeit", List.of("2024-05-03", "2024-05-22", "2024-05-29")),
                 createMonthlyWarning("Keine Zeit-Buchung vorhanden",
-                        List.of("2024-05-06", "2024-05-07", "2024-05-08", "2024-05-10", "2024-05-13", "2024-05-14","2024-05-15", "2024-05-16", "2024-05-17," +
+                        List.of("2024-05-06", "2024-05-07", "2024-05-08", "2024-05-10", "2024-05-13", "2024-05-14", "2024-05-15", "2024-05-16", "2024-05-17," +
                                 "2024-05-24", "2024-05-31")),
                 createMonthlyWarning("Zeit-Buchung an einem Feiertag", List.of("2024-05-01")),
                 createMonthlyWarning("Zeit-Buchung am Wochenende", List.of("2024-05-18")),
@@ -973,29 +976,29 @@ public class WorkerResourceTest {
 
     private AbsenceTime createAbsenceTime(LocalDate startDate, LocalDate endDate, String reason) {
         return AbsenceTime.builder()
-                    .fromDate(startDate)
-                    .toDate(endDate)
-                    .reason(reason)
-                    .accepted(true)
-                    .build();
+                .fromDate(startDate)
+                .toDate(endDate)
+                .reason(reason)
+                .accepted(true)
+                .build();
     }
 
     private ProjectHoursSummary createProjectHourSummary(String projectName, double billableHoursSum, double nonBillableHours) {
         return ProjectHoursSummary.builder()
-                                  .projectName(projectName)
-                                  .billableHoursSum(billableHoursSum)
-                                  .nonBillableHoursSum(nonBillableHours)
-                                  .chargeability(25.0)
-                                  .isInternalProject(true)
-                                  .build();
+                .projectName(projectName)
+                .billableHoursSum(billableHoursSum)
+                .nonBillableHoursSum(nonBillableHours)
+                .chargeability(25.0)
+                .isInternalProject(true)
+                .build();
     }
 
     private List<ProjectHoursSummary> getProjectsHoursSummaryForEmployee() {
         return List.of(
-            createProjectHourSummary("Testproject", 45.5, 21.5),
-            createProjectHourSummary("Testproject2", 49.5, 20.5),
-            createProjectHourSummary("Testproject3", 55.5, 20.5),
-            createProjectHourSummary("Testproject4", 70.0, 20.5)
+                createProjectHourSummary("Testproject", 45.5, 21.5),
+                createProjectHourSummary("Testproject2", 49.5, 20.5),
+                createProjectHourSummary("Testproject3", 55.5, 20.5),
+                createProjectHourSummary("Testproject4", 70.0, 20.5)
         );
     }
 
