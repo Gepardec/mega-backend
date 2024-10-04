@@ -22,8 +22,14 @@ import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.rest.dto.ZepReceipt;
 import com.gepardec.mega.zep.rest.dto.ZepReceiptAttachment;
 import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
-import com.gepardec.mega.zep.rest.mapper.Mapper;
+import com.gepardec.mega.zep.rest.mapper.AbsenceMapper;
+import com.gepardec.mega.zep.rest.mapper.ActiveMapper;
+import com.gepardec.mega.zep.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.rest.mapper.ProjectEmployeesMapper;
+import com.gepardec.mega.zep.rest.mapper.ProjectEntryMapper;
+import com.gepardec.mega.zep.rest.mapper.ProjectMapper;
+import com.gepardec.mega.zep.rest.mapper.ProjectTimeMapper;
+import com.gepardec.mega.zep.rest.mapper.RegularWorkingHoursMapMapper;
 import com.gepardec.mega.zep.rest.service.AbsenceService;
 import com.gepardec.mega.zep.rest.service.AttendanceService;
 import com.gepardec.mega.zep.rest.service.EmployeeService;
@@ -41,16 +47,12 @@ import org.slf4j.Logger;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
-
 
 
 @ApplicationScoped
@@ -73,7 +75,7 @@ public class ZepRestServiceImpl implements ZepService {
     AbsenceService absenceService;
 
     @Inject
-    Mapper<AbsenceTime, ZepAbsence> absenceMapper;
+    AbsenceMapper absenceMapper;
 
     @Inject
     RegularWorkingTimesService regularWorkingTimesService;
@@ -85,25 +87,25 @@ public class ZepRestServiceImpl implements ZepService {
     DateHelperService dateHelperService;
 
     @Inject
-    Mapper<Employee, ZepEmployee> employeeMapper;
+    EmployeeMapper employeeMapper;
 
     @Inject
-    Mapper<ProjectEntry, ZepAttendance> projectEntryMapper;
+    ProjectEntryMapper projectEntryMapper;
 
     @Inject
-    Mapper<ProjectTime, ZepAttendance> attendanceMapper;
+    ProjectTimeMapper projectTimeMapper;
 
     @Inject
-    Mapper<Project.Builder, ZepProject> projectMapper;
+    ProjectMapper projectMapper;
 
     @Inject
-    Mapper<MultivaluedMap<String, String>, List<ZepProjectEmployee>> projectEmployeesMapper;
+    ProjectEmployeesMapper projectEmployeesMapper;
 
     @Inject
-    Mapper<Map<DayOfWeek, Duration>, ZepRegularWorkingTimes> regularWorkingTimesMapper;
+    RegularWorkingHoursMapMapper regularWorkingTimesMapper;
 
     @Inject
-    Mapper<Boolean, List<ZepEmploymentPeriod>> activeEmployeeMapper;
+    ActiveMapper activeEmployeeMapper;
 
     @Inject
     Logger logger;
@@ -186,7 +188,7 @@ public class ZepRestServiceImpl implements ZepService {
             logger.debug("Retrieving attendance of user %s of project %d from ZEP".formatted(projectEmployee.username(), projectId));
             allZepAttendancesForProject.addAll(attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.username(), curDate, projectId));
         });
-        return attendanceMapper.mapList(allZepAttendancesForProject);
+        return projectTimeMapper.mapList(allZepAttendancesForProject);
     }
 
     @Override
@@ -223,7 +225,7 @@ public class ZepRestServiceImpl implements ZepService {
     public List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date) {
         logger.debug("Retrieving billable entries of employee %s from ZEP".formatted(employee.getUserId()));
         List<ZepAttendance> projectTimes = attendanceService.getBillableAttendancesForUserAndMonth(employee.getUserId(), date);
-        return attendanceMapper.mapList(projectTimes);
+        return projectTimeMapper.mapList(projectTimes);
     }
 
     @Override
@@ -237,7 +239,7 @@ public class ZepRestServiceImpl implements ZepService {
         Optional<ZepEmployee> employeeRetrieved = zepEmployeeService.getZepEmployeeByUsername(employee.getUserId());
         List<ProjectHoursSummary> resultProjectHoursSummary = new ArrayList<>();
 
-        if(employeeRetrieved.isPresent()) {
+        if (employeeRetrieved.isPresent()) {
             resultProjectHoursSummary = getProjectsForMonthAndEmployeeInternal(employeeRetrieved.get(), yearMonth);
         }
         return resultProjectHoursSummary;
@@ -249,13 +251,13 @@ public class ZepRestServiceImpl implements ZepService {
         LocalDate startDate = DateUtils.parseDate(startDateString);
 
         List<ZepAttendance> doctorsAttendances = attendanceService.getAttendanceForUserProjectAndMonth(employee.getUserId(), startDate, ProjectTaskType.PROJECT_INTERNAL.getId())
-                                                                  .stream()
-                                                                  .filter(attendance -> attendance.projectTaskId().equals(ProjectTaskType.TASK_DOCTOR_VISIT.getId()))
-                                                                  .toList();
+                .stream()
+                .filter(attendance -> attendance.projectTaskId().equals(ProjectTaskType.TASK_DOCTOR_VISIT.getId()))
+                .toList();
 
         return doctorsAttendances.stream()
-                                  .mapToDouble(ZepAttendance::duration)
-                                  .sum();
+                .mapToDouble(ZepAttendance::duration)
+                .sum();
     }
 
     private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth yearMonth) {
@@ -268,14 +270,14 @@ public class ZepRestServiceImpl implements ZepService {
         projectsRetrieved.forEach(
                 project -> {
                     Optional<ZepProjectEmployee> projectEmployee = projectService.getProjectEmployeesForId(project.id())
-                                                                                 .stream()
-                                                                                 .filter(e -> e.username().equals(employee.username()))
-                                                                                 .findFirst();
-                    if(projectEmployee.isEmpty()) {
+                            .stream()
+                            .filter(e -> e.username().equals(employee.username()))
+                            .findFirst();
+                    if (projectEmployee.isEmpty()) {
                         return;
                     }
                     List<ZepAttendance> attendancesForEmployeeAndProject = attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.get().username(), dateForRequest, project.id());
-                    if(!attendancesForEmployeeAndProject.isEmpty()){
+                    if (!attendancesForEmployeeAndProject.isEmpty()) {
                         Optional<ProjectHoursSummary> optionalProjectHoursSummary = createProjectsHoursSummary(attendancesForEmployeeAndProject, project);
                         optionalProjectHoursSummary.ifPresent(resultProjectHoursSummary::add);
                     }
@@ -290,39 +292,41 @@ public class ZepRestServiceImpl implements ZepService {
         double nonBillableHoursSum = 0.0;
         double chargeability = 0.0;
 
-        if(projectRetrieved.isEmpty()) {
+        if (projectRetrieved.isEmpty()) {
             return Optional.empty();
         }
 
-         projectName = projectRetrieved.get().name();
+        projectName = projectRetrieved.get().name();
 
-         billableHoursSum += attendances.stream()
-                                        .filter(ZepAttendance::billable)
-                                        .mapToDouble(ZepAttendance::duration)
-                                        .sum();
+        billableHoursSum += attendances.stream()
+                .filter(ZepAttendance::billable)
+                .mapToDouble(ZepAttendance::duration)
+                .sum();
 
-         nonBillableHoursSum += attendances.stream()
-                                           .filter(a -> !a.billable())
-                                           .mapToDouble(ZepAttendance::duration)
-                                           .sum();
+        nonBillableHoursSum += attendances.stream()
+                .filter(a -> !a.billable())
+                .mapToDouble(ZepAttendance::duration)
+                .sum();
 
-         double totalHours = Double.sum(billableHoursSum, nonBillableHoursSum);
+        double totalHours = Double.sum(billableHoursSum, nonBillableHoursSum);
 
-         if(!(Double.compare(totalHours, 0.0d) == 0)){
-             chargeability = billableHoursSum/totalHours;
-             chargeability = BigDecimal.valueOf(chargeability)
-                                       .setScale(2, RoundingMode.HALF_UP)
-                                       .doubleValue();
-         }
+        if (!(Double.compare(totalHours, 0.0d) == 0)) {
+            chargeability = billableHoursSum / totalHours;
+            chargeability = BigDecimal.valueOf(chargeability)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
+        }
 
 
-         return Optional.of(ProjectHoursSummary.builder()
-                                               .projectName(projectName)
-                                               .billableHoursSum(billableHoursSum)
-                                               .nonBillableHoursSum(nonBillableHoursSum)
-                                               .chargeability(chargeability * 100)
-                                               .isInternalProject(project.customerId() == null)
-                                               .build());
+        return Optional.of(
+                ProjectHoursSummary.builder()
+                        .projectName(projectName)
+                        .billableHoursSum(billableHoursSum)
+                        .nonBillableHoursSum(nonBillableHoursSum)
+                        .chargeability(chargeability * 100)
+                        .isInternalProject(project.customerId() == null)
+                        .build()
+        );
     }
 
 
@@ -332,8 +336,8 @@ public class ZepRestServiceImpl implements ZepService {
 
         if (!allReceiptsForYearMonth.isEmpty()) {
             allReceiptsForYearMonthAndEmployee = allReceiptsForYearMonth.stream()
-                                                                        .filter(receipt -> receipt.employeeId().equals(employee.getUserId()))
-                                                                        .toList();
+                    .filter(receipt -> receipt.employeeId().equals(employee.getUserId()))
+                    .toList();
 
             int sumBills = allReceiptsForYearMonthAndEmployee.size();
             return createMonthlyBillInfo(personioEmployee, allReceiptsForYearMonthAndEmployee, sumBills);
@@ -341,7 +345,7 @@ public class ZepRestServiceImpl implements ZepService {
         return createMonthlyBillInfoWhenNoBills(personioEmployee);
     }
 
-    private MonthlyBillInfo createMonthlyBillInfoWhenNoBills(PersonioEmployee personioEmployee){
+    private MonthlyBillInfo createMonthlyBillInfoWhenNoBills(PersonioEmployee personioEmployee) {
         return MonthlyBillInfo.builder()
                 .sumBills(0)
                 .sumPrivateBills(0)
@@ -355,13 +359,13 @@ public class ZepRestServiceImpl implements ZepService {
         boolean hasAttachmentWarnings = false;
         int sumPrivateBills = 0;
 
-        for(ZepReceipt receipt : zepReceipts) {
+        for (ZepReceipt receipt : zepReceipts) {
             Optional<ZepReceiptAttachment> attachment = receiptService.getAttachmentByReceiptId(receipt.id());
-            if(attachment.isEmpty()) {
+            if (attachment.isEmpty()) {
                 hasAttachmentWarnings = true;
             }
 
-            if(receipt.paymentMethodType().getPaymentMethodName().equals(PaymentMethodType.PRIVATE.getPaymentMethodName())) {
+            if (receipt.paymentMethodType().getPaymentMethodName().equals(PaymentMethodType.PRIVATE.getPaymentMethodName())) {
                 sumPrivateBills++;
             }
         }

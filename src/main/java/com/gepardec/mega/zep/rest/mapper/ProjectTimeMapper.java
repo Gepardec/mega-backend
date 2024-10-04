@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalTime;
 
 @ApplicationScoped
-public class AttendanceMapper implements Mapper<ProjectTime, ZepAttendance> {
+public class ProjectTimeMapper implements Mapper<ProjectTime, ZepAttendance> {
 
     @Inject
     Logger logger;
@@ -28,7 +28,7 @@ public class AttendanceMapper implements Mapper<ProjectTime, ZepAttendance> {
             Boolean isBillable = zepAttendance.billable();
 
             String duration = null;
-            if (zepAttendance.duration() != null ) {
+            if (zepAttendance.duration() != null) {
                 BigDecimal bigDecimal = BigDecimal.valueOf(zepAttendance.duration());
                 int hours = bigDecimal.intValue();
                 int minutes = bigDecimal
@@ -43,7 +43,7 @@ public class AttendanceMapper implements Mapper<ProjectTime, ZepAttendance> {
                     .isBillable(isBillable)
                     .build();
 
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new ZepServiceException("Error while mapping ZepAttendance to ProjectTime", e);
         }
     }
