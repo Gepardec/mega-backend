@@ -31,10 +31,8 @@ import com.gepardec.mega.zep.ZepService;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -76,9 +74,6 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
     @Inject
     PrematureEmployeeCheckService prematureEmployeeCheckService;
-
-    @Inject
-    Logger logger;
 
     @Override
     public MonthlyReport getMonthEndReportForUser() {
@@ -165,26 +160,23 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
 
         List<Comment> comments = commentService.findCommentsForEmployee(employee.getEmail(), getFirstDayOfMonth(year, month), getLastDayOfMonth(year, month));
 
-        final List<PmProgressDto> pmProgressDtos = Optional.ofNullable(employee)
-                .map(empl -> stepEntryService.findAllOwnedAndUnassignedStepEntriesForPMProgress(empl.getEmail(), date))
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(PmProgressDto::ofStepEntry)
-                .toList();
+        final List<PmProgressDto> pmProgressDtos =
+                stepEntryService.findAllOwnedAndUnassignedStepEntriesForPMProgress(employee.getEmail(), date)
+                        .stream()
+                        .map(PmProgressDto::ofStepEntry)
+                        .toList();
 
         List<MappedTimeWarningDTO> mappedTimeWarnings = timeWarningMapper.map(timeWarnings);
         var prematureEmployeeCheck = prematureEmployeeCheckService.findByEmailAndMonth(employee.getEmail(), date);
         String stepEntryForAutomaticReleaseReason = null;
         try {
             var stepEntry = stepEntryService.findStepEntryForEmployeeAtStep(1L, employee.getEmail(), employee.getEmail(), LocalDate.of(year, month, 1).toString());
-            if(stepEntry != null) {
+            if (stepEntry != null) {
                 stepEntryForAutomaticReleaseReason = stepEntry.getStateReason();
             }
         } catch (IllegalStateException exception) {
             // is already null here
         }
-
-
 
         MonthlyReport.Builder builder = MonthlyReport.builder()
                 .employee(employee)
