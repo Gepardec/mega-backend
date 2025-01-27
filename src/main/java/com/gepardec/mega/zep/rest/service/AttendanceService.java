@@ -9,7 +9,7 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @ApplicationScoped
@@ -23,9 +23,9 @@ public class AttendanceService {
     @Inject
     ResponseParser responseParser;
 
-    public List<ZepAttendance> getBillableAttendancesForUserAndMonth(String username, LocalDate date) {
+    public List<ZepAttendance> getBillableAttendancesForUserAndMonth(String username, YearMonth payrollMonth) {
         try {
-            List<ZepAttendance> attendances = this.getAttendanceForUserAndMonth(username, date);
+            List<ZepAttendance> attendances = this.getAttendanceForUserAndMonth(username, payrollMonth);
             return attendances.stream()
                     .filter(ZepAttendance::billable)
                     .toList();
@@ -38,9 +38,9 @@ public class AttendanceService {
     }
 
     //Return the attendances for a user for a given month. The month in which the date is located determines the month to be queried.
-    public List<ZepAttendance> getAttendanceForUserAndMonth(String username, LocalDate date) {
-        String startDate = date.withDayOfMonth(1).toString();
-        String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
+    public List<ZepAttendance> getAttendanceForUserAndMonth(String username, YearMonth payrollMonth) {
+        String startDate = payrollMonth.atDay(1).toString();
+        String endDate = payrollMonth.atEndOfMonth().toString();
 
         try {
             return responseParser.retrieveAll(
@@ -53,9 +53,9 @@ public class AttendanceService {
         return List.of();
     }
 
-    public List<ZepAttendance> getAttendanceForUserProjectAndMonth(String username, LocalDate date, Integer projectId) {
-        String startDate = date.withDayOfMonth(1).toString();
-        String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
+    public List<ZepAttendance> getAttendanceForUserProjectAndMonth(String username, YearMonth payrollMonth, Integer projectId) {
+        String startDate = payrollMonth.atDay(1).toString();
+        String endDate = payrollMonth.atEndOfMonth().toString();
 
         try {
             return responseParser.retrieveAll(

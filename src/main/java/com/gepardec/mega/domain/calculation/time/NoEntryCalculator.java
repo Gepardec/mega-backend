@@ -30,12 +30,6 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
         }
 
         List<LocalDate> futureDays = getFutureDays();
-        List<LocalDate> businessDays = getBusinessDaysOfMonth(
-                projectEntries.get(0)
-                        .getDate()
-                        .getYear(), projectEntries.get(0).getDate().getMonth().getValue()
-        );
-
         List<LocalDate> regularWorking0Days = getRegularWorkingHours0Dates(
                 employee,
                 projectEntries.get(0)
@@ -59,7 +53,8 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
 
         LocalDate firstWorkingDay = employee.getFirstDayCurrentEmploymentPeriod();
 
-        return businessDays.stream()
+        YearMonth yearMonth = YearMonth.of(projectEntries.get(0).getDate().getYear(), projectEntries.get(0).getDate().getMonth().getValue());
+        return OfficeCalendarUtil.getWorkingDaysForYearMonth(yearMonth).stream()
                 .filter(date -> !firstWorkingDay.isAfter(date))
                 .filter(date -> !compensatoryDays.contains(date))
                 .filter(date -> !vacationDays.contains(date))
@@ -78,13 +73,6 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
                 .map(this::createTimeWarning)
                 .distinct()
                 .toList();
-    }
-
-    private List<LocalDate> getBusinessDaysOfMonth(int year, int month) {
-        YearMonth yearMonth = YearMonth.of(year, month);
-        LocalDate startDate = yearMonth.atDay(1);
-        LocalDate endDate = yearMonth.atEndOfMonth();
-        return OfficeCalendarUtil.getWorkingDaysBetween(startDate, endDate);
     }
 
     private List<LocalDate> getRegularWorkingHours0Dates(Employee employee, int year, int month) {

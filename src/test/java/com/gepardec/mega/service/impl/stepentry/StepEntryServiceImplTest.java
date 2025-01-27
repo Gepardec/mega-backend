@@ -21,13 +21,18 @@ import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -78,7 +83,7 @@ class StepEntryServiceImplTest {
 
     @Test
     void findEmployeeInternalCheckState_whenNoEmployee_thenEmpty() {
-        Optional<EmployeeState> states = stepEntryService.findEmployeeInternalCheckState(null, LocalDate.now());
+        Optional<EmployeeState> states = stepEntryService.findEmployeeInternalCheckState(null, YearMonth.now());
         assertThat(states).isEmpty();
     }
 
@@ -86,7 +91,7 @@ class StepEntryServiceImplTest {
     void findEmployeeInternalCheckState_whenEmployee_thenStep() {
         when(stepEntryRepository.findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes(any(LocalDate.class), anyString())).thenReturn(Optional.of(createStepEntry(0L)));
 
-        Optional<EmployeeState> states = stepEntryService.findEmployeeInternalCheckState(createEmployee(), LocalDate.now());
+        Optional<EmployeeState> states = stepEntryService.findEmployeeInternalCheckState(createEmployee(), YearMonth.now());
         assertThat(states).isPresent();
     }
 
@@ -99,7 +104,7 @@ class StepEntryServiceImplTest {
         when(stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.anyString())).thenReturn(stepEntries);
 
-        boolean areOtherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(createEmployee(), LocalDate.now())
+        boolean areOtherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(createEmployee(), YearMonth.now())
                 .stream().allMatch(stepEntry -> stepEntry.getState() == EmployeeState.DONE);
         assertThat(areOtherChecksDone).isFalse();
     }
@@ -109,7 +114,7 @@ class StepEntryServiceImplTest {
         when(stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.anyString())).thenReturn(List.of());
 
-        boolean areOtherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(createEmployee(), LocalDate.now())
+        boolean areOtherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(createEmployee(), YearMonth.now())
                 .stream().allMatch(stepEntry -> stepEntry.getState() == EmployeeState.DONE);
 
         assertThat(areOtherChecksDone).isTrue();
@@ -127,7 +132,7 @@ class StepEntryServiceImplTest {
         when(stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.anyString())).thenReturn(stepEntries);
 
-        boolean areOtherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(createEmployee(), LocalDate.now())
+        boolean areOtherChecksDone = stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(createEmployee(), YearMonth.now())
                 .stream().allMatch(stepEntry -> stepEntry.getState() == EmployeeState.DONE);
 
         assertThat(areOtherChecksDone).isTrue();
@@ -136,21 +141,19 @@ class StepEntryServiceImplTest {
     @Test
     void setOpenAndAssignedStepEntriesDone_when0_thenFalse() {
         when(stepEntryRepository.updateStateAssigned(ArgumentMatchers.any(LocalDate.class),
-                ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyLong(),
+                ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString(), anyLong(),
                 argThat(EmployeeState.DONE::equals)))
                 .thenReturn(0);
 
         Employee employee = createEmployee();
-        LocalDate from = DateUtils.getFirstDayOfFollowingMonth(employee.getReleaseDate());
-        LocalDate to = DateUtils.getLastDayOfFollowingMonth(employee.getReleaseDate());
-        boolean updated = stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 0L, from, to);
+        boolean updated = stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 0L, YearMonth.now().plusMonths(1));
         assertThat(updated).isFalse();
     }
 
     @Test
     void setOpenAndAssignedStepEntriesDone_when1_thenTrue() {
         when(stepEntryRepository.updateStateAssigned(ArgumentMatchers.any(LocalDate.class),
-                ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString(), ArgumentMatchers.anyLong(),
+                ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString(), anyLong(),
                 argThat(EmployeeState.DONE::equals)))
                 .thenReturn(1);
 
@@ -158,7 +161,7 @@ class StepEntryServiceImplTest {
         LocalDate from = DateUtils.getFirstDayOfFollowingMonth(employee.getReleaseDate());
         LocalDate to = DateUtils.getLastDayOfFollowingMonth(employee.getReleaseDate());
 
-        boolean updated = stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L, from, to);
+        boolean updated = stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L, YearMonth.now().plusMonths(1));
 
         assertThat(updated).isTrue();
     }
@@ -167,39 +170,37 @@ class StepEntryServiceImplTest {
     void updateStepEntryReasonForStepWithStateDone_whenUpdateSuccessful_thenReturnTrue() {
         Employee employee = createEmployee();
         Long stepId = 123L;
-        LocalDate from = LocalDate.now();
-        LocalDate to = LocalDate.now().plusDays(7);
+        YearMonth payrollMonth = YearMonth.now();
         String reason = "Test reason";
 
         when(stepEntryRepository.updateReasonForStepEntryWithStateDone(any(LocalDate.class), any(LocalDate.class), anyString(), any(Long.class), anyString()))
                 .thenReturn(1);
 
-        boolean result = stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, stepId, from, to, reason);
+        boolean result = stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, stepId, payrollMonth, reason);
 
         assertThat(result).isTrue();
-        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(eq(from), eq(to), eq(employee.getEmail()), eq(stepId), eq(reason));
+        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(eq(payrollMonth.atDay(1)), eq(payrollMonth.atEndOfMonth()), eq(employee.getEmail()), eq(stepId), eq(reason));
     }
 
     @Test
     void updateStepEntryReasonForStepWithStateDone_whenUpdateFails_thenReturnFalse() {
         Employee employee = createEmployee();
         Long stepId = 123L;
-        LocalDate from = LocalDate.now();
-        LocalDate to = LocalDate.now().plusDays(7);
+        YearMonth payrollMonth = YearMonth.now();
         String reason = "Test reason";
 
         when(stepEntryRepository.updateReasonForStepEntryWithStateDone(any(LocalDate.class), any(LocalDate.class), anyString(), any(Long.class), anyString()))
                 .thenReturn(0);
 
-        boolean result = stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, stepId, from, to, reason);
+        boolean result = stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, stepId, payrollMonth, reason);
 
         assertThat(result).isFalse();
-        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(eq(from), eq(to), eq(employee.getEmail()), eq(stepId), eq(reason));
+        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(eq(payrollMonth.atDay(1)), eq(payrollMonth.atEndOfMonth()), eq(employee.getEmail()), eq(stepId), eq(reason));
     }
 
     @Test
     void findAllStepEntriesForEmployee_whenEmployeeIsNull_thenThrowsException() {
-        assertThatThrownBy(() -> stepEntryService.findAllStepEntriesForEmployee(null, null, null))
+        assertThatThrownBy(() -> stepEntryService.findAllStepEntriesForEmployee(null, null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("Employee must not be null!");
     }
@@ -213,9 +214,8 @@ class StepEntryServiceImplTest {
         )).thenReturn(List.of(createStepEntry(1L)));
 
         Employee empl = createEmployee();
-        LocalDate from = DateUtils.getFirstDayOfFollowingMonth(empl.getReleaseDate());
-        LocalDate to = DateUtils.getLastDayOfFollowingMonth(empl.getReleaseDate());
-        List<StepEntry> result = stepEntryService.findAllStepEntriesForEmployee(empl, from, to);
+        YearMonth payrollMonth = YearMonth.from(DateUtils.getFirstDayOfFollowingMonth(empl.getReleaseDate()));
+        List<StepEntry> result = stepEntryService.findAllStepEntriesForEmployee(empl, payrollMonth);
         verify(stepEntryRepository, times(1)).findAllOwnedStepEntriesInRange(
                 DateUtils.getFirstDayOfFollowingMonth(empl.getReleaseDate()),
                 DateUtils.getLastDayOfFollowingMonth(empl.getReleaseDate()),
@@ -228,7 +228,7 @@ class StepEntryServiceImplTest {
 
     @Test
     void findStepEntryForEmployeeAtStep_whenEmployeeIsNull_thenThrowsException() {
-        assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAtStep(2L, null, "", ""))
+        assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAtStep(2L, null, "", null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("'employeeEmail' must not be null!");
     }
@@ -239,13 +239,13 @@ class StepEntryServiceImplTest {
                 ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyLong(),
+                anyLong(),
                 ArgumentMatchers.anyString()
         )).thenReturn(Optional.empty());
 
         Employee employee = createEmployee();
 
-        assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAtStep(2L, employee.getEmail(), "", employee.getReleaseDate()))
+        assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAtStep(2L, employee.getEmail(), "", YearMonth.now()))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No StepEntries found for Employee ");
     }
@@ -256,12 +256,12 @@ class StepEntryServiceImplTest {
                 ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyLong(),
+                anyLong(),
                 ArgumentMatchers.anyString()
         )).thenReturn(Optional.of(createStepEntry(1L)));
 
         Employee employee = createEmployee();
-        StepEntry stepEntry = stepEntryService.findStepEntryForEmployeeAtStep(2L, employee.getEmail(), "", employee.getReleaseDate());
+        StepEntry stepEntry = stepEntryService.findStepEntryForEmployeeAtStep(2L, employee.getEmail(), "", YearMonth.now());
         assertThat(stepEntry).isNotNull();
         assertThat(stepEntry.getId()).isEqualTo(1L);
         assertThat(stepEntry.getProject()).isEqualTo("Liwest-EMS");
@@ -274,7 +274,7 @@ class StepEntryServiceImplTest {
                 ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString())
         ).thenReturn(createStepEntriesForPM());
 
-        List<ProjectEmployees> projectEmployees = stepEntryService.getProjectEmployeesForPM(LocalDate.now(), LocalDate.now(), "no-reply@gepardec.com");
+        List<ProjectEmployees> projectEmployees = stepEntryService.getProjectEmployeesForPM(YearMonth.now(), "no-reply@gepardec.com");
 
         assertAll(
                 () -> assertThat(projectEmployees).isNotNull(),
@@ -374,7 +374,7 @@ class StepEntryServiceImplTest {
                 )
         ).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAndProjectAtStep(1L, "max.mustermann@gmail.com", "max.mustermann@gmail.com", "ABC", "2024-05-01"))
+        assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAndProjectAtStep(1L, "max.mustermann@gmail.com", "max.mustermann@gmail.com", "ABC", YearMonth.of(2025, 5)))
                 .isInstanceOf(IllegalStateException.class);
     }
 
@@ -415,8 +415,7 @@ class StepEntryServiceImplTest {
 
     @Test
     void getAllProjectEmployeesForPM_whenValidRange_thenReturnProjectEmployees() {
-        LocalDate from = LocalDate.of(2024, 1, 1);
-        LocalDate to = LocalDate.of(2024, 1, 31);
+        YearMonth payrollMonth = YearMonth.of(2024, 1);
 
         List<StepEntry> stepEntries = List.of(
                 createStepEntryWithProjectAndOwner("Project1", "employee1"),
@@ -427,7 +426,7 @@ class StepEntryServiceImplTest {
         when(stepEntryRepository.findAllStepEntriesForAllPMInRange(any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(stepEntries);
 
-        List<ProjectEmployees> result = stepEntryService.getAllProjectEmployeesForPM(from, to);
+        List<ProjectEmployees> result = stepEntryService.getAllProjectEmployeesForPM(payrollMonth);
 
         assertThat(result).hasSize(2);
 
@@ -445,7 +444,7 @@ class StepEntryServiceImplTest {
         assertThat(project2).isNotNull();
         assertThat(project2.getEmployees()).containsExactly("employee3");
 
-        verify(stepEntryRepository, times(1)).findAllStepEntriesForAllPMInRange(from, to);
+        verify(stepEntryRepository, times(1)).findAllStepEntriesForAllPMInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth());
     }
 
     @Test
@@ -453,8 +452,7 @@ class StepEntryServiceImplTest {
         Employee employee = createEmployee();
         String projectId = "Project1";
         String assigneeEmail = "assignee@example.com";
-        LocalDate from = LocalDate.of(2024, 1, 1);
-        LocalDate to = LocalDate.of(2024, 1, 31);
+        YearMonth payrollMonth = YearMonth.of(2024, 1);
 
         List<StepEntry> stepEntriesProjectSpecific = List.of(
                 createStepEntryWithDetails(1L, projectId, employee.getEmail(), assigneeEmail),
@@ -468,17 +466,19 @@ class StepEntryServiceImplTest {
 
         when(stepEntryRepository.findAllOwnedStepEntriesInRange(any(LocalDate.class), any(LocalDate.class), anyString(), anyString(), anyString()))
                 .thenReturn(stepEntriesProjectSpecific);
-        when(stepEntryRepository.findAllOwnedStepEntriesInRange(from, to, employee.getEmail()))
+        when(stepEntryRepository.findAllOwnedStepEntriesInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail()))
                 .thenReturn(stepEntriesGeneral);
 
-        List<StepEntry> result = stepEntryService.findAllStepEntriesForEmployeeAndProject(employee, projectId, assigneeEmail, from, to);
+        List<StepEntry> result = stepEntryService.findAllStepEntriesForEmployeeAndProject(employee, projectId, assigneeEmail, payrollMonth);
 
         assertThat(result).hasSize(4);
         assertThat(result).containsAll(stepEntriesProjectSpecific);
         assertThat(result).containsAll(stepEntriesGeneral);
 
-        verify(stepEntryRepository, times(1)).findAllOwnedStepEntriesInRange(from, to, employee.getEmail(), projectId, assigneeEmail);
-        verify(stepEntryRepository, times(1)).findAllOwnedStepEntriesInRange(from, to, employee.getEmail());
+        verify(stepEntryRepository, times(1))
+                .findAllOwnedStepEntriesInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail(), projectId, assigneeEmail);
+        verify(stepEntryRepository, times(1))
+                .findAllOwnedStepEntriesInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail());
     }
 
     @Test
@@ -487,7 +487,7 @@ class StepEntryServiceImplTest {
         String employeeEmail = "employee@example.com";
         String assigneeEmail = "assignee@example.com";
         String project = "Project1";
-        String currentMonthYear = "2024-01";
+        YearMonth payrollMonth = YearMonth.of(2024, 1);
 
         LocalDate fromDate = LocalDate.of(2024, 1, 1);
         LocalDate toDate = LocalDate.of(2024, 1, 31);
@@ -504,7 +504,7 @@ class StepEntryServiceImplTest {
                     any(LocalDate.class), any(LocalDate.class), anyString(), anyLong(), anyString(), anyString()))
                     .thenReturn(Optional.of(expectedStepEntry));
 
-            StepEntry result = stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, currentMonthYear);
+            StepEntry result = stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, payrollMonth);
 
             assertThat(result).isNotNull();
             assertThat(result).isEqualTo(expectedStepEntry);
@@ -519,7 +519,7 @@ class StepEntryServiceImplTest {
         String employeeEmail = "employee@example.com";
         String assigneeEmail = "assignee@example.com";
         String project = "Project1";
-        String currentMonthYear = "2024-01";
+        YearMonth payrollMonth = YearMonth.of(2024, 1);
 
         LocalDate fromDate = LocalDate.of(2024, 1, 1);
         LocalDate toDate = LocalDate.of(2024, 1, 31);
@@ -534,7 +534,7 @@ class StepEntryServiceImplTest {
                     any(LocalDate.class), any(LocalDate.class), anyString(), anyLong(), anyString(), anyString()))
                     .thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, currentMonthYear))
+            assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, payrollMonth))
                     .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining(String.format("No StepEntries found for Employee %s", employeeEmail));
             verify(stepEntryRepository, times(1)).findStepEntryForEmployeeAndProjectAtStepInRange(

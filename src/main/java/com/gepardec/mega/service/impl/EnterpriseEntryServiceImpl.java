@@ -9,7 +9,7 @@ import com.gepardec.mega.service.mapper.EnterpriseEntryMapper;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -22,15 +22,15 @@ public class EnterpriseEntryServiceImpl implements EnterpriseEntryService {
     EnterpriseEntryRepository enterpriseEntryRepository;
 
     @Override
-    public EnterpriseEntryDto findByDate(LocalDate from, LocalDate to) {
+    public EnterpriseEntryDto findByDate(YearMonth payrollMonth) {
         return enterpriseEntryMapper.map(
-                enterpriseEntryRepository.findByDate(from, to)
+                enterpriseEntryRepository.findByDate(payrollMonth.atDay(1), payrollMonth.atEndOfMonth())
         );
     }
 
     @Override
-    public boolean update(EnterpriseEntryDto updatedEntryDto, LocalDate from, LocalDate to) {
-        Optional<EnterpriseEntry> optionalEntry = enterpriseEntryRepository.findByDate(from, to);
+    public boolean update(EnterpriseEntryDto updatedEntryDto, YearMonth payrollMonth) {
+        Optional<EnterpriseEntry> optionalEntry = enterpriseEntryRepository.findByDate(payrollMonth.atDay(1), payrollMonth.atEndOfMonth());
 
         if (optionalEntry.isPresent()) {
             EnterpriseEntry entry = optionalEntry.get();

@@ -15,6 +15,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -112,25 +113,25 @@ class PrematureEmployeeCheckServiceTest {
 
     @Test
     void findAllForMonth_validMonth_returnList() {
-        LocalDate date = LocalDate.of(2023, 10, 1);
+        YearMonth payrollMonth = YearMonth.of(2023, 10);
         List<PrematureEmployeeCheckEntity> entityList = List.of(createDBPrematureEmployeeCheck(1L));
         List<PrematureEmployeeCheck> dtoList = List.of(PrematureEmployeeCheck.builder().build());
 
-        when(prematureEmployeeCheckRepository.findAllForMonth(date)).thenReturn(entityList);
+        when(prematureEmployeeCheckRepository.findAllForMonth(payrollMonth.atDay(1))).thenReturn(entityList);
         when(prematureEmployeeCheckMapper.mapListToDomain(any())).thenReturn(dtoList);
 
-        assertThat(prematureEmployeeCheckService.findAllForMonth(date)).isEqualTo(dtoList);
+        assertThat(prematureEmployeeCheckService.findAllForMonth(payrollMonth)).isEqualTo(dtoList);
     }
 
     @Test
     void deleteAllForMonthWithState_validRequest_returnCount() {
-        LocalDate date = LocalDate.of(2023, 10, 1);
+        YearMonth payrollMonth = YearMonth.of(2023, 10);
         List<PrematureEmployeeCheckState> states = List.of(PrematureEmployeeCheckState.DONE);
         long expectedCount = 5L;
 
-        when(prematureEmployeeCheckRepository.deleteByMonthAndStates(date, states)).thenReturn(expectedCount);
+        when(prematureEmployeeCheckRepository.deleteByMonthAndStates(payrollMonth.atDay(1), states)).thenReturn(expectedCount);
 
-        assertThat(prematureEmployeeCheckService.deleteAllForMonthWithState(date, states)).isEqualTo(expectedCount);
+        assertThat(prematureEmployeeCheckService.deleteAllForMonthWithState(payrollMonth, states)).isEqualTo(expectedCount);
     }
 
     @Test

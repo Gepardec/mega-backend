@@ -2,7 +2,6 @@ package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.SourceSystem;
-import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.CommentResource;
 import com.gepardec.mega.rest.mapper.CommentMapper;
 import com.gepardec.mega.rest.model.CommentDto;
@@ -14,6 +13,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @RequestScoped
@@ -32,15 +32,8 @@ public class CommentResourceImpl implements CommentResource {
     }
 
     @Override
-    public Response getAllCommentsForEmployee(String employeeEmail, String currentMonthYear) {
-        LocalDate from = DateUtils.getFirstDayOfCurrentMonth(currentMonthYear);
-        LocalDate to = DateUtils.getLastDayOfCurrentMonth(currentMonthYear);
-
-        List<Comment> commentsForEmployee = commentService.findCommentsForEmployee(
-                employeeEmail,
-                from,
-                to
-        );
+    public Response getAllCommentsForEmployee(String employeeEmail, YearMonth payrollMonth) {
+        List<Comment> commentsForEmployee = commentService.findCommentsForEmployee(employeeEmail, payrollMonth);
         return Response.ok(mapper.mapListToDto(commentsForEmployee)).build();
     }
 
@@ -53,7 +46,7 @@ public class CommentResourceImpl implements CommentResource {
                 newComment.getComment(),
                 newComment.getAssigneeEmail(),
                 newComment.getProject(),
-                newComment.getCurrentMonthYear()
+                YearMonth.from(LocalDate.parse(newComment.getCurrentMonthYear()))
         );
 
         return Response.ok(mapper.mapToDto(comment)).build();

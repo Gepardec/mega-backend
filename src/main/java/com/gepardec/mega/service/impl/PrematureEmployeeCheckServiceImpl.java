@@ -10,7 +10,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,8 +28,8 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     Logger logger;
 
     @Override
-    public Optional<PrematureEmployeeCheck> findByEmailAndMonth(String email, LocalDate date) {
-        return prematureEmployeeCheckRepository.findByEmailAndMonth(email, date)
+    public Optional<PrematureEmployeeCheck> findByEmailAndMonth(String email, YearMonth payrollMonth) {
+        return prematureEmployeeCheckRepository.findByEmailAndMonth(email, payrollMonth.atDay(1))
                 .map(prematureEmployeeCheckMapper::mapToDomain);
     }
 
@@ -57,15 +57,15 @@ public class PrematureEmployeeCheckServiceImpl implements PrematureEmployeeCheck
     }
 
     @Override
-    public List<PrematureEmployeeCheck> findAllForMonth(LocalDate localDate) {
+    public List<PrematureEmployeeCheck> findAllForMonth(YearMonth payrollMonth) {
         return prematureEmployeeCheckMapper.mapListToDomain(
-                prematureEmployeeCheckRepository.findAllForMonth(localDate)
+                prematureEmployeeCheckRepository.findAllForMonth(payrollMonth.atDay(1))
         );
     }
 
     @Override
-    public long deleteAllForMonthWithState(LocalDate localDate, List<PrematureEmployeeCheckState> states) {
-        return prematureEmployeeCheckRepository.deleteByMonthAndStates(localDate, states);
+    public long deleteAllForMonthWithState(YearMonth payrollMonth, List<PrematureEmployeeCheckState> states) {
+        return prematureEmployeeCheckRepository.deleteByMonthAndStates(payrollMonth.atDay(1), states);
     }
 
     @Override

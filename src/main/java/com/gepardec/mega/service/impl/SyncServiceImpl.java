@@ -9,7 +9,6 @@ import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
-import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.model.EmployeeDto;
@@ -27,6 +26,7 @@ import org.slf4j.Logger;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -77,7 +77,7 @@ public class SyncServiceImpl implements SyncService {
         stopWatch.start();
         log.info("Started user sync: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
 
-        final List<Project> projects = projectService.getProjectsForMonthYear(DateUtils.getFirstDayOfCurrentMonth());
+        final List<Project> projects = projectService.getProjectsForMonthYear(YearMonth.now());
         log.info("Loaded projects (for employee generation): {}", projects.size());
 
         final List<Employee> employees = employeeService.getAllActiveEmployees();
@@ -104,21 +104,18 @@ public class SyncServiceImpl implements SyncService {
         List<EmployeeDto> updatedEmployees = new ArrayList<>();
         List<Employee> absentEmployees = new ArrayList<>();
 
-        LocalDate now = LocalDate.now();
-        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
-        //use this firstOfPreviousMonth.getYear() because of january and december
-        LocalDate lastOfPreviousMonth = DateUtils.getLastDayOfMonth(firstOfPreviousMonth.getYear(), firstOfPreviousMonth.getMonth().getValue());
+        YearMonth payrollMonth = YearMonth.now().minusMonths(1);
 
         for (var employee : activeAndInternalEmployees) {
             //considering all absence types besides HomeOffice and External training days
-            List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee, firstOfPreviousMonth).stream()
+            List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee, payrollMonth).stream()
                     .filter(absence -> !AbsenceType.getAbsenceTypesWhereWorkingTimeNeeded().stream()
                             .map(AbsenceType::getAbsenceName).toList()
                             .contains(absence.reason()))
                     .toList();
             boolean allAbsent = true;
 
-            for (LocalDate day = firstOfPreviousMonth; !day.isAfter(lastOfPreviousMonth); day = day.plusDays(1)) {
+            for (LocalDate day = payrollMonth.atDay(1); !day.isAfter(payrollMonth.atEndOfMonth()); day = day.plusDays(1)) {
                 if (OfficeCalendarUtil.isWorkingDay(day)) {
                     boolean isAbsent = isAbsent(day, absences);
                     if (!isAbsent) {
@@ -136,11 +133,11 @@ public class SyncServiceImpl implements SyncService {
 
         // set status from OPEN to DONE for step_id 1 -> employee doesn't need to confirm times manually
         absentEmployees.forEach(employee -> {
-            StepEntry entry = stepEntryService.findStepEntryForEmployeeAtStep(1L, employee.getEmail(), employee.getEmail(), DateUtils.formatDate(firstOfPreviousMonth));
+            StepEntry entry = stepEntryService.findStepEntryForEmployeeAtStep(1L, employee.getEmail(), employee.getEmail(), payrollMonth);
             // if IN_PROGRESS OR already DONE than do not update reason
             if (entry.getState().equals(EmployeeState.OPEN)) {
-                stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L, firstOfPreviousMonth, lastOfPreviousMonth);
-                stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, 1L, firstOfPreviousMonth, lastOfPreviousMonth, "Aufgrund von Abwesenheiten wurde der Monat automatisch bestätigt.");
+                stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L, payrollMonth);
+                stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, 1L, payrollMonth, "Aufgrund von Abwesenheiten wurde der Monat automatisch bestätigt.");
                 updatedEmployees.add(employeeMapper.mapToDto(zepService.getEmployee(employee.getUserId())));
             }
         });

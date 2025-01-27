@@ -11,6 +11,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @ApplicationScoped
@@ -28,7 +29,10 @@ public class AbsenceService {
     @Inject
     ResponseParser responseParser;
 
-    public List<ZepAbsence> getZepAbsencesByEmployeeNameForDateRange(String employeeName, LocalDate start, LocalDate end) {
+    public List<ZepAbsence> getZepAbsencesByEmployeeNameForDateRange(String employeeName, YearMonth payrollMonth) {
+        LocalDate startDate = payrollMonth.atDay(1);
+        LocalDate endDate = payrollMonth.atEndOfMonth();
+
         try {
             List<ZepAbsence> absences = responseParser.retrieveAll(
                     page -> zepEmployeeRestClient.getAbsencesByUsername(employeeName, page),
@@ -36,7 +40,7 @@ public class AbsenceService {
             );
 
             List<ZepAbsence> filteredAbsences = absences.stream()
-                    .filter(absence -> datesInRange(absence.startDate(), absence.endDate(), start, end))
+                    .filter(absence -> datesInRange(absence.startDate(), absence.endDate(), startDate, endDate))
                     .toList();
             return getFullZepAbsences(filteredAbsences);
         } catch (ZepServiceException e) {

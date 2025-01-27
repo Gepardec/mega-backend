@@ -19,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -59,7 +60,7 @@ class ProjectServiceImplTest {
         when(zepService.getProjectsForMonthYear(any())).thenReturn(List.of());
 
         // When
-        final List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(LocalDate.now());
+        final List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(YearMonth.now());
 
         // Then
         assertThat(projectsForMonthYear).isEmpty();
@@ -76,7 +77,7 @@ class ProjectServiceImplTest {
                 .build()));
 
         // When
-        final List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(LocalDate.now());
+        final List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(YearMonth.now());
 
         // Then
         assertThat(projectsForMonthYear).isNotEmpty();
@@ -100,7 +101,7 @@ class ProjectServiceImplTest {
                         .build()));
 
         // When
-        final List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(LocalDate.now(), List.of(ProjectFilter.IS_CUSTOMER_PROJECT));
+        final List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(YearMonth.now(), List.of(ProjectFilter.IS_CUSTOMER_PROJECT));
 
         // Then
         assertThat(projectsForMonthYear).hasSize(1);
@@ -132,7 +133,7 @@ class ProjectServiceImplTest {
                         .build()));
 
         // When
-        final List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(LocalDate.now(), List.of(ProjectFilter.IS_LEADS_AVAILABLE));
+        final List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(YearMonth.now(), List.of(ProjectFilter.IS_LEADS_AVAILABLE));
 
         // Then
         assertThat(projectsForMonthYear).hasSize(1);
@@ -142,10 +143,10 @@ class ProjectServiceImplTest {
     @Test
     void getProjectByName_whenProjectExists_thenReturnProject() {
         com.gepardec.mega.domain.model.Project project = Project.builder().projectId("testId").build();
-        when(zepService.getProjectByName(anyString(), any(LocalDate.class)))
+        when(zepService.getProjectByName(anyString(), any(YearMonth.class)))
                 .thenReturn(Optional.of(project));
 
-        Optional<Project> result = projectService.getProjectByName("Testprojectname", LocalDate.now());
+        Optional<Project> result = projectService.getProjectByName("Testprojectname", YearMonth.now());
 
         assertThat(result).isPresent();
         assertThat(result.get().getProjectId()).isEqualTo("testId");
@@ -171,7 +172,7 @@ class ProjectServiceImplTest {
                 .thenReturn(createUser(2L, "TestLead", "2", "testlead2@gmail.com", Set.of(Role.PROJECT_LEAD, Role.EMPLOYEE)));
 
 
-        projectService.addProject(project, LocalDate.now());
+        projectService.addProject(project, YearMonth.now());
 
         ArgumentCaptor<com.gepardec.mega.db.entity.project.Project> projectEntityCaptor = ArgumentCaptor.forClass(com.gepardec.mega.db.entity.project.Project.class);
         verify(projectRepository, times(1)).merge(projectEntityCaptor.capture());
@@ -213,7 +214,7 @@ class ProjectServiceImplTest {
                 .thenReturn(createUser(3L, "TestOwner", "1", "testowner1@gmail.com", Set.of(Role.PROJECT_LEAD)));
 
 
-        projectService.addProject(project, LocalDate.now());
+        projectService.addProject(project, YearMonth.now());
 
         ArgumentCaptor<com.gepardec.mega.db.entity.project.Project> projectEntityCaptor =
                 ArgumentCaptor.forClass(com.gepardec.mega.db.entity.project.Project.class);

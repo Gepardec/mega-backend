@@ -11,7 +11,7 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -28,9 +28,9 @@ public class ProjectService {
     @Inject
     ResponseParser responseParser;
 
-    public List<ZepProject> getProjectsForMonthYear(LocalDate date) {
-        String startDate = date.withDayOfMonth(1).toString();
-        String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
+    public List<ZepProject> getProjectsForMonthYear(YearMonth payrollMonth) {
+        String startDate = payrollMonth.atDay(1).toString();
+        String endDate = payrollMonth.atEndOfMonth().toString();
 
         try {
             return responseParser.retrieveAll(
@@ -39,16 +39,16 @@ public class ProjectService {
             );
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving projects for month + \"%s\" from ZEP: No /data field in response"
-                    .formatted(date.format(DateTimeFormatter.ofPattern("MM-yyyy"))), e);
+                    .formatted(payrollMonth.format(DateTimeFormatter.ofPattern("MM-yyyy"))), e);
         }
 
         return List.of();
     }
 
 
-    public Optional<ZepProject> getProjectByName(String name, LocalDate date) {
-        String startDate = date.withDayOfMonth(1).toString();
-        String endDate = date.withDayOfMonth(date.lengthOfMonth()).toString();
+    public Optional<ZepProject> getProjectByName(String name, YearMonth payrollMonth) {
+        String startDate = payrollMonth.atDay(1).toString();
+        String endDate = payrollMonth.atEndOfMonth().toString();
         if (name == null) {
             return Optional.empty();
         }

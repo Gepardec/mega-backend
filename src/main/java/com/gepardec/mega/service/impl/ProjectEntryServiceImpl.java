@@ -11,6 +11,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,8 +22,8 @@ public class ProjectEntryServiceImpl implements ProjectEntryService {
     ProjectEntryRepository projectEntryRepository;
 
     @Override
-    public List<ProjectEntry> findByNameAndDate(String projectName, LocalDate from, LocalDate to) {
-        return projectEntryRepository.findByNameAndDate(projectName, from, to);
+    public List<ProjectEntry> findByNameAndDate(String projectName, YearMonth payrollMonth) {
+        return projectEntryRepository.findByNameAndDate(projectName, payrollMonth.atDay(1), payrollMonth.atEndOfMonth());
     }
 
     @Override

@@ -12,7 +12,6 @@ import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
-import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.api.WorkerResource;
 import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
@@ -26,6 +25,8 @@ import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.MonthlyWarningDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
+import com.gepardec.mega.rest.provider.PayrollContext;
+import com.gepardec.mega.rest.provider.PayrollMonthProvider;
 import com.gepardec.mega.service.api.AbsenceService;
 import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -38,12 +39,12 @@ import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
+
+import static com.gepardec.mega.rest.provider.PayrollContext.PayrollContextType.EMPLOYEE;
 
 @RequestScoped
 @Authenticated
@@ -80,7 +81,8 @@ public class WorkerResourceImpl implements WorkerResource {
     @Inject
     ProjectHoursSummaryMapper projectHoursSummaryMapper;
 
-    @Inject @Rest
+    @Inject
+    @Rest
     ZepService zepService;
 
     @Inject
@@ -95,32 +97,33 @@ public class WorkerResourceImpl implements WorkerResource {
     @Inject
     WorkingTimeUtil workingTimeUtil;
 
+    @Inject
+    @PayrollContext(EMPLOYEE)
+    PayrollMonthProvider payrollMonthProvider;
+
     @Override
     public Response monthlyReport() {
-        MonthlyReport monthlyReport = monthlyReportService.getMonthEndReportForUser();
+        return monthlyReport(payrollMonthProvider.getPayrollMonth());
+    }
+
+    @Override
+    public Response monthlyReport(YearMonth payrollMonth) {
+        MonthlyReport monthlyReport = monthlyReportService.getMonthEndReportForUser(payrollMonth);
 
         return Response.ok(mapper.mapToDto(monthlyReport)).build();
     }
 
     @Override
-    public Response monthlyReport(Integer year, Integer month) {
-        //FIXME: What happened with initialDate?
-        MonthlyReport monthlyReport = monthlyReportService.getMonthEndReportForUser(year, month, null, null);
-
-        return Response.ok(mapper.mapToDto(monthlyReport)).build();
-    }
-
-    @Override
-    public MonthlyBillInfoDto getBillInfoForEmployee(YearMonth from) {
+    public MonthlyBillInfoDto getBillInfoForEmployee(YearMonth payrollMonth) {
         Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
         Optional<PersonioEmployee> personioEmployee = personioEmployeesService.getPersonioEmployeeByEmail(employee.getEmail());
-        return personioEmployee.map(value -> monthlyBillInfoMapper.mapToDto(zepService.getMonthlyBillInfoForEmployee(value, employee, from))).orElse(null);
+        return personioEmployee.map(value -> monthlyBillInfoMapper.mapToDto(zepService.getMonthlyBillInfoForEmployee(value, employee, payrollMonth))).orElse(null);
     }
 
     @Override
-    public List<ProjectHoursSummaryDto> getAllProjectsForMonthAndEmployee(YearMonth from) {
+    public List<ProjectHoursSummaryDto> getAllProjectsForMonthAndEmployee(YearMonth payrollMonth) {
         Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
-        List<ProjectHoursSummary> resultProjectsHoursSummaryList = zepService.getAllProjectsForMonthAndEmployee(employee, from);
+        List<ProjectHoursSummary> resultProjectsHoursSummaryList = zepService.getAllProjectsForMonthAndEmployee(employee, payrollMonth);
 
         return resultProjectsHoursSummaryList.stream()
                 .map(projectHoursSummaryMapper::mapToDto)
@@ -128,35 +131,29 @@ public class WorkerResourceImpl implements WorkerResource {
     }
 
     @Override
-    public MonthlyAbsencesDto getAllAbsencesForMonthAndEmployee(YearMonth from) {
+    public MonthlyAbsencesDto getAllAbsencesForMonthAndEmployee(YearMonth payrollMonth) {
         Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
         int availableVacationDays = personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail(employee.getEmail());
-        double doctorsVisitingHours = zepService.getDoctorsVisitingTimeForMonthAndEmployee(employee, from);
-        Pair<String, String> correctDatePairForRequest = dateHelperService.getCorrectDateForRequest(employee, from);
-        LocalDate fromDateForRequest = DateUtils.parseDate(correctDatePairForRequest.getLeft());
-        List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee,fromDateForRequest);
+        double doctorsVisitingHours = zepService.getDoctorsVisitingTimeForMonthAndEmployee(employee, payrollMonth);
+        List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee, payrollMonth);
 
-        return monthlyAbsencesMapper.mapToDto(createMonthlyAbsences(availableVacationDays, doctorsVisitingHours, absences, fromDateForRequest));
+        return monthlyAbsencesMapper.mapToDto(createMonthlyAbsences(availableVacationDays, doctorsVisitingHours, absences, payrollMonth));
     }
 
     // includes homeoffice and fridays in office as well
     @Override
-    public MonthlyOfficeDaysDto getOfficeDaysForMonthAndEmployee(YearMonth from) {
+    public MonthlyOfficeDaysDto getOfficeDaysForMonthAndEmployee(YearMonth payrollMonth) {
         Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
-        Pair<String, String> correctDatePairForRequest = dateHelperService.getCorrectDateForRequest(employee, from);
-        LocalDate fromDateForRequest = DateUtils.parseDate(correctDatePairForRequest.getLeft());
-        List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee,fromDateForRequest);
+        List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee, payrollMonth);
 
-        return monthlyOfficeDaysMapper.mapToDto(createMonthlyOfficeDays(absences, fromDateForRequest));
+        return monthlyOfficeDaysMapper.mapToDto(createMonthlyOfficeDays(absences, payrollMonth));
     }
 
     @Override
-    public List<MonthlyWarningDto> getAllWarningsForEmployeeAndMonth(YearMonth from) {
+    public List<MonthlyWarningDto> getAllWarningsForEmployeeAndMonth(YearMonth payrollMonth) {
         Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
-        Pair<String, String> correctDatePairForRequest = dateHelperService.getCorrectDateForRequest(employee, from);
-        LocalDate fromDateForRequest = DateUtils.parseDate(correctDatePairForRequest.getLeft());
-        List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee,fromDateForRequest);
-        List<ProjectEntry> projectEntries = zepService.getProjectTimes(employee, fromDateForRequest);
+        List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee, payrollMonth);
+        List<ProjectEntry> projectEntries = zepService.getProjectTimes(employee, payrollMonth);
 
         return timeWarningService.getAllTimeWarningsForEmployeeAndMonth(absences, projectEntries, employee)
                 .stream()
@@ -165,11 +162,11 @@ public class WorkerResourceImpl implements WorkerResource {
     }
 
 
-    private MonthlyOfficeDays createMonthlyOfficeDays(List<AbsenceTime> absences, LocalDate fromDateForRequest){
-        int homeOfficeDaysCount = workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.HOME_OFFICE_DAYS.getAbsenceName(), fromDateForRequest);
-        int numberOfWorkingDaysInMonth = dateHelperService.getNumberOfWorkingDaysForMonthWithoutHolidays(fromDateForRequest);
-        int numberOfFridaysInMonth = dateHelperService.getNumberOfFridaysInMonth(fromDateForRequest);
-        int numberOfDaysAbsent = absenceService.getNumberOfDaysAbsent(absences, fromDateForRequest);
+    private MonthlyOfficeDays createMonthlyOfficeDays(List<AbsenceTime> absences, YearMonth payrollMonth) {
+        int homeOfficeDaysCount = workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.HOME_OFFICE_DAYS.getAbsenceName(), payrollMonth);
+        int numberOfWorkingDaysInMonth = dateHelperService.getNumberOfWorkingDaysForMonthWithoutHolidays(payrollMonth);
+        int numberOfFridaysInMonth = dateHelperService.getNumberOfFridaysInMonth(payrollMonth);
+        int numberOfDaysAbsent = absenceService.getNumberOfDaysAbsent(absences, payrollMonth);
 
         return MonthlyOfficeDays.builder()
                 .homeOfficeDays(homeOfficeDaysCount)
@@ -178,22 +175,21 @@ public class WorkerResourceImpl implements WorkerResource {
                 .build();
     }
 
-    private MonthlyAbsences createMonthlyAbsences(int availableVacationDays, double doctorsVisitingHours, List<AbsenceTime> absences, LocalDate fromDateForRequest){
+    private MonthlyAbsences createMonthlyAbsences(int availableVacationDays, double doctorsVisitingHours, List<AbsenceTime> absences, YearMonth payrollMonth) {
         return MonthlyAbsences.builder()
-                       .vacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.VACATION_DAYS.getAbsenceName(), fromDateForRequest))
-                       .compensatoryDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.COMPENSATORY_DAYS.getAbsenceName(), fromDateForRequest))
-                       .nursingDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.NURSING_DAYS.getAbsenceName(), fromDateForRequest))
-                       .maternityLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.MATERNITY_LEAVE_DAYS.getAbsenceName(), fromDateForRequest))
-                       .externalTrainingDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.EXTERNAL_TRAINING_DAYS.getAbsenceName(), fromDateForRequest))
-                       .conferenceDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.CONFERENCE_DAYS.getAbsenceName(), fromDateForRequest))
-                       .maternityProtectionDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.MATERNITY_PROTECTION_DAYS.getAbsenceName(), fromDateForRequest))
-                       .fatherMonthDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.FATHER_MONTH_DAYS.getAbsenceName(), fromDateForRequest))
-                       .paidSpecialLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.PAID_SPECIAL_LEAVE_DAYS.getAbsenceName(), fromDateForRequest))
-                       .nonPaidVacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.NON_PAID_VACATION_DAYS.getAbsenceName(), fromDateForRequest))
-                       .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.PAID_SICK_LEAVE.getAbsenceName(), fromDateForRequest))
-                       .doctorsVisitingTime(doctorsVisitingHours)
-                       .availableVacationDays(availableVacationDays)
-                       .build();
+                .vacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.VACATION_DAYS.getAbsenceName(), payrollMonth))
+                .compensatoryDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.COMPENSATORY_DAYS.getAbsenceName(), payrollMonth))
+                .nursingDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.NURSING_DAYS.getAbsenceName(), payrollMonth))
+                .maternityLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.MATERNITY_LEAVE_DAYS.getAbsenceName(), payrollMonth))
+                .externalTrainingDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.EXTERNAL_TRAINING_DAYS.getAbsenceName(), payrollMonth))
+                .conferenceDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.CONFERENCE_DAYS.getAbsenceName(), payrollMonth))
+                .maternityProtectionDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.MATERNITY_PROTECTION_DAYS.getAbsenceName(), payrollMonth))
+                .fatherMonthDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.FATHER_MONTH_DAYS.getAbsenceName(), payrollMonth))
+                .paidSpecialLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.PAID_SPECIAL_LEAVE_DAYS.getAbsenceName(), payrollMonth))
+                .nonPaidVacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.NON_PAID_VACATION_DAYS.getAbsenceName(), payrollMonth))
+                .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.PAID_SICK_LEAVE.getAbsenceName(), payrollMonth))
+                .doctorsVisitingTime(doctorsVisitingHours)
+                .availableVacationDays(availableVacationDays)
+                .build();
     }
-
 }

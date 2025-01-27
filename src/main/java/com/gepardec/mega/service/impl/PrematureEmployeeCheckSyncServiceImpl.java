@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
@@ -31,9 +32,9 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
     Logger logger;
 
     @Override
-    public boolean syncPrematureEmployeeChecksWithStepEntries(LocalDate date) {
+    public boolean syncPrematureEmployeeChecksWithStepEntries(YearMonth payrollMonth) {
         boolean allEntriesUpdated = true;
-        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = prematureEmployeeCheckService.findAllForMonth(date)
+        List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = prematureEmployeeCheckService.findAllForMonth(payrollMonth)
                 .stream()
                 .filter(pec -> pec.getState().equals(PrematureEmployeeCheckState.DONE) || pec.getState().equals(PrematureEmployeeCheckState.IN_PROGRESS))
                 .toList();
@@ -41,7 +42,7 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
         logger.info(
                 String.format("Syncing %s PrematureEmployeeChecks with StepEntries for Month: %s",
                         prematureEmployeeCheckEntities.size(),
-                        date)
+                        payrollMonth)
         );
 
         for (PrematureEmployeeCheck pec : prematureEmployeeCheckEntities) {
@@ -60,7 +61,7 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
             }
         }
 
-        prematureEmployeeCheckService.deleteAllForMonthWithState(date, List.of(PrematureEmployeeCheckState.CANCELLED, PrematureEmployeeCheckState.IN_PROGRESS));
+        prematureEmployeeCheckService.deleteAllForMonthWithState(payrollMonth, List.of(PrematureEmployeeCheckState.CANCELLED, PrematureEmployeeCheckState.IN_PROGRESS));
 
         return allEntriesUpdated;
     }

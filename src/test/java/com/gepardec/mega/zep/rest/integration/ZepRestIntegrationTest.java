@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +66,7 @@ class ZepRestIntegrationTest {
 
     @Test
     void getProjectTimes_valid() {
-        List<ProjectEntry> projectEntries = zepService.getProjectTimes(zepService.getEmployee("001-hwirnsberger"), LocalDate.of(2020, 4, 1));
+        List<ProjectEntry> projectEntries = zepService.getProjectTimes(zepService.getEmployee("001-hwirnsberger"), YearMonth.of(2020, 4));
         assertThat(projectEntries.size()).isPositive();
         for (ProjectEntry projectEntry : projectEntries) {
             assertThat(projectEntry.getDurationInHours()).isNotNull();
@@ -75,13 +76,13 @@ class ZepRestIntegrationTest {
 
     @Test
     void getProjectTimes_noEntries() {
-        List<ProjectEntry> projectEntries = zepService.getProjectTimes(zepService.getEmployee("082-tmeindl"), LocalDate.of(2020, 4, 1));
+        List<ProjectEntry> projectEntries = zepService.getProjectTimes(zepService.getEmployee("082-tmeindl"), YearMonth.of(2020, 4));
         assertThat(projectEntries.size()).isZero();
     }
 
     @Test
     void getProjectTimesForEmployeePerProject_valid() {
-        List<ProjectTime> projectTimes = zepService.getProjectTimesForEmployeePerProject("BVAEB-KAP-2021", LocalDate.of(2021, 1, 1));
+        List<ProjectTime> projectTimes = zepService.getProjectTimesForEmployeePerProject("BVAEB-KAP-2021", YearMonth.of(2021, 1));
         assertThat(projectTimes.size()).isEqualTo(4);
         for (ProjectTime projectTime : projectTimes) {
             assertThat(projectTime.getDuration()).isNotNull();
@@ -91,10 +92,10 @@ class ZepRestIntegrationTest {
     @Test
     void getProjectsForMonthYear_valid() {
         for (int i = 1; i < 10; i++) {
-            List<Project> projects = zepService.getProjectsForMonthYear(LocalDate.of(2020, i, 1));
+            List<Project> projects = zepService.getProjectsForMonthYear(YearMonth.of(2020, i));
             assertThat(projects.size()).isPositive();
         }
-        List<Project> projects = zepService.getProjectsForMonthYear(LocalDate.of(2021, 1, 1));
+        List<Project> projects = zepService.getProjectsForMonthYear(YearMonth.of(2021, 1));
         assertThat(projects.size()).isEqualTo(33);
         for (Project project : projects) {
             assertThat(project.getStartDate()).isBefore(LocalDate.of(2021, 2, 1));
@@ -103,7 +104,7 @@ class ZepRestIntegrationTest {
 
     @Test
     void getProjectForFuture_then() {
-        List<Project> projects = zepService.getProjectsForMonthYear(LocalDate.of(2033, 1, 1));
+        List<Project> projects = zepService.getProjectsForMonthYear(YearMonth.of(2033, 1));
         for (Project project : projects) {
             //TODO Wait for ProjectMapper todo to be resolved
         }
@@ -111,7 +112,7 @@ class ZepRestIntegrationTest {
 
     @Test
     void getProjectByName_valid() {
-        Project project = zepService.getProjectByName("BVAEB-KAP-2021", LocalDate.of(2021, 1, 5)).get();
+        Project project = zepService.getProjectByName("BVAEB-KAP-2021", YearMonth.of(2021, 1)).get();
         assertThat(project.getZepId()).isEqualTo(158);
     }
 }

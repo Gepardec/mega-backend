@@ -18,14 +18,18 @@ import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class AttendanceServiceTest {
@@ -114,13 +118,13 @@ class AttendanceServiceTest {
                         .build()
         );
 
-        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.of(2018, 12, 11));
+        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", YearMonth.of(2018, 12));
         assertThat(List.of(attendances.get(0), attendances.get(1))).usingRecursiveComparison().isEqualTo(attendancesReference);
     }
 
     @Test
     void getAttendancesPaginated() {
-        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.now());
+        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", YearMonth.now());
         IntStream.range(0, 3).forEach(
                 i -> assertThat(attendances.get(i).id()).isEqualTo(i + 1)
         );
@@ -128,7 +132,7 @@ class AttendanceServiceTest {
 
     @Test
     void notBillableAttendances_thenReturnNull() {
-        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.now());
+        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", YearMonth.now());
         assertThat(attendances.size()).isEqualTo(3);
     }
 
@@ -147,7 +151,7 @@ class AttendanceServiceTest {
                     .thenReturn(new ArrayList<>());
 
             //Call the Method under test
-            attendanceService.getAttendanceForUserAndMonth("001-duser", LocalDate.of(2021, 1, 10));
+            attendanceService.getAttendanceForUserAndMonth("001-duser", YearMonth.of(2021, 1));
 
             //Retrieve the function called in the method under test
             verify(mockedResponseParser).retrieveAll(functionCaptor.capture(), any());
@@ -168,7 +172,7 @@ class AttendanceServiceTest {
 
     @Test
     void filterAttendanceResponse_thenReturnProjectEntriesWithGivenID() {
-        List<ZepAttendance> result = attendanceService.getAttendanceForUserProjectAndMonth("003-tuser", LocalDate.of(2021, 12, 10), 1);
+        List<ZepAttendance> result = attendanceService.getAttendanceForUserProjectAndMonth("003-tuser", YearMonth.of(2021, 12), 1);
 
         assertThat(result.size()).isEqualTo(2);
     }

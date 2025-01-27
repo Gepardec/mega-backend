@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,13 +35,15 @@ class EnterpriseEntryServiceImplTest {
     @Inject
     EnterpriseEntryService enterpriseEntryService;
 
+    private YearMonth payrollMonth;
     private LocalDate fromDate;
     private LocalDate toDate;
 
     @BeforeEach
     void setUp() {
+        payrollMonth = YearMonth.of(2023, 1);
         fromDate = LocalDate.of(2023, 1, 1);
-        toDate = LocalDate.of(2023, 12, 31);
+        toDate = LocalDate.of(2023, 1, 31);
     }
 
     @Test
@@ -54,7 +57,7 @@ class EnterpriseEntryServiceImplTest {
         when(enterpriseEntryMapper.map(Optional.of(entry)))
                 .thenReturn(entryDto);
 
-        EnterpriseEntryDto result = enterpriseEntryService.findByDate(fromDate, toDate);
+        EnterpriseEntryDto result = enterpriseEntryService.findByDate(payrollMonth);
 
         assertThat(entryDto).isEqualTo(result);
         verify(enterpriseEntryRepository).findByDate(fromDate, toDate);
@@ -73,7 +76,7 @@ class EnterpriseEntryServiceImplTest {
         when(enterpriseEntryRepository.findByDate(fromDate, toDate)).thenReturn(Optional.of(entry));
         when(enterpriseEntryRepository.updateEntry(any(EnterpriseEntry.class))).thenReturn(true);
 
-        boolean result = enterpriseEntryService.update(entryDto, fromDate, toDate);
+        boolean result = enterpriseEntryService.update(entryDto, payrollMonth);
 
         assertThat(result).isTrue();
         verify(enterpriseEntryRepository).findByDate(fromDate, toDate);
@@ -89,7 +92,7 @@ class EnterpriseEntryServiceImplTest {
 
         when(enterpriseEntryRepository.findByDate(fromDate, toDate)).thenReturn(Optional.empty());
 
-        boolean result = enterpriseEntryService.update(entryDto, fromDate, toDate);
+        boolean result = enterpriseEntryService.update(entryDto, payrollMonth);
 
         assertThat(result).isFalse();
         verify(enterpriseEntryRepository).findByDate(fromDate, toDate);
