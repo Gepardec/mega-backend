@@ -17,8 +17,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -92,7 +93,7 @@ class ProjectServiceTest {
                 .build();
 
 
-        List<ZepProject> zepProject = projectService.getProjectsForMonthYear(LocalDate.of(2024, 1, 1));
+        List<ZepProject> zepProject = projectService.getProjectsForMonthYear(YearMonth.of(2024, 1));
 
         zepProject.stream().filter(project -> project.id() == 1)
                 .forEach(project -> assertThat(project).usingRecursiveComparison().isEqualTo(referenceZepProject));
@@ -100,25 +101,26 @@ class ProjectServiceTest {
 
     @Test
     void getProjectByName() {
-        LocalDate mockCurrentDate = LocalDate.of(2024, 1, 1);
-        LocalDate startStr = mockCurrentDate.withDayOfMonth(1);
-        LocalDate endStr = mockCurrentDate.withDayOfMonth(mockCurrentDate.lengthOfMonth());
-        LocalDateTime start = LocalDateTime.of(startStr.getYear(), startStr.getMonth(), startStr.getDayOfMonth(), 0, 0, 0);
-        LocalDateTime end = LocalDateTime.of(endStr.getYear(), endStr.getMonth(), endStr.getDayOfMonth(), 0, 0, 0);
-
-        ZepProject project = ZepProject.builder().id(1).name("XYZ").startDate(start).endDate(end).build();
-        ZepProject[] projectsArray = new ZepProject[]{project};
+        YearMonth payrollMonth = YearMonth.of(2024, 1);
+        ZepProject[] projectsArray = new ZepProject[]{
+                ZepProject.builder()
+                        .id(1)
+                        .name("XYZ")
+                        .startDate(payrollMonth.atDay(1).atStartOfDay())
+                        .endDate(payrollMonth.atEndOfMonth().atTime(LocalTime.MAX))
+                        .build()
+        };
 
         when(responseParser.retrieveSingle(any(), eq(ZepProject[].class)))
                 .thenReturn(Optional.of(projectsArray));
 
-        Optional<ZepProject> result = projectService.getProjectByName("XYZ", LocalDate.of(2024, 1, 1));
+        Optional<ZepProject> result = projectService.getProjectByName("XYZ", YearMonth.of(2024, 1));
         assertThat(result.get().id()).isEqualTo(1);
     }
 
     @Test
     void getProjectByName_whenNoProjectOfName() {
-        Optional<ZepProject> result = projectService.getProjectByName(null, LocalDate.of(2024, 1, 1));
+        Optional<ZepProject> result = projectService.getProjectByName(null, YearMonth.of(2024, 1));
         assertThat(result.isEmpty()).isTrue();
     }
 
@@ -127,10 +129,9 @@ class ProjectServiceTest {
         when(responseParser.retrieveSingle(any(), eq(ZepProject[].class)))
                 .thenThrow(new ZepServiceException("Something went wrong"));
 
-        Optional<ZepProject> result = projectService.getProjectByName("ABC", LocalDate.of(2022, 1, 2));
+        Optional<ZepProject> result = projectService.getProjectByName("ABC", YearMonth.of(2022, 1));
         assertThat(result.isEmpty()).isTrue();
         verify(logger).warn(anyString(), any(ZepServiceException.class));
-
     }
 
     @Test
@@ -197,10 +198,8 @@ class ProjectServiceTest {
         when(responseParser.retrieveAll(any(), eq(ZepProject.class)))
                 .thenThrow(new ZepServiceException("Something went wrong"));
 
-        List<ZepProject> result = projectService.getProjectsForMonthYear(LocalDate.of(2024, 5, 1));
+        List<ZepProject> result = projectService.getProjectsForMonthYear(YearMonth.of(2024, 5));
         assertThat(result.isEmpty()).isTrue();
         verify(logger).warn(anyString(), any(ZepServiceException.class));
-
     }
-
 }

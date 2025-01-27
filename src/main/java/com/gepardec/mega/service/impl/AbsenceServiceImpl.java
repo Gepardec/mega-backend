@@ -20,13 +20,13 @@ public class AbsenceServiceImpl implements AbsenceService {
     @Override
     public int numberOfFridaysAbsent(List<AbsenceTime> absences) {
         return absences.stream()
-            .mapToInt(absence -> dateHelperService.getFridaysInRange(absence.fromDate(), absence.toDate()))
-            .sum();
+                .mapToInt(absence -> dateHelperService.getFridaysInRange(absence.fromDate(), absence.toDate()))
+                .sum();
     }
 
     @Override
-    public int getNumberOfDaysAbsent(List<AbsenceTime> absences, LocalDate date) {
-        List<LocalDate> holidays = OfficeCalendarUtil.getHolidaysForMonth(YearMonth.of(date.getYear(), date.getMonth())).toList();
+    public int getNumberOfDaysAbsent(List<AbsenceTime> absences, YearMonth payrollMonth) {
+        List<LocalDate> holidays = OfficeCalendarUtil.getHolidaysForMonth(YearMonth.of(payrollMonth.getYear(), payrollMonth.getMonth())).toList();
 
         int count = 0;
         for (AbsenceTime a : absences) {

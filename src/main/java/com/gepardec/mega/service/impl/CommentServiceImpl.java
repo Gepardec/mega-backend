@@ -17,7 +17,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -41,11 +41,10 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<Comment> findCommentsForEmployee(final String employeeEmail,
-                                                 final LocalDate from,
-                                                 final LocalDate to) {
+                                                 final YearMonth payrollMonth) {
         return commentRepository.findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail(
-                        from,
-                        to,
+                        payrollMonth.atDay(1),
+                        payrollMonth.atEndOfMonth(),
                         employeeEmail
                 )
                 .stream()
@@ -62,15 +61,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public FinishedAndTotalComments countFinishedAndTotalComments(final String employeeMail,
-                                                                  final LocalDate from,
-                                                                  final LocalDate to) {
+                                                                  final YearMonth payrollMonth) {
         Objects.requireNonNull(employeeMail, "'employeeMail' must not be null!");
-        Objects.requireNonNull(from, "'from' date must not be null!");
-        Objects.requireNonNull(to, "'to' date must not be null!");
+        Objects.requireNonNull(payrollMonth, "'payrollMonth' must not be null!");
 
         var allComments =
                 commentRepository.findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail(
-                        from, to, employeeMail
+                        payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employeeMail
                 );
 
         long finishedComments = allComments.stream()
@@ -89,11 +86,11 @@ public class CommentServiceImpl implements CommentService {
                           final String message,
                           final String assigneeEmail,
                           final String project,
-                          final String currentMonthYear) {
+                          final YearMonth payrollMonth) {
         Objects.requireNonNull(employeeEmail, "'employeeEmail' must not be null");
         var stepEntry = StringUtils.isBlank(project)
-                ? stepEntryService.findStepEntryForEmployeeAtStep(stepId, employeeEmail, assigneeEmail, currentMonthYear)
-                : stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, currentMonthYear);
+                ? stepEntryService.findStepEntryForEmployeeAtStep(stepId, employeeEmail, assigneeEmail, payrollMonth)
+                : stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, payrollMonth);
 
         var comment = new com.gepardec.mega.db.entity.employee.Comment();
         comment.setMessage(message);

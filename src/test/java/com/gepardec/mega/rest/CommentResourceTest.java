@@ -21,7 +21,7 @@ import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -151,12 +151,12 @@ class CommentResourceTest {
         when(userContext.getUser()).thenReturn(user);
 
         Comment comment = Comment.builder().id(0L).message("Pausen eintragen!").authorEmail("no-reply@gepardec.com").state(EmployeeState.IN_PROGRESS).build();
-        when(commentService.findCommentsForEmployee(anyString(), any(LocalDate.class), any(LocalDate.class)))
+        when(commentService.findCommentsForEmployee(anyString(), any(YearMonth.class)))
                 .thenReturn(List.of(comment));
 
         List<CommentDto> comments = given().contentType(ContentType.JSON)
                 .queryParam("email", "no-reply@gmx.at")
-                .queryParam("date", "2020-10-01")
+                .queryParam("date", "2020-10")
                 .get("/comments/getallcommentsforemployee")
                 .as(new TypeRef<>() {
                 });
@@ -196,7 +196,7 @@ class CommentResourceTest {
                 anyString(),
                 anyString(),
                 anyString(),
-                anyString()
+                any(YearMonth.class)
         )).thenReturn(Comment.builder().message("Pausen eintragen!").build());
 
         NewCommentEntryDto newCommentEntryDto = NewCommentEntryDto.builder()

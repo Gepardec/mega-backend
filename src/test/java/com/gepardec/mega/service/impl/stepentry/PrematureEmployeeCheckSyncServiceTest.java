@@ -14,7 +14,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +37,7 @@ class PrematureEmployeeCheckSyncServiceTest {
     @InjectMock
     PrematureEmployeeCheckService prematureEmployeeCheckService;
 
-    private final LocalDate testDate = LocalDate.of(2023, 11, 1);
+    private final YearMonth payrollMonth = YearMonth.of(2023, 11);
 
     @Test
     void syncPrematureEmployeeChecksWithStepEntries_matchingStepEntryAndPrematureEmployeeCheck_invokeUpdateStepEntries1Time() {
@@ -50,9 +50,7 @@ class PrematureEmployeeCheckSyncServiceTest {
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), any())).thenReturn(optionalStepEntry);
 
 //        When
-        boolean updatedAllEntries = prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(
-                testDate.withDayOfMonth(1)
-        );
+        boolean updatedAllEntries = prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(payrollMonth);
 
 //        Then
         verify(stepEntryRepository, times(1)).updateStateAssigned(any(), any(), any(), any(), any());
@@ -75,9 +73,7 @@ class PrematureEmployeeCheckSyncServiceTest {
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), any())).thenReturn(optionalStepEntry);
 
 //        When
-        boolean updatedAllEntries = prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(
-                testDate.withDayOfMonth(1)
-        );
+        boolean updatedAllEntries = prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(payrollMonth);
 
 //        Then
         verify(stepEntryRepository, times(3)).updateStateAssigned(any(), any(), any(), any(), any());
@@ -95,9 +91,7 @@ class PrematureEmployeeCheckSyncServiceTest {
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), any())).thenReturn(Optional.empty());
 
 //        When
-        boolean updatedAllEntries = prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(
-                testDate.withDayOfMonth(1)
-        );
+        boolean updatedAllEntries = prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(payrollMonth);
 
 //        Then
         verify(stepEntryRepository, times(1)).updateStateAssigned(any(), any(), any(), any(), any());
@@ -122,9 +116,7 @@ class PrematureEmployeeCheckSyncServiceTest {
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(any(), eq("failing-test@test.com"))).thenReturn(Optional.empty());
 
 //        When
-        boolean updatedAllEntries = prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(
-                testDate.withDayOfMonth(1)
-        );
+        boolean updatedAllEntries = prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(payrollMonth);
 
 //        Then
         verify(stepEntryRepository, times(3)).updateStateAssigned(any(), any(), any(), any(), any());
@@ -135,11 +127,11 @@ class PrematureEmployeeCheckSyncServiceTest {
 
     private StepEntry createStepEntry() {
         StepEntry stepEntry = new StepEntry();
-        stepEntry.setCreationDate(testDate.atStartOfDay());
-        stepEntry.setDate(testDate);
+        stepEntry.setCreationDate(payrollMonth.atDay(1).atStartOfDay());
+        stepEntry.setDate(payrollMonth.atDay(1));
         stepEntry.setProject("Liwest-EMS");
         stepEntry.setState(EmployeeState.OPEN);
-        stepEntry.setUpdatedDate(testDate.atStartOfDay());
+        stepEntry.setUpdatedDate(payrollMonth.atDay(1).atStartOfDay());
         stepEntry.setOwner(new User());
         stepEntry.setAssignee(new User());
         stepEntry.setStep(new Step());
@@ -153,7 +145,7 @@ class PrematureEmployeeCheckSyncServiceTest {
         return PrematureEmployeeCheck.builder()
                 .id(id)
                 .user(user)
-                .forMonth(testDate)
+                .forMonth(payrollMonth.atDay(1))
                 .state(PrematureEmployeeCheckState.DONE)
                 .build();
     }

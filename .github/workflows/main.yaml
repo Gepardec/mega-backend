@@ -46,7 +46,7 @@ jobs:
           image: mega-backend
           registry: ghcr.io
           dockerfile: Containerfile
-          buildArgs: COMMIT=${{ env.COMMIT}}, BRANCH=${{ env.BRANCH_NAME}}, VERSION=${{ env.COMMIT}}
+          buildArgs: COMMIT=${{ env.COMMIT}}, BRANCH=${{ env.BRANCH_NAME}}, VERSION=${{ env.VERSION}}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           # if the branch is main, add the latest tag

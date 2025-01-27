@@ -12,7 +12,6 @@ import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
-import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.zep.impl.Rest;
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
@@ -42,7 +41,6 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectSpy;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedHashMap;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -91,9 +89,6 @@ class ZepRestServiceImplTest {
     ProjectService projectService;
 
     @InjectMock
-    DateHelperService dateHelperService;
-
-    @InjectMock
     ReceiptService receiptService;
 
     @InjectMock
@@ -114,32 +109,22 @@ class ZepRestServiceImplTest {
     @Test
     void getDoctorsVisitingTimeForMonthAndEmployee_whenUserHadDoctorsAppointments_thenReturnHours() {
         List<ZepAttendance> zepAttendancesForDoctorsAppointment = getZepAttendancesForDoctorsAppointment();
-        String fromDate = LocalDate.of(2024, 5, 1).toString();
-        String toDate = LocalDate.of(2024, 5, 30).toString();
 
-        when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(LocalDate.class), anyInt()))
+        when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(YearMonth.class), anyInt()))
                 .thenReturn(zepAttendancesForDoctorsAppointment);
-
-        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(Pair.of(fromDate, toDate));
 
         double actual = zepRestService.getDoctorsVisitingTimeForMonthAndEmployee(createEmployee(), YearMonth.of(2024, 5));
 
         assertThat(actual).isEqualTo(zepAttendancesForDoctorsAppointment.stream()
                 .map(ZepAttendance::duration)
                 .reduce(Double::sum)
-                .get());
+                .orElse(0d));
     }
 
     @Test
     void getDoctorsVisitingTimeForMonthAndEmployee_whenUserHadNoDoctorsAppointments_thenReturnZeroHours() {
-        String fromDate = LocalDate.of(2024, 5, 1).toString();
-
-        when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(LocalDate.class), anyInt()))
+        when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(YearMonth.class), anyInt()))
                 .thenReturn(List.of());
-
-        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(Pair.of(fromDate, null));
 
         double actual = zepRestService.getDoctorsVisitingTimeForMonthAndEmployee(createEmployee(), YearMonth.of(2024, 5));
 
@@ -148,25 +133,17 @@ class ZepRestServiceImplTest {
 
     @Test
     void getMonthlyBillInfoForEmployee_whenEmployeeHasBillInfoWithWarnings_thenReturnMonthlyBillInfo() {
-        LocalDate fromDate = LocalDate.of(2024, 6, 13);
-        String toDateString = LocalDate.of(2024, 6, 30).toString();
-        Pair<String, String> datePair = Pair.of(fromDate.toString(), toDateString);
-
         List<ZepReceipt> allReceipts = new ArrayList<>();
         ZepReceipt receipt = ZepReceipt.builder().employeeId("007-jbond").paymentMethodType(PaymentMethodType.PRIVATE.getPaymentMethodName()).id(1).build();
         ZepReceiptAttachment receiptAttachment = ZepReceiptAttachment.builder().fileContent("ABC").build();
         ZepReceipt receipt2 = ZepReceipt.builder().employeeId("007-jbond").paymentMethodType(PaymentMethodType.COMPANY.getPaymentMethodName()).id(2).build();
-        ZepReceiptAttachment receipt2Attachment = ZepReceiptAttachment.builder().fileContent("DEF").build();
         allReceipts.add(receipt);
         allReceipts.add(receipt2);
 
         PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(true).build();
         Employee employee = Employee.builder().userId("007-jbond").build();
 
-        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(datePair);
-
-        when(receiptService.getAllReceiptsForYearMonth(any(Employee.class), anyString(), anyString()))
+        when(receiptService.getAllReceiptsInRange(any(YearMonth.class)))
                 .thenReturn(allReceipts);
 
         when(receiptService.getAttachmentByReceiptId(anyInt()))
@@ -185,19 +162,12 @@ class ZepRestServiceImplTest {
 
     @Test
     void getMonthlyBillInfoForEmployee_whenEmployeeHasNoBillInfo_thenReturnEmptyMonthlyBillInfo() {
-        LocalDate fromDate = LocalDate.of(2024, 6, 13);
-        String toDateString = LocalDate.of(2024, 6, 30).toString();
-        Pair<String, String> datePair = Pair.of(fromDate.toString(), toDateString);
-
         List<ZepReceipt> allReceipts = new ArrayList<>();
 
         PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(true).build();
         Employee employee = Employee.builder().userId("007-jbond").build();
 
-        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(datePair);
-
-        when(receiptService.getAllReceiptsForYearMonth(any(Employee.class), anyString(), anyString()))
+        when(receiptService.getAllReceiptsInRange(any(YearMonth.class)))
                 .thenReturn(allReceipts);
 
 
@@ -216,18 +186,11 @@ class ZepRestServiceImplTest {
         Employee employee = Employee.builder().userId("007-jbond").build();
         ZepEmployee zepEmployee = ZepEmployee.builder().username("007-jbond").build();
         ZepProjectEmployee zepProjectEmployee = ZepProjectEmployee.builder().username("007-jbond").build();
-        LocalDate fromDate = LocalDate.of(2024, 6, 1);
-        String toDateString = LocalDate.of(2024, 6, 30).toString();
-        Pair<String, String> datePair = Pair.of(fromDate.toString(), toDateString);
-
 
         when(employeeService.getZepEmployeeByUsername("007-jbond"))
                 .thenReturn(Optional.of(zepEmployee));
 
-        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(datePair);
-
-        when(projectService.getProjectsForMonthYear(any(LocalDate.class)))
+        when(projectService.getProjectsForMonthYear(any(YearMonth.class)))
                 .thenReturn(
                         List.of(
                                 ZepProject.builder().id(1).build()
@@ -237,7 +200,7 @@ class ZepRestServiceImplTest {
         when(projectService.getProjectEmployeesForId(anyInt()))
                 .thenReturn(List.of(zepProjectEmployee));
 
-        when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(LocalDate.class), anyInt()))
+        when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(YearMonth.class), anyInt()))
                 .thenReturn(List.of(
                         ZepAttendance.builder().billable(true).duration(2.0).projectId(1).date(LocalDate.of(2024, 6, 1)).build(),
                         ZepAttendance.builder().billable(false).duration(2.0).projectId(1).date(LocalDate.of(2024, 6, 4)).build(),
@@ -333,10 +296,10 @@ class ZepRestServiceImplTest {
 
     @Test
     void getProjectTimesForEmployeePerProject_whenProjectIsNotPresent_thenReturnListOf() {
-        when(projectService.getProjectByName(anyString(), any(LocalDate.class)))
+        when(projectService.getProjectByName(anyString(), any(YearMonth.class)))
                 .thenReturn(Optional.empty());
 
-        List<ProjectTime> actual = zepRestService.getProjectTimesForEmployeePerProject("ABC", LocalDate.now());
+        List<ProjectTime> actual = zepRestService.getProjectTimesForEmployeePerProject("ABC", YearMonth.now());
 
         assertThat(actual).isNotNull();
         assertThat(actual.isEmpty()).isTrue();
@@ -344,7 +307,7 @@ class ZepRestServiceImplTest {
 
     @Test
     void getProjectTimesForEmployeePerProject_whenProjectIsPresent_thenReturnProjectTimes() {
-        when(projectService.getProjectByName(anyString(), any(LocalDate.class)))
+        when(projectService.getProjectByName(anyString(), any(YearMonth.class)))
                 .thenReturn(Optional.of(
                         ZepProject.builder()
                                 .id(1)
@@ -355,10 +318,10 @@ class ZepRestServiceImplTest {
         when(projectService.getProjectEmployeesForId(anyInt()))
                 .thenReturn(createZepProjectEmployees());
 
-        when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(LocalDate.class), anyInt()))
+        when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(YearMonth.class), anyInt()))
                 .thenReturn(createAttendancesList());
 
-        List<ProjectTime> actual = zepRestService.getProjectTimesForEmployeePerProject("ABC", LocalDate.of(2024, 6, 3));
+        List<ProjectTime> actual = zepRestService.getProjectTimesForEmployeePerProject("ABC", YearMonth.of(2024, 6));
 
         assertThat(actual).isNotNull();
         assertThat(actual.size()).isEqualTo(6);
@@ -366,38 +329,38 @@ class ZepRestServiceImplTest {
 
     @ParameterizedTest
     @CsvSource({
-            "007-jbond, 2024-06-20, true",
-            "007-jbond, 2024-06-20, false"
+            "007-jbond, 2024-06, true",
+            "007-jbond, 2024-06, false"
     })
-    void getProjectTimes_parametrized(String userId, LocalDate date, boolean hasProjectTimes) {
+    void getProjectTimes_parametrized(String userId, YearMonth payrollMonth, boolean hasProjectTimes) {
         Employee employee = Employee.builder().userId(userId).build();
 
         if (hasProjectTimes) {
             List<ZepAttendance> zepAttendances = createAttendancesList();
             List<ProjectEntry> projectEntries = createProjectEntries();
 
-            when(attendanceService.getAttendanceForUserAndMonth(userId, date))
+            when(attendanceService.getAttendanceForUserAndMonth(userId, payrollMonth))
                     .thenReturn(zepAttendances);
 
             when(projectEntryMapper.mapList(zepAttendances))
                     .thenReturn(projectEntries);
 
-            List<ProjectEntry> result = zepRestService.getProjectTimes(employee, date);
+            List<ProjectEntry> result = zepRestService.getProjectTimes(employee, payrollMonth);
 
             assertThat(result).isNotEmpty();
             assertThat(result).isEqualTo(projectEntries);
         } else {
-            when(attendanceService.getAttendanceForUserAndMonth(userId, date))
+            when(attendanceService.getAttendanceForUserAndMonth(userId, payrollMonth))
                     .thenReturn(Collections.emptyList());
 
-            List<ProjectEntry> result = zepRestService.getProjectTimes(employee, date);
+            List<ProjectEntry> result = zepRestService.getProjectTimes(employee, payrollMonth);
             assertThat(result).isEmpty();
         }
     }
 
     @Test
     void getProjectByName_whenProjectIsPresent_thenReturnProject() {
-        when(projectService.getProjectByName(anyString(), any(LocalDate.class)))
+        when(projectService.getProjectByName(anyString(), any(YearMonth.class)))
                 .thenReturn(Optional.of(
                         ZepProject.builder()
                                 .name("ABC")
@@ -409,7 +372,7 @@ class ZepRestServiceImplTest {
         when(projectMapper.map(any(ZepProject.class)))
                 .thenReturn(Project.builder().projectId("ABC").startDate(LocalDate.of(2024, 6, 12)));
 
-        Optional<Project> actual = zepRestService.getProjectByName("ABC", LocalDate.of(2024, 6, 12));
+        Optional<Project> actual = zepRestService.getProjectByName("ABC", YearMonth.of(2024, 6));
 
         assertThat(actual).isPresent();
         assertThat(actual.get().getProjectId()).isEqualTo("ABC");
@@ -426,13 +389,13 @@ class ZepRestServiceImplTest {
             dateUtilsMockedStatic.when(() -> DateUtils.getLastDayOfMonth(anyInt(), anyInt()))
                     .thenReturn(LocalDate.of(2024, 5, 30));
 
-            when(absenceService.getZepAbsencesByEmployeeNameForDateRange(anyString(), any(LocalDate.class), any(LocalDate.class)))
+            when(absenceService.getZepAbsencesByEmployeeNameForDateRange(anyString(), any(YearMonth.class)))
                     .thenReturn(createZepAbsencesList());
 
             when(absenceMapper.mapList(any()))
                     .thenReturn(absenceTimes);
 
-            List<AbsenceTime> actual = zepRestService.getAbsenceForEmployee(employee, LocalDate.of(2024, 5, 1));
+            List<AbsenceTime> actual = zepRestService.getAbsenceForEmployee(employee, YearMonth.of(2024, 5));
 
             assertThat(actual).isNotNull();
             assertThat(actual.size()).isEqualTo(2);
@@ -458,23 +421,6 @@ class ZepRestServiceImplTest {
         );
 
         return absenceTimes;
-    }
-
-    private List<ZepProject> createProjectList() {
-        List<ZepProject> projects = new ArrayList<>();
-        projects.add(
-                ZepProject.builder()
-                        .name("ABC")
-                        .build()
-        );
-
-        projects.add(
-                ZepProject.builder()
-                        .name("DEF")
-                        .build()
-        );
-
-        return projects;
     }
 
     private List<ZepAbsence> createZepAbsencesList() {
@@ -611,11 +557,11 @@ class ZepRestServiceImplTest {
     class GetProjectsForMonthYear {
 
         private final ZepProject zepProject = ZepProject.builder().id(1).billingType(new ZepBillingType(1)).build();
-        private final LocalDate currentMonthYear = DateUtils.getFirstDayOfCurrentMonth();
+        private final YearMonth payrollMonth = YearMonth.now();
 
         @BeforeEach
         void setUp() {
-            when(projectService.getProjectsForMonthYear(currentMonthYear))
+            when(projectService.getProjectsForMonthYear(payrollMonth))
                     .thenReturn(List.of(zepProject));
             when(projectService.getProjectById(1))
                     .thenReturn(Optional.of(createZepProjectDetail(zepProject)));
@@ -624,7 +570,7 @@ class ZepRestServiceImplTest {
 
         @Test
         void thenShouldMapCategoriesToProject() {
-            assertThat(zepRestService.getProjectsForMonthYear(currentMonthYear))
+            assertThat(zepRestService.getProjectsForMonthYear(payrollMonth))
                     .hasSize(1)
                     .first()
                     .extracting(Project::getCategories)
