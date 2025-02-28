@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 @TestTransaction
-public class PrematureEmployeeCheckRepositoryTest {
+class PrematureEmployeeCheckRepositoryTest {
 
     @Inject
     PrematureEmployeeCheckRepository prematureEmployeeCheckRepository;
@@ -32,12 +32,12 @@ public class PrematureEmployeeCheckRepositoryTest {
     private com.gepardec.mega.db.entity.employee.User user;
 
     @BeforeEach
-    public void initDependentEntities() {
+    void initDependentEntities() {
         user = initializeUserObject();
     }
 
     @Test
-    public void save_validEntry_returnDbId() {
+    void save_validEntry_returnDbId() {
 //        Given
         persistUser();
 
@@ -49,7 +49,7 @@ public class PrematureEmployeeCheckRepositoryTest {
     }
 
     @Test
-    public void save_secondEntry_throwConstraintViolationException() {
+    void save_secondEntry_throwConstraintViolationException() {
 //        Given
         persistUser();
         PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck(null));
@@ -68,7 +68,7 @@ public class PrematureEmployeeCheckRepositoryTest {
     }
 
     @Test
-    public void findByEmail_missingEntry_returnEmptyList() {
+    void findByEmail_missingEntry_returnEmptyList() {
 //        When
         var byEmailAndMonth = prematureEmployeeCheckRepository.findByEmailAndMonth(EMAIL, DATE);
 
@@ -77,7 +77,7 @@ public class PrematureEmployeeCheckRepositoryTest {
     }
 
     @Test
-    public void findByEmail_validEntries_returnList() {
+    void findByEmail_validEntries_returnList() {
 //        Given
         persistUser();
         persistPrematureEmployeeCheck();

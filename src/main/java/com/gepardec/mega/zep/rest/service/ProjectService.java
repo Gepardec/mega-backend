@@ -33,7 +33,7 @@ public class ProjectService {
 
         try {
             return responseParser.retrieveAll(
-                    page -> zepProjectRestClient.getProjectByStartEnd(startDate,endDate, page),
+                    page -> zepProjectRestClient.getProjectByStartEnd(startDate, endDate, page),
                     ZepProject.class
             );
         } catch (ZepServiceException e) {
@@ -90,8 +90,4 @@ public class ProjectService {
 
         return List.of();
     }
-
-
-
-
 }

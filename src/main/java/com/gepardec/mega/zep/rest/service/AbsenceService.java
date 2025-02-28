@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class AbsenceService {
@@ -37,10 +36,10 @@ public class AbsenceService {
             );
 
             List<ZepAbsence> filteredAbsences = absences.stream()
-                                                        .filter(absence -> datesInRange(absence.startDate(), absence.endDate(), start, end))
-                                                        .toList();
+                    .filter(absence -> datesInRange(absence.startDate(), absence.endDate(), start, end))
+                    .toList();
             return getFullZepAbsences(filteredAbsences);
-        }  catch (ZepServiceException e) {
+        } catch (ZepServiceException e) {
             logger.warn("Error retrieving employee + \"%s\" from ZEP: No /data field in response".formatted(employeeName),
                     e);
             return List.of();

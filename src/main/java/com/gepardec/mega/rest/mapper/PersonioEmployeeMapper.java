@@ -32,10 +32,8 @@ public class PersonioEmployeeMapper implements DtoMapper<PersonioEmployee, Perso
                 .email(dto.email() == null ?
                         null : dto.email().getValue())
                 .vacationDayBalance(0.0)
-                .guildLead(dto.guildLead() == null ?
-                        null : dto.guildLead().getValue())
-                .internalProjectLead(dto.internalProjectLead() == null ?
-                        null : dto.internalProjectLead().getValue())
+                .guildLead(dto.guildLead() == null ? null : dto.guildLead().getValue())
+                .internalProjectLead(dto.internalProjectLead() == null ? null : dto.internalProjectLead().getValue())
                 .hasCreditCard(dto.hasCreditCard().getValue().equals("Ja"))
                 .build();
     }

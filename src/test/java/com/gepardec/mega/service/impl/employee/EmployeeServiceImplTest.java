@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +48,7 @@ class EmployeeServiceImplTest {
     }
 
     @Test
-    void testGetEmployee() {
+    void getEmployee() {
         Mockito.when(zepService.getEmployee(Mockito.any())).thenReturn(createEmployee(0).build());
 
         final Employee employee = employeeService.getEmployee("someuserid");
@@ -59,7 +58,7 @@ class EmployeeServiceImplTest {
     }
 
     @Test
-    void testGetEmployees() {
+    void getEmployees() {
         final Employee employee0 = createEmployee(0).build();
         final Employee employee1 = createEmployeeWithActive(1, false).build();
 
@@ -131,17 +130,17 @@ class EmployeeServiceImplTest {
     }
 
     @Test
-    void testUpdateEmployeesReleaseDate_EmployeesNull() {
+    void updateEmployeesReleaseDate_EmployeesNull() {
         assertThatThrownBy(() -> employeeService.updateEmployeesReleaseDate(null)).isInstanceOf(ZepServiceException.class);
     }
 
     @Test
-    void testUpdateEmployeesReleaseDate_EmployeesEmpty() {
+    void updateEmployeesReleaseDate_EmployeesEmpty() {
         assertThat(employeeService.updateEmployeesReleaseDate(new ArrayList<>())).isEmpty();
     }
 
     @Test
-    void testUpdateEmployeesReleaseDate_EmployeesNotEmpty_EmployeeError() {
+    void updateEmployeesReleaseDate_EmployeesNotEmpty_EmployeeError() {
         Mockito.doThrow(new ZepServiceException()).when(zepService).updateEmployeesReleaseDate(Mockito.any(), Mockito.any());
         Mockito.doAnswer(invocation -> {
             ((Runnable) invocation.getArgument(0)).run();
@@ -158,7 +157,7 @@ class EmployeeServiceImplTest {
     }
 
     @Test
-    void testUpdateEmployeesReleaseDate_EmployeesNotEmpty_ThreadingError() {
+    void updateEmployeesReleaseDate_EmployeesNotEmpty_ThreadingError() {
         AtomicInteger count = new AtomicInteger();
 
         Mockito.doAnswer(invocation -> {
@@ -184,7 +183,7 @@ class EmployeeServiceImplTest {
     }
 
     @Test
-    void testUpdateEmployeesReleaseDate_EmployeesNotEmpty_EmployeOk() {
+    void updateEmployeesReleaseDate_EmployeesNotEmpty_EmployeOk() {
         Mockito.doAnswer(invocation -> {
             ((Runnable) invocation.getArgument(0)).run();
             return null;
