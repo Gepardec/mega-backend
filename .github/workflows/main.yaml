@@ -33,6 +33,12 @@ jobs:
       # set the env.COMMIT variable
       - run: echo "COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
+      # push the code coverage report to codacy
+      - name: generate coverage report
+        run: |
+          export CODACY_PROJECT_TOKEN=${{secrets.CODACY_PROJECT_TOKEN}}
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r target/site/jacoco/jacoco.xml
+
       # build the container image and release it as a package in this repository
       - uses: mr-smithers-excellent/docker-build-push@v6
         name: push-container-image
