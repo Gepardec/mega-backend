@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record ZepProjectEmployeeType (int id) {
+public record ZepProjectEmployeeType(int id) {
 
     @JsonCreator
     public ZepProjectEmployeeType(Builder builder) {

@@ -20,13 +20,11 @@ import org.slf4j.Logger;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 @Dependent
 @Transactional(value = Transactional.TxType.REQUIRED, rollbackOn = Exception.class)
@@ -56,21 +54,12 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
         stopWatch.start();
 
         logger.info("Started step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
-
         logger.info("Processing date: {}", date);
 
         final List<User> activeUsers = userService.findActiveUsers();
-        final List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(date,
-                List.of(ProjectFilter.IS_LEADS_AVAILABLE,
-                        ProjectFilter.IS_CUSTOMER_PROJECT));
+        final List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(date, List.of(ProjectFilter.IS_LEADS_AVAILABLE));
         final List<Step> steps = stepService.getSteps();
-
-        final List<User> omUsers = notificationConfig.getOmMailAddresses()
-                .stream()
-                .map(email -> findUserByEmail(activeUsers, email))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+        final List<User> omUsers = getOfficeManagementUsers(activeUsers);
 
         logger.info("Loaded projects: {}", projectsForMonthYear.size());
         logger.debug("projects are {}", projectsForMonthYear);
@@ -81,53 +70,54 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
         logger.info("Loaded omUsers: {}", omUsers.size());
         logger.debug("omUsers are: {}", omUsers);
 
-        final List<StepEntry> toBeCreatedStepEntries = new ArrayList<>();
-
-        for (Step step : steps) {
-            switch (step.getRole()) {
-                case EMPLOYEE:
-                    toBeCreatedStepEntries.addAll(createStepEntriesForUsers(date, step, activeUsers));
-                    break;
-                case OFFICE_MANAGEMENT:
-                    toBeCreatedStepEntries.addAll(createStepEntriesOmForUsers(date, step, omUsers, activeUsers));
-                    break;
-                case PROJECT_LEAD:
-                    toBeCreatedStepEntries.addAll(createStepEntriesProjectLeadForUsers(date, step, projectsForMonthYear, activeUsers));
-                    break;
-                default:
-                    throw new IllegalArgumentException("no logic implemented for provided role");
-            }
-        }
-
-        final List<com.gepardec.mega.db.entity.employee.StepEntry> allEntityStepEntries = stepEntryService.findAll();
-        List<StepEntry> toBeCreatedFilteredStepEntries = toBeCreatedStepEntries;
-
-        if (!allEntityStepEntries.isEmpty()) {
-            toBeCreatedFilteredStepEntries = toBeCreatedStepEntries.stream()
-                    .filter(stepEntry -> allEntityStepEntries.stream()
-                            .noneMatch(stepEntry1 -> modelEqualsEntityStepEntry(stepEntry, stepEntry1)))
-                    .toList();
-        }
-
-
-        toBeCreatedFilteredStepEntries.forEach(stepEntryService::addStepEntry);
+        final List<StepEntry> toBeCreatedStepEntries = createStepEntriesForSteps(date, steps, activeUsers, omUsers, projectsForMonthYear);
+        toBeCreatedStepEntries.forEach(stepEntryService::addStepEntry);
 
         stopWatch.stop();
 
-        logger.info("Processed step entries: {}", toBeCreatedStepEntries.size());
+        logger.info("Created step entries: {}", toBeCreatedStepEntries.size());
         logger.info("Step entry generation took: {}ms", stopWatch.getTime());
         logger.info("Finished step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
 
         return true;
     }
 
-    private boolean modelEqualsEntityStepEntry(StepEntry model, com.gepardec.mega.db.entity.employee.StepEntry entity) {
-        if (entity.getDate().equals(model.getDate()) &&
-                entity.getAssignee().getEmail().equals(model.getAssignee().getEmail()) &&
-                entity.getOwner().getEmail().equals(model.getOwner().getEmail())) {
-            return true;
-        }
-        return false;
+    private List<User> getOfficeManagementUsers(List<User> activeUsers) {
+        return notificationConfig.getOmMailAddresses()
+                .stream()
+                .map(email -> findUserByEmail(activeUsers, email))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+    }
+
+    private List<StepEntry> createStepEntriesForSteps(LocalDate date, List<Step> steps, List<User> activeUsers, List<User> omUsers, List<Project> projectsForMonthYear) {
+        var dbStepEntries = stepEntryService.findAll();
+        return steps.stream()
+                .map(step -> createStepEntriesForStep(date, activeUsers, omUsers, projectsForMonthYear, step))
+                .flatMap(Collection::stream)
+                .filter(filterNonExistentStepEntries(dbStepEntries))
+                .toList();
+    }
+
+    private List<StepEntry> createStepEntriesForStep(LocalDate date, List<User> activeUsers, List<User> omUsers, List<Project> projectsForMonthYear, Step step) {
+        return switch (step.getRole()) {
+            case EMPLOYEE -> createStepEntriesForUsers(date, step, activeUsers);
+            case OFFICE_MANAGEMENT -> createStepEntriesOmForUsers(date, step, omUsers, activeUsers);
+            case PROJECT_LEAD -> createStepEntriesProjectLeadForUsers(date, step, projectsForMonthYear, activeUsers);
+        };
+    }
+
+    private Predicate<StepEntry> filterNonExistentStepEntries(List<com.gepardec.mega.db.entity.employee.StepEntry> dbStepEntries) {
+        return stepEntry -> dbStepEntries.stream().noneMatch(dbStepEntry -> isStepEntryPersisted(stepEntry, dbStepEntry));
+    }
+
+    private boolean isStepEntryPersisted(StepEntry domain, com.gepardec.mega.db.entity.employee.StepEntry entity) {
+        return entity.getDate().equals(domain.getDate()) &&
+                entity.getAssignee().getEmail().equals(domain.getAssignee().getEmail()) &&
+                entity.getOwner().getEmail().equals(domain.getOwner().getEmail()) &&
+                entity.getStep().getId().equals(domain.getStep().getDbId()) &&
+                Objects.equals(entity.getProject(), Optional.ofNullable(domain.getProject()).map(Project::getProjectId).orElse(null));
     }
 
     private List<StepEntry> createStepEntriesProjectLeadForUsers(final LocalDate date, final Step step, final List<Project> projects, final List<User> users) {

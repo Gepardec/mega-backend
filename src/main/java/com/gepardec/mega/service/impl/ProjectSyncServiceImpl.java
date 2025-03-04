@@ -51,9 +51,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         logger.info("Processing date: {}", date);
 
         List<User> activeUsers = userService.findActiveUsers();
-        List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(date,
-                List.of(ProjectFilter.IS_LEADS_AVAILABLE,
-                        ProjectFilter.IS_CUSTOMER_PROJECT));
+        List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(date, List.of(ProjectFilter.IS_LEADS_AVAILABLE));
 
         logger.info("Loaded projects: {}", projectsForMonthYear.size());
         logger.debug("projects are {}", projectsForMonthYear);

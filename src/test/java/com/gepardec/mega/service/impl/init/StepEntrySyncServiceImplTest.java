@@ -22,12 +22,17 @@ import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class StepEntrySyncServiceImplTest {
@@ -66,36 +71,33 @@ class StepEntrySyncServiceImplTest {
         when(projectService.getProjectsForMonthYear(Mockito.any(), Mockito.anyList())).thenReturn(List.of(
                 projectFor(1)
                         .leads(
-                                List.of(userForProjectLead(1))
-                                        .stream().map(User::getUserId).toList())
+                                Stream.of(userForProjectLead(1)).map(User::getUserId).toList())
                         .employees(
-                                List.of(userForProjectLead(1),
-                                                userForEmployee(4),
-                                                userForEmployee(5),
-                                                userForEmployee(6))
-                                        .stream().map(User::getUserId).toList())
+                                Stream.of(
+                                        userForProjectLead(1),
+                                        userForEmployee(4),
+                                        userForEmployee(5),
+                                        userForEmployee(6)).map(User::getUserId).toList())
                         .startDate(LocalDate.now())
                         .build(),
                 projectFor(2)
                         .leads(
-                                List.of(userForProjectLead(2))
-                                        .stream().map(User::getUserId).toList())
+                                Stream.of(userForProjectLead(2)).map(User::getUserId).toList())
                         .employees(
-                                List.of(userForProjectLead(2),
-                                                userForEmployee(5),
-                                                userForEmployee(6))
-                                        .stream().map(User::getUserId).toList())
+                                Stream.of(
+                                        userForProjectLead(2),
+                                        userForEmployee(5),
+                                        userForEmployee(6)).map(User::getUserId).toList())
                         .startDate(LocalDate.now())
                         .build(),
                 projectFor(3)
                         .leads(
-                                List.of(userForProjectLead(1))
-                                        .stream().map(User::getUserId).toList())
+                                Stream.of(userForProjectLead(1)).map(User::getUserId).toList())
                         .employees(
-                                List.of(userForProjectLead(1),
-                                                userForEmployee(5),
-                                                userForEmployee(6))
-                                        .stream().map(User::getUserId).toList())
+                                Stream.of(
+                                        userForProjectLead(1),
+                                        userForEmployee(5),
+                                        userForEmployee(6)).map(User::getUserId).toList())
                         .startDate(LocalDate.now())
                         .build()
         ));
@@ -191,14 +193,12 @@ class StepEntrySyncServiceImplTest {
         when(notificationConfig.getOmMailAddresses()).thenReturn(List.of());
         when(projectService.getProjectsForMonthYear(Mockito.any(), Mockito.anyList())).thenReturn(List.of(projectFor(1)
                 .leads(
-                        List.of(userForProjectLead(7))
-                                .stream().map(User::getUserId).toList())
+                        Stream.of(userForProjectLead(7)).map(User::getUserId).toList())
                 .employees(
-                        List.of(userForProjectLead(1),
-                                        userForEmployee(4),
-                                        userForEmployee(5),
-                                        userForEmployee(6))
-                                .stream().map(User::getUserId).toList())
+                        Stream.of(userForProjectLead(1),
+                                userForEmployee(4),
+                                userForEmployee(5),
+                                userForEmployee(6)).map(User::getUserId).toList())
                 .startDate(LocalDate.now())
                 .build()));
 
@@ -407,5 +407,56 @@ class StepEntrySyncServiceImplTest {
 
         // Step 3
         assertThat(stepEntries.stream().filter(stepEntry -> stepEntry.getStep().getName().equals("CONTROL_TIME_EVIDENCES")).count()).isEqualTo(10);
+    }
+
+    @Test
+    void whenStepEntriesExistInDb_thenDoNotInsertStepEntries() {
+        // Given
+        var stepEntryArgumentCaptor = ArgumentCaptor.forClass(StepEntry.class);
+
+        // When
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
+
+        // Then
+        verify(stepEntryService, times(22)).addStepEntry(stepEntryArgumentCaptor.capture());
+
+        // Given (round 2)
+        Mockito.reset(stepEntryService);
+        when(stepEntryService.findAll()).thenReturn(createFromDomain(stepEntryArgumentCaptor.getAllValues()));
+
+        // When
+        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
+
+        // Then
+        verify(stepEntryService, never()).addStepEntry(Mockito.any());
+    }
+
+    private List<com.gepardec.mega.db.entity.employee.StepEntry> createFromDomain(List<StepEntry> createdStepEntries) {
+        return createdStepEntries.stream()
+                .map(stepEntry -> {
+                    var stepEntryEntity = new com.gepardec.mega.db.entity.employee.StepEntry();
+                    stepEntryEntity.setDate(stepEntry.getDate());
+                    stepEntryEntity.setProject(Optional.ofNullable(stepEntry.getProject()).map(Project::getProjectId).orElse(null));
+                    stepEntryEntity.setStep(createStepEntity(stepEntry.getStep().getDbId()));
+                    stepEntryEntity.setAssignee(createUserEntity(stepEntry.getAssignee().getEmail()));
+                    stepEntryEntity.setOwner(createUserEntity(stepEntry.getOwner().getEmail()));
+
+                    return stepEntryEntity;
+                })
+                .toList();
+    }
+
+    private com.gepardec.mega.db.entity.employee.User createUserEntity(String email) {
+        var userEntity = new com.gepardec.mega.db.entity.employee.User();
+        userEntity.setEmail(email);
+
+        return userEntity;
+    }
+
+    private com.gepardec.mega.db.entity.employee.Step createStepEntity(long id) {
+        var stepEntity = new com.gepardec.mega.db.entity.employee.Step();
+        stepEntity.setId(id);
+
+        return stepEntity;
     }
 }

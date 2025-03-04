@@ -15,9 +15,11 @@ import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
+import com.gepardec.mega.zep.rest.dto.ZepCategory;
 import com.gepardec.mega.zep.rest.dto.ZepEmployee;
 import com.gepardec.mega.zep.rest.dto.ZepEmploymentPeriod;
 import com.gepardec.mega.zep.rest.dto.ZepProject;
+import com.gepardec.mega.zep.rest.dto.ZepProjectDetail;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.rest.dto.ZepReceipt;
 import com.gepardec.mega.zep.rest.dto.ZepReceiptAttachment;
@@ -286,7 +288,7 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     private Optional<ProjectHoursSummary> createProjectsHoursSummary(List<ZepAttendance> attendances, ZepProject project) {
-        Optional<ZepProject> projectRetrieved = projectService.getProjectById(attendances.get(0).projectId());
+        Optional<ZepProjectDetail> projectRetrieved = projectService.getProjectById(attendances.get(0).projectId());
         String projectName = "";
         double billableHoursSum = 0.0;
         double nonBillableHoursSum = 0.0;
@@ -296,7 +298,7 @@ public class ZepRestServiceImpl implements ZepService {
             return Optional.empty();
         }
 
-        projectName = projectRetrieved.get().name();
+        projectName = projectRetrieved.get().getProject().name();
 
         billableHoursSum += attendances.stream()
                 .filter(ZepAttendance::billable)
@@ -381,7 +383,15 @@ public class ZepRestServiceImpl implements ZepService {
     private void addProjectEmployeesToBuilder(Project.Builder projectBuilder, ZepProject zepProject) {
         List<ZepProjectEmployee> zepProjectEmployees = projectService.getProjectEmployeesForId(zepProject.id());
         MultivaluedMap<String, String> projectEmployeesMap = projectEmployeesMapper.map(zepProjectEmployees);
+        Optional<ZepProjectDetail> projectDetails = projectService.getProjectById(zepProject.id());
         projectBuilder.employees(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.USER, new ArrayList<>()));
         projectBuilder.leads(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.LEAD, new ArrayList<>()));
+        projectBuilder.categories(
+                projectDetails.map(ZepProjectDetail::getCategories)
+                        .stream()
+                        .flatMap(List::stream)
+                        .map(ZepCategory::name)
+                        .toList()
+        );
     }
 }
