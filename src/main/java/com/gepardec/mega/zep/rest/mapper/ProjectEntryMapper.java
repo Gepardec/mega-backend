@@ -34,7 +34,7 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
             LocalDateTime from = LocalDateTime.of(zepAttendance.date(), zepAttendance.from());
             LocalDateTime to = LocalDateTime.of(zepAttendance.date(), zepAttendance.to());
             WorkingLocation workingLocation = toWorkingLocation(zepAttendance.workLocation());
-            Boolean workLocationIsProjectRelevant = zepAttendance.workLocationIsProjectRelevant();
+            Boolean workLocationIsProjectRelevant = toWorkLocationIsProjectRelevant(zepAttendance.workLocationIsProjectRelevant());
             String process = Integer.toString(zepAttendance.projectTaskId());
 
             if (Task.isJourney(task)) {
@@ -101,4 +101,15 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
                 .orElseThrow(() -> new IllegalArgumentException("JourneyDirection '" + direction + "' is not mapped in Enum JourneyDirection"));
     }
 
+
+    /// Only needed because the zep-api returns null instead of true and mixes true up with false
+    /// If everything is fixed this mapper method should be redundant
+    private Boolean toWorkLocationIsProjectRelevant(final Boolean workLocationIsProjectRelevant) {
+        if (workLocationIsProjectRelevant == null) {
+            return Boolean.TRUE;
+        }
+
+        //TODO remove when zep-api does not mix up true/null and false anymore
+        return !workLocationIsProjectRelevant;
+    }
 }
