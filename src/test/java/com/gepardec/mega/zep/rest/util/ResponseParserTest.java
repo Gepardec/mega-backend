@@ -1,10 +1,10 @@
 package com.gepardec.mega.zep.rest.util;
 
+import com.gepardec.mega.helper.ResourceFileService;
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepProject;
 import com.gepardec.mega.zep.util.ResponseParser;
 import io.quarkus.test.InjectMock;
-import com.gepardec.mega.helper.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
@@ -14,11 +14,9 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mockStatic;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -53,6 +51,7 @@ class ResponseParserTest {
         System.out.println(projectNames);
         Arrays.stream(names).forEach(name -> assertThat(projectNames.contains(name)).isTrue());
     }
+
     @Test
     void withEmptyData_thenReturnEmptyList() {
         List<ZepProject> list = responseParser.retrieveAll(
@@ -100,6 +99,7 @@ class ResponseParserTest {
                 ZepProject.class);
         assertThat(projectOpt).isEmpty();
     }
+
     @Test
     void withEmptyData_thenReturnNullSearch() {
         String anyPage = resourceFileService.getSingleFile("paginator/emptyPageLast.json").get();
@@ -123,6 +123,7 @@ class ResponseParserTest {
 
         assertThat(projectOpt).isEmpty();
     }
+
     @Test
     void withNullData_thenReturnEmptyList() {
         String anyPage = resourceFileService.getSingleFile("paginator/nullPage.json").get();
@@ -157,7 +158,6 @@ class ResponseParserTest {
     @Test
     void withFullPaginatedJsons_thenReturnNullSearch() {
         List<String> responseJsons = resourceFileService.getDirContents("projects");
-
 
 
         when(zepProjectRestClient.getProjects(eq(1)))

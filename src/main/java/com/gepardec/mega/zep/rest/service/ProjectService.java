@@ -3,6 +3,7 @@ package com.gepardec.mega.zep.rest.service;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepProject;
+import com.gepardec.mega.zep.rest.dto.ZepProjectDetail;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.util.ResponseParser;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -33,7 +34,7 @@ public class ProjectService {
 
         try {
             return responseParser.retrieveAll(
-                    page -> zepProjectRestClient.getProjectByStartEnd(startDate,endDate, page),
+                    page -> zepProjectRestClient.getProjectByStartEnd(startDate, endDate, page),
                     ZepProject.class
             );
         } catch (ZepServiceException e) {
@@ -63,11 +64,11 @@ public class ProjectService {
         return Optional.empty();
     }
 
-    public Optional<ZepProject> getProjectById(int projectId) {
+    public Optional<ZepProjectDetail> getProjectById(int projectId) {
         try {
             return responseParser.retrieveSingle(
                     zepProjectRestClient.getProjectById(projectId),
-                    ZepProject.class
+                    ZepProjectDetail.class
             );
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving project + \"%d\" from ZEP: No /data field in response"
@@ -90,8 +91,4 @@ public class ProjectService {
 
         return List.of();
     }
-
-
-
-
 }

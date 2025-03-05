@@ -37,7 +37,7 @@ jobs:
       - name: generate coverage report
         run: |
           export CODACY_PROJECT_TOKEN=${{secrets.CODACY_PROJECT_TOKEN}}
-          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r target/site/jacoco/jacoco.xml
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r target/jacoco-report/jacoco.xml
 
       # build the container image and release it as a package in this repository
       - uses: mr-smithers-excellent/docker-build-push@v6

@@ -1,10 +1,11 @@
 package com.gepardec.mega.zep.rest.service;
 
+import com.gepardec.mega.helper.ResourceFileService;
 import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepBillingType;
 import com.gepardec.mega.zep.rest.dto.ZepProject;
+import com.gepardec.mega.zep.rest.dto.ZepProjectDetail;
 import io.quarkus.test.InjectMock;
-import com.gepardec.mega.helper.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
@@ -18,7 +19,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -53,18 +55,17 @@ class ProjectServiceTest {
                 .thenReturn(Response.ok().entity(resourceFileService.getSingleFile("projects/projectPage1.json").get()).build());
 
 
-
-        when(zepProjectRestClient.getProjectByStartEnd(anyString(), anyString(),eq(2)))
+        when(zepProjectRestClient.getProjectByStartEnd(anyString(), anyString(), eq(2)))
                 .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
-        when(zepProjectRestClient.getProjectByStartEnd(anyString(), anyString(),eq(3)))
+        when(zepProjectRestClient.getProjectByStartEnd(anyString(), anyString(), eq(3)))
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
 
-        when(zepProjectRestClient.getProjectByName(anyString(), anyString(),eq("mega")))
+        when(zepProjectRestClient.getProjectByName(anyString(), anyString(), eq("mega")))
                 .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
-        when(zepProjectRestClient.getProjectByName(anyString(), anyString(),eq("empty")))
+        when(zepProjectRestClient.getProjectByName(anyString(), anyString(), eq("empty")))
                 .thenReturn(Response.ok().entity(responseJsons.get(5)).build());
 
-       when(zepProjectRestClient.getProjectById(12))
+        when(zepProjectRestClient.getProjectById(12))
                 .thenReturn(Response.ok().entity(resourceFileService.getSingleFile("projects/singlePage2.json").get()).build());
 
         when(zepProjectRestClient.getProjectById(eq(1)))
@@ -77,8 +78,8 @@ class ProjectServiceTest {
         ZepProject referenceZepProject = ZepProject.builder()
                 .id(1)
                 .name("MEGA")
-                .startDate(LocalDateTime.of(2020, 12, 1, 0,0,0))
-                .endDate(LocalDateTime.of(2026, 1, 20, 0,0,0))
+                .startDate(LocalDateTime.of(2020, 12, 1, 0, 0, 0))
+                .endDate(LocalDateTime.of(2026, 1, 20, 0, 0, 0))
                 .billingType(new ZepBillingType(1))
                 .customerId(1)
                 .build();
@@ -95,6 +96,7 @@ class ProjectServiceTest {
         Optional<ZepProject> project = projectService.getProjectByName("mega", LocalDate.of(2022, 1, 2));
         assertThat(project.get().id()).isEqualTo(1);
     }
+
     @Test
     void getProjectByName_whenNoProjectOfName() {
         Optional<ZepProject> project = projectService.getProjectByName("empty",
@@ -105,13 +107,13 @@ class ProjectServiceTest {
 
     @Test
     void getProjectById() {
-        Optional<ZepProject> project = projectService.getProjectById(12);
+        Optional<ZepProjectDetail> project = projectService.getProjectById(12);
         assertThat(project.isPresent()).isTrue();
     }
 
     @Test
     void getProjectById_whenNoProjectWithId() {
-        Optional<ZepProject> project = projectService.getProjectById(1);
+        Optional<ZepProjectDetail> project = projectService.getProjectById(1);
         assertThat(project.isEmpty()).isTrue();
     }
 

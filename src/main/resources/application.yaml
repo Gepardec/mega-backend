@@ -105,6 +105,9 @@ quarkus:
       application-type: "service"
       token:
         verify-access-token-with-user-info: false
+  jacoco:
+    excludes:
+      - "**/provantis/**"
 
 mp:
   openapi:

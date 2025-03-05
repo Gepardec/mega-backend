@@ -11,14 +11,14 @@ import org.slf4j.Logger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 @ApplicationScoped
 public class ProjectMapper implements Mapper<Project.Builder, ZepProject> {
 
     @Inject
     Logger logger;
+
     public Project.Builder map(ZepProject zepProject) {
         if (zepProject == null) {
             logger.info("ZEP REST implementation -- While trying to map ZepProject to Project, ZepProject was null");
@@ -26,21 +26,14 @@ public class ProjectMapper implements Mapper<Project.Builder, ZepProject> {
         }
 
         try {
-            LocalDate startDate = zepProject.startDate() == null ?
-                    null : zepProject.startDate().toLocalDate();
+            LocalDate startDate = zepProject.startDate() == null
+                    ? null
+                    : zepProject.startDate().toLocalDate();
             LocalDateTime endDateTime = zepProject.endDate();
-            LocalDate endDate;
-            endDate = endDateTime == null ?
-                    LocalDate.now().plusYears(5).with(TemporalAdjusters.lastDayOfYear())
+            LocalDate endDate = endDateTime == null
+                    ? LocalDate.now().plusYears(5).with(TemporalAdjusters.lastDayOfYear())
                     : endDateTime.toLocalDate();
-
-            List<String> employees = new ArrayList<>();
-            List<String> leads = new ArrayList<>();
-
-            BillabilityPreset billabilityPreset = null;
-            if (BillabilityPreset.byZepId(zepProject.billingType().id()).isPresent()) {
-                billabilityPreset = BillabilityPreset.byZepId(zepProject.billingType().id()).get();
-            }
+            BillabilityPreset billabilityPreset = BillabilityPreset.byZepId(zepProject.billingType().id()).orElse(null);
 
             return Project.builder()
                     .zepId(zepProject.id())
@@ -48,13 +41,11 @@ public class ProjectMapper implements Mapper<Project.Builder, ZepProject> {
                     .startDate(startDate)
                     .endDate(endDate)
                     .billabilityPreset(billabilityPreset)
-                    .employees(employees)
-                    .leads(leads)
-                    .categories(List.of("CONS"));
-        }catch (Exception e){
+                    .employees(Collections.emptyList())
+                    .leads(Collections.emptyList())
+                    .categories(Collections.emptyList());
+        } catch (Exception e) {
             throw new ZepServiceException("While trying to map ZepProject to Project, an error occurred", e);
         }
-
     }
-
 }
