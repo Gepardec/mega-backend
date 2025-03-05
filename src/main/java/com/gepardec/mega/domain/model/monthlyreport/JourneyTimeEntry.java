@@ -11,6 +11,8 @@ public class JourneyTimeEntry implements ProjectEntry {
 
     private final WorkingLocation workingLocation;
 
+    private final Boolean workLocationIsProjectRelevant;
+
     private final JourneyDirection journeyDirection;
 
     private final Vehicle vehicle;
@@ -20,6 +22,7 @@ public class JourneyTimeEntry implements ProjectEntry {
         this.toTime = builder.toTime;
         this.task = builder.task;
         this.workingLocation = builder.workingLocation;
+        this.workLocationIsProjectRelevant = builder.workLocationIsProjectRelevant;
         this.journeyDirection = builder.journeyDirection;
         this.vehicle = builder.vehicle;
     }
@@ -40,6 +43,10 @@ public class JourneyTimeEntry implements ProjectEntry {
         return workingLocation;
     }
 
+    public Boolean getWorkLocationIsProjectRelevant() {
+        return workLocationIsProjectRelevant;
+    }
+
     public JourneyDirection getJourneyDirection() {
         return journeyDirection;
     }
@@ -57,6 +64,7 @@ public class JourneyTimeEntry implements ProjectEntry {
         private LocalDateTime toTime;
         private Task task;
         private WorkingLocation workingLocation;
+        private Boolean workLocationIsProjectRelevant;
         private JourneyDirection journeyDirection;
         private Vehicle vehicle;
 
@@ -85,6 +93,11 @@ public class JourneyTimeEntry implements ProjectEntry {
 
         public Builder workingLocation(WorkingLocation workingLocation) {
             this.workingLocation = workingLocation;
+            return this;
+        }
+
+        public Builder workLocationIsProjectRelevant(Boolean workLocationIsProjectRelevant) {
+            this.workLocationIsProjectRelevant = workLocationIsProjectRelevant;
             return this;
         }
 

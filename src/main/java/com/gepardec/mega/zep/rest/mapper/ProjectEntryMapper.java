@@ -34,17 +34,20 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
             LocalDateTime from = LocalDateTime.of(zepAttendance.date(), zepAttendance.from());
             LocalDateTime to = LocalDateTime.of(zepAttendance.date(), zepAttendance.to());
             WorkingLocation workingLocation = toWorkingLocation(zepAttendance.workLocation());
+            Boolean workLocationIsProjectRelevant = zepAttendance.workLocationIsProjectRelevant();
             String process = Integer.toString(zepAttendance.projectTaskId());
 
             if (Task.isJourney(task)) {
                 JourneyDirection journeyDirection = toJourneyDirection(zepAttendance.directionOfTravel());
                 Vehicle vehicle = toVehicle(zepAttendance.vehicle());
+
                 return JourneyTimeEntry.builder()
                         .fromTime(from)
                         .toTime(to)
                         .task(task)
                         .journeyDirection(journeyDirection)
                         .workingLocation(workingLocation)
+                        .workLocationIsProjectRelevant(workLocationIsProjectRelevant)
                         .vehicle(vehicle)
                         .build();
             } else {
@@ -53,6 +56,7 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
                         .toTime(to)
                         .task(task)
                         .workingLocation(workingLocation)
+                        .workLocationIsProjectRelevant(workLocationIsProjectRelevant)
                         .process(process)
                         .build();
             }

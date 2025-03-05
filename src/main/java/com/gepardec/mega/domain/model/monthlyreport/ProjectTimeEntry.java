@@ -12,6 +12,8 @@ public class ProjectTimeEntry implements ProjectEntry {
 
     private final WorkingLocation workingLocation;
 
+    private final Boolean workLocationIsProjectRelevant;
+
     private final String process;
 
     private ProjectTimeEntry(Builder builder) {
@@ -19,6 +21,7 @@ public class ProjectTimeEntry implements ProjectEntry {
         this.toTime = builder.toTime;
         this.task = builder.task;
         this.workingLocation = builder.workingLocation;
+        this.workLocationIsProjectRelevant = builder.workLocationIsProjectRelevant;
         this.process = builder.process;
     }
 
@@ -46,6 +49,11 @@ public class ProjectTimeEntry implements ProjectEntry {
         return workingLocation;
     }
 
+    @Override
+    public Boolean getWorkLocationIsProjectRelevant() {
+        return workLocationIsProjectRelevant;
+    }
+
     public String getProcess() {
         return process;
     }
@@ -55,6 +63,7 @@ public class ProjectTimeEntry implements ProjectEntry {
         private LocalDateTime toTime;
         private Task task;
         private WorkingLocation workingLocation;
+        private Boolean workLocationIsProjectRelevant;
         private String process;
 
         private Builder() {
@@ -81,6 +90,11 @@ public class ProjectTimeEntry implements ProjectEntry {
 
         public Builder workingLocation(WorkingLocation workingLocation) {
             this.workingLocation = workingLocation;
+            return this;
+        }
+
+        public Builder workLocationIsProjectRelevant(Boolean workLocationIsProjectRelevant) {
+            this.workLocationIsProjectRelevant = workLocationIsProjectRelevant;
             return this;
         }
 

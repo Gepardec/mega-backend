@@ -126,6 +126,7 @@ public class TimeWarningServiceImpl implements TimeWarningService {
                         case BACK_MISSING -> "Rückreise fehlt oder ist nach dem Zeitraum";
                         case TO_MISSING -> "Hinreise fehlt oder ist vor dem Zeitraum";
                         case INVALID_WORKING_LOCATION -> "Ungültiger Arbeitsort während einer Reise";
+                        case LOCATION_RELEVANT_SET -> "Ort projektrelevant darf nur gesetzt sein, wenn die Reisezeit verrechnet wird";
                     };
                 }
                 if(journeyWarning.getDate() != null) {
