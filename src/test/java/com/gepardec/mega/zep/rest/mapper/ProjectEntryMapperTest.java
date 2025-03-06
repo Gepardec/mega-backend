@@ -14,14 +14,27 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.smallrye.common.constraint.Assert.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @QuarkusTest
 class ProjectEntryMapperTest {
 
     @Inject
     ProjectEntryMapper projectEntryMapper;
+
+    @Test
+    public void toWorkLocationIsRelevantInvertsBooleanAndMapsNullToTrue() {
+        ZepAttendance.Builder workLocationIsRelevantNull = generateZepAttendanceBuilder().workLocationIsProjectRelevant(null);
+        ZepAttendance.Builder workLocationIsRelevantTrue = generateZepAttendanceBuilder().workLocationIsProjectRelevant(true);
+        ZepAttendance.Builder workLocationIsRelevantFalse = generateZepAttendanceBuilder().workLocationIsProjectRelevant(false);
+
+        assertTrue(projectEntryMapper.map(workLocationIsRelevantNull.build()).getWorkLocationIsProjectRelevant());
+        assertFalse(projectEntryMapper.map(workLocationIsRelevantTrue.build()).getWorkLocationIsProjectRelevant());
+        assertTrue(projectEntryMapper.map(workLocationIsRelevantFalse.build()).getWorkLocationIsProjectRelevant());
+    }
 
     @Test
     public void mapZepAttendanceToProjectEntry() {
@@ -36,9 +49,9 @@ class ProjectEntryMapperTest {
     public void mapZepAttendanceJourneyTimeEntry() {
         ZepAttendance.Builder zepAttendance = generateZepAttendanceBuilder();
         ZepAttendanceDirectionOfTravel zepAttendanceDirectionOfTravel = ZepAttendanceDirectionOfTravel.builder()
-                                                                                                    .id("0")
-                                                                                                    .name("return")
-                                                                                                    .build();
+                .id("0")
+                .name("return")
+                .build();
         zepAttendance.activity("reisen");
         zepAttendance.workLocation("A");
         zepAttendance.directionOfTravel(zepAttendanceDirectionOfTravel);
@@ -98,9 +111,9 @@ class ProjectEntryMapperTest {
                 .duration(1.0)
                 .billable(true)
                 .workLocation("A")
-                .workLocationIsProjectRelevant(false)
                 .activity("bearbeiten")
                 .vehicle(null)
+                .workLocationIsProjectRelevant(true)
                 .directionOfTravel(null);
     }
 
@@ -110,6 +123,7 @@ class ProjectEntryMapperTest {
                 .toTime(LocalDateTime.of(2019, 1, 2, 10, 15))
                 .task(Task.BEARBEITEN)
                 .workingLocation(WorkingLocation.A)
+                .workLocationIsProjectRelevant(false)
                 .process("30")
                 .build();
     }
@@ -122,6 +136,7 @@ class ProjectEntryMapperTest {
                 .journeyDirection(JourneyDirection.TO)
                 .workingLocation(WorkingLocation.A)
                 .vehicle(Vehicle.CAR_INACTIVE)
+                .workLocationIsProjectRelevant(false)
                 .build();
     }
     private JourneyTimeEntry generateJourneyTimeWithOtherValuesEntry(){
@@ -133,11 +148,9 @@ class ProjectEntryMapperTest {
                 .workingLocation(WorkingLocation.A)
                 .vehicle(Vehicle.OTHER_INACTIVE)
                 .workingLocation(WorkingLocation.MAIN)
+                .workLocationIsProjectRelevant(false)
                 .build();
     }
-
-
-
 
 
 
