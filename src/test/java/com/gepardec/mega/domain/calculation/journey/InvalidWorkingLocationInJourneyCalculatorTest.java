@@ -38,6 +38,7 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
                 .toTime(LocalDateTime.of(2020, 1, 7, endHour, endMinute))
                 .task(Task.BEARBEITEN)
                 .workingLocation(workingLocation)
+                .workLocationIsProjectRelevant(false)
                 .build();
     }
 
@@ -53,6 +54,7 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
                 .workingLocation(workingLocation)
                 .journeyDirection(direction)
                 .vehicle(Vehicle.OTHER_INACTIVE)
+                .workLocationIsProjectRelevant(false)
                 .build();
     }
 

@@ -82,6 +82,7 @@ class WarningCalculatorsManagerTest {
                 .task(Task.BEARBEITEN)
                 .workingLocation(workingLocation)
                 .process(process)
+                .workLocationIsProjectRelevant(false)
                 .build();
     }
 
@@ -100,6 +101,7 @@ class WarningCalculatorsManagerTest {
                 .journeyDirection(journeyDirection)
                 .workingLocation(workingLocation)
                 .vehicle(vehicle)
+                .workLocationIsProjectRelevant(false)
                 .build();
     }
 
