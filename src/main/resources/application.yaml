@@ -113,13 +113,12 @@ mp:
   openapi:
     filter: com.gepardec.mega.application.filter.MegaCronSecuritySchemaOASFilter
 
-# disables the DefaultResponseExceptionMapper of the microprofile resteasy client
-microprofile:
-  rest:
-    client:
-      disable:
-        default:
-          mapper: true
+# disables response sanitizing which caused payload to be removed from response in case of an error.
+# Personio includes a payload in error responses. When the status code is e.g. 404 we need to read the response for accurate error handling.
+resteasy:
+  original:
+    webapplicationexception:
+      behavior: true
 
 mega:
   info:

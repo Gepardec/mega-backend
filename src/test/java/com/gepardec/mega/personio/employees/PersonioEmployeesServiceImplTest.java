@@ -9,6 +9,8 @@ import com.gepardec.mega.personio.employees.absenceBalance.AbsenceBalanceRespons
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -76,7 +78,8 @@ class PersonioEmployeesServiceImplTest {
         employeesResponse.setSuccess(false);
         employeesResponse.setError(createErrorResponse());
 
-        when(personioEmployeesClient.getByEmail(anyString())).thenReturn(employeesResponse);
+        when(personioEmployeesClient.getByEmail(anyString()))
+                .thenThrow(new WebApplicationException("Test", Response.status(404).entity(employeesResponse).build()));
 
         //WHEN
         var result = personioEmployeesService.getPersonioEmployeeByEmail("mega.test@gepardec.com");
