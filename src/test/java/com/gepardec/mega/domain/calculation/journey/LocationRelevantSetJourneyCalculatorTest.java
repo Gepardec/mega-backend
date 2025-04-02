@@ -53,9 +53,9 @@ class LocationRelevantSetJourneyCalculatorTest {
 
     @Test
     void whenProjectEntryWithWorkLocationIsProjectRelevantIsTrue_thenWarning() {
-        JourneyTimeEntry journeyTimeEntryOne = journeyTimeEntryFor(7, 8, JourneyDirection.TO,true);
-        ProjectEntry projectEntryTwo = projectTimeEntryFor(8, 9,true);
-        JourneyTimeEntry journeyTimeEntryThree = journeyTimeEntryFor(9, 10, JourneyDirection.BACK,true);
+        JourneyTimeEntry journeyTimeEntryOne = journeyTimeEntryFor(7, 8, JourneyDirection.TO,null);
+        ProjectEntry projectEntryTwo = projectTimeEntryFor(8, 9,null);
+        JourneyTimeEntry journeyTimeEntryThree = journeyTimeEntryFor(9, 10, JourneyDirection.BACK,null);
 
         List<JourneyWarning> warnings = calculator.calculate(List.of(journeyTimeEntryOne, projectEntryTwo, journeyTimeEntryThree));
 
@@ -66,9 +66,9 @@ class LocationRelevantSetJourneyCalculatorTest {
 
     @Test
     void whenProjectEntryWithWorkLocationIsProjectRelevantIsFalse_thenNoWarning() {
-        JourneyTimeEntry journeyTimeEntryOne = journeyTimeEntryFor(7, 8, JourneyDirection.TO,false);
-        ProjectEntry projectEntryTwo = projectTimeEntryFor(8, 9,false);
-        JourneyTimeEntry journeyTimeEntryThree = journeyTimeEntryFor(9, 10, JourneyDirection.BACK,false);
+        JourneyTimeEntry journeyTimeEntryOne = journeyTimeEntryFor(7, 8, JourneyDirection.TO,true);
+        ProjectEntry projectEntryTwo = projectTimeEntryFor(8, 9,true);
+        JourneyTimeEntry journeyTimeEntryThree = journeyTimeEntryFor(9, 10, JourneyDirection.BACK,true);
 
         List<JourneyWarning> warnings = calculator.calculate(List.of(journeyTimeEntryOne, projectEntryTwo, journeyTimeEntryThree));
 
