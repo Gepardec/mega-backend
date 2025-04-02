@@ -81,6 +81,7 @@ class WarningCalculatorsManagerTest {
                 .toTime(LocalDateTime.of(2020, 1, endDay, endHour, endMinute))
                 .task(Task.BEARBEITEN)
                 .workingLocation(workingLocation)
+                .workLocationIsProjectRelevant(false)
                 .process(process)
                 .build();
     }
@@ -99,6 +100,7 @@ class WarningCalculatorsManagerTest {
                 .task(Task.REISEN)
                 .journeyDirection(journeyDirection)
                 .workingLocation(workingLocation)
+                .workLocationIsProjectRelevant(false)
                 .vehicle(vehicle)
                 .build();
     }
@@ -552,6 +554,7 @@ class WarningCalculatorsManagerTest {
                 .toTime(LocalDateTime.of(2020, 12, day, 12, 0))
                 .task(Task.BEARBEITEN)
                 .workingLocation(WorkingLocation.MAIN)
+                .workLocationIsProjectRelevant(false)
                 .build();
     }
 }
