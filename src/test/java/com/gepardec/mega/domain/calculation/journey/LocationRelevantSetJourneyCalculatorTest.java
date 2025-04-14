@@ -18,43 +18,11 @@ class LocationRelevantSetJourneyCalculatorTest {
         calculator = new LocationRelevantSetJourneyCalculator();
     }
 
-    private ProjectTimeEntry projectTimeEntryFor(final int startHour, final int endHour, Boolean workLocationIsProjectRelevant) {
-        return projectTimeEntryFor(startHour, 0, endHour, 0, workLocationIsProjectRelevant);
-    }
-
-    private ProjectTimeEntry projectTimeEntryFor(final int startHour, final int startMinute, final int endHour, final int endMinute,
-                                                 Boolean workLocationIsProjectRelevant) {
-        return ProjectTimeEntry.builder()
-                .fromTime(LocalDateTime.of(2020, 1, 7, startHour, startMinute))
-                .toTime(LocalDateTime.of(2020, 1, 7, endHour, endMinute))
-                .task(Task.BEARBEITEN)
-                .workingLocation(WorkingLocation.A)
-                .workLocationIsProjectRelevant(workLocationIsProjectRelevant)
-                .build();
-    }
-
-    private JourneyTimeEntry journeyTimeEntryFor(final int startHour, final int endHour, final JourneyDirection direction,
-                                                 Boolean workLocationIsProjectRelevant) {
-        return journeyTimeEntryFor(startHour, 0, endHour, 0, direction, workLocationIsProjectRelevant);
-    }
-
-    private JourneyTimeEntry journeyTimeEntryFor(final int startHour, final int startMinute, final int endHour, final int endMinute,
-                                                 final JourneyDirection direction, Boolean workLocationIsProjectRelevant) {
-        return JourneyTimeEntry.builder()
-                .fromTime(LocalDateTime.of(2020, 1, 7, startHour, startMinute))
-                .toTime(LocalDateTime.of(2020, 1, 7, endHour, endMinute))
-                .task(Task.REISEN)
-                .workingLocation(WorkingLocation.A)
-                .journeyDirection(direction)
-                .vehicle(Vehicle.OTHER_INACTIVE)
-                .workLocationIsProjectRelevant(workLocationIsProjectRelevant)
-                .build();
-    }
 
     @Test
-    void whenProjectEntryWithWorkLocationIsProjectRelevantIsTrue_thenWarning() {
+    void calculate_whenProjectEntryWithWorkLocationIsProjectRelevantIsTrue_thenWarning() {
         JourneyTimeEntry journeyTimeEntryOne = journeyTimeEntryFor(7, 8, JourneyDirection.TO,true);
-        ProjectEntry projectEntryTwo = projectTimeEntryFor(8, 9,true);
+        ProjectEntry projectEntryTwo = projectTimeEntryFor(true);
         JourneyTimeEntry journeyTimeEntryThree = journeyTimeEntryFor(9, 10, JourneyDirection.BACK,true);
 
         List<JourneyWarning> warnings = calculator.calculate(List.of(journeyTimeEntryOne, projectEntryTwo, journeyTimeEntryThree));
@@ -65,13 +33,37 @@ class LocationRelevantSetJourneyCalculatorTest {
     }
 
     @Test
-    void whenProjectEntryWithWorkLocationIsProjectRelevantIsFalse_thenNoWarning() {
+    void calculate_whenProjectEntryWithWorkLocationIsProjectRelevantIsFalse_thenNoWarning() {
         JourneyTimeEntry journeyTimeEntryOne = journeyTimeEntryFor(7, 8, JourneyDirection.TO,false);
-        ProjectEntry projectEntryTwo = projectTimeEntryFor(8, 9,false);
+        ProjectEntry projectEntryTwo = projectTimeEntryFor(false);
         JourneyTimeEntry journeyTimeEntryThree = journeyTimeEntryFor(9, 10, JourneyDirection.BACK,false);
 
         List<JourneyWarning> warnings = calculator.calculate(List.of(journeyTimeEntryOne, projectEntryTwo, journeyTimeEntryThree));
 
         assertThat(warnings).isEmpty();
+    }
+
+    private ProjectTimeEntry projectTimeEntryFor(Boolean workLocationIsProjectRelevant) {
+        return ProjectTimeEntry.builder()
+                .fromTime(LocalDateTime.of(2020, 1, 7, 8, 0))
+                .toTime(LocalDateTime.of(2020, 1, 7, 9, 0))
+                .task(Task.BEARBEITEN)
+                .workingLocation(WorkingLocation.A)
+                .workLocationIsProjectRelevant(workLocationIsProjectRelevant)
+                .build();
+    }
+
+
+    private JourneyTimeEntry journeyTimeEntryFor(final int startHour, final int endHour,
+                                                 final JourneyDirection direction, Boolean workLocationIsProjectRelevant) {
+        return JourneyTimeEntry.builder()
+                .fromTime(LocalDateTime.of(2020, 1, 7, startHour, 0))
+                .toTime(LocalDateTime.of(2020, 1, 7, endHour, 0))
+                .task(Task.REISEN)
+                .workingLocation(WorkingLocation.A)
+                .journeyDirection(direction)
+                .vehicle(Vehicle.OTHER_INACTIVE)
+                .workLocationIsProjectRelevant(workLocationIsProjectRelevant)
+                .build();
     }
 }

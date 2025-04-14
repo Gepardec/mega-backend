@@ -4,9 +4,7 @@ import com.gepardec.mega.domain.calculation.WarningCalculationStrategy;
 import com.gepardec.mega.domain.model.monthlyreport.*;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 public class LocationRelevantSetJourneyCalculator implements WarningCalculationStrategy<JourneyWarning> {
 
@@ -15,19 +13,18 @@ public class LocationRelevantSetJourneyCalculator implements WarningCalculationS
         final List<JourneyWarning> warnings = new ArrayList<>();
 
         for (ProjectEntry projectEntry : projectEntries) {
-            if (projectEntry.getWorkLocationIsProjectRelevant()) {
-                if (warnings.stream().noneMatch(e -> e.getDate().equals(projectEntry.getDate()))) {
-                    warnings.add(createJourneyWarningWithEnumType(projectEntry, JourneyWarningType.LOCATION_RELEVANT_SET));
+            if (projectEntry.getWorkLocationIsProjectRelevant() &&
+                    warnings.stream().noneMatch(e -> e.getDate().equals(projectEntry.getDate()))) {
+                    warnings.add(createJourneyWarning(projectEntry));
                 }
-            }
         }
         return warnings;
     }
 
-    private JourneyWarning createJourneyWarningWithEnumType(ProjectEntry projectEntry, JourneyWarningType warning) {
+    private JourneyWarning createJourneyWarning(ProjectEntry projectEntry) {
         JourneyWarning newJourneyWarning = new JourneyWarning();
         newJourneyWarning.setDate(projectEntry.getDate());
-        newJourneyWarning.getWarningTypes().add(warning);
+        newJourneyWarning.getWarningTypes().add(JourneyWarningType.LOCATION_RELEVANT_SET);
         return newJourneyWarning;
     }
 }
