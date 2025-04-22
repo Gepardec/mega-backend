@@ -3,33 +3,71 @@ package com.gepardec.mega.zep.rest.mapper;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.apache.commons.lang3.Range;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
-import java.util.EnumMap;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.Optional;
 
 @ApplicationScoped
-public class RegularWorkingHoursMapMapper implements Mapper<Map<DayOfWeek, Duration>, ZepRegularWorkingTimes> {
+public class RegularWorkingHoursMapMapper implements Mapper<Map<Range<LocalDate>,Map<DayOfWeek, Duration>>, List<ZepRegularWorkingTimes>> {
 
     @Override
-    public Map<DayOfWeek, Duration> map(ZepRegularWorkingTimes zepRegularWorkingTimes) {
+    public Map<Range<LocalDate>,Map<DayOfWeek, Duration>> map(List<ZepRegularWorkingTimes> zepRegularWorkingTimes) {
 
-        try {
-            Map<DayOfWeek, Duration> regularWorkingHours = new EnumMap<>(DayOfWeek.class);
+        Map<Range<LocalDate>,Map<DayOfWeek, Duration>> result = new HashMap<>();
 
-            if (zepRegularWorkingTimes != null) {
-                regularWorkingHours.put(DayOfWeek.MONDAY, Duration.ofHours(zepRegularWorkingTimes.monday() == null ? 0 : zepRegularWorkingTimes.monday().longValue()));
-                regularWorkingHours.put(DayOfWeek.TUESDAY, Duration.ofHours(zepRegularWorkingTimes.tuesday() == null ? 0 : zepRegularWorkingTimes.tuesday().longValue()));
-                regularWorkingHours.put(DayOfWeek.WEDNESDAY, Duration.ofHours(zepRegularWorkingTimes.wednesday() == null ? 0 : zepRegularWorkingTimes.wednesday().longValue()));
-                regularWorkingHours.put(DayOfWeek.THURSDAY, Duration.ofHours(zepRegularWorkingTimes.thursday() == null ? 0 : zepRegularWorkingTimes.thursday().longValue()));
-                regularWorkingHours.put(DayOfWeek.FRIDAY, Duration.ofHours(zepRegularWorkingTimes.friday() == null ? 0 : zepRegularWorkingTimes.friday().longValue()));
-                regularWorkingHours.put(DayOfWeek.SATURDAY, Duration.ofHours(zepRegularWorkingTimes.saturday() == null ? 0 : zepRegularWorkingTimes.saturday().longValue()));
-                regularWorkingHours.put(DayOfWeek.SUNDAY, Duration.ofHours(zepRegularWorkingTimes.sunday() == null ? 0 : zepRegularWorkingTimes.sunday().longValue()));
+        if(zepRegularWorkingTimes==null) {
+            return result;
+        }
+
+        try{
+            for (int i = 0; i < zepRegularWorkingTimes.size();i++) {
+
+                ZepRegularWorkingTimes zepRegularWorkingTime = zepRegularWorkingTimes.get(i);
+
+                Map<DayOfWeek, Duration> regularWorkingHours = createRegularWorkingHours(zepRegularWorkingTime);
+
+                Range<LocalDate> dateRange = Range.of(getStartDate(zepRegularWorkingTime), getEndDate(zepRegularWorkingTimes,i));
+                result.put(dateRange, regularWorkingHours);
             }
-            return regularWorkingHours;
-        } catch (Exception e) {
+            return result;
+
+        }catch (Exception e){
             throw new ZepServiceException("While trying to map ZepRegularWorkingTimes to Map<DayOfWeek, Duration>, an error occurred", e);
         }
+    }
+
+    private Map<DayOfWeek, Duration> createRegularWorkingHours(ZepRegularWorkingTimes zepRegularWorkingTime) {
+        Map<DayOfWeek, Duration> regularWorkingHours = new HashMap<>();
+        regularWorkingHours.put(DayOfWeek.MONDAY, toDuration(zepRegularWorkingTime.monday()));
+        regularWorkingHours.put(DayOfWeek.TUESDAY, toDuration(zepRegularWorkingTime.tuesday()));
+        regularWorkingHours.put(DayOfWeek.WEDNESDAY, toDuration(zepRegularWorkingTime.wednesday()));
+        regularWorkingHours.put(DayOfWeek.THURSDAY, toDuration(zepRegularWorkingTime.thursday()));
+        regularWorkingHours.put(DayOfWeek.FRIDAY, toDuration(zepRegularWorkingTime.friday()));
+        regularWorkingHours.put(DayOfWeek.SATURDAY, toDuration(zepRegularWorkingTime.saturday()));
+        regularWorkingHours.put(DayOfWeek.SUNDAY, toDuration(zepRegularWorkingTime.sunday()));
+        return regularWorkingHours;
+    }
+
+    private Duration toDuration(Double hours) {
+        return Duration.ofHours(hours == null ? 0 : hours.longValue());
+    }
+
+    private LocalDate getStartDate(ZepRegularWorkingTimes zepRegularWorkingTime) {
+        return Optional.ofNullable(zepRegularWorkingTime.startDate())
+                .map(LocalDateTime::toLocalDate)
+                .orElse(LocalDate.EPOCH);
+    }
+
+    private LocalDate getEndDate(List<ZepRegularWorkingTimes> zepRegularWorkingTimes, int index) {
+        return (index + 1 < zepRegularWorkingTimes.size())
+                ? zepRegularWorkingTimes.get(index + 1).startDate().toLocalDate().minusDays(1)
+                : LocalDate.now();
     }
 }
