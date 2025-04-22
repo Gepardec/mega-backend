@@ -25,7 +25,7 @@ public class RegularWorkingTimesService {
     @Inject
     ResponseParser responseParser;
 
-    public Optional<ZepRegularWorkingTimes> getRegularWorkingTimesByUsername(String username) {
+    public Optional<List<ZepRegularWorkingTimes>> getRegularWorkingTimesByUsername(String username) {
         try  {
             List<ZepRegularWorkingTimes> zepRegularWorkingTimes = responseParser.retrieveAll(
                     page -> zepEmployeeRestClient.getRegularWorkingTimesByUsername(username, page),
@@ -34,9 +34,7 @@ public class RegularWorkingTimesService {
             if (zepRegularWorkingTimes.isEmpty()) {
                 return Optional.empty();
             }
-            return zepRegularWorkingTimes.stream()
-                    .min(Comparator.comparing(ZepRegularWorkingTimes::startDate,
-                            Comparator.nullsLast(Comparator.reverseOrder())));
+            return Optional.of(zepRegularWorkingTimes.stream().toList());
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving regular working times for employee \"%s\" from ZEP: No /data field in response"
                     .formatted(username), e);

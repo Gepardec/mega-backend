@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.EnumMap;
 
 @ApplicationScoped
 public class EmployeeMapper {
@@ -93,7 +94,7 @@ public class EmployeeMapper {
     }
 
     private Range<LocalDate> mapBeschaeftigungszeitTypeToRange(BeschaeftigungszeitType bt) {
-        return Range.between(LocalDate.parse(bt.getStartdatum()), LocalDate.parse(bt.getEnddatum()), LocalDate::compareTo);
+        return Range.of(LocalDate.parse(bt.getStartdatum()), LocalDate.parse(bt.getEnddatum()), LocalDate::compareTo);
     }
 
     private String getCorrectReleaseDate(MitarbeiterType mitarbeiterType) {
@@ -114,27 +115,48 @@ public class EmployeeMapper {
         return mitarbeiterType.getFreigabedatum();
     }
 
-    private Map<DayOfWeek, Duration> getRegularWorkinghours(RegelarbeitszeitListeTypeTs regelarbeitszeitListeTypeTs) {
+    private Map<Range<LocalDate>,Map<DayOfWeek, Duration>> getRegularWorkinghours(RegelarbeitszeitListeTypeTs regelarbeitszeitListeTypeTs) {
         if (regelarbeitszeitListeTypeTs == null) {
             return new HashMap<>();
         }
 
         List<RegelarbeitszeitType> regelarbeitszeitList = regelarbeitszeitListeTypeTs.getRegelarbeitszeit();
-        RegelarbeitszeitType regelarbeitszeitType = regelarbeitszeitList.get(regelarbeitszeitList.size() - 1);
 
-        return new HashMap<>(Map.ofEntries(
-                Map.entry(DayOfWeek.MONDAY, toDuration((long) (regelarbeitszeitType.getMontag() * 60))),
-                Map.entry(DayOfWeek.TUESDAY, toDuration((long) (regelarbeitszeitType.getDienstag() * 60))),
-                Map.entry(DayOfWeek.WEDNESDAY, toDuration((long) (regelarbeitszeitType.getMittwoch() * 60))),
-                Map.entry(DayOfWeek.THURSDAY, toDuration((long) (regelarbeitszeitType.getDonnerstag() * 60))),
-                Map.entry(DayOfWeek.FRIDAY, toDuration((long) (regelarbeitszeitType.getFreitag() * 60))),
-                Map.entry(DayOfWeek.SATURDAY, toDuration(0L)),
-                Map.entry(DayOfWeek.SUNDAY, toDuration(0L))
-        ));
+        Map<Range<LocalDate>, Map<DayOfWeek, Duration>> result = new HashMap<>();
+
+        for (int i = 0; i < regelarbeitszeitList.size(); i++) {
+            RegelarbeitszeitType regelarbeitszeit = regelarbeitszeitList.get(i);
+
+            Map<DayOfWeek, Duration> regularWorkingHours = new EnumMap<>(DayOfWeek.class);
+            regularWorkingHours.put(DayOfWeek.MONDAY, toDuration((long) (regelarbeitszeit.getMontag() * 60)));
+            regularWorkingHours.put(DayOfWeek.TUESDAY, toDuration((long) (regelarbeitszeit.getDienstag() * 60)));
+            regularWorkingHours.put(DayOfWeek.WEDNESDAY, toDuration((long) (regelarbeitszeit.getMittwoch() * 60)));
+            regularWorkingHours.put(DayOfWeek.THURSDAY, toDuration((long) (regelarbeitszeit.getDonnerstag() * 60)));
+            regularWorkingHours.put(DayOfWeek.FRIDAY, toDuration((long) (regelarbeitszeit.getFreitag() * 60)));
+            regularWorkingHours.put(DayOfWeek.SATURDAY, toDuration(0L));
+            regularWorkingHours.put(DayOfWeek.SUNDAY, toDuration(0L));
+
+            Range<LocalDate> dateRange = Range.of(getStartDate(regelarbeitszeit), getEndDate(regelarbeitszeitList,i));
+
+            result.put(dateRange, regularWorkingHours);
+        }
+        return result;
     }
 
     private static Duration toDuration(long regelarbeitszeitStunden) {
         return Duration.ofMinutes(Math.max(0L, regelarbeitszeitStunden));
+    }
+
+    private LocalDate getStartDate(RegelarbeitszeitType regelarbeitszeitType) {
+        return Optional.ofNullable(regelarbeitszeitType.getStartdatum())
+                .map(LocalDate::parse)
+                .orElse(LocalDate.EPOCH);
+    }
+
+    private LocalDate getEndDate(List<RegelarbeitszeitType> regelarbeitszeitList, int index) {
+        return (index + 1 < regelarbeitszeitList.size())
+                ? LocalDate.parse(regelarbeitszeitList.get(index + 1).getStartdatum()).minusDays(1)
+                : LocalDate.now();
     }
 
     private boolean hasEmployeeAndActiveEmployment(final MitarbeiterType employee) {
