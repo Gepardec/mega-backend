@@ -8,6 +8,7 @@ import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.impl.Rest;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +34,20 @@ class ZepRestIntegrationTest {
     @Test
     void fetchValidEmployee_thenReturnEmployee() {
 
+        Map<DayOfWeek, Duration> regularWorkingHours = Map.ofEntries(
+                Map.entry(DayOfWeek.MONDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.WEDNESDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.THURSDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
+
+        Range<LocalDate> range = Range.of(LocalDate.of(2021,2,28), LocalDate.now());
+
+        Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHoursWithRange =
+                Map.of(range, regularWorkingHours);
+
         Employee expected = Employee.builder()
                 .userId("001-hwirnsberger")
                 .email(null)
@@ -43,13 +58,7 @@ class ZepRestIntegrationTest {
                 .releaseDate("2021-02-28")
                 .workDescription("06")
                 .language(null)
-                .regularWorkingHours(Map.of(DayOfWeek.MONDAY, Duration.ofHours(6),
-                        DayOfWeek.TUESDAY, Duration.ofHours(6),
-                        DayOfWeek.WEDNESDAY, Duration.ofHours(6),
-                        DayOfWeek.THURSDAY, Duration.ofHours(6),
-                        DayOfWeek.FRIDAY, Duration.ofHours(6),
-                        DayOfWeek.SATURDAY, Duration.ofHours(0),
-                        DayOfWeek.SUNDAY, Duration.ofHours(0)))
+                .regularWorkingHours(regularWorkingHoursWithRange)
                 .active(true)
                 .exitDate(null)
                 .build();

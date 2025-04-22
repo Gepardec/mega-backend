@@ -44,7 +44,7 @@ class RegularWorkingTimesServiceTest {
     Logger logger;
 
     @Test
-    void getRegularWorkingTimesByUsername_receiveValidWorkingTime_then_returnValidZepWorkingTime() {
+    void getRegularWorkingTimesByUsername_receiveValidWorkingTime_then_returnValidZepWorkingTime(){
 
         ZepRegularWorkingTimes regularWorkingTimes = ZepRegularWorkingTimes.builder()
                 .startDate(null)
@@ -63,8 +63,8 @@ class RegularWorkingTimesServiceTest {
         when(responseParser.retrieveAll(any(), eq(ZepRegularWorkingTimes.class)))
                 .thenReturn(regularWorkingTimesList);
 
-
-        ZepRegularWorkingTimes actual = regularWorkingTimesService.getRegularWorkingTimesByUsername("001-duser").get();
+        List<ZepRegularWorkingTimes> allZepRegularWorkingTimes = regularWorkingTimesService.getRegularWorkingTimesByUsername("001-duser").get();
+        ZepRegularWorkingTimes actual = allZepRegularWorkingTimes.get(allZepRegularWorkingTimes.size() - 1);
 
         assertThat(actual.thursday()).isEqualTo(8.0);
     }
@@ -75,7 +75,7 @@ class RegularWorkingTimesServiceTest {
         when(responseParser.retrieveAll(any(), eq(ZepRegularWorkingTimes.class)))
                 .thenThrow(new ZepServiceException("Service unavailable"));
 
-        Optional<ZepRegularWorkingTimes> result = regularWorkingTimesService.getRegularWorkingTimesByUsername("007-jbond");
+        Optional<List<ZepRegularWorkingTimes>> result = regularWorkingTimesService.getRegularWorkingTimesByUsername("007-jbond");
 
         assertThat(result).isEmpty();
         verify(logger).warn(anyString(), any(ZepServiceException.class));
@@ -86,7 +86,7 @@ class RegularWorkingTimesServiceTest {
         when(responseParser.retrieveAll(any(), eq(ZepRegularWorkingTimes.class)))
                 .thenReturn(List.of());
 
-        Optional<ZepRegularWorkingTimes> result = regularWorkingTimesService.getRegularWorkingTimesByUsername("007-jbond");
+        Optional<List<ZepRegularWorkingTimes>> result = regularWorkingTimesService.getRegularWorkingTimesByUsername("007-jbond");
 
         assertThat(result).isEmpty();
     }

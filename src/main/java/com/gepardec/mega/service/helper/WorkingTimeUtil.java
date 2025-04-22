@@ -56,12 +56,13 @@ public class WorkingTimeUtil {
     }
 
     public double getOvertimeForEmployee(Employee employee,
-                                         List<ProjectTime> billableEntries,
+                                         List<ProjectEntry> projectEntries,
                                          List<AbsenceTime> fehlzeitTypeList,
                                          YearMonth payrollMonth) {
         if (employee.getRegularWorkingHours() == null) {
             return 0.0;
         }
+
 
         // In case there are absences that do not affect the current month, filter them out
         fehlzeitTypeList = fehlzeitTypeList.stream()
@@ -78,14 +79,22 @@ public class WorkingTimeUtil {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         var monthlyRegularWorkingHours = presentDaysCountMap.entrySet().stream()
-                .map(entry -> employee.getRegularWorkingHours().get(entry.getKey()).multipliedBy(entry.getValue()))
+                .map(entry -> getEmployeeRegularWorkingHoursByMonth(employee, date).get(entry.getKey()).multipliedBy(entry.getValue()))
                 .reduce(Duration::plus)
                 .orElse(Duration.ZERO);
 
-        Duration totalWorkingHours = getWorkingTimesForEmployee(billableEntries, employee, $ -> true);
+        Duration totalWorkingHours = getWorkingTimes(projectEntries);
         Duration overtime = totalWorkingHours.minus(monthlyRegularWorkingHours);
 
         return (double) overtime.toMinutes() / 60;
+    }
+
+    public Map<DayOfWeek, Duration> getEmployeeRegularWorkingHoursByMonth(Employee employee, LocalDate date) {
+
+       return employee.getRegularWorkingHours().entrySet().stream()
+                .filter(entry -> entry.getKey().contains(date))
+                .map(Map.Entry::getValue)
+                .findFirst().get();
     }
 
     public Duration getDurationFromTimeString(String timeString) {

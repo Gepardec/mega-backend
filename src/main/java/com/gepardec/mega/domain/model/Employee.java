@@ -1,5 +1,7 @@
 package com.gepardec.mega.domain.model;
 
+import org.apache.commons.lang3.Range;
+
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -29,7 +31,7 @@ public class Employee {
 
     private final String language;
 
-    private Map<DayOfWeek, Duration> regularWorkingHours;
+    private Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHours;
 
     private boolean active;
 
@@ -98,7 +100,7 @@ public class Employee {
         return language;
     }
 
-    public Map<DayOfWeek, Duration> getRegularWorkingHours() {
+    public Map<Range<LocalDate>,Map<DayOfWeek, Duration>> getRegularWorkingHours() {
         return regularWorkingHours;
     }
 
@@ -110,7 +112,7 @@ public class Employee {
         this.active = active;
     }
 
-    public void setRegularWorkingHours(Map<DayOfWeek, Duration> regularWorkingHours) {
+    public void setRegularWorkingHours(Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHours) {
         this.regularWorkingHours = regularWorkingHours;
     }
 
@@ -155,7 +157,7 @@ public class Employee {
         private String releaseDate;
         private String workDescription;
         private String language;
-        private Map<DayOfWeek, Duration> regularWorkingHours;
+        private Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHours;
         private boolean active;
         private LocalDate exitDate;
         private LocalDate firstDayCurrentEmploymentPeriod;
@@ -217,7 +219,7 @@ public class Employee {
             return this;
         }
 
-        public Builder regularWorkingHours(Map<DayOfWeek, Duration> regularWorkingHours) {
+        public Builder regularWorkingHours(Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHours) {
             this.regularWorkingHours = regularWorkingHours;
             return this;
         }

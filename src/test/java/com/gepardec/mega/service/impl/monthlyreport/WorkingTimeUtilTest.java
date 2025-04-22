@@ -14,6 +14,7 @@ import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -79,7 +80,7 @@ class WorkingTimeUtilTest {
     void getOvertimeForEmployee_RETURN_POSITIVE_OVERTIME() {
         Employee employee = createEmployee().build();
 
-        List<ProjectTime> projectTimes = returnNormalDayProjectTimes(5);
+        List<ProjectEntry> projectTimes = returnNormalDayProjectEntries(5);
         List<AbsenceTime> fehlzeitTypes = List.of();
 
         double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, fehlzeitTypes, YearMonth.of(2023, 11));
@@ -90,7 +91,7 @@ class WorkingTimeUtilTest {
     void getOvertimeForEmployee_RETURN_NEGATIVE_OVERTIME() {
         Employee employee = createEmployee().build();
 
-        List<ProjectTime> projectTimes = returnNormalDayProjectTimes(3);
+        List<ProjectEntry> projectTimes = returnNormalDayProjectEntries(3);
         List<AbsenceTime> fehlzeitTypes = List.of();
 
         double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, fehlzeitTypes, YearMonth.of(2023, 11));
@@ -101,7 +102,7 @@ class WorkingTimeUtilTest {
     void getOvertimeForEmployee_WITH_ABSENCE() {
         Employee employee = createEmployee().build();
 
-        List<ProjectTime> projectTimes = returnNormalDayProjectTimes(3);
+        List<ProjectEntry> projectTimes = returnNormalDayProjectEntries(3);
         List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
 
         double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, fehlzeitTypes, YearMonth.of(2023, 11));
@@ -118,9 +119,15 @@ class WorkingTimeUtilTest {
                 Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(0)),
                 Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
                 Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
-        Employee employee = createEmployee().regularWorkingHours(regularWorkingHours).build();
 
-        List<ProjectTime> projectTimes = returnNormalDayProjectTimes(3);
+        Range<LocalDate> range = Range.of(LocalDate.MIN, LocalDate.now());
+
+        Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHoursWithRange =
+                Map.of(range, regularWorkingHours);
+
+        Employee employee = createEmployee().regularWorkingHours(regularWorkingHoursWithRange).build();
+
+        List<ProjectEntry> projectTimes = returnNormalDayProjectEntries(3);
         List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
 
         double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(
@@ -204,6 +211,21 @@ class WorkingTimeUtilTest {
                 .lastname("Mustermann")
                 .roles(Set.of(Role.EMPLOYEE))
                 .build();
+        Map<DayOfWeek, Duration> regularWorkingHours = Map.ofEntries(
+                Map.entry(DayOfWeek.MONDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.WEDNESDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.THURSDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
+
+        Range<LocalDate> range = Range.of(LocalDate.MIN, LocalDate.now());
+
+        Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHoursWithRange =
+                Map.of(range, regularWorkingHours);
+
+
         return Employee.builder()
                 .email(user.getEmail())
                 .firstname(user.getFirstname())
@@ -212,15 +234,32 @@ class WorkingTimeUtilTest {
                 .userId(user.getUserId())
                 .releaseDate("2020-01-01")
                 .active(true)
-                .regularWorkingHours(Map.ofEntries(
-                        Map.entry(DayOfWeek.MONDAY, Duration.ofHours(8)),
-                        Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(0)),
-                        Map.entry(DayOfWeek.WEDNESDAY, Duration.ofHours(0)),
-                        Map.entry(DayOfWeek.THURSDAY, Duration.ofHours(0)),
-                        Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(0)),
-                        Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
-                        Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)))
-                );
+                .regularWorkingHours(regularWorkingHoursWithRange);
+    }
+
+    private List<ProjectEntry> returnNormalDayProjectEntries(int times){
+        List<ProjectEntry> projectTimes = new ArrayList<>();
+        for (int i = 1; i <= times; i++) {
+
+            ProjectEntry projektzeitType = ProjectTimeEntry.builder()
+                .fromTime(LocalDateTime.of(2023, 11, times, 8, 0))
+                .toTime(LocalDateTime.of(2023, 11, times, 12, 0))
+                .task(Task.BEARBEITEN)
+                .workingLocation(WorkingLocation.MAIN)
+                .process("1")
+                .build();
+        ProjectEntry projektzeitTypeBilllable = ProjectTimeEntry.builder()
+                .fromTime(LocalDateTime.of(2023, 11, times, 13, 0))
+                .toTime(LocalDateTime.of(2023, 11, times, 17, 0))
+                .task(Task.BEARBEITEN)
+                .workingLocation(WorkingLocation.MAIN)
+                .process("1")
+                .build();
+
+            projectTimes.add(projektzeitTypeBilllable);
+            projectTimes.add(projektzeitType);
+        }
+        return projectTimes;
     }
 
     private List<ProjectEntry> getProjectentries() {

@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -268,14 +269,19 @@ class ZepRestServiceImplTest {
                 .thenReturn(createZepEmploymentPeriodList());
 
         when(regularWorkingTimesService.getRegularWorkingTimesByUsername(anyString()))
-                .thenReturn(Optional.of(regularWorkingTimes));
+                .thenReturn(Optional.of(List.of(regularWorkingTimes)));
 
 
         Employee actual = zepRestService.getEmployee("007-jbond");
 
+        Map<DayOfWeek, Duration> regularWorkingHours = actual.getRegularWorkingHours().entrySet().stream()
+                .filter(entry -> entry.getKey().contains(LocalDate.now()))
+                .map(Map.Entry::getValue)
+                .findFirst().get();
+
         assertThat(actual).isNotNull();
         assertThat(actual.isActive()).isTrue();
-        assertThat(actual.getRegularWorkingHours().get(DayOfWeek.MONDAY)).isEqualTo(Duration.ofHours(8));
+        assertThat(regularWorkingHours.get(DayOfWeek.MONDAY)).isEqualTo(Duration.ofHours(8));
     }
 
     @Test

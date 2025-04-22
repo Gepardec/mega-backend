@@ -10,11 +10,14 @@ import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
@@ -78,11 +81,16 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
     private List<LocalDate> getRegularWorkingHours0Dates(Employee employee, int year, int month) {
         List<LocalDate> allNonRegularWorkingHourDates = new ArrayList<>();
 
+        Map<DayOfWeek, Duration> currentRegularWorkingHours = employee.getRegularWorkingHours().entrySet().stream()
+                .filter(entry -> entry.getKey().contains(LocalDate.of(year, month, 1)))
+                .map(Map.Entry::getValue)
+                .findFirst().get();
+
         if (employee.getRegularWorkingHours() == null) {
             return allNonRegularWorkingHourDates;
         }
 
-        employee.getRegularWorkingHours().forEach((dayOfWeek, regularHours) -> {
+        currentRegularWorkingHours.forEach((dayOfWeek, regularHours) -> {
             if (regularHours.isZero()) {
                 LocalDate upCountingDay = LocalDate.of(year, month, 1).with(TemporalAdjusters.firstInMonth(dayOfWeek));
 
