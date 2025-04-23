@@ -32,6 +32,7 @@ import com.gepardec.mega.zep.rest.mapper.ProjectEntryMapper;
 import com.gepardec.mega.zep.rest.mapper.ProjectMapper;
 import com.gepardec.mega.zep.rest.mapper.ProjectTimeMapper;
 import com.gepardec.mega.zep.rest.mapper.RegularWorkingHoursMapMapper;
+import com.gepardec.mega.zep.rest.mapper.FirstDayCurrentPeriodMapper;
 import com.gepardec.mega.zep.rest.service.AbsenceService;
 import com.gepardec.mega.zep.rest.service.AttendanceService;
 import com.gepardec.mega.zep.rest.service.EmployeeService;
@@ -110,6 +111,9 @@ public class ZepRestServiceImpl implements ZepService {
     ActiveMapper activeEmployeeMapper;
 
     @Inject
+    FirstDayCurrentPeriodMapper firstDayCurrentPeriodMapper;
+
+    @Inject
     Logger logger;
 
     @Override
@@ -132,6 +136,7 @@ public class ZepRestServiceImpl implements ZepService {
 
         Employee employee = employeeMapper.map(zepEmployee.get());
         employee.setActive(active);
+        employee.setFirstDayCurrentEmploymentPeriod(firstDayCurrentPeriodMapper.map(periods));
         zepRegularWorkingTimesOpt.ifPresent(rwt -> {
             employee.setRegularWorkingHours(regularWorkingTimesMapper.map(rwt));
         });
@@ -149,6 +154,7 @@ public class ZepRestServiceImpl implements ZepService {
                     var periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employee.getUserId());
                     boolean active = activeEmployeeMapper.map(periods);
                     employee.setActive(active);
+                    employee.setFirstDayCurrentEmploymentPeriod(firstDayCurrentPeriodMapper.map(periods));
                 });
 
         return employees;

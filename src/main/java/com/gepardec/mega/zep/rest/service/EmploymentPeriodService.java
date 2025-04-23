@@ -9,6 +9,8 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 @ApplicationScoped

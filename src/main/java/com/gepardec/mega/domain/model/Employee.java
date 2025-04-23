@@ -33,7 +33,7 @@ public class Employee {
 
     private boolean active;
 
-    private final LocalDate firstDayCurrentEmploymentPeriod;
+    private LocalDate firstDayCurrentEmploymentPeriod;
     /**
      * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,
      * wenn Mitarbeiter inaktiv ist.
@@ -125,6 +125,9 @@ public class Employee {
         return firstDayCurrentEmploymentPeriod;
     }
 
+    public void setFirstDayCurrentEmploymentPeriod(LocalDate firstDayCurrentEmploymentPeriod) {
+        this.firstDayCurrentEmploymentPeriod = firstDayCurrentEmploymentPeriod;
+    }
 
 
     @Override

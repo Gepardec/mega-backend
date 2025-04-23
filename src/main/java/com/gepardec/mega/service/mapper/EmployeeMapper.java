@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Comparator;
 
 @ApplicationScoped
 public class EmployeeMapper {
@@ -87,8 +88,7 @@ public class EmployeeMapper {
                 .flatMap(Collection::stream)
                 .map(BeschaeftigungszeitType::getStartdatum)
                 .map(DateUtils::parseDate)
-                .filter(startDate -> !startDate.isAfter(LocalDate.now()))
-                .findFirst()
+                .filter(startDate -> !startDate.isAfter(LocalDate.now())).max(Comparator.naturalOrder())
                 .orElse(null);
     }
 
