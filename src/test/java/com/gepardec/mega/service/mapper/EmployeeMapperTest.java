@@ -198,6 +198,7 @@ class EmployeeMapperTest {
         assertThat(actual.getWorkDescription()).isEqualTo(employee.getPreisgruppe());
         assertThat(actual.getReleaseDate()).isEqualTo(employee.getFreigabedatum());
         assertThat(actual.isActive()).isTrue();
+        assertThat(actual.getFirstDayCurrentEmploymentPeriod()).isEqualTo(activeEmployment.getStartdatum());
     }
 
     @Nested
@@ -285,6 +286,46 @@ class EmployeeMapperTest {
 
             assertThat(mapped).isNotNull();
             assertThat(mapped).isEmpty();
+        }
+
+        @Test
+        void map_whenEmployeeWithMultipleEmploymentPeriodsThenMapTheMostRecentStartDate() {
+            // Given
+            List<Pair<LocalDate, LocalDate>> dateRangeInput = List.of(
+                    Pair.of(
+                            _2023_01_01,
+                            _2023_01_25
+                    ),
+                    Pair.of(
+                            _2010_01_01,
+                            null
+                    )
+            );
+
+            BeschaeftigungszeitListeType beschaeftigungszeitListe = getBeschaeftigungszeitListeMock(dateRangeInput);
+
+            final MitarbeiterType employee = createEmployee(beschaeftigungszeitListe);
+
+            // When
+            LocalDate  startDate = mapper.getStartDateFromCurrentEmploymentPeriod(beschaeftigungszeitListe);
+
+            // Then
+            assertThat(startDate).isEqualTo(_2023_01_01);
+        }
+
+
+        @Test
+        void map_whenEmployeeWithoutEmploymentPeriodsThenMostRecentStartDateNull() {
+
+            BeschaeftigungszeitListeType beschaeftigungszeitListe = new BeschaeftigungszeitListeType();
+
+            final MitarbeiterType employee = createEmployee(beschaeftigungszeitListe);
+
+            // When
+            LocalDate startDate = mapper.getStartDateFromCurrentEmploymentPeriod(beschaeftigungszeitListe);
+
+            // Then
+            assertThat(startDate).isNull();
         }
 
         private MitarbeiterType createEmployee(BeschaeftigungszeitListeType beschaeftigungszeitListe) {

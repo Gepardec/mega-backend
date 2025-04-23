@@ -15,7 +15,6 @@ import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
@@ -58,7 +57,10 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
                 .map(ProjectEntry::getDate)
                 .toList();
 
+        LocalDate firstWorkingDay = employee.getFirstDayCurrentEmploymentPeriod();
+
         return businessDays.stream()
+                .filter( date -> dateIsAfterFirstWorkingDay(date, firstWorkingDay))
                 .filter(date -> !compensatoryDays.contains(date))
                 .filter(date -> !vacationDays.contains(date))
                 .filter(date -> !sicknessDays.contains(date))
@@ -76,6 +78,10 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
                 .map(this::createTimeWarning)
                 .distinct()
                 .toList();
+    }
+
+    private boolean dateIsAfterFirstWorkingDay(LocalDate dateInQuestion, LocalDate firstWorkingDay) {
+        return dateInQuestion.isEqual(firstWorkingDay) || dateInQuestion.isAfter(firstWorkingDay);
     }
 
     private List<LocalDate> getBusinessDaysOfMonth(int year, int month) {

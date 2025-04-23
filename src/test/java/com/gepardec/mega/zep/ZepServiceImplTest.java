@@ -27,6 +27,8 @@ import de.provantis.zep.ResponseHeaderType;
 import de.provantis.zep.UpdateMitarbeiterRequestType;
 import de.provantis.zep.UpdateMitarbeiterResponseType;
 import de.provantis.zep.ZepSoapPortType;
+import de.provantis.zep.BeschaeftigungszeitType;
+import de.provantis.zep.BeschaeftigungszeitListeType;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -260,8 +262,18 @@ class ZepServiceImplTest {
         mitarbeiter.setAnrede("Herr");
         mitarbeiter.setPreisgruppe("ARCHITEKT");
         mitarbeiter.setFreigabedatum("2020-01-01");
+        mitarbeiter.setBeschaeftigungszeitListe(createBeschaeftigungszeitListe());
 
         return mitarbeiter;
+    }
+
+    private BeschaeftigungszeitListeType createBeschaeftigungszeitListe() {
+        var beschaeftigungszeitTyp = new BeschaeftigungszeitType();
+        beschaeftigungszeitTyp.setStartdatum("2021-02-01");
+        var beschaeftigungszeitListeTyp = new BeschaeftigungszeitListeType();
+        beschaeftigungszeitListeTyp.getBeschaeftigungszeit().add(beschaeftigungszeitTyp);
+
+        return beschaeftigungszeitListeTyp;
     }
 
     private BelegType createBelegType(final int belegNr) {

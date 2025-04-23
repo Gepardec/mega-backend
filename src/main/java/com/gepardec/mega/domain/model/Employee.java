@@ -33,6 +33,7 @@ public class Employee {
 
     private boolean active;
 
+    private final LocalDate firstDayCurrentEmploymentPeriod;
     /**
      * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,
      * wenn Mitarbeiter inaktiv ist.
@@ -52,6 +53,7 @@ public class Employee {
         this.regularWorkingHours = builder.regularWorkingHours;
         this.active = builder.active;
         this.exitDate = builder.exitDate;
+        this.firstDayCurrentEmploymentPeriod = builder.firstDayCurrentEmploymentPeriod;
     }
 
     public static Builder builder() {
@@ -119,6 +121,10 @@ public class Employee {
         this.exitDate = exitDate;
     }
 
+    public LocalDate getFirstDayCurrentEmploymentPeriod() {
+        return firstDayCurrentEmploymentPeriod;
+    }
+
 
 
     @Override
@@ -148,6 +154,7 @@ public class Employee {
         private Map<DayOfWeek, Duration> regularWorkingHours;
         private boolean active;
         private LocalDate exitDate;
+        private LocalDate firstDayCurrentEmploymentPeriod;
 
         private Builder() {
         }
@@ -188,6 +195,11 @@ public class Employee {
 
         public Builder releaseDate(String releaseDate) {
             this.releaseDate = releaseDate;
+            return this;
+        }
+
+        public Builder firstDayCurrentEmploymentPeriod(LocalDate firstDayCurrentEmploymentPeriod) {
+            this.firstDayCurrentEmploymentPeriod = firstDayCurrentEmploymentPeriod;
             return this;
         }
 
