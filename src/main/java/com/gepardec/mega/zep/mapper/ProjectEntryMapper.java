@@ -7,7 +7,6 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
-
 import de.provantis.zep.ProjektzeitType;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -15,7 +14,6 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.gepardec.mega.domain.utils.DateUtils.parseDateTime;
 

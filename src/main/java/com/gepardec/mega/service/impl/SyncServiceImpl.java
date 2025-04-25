@@ -3,7 +3,6 @@ package com.gepardec.mega.service.impl;
 import com.gepardec.mega.application.configuration.ApplicationConfig;
 import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.Step;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.UserRepository;
@@ -20,7 +19,6 @@ import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.api.SyncService;
 import com.gepardec.mega.service.mapper.SyncServiceMapper;
 import com.gepardec.mega.zep.ZepService;
-import de.provantis.zep.FehlzeitType;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -100,9 +98,9 @@ public class SyncServiceImpl implements SyncService {
     public List<EmployeeDto> syncUpdateEmployeesWithoutTimeBookingsAndAbsentWholeMonth() {
         //to avoid having a look at external employees filter
         List<Employee> activeAndInternalEmployees = employeeService.getAllActiveEmployees()
-                                                                   .stream()
-                                                                   .filter(e -> !e.getUserId().startsWith("e"))
-                                                                   .toList();
+                .stream()
+                .filter(e -> !e.getUserId().startsWith("e"))
+                .toList();
         List<EmployeeDto> updatedEmployees = new ArrayList<>();
         List<Employee> absentEmployees = new ArrayList<>();
 
@@ -131,7 +129,7 @@ public class SyncServiceImpl implements SyncService {
             }
 
             // only add employee who was absent the whole month
-            if(allAbsent){
+            if (allAbsent) {
                 absentEmployees.add(employee);
             }
         }
@@ -140,8 +138,8 @@ public class SyncServiceImpl implements SyncService {
         absentEmployees.forEach(employee -> {
             StepEntry entry = stepEntryService.findStepEntryForEmployeeAtStep(1L, employee.getEmail(), employee.getEmail(), DateUtils.formatDate(firstOfPreviousMonth));
             // if IN_PROGRESS OR already DONE than do not update reason
-            if(entry.getState().equals(EmployeeState.OPEN)) {
-                stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L,  firstOfPreviousMonth, lastOfPreviousMonth);
+            if (entry.getState().equals(EmployeeState.OPEN)) {
+                stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L, firstOfPreviousMonth, lastOfPreviousMonth);
                 stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, 1L, firstOfPreviousMonth, lastOfPreviousMonth, "Aufgrund von Abwesenheiten wurde der Monat automatisch bestätigt.");
                 updatedEmployees.add(employeeMapper.mapToDto(zepService.getEmployee(employee.getUserId())));
             }
@@ -152,10 +150,10 @@ public class SyncServiceImpl implements SyncService {
     }
 
     private boolean isAbsent(LocalDate day, List<AbsenceTime> absences) {
-        for(var absence : absences){
+        for (var absence : absences) {
             LocalDate startDate = absence.fromDate();
             LocalDate endDate = absence.toDate();
-            if(day.equals(startDate) ||
+            if (day.equals(startDate) ||
                     day.equals(endDate) ||
                     (day.isAfter(startDate) && day.isBefore(endDate))) {
                 return true;

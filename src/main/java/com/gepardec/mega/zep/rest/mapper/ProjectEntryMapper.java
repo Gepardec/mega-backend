@@ -6,14 +6,12 @@ import com.gepardec.mega.zep.rest.dto.ZepAttendance;
 import com.gepardec.mega.zep.rest.dto.ZepAttendanceDirectionOfTravel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry, ZepAttendance> {
@@ -28,7 +26,7 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
             return null;
         }
 
-        try{
+        try {
 
             Task task = toTask(zepAttendance.activity());
             LocalDateTime from = LocalDateTime.of(zepAttendance.date(), zepAttendance.from());
@@ -60,11 +58,9 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
                         .process(process)
                         .build();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new ZepServiceException("While trying to map ZepAttendance to ProjectEntry, an error occurred", e);
         }
-
-    
     }
 
     @Override
@@ -94,7 +90,7 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
     }
 
     private JourneyDirection toJourneyDirection(final ZepAttendanceDirectionOfTravel direction) {
-        if(direction == null) {
+        if (direction == null) {
             return JourneyDirection.TO;
         }
         return JourneyDirection.fromString(direction.id())

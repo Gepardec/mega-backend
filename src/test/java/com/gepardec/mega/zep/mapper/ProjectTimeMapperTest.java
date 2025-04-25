@@ -1,18 +1,15 @@
 package com.gepardec.mega.zep.mapper;
 
 import com.gepardec.mega.domain.model.ProjectTime;
+import de.provantis.zep.ProjektzeitType;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
 
-import de.provantis.zep.ProjektzeitType;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ProjectTimeMapperTest {
-
-
 
     @Test
     void whenNull_thenReturnsNull() {
@@ -56,6 +53,12 @@ class ProjectTimeMapperTest {
     void whenEmptyList_thenReturnsEmptyList() {
         assertThat(ProjectTimeMapper.mapList(List.of())).isEmpty();
     }
+
+    @Test
+    void whenListIsNull_thenReturnNull() {
+        assertThat(ProjectTimeMapper.mapList(null)).isNull();
+    }
+
     @Test
     void whenList_thenReturnList() {
         ProjektzeitType pzt = new ProjektzeitType();

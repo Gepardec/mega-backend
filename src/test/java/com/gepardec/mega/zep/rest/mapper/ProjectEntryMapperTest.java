@@ -1,12 +1,20 @@
 package com.gepardec.mega.zep.rest.mapper;
 
-import com.gepardec.mega.domain.model.monthlyreport.*;
+import com.gepardec.mega.domain.model.monthlyreport.JourneyDirection;
+import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
+import com.gepardec.mega.domain.model.monthlyreport.Task;
+import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
+import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
 import com.gepardec.mega.zep.rest.dto.ZepAttendanceDirectionOfTravel;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,7 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.verify;
 
 @QuarkusTest
 class ProjectEntryMapperTest {
@@ -23,8 +32,11 @@ class ProjectEntryMapperTest {
     @Inject
     ProjectEntryMapper projectEntryMapper;
 
+    @InjectMock
+    Logger logger;
+
     @Test
-    public void mapZepAttendanceToProjectEntry() {
+    void mapZepAttendanceToProjectEntry() {
         ZepAttendance.Builder zepAttendance = generateZepAttendanceBuilder();
         ProjectEntry mappedProjectEntry = projectEntryMapper.map(zepAttendance.build());
         ProjectEntry expectedProjectEntry = generateProjectTimeEntry();
@@ -33,12 +45,12 @@ class ProjectEntryMapperTest {
     }
 
     @Test
-    public void mapZepAttendanceJourneyTimeEntry() {
+    void mapZepAttendanceJourneyTimeEntry() {
         ZepAttendance.Builder zepAttendance = generateZepAttendanceBuilder();
         ZepAttendanceDirectionOfTravel zepAttendanceDirectionOfTravel = ZepAttendanceDirectionOfTravel.builder()
-                                                                                                    .id("0")
-                                                                                                    .name("return")
-                                                                                                    .build();
+                .id("0")
+                .name("return")
+                .build();
         zepAttendance.activity("reisen");
         zepAttendance.workLocation("A");
         zepAttendance.directionOfTravel(zepAttendanceDirectionOfTravel);
@@ -51,7 +63,7 @@ class ProjectEntryMapperTest {
     }
 
     @Test
-    public void mapZepAttendanceToProjectEntryWithNullValues_JourneyTimeEntry() {
+    void mapZepAttendanceToProjectEntryWithNullValues_JourneyTimeEntry() {
         ZepAttendance.Builder zepAttendance = generateZepAttendanceBuilder();
         zepAttendance.activity("reisen");
         zepAttendance.workLocation(null);
@@ -64,17 +76,26 @@ class ProjectEntryMapperTest {
     }
 
     @Test
-    public void mapZepAttendanceToProjectEntryWithNullValues_IllegalArgumentException_toTask() {
-        ZepAttendance.Builder zepAttendance = generateZepAttendanceBuilder();
-        zepAttendance.activity("nasebohren");
-
-        assertThrows(ZepServiceException.class, () -> {
-            ProjectEntry mappedProjectEntry = projectEntryMapper.map(zepAttendance.build());
-        });
+    void map_whenZepAttendanceIsNull_thenReturnNullAndLogMessage() {
+        assertThat(projectEntryMapper.map(null)).isNull();
+        verify(logger).info("ZEP REST implementation -- While trying to map zepAttendance to ProjectEntry, zepAttendance was null");
     }
 
     @Test
-    public void mapListToProjektEntry_thenReturnList(){
+    void mapList_whenZepAttendanceListIsNull_thenReturnNull() {
+        assertThat(projectEntryMapper.mapList(null)).isNull();
+    }
+
+    @Test
+    void mapZepAttendanceToProjectEntryWithNullValues_IllegalArgumentException_toTask() {
+        ZepAttendance.Builder zepAttendance = generateZepAttendanceBuilder();
+        zepAttendance.activity("nasebohren");
+
+        assertThatExceptionOfType(ZepServiceException.class).isThrownBy(() -> projectEntryMapper.map(zepAttendance.build()));
+    }
+
+    @Test
+    void mapListToProjektEntry_thenReturnList() {
         List<ZepAttendance> Zeplist = new ArrayList<ZepAttendance>();
         Zeplist.add(generateZepAttendanceBuilder().build());
         Zeplist.add(generateZepAttendanceBuilder().build());
@@ -85,13 +106,12 @@ class ProjectEntryMapperTest {
         assertThat(mappedProjectEntryList.get(1)).isNotNull();
     }
 
-
-    private ZepAttendance.Builder generateZepAttendanceBuilder(){
+    private ZepAttendance.Builder generateZepAttendanceBuilder() {
         return ZepAttendance.builder()
                 .id(1)
                 .date(LocalDate.of(2019, 1, 2))
                 .from(LocalTime.of(9, 15))
-                .to(LocalTime.of(10,15))
+                .to(LocalTime.of(10, 15))
                 .employeeId("001")
                 .projectId(1)
                 .projectTaskId(30)
@@ -104,7 +124,7 @@ class ProjectEntryMapperTest {
                 .directionOfTravel(null);
     }
 
-    private ProjectTimeEntry generateProjectTimeEntry(){
+    private ProjectTimeEntry generateProjectTimeEntry() {
         return ProjectTimeEntry.builder()
                 .fromTime(LocalDateTime.of(2019, 1, 2, 9, 15))
                 .toTime(LocalDateTime.of(2019, 1, 2, 10, 15))
@@ -115,7 +135,7 @@ class ProjectEntryMapperTest {
                 .build();
     }
 
-    private JourneyTimeEntry generateJourneyTimeEntry(){
+    private JourneyTimeEntry generateJourneyTimeEntry() {
         return JourneyTimeEntry.builder()
                 .fromTime(LocalDateTime.of(2019, 1, 2, 9, 15))
                 .toTime(LocalDateTime.of(2019, 1, 2, 10, 15))
@@ -126,7 +146,8 @@ class ProjectEntryMapperTest {
                 .vehicle(Vehicle.CAR_INACTIVE)
                 .build();
     }
-    private JourneyTimeEntry generateJourneyTimeWithOtherValuesEntry(){
+
+    private JourneyTimeEntry generateJourneyTimeWithOtherValuesEntry() {
         return JourneyTimeEntry.builder()
                 .fromTime(LocalDateTime.of(2019, 1, 2, 9, 15))
                 .toTime(LocalDateTime.of(2019, 1, 2, 10, 15))
@@ -138,10 +159,4 @@ class ProjectEntryMapperTest {
                 .workLocationIsProjectRelevant(false)
                 .build();
     }
-
-
-
-
-
-
 }

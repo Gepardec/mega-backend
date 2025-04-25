@@ -1,10 +1,10 @@
 package com.gepardec.mega.zep.rest.service;
 
+import com.gepardec.mega.helper.ResourceFileService;
 import com.gepardec.mega.zep.rest.client.ZepAttendanceRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
 import com.gepardec.mega.zep.util.ResponseParser;
 import io.quarkus.test.InjectMock;
-import com.gepardec.mega.helper.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
@@ -46,7 +45,7 @@ class AttendanceServiceTest {
     ResourceFileService resourceFileService;
 
     @BeforeEach
-    public void init() {
+    void init() {
         List<String> users = List.of("001-duser", "002-tuser");
         users.forEach(this::createMockForUser);
         createMockForUserAndProject("003-tuser");
@@ -66,75 +65,76 @@ class AttendanceServiceTest {
     }
 
     private void createMockForUserAndProject(String user) {
-            List<String> responseJson = resourceFileService.getDirContents("/attendances/" + user);
+        List<String> responseJson = resourceFileService.getDirContents("/attendances/" + user);
 
-            IntStream.range(0, responseJson.size()).forEach(
-                    i -> {
-                        when(zepAttendanceRestClient
-                                .getAttendanceForUserAndProject(anyString(), anyString(), eq(user), eq(1), eq(i + 1)))
-                                .thenReturn(Response.ok().entity(responseJson.get(i)).build());
+        IntStream.range(0, responseJson.size()).forEach(
+                i -> {
+                    when(zepAttendanceRestClient
+                            .getAttendanceForUserAndProject(anyString(), anyString(), eq(user), eq(1), eq(i + 1)))
+                            .thenReturn(Response.ok().entity(responseJson.get(i)).build());
 //                        System.out.println(responseJson.get(i));
-                    }
-            );
-        }
+                }
+        );
+    }
 
     @Test
-    public void getAttendances() {
+    void getAttendances() {
         List<ZepAttendance> attendancesReference = List.of(
-            ZepAttendance.builder()
-                .id(1)
-                .date(LocalDate.of(2018,12,11))
-                .from(LocalTime.of(8,0,0))
-                .to(LocalTime.of(9,15,0))
-                .employeeId("001-duser")
-                .projectId(1)
-                .projectTaskId(1)
-                .duration(1.25)
-                .billable(true)
-                .workLocation(null)
-                .workLocationIsProjectRelevant(false)
-                .activity("besprechen")
-                .vehicle(null)
-                .directionOfTravel(null)
-                .build(),
-            ZepAttendance.builder()
-                .id(2)
-                .date(LocalDate.of(2015,2,11))
-                .from(LocalTime.of(9,0,0))
-                .to(LocalTime.of(13,45,0))
-                .employeeId("001-duser")
-                .projectId(1)
-                .projectTaskId(2)
-                .duration(4.75)
-                .billable(true)
-                .workLocation(null)
-                .workLocationIsProjectRelevant(true)
-                .activity("bearbeiten")
-                .vehicle(null)
-                .directionOfTravel(null)
-                .build()
+                ZepAttendance.builder()
+                        .id(1)
+                        .date(LocalDate.of(2018, 12, 11))
+                        .from(LocalTime.of(8, 0, 0))
+                        .to(LocalTime.of(9, 15, 0))
+                        .employeeId("001-duser")
+                        .projectId(1)
+                        .projectTaskId(1)
+                        .duration(1.25)
+                        .billable(true)
+                        .workLocation(null)
+                        .workLocationIsProjectRelevant(false)
+                        .activity("besprechen")
+                        .vehicle(null)
+                        .directionOfTravel(null)
+                        .build(),
+                ZepAttendance.builder()
+                        .id(2)
+                        .date(LocalDate.of(2015, 2, 11))
+                        .from(LocalTime.of(9, 0, 0))
+                        .to(LocalTime.of(13, 45, 0))
+                        .employeeId("001-duser")
+                        .projectId(1)
+                        .projectTaskId(2)
+                        .duration(4.75)
+                        .billable(true)
+                        .workLocation(null)
+                        .workLocationIsProjectRelevant(true)
+                        .activity("bearbeiten")
+                        .vehicle(null)
+                        .directionOfTravel(null)
+                        .build()
         );
 
-        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.of(2018,12,11));
+        List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.of(2018, 12, 11));
         assertThat(List.of(attendances.get(0), attendances.get(1))).usingRecursiveComparison().isEqualTo(attendancesReference);
     }
 
     @Test
-    public void getAttendancesPaginated() {
+    void getAttendancesPaginated() {
         List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.now());
         IntStream.range(0, 3).forEach(
                 i -> assertThat(attendances.get(i).id()).isEqualTo(i + 1)
         );
     }
+
     @Test
-    public void notBillableAttendances_thenReturnNull() {
+    void notBillableAttendances_thenReturnNull() {
         List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", LocalDate.now());
         assertThat(attendances.size()).isEqualTo(3);
     }
 
     @Test
     @Disabled
-    public void extractCorrectMonthFromGivenDate_thenCallPaginator() {
+    void extractCorrectMonthFromGivenDate_thenCallPaginator() {
         try (AutoCloseable ignored = MockitoAnnotations.openMocks(this)) {
             ArgumentCaptor<String> startDateCaptor = ArgumentCaptor.forClass(String.class);
             ArgumentCaptor<String> endDateCaptor = ArgumentCaptor.forClass(String.class);
@@ -166,13 +166,10 @@ class AttendanceServiceTest {
         }
     }
 
-        @Test
-    public void filterAttendanceResponse_thenReturnProjectEntriesWithGivenID(){
+    @Test
+    void filterAttendanceResponse_thenReturnProjectEntriesWithGivenID() {
         List<ZepAttendance> result = attendanceService.getAttendanceForUserProjectAndMonth("003-tuser", LocalDate.of(2021, 12, 10), 1);
 
         assertThat(result.size()).isEqualTo(2);
     }
-
-
-
 }

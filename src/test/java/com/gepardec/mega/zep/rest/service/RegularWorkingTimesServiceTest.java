@@ -1,17 +1,26 @@
 package com.gepardec.mega.zep.rest.service;
 
+import com.gepardec.mega.helper.ResourceFileService;
+import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
+import com.gepardec.mega.zep.util.ResponseParser;
 import io.quarkus.test.InjectMock;
-import com.gepardec.mega.helper.ResourceFileService;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -28,8 +37,14 @@ class RegularWorkingTimesServiceTest {
     @Inject
     ResourceFileService resourceFileService;
 
+    @InjectMock
+    ResponseParser responseParser;
+
+    @InjectMock
+    Logger logger;
+
     @Test
-    void getRegularWorkingTimesByUsername_receiveValidWorkingTime_then_returnValidZepWorkingTime(){
+    void getRegularWorkingTimesByUsername_receiveValidWorkingTime_then_returnValidZepWorkingTime() {
 
         ZepRegularWorkingTimes regularWorkingTimes = ZepRegularWorkingTimes.builder()
                 .startDate(null)
@@ -42,20 +57,41 @@ class RegularWorkingTimesServiceTest {
                 .sunday(null)
                 .build();
 
-        resourceFileService.getSingleFile("/regularWorkingTimes/regularWorkingTimes001duser.json").ifPresent(json -> {
-            Response response = Response.ok().entity(json).build();
-            when(zepEmployeeRestClient.getRegularWorkingTimesByUsername("001-duser", 1)).thenReturn(response);
-        });
+        List<ZepRegularWorkingTimes> regularWorkingTimesList = new ArrayList<>();
+        regularWorkingTimesList.add(regularWorkingTimes);
 
+        when(responseParser.retrieveAll(any(), eq(ZepRegularWorkingTimes.class)))
+                .thenReturn(regularWorkingTimesList);
 
 
         ZepRegularWorkingTimes actual = regularWorkingTimesService.getRegularWorkingTimesByUsername("001-duser").get();
 
-        assertThat(actual).usingRecursiveComparison().isEqualTo(regularWorkingTimes);
+        assertThat(actual.thursday()).isEqualTo(8.0);
     }
 
+
+    @Test
+    void getRegularWorkingTimesByUsername_whenZepServiceExceptionThrown_thenLogError() {
+        when(responseParser.retrieveAll(any(), eq(ZepRegularWorkingTimes.class)))
+                .thenThrow(new ZepServiceException("Service unavailable"));
+
+        Optional<ZepRegularWorkingTimes> result = regularWorkingTimesService.getRegularWorkingTimesByUsername("007-jbond");
+
+        assertThat(result).isEmpty();
+        verify(logger).warn(anyString(), any(ZepServiceException.class));
+    }
+
+    @Test
+    void getRegularWorkingTimesByUsername_whenNoWorkingTimesPresent_thenLogError() {
+        when(responseParser.retrieveAll(any(), eq(ZepRegularWorkingTimes.class)))
+                .thenReturn(List.of());
+
+        Optional<ZepRegularWorkingTimes> result = regularWorkingTimesService.getRegularWorkingTimesByUsername("007-jbond");
+
+        assertThat(result).isEmpty();
+    }
 //    @Test
-//    public void getRegularWorkingTimesByUsername_receiveEmptyDataArray_then_ThrowException(){
+//    void getRegularWorkingTimesByUsername_receiveEmptyDataArray_then_ThrowException(){
 //        String responseBody = "{\"data\": []}";
 //
 //        Response response = Response.ok().entity(responseBody).build();
@@ -70,7 +106,7 @@ class RegularWorkingTimesServiceTest {
 //    }
 //
 //    @Test
-//    public void getRegularWorkingTimesByUsername_receive404_then_ThrowException(){
+//    void getRegularWorkingTimesByUsername_receive404_then_ThrowException(){
 //
 //        Response response = Response.status(404).build();
 //
@@ -84,7 +120,7 @@ class RegularWorkingTimesServiceTest {
 //    }
 //
 //    @Test
-//    public void getRegularWorkingTimesByUsername_receive401_then_ThrowException(){
+//    void getRegularWorkingTimesByUsername_receive401_then_ThrowException(){
 //
 //        Response response = Response.status(401).build();
 //

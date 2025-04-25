@@ -15,7 +15,6 @@ import java.util.Collections;
 
 @ApplicationScoped
 public class ProjectMapper implements Mapper<Project.Builder, ZepProject> {
-
     @Inject
     Logger logger;
 

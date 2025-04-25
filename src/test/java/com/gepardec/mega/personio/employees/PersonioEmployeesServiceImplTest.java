@@ -111,6 +111,23 @@ class PersonioEmployeesServiceImplTest {
     }
 
     @Test
+    void getAvailableVacationDaysForEmployeeByEmail_whenNoDaysAvailable_thenReturnZero() {
+        //GIVEN
+        var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
+        employeesResponse.setSuccess(true);
+        employeesResponse.setData(List.of());
+
+        when(personioEmployeesClient.getByEmail(anyString()))
+                .thenReturn(employeesResponse);
+
+        //WHEN
+        var result = personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail("mega.test@gepardec.com");
+
+        //THEN
+        assertThat(result).isZero();
+    }
+
+    @Test
     void getAvailableVacationDaysForEmployeeByEmail_whenNotSuccessful_thenReturnZero() {
         //GIVEN
         var employeesResponse = new BaseResponse<List<EmployeesResponse>>();
