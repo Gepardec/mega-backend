@@ -15,6 +15,8 @@ public interface ProjectEntry {
 
     WorkingLocation getWorkingLocation();
 
+    Boolean getWorkLocationIsProjectRelevant();
+
     default double getDurationInHours() {
         return DateUtils.calcDiffInHours(getFromTime(), getToTime());
     }

@@ -3,6 +3,7 @@ package com.gepardec.mega.service.helper;
 import com.gepardec.mega.domain.calculation.WarningCalculationStrategy;
 import com.gepardec.mega.domain.calculation.journey.InvalidJourneyCalculator;
 import com.gepardec.mega.domain.calculation.journey.InvalidWorkingLocationInJourneyCalculator;
+import com.gepardec.mega.domain.calculation.journey.LocationRelevantSetJourneyCalculator;
 import com.gepardec.mega.domain.calculation.time.CoreWorkingHoursCalculator;
 import com.gepardec.mega.domain.calculation.time.DoctorAppointmentCalculator;
 import com.gepardec.mega.domain.calculation.time.ExceededMaximumWorkingHoursPerDayCalculator;
@@ -43,7 +44,8 @@ public class WarningCalculatorsManager {
 
     private static final List<WarningCalculationStrategy<JourneyWarning>> journeyWarningCalculators = List.of(
             new InvalidJourneyCalculator(),
-            new InvalidWorkingLocationInJourneyCalculator()
+            new InvalidWorkingLocationInJourneyCalculator(),
+            new LocationRelevantSetJourneyCalculator()
     );
 
 

@@ -41,6 +41,7 @@ public class ProjectEntryMapper {
         LocalDateTime from = toLocalDateTime(projektzeitType.getDatum(), projektzeitType.getVon());
         LocalDateTime to = toLocalDateTime(projektzeitType.getDatum(), projektzeitType.getBis());
         WorkingLocation workingLocation = toWorkingLocation(projektzeitType.getOrt());
+        Boolean workLocationIsProjectRelevant = projektzeitType.isIstOrtProjektRelevant();
         String process = projektzeitType.getVorgangNr();
 
         if (Task.isJourney(task)) {
@@ -52,6 +53,7 @@ public class ProjectEntryMapper {
                     .task(task)
                     .journeyDirection(journeyDirection)
                     .workingLocation(workingLocation)
+                    .workLocationIsProjectRelevant(workLocationIsProjectRelevant)
                     .vehicle(vehicle)
                     .build();
         } else {
@@ -60,6 +62,7 @@ public class ProjectEntryMapper {
                     .toTime(to)
                     .task(task)
                     .workingLocation(workingLocation)
+                    .workLocationIsProjectRelevant(workLocationIsProjectRelevant)
                     .process(process)
                     .build();
         }

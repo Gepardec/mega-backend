@@ -110,6 +110,7 @@ class ProjectEntryMapperTest {
                 .toTime(LocalDateTime.of(2019, 1, 2, 10, 15))
                 .task(Task.BEARBEITEN)
                 .workingLocation(WorkingLocation.A)
+                .workLocationIsProjectRelevant(false)
                 .process("30")
                 .build();
     }
@@ -121,6 +122,7 @@ class ProjectEntryMapperTest {
                 .task(Task.REISEN)
                 .journeyDirection(JourneyDirection.TO)
                 .workingLocation(WorkingLocation.A)
+                .workLocationIsProjectRelevant(false)
                 .vehicle(Vehicle.CAR_INACTIVE)
                 .build();
     }
@@ -133,6 +135,7 @@ class ProjectEntryMapperTest {
                 .workingLocation(WorkingLocation.A)
                 .vehicle(Vehicle.OTHER_INACTIVE)
                 .workingLocation(WorkingLocation.MAIN)
+                .workLocationIsProjectRelevant(false)
                 .build();
     }
 
