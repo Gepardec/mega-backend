@@ -1,13 +1,26 @@
 name: Release Containerimage
 
 on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
   push:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      trigger_deploy:
+        description: 'Trigger deploy'
+        required: true
+        default: false
+        type: boolean
 
 jobs:
-  build-test-push:
+  build-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -39,6 +52,10 @@ jobs:
           export CODACY_PROJECT_TOKEN=${{secrets.CODACY_PROJECT_TOKEN}}
           bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r target/jacoco-report/jacoco.xml
 
+  push:
+    if: (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.trigger_deploy == 'true'))
+    runs-on: ubuntu-latest
+    steps:
       # build the container image and release it as a package in this repository
       - uses: mr-smithers-excellent/docker-build-push@v6
         name: push-container-image
