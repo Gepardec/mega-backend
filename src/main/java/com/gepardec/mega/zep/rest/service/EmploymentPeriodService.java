@@ -9,8 +9,6 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 
-import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 
 @ApplicationScoped
@@ -31,7 +29,7 @@ public class EmploymentPeriodService {
                     page -> zepEmployeeRestService.getEmploymentPeriodByUserName(employeeName, page),
                     ZepEmploymentPeriod.class
             );
-        }  catch (ZepServiceException e) {
+        } catch (ZepServiceException e) {
             logger.warn("Error retrieving employment periods for employee \"%s\" from ZEP: No /data field in response"
                     .formatted(employeeName), e);
         }

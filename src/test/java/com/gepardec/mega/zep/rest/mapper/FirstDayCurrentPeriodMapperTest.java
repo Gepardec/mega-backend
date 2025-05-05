@@ -5,13 +5,10 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.time.LocalDateTime.now;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 class FirstDayCurrentPeriodMapperTest {
@@ -21,83 +18,69 @@ class FirstDayCurrentPeriodMapperTest {
 
     @Test
     void map_whenNoEmploymentPeriods_thenReturnNull() {
-        List<ZepEmploymentPeriod> employmentPeriods = List.of();
+        List<ZepEmploymentPeriod> emptyEmploymentPeriodsList = List.of();
 
-        var firstDay = firstDayCurrentPeriodMapper.map(employmentPeriods);
+        var firstDay = firstDayCurrentPeriodMapper.map(emptyEmploymentPeriodsList);
 
-        assertNull(firstDay);
+        assertThat(firstDay).isNull();
     }
 
     @Test
     void map_whenOnlyFutureStartDate_thenReturnNull() {
-        List<ZepEmploymentPeriod> employmentPeriods = createEmploymentPeriodListFromTodayOffset(
-                new DateOffset(1, 2)
-        );
+        ZepEmploymentPeriod employmentPeriodInTheFuture = ZepEmploymentPeriod.builder()
+                .startDate(now().plusDays(1))
+                .endDate(now().plusDays(2))
+                .build();
+
+        List<ZepEmploymentPeriod> employmentPeriods = List.of(employmentPeriodInTheFuture);
 
         var firstDay = firstDayCurrentPeriodMapper.map(employmentPeriods);
 
-        assertNull(firstDay);
+        assertThat(firstDay).isNull();
     }
 
     @Test
-    void map_whenOnlyPastStartDate_thenReturnFirstDay() {
-        List<ZepEmploymentPeriod> employmentPeriods = createEmploymentPeriodListFromTodayOffset(
-                new DateOffset(-1, 2)
-        );
+    void map_whenPastStartDate_thenReturnFirstDay() {
+        ZepEmploymentPeriod employmentPeriodWithStartDateInThePast = ZepEmploymentPeriod.builder()
+                .startDate(now().minusDays(1))
+                .endDate(now().minusDays(2))
+                .build();
+        List<ZepEmploymentPeriod> employmentPeriods = List.of(employmentPeriodWithStartDateInThePast);
 
         var firstDay = firstDayCurrentPeriodMapper.map(employmentPeriods);
 
-        assertNotNull(firstDay);
+        assertThat(firstDay).isNotNull();
     }
 
     @Test
     void map_whenOnlyPastStartDateAndNullEndDate_thenReturnFirstDay() {
-        List<ZepEmploymentPeriod> employmentPeriods = createEmploymentPeriodListFromTodayOffset(
-                new DateOffset(-1, 2)
-        );
-        employmentPeriods.add(createEmploymentPeriodWithNullEndDate(-1));
+        ZepEmploymentPeriod epWithPastStartDateAndNullEndDate = ZepEmploymentPeriod.builder()
+                .startDate(now().minusDays(1))
+                .build();
+
+        List<ZepEmploymentPeriod> employmentPeriods = List.of(epWithPastStartDateAndNullEndDate);
+
 
         var firstDay = firstDayCurrentPeriodMapper.map(employmentPeriods);
 
-        assertNotNull(firstDay);
+        assertThat(firstDay).isNotNull();
     }
 
     @Test
     void map_whenMultipleEmploymentPeriods_thenReturnFirstDayCurrentEmploymentPeriod() {
-        List<ZepEmploymentPeriod> employmentPeriods = createEmploymentPeriodListFromTodayOffset(
-                new DateOffset(-1, 2),
-                new DateOffset(-2, 3)
-        );
+        ZepEmploymentPeriod oldEmploymentPeriod = ZepEmploymentPeriod.builder()
+                .startDate(now().minusDays(10))
+                .endDate(now().minusDays(2))
+                .build();
+        ZepEmploymentPeriod currentEmploymentPeriod = ZepEmploymentPeriod.builder()
+                .startDate(now().minusDays(1))
+                .endDate(now().plusDays(20))
+                .build();
+
+        List<ZepEmploymentPeriod> employmentPeriods = List.of(oldEmploymentPeriod, currentEmploymentPeriod);
 
         var firstDay = firstDayCurrentPeriodMapper.map(employmentPeriods);
 
-        assertNotNull(firstDay);
-        assertEquals(LocalDate.from(employmentPeriods.stream().findFirst().get().startDate()), firstDay);
+        assertThat(firstDay).isEqualTo(currentEmploymentPeriod.startDate().toLocalDate());
     }
-
-    private ZepEmploymentPeriod createEmploymentPeriodWithNullEndDate(int offsetStart) {
-        LocalDateTime now = LocalDateTime.now();
-        return ZepEmploymentPeriod.builder()
-                .startDate(now.plusDays(offsetStart))
-                .endDate(null)
-                .build();
-    }
-
-    private List<ZepEmploymentPeriod> createEmploymentPeriodListFromTodayOffset(DateOffset... dateOffsets) {
-        return Stream.of(dateOffsets)
-                .map(this::createEmploymentPeriodFromTodayOffset)
-                .collect(Collectors.toList());
-    }
-
-    private ZepEmploymentPeriod createEmploymentPeriodFromTodayOffset(DateOffset dateOffset) {
-        LocalDateTime now = LocalDateTime.now();
-        return ZepEmploymentPeriod.builder()
-                .startDate(now.plusDays(dateOffset.offsetStart()))
-                .endDate(now.plusDays(dateOffset.offsetEnd()))
-                .build();
-    }
-
-    private record DateOffset(int offsetStart, int offsetEnd) {
-    }
-
 }

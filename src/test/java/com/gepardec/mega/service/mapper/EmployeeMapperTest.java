@@ -307,7 +307,7 @@ class EmployeeMapperTest {
             final MitarbeiterType employee = createEmployee(beschaeftigungszeitListe);
 
             // When
-            LocalDate  startDate = mapper.getStartDateFromCurrentEmploymentPeriod(beschaeftigungszeitListe);
+            LocalDate startDate = mapper.getStartDateFromCurrentEmploymentPeriod(beschaeftigungszeitListe);
 
             // Then
             assertThat(startDate).isEqualTo(_2023_01_01);

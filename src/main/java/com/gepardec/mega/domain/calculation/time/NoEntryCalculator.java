@@ -60,7 +60,7 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
         LocalDate firstWorkingDay = employee.getFirstDayCurrentEmploymentPeriod();
 
         return businessDays.stream()
-                .filter( date -> dateIsAfterFirstWorkingDay(date, firstWorkingDay))
+                .filter(date -> !firstWorkingDay.isAfter(date))
                 .filter(date -> !compensatoryDays.contains(date))
                 .filter(date -> !vacationDays.contains(date))
                 .filter(date -> !sicknessDays.contains(date))
@@ -78,10 +78,6 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
                 .map(this::createTimeWarning)
                 .distinct()
                 .toList();
-    }
-
-    private boolean dateIsAfterFirstWorkingDay(LocalDate dateInQuestion, LocalDate firstWorkingDay) {
-        return dateInQuestion.isEqual(firstWorkingDay) || dateInQuestion.isAfter(firstWorkingDay);
     }
 
     private List<LocalDate> getBusinessDaysOfMonth(int year, int month) {

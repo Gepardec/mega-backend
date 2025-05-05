@@ -33,12 +33,13 @@ public class Employee {
 
     private boolean active;
 
-    private LocalDate firstDayCurrentEmploymentPeriod;
     /**
      * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,
      * wenn Mitarbeiter inaktiv ist.
      */
     private LocalDate exitDate;
+
+    private LocalDate firstDayCurrentEmploymentPeriod;
 
     private Employee(Builder builder) {
         this.userId = builder.userId;

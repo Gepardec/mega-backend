@@ -1,7 +1,6 @@
 package com.gepardec.mega.domain.calculation.time;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
-
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
@@ -48,7 +47,7 @@ class NoEntryCalculatorTest {
     void calculate_whenMissingEntry_thenCorrectWarningWithCorrectDate() {
         TimeWarning expectedTimeWarning = new TimeWarning();
         expectedTimeWarning.getWarningTypes().add(TimeWarningType.EMPTY_ENTRY_LIST);
-        expectedTimeWarning.setDate(LocalDate.of(2021, 02, 26));
+        expectedTimeWarning.setDate(LocalDate.of(2021, 2, 26));
         List<TimeWarning> expectedTimeWarningsList = new ArrayList<>();
         expectedTimeWarningsList.add(expectedTimeWarning);
 
@@ -180,8 +179,6 @@ class NoEntryCalculatorTest {
 
         List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), projectEntryList, Collections.emptyList());
 
-
-        result.forEach(tw -> System.out.println(tw.getWarningTypes()));
         assertThat(result).isEmpty();
     }
 
