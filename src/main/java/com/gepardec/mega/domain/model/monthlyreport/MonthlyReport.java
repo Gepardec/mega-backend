@@ -70,6 +70,8 @@ public class MonthlyReport {
 
     private final String internalProjectLead;
 
+    private final Integer personioId;
+
 
     private MonthlyReport(Builder builder) {
         this.employee = builder.employee;
@@ -101,6 +103,7 @@ public class MonthlyReport {
         this.prematureEmployeeCheck = builder.prematureEmployeeCheck;
         this.guildLead = builder.guildLead;
         this.internalProjectLead = builder.internalProjectLead;
+        this.personioId = builder.personioId;
     }
 
 
@@ -224,6 +227,10 @@ public class MonthlyReport {
         return internalProjectLead;
     }
 
+    public Integer getPersonioId() {
+        return personioId;
+    }
+
 
     @Nullable
     public PrematureEmployeeCheck getPrematureEmployeeCheck() {
@@ -260,6 +267,7 @@ public class MonthlyReport {
         private PrematureEmployeeCheck prematureEmployeeCheck;
         private String guildLead;
         private String internalProjectLead;
+        private Integer personioId;
 
         private Builder() {
         }
@@ -410,6 +418,11 @@ public class MonthlyReport {
 
         public Builder internalProjectLead(String internalProjectLead) {
             this.internalProjectLead = internalProjectLead;
+            return this;
+        }
+
+        public Builder personioId(Integer personioId) {
+            this.personioId = personioId;
             return this;
         }
 
