@@ -210,7 +210,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 .paidSpecialLeaveDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.PAID_SPECIAL_LEAVE_DAYS.getAbsenceName(), date))
                 .nonPaidVacationDays(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.NON_PAID_VACATION_DAYS.getAbsenceName(), date))
                 .paidSickLeave(workingTimeUtil.getAbsenceTimesForEmployee(absenceEntries, AbsenceType.PAID_SICK_LEAVE.getAbsenceName(), date))
-                .overtime(workingTimeUtil.getOvertimeForEmployee(employee, billableEntries, absenceEntries, date))
+                .overtime(workingTimeUtil.getOvertimeForEmployee(employee, projectEntries, absenceEntries, date))
                 .prematureEmployeeCheck(prematureEmployeeCheck.orElse(null))
                 .initialDate(initialDate);
 

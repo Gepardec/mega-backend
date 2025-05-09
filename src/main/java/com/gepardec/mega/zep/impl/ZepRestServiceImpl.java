@@ -126,9 +126,8 @@ public class ZepRestServiceImpl implements ZepService {
         boolean active = activeEmployeeMapper.map(periods);
 
 
-        Optional<ZepRegularWorkingTimes> zepRegularWorkingTimesOpt =
+        Optional<List<ZepRegularWorkingTimes>> zepRegularWorkingTimesOpt =
                 regularWorkingTimesService.getRegularWorkingTimesByUsername(userId);
-
 
         Employee employee = employeeMapper.map(zepEmployee.get());
         employee.setActive(active);
