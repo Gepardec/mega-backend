@@ -11,6 +11,8 @@ import de.provantis.zep.BelegListeType;
 import de.provantis.zep.BelegType;
 import de.provantis.zep.BelegbetragListeType;
 import de.provantis.zep.BelegbetragType;
+import de.provantis.zep.BeschaeftigungszeitListeType;
+import de.provantis.zep.BeschaeftigungszeitType;
 import de.provantis.zep.MitarbeiterListeType;
 import de.provantis.zep.MitarbeiterType;
 import de.provantis.zep.ProjektListeType;
@@ -260,8 +262,18 @@ class ZepServiceImplTest {
         mitarbeiter.setAnrede("Herr");
         mitarbeiter.setPreisgruppe("ARCHITEKT");
         mitarbeiter.setFreigabedatum("2020-01-01");
+        mitarbeiter.setBeschaeftigungszeitListe(createBeschaeftigungszeitListe());
 
         return mitarbeiter;
+    }
+
+    private BeschaeftigungszeitListeType createBeschaeftigungszeitListe() {
+        var beschaeftigungszeitTyp = new BeschaeftigungszeitType();
+        beschaeftigungszeitTyp.setStartdatum("2021-02-01");
+        var beschaeftigungszeitListeTyp = new BeschaeftigungszeitListeType();
+        beschaeftigungszeitListeTyp.getBeschaeftigungszeit().add(beschaeftigungszeitTyp);
+
+        return beschaeftigungszeitListeTyp;
     }
 
     private BelegType createBelegType(final int belegNr) {

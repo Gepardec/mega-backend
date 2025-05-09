@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ public class EmployeeMapper {
 
         boolean active = hasEmployeeAndActiveEmployment(mitarbeiterType);
         LocalDate exitDate = null;
+        LocalDate firstDayCurrentEmploymentPeriod = getStartDateFromCurrentEmploymentPeriod(mitarbeiterType.getBeschaeftigungszeitListe());
 
         if (!active) {
             List<Range<LocalDate>> employmentPeriods = getEmploymentPeriods(mitarbeiterType);
@@ -51,6 +53,7 @@ public class EmployeeMapper {
                 .regularWorkingHours(getRegularWorkinghours(mitarbeiterType.getRegelarbeitszeitListe()))
                 .active(active)
                 .exitDate(exitDate)
+                .firstDayCurrentEmploymentPeriod(firstDayCurrentEmploymentPeriod)
                 .build();
     }
 
@@ -76,6 +79,17 @@ public class EmployeeMapper {
 
 
         return exitDate.orElse(null);
+    }
+
+    LocalDate getStartDateFromCurrentEmploymentPeriod(BeschaeftigungszeitListeType beschaeftigungszeitListe) {
+        return Optional.ofNullable(beschaeftigungszeitListe)
+                .map(BeschaeftigungszeitListeType::getBeschaeftigungszeit)
+                .stream()
+                .flatMap(Collection::stream)
+                .map(BeschaeftigungszeitType::getStartdatum)
+                .map(DateUtils::parseDate)
+                .filter(startDate -> !startDate.isAfter(LocalDate.now())).max(Comparator.naturalOrder())
+                .orElse(null);
     }
 
     private Range<LocalDate> mapBeschaeftigungszeitTypeToRange(BeschaeftigungszeitType bt) {

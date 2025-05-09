@@ -29,7 +29,7 @@ public class EmploymentPeriodService {
                     page -> zepEmployeeRestService.getEmploymentPeriodByUserName(employeeName, page),
                     ZepEmploymentPeriod.class
             );
-        }  catch (ZepServiceException e) {
+        } catch (ZepServiceException e) {
             logger.warn("Error retrieving employment periods for employee \"%s\" from ZEP: No /data field in response"
                     .formatted(employeeName), e);
         }

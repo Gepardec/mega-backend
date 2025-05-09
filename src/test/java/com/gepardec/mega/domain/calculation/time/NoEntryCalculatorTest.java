@@ -1,7 +1,6 @@
 package com.gepardec.mega.domain.calculation.time;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
-
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
@@ -16,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -171,6 +171,25 @@ class NoEntryCalculatorTest {
         assertThat(resultsAfterToday).isEmpty();
     }
 
+    @Test
+    void calculate_whenDateBeforeFirstWorkingDay_thenNoWarning() {
+
+        var projectEntryList = createProjectEntryList(0);
+        projectEntryList.remove(0);
+
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), projectEntryList, Collections.emptyList());
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void calculate_whenDateAfterFirstWorkingDay_thenWarning() {
+        List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), Collections.emptyList(), Collections.emptyList());
+
+
+        assertThat(result).isNotEmpty();
+    }
+
     private List<AbsenceTime> createAbsenceListFromType(AbsenteeType type) {
         LocalDate startDate = LocalDate.of(2021, 2, 25);
         LocalDate endDate = LocalDate.of(2021, 2, 26);
@@ -229,6 +248,7 @@ class NoEntryCalculatorTest {
                 .workDescription("ARCHITEKT")
                 .releaseDate(releaseDate)
                 .active(true)
+                .firstDayCurrentEmploymentPeriod(LocalDate.parse("2021-02-02"))
                 .build();
 
         return employee;
