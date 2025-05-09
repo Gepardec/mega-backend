@@ -1,9 +1,13 @@
 package com.gepardec.mega.zep.impl;
 
-import com.gepardec.mega.domain.model.*;
+import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.MonthlyBillInfo;
+import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.Project;
+import com.gepardec.mega.domain.model.ProjectHoursSummary;
+import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
@@ -50,7 +54,6 @@ import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
@@ -58,8 +61,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
-import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfCurrentMonth;
 
 @RequestScoped
 @Soap
@@ -134,11 +135,11 @@ public class ZepSoapServiceImpl implements ZepService {
 
     @CacheResult(cacheName = "fehlzeitentype")
     @Override
-    public List<AbsenceTime> getAbsenceForEmployee(Employee employee, LocalDate date) {
+    public List<AbsenceTime> getAbsenceForEmployee(Employee employee, YearMonth payrollMonth) {
         final ReadFehlzeitRequestType fehlzeitenRequest = new ReadFehlzeitRequestType();
         fehlzeitenRequest.setRequestHeader(zepSoapProvider.createRequestHeaderType());
 
-        final Optional<ReadFehlzeitSearchCriteriaType> searchCriteria = getSearchCriteria(employee, date, this::createAbsenceSearchCriteria);
+        final Optional<ReadFehlzeitSearchCriteriaType> searchCriteria = getSearchCriteria(employee, payrollMonth, this::createAbsenceSearchCriteria);
 
         if (searchCriteria.isEmpty()) {
             return null;
@@ -159,8 +160,8 @@ public class ZepSoapServiceImpl implements ZepService {
 
     @CacheResult(cacheName = "projektzeittype")
     @Override
-    public List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date) {
-        ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(employee, date, this::createProjectTimeSearchCriteria);
+    public List<ProjectTime> getBillableForEmployee(Employee employee, YearMonth payrollMonth) {
+        ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(employee, payrollMonth, this::createProjectTimeSearchCriteria);
 
         if (readProjektzeitenResponseType != null
                 && readProjektzeitenResponseType.getProjektzeitListe() != null
@@ -173,15 +174,15 @@ public class ZepSoapServiceImpl implements ZepService {
     }
 
     @Override
-    public MonthlyBillInfo getMonthlyBillInfoForEmployee(PersonioEmployee personioEmployee, Employee employee, YearMonth yearMonth) {
+    public MonthlyBillInfo getMonthlyBillInfoForEmployee(PersonioEmployee personioEmployee, Employee employee, YearMonth payrollMonth) {
         throw new NotImplementedException("This method is not provided in SOAP, use REST instead"); // not provided due to using REST
     }
 
 
     @CacheResult(cacheName = "projectentry")
     @Override
-    public List<ProjectEntry> getProjectTimes(Employee employee, LocalDate date) {
-        ReadProjektzeitenResponseType projectTimeResponse = readProjektzeitenWithSearchCriteria(employee, date, this::createProjectTimeSearchCriteria);
+    public List<ProjectEntry> getProjectTimes(Employee employee, YearMonth payrollMonth) {
+        ReadProjektzeitenResponseType projectTimeResponse = readProjektzeitenWithSearchCriteria(employee, payrollMonth, this::createProjectTimeSearchCriteria);
 
         return Optional.ofNullable(projectTimeResponse)
                 .flatMap(projectTimes -> Optional.ofNullable(projectTimes.getProjektzeitListe()))
@@ -192,8 +193,8 @@ public class ZepSoapServiceImpl implements ZepService {
 
 
     @Override
-    public List<ProjectTime> getProjectTimesForEmployeePerProject(String projectID, LocalDate curDate) {
-        ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(projectID, curDate, this::createProjectTimesForEmployeePerProjectSearchCriteria);
+    public List<ProjectTime> getProjectTimesForEmployeePerProject(String projectID, YearMonth payrollMonth) {
+        ReadProjektzeitenResponseType readProjektzeitenResponseType = readProjektzeitenWithSearchCriteria(projectID, payrollMonth, this::createProjectTimesForEmployeePerProjectSearchCriteria);
 
         if (readProjektzeitenResponseType != null
                 && readProjektzeitenResponseType.getProjektzeitListe() != null
@@ -207,31 +208,31 @@ public class ZepSoapServiceImpl implements ZepService {
 
     @CacheResult(cacheName = "project")
     @Override
-    public List<Project> getProjectsForMonthYear(final LocalDate monthYear) {
-        final ReadProjekteResponseType readProjekteResponseType = getProjectsInternal(monthYear);
+    public List<Project> getProjectsForMonthYear(final YearMonth payrollMonth) {
+        final ReadProjekteResponseType readProjekteResponseType = getProjectsInternal(payrollMonth);
 
         ProjektListeType projektListe = readProjekteResponseType.getProjektListe();
         return projektListe.getProjekt().stream()
-                .map(pt -> createProject(pt, monthYear))
+                .map(pt -> createProject(pt, payrollMonth))
                 .toList();
     }
 
     @Override
-    public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
+    public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth payrollMonth) {
         throw new NotImplementedException("This method is not provided in SOAP, use REST instead"); // not provided due to using REST
     }
 
     @Override
-    public double getDoctorsVisitingTimeForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
+    public double getDoctorsVisitingTimeForMonthAndEmployee(Employee employee, YearMonth payrollMonth) {
         throw new NotImplementedException("This method is not provided in SOAP, use REST instead"); // not provided due to using REST
     }
 
 
     @Override
-    public Optional<Project> getProjectByName(final String projectName, final LocalDate monthYear) {
+    public Optional<Project> getProjectByName(final String projectName, final YearMonth payrollMonth) {
         final var readProjekteSearchCriteriaType = new ReadProjekteSearchCriteriaType();
-        readProjekteSearchCriteriaType.setVon(DateTimeFormatter.ISO_LOCAL_DATE.format(monthYear.with(TemporalAdjusters.firstDayOfMonth())));
-        readProjekteSearchCriteriaType.setBis(DateTimeFormatter.ISO_LOCAL_DATE.format(monthYear.with(TemporalAdjusters.lastDayOfMonth())));
+        readProjekteSearchCriteriaType.setVon(payrollMonth.atDay(1).toString());
+        readProjekteSearchCriteriaType.setBis(payrollMonth.atEndOfMonth().toString());
         readProjekteSearchCriteriaType.setProjektNr(projectName);
 
         final var readProjekteRequestType = new ReadProjekteRequestType();
@@ -243,7 +244,7 @@ public class ZepSoapServiceImpl implements ZepService {
             return Optional.empty();
         }
 
-        return Optional.of(createProject(projects.get(0), monthYear));
+        return Optional.of(createProject(projects.get(0), payrollMonth));
     }
 
     private <T, U, R> Optional<R> getSearchCriteria(final T par1, final U par2, final BiFunction<T, U, R> searchCriteriaFunction) {
@@ -269,10 +270,10 @@ public class ZepSoapServiceImpl implements ZepService {
         return zepSoapPortType.readProjektzeiten(projektzeitenRequest);
     }
 
-    private ReadProjekteResponseType getProjectsInternal(final LocalDate monthYear) {
+    private ReadProjekteResponseType getProjectsInternal(final YearMonth payrollMonth) {
         final ReadProjekteSearchCriteriaType readProjekteSearchCriteriaType = new ReadProjekteSearchCriteriaType();
-        readProjekteSearchCriteriaType.setVon(DateTimeFormatter.ISO_LOCAL_DATE.format(monthYear.with(TemporalAdjusters.firstDayOfMonth())));
-        readProjekteSearchCriteriaType.setBis(DateTimeFormatter.ISO_LOCAL_DATE.format(monthYear.with(TemporalAdjusters.lastDayOfMonth())));
+        readProjekteSearchCriteriaType.setVon(payrollMonth.atDay(1).toString());
+        readProjekteSearchCriteriaType.setBis(payrollMonth.atEndOfMonth().toString());
 
         final ReadProjekteRequestType readProjekteRequestType = new ReadProjekteRequestType();
         readProjekteRequestType.setRequestHeader(zepSoapProvider.createRequestHeaderType());
@@ -281,11 +282,11 @@ public class ZepSoapServiceImpl implements ZepService {
         return zepSoapPortType.readProjekte(readProjekteRequestType);
     }
 
-    private ReadProjektzeitenSearchCriteriaType createProjectTimeSearchCriteria(Employee employee, LocalDate date) {
+    private ReadProjektzeitenSearchCriteriaType createProjectTimeSearchCriteria(Employee employee, YearMonth payrollMonth) {
         ReadProjektzeitenSearchCriteriaType searchCriteria = new ReadProjektzeitenSearchCriteriaType();
 
-        searchCriteria.setVon(getFirstDayOfCurrentMonth(date));
-        searchCriteria.setBis(getLastDayOfCurrentMonth(date));
+        searchCriteria.setVon(payrollMonth.atDay(1).toString());
+        searchCriteria.setBis(payrollMonth.atEndOfMonth().toString());
 
         UserIdListeType userIdListType = new UserIdListeType();
         userIdListType.getUserId().add(employee.getUserId());
@@ -293,11 +294,11 @@ public class ZepSoapServiceImpl implements ZepService {
         return searchCriteria;
     }
 
-    private ReadProjektzeitenSearchCriteriaType createProjectTimesForEmployeePerProjectSearchCriteria(String projectID, LocalDate curDate) {
+    private ReadProjektzeitenSearchCriteriaType createProjectTimesForEmployeePerProjectSearchCriteria(String projectID, YearMonth payrollMonth) {
         ReadProjektzeitenSearchCriteriaType searchCriteria = new ReadProjektzeitenSearchCriteriaType();
 
-        searchCriteria.setVon(DateTimeFormatter.ISO_LOCAL_DATE.format(curDate.with(TemporalAdjusters.firstDayOfMonth())));
-        searchCriteria.setBis(DateTimeFormatter.ISO_LOCAL_DATE.format(curDate.with(TemporalAdjusters.lastDayOfMonth())));
+        searchCriteria.setVon(payrollMonth.atDay(1).toString());
+        searchCriteria.setBis(payrollMonth.atEndOfMonth().toString());
 
         ProjektNrListeType projectListType = new ProjektNrListeType();
         projectListType.getProjektNr().add(projectID);
@@ -306,18 +307,18 @@ public class ZepSoapServiceImpl implements ZepService {
         return searchCriteria;
     }
 
-    private ReadFehlzeitSearchCriteriaType createAbsenceSearchCriteria(Employee employee, LocalDate date) {
+    private ReadFehlzeitSearchCriteriaType createAbsenceSearchCriteria(Employee employee, YearMonth payrollMonth) {
         ReadFehlzeitSearchCriteriaType searchCriteria = new ReadFehlzeitSearchCriteriaType();
 
-        searchCriteria.setStartdatum(getFirstDayOfCurrentMonth(date));
-        searchCriteria.setEnddatum(getLastDayOfCurrentMonth(date));
+        searchCriteria.setStartdatum(payrollMonth.atDay(1).toString());
+        searchCriteria.setEnddatum(payrollMonth.atEndOfMonth().toString());
 
         searchCriteria.setUserId(employee.getUserId());
         return searchCriteria;
     }
 
 
-    private Project createProject(final ProjektType projektType, final LocalDate monthYear) {
+    private Project createProject(final ProjektType projektType, final YearMonth payrollMonth) {
         Optional<String> endDateString = Optional.ofNullable(projektType.getEndeDatum());
         LocalDate endDate = endDateString.map(LocalDate::parse)
                 .orElseGet(() -> LocalDate.now().plusYears(5).with(TemporalAdjusters.lastDayOfYear()));
@@ -328,8 +329,8 @@ public class ZepSoapServiceImpl implements ZepService {
                 .description(projektType.getBezeichnung())
                 .startDate(LocalDate.parse(projektType.getStartDatum()))
                 .endDate(endDate)
-                .employees(createProjectEmployees(projektType.getProjektmitarbeiterListe(), monthYear))
-                .leads(createProjectLeads(projektType.getProjektmitarbeiterListe(), monthYear))
+                .employees(createProjectEmployees(projektType.getProjektmitarbeiterListe(), payrollMonth))
+                .leads(createProjectLeads(projektType.getProjektmitarbeiterListe(), payrollMonth))
                 .categories(createCategories(projektType))
                 .billabilityPreset(
                         BillabilityPreset.byZepId(projektType.getVoreinstFakturierbarkeit())
@@ -342,17 +343,17 @@ public class ZepSoapServiceImpl implements ZepService {
         return () -> new IllegalArgumentException("BillabilityPreset could not be determined for project " + projectName);
     }
 
-    private List<String> createProjectEmployees(final ProjektMitarbeiterListeType projektMitarbeiterListeType, final LocalDate monthYear) {
+    private List<String> createProjectEmployees(final ProjektMitarbeiterListeType projektMitarbeiterListeType, final YearMonth payrollMonth) {
         return projektMitarbeiterListeType.getProjektmitarbeiter()
                 .stream()
-                .filter(e -> filterActiveEmployees(monthYear, e.getVon(), e.getBis()))
+                .filter(e -> filterActiveEmployees(payrollMonth, e.getVon(), e.getBis()))
                 .map(ProjektMitarbeiterType::getUserId)
                 .toList();
     }
 
-    private boolean filterActiveEmployees(final LocalDate monthYear, final String inProjectFrom, final String inProjectUntil) {
-        final LocalDate firstOfMonth = monthYear.with(TemporalAdjusters.firstDayOfMonth());
-        final LocalDate lastOfMonth = monthYear.with(TemporalAdjusters.lastDayOfMonth());
+    private boolean filterActiveEmployees(final YearMonth payrollMonth, final String inProjectFrom, final String inProjectUntil) {
+        final LocalDate firstOfMonth = payrollMonth.atDay(1);
+        final LocalDate lastOfMonth = payrollMonth.atEndOfMonth();
 
         final LocalDate from = inProjectFrom != null ? DateUtils.parseDate(inProjectFrom) : LocalDate.MIN;
         final LocalDate until = inProjectUntil != null ? DateUtils.parseDate(inProjectUntil) : LocalDate.MAX;
@@ -364,10 +365,10 @@ public class ZepSoapServiceImpl implements ZepService {
         return !from.isBefore(firstOfMonth) && !from.isAfter(lastOfMonth);
     }
 
-    private List<String> createProjectLeads(final ProjektMitarbeiterListeType projektMitarbeiterListeType, final LocalDate monthYear) {
+    private List<String> createProjectLeads(final ProjektMitarbeiterListeType projektMitarbeiterListeType, final YearMonth payrollMonth) {
         return projektMitarbeiterListeType.getProjektmitarbeiter()
                 .stream()
-                .filter(e -> filterActiveEmployees(monthYear, e.getVon(), e.getBis()))
+                .filter(e -> filterActiveEmployees(payrollMonth, e.getVon(), e.getBis()))
                 .filter(projektMitarbeiterType -> PROJECT_LEAD_RANGE.contains(projektMitarbeiterType.getIstProjektleiter()))
                 .map(ProjektMitarbeiterType::getUserId)
                 .toList();

@@ -11,7 +11,6 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
 import jakarta.enterprise.context.ApplicationScoped;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
@@ -41,47 +40,47 @@ public class ZepServiceImpl implements ZepService {
     }
 
     @Override
-    public List<ProjectEntry> getProjectTimes(Employee employee, LocalDate date) {
-        return zepServiceRest.getProjectTimes(employee, date);
+    public List<ProjectEntry> getProjectTimes(Employee employee, YearMonth payrollMonth) {
+        return zepServiceRest.getProjectTimes(employee, payrollMonth);
     }
 
     @Override
-    public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, LocalDate curDate) {
-        return zepServiceRest.getProjectTimesForEmployeePerProject(project, curDate);
+    public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, YearMonth payrollMonth) {
+        return zepServiceRest.getProjectTimesForEmployeePerProject(project, payrollMonth);
     }
 
     @Override
-    public List<Project> getProjectsForMonthYear(LocalDate monthYear) {
-        return zepServiceRest.getProjectsForMonthYear(monthYear);
+    public List<Project> getProjectsForMonthYear(YearMonth payrollMonth) {
+        return zepServiceRest.getProjectsForMonthYear(payrollMonth);
     }
 
     @Override
-    public Optional<Project> getProjectByName(String projectName, LocalDate monthYear) {
-        return zepServiceRest.getProjectByName(projectName, monthYear);
+    public Optional<Project> getProjectByName(String projectName, YearMonth payrollMonth) {
+        return zepServiceRest.getProjectByName(projectName, payrollMonth);
     }
 
     @Override
-    public List<AbsenceTime> getAbsenceForEmployee(Employee employee, LocalDate date) {
-        return zepServiceSoap.getAbsenceForEmployee(employee, date);
+    public List<AbsenceTime> getAbsenceForEmployee(Employee employee, YearMonth payrollMonth) {
+        return zepServiceSoap.getAbsenceForEmployee(employee, payrollMonth);
     }
 
     @Override
-    public List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date) {
-        return zepServiceRest.getBillableForEmployee(employee, date);
+    public List<ProjectTime> getBillableForEmployee(Employee employee, YearMonth payrollMonth) {
+        return zepServiceRest.getBillableForEmployee(employee, payrollMonth);
     }
 
     @Override
-    public MonthlyBillInfo getMonthlyBillInfoForEmployee(PersonioEmployee personioEmployee, Employee employee, YearMonth yearMonth) {
-        return zepServiceRest.getMonthlyBillInfoForEmployee(personioEmployee, employee, yearMonth);
+    public MonthlyBillInfo getMonthlyBillInfoForEmployee(PersonioEmployee personioEmployee, Employee employee, YearMonth payrollMonth) {
+        return zepServiceRest.getMonthlyBillInfoForEmployee(personioEmployee, employee, payrollMonth);
     }
 
     @Override
-    public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
-        return zepServiceRest.getAllProjectsForMonthAndEmployee(employee, yearMonth);
+    public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth payrollMonth) {
+        return zepServiceRest.getAllProjectsForMonthAndEmployee(employee, payrollMonth);
     }
 
     @Override
-    public double getDoctorsVisitingTimeForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
-        return zepServiceRest.getDoctorsVisitingTimeForMonthAndEmployee(employee, yearMonth);
+    public double getDoctorsVisitingTimeForMonthAndEmployee(Employee employee, YearMonth payrollMonth) {
+        return zepServiceRest.getDoctorsVisitingTimeForMonthAndEmployee(employee, payrollMonth);
     }
 }

@@ -58,7 +58,7 @@ class AbsenceServiceImplTest {
                     .thenReturn(Stream.empty());
 
 
-            int actual = absenceService.getNumberOfDaysAbsent(createAbsencesForDaysAbsent(), LocalDate.of(2024, 4, 1));
+            int actual = absenceService.getNumberOfDaysAbsent(createAbsencesForDaysAbsent(), YearMonth.of(2024, 4));
 
             assertThat(actual).isEqualTo(5);
         }
@@ -77,10 +77,13 @@ class AbsenceServiceImplTest {
                     ));
 
 
-            int actual = absenceService.getNumberOfDaysAbsent(List.of(
-                    createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.of(2024, 5, 6), LocalDate.of(2024, 5, 6)),
-                    createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.of(2024, 5, 9), LocalDate.of(2024, 5, 12))
-            ), LocalDate.of(2024, 4, 1));
+            int actual = absenceService.getNumberOfDaysAbsent(
+                    List.of(
+                            createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.of(2024, 5, 6), LocalDate.of(2024, 5, 6)),
+                            createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.of(2024, 5, 9), LocalDate.of(2024, 5, 12))
+                    ),
+                    YearMonth.of(2024, 4)
+            );
 
             assertThat(actual).isEqualTo(3);
         }
@@ -88,7 +91,7 @@ class AbsenceServiceImplTest {
 
     private List<AbsenceTime> createAbsencesForDaysAbsent() {
         LocalDate fromDate = LocalDate.now();
-        LocalDate toDate = LocalDate.now();
+        LocalDate toDate;
 
         if (fromDate.getDayOfMonth() == 30 || fromDate.getDayOfMonth() == 31 || (fromDate.getMonthValue() == 2 && fromDate.getDayOfMonth() == 29)) {
             toDate = fromDate;
@@ -96,7 +99,6 @@ class AbsenceServiceImplTest {
         } else {
             toDate = fromDate.plusDays(2);
         }
-
 
         return List.of(
                 createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.now(), LocalDate.now()),

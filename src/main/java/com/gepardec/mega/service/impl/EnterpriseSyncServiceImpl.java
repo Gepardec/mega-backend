@@ -11,8 +11,8 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.Optional;
 
 @Dependent
@@ -25,18 +25,18 @@ public class EnterpriseSyncServiceImpl implements EnterpriseSyncService {
     @Inject
     EnterpriseEntryRepository enterpriseEntryRepository;
 
-    public boolean generateEnterpriseEntries(LocalDate date) {
+    public boolean generateEnterpriseEntries(YearMonth payrollMonth) {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         logger.info("Started enterprise entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
-        logger.info("Processing date: {}", date);
+        logger.info("Processing date: {}", payrollMonth);
 
-        Optional<EnterpriseEntry> savedEnterpriseEntry = enterpriseEntryRepository.findByDate(date);
+        Optional<EnterpriseEntry> savedEnterpriseEntry = enterpriseEntryRepository.findByDate(payrollMonth.atDay(1));
 
         if (savedEnterpriseEntry.isEmpty()) {
             EnterpriseEntry enterpriseEntry = new EnterpriseEntry();
-            enterpriseEntry.setDate(date);
+            enterpriseEntry.setDate(payrollMonth.atDay(1));
             enterpriseEntry.setCreationDate(LocalDateTime.now());
             enterpriseEntry.setChargeabilityExternalEmployeesRecorded(State.OPEN);
             enterpriseEntry.setPayrollAccountingSent(State.OPEN);
@@ -45,7 +45,7 @@ public class EnterpriseSyncServiceImpl implements EnterpriseSyncService {
 
             enterpriseEntryRepository.persist(enterpriseEntry);
         } else {
-            logger.debug("Enterprise entry for month {} already exists.", date.getMonth());
+            logger.debug("Enterprise entry for month {} already exists.", payrollMonth.getMonth());
         }
 
         stopWatch.stop();
@@ -53,6 +53,6 @@ public class EnterpriseSyncServiceImpl implements EnterpriseSyncService {
         logger.info("Enterprise entry generation took: {}ms", stopWatch.getTime());
         logger.info("Finished enterprise entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
 
-        return enterpriseEntryRepository.findByDate(date).isPresent();
+        return enterpriseEntryRepository.findByDate(payrollMonth.atDay(1)).isPresent();
     }
 }

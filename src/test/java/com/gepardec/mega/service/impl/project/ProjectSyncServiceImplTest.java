@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
 import java.time.Instant;
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -43,46 +43,46 @@ class ProjectSyncServiceImplTest {
 
     @Test
     void generateProjectsWithDate() {
-        LocalDate date = LocalDate.of(2024, 5, 1);
+        YearMonth payrollMonth = YearMonth.of(2024, 5);
         List<User> activeUsers = List.of(mock(User.class), mock(User.class));
         List<Project> projectsForMonthYear = List.of(mock(Project.class), mock(Project.class));
 
         when(userService.findActiveUsers())
                 .thenReturn(activeUsers);
-        when(projectService.getProjectsForMonthYear(any(LocalDate.class), anyList()))
+        when(projectService.getProjectsForMonthYear(any(YearMonth.class), anyList()))
                 .thenReturn(projectsForMonthYear);
-        when(projectService.getProjectsForMonthYear(any(LocalDate.class)))
+        when(projectService.getProjectsForMonthYear(any(YearMonth.class)))
                 .thenReturn(projectsForMonthYear);
 
 
-        boolean result = projectSyncService.generateProjects(date);
+        boolean result = projectSyncService.generateProjects(payrollMonth);
 
         assertThat(result).isTrue();
         verify(userService).findActiveUsers();
-        verify(projectService).getProjectsForMonthYear(eq(date), anyList());
-        verify(projectService).getProjectsForMonthYear(eq(date));
+        verify(projectService).getProjectsForMonthYear(eq(payrollMonth), anyList());
+        verify(projectService).getProjectsForMonthYear(eq(payrollMonth));
         verify(logger, atLeastOnce()).info(anyString(), any(Instant.class));
     }
 
     @Test
     void generateProjects() {
-        LocalDate expectedDate = LocalDate.now().minusMonths(1).withDayOfMonth(1);
+        YearMonth payrollMonth = YearMonth.now().minusMonths(1);
         List<User> activeUsers = List.of(mock(User.class), mock(User.class));
         List<Project> projectsForMonthYear = List.of(mock(Project.class), mock(Project.class));
 
         when(userService.findActiveUsers())
                 .thenReturn(activeUsers);
-        when(projectService.getProjectsForMonthYear(any(LocalDate.class), anyList()))
+        when(projectService.getProjectsForMonthYear(any(YearMonth.class), anyList()))
                 .thenReturn(projectsForMonthYear);
-        when(projectService.getProjectsForMonthYear(any(LocalDate.class)))
+        when(projectService.getProjectsForMonthYear(any(YearMonth.class)))
                 .thenReturn(projectsForMonthYear);
 
-        boolean result = projectSyncService.generateProjects(expectedDate);
+        boolean result = projectSyncService.generateProjects(payrollMonth);
 
         assertThat(result).isTrue();
         verify(userService).findActiveUsers();
-        verify(projectService).getProjectsForMonthYear(eq(expectedDate), anyList());
-        verify(projectService).getProjectsForMonthYear(eq(expectedDate));
+        verify(projectService).getProjectsForMonthYear(eq(payrollMonth), anyList());
+        verify(projectService).getProjectsForMonthYear(eq(payrollMonth));
         verify(logger, atLeastOnce()).info(anyString(), any(Instant.class));
     }
 }

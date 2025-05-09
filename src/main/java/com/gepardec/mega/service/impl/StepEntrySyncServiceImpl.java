@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -49,15 +50,15 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
     NotificationConfig notificationConfig;
 
     @Override
-    public boolean generateStepEntries(LocalDate date) {
+    public boolean generateStepEntries(YearMonth payrollMonth) {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         logger.info("Started step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
-        logger.info("Processing date: {}", date);
+        logger.info("Processing date: {}", payrollMonth);
 
         final List<User> activeUsers = userService.findActiveUsers();
-        final List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(date, List.of(ProjectFilter.IS_LEADS_AVAILABLE));
+        final List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(payrollMonth, List.of(ProjectFilter.IS_LEADS_AVAILABLE));
         final List<Step> steps = stepService.getSteps();
         final List<User> omUsers = getOfficeManagementUsers(activeUsers);
 
@@ -70,7 +71,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
         logger.info("Loaded omUsers: {}", omUsers.size());
         logger.debug("omUsers are: {}", omUsers);
 
-        final List<StepEntry> toBeCreatedStepEntries = createStepEntriesForSteps(date, steps, activeUsers, omUsers, projectsForMonthYear);
+        final List<StepEntry> toBeCreatedStepEntries = createStepEntriesForSteps(payrollMonth.atDay(1), steps, activeUsers, omUsers, projectsForMonthYear);
         toBeCreatedStepEntries.forEach(stepEntryService::addStepEntry);
 
         stopWatch.stop();

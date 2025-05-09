@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -85,8 +86,7 @@ class ZepMailToCommentServiceTest {
                         "mit dem Text 'MEGA' ist anzupassen.\n Falsche Buchung!",
                 "max.erstellermann@gepardec.com",
                 "Gepardec",
-                "2023-11-03"
-
+                YearMonth.of(2023, 11)
         );
         verify(mailSender, times(0)).send(any(), any(), any(), any(), any(), any());
     }
@@ -117,7 +117,7 @@ class ZepMailToCommentServiceTest {
                         "mit dem Text 'MEGA' ist anzupassen.\n Falsche Buchung!",
                 "max.erstellermann@gepardec.com",
                 null,
-                "2023-11-03"
+                YearMonth.of(2023, 11)
 
         );
         verify(mailSender, times(0)).send(any(), any(), any(), any(), any(), any());

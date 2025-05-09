@@ -35,6 +35,7 @@ import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.MonthlyReportDto;
 import com.gepardec.mega.rest.model.MonthlyWarningDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
+import com.gepardec.mega.rest.provider.EmployeePayrollMonthProvider;
 import com.gepardec.mega.service.api.AbsenceService;
 import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -50,7 +51,6 @@ import io.quarkus.test.security.oidc.Claim;
 import io.quarkus.test.security.oidc.OidcSecurity;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
@@ -114,6 +114,9 @@ class WorkerResourceTest {
 
     @InjectMock
     DateHelperService dateHelperService;
+
+    @InjectMock
+    EmployeePayrollMonthProvider payrollMonthProvider;
 
     @Inject
     WorkerResource workerResource;
@@ -204,7 +207,7 @@ class WorkerResourceTest {
                 .internalProjectLead(internalProjectLead)
                 .build();
 
-        when(monthlyReportService.getMonthEndReportForUser()).thenReturn(expected);
+        when(monthlyReportService.getMonthEndReportForUser(any())).thenReturn(expected);
 
         //WHEN
         MonthlyReportDto actual = given().contentType(ContentType.JSON)
@@ -315,7 +318,7 @@ class WorkerResourceTest {
                 .overtime(overtime)
                 .build();
 
-        when(monthlyReportService.getMonthEndReportForUser(2023, 8, null, null)).thenReturn(expected);
+        when(monthlyReportService.getMonthEndReportForUser(null)).thenReturn(expected);
 
         //WHEN
         MonthlyReportDto actual = given().contentType(ContentType.JSON)
@@ -500,10 +503,6 @@ class WorkerResourceTest {
 
         int availableVacationDays = 20;
         double doctorsVisitingTime = 1.75;
-        LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(LocalDate.now().toString());
-        String toDateString = DateUtils.getLastDayOfCurrentMonth(fromDate);
-        Pair<String, String> datePair = Pair.of(fromDate.toString(), toDateString);
-
 
         when(employeeService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
@@ -514,10 +513,10 @@ class WorkerResourceTest {
         when(zepService.getDoctorsVisitingTimeForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(doctorsVisitingTime);
 
-        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(datePair);
+        when(payrollMonthProvider.getPayrollMonth())
+                .thenReturn(YearMonth.now());
 
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class)))
+        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(createAbsenceListForEmployee());
 
         when(monthlyAbsencesMapper.mapToDto(any(MonthlyAbsences.class)))
@@ -546,10 +545,6 @@ class WorkerResourceTest {
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
         int availableVacationDays = 0;
         double doctorsVisitingTime = 0.0;
-        LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(LocalDate.now().toString());
-        String toDateString = DateUtils.getLastDayOfCurrentMonth(fromDate);
-        Pair<String, String> datePair = Pair.of(fromDate.toString(), toDateString);
-
 
         when(employeeService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
@@ -560,10 +555,9 @@ class WorkerResourceTest {
         when(zepService.getDoctorsVisitingTimeForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(doctorsVisitingTime);
 
-        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(datePair);
+        when(payrollMonthProvider.getPayrollMonth()).thenReturn(YearMonth.now());
 
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class)))
+        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(createAbsenceListForEmployeeWithNoAbsences());
 
 
@@ -610,31 +604,27 @@ class WorkerResourceTest {
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
-        LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(LocalDate.now().toString());
-        String toDateString = DateUtils.getLastDayOfCurrentMonth(fromDate);
-
         when(employeeService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
 
-        when(workingTimeUtil.getAbsenceTimesForEmployee(any(), any(), any(LocalDate.class)))
+        when(workingTimeUtil.getAbsenceTimesForEmployee(any(), any(), any(YearMonth.class)))
                 .thenReturn(4);
 
-        when(dateHelperService.getNumberOfWorkingDaysForMonthWithoutHolidays(any(LocalDate.class)))
+        when(dateHelperService.getNumberOfWorkingDaysForMonthWithoutHolidays(any(YearMonth.class)))
                 .thenReturn(21);
 
-        when(dateHelperService.getNumberOfFridaysInMonth(any(LocalDate.class)))
+        when(dateHelperService.getNumberOfFridaysInMonth(any(YearMonth.class)))
                 .thenReturn(4); //mostly the case in reality
 
-        when(absenceService.getNumberOfDaysAbsent(any(), any(LocalDate.class)))
+        when(absenceService.getNumberOfDaysAbsent(any(), any(YearMonth.class)))
                 .thenReturn(7);
 
         when(absenceService.numberOfFridaysAbsent(any()))
                 .thenReturn(1);
 
-        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(Pair.of(fromDate.toString(), toDateString));
+        when(payrollMonthProvider.getPayrollMonth()).thenReturn(YearMonth.now());
 
-        MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+        MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(YearMonth.now());
 
         assertThat(actual.getHomeofficeDays()).isEqualTo(4);
         assertThat(actual.getOfficeDays()).isEqualTo(14);
@@ -647,31 +637,27 @@ class WorkerResourceTest {
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
-        LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(LocalDate.now().toString());
-        String toDateString = DateUtils.getLastDayOfCurrentMonth(fromDate);
-
         when(employeeService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
 
-        when(workingTimeUtil.getAbsenceTimesForEmployee(any(), any(), any(LocalDate.class)))
+        when(workingTimeUtil.getAbsenceTimesForEmployee(any(), any(), any(YearMonth.class)))
                 .thenReturn(0);
 
-        when(dateHelperService.getNumberOfWorkingDaysForMonthWithoutHolidays(any(LocalDate.class)))
+        when(dateHelperService.getNumberOfWorkingDaysForMonthWithoutHolidays(any(YearMonth.class)))
                 .thenReturn(21);
 
-        when(dateHelperService.getNumberOfFridaysInMonth(any(LocalDate.class)))
+        when(dateHelperService.getNumberOfFridaysInMonth(any(YearMonth.class)))
                 .thenReturn(4); //mostly the case in reality
 
-        when(absenceService.getNumberOfDaysAbsent(any(), any(LocalDate.class)))
+        when(absenceService.getNumberOfDaysAbsent(any(), any(YearMonth.class)))
                 .thenReturn(0);
 
         when(absenceService.numberOfFridaysAbsent(any()))
                 .thenReturn(0);
 
-        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(Pair.of(fromDate.toString(), toDateString));
+        when(payrollMonthProvider.getPayrollMonth()).thenReturn(YearMonth.now());
 
-        MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+        MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(YearMonth.now());
 
         assertThat(actual.getHomeofficeDays()).isZero();
         assertThat(actual.getOfficeDays()).isEqualTo(21);
@@ -683,20 +669,16 @@ class WorkerResourceTest {
         User userForRole = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
-        LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(LocalDate.now().toString());
-        String toDateString = DateUtils.getLastDayOfCurrentMonth(fromDate);
-        Pair<String, String> datePair = Pair.of(fromDate.toString(), toDateString);
 
         when(employeeService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
 
-        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(datePair);
+        when(payrollMonthProvider.getPayrollMonth()).thenReturn(YearMonth.now());
 
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class)))
+        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(createAbsenceTimeListForRequest(userAsEmployee.getUserId()));
 
-        when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class)))
+        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(createProjectEntryListForRequest());
 
         when(timeWarningService.getAllTimeWarningsForEmployeeAndMonth(any(), any(), any(Employee.class)))
@@ -706,7 +688,7 @@ class WorkerResourceTest {
                 .map(monthlyWarningMapper::mapToDto)
                 .toList();
 
-        List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+        List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
 
         assertThat(actual.isEmpty()).isFalse();
         assertThat(actual.size()).isEqualTo(mappedWarnings.size());
@@ -718,27 +700,23 @@ class WorkerResourceTest {
         User userForRole = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
-        LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(LocalDate.now().toString());
-        String toDateString = DateUtils.getLastDayOfCurrentMonth(fromDate);
-        Pair<String, String> datePair = Pair.of(fromDate.toString(), toDateString);
 
         when(employeeService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
 
-        when(dateHelperService.getCorrectDateForRequest(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(datePair);
+        when(payrollMonthProvider.getPayrollMonth()).thenReturn(YearMonth.now());
 
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(LocalDate.class)))
+        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(new ArrayList<>());
 
-        when(zepService.getProjectTimes(any(Employee.class), any(LocalDate.class)))
+        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(createProjectEntryListForMonth());
 
         when(timeWarningService.getAllTimeWarningsForEmployeeAndMonth(any(), any(), any(Employee.class)))
                 .thenReturn(new ArrayList<>());
 
 
-        List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.of(LocalDate.now().getYear(), LocalDate.now().getMonth()));
+        List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
 
         assertThat(actual.isEmpty()).isTrue();
     }

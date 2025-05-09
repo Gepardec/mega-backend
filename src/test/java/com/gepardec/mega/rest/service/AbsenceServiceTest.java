@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,8 +44,7 @@ class AbsenceServiceTest {
     @Test
     void getZepAbsencesByEmployeeNameForDateRange_whenAbsencesPresent_thenReturnListOfEmployees() {
         String employeeName = "testUser";
-        LocalDate start = LocalDate.of(2024, 5, 1);
-        LocalDate end = LocalDate.of(2024, 5, 30);
+        YearMonth payrollMonth = YearMonth.of(2024, 5);
 
         List<ZepAbsence> mockAbsences = List.of(
                 ZepAbsence.builder()
@@ -81,7 +81,7 @@ class AbsenceServiceTest {
                 .thenReturn(res2);
 
 
-        List<ZepAbsence> result = absenceService.getZepAbsencesByEmployeeNameForDateRange(employeeName, start, end);
+        List<ZepAbsence> result = absenceService.getZepAbsencesByEmployeeNameForDateRange(employeeName, payrollMonth);
 
         assertThat(result).isNotNull();
         assertThat(result.size()).isEqualTo(2);
@@ -90,13 +90,12 @@ class AbsenceServiceTest {
     @Test
     void getZepAbsencesByEmployeeNameForDateRange_whenZepServiceExceptionThrown_thenLogError() {
         String employeeName = "testUser";
-        LocalDate start = LocalDate.of(2024, 5, 1);
-        LocalDate end = LocalDate.of(2024, 5, 30);
+        YearMonth payrollMonth = YearMonth.of(2024, 5);
 
         when(responseParser.retrieveAll(any(), eq(ZepAbsence.class)))
                 .thenThrow(new ZepServiceException("Service unavailable"));
 
-        List<ZepAbsence> result = absenceService.getZepAbsencesByEmployeeNameForDateRange(employeeName, start, end);
+        List<ZepAbsence> result = absenceService.getZepAbsencesByEmployeeNameForDateRange(employeeName, payrollMonth);
 
         assertThat(result).isNotNull();
         assertThat(result.size()).isZero();

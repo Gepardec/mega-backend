@@ -5,7 +5,6 @@ import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.SyncResource;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -76,14 +75,13 @@ class SyncResourceTest {
                 );
 
 
-        LocalDate now = LocalDate.now();
-        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
+        YearMonth previousMonth = YearMonth.now().minusMonths(1);
         List<AbsenceTime> fehlzeitList = createAbsenceTimeListForUser(
                 "099-testUser",
-                new AbsenceEntry(firstOfPreviousMonth.toString(), DateUtils.getLastDayOfMonth(firstOfPreviousMonth.getYear(), firstOfPreviousMonth.getMonth().getValue()).toString(), AbsenceType.PAID_SICK_LEAVE.getAbsenceName())
+                new AbsenceEntry(previousMonth.atDay(1).toString(), previousMonth.atEndOfMonth().toString(), AbsenceType.PAID_SICK_LEAVE.getAbsenceName())
         );
 
-        when(zepService.getAbsenceForEmployee(eq(userUnderTest), any(LocalDate.class)))
+        when(zepService.getAbsenceForEmployee(eq(userUnderTest), any(YearMonth.class)))
                 .thenReturn(fehlzeitList);
 
 
@@ -92,19 +90,17 @@ class SyncResourceTest {
 
         ArgumentCaptor<Employee> employeeArgumentCaptor = ArgumentCaptor.forClass(Employee.class);
         ArgumentCaptor<Long> longArgumentCaptor = ArgumentCaptor.forClass(Long.class);
-        ArgumentCaptor<LocalDate> localStartDateCaptor = ArgumentCaptor.forClass(LocalDate.class);
-        ArgumentCaptor<LocalDate> localEndDateCaptor = ArgumentCaptor.forClass(LocalDate.class);
+        ArgumentCaptor<YearMonth> payrollMonthCaptor = ArgumentCaptor.forClass(YearMonth.class);
 
         when(stepEntryService.setOpenAndAssignedStepEntriesDone(
                         employeeArgumentCaptor.capture(),
                         longArgumentCaptor.capture(),
-                        localStartDateCaptor.capture(),
-                        localEndDateCaptor.capture()
+                        payrollMonthCaptor.capture()
                 )
         )
                 .thenReturn(true);
 
-        when(stepEntryService.findStepEntryForEmployeeAtStep(anyLong(), anyString(), anyString(), anyString()))
+        when(stepEntryService.findStepEntryForEmployeeAtStep(anyLong(), anyString(), anyString(), any(YearMonth.class)))
                 .thenReturn(createStepEntry());
 
         List<EmployeeDto> actual = syncResource.updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
@@ -112,8 +108,7 @@ class SyncResourceTest {
         assertThat(actual).isNotNull().size().isEqualTo(1);
         assertThat(employeeArgumentCaptor.getValue()).isEqualTo(userUnderTest);
         assertThat(longArgumentCaptor.getValue()).isEqualTo(1L);
-        assertThat(localStartDateCaptor.getValue()).isEqualTo(firstOfPreviousMonth);
-        assertThat(localEndDateCaptor.getValue()).isEqualTo(DateUtils.getLastDayOfMonth(firstOfPreviousMonth.getYear(), firstOfPreviousMonth.getMonth().getValue()));
+        assertThat(payrollMonthCaptor.getValue()).isEqualTo(previousMonth);
         assertThat(actual.get(0).getUserId()).isEqualTo(userUnderTest.getUserId());
     }
 
@@ -140,7 +135,7 @@ class SyncResourceTest {
                 new AbsenceEntry("2024-03-25", "2024-03-29", AbsenceType.HOME_OFFICE_DAYS.getAbsenceName())
         );
 
-        when(zepService.getAbsenceForEmployee(eq(userUnderTest), any(LocalDate.class)))
+        when(zepService.getAbsenceForEmployee(eq(userUnderTest), any(YearMonth.class)))
                 .thenReturn(fehlzeitList);
 
 
@@ -170,7 +165,7 @@ class SyncResourceTest {
                 new AbsenceEntry("2024-03-25", "2024-03-29", AbsenceType.HOME_OFFICE_DAYS.getAbsenceName())
         );
 
-        Mockito.when(zepService.getAbsenceForEmployee(eq(userUnderTest), any(LocalDate.class)))
+        Mockito.when(zepService.getAbsenceForEmployee(eq(userUnderTest), any(YearMonth.class)))
                 .thenReturn(fehlzeitList);
 
 
@@ -204,7 +199,7 @@ class SyncResourceTest {
                 new AbsenceEntry("2024-03-25", "2024-03-29", AbsenceType.VACATION_DAYS.getAbsenceName())
         );
 
-        when(zepService.getAbsenceForEmployee(eq(userUnderTest), any(LocalDate.class)))
+        when(zepService.getAbsenceForEmployee(eq(userUnderTest), any(YearMonth.class)))
                 .thenReturn(fehlzeitList);
 
         doNothing().when(zepService).updateEmployeesReleaseDate(anyString(), anyString());
@@ -249,7 +244,7 @@ class SyncResourceTest {
     @MethodSource("parameters")
     void generateEnterpriseEntries(YearMonth from, YearMonth to) {
         EnterpriseSyncService enterpriseSyncService = mock(EnterpriseSyncService.class);
-        when(enterpriseSyncService.generateEnterpriseEntries(any(LocalDate.class)))
+        when(enterpriseSyncService.generateEnterpriseEntries(any(YearMonth.class)))
                 .thenReturn(true);
 
         try (Response response = syncResource.generateEnterpriseEntries(from, to)) {

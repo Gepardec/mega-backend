@@ -41,6 +41,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Stream;
@@ -71,7 +72,7 @@ class ZepServiceImplTest {
 
     private ProjektMitarbeiterListeType projektMitarbeiterListeType;
 
-    private LocalDate monthYear;
+    private YearMonth payrollMonth;
 
     private static Stream<Arguments> whenFilterProjectEmployeeMatchesVonBis_shouldBeIncluded() {
         return Stream.of(
@@ -112,7 +113,7 @@ class ZepServiceImplTest {
         projektListeType.getProjekt().add(projektType);
         readProjekteResponseType.setProjektListe(projektListeType);
 
-        monthYear = LocalDate.of(2020, 12, 1);
+        payrollMonth = YearMonth.of(2020, 12);
 
         lenient().when(zepSoapPortType.readProjekte(Mockito.any(ReadProjekteRequestType.class))).thenReturn(readProjekteResponseType);
     }
@@ -350,7 +351,7 @@ class ZepServiceImplTest {
         projektMitarbeiterListeType.getProjektmitarbeiter().add(projektMitarbeiterType);
 
         // When
-        final List<Project> projectsForMonthYear = zepService.getProjectsForMonthYear(monthYear);
+        final List<Project> projectsForMonthYear = zepService.getProjectsForMonthYear(payrollMonth);
 
         // Then
         assertThat(projectsForMonthYear).hasSize(1);
@@ -370,7 +371,7 @@ class ZepServiceImplTest {
         projektMitarbeiterListeType.getProjektmitarbeiter().add(projektMitarbeiterType);
 
         // When
-        final List<Project> projectsForMonthYear = zepService.getProjectsForMonthYear(monthYear);
+        final List<Project> projectsForMonthYear = zepService.getProjectsForMonthYear(payrollMonth);
 
         // Then
         assertThat(projectsForMonthYear).hasSize(1);
@@ -395,7 +396,7 @@ class ZepServiceImplTest {
         projektMitarbeiterListeType.getProjektmitarbeiter().add(projektMitarbeiterType2);
 
         // When
-        final List<Project> projectsForMonthYear = zepService.getProjectsForMonthYear(monthYear);
+        final List<Project> projectsForMonthYear = zepService.getProjectsForMonthYear(payrollMonth);
 
         // Then
         assertThat(projectsForMonthYear).hasSize(1);
@@ -420,7 +421,7 @@ class ZepServiceImplTest {
         projektMitarbeiterListeType.getProjektmitarbeiter().add(projektMitarbeiterType2);
 
         // When
-        final List<Project> projectsForMonthYear = zepService.getProjectsForMonthYear(monthYear);
+        final List<Project> projectsForMonthYear = zepService.getProjectsForMonthYear(payrollMonth);
 
         // Then
         assertThat(projectsForMonthYear).hasSize(1);

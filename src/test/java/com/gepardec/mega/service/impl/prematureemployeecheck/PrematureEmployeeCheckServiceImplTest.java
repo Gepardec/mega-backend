@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +46,7 @@ class PrematureEmployeeCheckServiceImplTest {
         when(prematureEmployeeCheckMapper.mapListToDomain(any()))
                 .thenReturn(List.of(PrematureEmployeeCheck.builder().id(1L).build()));
 
-        List<PrematureEmployeeCheck> actual = prematureEmployeeCheckService.findAllForMonth(any(LocalDate.class));
+        List<PrematureEmployeeCheck> actual = prematureEmployeeCheckService.findAllForMonth(YearMonth.of(2025, 4));
 
         assertThat(actual.size()).isOne();
     }
@@ -63,7 +64,7 @@ class PrematureEmployeeCheckServiceImplTest {
         when(checkRepository.deleteByMonthAndStates(any(LocalDate.class), any()))
                 .thenReturn(1L);
 
-        assertThat(prematureEmployeeCheckService.deleteAllForMonthWithState(LocalDate.of(2024, 3, 1), List.of(PrematureEmployeeCheckState.IN_PROGRESS, PrematureEmployeeCheckState.DONE))).isEqualTo(1L);
+        assertThat(prematureEmployeeCheckService.deleteAllForMonthWithState(YearMonth.of(2024, 3), List.of(PrematureEmployeeCheckState.IN_PROGRESS, PrematureEmployeeCheckState.DONE))).isEqualTo(1L);
     }
 
     @Test
