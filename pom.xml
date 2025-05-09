@@ -366,7 +366,7 @@
             <plugin>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-maven-plugin</artifactId>
-                <version>4.17.0</version>
+                <version>4.27.0</version>
                 <configuration>
                     <propertyFile>liquibase.properties</propertyFile>
                     <!--
@@ -380,30 +380,30 @@
                 <!-- Keep the version here, these dependencies are only used here -->
                 <dependencies>
                     <dependency>
-                        <groupId>javax.validation</groupId>
-                        <artifactId>validation-api</artifactId>
-                        <version>2.0.1.Final</version>
+                        <groupId>jakarta.validation</groupId>
+                        <artifactId>jakarta.validation-api</artifactId>
+                        <version>3.1.0</version>
                     </dependency>
                     <!--Make sure that liquibase version delivered with quarkus is the same as this dependency-->
                     <dependency>
                         <groupId>org.liquibase.ext</groupId>
-                        <artifactId>liquibase-hibernate5</artifactId>
-                        <version>4.6.2</version>
+                        <artifactId>liquibase-hibernate6</artifactId>
+                        <version>4.27.0</version>
                     </dependency>
                     <dependency>
                         <groupId>org.springframework</groupId>
                         <artifactId>spring-beans</artifactId>
-                        <version>5.3.18</version>
+                        <version>6.1.13</version>
                     </dependency>
                     <dependency>
                         <groupId>org.springframework.data</groupId>
                         <artifactId>spring-data-jpa</artifactId>
-                        <version>2.3.3.RELEASE</version>
+                        <version>3.3.4</version>
                     </dependency>
                     <dependency>
                         <groupId>org.yaml</groupId>
                         <artifactId>snakeyaml</artifactId>
-                        <version>1.26</version>
+                        <version>1.33</version>
                     </dependency>
                 </dependencies>
             </plugin>

@@ -1,0 +1,58 @@
+databaseChangeLog:
+- changeSet:
+    id: 1746787010465-1
+    author: mega
+    changes:
+    - modifyDataType:
+        columnName: email
+        newDataType: varchar(100)
+        tableName: employee_user
+- changeSet:
+    id: 1746787010465-2
+    author: mega
+    changes:
+    - modifyDataType:
+        columnName: firstname
+        newDataType: varchar(100)
+        tableName: employee_user
+- changeSet:
+    id: 1746787010465-3
+    author: mega
+    changes:
+    - modifyDataType:
+        columnName: lastname
+        newDataType: varchar(100)
+        tableName: employee_user
+- changeSet:
+    id: 1746787010465-4
+    author: mega
+    changes:
+    - modifyDataType:
+        columnName: reason
+        newDataType: varchar(255)
+        tableName: premature_employee_check
+- changeSet:
+    id: 1746787010465-5
+    author: mega
+    changes:
+    - modifyDataType:
+        columnName: source_system
+        newDataType: varchar(255)
+        tableName: comment
+- changeSet:
+    id: 1746787010465-6
+    author: mega
+    changes:
+    - modifyDataType:
+        columnName: state
+        newDataType: varchar(255)
+        tableName: premature_employee_check
+- changeSet:
+    id: 1746787010465-7
+    author: mega
+    changes:
+    - modifyDataType:
+        columnName: state_reason
+        newDataType: varchar(255)
+        tableName: step_entry
+
