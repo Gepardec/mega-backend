@@ -66,7 +66,7 @@ import static com.gepardec.mega.domain.utils.DateUtils.getLastDayOfCurrentMonth;
 public class ZepSoapServiceImpl implements ZepService {
 
 
-    private static final Range<Integer> PROJECT_LEAD_RANGE = Range.between(1, 2);
+    private static final Range<Integer> PROJECT_LEAD_RANGE = Range.of(1, 2);
 
     private final EmployeeMapper employeeMapper;
 

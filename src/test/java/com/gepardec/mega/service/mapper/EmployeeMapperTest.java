@@ -479,6 +479,6 @@ class EmployeeMapperTest {
     }
 
     private Range<LocalDate> createRange(LocalDate from, LocalDate to) {
-        return Range.between(from, to, LocalDate::compareTo);
+        return Range.of(from, to, LocalDate::compareTo);
     }
 }
