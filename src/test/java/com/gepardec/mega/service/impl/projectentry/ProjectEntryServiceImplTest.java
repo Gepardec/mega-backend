@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +36,7 @@ class ProjectEntryServiceImplTest {
         when(projectEntryRepository.findByNameAndDate(anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(createProjectEntryList());
 
-        List<ProjectEntry> actual = projectEntryService.findByNameAndDate("ABC", LocalDate.of(2024, 6, 1), LocalDate.of(2024, 6, 30));
+        List<ProjectEntry> actual = projectEntryService.findByNameAndDate("ABC", YearMonth.of(2024, 6));
 
         assertThat(actual.size()).isOne();
         assertThat(actual.get(0).getName()).isEqualTo("ABC");

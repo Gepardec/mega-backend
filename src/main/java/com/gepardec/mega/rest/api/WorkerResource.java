@@ -5,7 +5,11 @@ import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.MonthlyWarningDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -29,8 +33,8 @@ public interface WorkerResource {
     Response monthlyReport();
 
     @GET
-    @Path("/monthendreports/{year}/{month}")
-    Response monthlyReport(@PathParam("year") Integer year, @PathParam("month") Integer month);
+    @Path("/monthendreports/{payrollMonth}")
+    Response monthlyReport(@PathParam("payrollMonth") YearMonth payrollMonth);
 
     @Operation(operationId = "getBillInformationForEmployee", description = "Get total sum of bills (and if every bill has an attachment), get sum of private and company bills and info about credit card that the user uploaded for current month.")
     @APIResponse(responseCode = "200",
@@ -48,7 +52,7 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
     @Path("/bills")
     @GET
-    MonthlyBillInfoDto getBillInfoForEmployee(@QueryParam("from") YearMonth from);
+    MonthlyBillInfoDto getBillInfoForEmployee(@QueryParam("from") YearMonth payrollMonth);
 
     @Operation(operationId = "getAllProjectsForMonthAndEmployee", description = "Get all projects for an employee and for current month.")
     @APIResponse(responseCode = "200",
@@ -66,7 +70,7 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
     @Path("/projects")
     @GET
-    List<ProjectHoursSummaryDto> getAllProjectsForMonthAndEmployee(@QueryParam("from") YearMonth from);
+    List<ProjectHoursSummaryDto> getAllProjectsForMonthAndEmployee(@QueryParam("from") YearMonth payrollMonth);
 
     @Operation(operationId = "getAllAbsencesForMonthAndEmployee", description = "Get absences (inclusive doctor's visiting time and available vacation days) for an employee and for current month.")
     @APIResponse(responseCode = "200",
@@ -84,7 +88,7 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
     @Path("/absences")
     @GET
-    MonthlyAbsencesDto getAllAbsencesForMonthAndEmployee(@QueryParam("from") YearMonth from);
+    MonthlyAbsencesDto getAllAbsencesForMonthAndEmployee(@QueryParam("from") YearMonth payrollMonth);
 
     @Operation(operationId = "getOfficeDaysForMonthAndEmployee", description = "Get office days, homeoffice days and fridays spent in the office for an employee and for current month.")
     @APIResponse(responseCode = "200",
@@ -102,7 +106,7 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
     @Path("/officedays")
     @GET
-    MonthlyOfficeDaysDto getOfficeDaysForMonthAndEmployee(@QueryParam("from") YearMonth from);
+    MonthlyOfficeDaysDto getOfficeDaysForMonthAndEmployee(@QueryParam("from") YearMonth payrollMonth);
 
     @Operation(operationId = "getAllWarningsForEmployeeAndMonth", description = "Get all warnings (no matter if time or journey warning) for an employee and for current month.")
     @APIResponse(responseCode = "200",
@@ -120,6 +124,6 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
     @Path("/warnings")
     @GET
-    List<MonthlyWarningDto> getAllWarningsForEmployeeAndMonth(@QueryParam("from") YearMonth from);
+    List<MonthlyWarningDto> getAllWarningsForEmployeeAndMonth(@QueryParam("from") YearMonth payrollMonth);
 
 }

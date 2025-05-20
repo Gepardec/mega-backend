@@ -30,7 +30,6 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
     }
 
     public List<PrematureEmployeeCheckEntity> findAllForMonth(LocalDate forMonth) {
-        forMonth = forMonth.withDayOfMonth(1);
         return find("#PrematureEmployeeCheck.findAllByMonth",
                 Parameters.with("forMonth", forMonth))
                 .list();

@@ -1,8 +1,6 @@
 package com.gepardec.mega.zep.rest.service;
 
-import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.utils.DateUtils;
-import com.gepardec.mega.service.api.MonthlyReportService;
+import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.ZepServiceTooManyRequestsException;
 import com.gepardec.mega.zep.rest.client.ZepReceiptRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepReceipt;
@@ -12,22 +10,22 @@ import com.gepardec.mega.zep.util.ResponseParser;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class ReceiptServiceTest {
@@ -36,347 +34,177 @@ class ReceiptServiceTest {
     @RestClient
     ZepReceiptRestClient zepReceiptRestClient;
 
-    @Inject
-    ReceiptService receiptService;
-
     @InjectMock
     ResponseParser responseParser;
 
     @InjectMock
-    MonthlyReportService monthlyReportService;
-
-    @InjectMock
     Logger logger;
 
+    @Inject
+    ReceiptService receiptService;
 
     @Test
-    void getAmountByReceiptId_whenAmountPresent_thenReturnZepReceiptAmount() {
-        int receiptId = 123;
+    void getAllReceiptsInRange_whenReceiptsExist_thenReturnListOfReceipts() {
+        // Arrange
+        YearMonth payrollMonth = YearMonth.of(2023, 5);
+        List<ZepReceipt> receipts = new ArrayList<>();
+        receipts.add(
+                ZepReceipt.builder()
+                        .id(1)
+                        .employeeId("emp1")
+                        .receiptDate(LocalDate.of(2023, 5, 15))
+                        .build()
+        );
+        receipts.add(
+                ZepReceipt.builder()
+                        .id(2)
+                        .employeeId("emp2")
+                        .receiptDate(LocalDate.of(2023, 5, 20))
+                        .build()
+        );
 
-        ZepReceiptAmount expectedAmount = ZepReceiptAmount.builder()
-                .receiptId(receiptId)
-                .quantity(10.0)
-                .amount(50.0)
-                .build();
+        when(responseParser.retrieveAll(any(), eq(ZepReceipt.class)))
+                .thenReturn(receipts);
 
-        when(zepReceiptRestClient.getAmountForReceipt(receiptId))
-                .thenReturn(Response.ok().entity(expectedAmount).build());
+        // Act
+        List<ZepReceipt> result = receiptService.getAllReceiptsInRange(payrollMonth);
 
-        when(responseParser.retrieveSingle(any(Response.class), any()))
-                .thenReturn(Optional.of(new ZepReceiptAmount[]{expectedAmount}));
-
-        Optional<ZepReceiptAmount> result = receiptService.getAmountByReceiptId(receiptId);
-
-        assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(expectedAmount);
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.get(0).id()).isEqualTo(1);
+        assertThat(result.get(1).id()).isEqualTo(2);
     }
 
     @Test
-    void getAmountByReceiptId_whenNoAmountPresent_thenReturnEmptyOptional() {
-        int receiptId = 123;
+    void getAllReceiptsInRange_whenExceptionIsThrown_thenLogErrorAndReturnEmptyList() {
+        // Arrange
+        YearMonth payrollMonth = YearMonth.of(2023, 5);
+        when(responseParser.retrieveAll(any(), eq(ZepReceipt.class)))
+                .thenThrow(new ZepServiceException("Something went wrong"));
 
-        when(zepReceiptRestClient.getAmountForReceipt(receiptId))
-                .thenReturn(Response.ok().entity(Optional.empty()).build());
+        // Act
+        List<ZepReceipt> result = receiptService.getAllReceiptsInRange(payrollMonth);
 
-        Optional<ZepReceiptAmount> result = receiptService.getAmountByReceiptId(receiptId);
-
+        // Assert
         assertThat(result).isEmpty();
+        verify(logger).warn(anyString());
     }
 
     @Test
-    void getAmountByReceiptId_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
-        int receiptId = 123;
-        Response tooManyRequestsResponse = Response.status(Response.Status.TOO_MANY_REQUESTS).build();
+    void getAllReceiptsInRange_whenTooManyRequestsExceptionIsThrown_thenLogErrorAndReturnEmptyList() {
+        // Arrange
+        YearMonth payrollMonth = YearMonth.of(2023, 5);
+        when(responseParser.retrieveAll(any(), eq(ZepReceipt.class)))
+                .thenThrow(new ZepServiceTooManyRequestsException("Too many requests"));
 
-        when(zepReceiptRestClient.getAmountForReceipt(receiptId))
-                .thenReturn(tooManyRequestsResponse);
+        // Act
+        List<ZepReceipt> result = receiptService.getAllReceiptsInRange(payrollMonth);
 
-        doThrow(new ZepServiceTooManyRequestsException("Test exception"))
-                .when(responseParser).retrieveSingle(any(Response.class), any());
-
-        Optional<ZepReceiptAmount> actual = receiptService.getAmountByReceiptId(receiptId);
-
-        verify(logger, times(1)).warn(anyString());
-        assertThat(actual).isEmpty();
+        // Assert
+        assertThat(result).isEmpty();
+        verify(logger).warn(anyString());
     }
 
     @Test
-    void getAttachmentByReceiptId_whenAttachmentIsPresent_thenReturnZepReceiptAttachment() {
-        int receiptId = 123;
-
-        ZepReceiptAttachment expectedAttachment = ZepReceiptAttachment.builder()
-                .fileContent("file content")
+    void getAttachmentByReceiptId_whenAttachmentExists_thenReturnAttachment() {
+        // Arrange
+        int receiptId = 1;
+        ZepReceiptAttachment attachment = ZepReceiptAttachment.builder()
+                .fileContent("file-content")
                 .build();
 
-        when(zepReceiptRestClient.getAttachmentForReceipt(receiptId))
-                .thenReturn(Response.ok().entity(expectedAttachment).build());
+        when(responseParser.retrieveSingle(any(), eq(ZepReceiptAttachment.class)))
+                .thenReturn(Optional.of(attachment));
 
-        when(responseParser.retrieveSingle(any(Response.class), any()))
-                .thenReturn(Optional.of(expectedAttachment));
-
+        // Act
         Optional<ZepReceiptAttachment> result = receiptService.getAttachmentByReceiptId(receiptId);
 
+        // Assert
         assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(expectedAttachment);
+        assertThat(result.get().fileContent()).isEqualTo("file-content");
     }
 
     @Test
-    void getAttachmentByReceiptId_whenNoAttachmentPresent_thenReturnEmptyOptional() {
-        int receiptId = 123;
-
-        when(zepReceiptRestClient.getAttachmentForReceipt(receiptId))
-                .thenReturn(Response.noContent().build());
-
-        when(responseParser.retrieveSingle(any(Response.class), any()))
+    void getAttachmentByReceiptId_whenNoAttachmentExists_thenReturnEmptyOptional() {
+        // Arrange
+        int receiptId = 1;
+        when(responseParser.retrieveSingle(any(), eq(ZepReceiptAttachment.class)))
                 .thenReturn(Optional.empty());
 
+        // Act
         Optional<ZepReceiptAttachment> result = receiptService.getAttachmentByReceiptId(receiptId);
 
+        // Assert
         assertThat(result).isEmpty();
     }
 
     @Test
-    void getAttachmentByReceiptId_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
-        int receiptId = 123;
-        Response tooManyRequestsResponse = Response.status(Response.Status.TOO_MANY_REQUESTS).build();
+    void getAttachmentByReceiptId_whenExceptionIsThrown_thenLogErrorAndReturnEmptyOptional() {
+        // Arrange
+        int receiptId = 1;
+        when(responseParser.retrieveSingle(any(), eq(ZepReceiptAttachment.class)))
+                .thenThrow(new ZepServiceException("Something went wrong"));
 
-        when(zepReceiptRestClient.getAttachmentForReceipt(receiptId))
-                .thenReturn(tooManyRequestsResponse);
+        // Act
+        Optional<ZepReceiptAttachment> result = receiptService.getAttachmentByReceiptId(receiptId);
 
-        doThrow(new ZepServiceTooManyRequestsException("Test exception"))
-                .when(responseParser).retrieveSingle(any(Response.class), any());
-
-        Optional<ZepReceiptAttachment> actual = receiptService.getAttachmentByReceiptId(receiptId);
-
-        verify(logger, times(1)).warn(anyString());
-        assertThat(actual).isEmpty();
+        // Assert
+        assertThat(result).isEmpty();
+        verify(logger).warn(anyString());
     }
 
     @Test
-    void getAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonth_thenReturnListOfReceipts() {
-        List<ZepReceipt> expectedReceipts = new ArrayList<>();
-        expectedReceipts.add(ZepReceipt.builder()
-                .id(1)
-                .employeeId("testUser2")
-                .receiptDate(LocalDate.now())
-                .receiptTypeName("Test receipt type name")
-                .bruttoValue(120.00)
-                .paymentMethodType("privat")
-                .projectId(2)
-                .attachmentFileName("Test attachment file name")
-                .build());
+    void getAmountByReceiptId_whenAmountExists_thenReturnAmount() {
+        // Arrange
+        int receiptId = 1;
+        ZepReceiptAmount[] amounts = new ZepReceiptAmount[]{
+                ZepReceiptAmount.builder()
+                        .receiptId(1)
+                        .amount(100.0)
+                        .quantity(1.0)
+                        .build()
+        };
 
-        when(zepReceiptRestClient.getAllReceiptsForMonth(anyString(), anyString(), anyInt()))
-                .thenReturn(Response.ok().entity(expectedReceipts).build());
+        when(responseParser.retrieveSingle(any(), eq(ZepReceiptAmount[].class)))
+                .thenReturn(Optional.of(amounts));
 
-        when(responseParser.retrieveAll(any(), any()))
-                .thenReturn(Collections.singletonList(expectedReceipts));
+        // Act
+        Optional<ZepReceiptAmount> result = receiptService.getAmountByReceiptId(receiptId);
 
-        Employee employee = Employee.builder()
-                .userId("testUser2")
-                .build();
-
-        LocalDate now = LocalDate.now();
-        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
-
-        List<ZepReceipt> result = receiptService.getAllReceiptsForYearMonth(employee, firstOfPreviousMonth.toString(), DateUtils.getLastDayOfCurrentMonth(firstOfPreviousMonth));
-
-        assertThat(result).hasSize(expectedReceipts.size());
+        // Assert
+        assertThat(result).isPresent();
+        assertThat(result.get().receiptId()).isEqualTo(1);
+        assertThat(result.get().amount()).isEqualTo(100.0);
+        assertThat(result.get().quantity()).isEqualTo(1.0);
     }
 
     @Test
-    void getAllReceiptsForYearMonth_whenNoReceiptsArePresentForYearMonth_thenReturnEmptyList() {
-        when(zepReceiptRestClient.getAllReceiptsForMonth(anyString(), anyString(), anyInt()))
-                .thenReturn(Response.noContent().build());
+    void getAmountByReceiptId_whenNoAmountExists_thenReturnEmptyOptional() {
+        // Arrange
+        int receiptId = 1;
+        when(responseParser.retrieveSingle(any(), eq(ZepReceiptAmount[].class)))
+                .thenReturn(Optional.empty());
 
-        when(responseParser.retrieveAll(any(), any()))
-                .thenReturn(List.of());
+        // Act
+        Optional<ZepReceiptAmount> result = receiptService.getAmountByReceiptId(receiptId);
 
-        Employee employee = Employee.builder()
-                .userId("testUser2")
-                .build();
-
-        LocalDate now = LocalDate.now();
-        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
-
-        List<ZepReceipt> result = receiptService.getAllReceiptsForYearMonth(employee, firstOfPreviousMonth.toString(), DateUtils.getLastDayOfCurrentMonth(firstOfPreviousMonth));
-
+        // Assert
         assertThat(result).isEmpty();
     }
 
     @Test
-    void getAllReceiptsForYearMonth_whenTooManyRequests_thenThrowsExceptionAndReturnsEmptyOptional() {
-        Response tooManyRequestsResponse = Response.status(Response.Status.TOO_MANY_REQUESTS).build();
+    void getAmountByReceiptId_whenExceptionIsThrown_thenLogErrorAndReturnEmptyOptional() {
+        // Arrange
+        int receiptId = 1;
+        when(responseParser.retrieveSingle(any(), eq(ZepReceiptAmount[].class)))
+                .thenThrow(new ZepServiceException("Something went wrong"));
 
-        when(zepReceiptRestClient.getAllReceiptsForMonth(anyString(), anyString(), anyInt()))
-                .thenReturn(tooManyRequestsResponse);
+        // Act
+        Optional<ZepReceiptAmount> result = receiptService.getAmountByReceiptId(receiptId);
 
-        doThrow(new ZepServiceTooManyRequestsException("Test exception"))
-                .when(responseParser).retrieveAll(any(), any());
-
-        Employee employee = Employee.builder()
-                .userId("testUser2")
-                .build();
-
-        LocalDate now = LocalDate.now();
-        LocalDate firstOfPreviousMonth = now.withMonth(now.getMonth().minus(1).getValue()).withDayOfMonth(1);
-
-        List<ZepReceipt> actual = receiptService.getAllReceiptsForYearMonth(employee, firstOfPreviousMonth.toString(), DateUtils.getLastDayOfCurrentMonth(firstOfPreviousMonth));
-
-        verify(logger, times(1)).warn(anyString());
-        assertThat(actual).isEmpty();
-    }
-
-    @Test
-    void getAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonthAndToFromDateNullAndMonthNotConfirmed_thenReturnListOfReceipts() {
-        List<ZepReceipt> expectedReceipts = new ArrayList<>();
-        expectedReceipts.add(ZepReceipt.builder()
-                .id(1)
-                .employeeId("testUser2")
-                .receiptDate(LocalDate.now())
-                .receiptTypeName("Test receipt type name")
-                .bruttoValue(120.00)
-                .paymentMethodType("privat")
-                .projectId(2)
-                .attachmentFileName("Test attachment file name")
-                .build());
-
-        when(zepReceiptRestClient.getAllReceiptsForMonth(anyString(), anyString(), anyInt()))
-                .thenReturn(Response.ok().entity(expectedReceipts).build());
-
-        when(responseParser.retrieveAll(any(), any()))
-                .thenReturn(Collections.singletonList(expectedReceipts));
-
-        Employee employee = Employee.builder()
-                .userId("testUser2")
-                .build();
-
-        LocalDate mockCurrentDate = LocalDate.now();
-        LocalDate previousMonth = mockCurrentDate.minusMonths(1);
-        LocalDate firstOfPreviousMonth = previousMonth.withDayOfMonth(1);
-        LocalDate mockMidOfMonth = mockCurrentDate.withDayOfMonth(14);
-
-
-        try (MockedStatic<LocalDate> mockedStatic = mockStatic(LocalDate.class)) {
-            mockedStatic.when(LocalDate::now).thenReturn(mockCurrentDate);
-            mockedStatic.when(() -> LocalDate.now().minusMonths(1)).thenReturn(previousMonth);
-            mockedStatic.when(() -> LocalDate.now().withMonth(LocalDate.now().getMonth().minus(1).getValue()).withDayOfMonth(1)).thenReturn(firstOfPreviousMonth);
-            mockedStatic.when(() -> LocalDate.now().withDayOfMonth(14)).thenReturn(mockMidOfMonth);
-
-            when(monthlyReportService.isMonthConfirmedFromEmployee(any(Employee.class), any(LocalDate.class)))
-                    .thenReturn(false);
-
-            List<ZepReceipt> result = receiptService.getAllReceiptsForYearMonth(employee, null, null);
-
-            assertThat(result).hasSize(expectedReceipts.size());
-        }
-    }
-
-    @Test
-    void getAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonthAndToFromDateNullAndMonthConfirmed_thenReturnListOfReceipts() {
-        List<ZepReceipt> expectedReceipts = new ArrayList<>();
-        expectedReceipts.add(ZepReceipt.builder()
-                .id(1)
-                .employeeId("testUser2")
-                .receiptDate(LocalDate.now())
-                .receiptTypeName("Test receipt type name")
-                .bruttoValue(120.00)
-                .paymentMethodType("privat")
-                .projectId(2)
-                .attachmentFileName("Test attachment file name")
-                .build());
-
-        when(zepReceiptRestClient.getAllReceiptsForMonth(anyString(), anyString(), anyInt()))
-                .thenReturn(Response.ok().entity(expectedReceipts).build());
-
-        when(responseParser.retrieveAll(any(), any()))
-                .thenReturn(Collections.singletonList(expectedReceipts));
-
-        Employee employee = Employee.builder()
-                .userId("testUser2")
-                .build();
-
-        LocalDate mockCurrentDate = LocalDate.of(2024, 5, 6);
-        LocalDate previousMonth = mockCurrentDate.minusMonths(1);
-        LocalDate firstOfPreviousMonth = previousMonth.withDayOfMonth(1);
-        LocalDate mockMidOfMonth = mockCurrentDate.withDayOfMonth(14);
-
-
-        try (MockedStatic<LocalDate> mockedStatic = mockStatic(LocalDate.class)) {
-            mockedStatic.when(LocalDate::now).thenReturn(mockCurrentDate);
-            mockedStatic.when(() -> LocalDate.now().minusMonths(1)).thenReturn(previousMonth);
-            mockedStatic.when(() -> LocalDate.now().withMonth(LocalDate.now().getMonth().minus(1).getValue()).withDayOfMonth(1)).thenReturn(firstOfPreviousMonth);
-            mockedStatic.when(() -> LocalDate.now().withDayOfMonth(14)).thenReturn(mockMidOfMonth);
-
-            try (MockedStatic<DateUtils> dateUtilsMockedStatic = mockStatic(DateUtils.class)) {
-                LocalDate firstOfCurrentMonth = LocalDate.of(2024, 5, 1);
-                LocalDate lastOfCurrentMonth = LocalDate.of(2024, 5, 30);
-                dateUtilsMockedStatic.when(() -> DateUtils.getFirstDayOfCurrentMonth(anyString()))
-                        .thenReturn(firstOfCurrentMonth);
-                dateUtilsMockedStatic.when(() -> DateUtils.getLastDayOfCurrentMonth(anyString()))
-                        .thenReturn(lastOfCurrentMonth);
-
-                when(monthlyReportService.isMonthConfirmedFromEmployee(any(Employee.class), any(LocalDate.class)))
-                        .thenReturn(true);
-
-                List<ZepReceipt> result = receiptService.getAllReceiptsForYearMonth(employee, null, null);
-
-                assertThat(result).hasSize(expectedReceipts.size());
-            }
-        }
-    }
-
-    @Test
-    void getAllReceiptsForYearMonth_whenReceiptsArePresentForYearMonthAndToFromDateNullAndMonthConfirmedAndAfterMidOfMonth_thenReturnListOfReceipts() {
-        List<ZepReceipt> expectedReceipts = new ArrayList<>();
-        expectedReceipts.add(ZepReceipt.builder()
-                .id(1)
-                .employeeId("testUser2")
-                .receiptDate(LocalDate.now())
-                .receiptTypeName("Test receipt type name")
-                .bruttoValue(120.00)
-                .paymentMethodType("privat")
-                .projectId(2)
-                .attachmentFileName("Test attachment file name")
-                .build());
-
-        when(zepReceiptRestClient.getAllReceiptsForMonth(anyString(), anyString(), anyInt()))
-                .thenReturn(Response.ok().entity(expectedReceipts).build());
-
-        when(responseParser.retrieveAll(any(), any()))
-                .thenReturn(Collections.singletonList(expectedReceipts));
-
-        Employee employee = Employee.builder()
-                .userId("testUser2")
-                .build();
-
-        LocalDate mockCurrentDate = LocalDate.of(2024, 5, 15);
-        LocalDate previousMonth = mockCurrentDate.minusMonths(1);
-        LocalDate firstOfPreviousMonth = previousMonth.withDayOfMonth(1);
-        LocalDate mockMidOfMonth = mockCurrentDate.withDayOfMonth(14);
-
-
-        try (MockedStatic<LocalDate> mockedStatic = mockStatic(LocalDate.class)) {
-            mockedStatic.when(LocalDate::now).thenReturn(mockCurrentDate);
-            mockedStatic.when(() -> LocalDate.now().minusMonths(1)).thenReturn(previousMonth);
-            mockedStatic.when(() -> LocalDate.now().withMonth(LocalDate.now().getMonth().minus(1).getValue()).withDayOfMonth(1)).thenReturn(firstOfPreviousMonth);
-            mockedStatic.when(() -> LocalDate.now().withDayOfMonth(14)).thenReturn(mockMidOfMonth);
-
-            try (MockedStatic<DateUtils> dateUtilsMockedStatic = mockStatic(DateUtils.class)) {
-                LocalDate firstOfCurrentMonth = LocalDate.of(2024, 5, 1);
-                LocalDate lastOfCurrentMonth = LocalDate.of(2024, 5, 30);
-                dateUtilsMockedStatic.when(() -> DateUtils.getFirstDayOfCurrentMonth(anyString()))
-                        .thenReturn(firstOfCurrentMonth);
-                dateUtilsMockedStatic.when(() -> DateUtils.getLastDayOfCurrentMonth(anyString()))
-                        .thenReturn(lastOfCurrentMonth);
-
-                when(monthlyReportService.isMonthConfirmedFromEmployee(any(Employee.class), any(LocalDate.class)))
-                        .thenReturn(true);
-
-                List<ZepReceipt> result = receiptService.getAllReceiptsForYearMonth(employee, null, null);
-
-                assertThat(result).hasSize(expectedReceipts.size());
-            }
-        }
+        // Assert
+        assertThat(result).isEmpty();
+        verify(logger).warn(anyString());
     }
 }

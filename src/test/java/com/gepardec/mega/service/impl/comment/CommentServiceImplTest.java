@@ -24,6 +24,7 @@ import org.mockito.ArgumentMatchers;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -59,10 +60,8 @@ class CommentServiceImplTest {
         when(commentRepository.findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail(ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.anyString())).thenReturn(List.of(createComment(1L, EmployeeState.OPEN)));
 
-        LocalDate fromDate = DateUtils.getFirstDayOfFollowingMonth(LocalDate.now().toString());
-        LocalDate toDate = DateUtils.getLastDayOfFollowingMonth(LocalDate.now().toString());
         List<Comment> domainComments = commentService.findCommentsForEmployee(
-                "max.mustermann@gpeardec.com", fromDate, toDate
+                "max.mustermann@gpeardec.com", YearMonth.now().plusMonths(1)
         );
         assertThat(domainComments).hasSize(1);
         assertThat(domainComments.get(0).getId()).isEqualTo(1);
@@ -79,23 +78,23 @@ class CommentServiceImplTest {
 
     @Test
     void cntFinishedAndTotalCommentsForEmployee_whenEmployeeIsNull_thenThrowsException() {
-        assertThatThrownBy(() -> commentService.countFinishedAndTotalComments(null, null, null))
+        assertThatThrownBy(() -> commentService.countFinishedAndTotalComments(null, null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("'employeeMail' must not be null!");
     }
 
     @Test
     void cntFinishedAndTotalCommentsForEmployee_whenFromDateIsNull_thenThrowsException() {
-        assertThatThrownBy(() -> commentService.countFinishedAndTotalComments("max.mustermann@gpeardec.com", null, null))
+        assertThatThrownBy(() -> commentService.countFinishedAndTotalComments("max.mustermann@gpeardec.com", null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessage("'from' date must not be null!");
+                .hasMessage("'payrollMonth' must not be null!");
     }
 
     @Test
     void cntFinishedAndTotalCommentsForEmployee_whenToDateIsNull_thenThrowsException() {
-        assertThatThrownBy(() -> commentService.countFinishedAndTotalComments("max.mustermann@gpeardec.com", LocalDate.now(), null))
+        assertThatThrownBy(() -> commentService.countFinishedAndTotalComments("max.mustermann@gpeardec.com", null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessage("'to' date must not be null!");
+                .hasMessage("'payrollMonth' must not be null!");
     }
 
     @Test
@@ -110,9 +109,7 @@ class CommentServiceImplTest {
                 createComment(3L, EmployeeState.OPEN)
         ));
 
-        LocalDate fromDate = DateUtils.getFirstDayOfFollowingMonth(LocalDate.now().toString());
-        LocalDate toDate = DateUtils.getLastDayOfFollowingMonth(LocalDate.now().toString());
-        FinishedAndTotalComments result = commentService.countFinishedAndTotalComments("max.mustermann@gpeardec.com", fromDate, toDate);
+        FinishedAndTotalComments result = commentService.countFinishedAndTotalComments("max.mustermann@gpeardec.com", YearMonth.now().plusMonths(1));
         assertThat(result).isNotNull();
         assertThat(result.getTotalComments()).isEqualTo(3L);
         assertThat(result.getFinishedComments()).isEqualTo(1L);
@@ -132,7 +129,7 @@ class CommentServiceImplTest {
 
         LocalDate fromDate = DateUtils.getFirstDayOfFollowingMonth(LocalDate.now().toString());
         LocalDate toDate = DateUtils.getLastDayOfFollowingMonth(LocalDate.now().toString());
-        FinishedAndTotalComments result = commentService.countFinishedAndTotalComments("max.mustermann@gpeardec.com", fromDate, toDate);
+        FinishedAndTotalComments result = commentService.countFinishedAndTotalComments("max.mustermann@gpeardec.com", YearMonth.now().plusMonths(1));
         assertThat(result).isNotNull();
         assertThat(result.getTotalComments()).isEqualTo(3L);
         assertThat(result.getFinishedComments()).isZero();
@@ -148,7 +145,7 @@ class CommentServiceImplTest {
 
         LocalDate fromDate = DateUtils.getFirstDayOfFollowingMonth(LocalDate.now().toString());
         LocalDate toDate = DateUtils.getLastDayOfFollowingMonth(LocalDate.now().toString());
-        FinishedAndTotalComments result = commentService.countFinishedAndTotalComments("max.mustermann@gpeardec.com", fromDate, toDate);
+        FinishedAndTotalComments result = commentService.countFinishedAndTotalComments("max.mustermann@gpeardec.com", YearMonth.now().plusMonths(1));
         assertThat(result).isNotNull();
         assertThat(result.getTotalComments()).isZero();
         assertThat(result.getFinishedComments()).isZero();
@@ -156,7 +153,7 @@ class CommentServiceImplTest {
 
     @Test
     void createNewCommentForEmployee_whenEmployeeIsNull_thenThrowsException() {
-        assertThatThrownBy(() -> commentService.countFinishedAndTotalComments(null, null, null))
+        assertThatThrownBy(() -> commentService.countFinishedAndTotalComments(null, null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("'employeeMail' must not be null!");
     }
@@ -169,7 +166,7 @@ class CommentServiceImplTest {
                 ArgumentMatchers.anyLong(),
                 ArgumentMatchers.any(String.class),
                 ArgumentMatchers.anyString(),
-                ArgumentMatchers.anyString()
+                ArgumentMatchers.any(YearMonth.class)
         )).thenReturn(createStepEntry(1L));
 
         doAnswer(invocation -> {
@@ -193,7 +190,7 @@ class CommentServiceImplTest {
 
         //WHEN
         Comment createdComment = commentService.create(
-                2L, SourceSystem.MEGA, "max.mustermann@gpeardec.com", newComment, "", null, LocalDate.now().toString()
+                2L, SourceSystem.MEGA, "max.mustermann@gpeardec.com", newComment, "", null, YearMonth.now()
         );
 
         //THEN

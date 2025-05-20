@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.mail.Message;
 import org.slf4j.Logger;
 
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +66,7 @@ public class ZepMailToCommentService {
 
                         var project = projectService.getProjectByName(
                                 zepProjektzeitDetailsMail.getProjekt(),
-                                zepProjektzeitDetailsMail.getTag()
+                                YearMonth.from(zepProjektzeitDetailsMail.getTag())
                         );
 
                         var projectBillable = project.map(Project::isBillable)
@@ -82,7 +83,7 @@ public class ZepMailToCommentService {
                                 projectBillable
                                         ? zepProjektzeitDetailsMail.getProjekt()
                                         : null,
-                                zepProjektzeitDetailsMail.getTag().toString()
+                                YearMonth.from(zepProjektzeitDetailsMail.getTag())
                         );
                         logger.info("E-Mail saved as comment.");
                     }

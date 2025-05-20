@@ -10,14 +10,16 @@ public record ZepReceiptAmount(
         Double amount
 ) {
 
-    public static Builder builder() {return Builder.aZepReceiptAmount();}
+    public static Builder builder() {
+        return Builder.aZepReceiptAmount();
+    }
 
     @JsonCreator
     public ZepReceiptAmount(Builder builder) {
         this(
                 builder.receiptId,
-                builder.amount,
-                builder.quantity
+                builder.quantity,
+                builder.amount
         );
     }
 
@@ -32,10 +34,12 @@ public record ZepReceiptAmount(
         @JsonProperty
         private Double amount;
 
-        private Builder(){
+        private Builder() {
         }
 
-        public static Builder aZepReceiptAmount() {return new Builder();}
+        public static Builder aZepReceiptAmount() {
+            return new Builder();
+        }
 
         public Builder receiptId(Integer receiptId) {
             this.receiptId = receiptId;
@@ -52,6 +56,8 @@ public record ZepReceiptAmount(
             return this;
         }
 
-        public ZepReceiptAmount build() {return new ZepReceiptAmount(this);}
+        public ZepReceiptAmount build() {
+            return new ZepReceiptAmount(this);
+        }
     }
 }

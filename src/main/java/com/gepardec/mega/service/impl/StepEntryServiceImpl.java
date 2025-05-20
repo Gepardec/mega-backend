@@ -16,6 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -34,7 +35,7 @@ public class StepEntryServiceImpl implements StepEntryService {
     @Override
     public Optional<EmployeeState> findEmployeeCheckState(final Employee employee) {
         if (employee != null) {
-            return findEmployeeCheckState(employee, LocalDate.parse(employee.getReleaseDate())).map(Pair::getLeft);
+            return findEmployeeCheckState(employee, YearMonth.from(LocalDate.parse(employee.getReleaseDate()))).map(Pair::getLeft);
         }
         return Optional.empty();
     }
@@ -43,35 +44,35 @@ public class StepEntryServiceImpl implements StepEntryService {
      * @return Pair.left: state, pair.right: stateReason
      */
     @Override
-    public Optional<Pair<EmployeeState, String>> findEmployeeCheckState(final Employee employee, LocalDate date) {
+    public Optional<Pair<EmployeeState, String>> findEmployeeCheckState(final Employee employee, YearMonth payrollMonth) {
         Optional<StepEntry> stepEntries =
-                stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(date, employee.getEmail());
+                stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(payrollMonth.atDay(1), employee.getEmail());
 
         return stepEntries.map(se -> Pair.of(se.getState(), se.getStateReason()));
     }
 
     @Override
-    public Optional<StepEntry> findControlTimesStepEntry(final Employee employee, LocalDate date) {
-        return stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(date, employee.getEmail());
+    public Optional<StepEntry> findControlTimesStepEntry(final String employeeEmail, LocalDate date) {
+        return stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(date, employeeEmail);
     }
 
     @Override
-    public Optional<EmployeeState> findEmployeeInternalCheckState(Employee employee, LocalDate date) {
+    public Optional<EmployeeState> findEmployeeInternalCheckState(Employee employee, YearMonth payrollMonth) {
         if (employee != null) {
-            return stepEntryRepository.findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes(date, employee.getEmail())
+            return stepEntryRepository.findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes(payrollMonth.atDay(1), employee.getEmail())
                     .map(StepEntry::getState);
         }
         return Optional.empty();
     }
 
     @Override
-    public List<StepEntry> findAllOwnedAndUnassignedStepEntriesExceptControlTimes(Employee employee, LocalDate currentMonthYear) {
-        return stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(currentMonthYear, employee.getEmail());
+    public List<StepEntry> findAllOwnedAndUnassignedStepEntriesExceptControlTimes(Employee employee, YearMonth payrollMonth) {
+        return stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(payrollMonth.atDay(1), employee.getEmail());
     }
 
     @Override
-    public List<StepEntry> findAllOwnedAndUnassignedStepEntriesForPMProgress(final String email, final LocalDate date) {
-        return stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForPMProgress(date, email);
+    public List<StepEntry> findAllOwnedAndUnassignedStepEntriesForPMProgress(final String email, final YearMonth payrollMonth) {
+        return stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForPMProgress(payrollMonth.atDay(1), email);
     }
 
     @Override
@@ -100,13 +101,13 @@ public class StepEntryServiceImpl implements StepEntryService {
     }
 
     @Override
-    public boolean setOpenAndAssignedStepEntriesDone(Employee employee, Long stepId, LocalDate from, LocalDate to) {
-        return stepEntryRepository.updateStateAssigned(from, to, employee.getEmail(), stepId, EmployeeState.DONE) > 0;
+    public boolean setOpenAndAssignedStepEntriesDone(Employee employee, Long stepId, YearMonth payrollMonth) {
+        return stepEntryRepository.updateStateAssigned(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail(), stepId, EmployeeState.DONE) > 0;
     }
 
     @Override
-    public boolean updateStepEntryReasonForStepWithStateDone(Employee employee, Long stepId, LocalDate from, LocalDate to, String reason) {
-        return stepEntryRepository.updateReasonForStepEntryWithStateDone(from, to, employee.getEmail(), stepId, reason) > 0;
+    public boolean updateStepEntryReasonForStepWithStateDone(Employee employee, Long stepId, YearMonth payrollMonth, String reason) {
+        return stepEntryRepository.updateReasonForStepEntryWithStateDone(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail(), stepId, reason) > 0;
     }
 
     @Override
@@ -124,19 +125,19 @@ public class StepEntryServiceImpl implements StepEntryService {
     }
 
     @Override
-    public List<StepEntry> findAllStepEntriesForEmployee(Employee employee, LocalDate from, LocalDate to) {
+    public List<StepEntry> findAllStepEntriesForEmployee(Employee employee, YearMonth payrollMonth) {
         Objects.requireNonNull(employee, "Employee must not be null!");
-        return stepEntryRepository.findAllOwnedStepEntriesInRange(from, to, employee.getEmail());
+        return stepEntryRepository.findAllOwnedStepEntriesInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail());
     }
 
     @Override
     public List<StepEntry> findAllStepEntriesForEmployeeAndProject(Employee employee, String projectId, String assigneEmail,
-                                                                   LocalDate from, LocalDate to) {
+                                                                   YearMonth payrollMonth) {
         Objects.requireNonNull(employee, "Employee must not be null!");
 
         List<StepEntry> stepEntries = new ArrayList<>();
-        stepEntries.addAll(stepEntryRepository.findAllOwnedStepEntriesInRange(from, to, employee.getEmail(), projectId, assigneEmail));
-        stepEntries.addAll(stepEntryRepository.findAllOwnedStepEntriesInRange(from, to, employee.getEmail()));
+        stepEntries.addAll(stepEntryRepository.findAllOwnedStepEntriesInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail(), projectId, assigneEmail));
+        stepEntries.addAll(stepEntryRepository.findAllOwnedStepEntriesInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail()));
         return stepEntries;
     }
 
@@ -144,10 +145,10 @@ public class StepEntryServiceImpl implements StepEntryService {
     public StepEntry findStepEntryForEmployeeAtStep(final Long stepId,
                                                     final String employeeEmail,
                                                     final String assigneeEmail,
-                                                    final String currentMonthYear) {
+                                                    final YearMonth payrollMonth) {
         Objects.requireNonNull(employeeEmail, "'employeeEmail' must not be null!");
-        LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(currentMonthYear);
-        LocalDate toDate = DateUtils.getLastDayOfCurrentMonth(currentMonthYear);
+        LocalDate fromDate = payrollMonth.atDay(1);
+        LocalDate toDate = payrollMonth.atEndOfMonth();
 
         return stepEntryRepository.findStepEntryForEmployeeAtStepInRange(
                         fromDate,
@@ -166,10 +167,10 @@ public class StepEntryServiceImpl implements StepEntryService {
                                                               final String employeeEmail,
                                                               final String assigneeEmail,
                                                               final String project,
-                                                              final String currentMonthYear) {
+                                                              final YearMonth payrollMonth) {
         Objects.requireNonNull(employeeEmail, "'employeeEmail' must not be null!");
-        LocalDate fromDate = DateUtils.getFirstDayOfCurrentMonth(currentMonthYear);
-        LocalDate toDate = DateUtils.getLastDayOfCurrentMonth(currentMonthYear);
+        LocalDate fromDate = payrollMonth.atDay(1);
+        LocalDate toDate = payrollMonth.atEndOfMonth();
 
         return stepEntryRepository.findStepEntryForEmployeeAndProjectAtStepInRange(
                         fromDate,
@@ -185,8 +186,8 @@ public class StepEntryServiceImpl implements StepEntryService {
     }
 
     @Override
-    public List<ProjectEmployees> getProjectEmployeesForPM(final LocalDate from, final LocalDate to, String assigneEmail) {
-        return stepEntryRepository.findAllStepEntriesForPMInRange(from, to, assigneEmail)
+    public List<ProjectEmployees> getProjectEmployeesForPM(final YearMonth payrollMonth, String assigneEmail) {
+        return stepEntryRepository.findAllStepEntriesForPMInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), assigneEmail)
                 .stream()
                 .collect(
                         Collectors.groupingBy(
@@ -201,8 +202,8 @@ public class StepEntryServiceImpl implements StepEntryService {
     }
 
     @Override
-    public List<ProjectEmployees> getAllProjectEmployeesForPM(LocalDate from, LocalDate to) {
-        return stepEntryRepository.findAllStepEntriesForAllPMInRange(from, to)
+    public List<ProjectEmployees> getAllProjectEmployeesForPM(YearMonth payrollMonth) {
+        return stepEntryRepository.findAllStepEntriesForAllPMInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth())
                 .stream()
                 .collect(
                         Collectors.groupingBy(

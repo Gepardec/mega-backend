@@ -11,7 +11,7 @@ import com.gepardec.mega.zep.ZepService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -32,25 +32,25 @@ public class ProjectServiceImpl implements ProjectService {
     UserRepository userRepository;
 
     @Override
-    public List<Project> getProjectsForMonthYear(LocalDate monthYear) {
-        return this.getProjectsForMonthYear(monthYear, List.of());
+    public List<Project> getProjectsForMonthYear(YearMonth payrollMonth) {
+        return this.getProjectsForMonthYear(payrollMonth, List.of());
     }
 
     @Override
-    public List<Project> getProjectsForMonthYear(final LocalDate monthYear, final List<ProjectFilter> projectFilters) {
-        return zepService.getProjectsForMonthYear(monthYear)
+    public List<Project> getProjectsForMonthYear(final YearMonth payrollMonth, final List<ProjectFilter> projectFilters) {
+        return zepService.getProjectsForMonthYear(payrollMonth)
                 .stream()
                 .filter(project -> filterProject(project, Optional.ofNullable(projectFilters).orElse(List.of())))
                 .toList();
     }
 
     @Override
-    public Optional<Project> getProjectByName(final String projectName, final LocalDate monthYear) {
-        return zepService.getProjectByName(projectName, monthYear);
+    public Optional<Project> getProjectByName(final String projectName, final YearMonth payrollMonth) {
+        return zepService.getProjectByName(projectName, payrollMonth);
     }
 
     @Override
-    public void addProject(com.gepardec.mega.db.entity.project.Project project, LocalDate selectedDate) {
+    public void addProject(com.gepardec.mega.db.entity.project.Project project, YearMonth payrollMonth) {
 
         com.gepardec.mega.db.entity.project.Project projectEntity = projectRepository.findByName(project.getName());
 
@@ -73,7 +73,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectEntity.getProjectEntries() != null) {
             noProjectEntriesExist = projectEntity.getProjectEntries()
                     .stream()
-                    .noneMatch(pe -> pe.getDate().equals(selectedDate));
+                    .noneMatch(pe -> pe.getDate().equals(payrollMonth));
         }
 
         if (noProjectEntriesExist) {

@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class OfficeCalendarUtil {
@@ -20,8 +19,12 @@ public class OfficeCalendarUtil {
     private static final Predicate<LocalDate> isHoliday = OfficeCalendarUtil::isHoliday;
     private static final Predicate<LocalDate> dayIsFriday = date -> date.getDayOfWeek() == DayOfWeek.FRIDAY;
 
-    public static List<LocalDate> getWorkingDaysBetween(LocalDate startDate, LocalDate endDateInclusive) {
-        return startDate.datesUntil(endDateInclusive.plusDays(1))
+    public static List<LocalDate> getWorkingDaysForYearMonth(YearMonth yearMonth) {
+        return getWorkingDaysBetween(yearMonth.atDay(1), yearMonth.atEndOfMonth());
+    }
+
+    public static List<LocalDate> getWorkingDaysBetween(LocalDate from, LocalDate toInclusive) {
+        return from.datesUntil(toInclusive.plusDays(1))
                 .filter(isWeekend.or(isHoliday).negate())
                 .toList();
     }
@@ -34,7 +37,9 @@ public class OfficeCalendarUtil {
         return isWeekend.or(isHoliday).negate().test(date);
     }
 
-    public static boolean isFriday(LocalDate date){return dayIsFriday.test(date);}
+    public static boolean isFriday(LocalDate date) {
+        return dayIsFriday.test(date);
+    }
 
     public static Stream<LocalDate> getHolidaysForYear(int year) {
         return HOLIDAY_MANAGER.getHolidays(year).stream().map(Holiday::getDate);

@@ -5,7 +5,6 @@ import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
-import com.gepardec.mega.domain.utils.DateUtils;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -14,7 +13,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAdjusters;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,6 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil.getWorkingDaysBetween;
+import static com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil.getWorkingDaysForYearMonth;
 
 @ApplicationScoped
 public class WorkingTimeUtil {
@@ -58,21 +58,21 @@ public class WorkingTimeUtil {
     public double getOvertimeForEmployee(Employee employee,
                                          List<ProjectTime> billableEntries,
                                          List<AbsenceTime> fehlzeitTypeList,
-                                         LocalDate date) {
+                                         YearMonth payrollMonth) {
         if (employee.getRegularWorkingHours() == null) {
             return 0.0;
         }
 
         // In case there are absences that do not affect the current month, filter them out
         fehlzeitTypeList = fehlzeitTypeList.stream()
-                .filter(ftl -> ftl.fromDate().getMonthValue() == date.getMonthValue())
+                .filter(ftl -> ftl.fromDate().getMonthValue() == payrollMonth.getMonthValue())
                 .toList();
 
         //FIXME
-        var workingDaysCountMap = getWorkingDaysBetween(date, DateUtils.getLastDayOfCurrentMonth(date.toString()))
+        var workingDaysCountMap = getWorkingDaysForYearMonth(payrollMonth)
                 .stream()
                 .collect(Collectors.groupingBy(LocalDate::getDayOfWeek, Collectors.counting()));
-        var absenceDaysCountMap = getAbsenceDaysCountMap(fehlzeitTypeList, date);
+        var absenceDaysCountMap = getAbsenceDaysCountMap(fehlzeitTypeList, payrollMonth);
         var presentDaysCountMap = workingDaysCountMap.entrySet().stream()
                 .map(entry -> removeAbsenceDays(entry, absenceDaysCountMap))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -127,11 +127,11 @@ public class WorkingTimeUtil {
 
     // Calculator functions for AbsenceTime
 
-    public int getAbsenceTimesForEmployee(@Nonnull List<AbsenceTime> fehlZeitTypeList, String absenceType, LocalDate date) {
+    public int getAbsenceTimesForEmployee(@Nonnull List<AbsenceTime> fehlZeitTypeList, String absenceType, YearMonth payrollMonth) {
         return (int) fehlZeitTypeList.stream()
                 .filter(fzt -> fzt.reason().equals(absenceType))
                 .filter(AbsenceTime::accepted)
-                .map(fehlzeitType -> trimDurationToCurrentMonth(fehlzeitType, date))
+                .map(fehlzeitType -> trimDurationToCurrentMonth(fehlzeitType, payrollMonth))
                 .mapToLong(ftl ->
                         getWorkingDaysBetween(
                                 ftl.fromDate(),
@@ -141,11 +141,11 @@ public class WorkingTimeUtil {
                 .sum();
     }
 
-    public Map<DayOfWeek, Long> getAbsenceDaysCountMap(@Nonnull List<AbsenceTime> fehlZeitTypeList, LocalDate date) {
+    public Map<DayOfWeek, Long> getAbsenceDaysCountMap(@Nonnull List<AbsenceTime> fehlZeitTypeList, YearMonth payrollMonth) {
         return fehlZeitTypeList.stream()
                 .filter(ftl -> !BOOKABLE_ABSENCES.contains(ftl.reason()))
                 .filter(AbsenceTime::accepted)
-                .map(fehlzeitType -> trimDurationToCurrentMonth(fehlzeitType, date))
+                .map(fehlzeitType -> trimDurationToCurrentMonth(fehlzeitType, payrollMonth))
                 .map(ftl -> getWorkingDaysBetween(ftl.fromDate(), ftl.toDate()))
                 .flatMap(this::getDayOfWeeks)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
@@ -155,14 +155,14 @@ public class WorkingTimeUtil {
         return dates.stream().map(LocalDate::getDayOfWeek);
     }
 
-    private AbsenceTime trimDurationToCurrentMonth(AbsenceTime fehlzeit, LocalDate date) {
+    private AbsenceTime trimDurationToCurrentMonth(AbsenceTime fehlzeit, YearMonth payrollMonth) {
         LocalDate toDate = fehlzeit.toDate();
-        if (toDate.getMonthValue() > date.getMonthValue()) {
-            toDate = date.with(TemporalAdjusters.lastDayOfMonth());
+        if (toDate.getMonthValue() > payrollMonth.getMonthValue()) {
+            toDate = payrollMonth.atEndOfMonth();
         }
         LocalDate fromDate = fehlzeit.fromDate();
-        if (fromDate.getMonthValue() < date.getMonthValue()) {
-            fromDate = date.with(TemporalAdjusters.firstDayOfMonth());
+        if (fromDate.getMonthValue() < payrollMonth.getMonthValue()) {
+            fromDate = payrollMonth.atDay(1);
         }
 
         return AbsenceTime.builder()

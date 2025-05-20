@@ -1,7 +1,11 @@
 package com.gepardec.mega.service.impl.monthlyreport;
 
 
-import com.gepardec.mega.domain.model.*;
+import com.gepardec.mega.domain.model.AbsenceTime;
+import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.ProjectTime;
+import com.gepardec.mega.domain.model.Role;
+import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
@@ -19,6 +23,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +82,7 @@ class WorkingTimeUtilTest {
         List<ProjectTime> projectTimes = returnNormalDayProjectTimes(5);
         List<AbsenceTime> fehlzeitTypes = List.of();
 
-        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
+        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, fehlzeitTypes, YearMonth.of(2023, 11));
         assertThat(overtimeforEmployee).isEqualTo(8.0);
     }
 
@@ -88,7 +93,7 @@ class WorkingTimeUtilTest {
         List<ProjectTime> projectTimes = returnNormalDayProjectTimes(3);
         List<AbsenceTime> fehlzeitTypes = List.of();
 
-        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
+        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, fehlzeitTypes, YearMonth.of(2023, 11));
         assertThat(overtimeforEmployee).isEqualTo(-8.);
     }
 
@@ -99,7 +104,7 @@ class WorkingTimeUtilTest {
         List<ProjectTime> projectTimes = returnNormalDayProjectTimes(3);
         List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
 
-        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, fehlzeitTypes, LocalDate.of(2023, 11, 1));
+        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, fehlzeitTypes, YearMonth.of(2023, 11));
         assertThat(overtimeforEmployee).isZero();
     }
 
@@ -122,7 +127,7 @@ class WorkingTimeUtilTest {
                 employee,
                 projectTimes,
                 fehlzeitTypes,
-                LocalDate.of(2023, 10, 1)
+                YearMonth.of(2023, 10)
         );
         assertThat(overtimeforEmployee).isEqualTo(0);
     }
@@ -132,7 +137,7 @@ class WorkingTimeUtilTest {
         Employee employee = createEmployee().build();
 
         List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
-        int absenceTimesForEmployee = workingTimeUtil.getAbsenceTimesForEmployee(fehlzeitTypes, "UB", LocalDate.of(2023, 11, 6));
+        int absenceTimesForEmployee = workingTimeUtil.getAbsenceTimesForEmployee(fehlzeitTypes, "UB", YearMonth.of(2023, 11));
         assertThat(absenceTimesForEmployee).isEqualTo(2);
     }
 

@@ -6,15 +6,30 @@ import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.entity.project.ProjectEntry;
 import com.gepardec.mega.db.entity.project.ProjectStep;
-import com.gepardec.mega.domain.model.*;
-import com.gepardec.mega.domain.utils.DateUtils;
+import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.FinishedAndTotalComments;
+import com.gepardec.mega.domain.model.Project;
+import com.gepardec.mega.domain.model.ProjectEmployees;
+import com.gepardec.mega.domain.model.ProjectFilter;
+import com.gepardec.mega.domain.model.ProjectState;
+import com.gepardec.mega.domain.model.ProjectTime;
+import com.gepardec.mega.domain.model.Role;
+import com.gepardec.mega.domain.model.State;
+import com.gepardec.mega.domain.model.StepName;
+import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.rest.api.ManagementResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.model.CustomerProjectWithoutLeadsDto;
 import com.gepardec.mega.rest.model.ManagementEntryDto;
 import com.gepardec.mega.rest.model.PmProgressDto;
 import com.gepardec.mega.rest.model.ProjectManagementEntryDto;
-import com.gepardec.mega.service.api.*;
+import com.gepardec.mega.rest.provider.PayrollContext;
+import com.gepardec.mega.rest.provider.PayrollMonthProvider;
+import com.gepardec.mega.service.api.CommentService;
+import com.gepardec.mega.service.api.EmployeeService;
+import com.gepardec.mega.service.api.ProjectEntryService;
+import com.gepardec.mega.service.api.ProjectService;
+import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.impl.Rest;
@@ -29,11 +44,17 @@ import org.slf4j.Logger;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.gepardec.mega.rest.provider.PayrollContext.PayrollContextType.MANAGEMENT;
 
 @RequestScoped
 @Authenticated
@@ -74,22 +95,26 @@ public class ManagementResourceImpl implements ManagementResource {
     ZepService zepRestService;
 
     @Inject
+    @PayrollContext(MANAGEMENT)
+    PayrollMonthProvider payrollMonthProvider;
+
+    @Inject
     Logger logger;
 
     @Override
-    public Response getAllOfficeManagementEntries(Integer year, Integer month, boolean projectStateLogicSingle) {
-        LocalDate from = DateUtils.getFirstDayOfMonth(year, month);
-        LocalDate to = DateUtils.getLastDayOfMonth(year, month);
+    public Response getAllOfficeManagementEntries(boolean projectStateLogicSingle) {
+        return getAllOfficeManagementEntries(payrollMonthProvider.getPayrollMonth(), projectStateLogicSingle);
+    }
 
+    @Override
+    public Response getAllOfficeManagementEntries(YearMonth payrollMonth, boolean projectStateLogicSingle) {
         List<ManagementEntryDto> officeManagementEntries = new ArrayList<>();
-        List<Employee> employees = employeeService.getAllEmployeesConsideringExitDate(YearMonth.of(year, month));
+        List<Employee> employees = employeeService.getAllEmployeesConsideringExitDate(payrollMonth);
 
         for (Employee employee : employees) {
-            List<StepEntry> stepEntries = stepEntryService.findAllStepEntriesForEmployee(employee, from, to);
+            List<StepEntry> stepEntries = stepEntryService.findAllStepEntriesForEmployee(employee, payrollMonth);
 
-            LocalDate formattedDate = DateUtils.parseDate(from.toString());
-
-            List<StepEntry> allOwnedStepEntriesForPMProgress = stepEntryService.findAllOwnedAndUnassignedStepEntriesForPMProgress(employee.getEmail(), formattedDate);
+            List<StepEntry> allOwnedStepEntriesForPMProgress = stepEntryService.findAllOwnedAndUnassignedStepEntriesForPMProgress(employee.getEmail(), payrollMonth);
             List<PmProgressDto> pmProgressDtos = new ArrayList<>();
 
             allOwnedStepEntriesForPMProgress
@@ -104,7 +129,13 @@ public class ManagementResourceImpl implements ManagementResource {
                                     .build()
                     ));
 
-            ManagementEntryDto newManagementEntryDto = createManagementEntryForEmployee(employee, stepEntries, from, to, pmProgressDtos, projectStateLogicSingle);
+            ManagementEntryDto newManagementEntryDto = createManagementEntryForEmployee(
+                    employee,
+                    stepEntries,
+                    payrollMonth,
+                    pmProgressDtos,
+                    projectStateLogicSingle
+            );
 
             if (newManagementEntryDto != null) {
                 officeManagementEntries.add(newManagementEntryDto);
@@ -116,31 +147,40 @@ public class ManagementResourceImpl implements ManagementResource {
     }
 
     @Override
-    public Response getAllProjectManagementEntries(Integer year, Integer month, boolean allProjects, boolean projectStateLogicSingle) {
-        validateUserContext();
+    public Response getAllProjectManagementEntries(boolean allProjects, boolean projectStateLogicSingle) {
+        return getAllProjectManagementEntries(
+                payrollMonthProvider.getPayrollMonth(),
+                allProjects,
+                projectStateLogicSingle
+        );
+    }
 
-        LocalDate from = DateUtils.getFirstDayOfMonth(year, month);
-        LocalDate to = DateUtils.getLastDayOfMonth(year, month);
+    @Override
+    public Response getAllProjectManagementEntries(YearMonth payrollMonth, boolean allProjects, boolean projectStateLogicSingle) {
+        validateUserContext();
 
         List<ProjectEmployees> projectEmployees;
 
         if (allProjects) {
-            projectEmployees = stepEntryService.getAllProjectEmployeesForPM(from, to);
+            projectEmployees = stepEntryService.getAllProjectEmployeesForPM(payrollMonth);
         } else {
             projectEmployees = stepEntryService.getProjectEmployeesForPM(
-                    from,
-                    to,
+                    payrollMonth,
                     Objects.requireNonNull(userContext.getUser()).getEmail()
             );
         }
 
         List<ProjectManagementEntryDto> projectManagementEntries = new ArrayList<>();
 
-        Map<String, Employee> employees = createEmployeeCache(YearMonth.of(year, month));
+        Map<String, Employee> employees = createEmployeeCache(payrollMonth);
 
         for (ProjectEmployees currentProject : projectEmployees) {
-            ProjectManagementEntryDto projectManagementEntryDto = loadProjectManagementEntryDto(currentProject, employees,
-                    from, to, projectStateLogicSingle);
+            ProjectManagementEntryDto projectManagementEntryDto = loadProjectManagementEntryDto(
+                    currentProject,
+                    employees,
+                    payrollMonth,
+                    projectStateLogicSingle
+            );
 
             if (projectManagementEntryDto != null) {
                 projectManagementEntries.add(projectManagementEntryDto);
@@ -151,10 +191,10 @@ public class ManagementResourceImpl implements ManagementResource {
     }
 
     private ProjectManagementEntryDto loadProjectManagementEntryDto(ProjectEmployees currentProject, Map<String,
-            Employee> employees, LocalDate from, LocalDate to, boolean projectStateLogicSingle) {
+            Employee> employees, YearMonth payrollMonth, boolean projectStateLogicSingle) {
 
-        List<ManagementEntryDto> entries = createManagementEntriesForProject(currentProject, employees, from, to, projectStateLogicSingle);
-        List<ProjectEntry> projectEntries = projectEntryService.findByNameAndDate(currentProject.getProjectId(), from, to);
+        List<ManagementEntryDto> entries = createManagementEntriesForProject(currentProject, employees, payrollMonth, projectStateLogicSingle);
+        List<ProjectEntry> projectEntries = projectEntryService.findByNameAndDate(currentProject.getProjectId(), payrollMonth);
 
         if (!entries.isEmpty() && !projectEntries.isEmpty()) {
 
@@ -214,14 +254,16 @@ public class ManagementResourceImpl implements ManagementResource {
     public Response getProjectsWithoutLeads() {
         validateUserContext();
 
-        LocalDate firstDayOfMonth = DateUtils.getFirstDayOfCurrentMonth();
-        List<Project> customerProjectsWithoutLeads = projectService.getProjectsForMonthYear(firstDayOfMonth,
-                List.of(ProjectFilter.IS_CUSTOMER_PROJECT, ProjectFilter.WITHOUT_LEADS));
+        YearMonth fetchDate = payrollMonthProvider.getPayrollMonth().plusMonths(1);
+        List<Project> customerProjectsWithoutLeads = projectService.getProjectsForMonthYear(
+                fetchDate,
+                List.of(ProjectFilter.IS_CUSTOMER_PROJECT, ProjectFilter.WITHOUT_LEADS)
+        );
 
         List<CustomerProjectWithoutLeadsDto> customerProjectsWithoutLeadsDto = customerProjectsWithoutLeads.stream()
                 .map(project -> CustomerProjectWithoutLeadsDto.builder()
                         .projectName(project.getProjectId())
-                        .fetchDate(firstDayOfMonth)
+                        .fetchDate(fetchDate.atDay(1))
                         .comment("Dieses Projekt hat keinen Projektleiter zugewiesen. Bitte in ZEP hinzufügen!")
                         .zepId(project.getZepId())
                         .build())
@@ -257,7 +299,7 @@ public class ManagementResourceImpl implements ManagementResource {
                 .collect(Collectors.toMap(Employee::getUserId, employee -> employee));
     }
 
-    private List<ManagementEntryDto> createManagementEntriesForProject(ProjectEmployees projectEmployees, Map<String, Employee> employees, LocalDate from, LocalDate to, boolean projectStateLogicSingle) {
+    private List<ManagementEntryDto> createManagementEntriesForProject(ProjectEmployees projectEmployees, Map<String, Employee> employees, YearMonth payrollMonth, boolean projectStateLogicSingle) {
         validateUserContext();
 
         List<ManagementEntryDto> entries = new ArrayList<>();
@@ -269,11 +311,10 @@ public class ManagementResourceImpl implements ManagementResource {
                         employee,
                         projectEmployees.getProjectId(),
                         Objects.requireNonNull(userContext.getUser()).getEmail(),
-                        from,
-                        to
+                        payrollMonth
                 );
 
-                ManagementEntryDto entry = createManagementEntryForEmployee(employee, projectEmployees.getProjectId(), stepEntries, from, to, null, projectStateLogicSingle);
+                ManagementEntryDto entry = createManagementEntryForEmployee(employee, projectEmployees.getProjectId(), stepEntries, payrollMonth, null, projectStateLogicSingle);
 
                 if (entry != null) {
                     entries.add(entry);
@@ -284,14 +325,14 @@ public class ManagementResourceImpl implements ManagementResource {
         return entries;
     }
 
-    private ManagementEntryDto createManagementEntryForEmployee(Employee employee, List<StepEntry> stepEntries, LocalDate from, LocalDate to, List<PmProgressDto> pmProgressDtos, boolean projectStateLogicSingle) {
-        return createManagementEntryForEmployee(employee, null, stepEntries, from, to, pmProgressDtos, projectStateLogicSingle);
+    private ManagementEntryDto createManagementEntryForEmployee(Employee employee, List<StepEntry> stepEntries, YearMonth payrollMonth, List<PmProgressDto> pmProgressDtos, boolean projectStateLogicSingle) {
+        return createManagementEntryForEmployee(employee, null, stepEntries, payrollMonth, pmProgressDtos, projectStateLogicSingle);
     }
 
-    private ManagementEntryDto createManagementEntryForEmployee(Employee employee, String projectId, List<StepEntry> stepEntries, LocalDate from, LocalDate to, List<PmProgressDto> pmProgressDtos, boolean projectStateLogicSingle) {
-        FinishedAndTotalComments finishedAndTotalComments = commentService.countFinishedAndTotalComments(employee.getEmail(), from, to);
+    private ManagementEntryDto createManagementEntryForEmployee(Employee employee, String projectId, List<StepEntry> stepEntries, YearMonth payrollMonth, List<PmProgressDto> pmProgressDtos, boolean projectStateLogicSingle) {
+        FinishedAndTotalComments finishedAndTotalComments = commentService.countFinishedAndTotalComments(employee.getEmail(), payrollMonth);
 
-        List<ProjectTime> projectTime = zepService.getProjectTimesForEmployeePerProject(projectId, from);
+        List<ProjectTime> projectTime = zepService.getProjectTimesForEmployeePerProject(projectId, payrollMonth);
 
         if (!stepEntries.isEmpty()) {
             Pair<State, String> employeeCheckStatePair = extractEmployeeCheckState(stepEntries);
@@ -311,7 +352,7 @@ public class ManagementResourceImpl implements ManagementResource {
             }
 
             // used later on to compute the percentage of hours which were spent in this project (both billable and non-billable)
-            List<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry> projectEntriesForEmployee = zepRestService.getProjectTimes(employee, from);
+            List<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry> projectEntriesForEmployee = zepRestService.getProjectTimes(employee, payrollMonth);
             long totalWorkingHoursInMinutesForMonthAndEmployee = workingTimeUtil.getDurationFromTimeString(workingTimeUtil.getTotalWorkingTimeForEmployee(projectEntriesForEmployee, employee)).toMinutes();
 
             String billableTimeString = workingTimeUtil.getBillableTimesForEmployee(projectTime, employee);

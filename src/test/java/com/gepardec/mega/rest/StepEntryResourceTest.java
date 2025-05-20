@@ -17,7 +17,7 @@ import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -59,7 +59,7 @@ class StepEntryResourceTest {
     @Test
     void close_whenValid_thenReturnsUpdatedNumber() {
         when(stepEntryService.setOpenAndAssignedStepEntriesDone(
-                ArgumentMatchers.any(Employee.class), ArgumentMatchers.anyLong(), ArgumentMatchers.any(LocalDate.class), ArgumentMatchers.any(LocalDate.class))
+                ArgumentMatchers.any(Employee.class), ArgumentMatchers.anyLong(), ArgumentMatchers.any(YearMonth.class))
         ).thenReturn(true);
 
         final User user = createUserForRole(Role.EMPLOYEE);

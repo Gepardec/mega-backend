@@ -10,7 +10,6 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
-import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
@@ -45,12 +44,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MultivaluedMap;
 import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -166,22 +163,26 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     @Override
-    public List<ProjectEntry> getProjectTimes(Employee employee, LocalDate date) {
+    public List<ProjectEntry> getProjectTimes(Employee employee, YearMonth payrollMonth) {
         logger.debug("Retrieving project times from ZEP of %s".formatted(employee.getUserId()));
-        List<ZepAttendance> zepAttendances = attendanceService.getAttendanceForUserAndMonth(employee.getUserId(), date);
-        return projectEntryMapper.mapList(zepAttendances);
+        return projectEntryMapper.mapList(
+                attendanceService.getAttendanceForUserAndMonth(
+                        employee.getUserId(),
+                        payrollMonth
+                )
+        );
     }
 
     //TODO: This method name is misleading as it is not returning the project times for a specific employee but for all employees of a project
     //The misleading name is the result of the original method name in the ZepService interface being not well named
     @CacheResult(cacheName = "projectTimesForEmployeePerProject")
     @Override
-    public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, LocalDate curDate) {
+    public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, YearMonth payrollMonth) {
         List<ZepAttendance> allZepAttendancesForProject = new ArrayList<>();
 
         logger.debug("Retrieving project %s from ZEP".formatted(project));
 
-        Optional<ZepProject> projectOpt = projectService.getProjectByName(project, curDate);
+        Optional<ZepProject> projectOpt = projectService.getProjectByName(project, payrollMonth);
         if (projectOpt.isEmpty()) {
             logger.warn("No project found for name {}", project);
             return List.of();
@@ -194,15 +195,15 @@ public class ZepRestServiceImpl implements ZepService {
 
         projectEmployees.forEach(projectEmployee -> {
             logger.debug("Retrieving attendance of user %s of project %d from ZEP".formatted(projectEmployee.username(), projectId));
-            allZepAttendancesForProject.addAll(attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.username(), curDate, projectId));
+            allZepAttendancesForProject.addAll(attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.username(), payrollMonth, projectId));
         });
         return projectTimeMapper.mapList(allZepAttendancesForProject);
     }
 
     @Override
-    public List<Project> getProjectsForMonthYear(LocalDate monthYear) {
-        logger.debug("Retrieving projects for monthYear of %s from ZEP".formatted(monthYear.toString()));
-        List<ZepProject> zepProjects = projectService.getProjectsForMonthYear(monthYear);
+    public List<Project> getProjectsForMonthYear(YearMonth payrollMonth) {
+        logger.debug("Retrieving projects for payroll month %s from ZEP".formatted(payrollMonth.toString()));
+        List<ZepProject> zepProjects = projectService.getProjectsForMonthYear(payrollMonth);
         List<Project.Builder> projects = projectMapper.mapList(zepProjects);
         IntStream.range(0, projects.size())
                 .forEach(i -> addProjectEmployeesToBuilder(projects.get(i), zepProjects.get(i)));
@@ -212,68 +213,63 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     @Override
-    public Optional<Project> getProjectByName(String projectName, LocalDate monthYear) {
+    public Optional<Project> getProjectByName(String projectName, YearMonth payrollMonth) {
         logger.debug("Retrieving project %s from ZEP".formatted(projectName));
-        Optional<ZepProject> zepProject = projectService.getProjectByName(projectName, monthYear);
+        Optional<ZepProject> zepProject = projectService.getProjectByName(projectName, payrollMonth);
         return zepProject.map(project -> projectMapper.map(project).build());
     }
 
     @Override
-    public List<AbsenceTime> getAbsenceForEmployee(Employee employee, LocalDate date) {
+    public List<AbsenceTime> getAbsenceForEmployee(Employee employee, YearMonth payrollMonth) {
         logger.debug("Retrieving absences of %s from ZEP".formatted(employee.getUserId()));
-        LocalDate firstOfMonth = DateUtils.getFirstDayOfMonth(date.getYear(), date.getMonthValue());
-        LocalDate lastOfMonth = DateUtils.getLastDayOfMonth(date.getYear(), date.getMonthValue());
-        List<ZepAbsence> zepAbsences = absenceService
-                .getZepAbsencesByEmployeeNameForDateRange(employee.getUserId(), firstOfMonth, lastOfMonth);
+        List<ZepAbsence> zepAbsences = absenceService.getZepAbsencesByEmployeeNameForDateRange(
+                employee.getUserId(),
+                payrollMonth
+        );
 
         return absenceMapper.mapList(zepAbsences);
     }
 
     @Override
-    public List<ProjectTime> getBillableForEmployee(Employee employee, LocalDate date) {
+    public List<ProjectTime> getBillableForEmployee(Employee employee, YearMonth payrollMonth) {
         logger.debug("Retrieving billable entries of employee %s from ZEP".formatted(employee.getUserId()));
-        List<ZepAttendance> projectTimes = attendanceService.getBillableAttendancesForUserAndMonth(employee.getUserId(), date);
+        List<ZepAttendance> projectTimes = attendanceService.getBillableAttendancesForUserAndMonth(employee.getUserId(), payrollMonth);
         return projectTimeMapper.mapList(projectTimes);
     }
 
     @Override
-    public MonthlyBillInfo getMonthlyBillInfoForEmployee(PersonioEmployee personioEmployee, Employee employee, YearMonth yearMonth) {
-        Pair<String, String> fromToDatePair = dateHelperService.getCorrectDateForRequest(employee, yearMonth);
-        return getMonthlyBillInfoInternal(personioEmployee, employee, fromToDatePair.getLeft(), fromToDatePair.getRight());
+    public MonthlyBillInfo getMonthlyBillInfoForEmployee(PersonioEmployee personioEmployee, Employee employee, YearMonth payrollMonth) {
+        return getMonthlyBillInfoInternal(personioEmployee, employee, payrollMonth);
     }
 
     @Override
-    public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
+    public List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(Employee employee, YearMonth payrollMonth) {
         Optional<ZepEmployee> employeeRetrieved = zepEmployeeService.getZepEmployeeByUsername(employee.getUserId());
         List<ProjectHoursSummary> resultProjectHoursSummary = new ArrayList<>();
 
         if (employeeRetrieved.isPresent()) {
-            resultProjectHoursSummary = getProjectsForMonthAndEmployeeInternal(employeeRetrieved.get(), yearMonth);
+            resultProjectHoursSummary = getProjectsForMonthAndEmployeeInternal(employeeRetrieved.get(), payrollMonth);
         }
         return resultProjectHoursSummary;
     }
 
     @Override
-    public double getDoctorsVisitingTimeForMonthAndEmployee(Employee employee, YearMonth yearMonth) {
-        String startDateString = dateHelperService.getCorrectDateForRequest(employee, yearMonth).getLeft();
-        LocalDate startDate = DateUtils.parseDate(startDateString);
-
-        List<ZepAttendance> doctorsAttendances = attendanceService.getAttendanceForUserProjectAndMonth(employee.getUserId(), startDate, ProjectTaskType.PROJECT_INTERNAL.getId())
+    public double getDoctorsVisitingTimeForMonthAndEmployee(Employee employee, YearMonth payrollMonth) {
+        return attendanceService.getAttendanceForUserProjectAndMonth(
+                        employee.getUserId(),
+                        payrollMonth,
+                        ProjectTaskType.PROJECT_INTERNAL.getId()
+                )
                 .stream()
                 .filter(attendance -> attendance.projectTaskId().equals(ProjectTaskType.TASK_DOCTOR_VISIT.getId()))
-                .toList();
-
-        return doctorsAttendances.stream()
                 .mapToDouble(ZepAttendance::duration)
                 .sum();
     }
 
-    private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth yearMonth) {
+    private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth payrollMonth) {
         Employee employeeForRequest = employeeMapper.map(employee);
-        String dateString = dateHelperService.getCorrectDateForRequest(employeeForRequest, yearMonth).getLeft();
-        LocalDate dateForRequest = DateUtils.parseDate(dateString);
         List<ProjectHoursSummary> resultProjectHoursSummary = new ArrayList<>();
-        List<ZepProject> projectsRetrieved = projectService.getProjectsForMonthYear(dateForRequest);
+        List<ZepProject> projectsRetrieved = projectService.getProjectsForMonthYear(payrollMonth);
 
         projectsRetrieved.forEach(
                 project -> {
@@ -284,7 +280,7 @@ public class ZepRestServiceImpl implements ZepService {
                     if (projectEmployee.isEmpty()) {
                         return;
                     }
-                    List<ZepAttendance> attendancesForEmployeeAndProject = attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.get().username(), dateForRequest, project.id());
+                    List<ZepAttendance> attendancesForEmployeeAndProject = attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.get().username(), payrollMonth, project.id());
                     if (!attendancesForEmployeeAndProject.isEmpty()) {
                         Optional<ProjectHoursSummary> optionalProjectHoursSummary = createProjectsHoursSummary(attendancesForEmployeeAndProject, project);
                         optionalProjectHoursSummary.ifPresent(resultProjectHoursSummary::add);
@@ -338,8 +334,8 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
 
-    private MonthlyBillInfo getMonthlyBillInfoInternal(PersonioEmployee personioEmployee, Employee employee, String fromDate, String toDate) {
-        List<ZepReceipt> allReceiptsForYearMonth = receiptService.getAllReceiptsForYearMonth(employee, fromDate, toDate);
+    private MonthlyBillInfo getMonthlyBillInfoInternal(PersonioEmployee personioEmployee, Employee employee, YearMonth payrollMonth) {
+        List<ZepReceipt> allReceiptsForYearMonth = receiptService.getAllReceiptsInRange(payrollMonth);
         List<ZepReceipt> allReceiptsForYearMonthAndEmployee;
 
         if (!allReceiptsForYearMonth.isEmpty()) {

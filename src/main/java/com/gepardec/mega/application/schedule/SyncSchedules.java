@@ -9,9 +9,8 @@ import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
+import java.time.YearMonth;
 import java.util.concurrent.TimeUnit;
-
-import static com.gepardec.mega.domain.utils.DateUtils.getFirstDayOfCurrentMonth;
 
 @Dependent
 public class SyncSchedules {
@@ -53,7 +52,7 @@ public class SyncSchedules {
             cron = "0 0 0 L * ? *"
     )
     void generateStepEntries() {
-        stepEntrySyncService.generateStepEntries(getFirstDayOfCurrentMonth());
+        stepEntrySyncService.generateStepEntries(YearMonth.now());
     }
 
     @Scheduled(
@@ -62,7 +61,7 @@ public class SyncSchedules {
             delay = 30, delayUnit = TimeUnit.SECONDS
     )
     void generateProjects() {
-        projectSyncService.generateProjects(getFirstDayOfCurrentMonth());
+        projectSyncService.generateProjects(YearMonth.now());
     }
 
     @Scheduled(
@@ -70,7 +69,7 @@ public class SyncSchedules {
             cron = "0 0 0 L * ? *"
     )
     void generateEnterpriseEntries() {
-        enterpriseSyncService.generateEnterpriseEntries(getFirstDayOfCurrentMonth());
+        enterpriseSyncService.generateEnterpriseEntries(YearMonth.now());
     }
 
     @Scheduled(
@@ -78,6 +77,6 @@ public class SyncSchedules {
             cron = "0 0 6 L * ? *"
     )
     void syncPrematureEmployeeChecksWithStepEntries() {
-        prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(getFirstDayOfCurrentMonth());
+        prematureEmployeeCheckSyncService.syncPrematureEmployeeChecksWithStepEntries(YearMonth.now());
     }
 }

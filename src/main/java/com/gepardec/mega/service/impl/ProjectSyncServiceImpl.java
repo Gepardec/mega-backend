@@ -17,8 +17,8 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -43,25 +43,25 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
     ProjectEntryService projectEntryService;
 
     @Override
-    public boolean generateProjects(LocalDate date) {
+    public boolean generateProjects(YearMonth payrollMonth) {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         logger.info("Started project generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
-        logger.info("Processing date: {}", date);
+        logger.info("Processing date: {}", payrollMonth);
 
         List<User> activeUsers = userService.findActiveUsers();
-        List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(date, List.of(ProjectFilter.IS_LEADS_AVAILABLE));
+        List<Project> projectsForMonthYear = projectService.getProjectsForMonthYear(payrollMonth, List.of(ProjectFilter.IS_LEADS_AVAILABLE));
 
         logger.info("Loaded projects: {}", projectsForMonthYear.size());
         logger.debug("projects are {}", projectsForMonthYear);
         logger.info("Loaded users: {}", activeUsers.size());
         logger.debug("Users are: {}", activeUsers);
 
-        createProjects(activeUsers, projectsForMonthYear, date)
-                .forEach(project -> projectService.addProject(project, date));
+        createProjects(activeUsers, projectsForMonthYear, payrollMonth)
+                .forEach(project -> projectService.addProject(project, payrollMonth));
 
-        List<Project> projects = projectService.getProjectsForMonthYear(date);
+        List<Project> projects = projectService.getProjectsForMonthYear(payrollMonth);
 
         stopWatch.stop();
 
@@ -73,15 +73,15 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         return !projects.isEmpty();
     }
 
-    private List<com.gepardec.mega.db.entity.project.Project> createProjects(List<User> activeUsers, List<Project> projects, LocalDate date) {
+    private List<com.gepardec.mega.db.entity.project.Project> createProjects(List<User> activeUsers, List<Project> projects, YearMonth payrollMonth) {
         return projects.stream()
-                .map(project -> createProjectEntityFromProject(activeUsers, project, date))
+                .map(project -> createProjectEntityFromProject(activeUsers, project, payrollMonth))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();
     }
 
-    private Optional<com.gepardec.mega.db.entity.project.Project> createProjectEntityFromProject(List<User> activeUsers, Project project, LocalDate date) {
+    private Optional<com.gepardec.mega.db.entity.project.Project> createProjectEntityFromProject(List<User> activeUsers, Project project, YearMonth payrollMonth) {
         com.gepardec.mega.db.entity.project.Project projectEntity = new com.gepardec.mega.db.entity.project.Project();
 
         List<User> leads = project.getLeads()
@@ -108,7 +108,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         projectEntity.setEndDate(project.getEndDate());
 
         Arrays.stream(ProjectStep.values()).forEach(projectStep ->
-                projectEntity.addProjectEntry(createProjectEntry(projectEntity, mappedLeads, date, projectStep))
+                projectEntity.addProjectEntry(createProjectEntry(projectEntity, mappedLeads, payrollMonth, projectStep))
         );
 
         return Optional.of(projectEntity);
@@ -126,7 +126,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
 
     private ProjectEntry createProjectEntry(com.gepardec.mega.db.entity.project.Project project,
                                             Set<com.gepardec.mega.db.entity.employee.User> leads,
-                                            LocalDate date, ProjectStep step) {
+                                            YearMonth payrollMonth, ProjectStep step) {
         ProjectEntry projectEntry = new ProjectEntry();
         projectEntry.setProject(project);
         projectEntry.setName(project.getName());
@@ -140,16 +140,14 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
                         .findFirst()
                         .orElseThrow(() -> new IllegalStateException("Project without project lead found."))
         );
-        projectEntry.setDate(date);
+        projectEntry.setDate(payrollMonth.atDay(1));
         // TODO: Make sure that creation- and updateDate and state are not set in code, but only in the entity class
         projectEntry.setCreationDate(LocalDateTime.now());
         projectEntry.setUpdatedDate(LocalDateTime.now());
         projectEntry.setState(State.OPEN);
         projectEntry.setStep(step);
 
-        LocalDate from = date.minusMonths(1).withDayOfMonth(1);
-        LocalDate to = date.minusMonths(1).withDayOfMonth(date.minusMonths(1).lengthOfMonth());
-        Optional<ProjectEntry> projectEntryValue = projectEntryService.findByNameAndDate(project.getName(), from, to)
+        Optional<ProjectEntry> projectEntryValue = projectEntryService.findByNameAndDate(project.getName(), payrollMonth.minusMonths(1))
                 .stream()
                 .filter(Objects::nonNull)
                 .filter(pe -> pe.getStep().getId() == step.getId())

@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 @RequestScoped
 @Authenticated
@@ -26,15 +27,11 @@ public class StepEntryResourceImpl implements StepEntryResource {
 
     @Override
     public Response close(final EmployeeStepDto employeeStepDto) {
-        LocalDate from = DateUtils.getFirstDayOfCurrentMonth(employeeStepDto.getCurrentMonthYear());
-        LocalDate to = DateUtils.getLastDayOfCurrentMonth(employeeStepDto.getCurrentMonthYear());
-
         return Response.ok(
                         stepEntryService.setOpenAndAssignedStepEntriesDone(
                                 employeeMapper.mapToDomain(employeeStepDto.getEmployee()),
                                 employeeStepDto.getStepId(),
-                                from,
-                                to
+                                YearMonth.from(LocalDate.parse(employeeStepDto.getCurrentMonthYear()))
                         )
                 )
                 .build();

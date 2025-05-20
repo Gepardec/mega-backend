@@ -10,8 +10,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
-import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
+import java.time.YearMonth;
 
 @RequestScoped
 @Authenticated
@@ -23,17 +22,11 @@ public class EnterpriseResourceImpl implements EnterpriseResource {
 
     @Override
     public Response getEnterpriseEntryForMonthYear(Integer year, Integer month) {
-        LocalDate from = LocalDate.of(year, month, 1);
-        LocalDate to = LocalDate.of(year, month, 1).with(TemporalAdjusters.lastDayOfMonth());
-
-        return Response.ok(enterpriseEntryService.findByDate(from, to)).build();
+        return Response.ok(enterpriseEntryService.findByDate(YearMonth.of(year, month))).build();
     }
 
     @Override
     public Response updateEnterpriseEntry(Integer year, Integer month, final EnterpriseEntryDto entryDto) {
-        LocalDate from = LocalDate.of(year, month, 1);
-        LocalDate to = LocalDate.of(year, month, 1).with(TemporalAdjusters.lastDayOfMonth());
-
-        return Response.ok(enterpriseEntryService.update(entryDto, from, to)).build();
+        return Response.ok(enterpriseEntryService.update(entryDto, YearMonth.of(year, month))).build();
     }
 }
