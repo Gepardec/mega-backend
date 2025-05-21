@@ -28,6 +28,7 @@ class PersonioEmployeeMapperTest {
                 .guildLead("TestGuildLead")
                 .hasCreditCard(true)
                 .internalProjectLead("TestLead")
+                .personioId(123456)
                 .build();
 
         dto = PersonioEmployeeDto.builder()
@@ -35,6 +36,7 @@ class PersonioEmployeeMapperTest {
                 .guildLead(Attribute.ofValue("TestGuildLead"))
                 .hasCreditCard(Attribute.ofValue("Ja"))
                 .internalProjectLead(Attribute.ofValue("TestLead"))
+                .id(Attribute.ofValue(123456))
                 .build();
     }
 
@@ -64,6 +66,7 @@ class PersonioEmployeeMapperTest {
         PersonioEmployeeDto personioEmployeeDto = PersonioEmployeeDto.builder()
                 .email(Attribute.ofValue("testuser@testmail.com"))
                 .hasCreditCard(Attribute.ofValue("Ja"))
+                .id(Attribute.ofValue(123456))
                 .build();
 
 

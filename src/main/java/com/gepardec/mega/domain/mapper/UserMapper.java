@@ -15,6 +15,7 @@ public class UserMapper implements EntityMapper<User, com.gepardec.mega.db.entit
         user.setEmail(object.getEmail());
         user.setReleaseDate(object.getReleaseDate());
         user.setRoles(object.getRoles());
+        user.setPersonioId(object.getPersonioId());
         return user;
     }
 
@@ -31,6 +32,7 @@ public class UserMapper implements EntityMapper<User, com.gepardec.mega.db.entit
                 .email(object.getEmail())
                 .releaseDate(object.getReleaseDate())
                 .roles(object.getRoles())
+                .personioId(object.getPersonioId())
                 .build();
     }
 }

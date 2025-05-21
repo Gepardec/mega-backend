@@ -109,6 +109,9 @@ public class User {
     @Column(name = "zep_id")
     private String zepId;
 
+    @Column(name = "personio_id")
+    private Integer personioId;
+
     /**
      * The ZEP release date
      */
@@ -226,6 +229,14 @@ public class User {
 
     public void setZepId(String zepId) {
         this.zepId = zepId;
+    }
+
+    public Integer getPersonioId() {
+        return personioId;
+    }
+
+    public void setPersonioId(Integer personioId) {
+        this.personioId = personioId;
     }
 
     public Boolean getActive() {

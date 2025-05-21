@@ -41,6 +41,8 @@ public class Employee {
 
     private LocalDate firstDayCurrentEmploymentPeriod;
 
+    private Integer personioId;
+
     private Employee(Builder builder) {
         this.userId = builder.userId;
         this.email = builder.email;
@@ -55,6 +57,7 @@ public class Employee {
         this.active = builder.active;
         this.exitDate = builder.exitDate;
         this.firstDayCurrentEmploymentPeriod = builder.firstDayCurrentEmploymentPeriod;
+        this.personioId = builder.personioId;
     }
 
     public static Builder builder() {
@@ -130,6 +133,13 @@ public class Employee {
         this.firstDayCurrentEmploymentPeriod = firstDayCurrentEmploymentPeriod;
     }
 
+    public Integer getPersonioId() {
+        return personioId;
+    }
+
+    public void setPersonioId(Integer personioId) {
+        this.personioId = personioId;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -159,6 +169,7 @@ public class Employee {
         private boolean active;
         private LocalDate exitDate;
         private LocalDate firstDayCurrentEmploymentPeriod;
+        private Integer personioId;
 
         private Builder() {
         }
@@ -229,6 +240,11 @@ public class Employee {
 
         public Builder exitDate(LocalDate exitDate) {
             this.exitDate = exitDate;
+            return this;
+        }
+
+        public Builder personioId(Integer personioId) {
+            this.personioId = personioId;
             return this;
         }
 

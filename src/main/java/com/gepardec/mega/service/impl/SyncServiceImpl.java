@@ -10,6 +10,7 @@ import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
+import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -47,6 +48,9 @@ public class SyncServiceImpl implements SyncService {
 
     @Inject
     EmployeeService employeeService;
+
+    @Inject
+    PersonioEmployeesService personioEmployeesService;
 
     @Inject
     ZepService zepService;
@@ -161,17 +165,17 @@ public class SyncServiceImpl implements SyncService {
 
     private void createNonExistentUsers(final List<Employee> employees, final List<User> users, final List<Project> projects) {
         final List<User> notExistentUsers = filterNotExistingEmployeesAndMapToUser(employees, users, projects);
-        if (!notExistentUsers.isEmpty()) {
-            notExistentUsers.forEach(userRepository::persist);
-        }
+
+        notExistentUsers.stream().map(this::addPersonioIdForUser).forEach(userRepository::persist);
+
         log.info("Created users: {}", notExistentUsers.size());
     }
 
     private void updateModifiedUsers(final List<Employee> employees, final List<User> users, final List<Project> project) {
         final List<User> modifiedUsers = filterModifiedEmployeesAndUpdateUsers(employees, users, project);
-        if (!modifiedUsers.isEmpty()) {
-            modifiedUsers.forEach(userRepository::update);
-        }
+
+        modifiedUsers.stream().map(this::addPersonioIdForUser).forEach(userRepository::update);
+
         log.info("Updated users: {}", modifiedUsers.size());
     }
 
@@ -219,5 +223,14 @@ public class SyncServiceImpl implements SyncService {
     private Map<String, Employee> mapZepIdToEmployee(final List<Employee> employees) {
         return employees.stream()
                 .collect(Collectors.toMap(Employee::getUserId, Function.identity()));
+    }
+
+    private User addPersonioIdForUser(final User user) {
+        if (user.getPersonioId() == null) {
+            personioEmployeesService
+                    .getPersonioEmployeeByEmail(user.getEmail())
+                    .ifPresent(personioEmployee -> user.setPersonioId(personioEmployee.getPersonioId()));
+        }
+        return user;
     }
 }
