@@ -68,5 +68,4 @@ class SyncServiceImplTest {
         verify(employeeService, times(1)).getAllActiveEmployees();
         verify(userRepository, times(1)).listAll();
     }
-
 }

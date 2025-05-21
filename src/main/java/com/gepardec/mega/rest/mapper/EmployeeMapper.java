@@ -19,6 +19,7 @@ public class EmployeeMapper implements DtoMapper<Employee, EmployeeDto> {
                 .releaseDate(object.getReleaseDate())
                 .workDescription(object.getWorkDescription())
                 .active(object.isActive())
+                .personioId(object.getPersonioId())
                 .build();
     }
 
@@ -34,6 +35,7 @@ public class EmployeeMapper implements DtoMapper<Employee, EmployeeDto> {
                 .releaseDate(object.getReleaseDate())
                 .workDescription(object.getWorkDescription())
                 .active(object.isActive())
+                .personioId(object.getPersonioId())
                 .build();
     }
 }

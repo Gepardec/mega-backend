@@ -22,6 +22,8 @@ public class User {
 
     private final Set<Role> roles;
 
+    private final Integer personioId;
+
     private User(Builder builder) {
         this.dbId = builder.dbId;
         this.userId = builder.userId;
@@ -30,6 +32,7 @@ public class User {
         this.lastname = builder.lastname;
         this.releaseDate = builder.releaseDate;
         this.roles = builder.roles;
+        this.personioId = builder.personioId;
     }
 
     public static Builder builder() {
@@ -64,6 +67,10 @@ public class User {
         return roles;
     }
 
+    public Integer getPersonioId() {
+        return personioId;
+    }
+
     public static final class Builder {
         private long dbId;
         private String userId;
@@ -72,6 +79,7 @@ public class User {
         private String lastname;
         private LocalDate releaseDate;
         private Set<Role> roles;
+        private Integer personioId;
 
         private Builder() {
         }
@@ -112,6 +120,11 @@ public class User {
 
         public Builder roles(Set<Role> roles) {
             this.roles = roles;
+            return this;
+        }
+
+        public Builder personioId(Integer personioId) {
+            this.personioId = personioId;
             return this;
         }
 
