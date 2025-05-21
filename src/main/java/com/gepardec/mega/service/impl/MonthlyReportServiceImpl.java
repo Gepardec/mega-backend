@@ -75,6 +75,7 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     @Override
     public MonthlyReport getMonthEndReportForUser(YearMonth payrollMonth) {
         Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
+        employee.setPersonioId(userContext.getUser().getPersonioId());
         return buildMonthlyReport(
                 employee,
                 payrollMonth,
@@ -184,7 +185,6 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                     builder.internalProjectLead(employee.getInternalProjectLead());
                     builder.guildLead(employee.getGuildLead());
                     builder.vacationDayBalance(employee.getVacationDayBalance());
-                    builder.personioId(employee.getPersonioId());
                 }
         );
 

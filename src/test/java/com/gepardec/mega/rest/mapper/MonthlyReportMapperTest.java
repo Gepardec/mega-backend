@@ -86,7 +86,6 @@ class MonthlyReportMapperTest {
                 .guildLead(null)
                 .internalProjectLead("Maria Musterfrau")
                 .prematureEmployeeCheck(prematureEmployeeCheckDto)
-                .personioId(123456)
                 .build();
 
         MonthlyReport actual = mapper.mapToDomain(dto);
@@ -101,7 +100,6 @@ class MonthlyReportMapperTest {
         assertThat(actual.getTotalWorkingTime()).isEqualTo("144.5");
         assertThat(actual.getGuildLead()).isEqualTo("");
         assertThat(actual.getInternalProjectLead()).isEqualTo("Maria Musterfrau");
-        assertThat(actual.getPersonioId()).isEqualTo(123456);
     }
 
     @Test
@@ -152,7 +150,6 @@ class MonthlyReportMapperTest {
                 .guildLead("")
                 .internalProjectLead(null)
                 .prematureEmployeeCheck(prematureEmployeeCheck)
-                .personioId(123456)
                 .build();
 
         MonthlyReportDto actual = mapper.mapToDto(report);
@@ -166,6 +163,5 @@ class MonthlyReportMapperTest {
         assertThat(actual.getTotalWorkingTime()).isEqualTo("144.5");
         assertThat(actual.getGuildLead()).isEqualTo(null);
         assertThat(actual.getInternalProjectLead()).isEqualTo(null);
-        assertThat(actual.getPersonioId()).isEqualTo(123456);
     }
 }

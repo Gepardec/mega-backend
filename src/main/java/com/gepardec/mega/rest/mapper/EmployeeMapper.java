@@ -21,6 +21,7 @@ public class EmployeeMapper implements DtoMapper<Employee, EmployeeDto> {
                 .releaseDate(object.getReleaseDate())
                 .workDescription(object.getWorkDescription())
                 .active(object.getEmploymentPeriods().active(LocalDate.now()).isPresent())
+                .personioId(object.getPersonioId())
                 .build();
     }
 
@@ -35,6 +36,7 @@ public class EmployeeMapper implements DtoMapper<Employee, EmployeeDto> {
                 .salutation(object.getSalutation())
                 .releaseDate(object.getReleaseDate())
                 .workDescription(object.getWorkDescription())
+                .personioId(object.getPersonioId())
                 .build();
     }
 }

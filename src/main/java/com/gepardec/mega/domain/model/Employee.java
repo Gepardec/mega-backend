@@ -30,6 +30,8 @@ public class Employee {
 
     private RegularWorkingTimes regularWorkingTimes;
 
+    private Integer personioId;
+
     private Employee(Builder builder) {
         this.userId = builder.userId;
         this.email = builder.email;
@@ -42,6 +44,7 @@ public class Employee {
         this.language = builder.language;
         this.employmentPeriods = Optional.ofNullable(builder.employmentPeriods).orElse(EmploymentPeriods.empty());
         this.regularWorkingTimes = Optional.ofNullable(builder.regularWorkingTimes).orElse(RegularWorkingTimes.empty());
+        this.personioId = builder.personioId;
     }
 
     public static Builder builder() {
@@ -101,6 +104,14 @@ public class Employee {
         this.regularWorkingTimes = regularWorkingTimes;
     }
 
+    public Integer getPersonioId() {
+        return personioId;
+    }
+
+    public void setPersonioId(Integer personioId) {
+        this.personioId = personioId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -137,6 +148,7 @@ public class Employee {
         private String language;
         private EmploymentPeriods employmentPeriods;
         private RegularWorkingTimes regularWorkingTimes;
+        private Integer personioId;
 
         private Builder() {
         }
@@ -197,6 +209,11 @@ public class Employee {
 
         public Builder regularWorkingTimes(RegularWorkingTimes regularWorkingTimes) {
             this.regularWorkingTimes = regularWorkingTimes;
+            return this;
+        }
+
+        public Builder personioId(Integer personioId) {
+            this.personioId = personioId;
             return this;
         }
 

@@ -52,7 +52,6 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                                 .map(prematureEmployeeCheckMapper::mapToDto)
                                 .orElse(null)
                 )
-                .personioId(object.getPersonioId())
                 .build();
     }
 
@@ -89,7 +88,6 @@ public class MonthlyReportMapper implements DtoMapper<MonthlyReport, MonthlyRepo
                 .guildLead(emptyToDomainFormat(object.getGuildLead()))
                 .internalProjectLead(emptyToDomainFormat(object.getInternalProjectLead()))
                 .prematureEmployeeCheck(prematureEmployeeCheckMapper.mapToDomain(object.getPrematureEmployeeCheck()))
-                .personioId(object.getPersonioId())
                 .build();
     }
 

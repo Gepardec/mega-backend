@@ -77,8 +77,6 @@ public class MonthlyReportDto {
 
     private final PrematureEmployeeCheckDto prematureEmployeeCheck;
 
-    private final Integer personioId;
-
     private MonthlyReportDto(Builder builder) {
         this.employee = builder.employee;
         this.initialDate = builder.initialDate;
@@ -109,7 +107,6 @@ public class MonthlyReportDto {
         this.prematureEmployeeCheck = builder.prematureEmployeeCheck;
         this.guildLead = builder.guildLead;
         this.internalProjectLead = builder.internalProjectLead;
-        this.personioId = builder.personioId;
     }
 
     public static Builder builder() {
@@ -245,10 +242,6 @@ public class MonthlyReportDto {
         return prematureEmployeeCheck;
     }
 
-    public Integer getPersonioId() {
-        return personioId;
-    }
-
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
         private EmployeeDto employee;
@@ -283,8 +276,6 @@ public class MonthlyReportDto {
         private String internalProjectLead;
 
         private PrematureEmployeeCheckDto prematureEmployeeCheck;
-
-        private Integer personioId;
 
         private Builder() {
         }
@@ -435,11 +426,6 @@ public class MonthlyReportDto {
 
         public Builder internalProjectLead(String internalProjectLead) {
             this.internalProjectLead = internalProjectLead;
-            return this;
-        }
-
-        public Builder personioId(Integer personioId) {
-            this.personioId = personioId;
             return this;
         }
 

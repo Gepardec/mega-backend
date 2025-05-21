@@ -1,0 +1,12 @@
+databaseChangeLog:
+- changeSet:
+    id: 1747746383992-1
+    author: mega
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            name: personio_id
+            type: integer
+        tableName: employee_user
+
