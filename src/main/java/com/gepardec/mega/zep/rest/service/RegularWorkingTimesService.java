@@ -9,9 +9,7 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 public class RegularWorkingTimesService {
@@ -25,21 +23,16 @@ public class RegularWorkingTimesService {
     @Inject
     ResponseParser responseParser;
 
-    public Optional<List<ZepRegularWorkingTimes>> getRegularWorkingTimesByUsername(String username) {
-        try  {
-            List<ZepRegularWorkingTimes> zepRegularWorkingTimes = responseParser.retrieveAll(
+    public List<ZepRegularWorkingTimes> getRegularWorkingTimesByUsername(String username) {
+        try {
+            return responseParser.retrieveAll(
                     page -> zepEmployeeRestClient.getRegularWorkingTimesByUsername(username, page),
                     ZepRegularWorkingTimes.class);
-
-            if (zepRegularWorkingTimes.isEmpty()) {
-                return Optional.empty();
-            }
-            return Optional.of(zepRegularWorkingTimes.stream().toList());
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving regular working times for employee \"%s\" from ZEP: No /data field in response"
                     .formatted(username), e);
         }
 
-        return Optional.empty();
+        return List.of();
     }
 }

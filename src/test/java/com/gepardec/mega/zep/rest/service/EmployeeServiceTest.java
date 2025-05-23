@@ -2,23 +2,26 @@ package com.gepardec.mega.zep.rest.service;
 
 import com.gepardec.mega.helper.ResourceFileService;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
-import com.gepardec.mega.zep.rest.dto.*;
+import com.gepardec.mega.zep.rest.dto.ZepEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.rest.dto.ZepLanguage;
+import com.gepardec.mega.zep.rest.dto.ZepSalutation;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import jakarta.inject.Inject;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -63,7 +66,7 @@ class EmployeeServiceTest {
                         .build(),
                 ZepEmploymentPeriod.builder()
                         .build());
-        when(employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(anyString())).thenReturn(zepEmploymentPeriods);
+        when(employmentPeriodService.getZepEmploymentPeriodsByUsername(anyString())).thenReturn(zepEmploymentPeriods);
 
         ZepEmployee referenceEmployee = ZepEmployee.builder()
                 .username("007-jbond")
@@ -75,7 +78,7 @@ class EmployeeServiceTest {
                 )
                 .title("BSc")
                 .email("james.bond@gepardec.com")
-                .releaseDate(LocalDate.of(2022,2, 28))
+                .releaseDate(LocalDate.of(2022, 2, 28))
                 .priceGroup("03")
                 .language(ZepLanguage.builder()
                         .id("en")
@@ -84,9 +87,9 @@ class EmployeeServiceTest {
                 .build();
 
 
-                Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByPersonalNumber("007");
+        Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByPersonalNumber("007");
 
-                assertThat(zepEmployee.get()).usingRecursiveComparison().isEqualTo(referenceEmployee);
+        assertThat(zepEmployee.get()).usingRecursiveComparison().isEqualTo(referenceEmployee);
     }
 
 
@@ -112,19 +115,17 @@ class EmployeeServiceTest {
         var periods007 = List.of(
                 ZepEmploymentPeriod.builder()
                         .startDate(LocalDateTime.of(2020, 8, 11, 0, 0, 0))
-                         .build());
+                        .build());
 
         List<String> employeeNames = List.of("000-duser", "001-tuser", "007-jbond");
-        when(employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employeeNames.get(0))).thenReturn(periods000);
-        when(employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employeeNames.get(1))).thenReturn(periods001);
-        when(employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employeeNames.get(2))).thenReturn(periods007);
+        when(employmentPeriodService.getZepEmploymentPeriodsByUsername(employeeNames.get(0))).thenReturn(periods000);
+        when(employmentPeriodService.getZepEmploymentPeriodsByUsername(employeeNames.get(1))).thenReturn(periods001);
+        when(employmentPeriodService.getZepEmploymentPeriodsByUsername(employeeNames.get(2))).thenReturn(periods007);
 
         List<ZepEmployee> employees = employeeService.getZepEmployees();
 
-        employees.forEach(employee-> assertThat(employeeNames.contains(employee.username())).isTrue());
+        employees.forEach(employee -> assertThat(employeeNames.contains(employee.username())).isTrue());
     }
-
-
 
 
 }

@@ -2,7 +2,11 @@ package com.gepardec.mega.service.impl.monthlyreport;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.EmploymentPeriod;
+import com.gepardec.mega.domain.model.EmploymentPeriods;
 import com.gepardec.mega.domain.model.PersonioEmployee;
+import com.gepardec.mega.domain.model.RegularWorkingTime;
+import com.gepardec.mega.domain.model.RegularWorkingTimes;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
@@ -31,11 +35,14 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
+import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -627,6 +634,15 @@ class MonthlyReportServiceImplTest {
     }
 
     private Employee createEmployeeForUser(final User user) {
+        Map<DayOfWeek, Duration> regularWorkingHours = Map.ofEntries(
+                Map.entry(DayOfWeek.MONDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.WEDNESDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.THURSDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(6)),
+                Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
+
         return Employee.builder()
                 .email(user.getEmail())
                 .firstname(user.getFirstname())
@@ -634,7 +650,8 @@ class MonthlyReportServiceImplTest {
                 .title("Ing.")
                 .userId(user.getUserId())
                 .releaseDate("2020-01-01")
-                .active(true)
+                .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)))
+                .regularWorkingTimes(new RegularWorkingTimes(new RegularWorkingTime(null, regularWorkingHours)))
                 .build();
     }
 

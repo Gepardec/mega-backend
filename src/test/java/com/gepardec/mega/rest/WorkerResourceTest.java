@@ -990,7 +990,6 @@ class WorkerResourceTest {
                 .title("Ing.")
                 .userId(user.getUserId())
                 .releaseDate("2020-01-01")
-                .active(true)
                 .build();
     }
 

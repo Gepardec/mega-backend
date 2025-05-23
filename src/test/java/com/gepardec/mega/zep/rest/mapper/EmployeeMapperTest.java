@@ -47,7 +47,7 @@ class EmployeeMapperTest {
 //    );
         boolean employeeActive = true;
 
-        //TODO: Add regularWorkingHours + workDescription
+        //TODO: Add regularWorkingTimes + workDescription
         ZepEmployee zepEmployee = ZepEmployee.builder()
                 .username("000-duser")
                 .email("demo@gepardec.com")

@@ -10,14 +10,11 @@ import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
@@ -32,13 +29,9 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
             return timeWarnings;
         }
 
+        YearMonth payrollMonth = YearMonth.from(projectEntries.get(0).getDate());
         List<LocalDate> futureDays = getFutureDays();
-        List<LocalDate> regularWorking0Days = getRegularWorkingHours0Dates(
-                employee,
-                projectEntries.get(0)
-                        .getDate()
-                        .getYear(), projectEntries.get(0).getDate().getMonth().getValue()
-        );
+        List<LocalDate> regularWorking0Days = getRegularWorkingHours0Dates(employee, payrollMonth);
         List<LocalDate> compensatoryDays = filterAbsenceTypesAndCompileLocalDateList(AbsenteeType.COMPENSATORY_DAYS.getType(), absenceEntries);
         List<LocalDate> vacationDays = filterAbsenceTypesAndCompileLocalDateList(AbsenteeType.VACATION_DAYS.getType(), absenceEntries);
         List<LocalDate> sicknessDays = filterAbsenceTypesAndCompileLocalDateList(AbsenteeType.SICKNESS_DAYS.getType(), absenceEntries);
@@ -54,10 +47,12 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
                 .map(ProjectEntry::getDate)
                 .toList();
 
-        LocalDate firstWorkingDay = employee.getFirstDayCurrentEmploymentPeriod();
+        LocalDate firstWorkingDay = employee.getEmploymentPeriods()
+                .active(payrollMonth)
+                .orElseThrow(() -> new IllegalStateException("Employee %s has no active employment period for the given payroll month".formatted(employee.getUserId())))
+                .start();
 
-        YearMonth yearMonth = YearMonth.of(projectEntries.get(0).getDate().getYear(), projectEntries.get(0).getDate().getMonth().getValue());
-        return OfficeCalendarUtil.getWorkingDaysForYearMonth(yearMonth).stream()
+        return OfficeCalendarUtil.getWorkingDaysForYearMonth(payrollMonth).stream()
                 .filter(date -> !firstWorkingDay.isAfter(date))
                 .filter(date -> !compensatoryDays.contains(date))
                 .filter(date -> !vacationDays.contains(date))
@@ -78,28 +73,26 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
                 .toList();
     }
 
-    private List<LocalDate> getRegularWorkingHours0Dates(Employee employee, int year, int month) {
+    private List<LocalDate> getRegularWorkingHours0Dates(Employee employee, YearMonth payrollMonth) {
         List<LocalDate> allNonRegularWorkingHourDates = new ArrayList<>();
 
-        Map<DayOfWeek, Duration> currentRegularWorkingHours = employee.getRegularWorkingHours().entrySet().stream()
-                .filter(entry -> entry.getKey().contains(LocalDate.of(year, month, 1)))
-                .map(Map.Entry::getValue)
-                .findFirst().get();
-
-        if (employee.getRegularWorkingHours() == null) {
+        if (employee.getRegularWorkingTimes() == null) {
             return allNonRegularWorkingHourDates;
         }
 
-        currentRegularWorkingHours.forEach((dayOfWeek, regularHours) -> {
-            if (regularHours.isZero()) {
-                LocalDate upCountingDay = LocalDate.of(year, month, 1).with(TemporalAdjusters.firstInMonth(dayOfWeek));
+        employee.getRegularWorkingTimes().active(payrollMonth.atDay(1))
+                .orElseThrow(() -> new IllegalStateException("Employee %s has no regular working times for the given payroll month".formatted(employee.getUserId())))
+                .workingHours()
+                .forEach((dayOfWeek, regularHours) -> {
+                    if (regularHours.isZero()) {
+                        LocalDate upCountingDay = payrollMonth.atDay(1).with(TemporalAdjusters.firstInMonth(dayOfWeek));
 
-                allNonRegularWorkingHourDates.add(upCountingDay);
-                while ((upCountingDay = upCountingDay.with(TemporalAdjusters.next(dayOfWeek))).getMonthValue() == month) {
-                    allNonRegularWorkingHourDates.add(upCountingDay);
-                }
-            }
-        });
+                        allNonRegularWorkingHourDates.add(upCountingDay);
+                        while ((upCountingDay = upCountingDay.with(TemporalAdjusters.next(dayOfWeek))).getMonthValue() == payrollMonth.getMonthValue()) {
+                            allNonRegularWorkingHourDates.add(upCountingDay);
+                        }
+                    }
+                });
         return allNonRegularWorkingHourDates;
     }
 

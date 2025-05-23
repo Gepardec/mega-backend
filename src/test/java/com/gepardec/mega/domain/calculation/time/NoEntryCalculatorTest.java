@@ -2,16 +2,23 @@ package com.gepardec.mega.domain.calculation.time;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.EmploymentPeriod;
+import com.gepardec.mega.domain.model.EmploymentPeriods;
+import com.gepardec.mega.domain.model.RegularWorkingTime;
+import com.gepardec.mega.domain.model.RegularWorkingTimes;
 import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
-import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -173,7 +180,6 @@ class NoEntryCalculatorTest {
 
     @Test
     void calculate_whenDateBeforeFirstWorkingDay_thenNoWarning() {
-
         var projectEntryList = createProjectEntryList(0);
         projectEntryList.remove(0);
 
@@ -247,11 +253,6 @@ class NoEntryCalculatorTest {
                 Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
                 Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
 
-        Range<LocalDate> range = Range.of(LocalDate.MIN, LocalDate.now());
-
-        Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHoursWithRange =
-                Map.of(range, regularWorkingHours);
-
         final Employee employee = Employee.builder()
                 .email(name + "@gepardec.com")
                 .firstname(name)
@@ -261,9 +262,8 @@ class NoEntryCalculatorTest {
                 .salutation("Herr")
                 .workDescription("ARCHITEKT")
                 .releaseDate(releaseDate)
-                .regularWorkingHours(regularWorkingHoursWithRange)
-                .active(true)
-                .firstDayCurrentEmploymentPeriod(LocalDate.parse("2021-02-02"))
+                .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2021, 2, 2), null)))
+                .regularWorkingTimes(new RegularWorkingTimes(List.of(new RegularWorkingTime(null, regularWorkingHours))))
                 .build();
 
         return employee;

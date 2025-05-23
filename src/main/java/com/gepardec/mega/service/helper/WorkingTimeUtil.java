@@ -59,17 +59,15 @@ public class WorkingTimeUtil {
                                          List<ProjectEntry> projectEntries,
                                          List<AbsenceTime> fehlzeitTypeList,
                                          YearMonth payrollMonth) {
-        if (employee.getRegularWorkingHours() == null) {
+        if (employee.getRegularWorkingTimes() == null) {
             return 0.0;
         }
-
 
         // In case there are absences that do not affect the current month, filter them out
         fehlzeitTypeList = fehlzeitTypeList.stream()
                 .filter(ftl -> ftl.fromDate().getMonthValue() == payrollMonth.getMonthValue())
                 .toList();
 
-        //FIXME
         var workingDaysCountMap = getWorkingDaysForYearMonth(payrollMonth)
                 .stream()
                 .collect(Collectors.groupingBy(LocalDate::getDayOfWeek, Collectors.counting()));
@@ -79,7 +77,13 @@ public class WorkingTimeUtil {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         var monthlyRegularWorkingHours = presentDaysCountMap.entrySet().stream()
-                .map(entry -> getEmployeeRegularWorkingHoursByMonth(employee, date).get(entry.getKey()).multipliedBy(entry.getValue()))
+                .map(entry ->
+                        employee.getRegularWorkingTimes().active(payrollMonth.atDay(1))
+                                .orElseThrow(() -> new IllegalStateException("Employee %s has no regular working times for the given payroll month".formatted(employee.getUserId())))
+                                .workingHours()
+                                .get(entry.getKey())
+                                .multipliedBy(entry.getValue())
+                )
                 .reduce(Duration::plus)
                 .orElse(Duration.ZERO);
 
@@ -87,14 +91,6 @@ public class WorkingTimeUtil {
         Duration overtime = totalWorkingHours.minus(monthlyRegularWorkingHours);
 
         return (double) overtime.toMinutes() / 60;
-    }
-
-    public Map<DayOfWeek, Duration> getEmployeeRegularWorkingHoursByMonth(Employee employee, LocalDate date) {
-
-       return employee.getRegularWorkingHours().entrySet().stream()
-                .filter(entry -> entry.getKey().contains(date))
-                .map(Map.Entry::getValue)
-                .findFirst().get();
     }
 
     public Duration getDurationFromTimeString(String timeString) {

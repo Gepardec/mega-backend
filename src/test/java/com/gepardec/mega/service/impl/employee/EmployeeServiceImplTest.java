@@ -1,6 +1,8 @@
 package com.gepardec.mega.service.impl.employee;
 
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.EmploymentPeriod;
+import com.gepardec.mega.domain.model.EmploymentPeriods;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.impl.EmployeeServiceImpl;
 import com.gepardec.mega.zep.ZepService;
@@ -60,7 +62,7 @@ class EmployeeServiceImplTest {
     @Test
     void getEmployees() {
         final Employee employee0 = createEmployee(0).build();
-        final Employee employee1 = createEmployeeWithActive(1, false).build();
+        final Employee employee1 = createEmployeeWithActiveUntil(1, LocalDate.now().minusMonths(1)).build();
 
         Mockito.when(zepService.getEmployees()).thenReturn(List.of(employee0, employee1));
 
@@ -77,8 +79,8 @@ class EmployeeServiceImplTest {
     @Test
     void getAllEmployeesConsideringExitDate_() {
         //GIVEN
-        int selectedYear = 2023;
-        int selectedMonth = 3;
+        YearMonth selectedYearMonth = YearMonth.of(2023, 3);
+        LocalDate startDate = selectedYearMonth.minusYears(1).atDay(1);
 
         final String EMPLOYEE_0 = "employee0";
         final String EMPLOYEE_EXIT_SELECTED_MONTH = "employeeExitSelectedMonth";
@@ -89,18 +91,39 @@ class EmployeeServiceImplTest {
         final Employee employee0 = createEmployee(0).firstname(EMPLOYEE_0).build();
 
         // Employee hat 03/2023 gekündigt & 03/2023 ist in der gui selektiert, daher soll der PL/Office ihn sehen
-        final Employee employeeExitSelectedMonth = createEmployeeWithActive(1, false).firstname(EMPLOYEE_EXIT_SELECTED_MONTH).build();
-        employeeExitSelectedMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth, 1));
+        final Employee employeeExitSelectedMonth = createEmployee(1).firstname(EMPLOYEE_EXIT_SELECTED_MONTH).build();
+        employeeExitSelectedMonth.setEmploymentPeriods(
+                new EmploymentPeriods(
+                        new EmploymentPeriod(
+                                startDate,
+                                selectedYearMonth.atDay(1)
+                        )
+                )
+        );
 
         // Employee hat 04/2023 gekündigt & 03/2023 ist in der gui selektiert, d.h. im selektierten zeitraum (1 monat vorher)
         // war er ja noch normal angestellt, daher soll der PL/Office ihn sehen
-        final Employee employeeExitNextMonth = createEmployeeWithActive(1, false).firstname(EMPLOYEE_EXIT_NEXT_MONTH).build();
-        employeeExitNextMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth + 1, 1));
+        final Employee employeeExitNextMonth = createEmployee(1).firstname(EMPLOYEE_EXIT_NEXT_MONTH).build();
+        employeeExitNextMonth.setEmploymentPeriods(
+                new EmploymentPeriods(
+                        new EmploymentPeriod(
+                                startDate,
+                                selectedYearMonth.plusMonths(1).atDay(1)
+                        )
+                )
+        );
 
         // Employee hat 02/2023 gekündigt & 03/2023 ist in der gui selektiert, d.h. im selektierten zeitraum (1 monat nachher)
         // war er nicht mehr angestellt und es gibt keine StepEntries, daher soll der PL/Office ihn NICHT sehen
-        final Employee employeeExitLastMonth = createEmployeeWithActive(1, false).firstname(EMPLOYEE_EXIT_LAST_MONTH).build();
-        employeeExitLastMonth.setExitDate(LocalDate.of(selectedYear, selectedMonth - 1, 1));
+        final Employee employeeExitLastMonth = createEmployee(1).firstname(EMPLOYEE_EXIT_LAST_MONTH).build();
+        employeeExitLastMonth.setEmploymentPeriods(
+                new EmploymentPeriods(
+                        new EmploymentPeriod(
+                                startDate,
+                                selectedYearMonth.minusMonths(1).atDay(1)
+                        )
+                )
+        );
 
         Mockito.when(zepService.getEmployees()).thenReturn(List.of(
                 employee0,
@@ -108,8 +131,6 @@ class EmployeeServiceImplTest {
                 employeeExitNextMonth,
                 employeeExitLastMonth
         ));
-
-        YearMonth selectedYearMonth = YearMonth.of(selectedYear, selectedMonth);
 
         //WHEN
         final List<Employee> employees = employeeService.getAllEmployeesConsideringExitDate(selectedYearMonth);
@@ -195,10 +216,10 @@ class EmployeeServiceImplTest {
     }
 
     private Employee.Builder createEmployee(final int userId) {
-        return createEmployeeWithActive(userId, true);
+        return createEmployeeWithActiveUntil(userId, null);
     }
 
-    private Employee.Builder createEmployeeWithActive(final int userId, boolean active) {
+    private Employee.Builder createEmployeeWithActiveUntil(final int userId, LocalDate end) {
         final String name = "Max_" + userId;
 
         return Employee.builder()
@@ -210,6 +231,6 @@ class EmployeeServiceImplTest {
                 .salutation("Herr")
                 .workDescription("ARCHITEKT")
                 .releaseDate("2020-01-01")
-                .active(active);
+                .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), end)));
     }
 }

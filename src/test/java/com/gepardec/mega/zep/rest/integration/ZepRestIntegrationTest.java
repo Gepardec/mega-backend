@@ -1,14 +1,17 @@
 package com.gepardec.mega.zep.rest.integration;
 
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.EmploymentPeriod;
+import com.gepardec.mega.domain.model.EmploymentPeriods;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectTime;
+import com.gepardec.mega.domain.model.RegularWorkingTime;
+import com.gepardec.mega.domain.model.RegularWorkingTimes;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.impl.Rest;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -43,11 +46,6 @@ class ZepRestIntegrationTest {
                 Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
                 Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
 
-        Range<LocalDate> range = Range.of(LocalDate.of(2021,2,28), LocalDate.now());
-
-        Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHoursWithRange =
-                Map.of(range, regularWorkingHours);
-
         Employee expected = Employee.builder()
                 .userId("001-hwirnsberger")
                 .email(null)
@@ -58,9 +56,8 @@ class ZepRestIntegrationTest {
                 .releaseDate("2021-02-28")
                 .workDescription("06")
                 .language(null)
-                .regularWorkingHours(regularWorkingHoursWithRange)
-                .active(true)
-                .exitDate(null)
+                .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)))
+                .regularWorkingTimes(new RegularWorkingTimes(new RegularWorkingTime(null, regularWorkingHours)))
                 .build();
 
         Employee actual = zepService.getEmployee("001-hwirnsberger");

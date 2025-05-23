@@ -23,15 +23,15 @@ public class EmploymentPeriodService {
     @Inject
     ResponseParser responseParser;
 
-    public List<ZepEmploymentPeriod> getZepEmploymentPeriodsByEmployeeName(String employeeName) {
+    public List<ZepEmploymentPeriod> getZepEmploymentPeriodsByUsername(String username) {
         try {
             return responseParser.retrieveAll(
-                    page -> zepEmployeeRestService.getEmploymentPeriodByUserName(employeeName, page),
+                    page -> zepEmployeeRestService.getEmploymentPeriodByUserName(username, page),
                     ZepEmploymentPeriod.class
             );
         } catch (ZepServiceException e) {
             logger.warn("Error retrieving employment periods for employee \"%s\" from ZEP: No /data field in response"
-                    .formatted(employeeName), e);
+                    .formatted(username), e);
         }
 
         return List.of();

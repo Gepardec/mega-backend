@@ -4,6 +4,8 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import java.time.LocalDate;
+
 @ApplicationScoped
 public class EmployeeMapper implements DtoMapper<Employee, EmployeeDto> {
 
@@ -18,7 +20,7 @@ public class EmployeeMapper implements DtoMapper<Employee, EmployeeDto> {
                 .salutation(object.getSalutation())
                 .releaseDate(object.getReleaseDate())
                 .workDescription(object.getWorkDescription())
-                .active(object.isActive())
+                .active(object.getEmploymentPeriods().active(LocalDate.now()).isPresent())
                 .build();
     }
 
@@ -33,7 +35,6 @@ public class EmployeeMapper implements DtoMapper<Employee, EmployeeDto> {
                 .salutation(object.getSalutation())
                 .releaseDate(object.getReleaseDate())
                 .workDescription(object.getWorkDescription())
-                .active(object.isActive())
                 .build();
     }
 }

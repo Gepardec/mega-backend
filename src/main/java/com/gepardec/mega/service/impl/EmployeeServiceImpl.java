@@ -20,7 +20,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 @ApplicationScoped
 public class EmployeeServiceImpl implements EmployeeService {
@@ -54,15 +53,15 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<Employee> getAllActiveEmployees() {
         return zepService.getEmployees().stream()
-                .filter(Employee::isActive)
+                .filter(employee -> employee.getEmploymentPeriods().active(LocalDate.now()).isPresent())
                 .filter(employee -> Objects.nonNull(employee.getEmail()))
                 .toList();
     }
 
     @Override
-    public List<Employee> getAllEmployeesConsideringExitDate(YearMonth selectedYearMonth) {
+    public List<Employee> getAllEmployeesConsideringExitDate(YearMonth payrollMonth) {
         return zepService.getEmployees().stream()
-                .filter(checkEmployeeExitDate(selectedYearMonth))
+                .filter(employee -> employee.getEmploymentPeriods().active(payrollMonth).isPresent())
                 .filter(employee -> Objects.nonNull(employee.getEmail()))
                 .toList();
     }
@@ -123,23 +122,5 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private List<String> getUserIds(final List<Employee> employees) {
         return employees.stream().map(Employee::getUserId).toList();
-    }
-
-    private Predicate<? super Employee> checkEmployeeExitDate(YearMonth selectedYearMonth) {
-        return employee -> {
-            LocalDate exitDate = employee.getExitDate();
-
-            if (employee.isActive() || exitDate == null || selectedYearMonth == null) {
-                return true;
-            }
-
-            YearMonth exitYearMonth = YearMonth.of(exitDate.getYear(), exitDate.getMonthValue());
-
-            // EXIT: 02/2023
-            // SELECTED: 01/2023 -> TRUE
-            // SELECTED: 02/2023 -> TRUE
-            // SELECTED: 03/2023 -> FALSE, employee doesn't exist anymore
-            return selectedYearMonth.compareTo(exitYearMonth) <= 0;
-        };
     }
 }

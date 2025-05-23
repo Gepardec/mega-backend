@@ -3,6 +3,8 @@ package com.gepardec.mega.service.impl.init;
 import com.gepardec.mega.application.configuration.NotificationConfig;
 import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.EmploymentPeriod;
+import com.gepardec.mega.domain.model.EmploymentPeriods;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.service.mapper.SyncServiceMapper;
@@ -59,7 +61,7 @@ class SyncServiceMapperTest {
                 .lastname("Mustermann")
                 .language(language)
                 .releaseDate("NULL")
-                .active(true)
+                .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)))
                 .build();
     }
 
@@ -111,7 +113,7 @@ class SyncServiceMapperTest {
                 .firstname("Max")
                 .lastname("Mustermann")
                 .language("de")
-                .active(true)
+                .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)))
                 .build();
         final Project project = projectForLeadUserId("2");
 
@@ -150,7 +152,7 @@ class SyncServiceMapperTest {
                 .lastname("Mustermann")
                 .language("de")
                 .releaseDate("2020-11-12")
-                .active(true)
+                .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)))
                 .build();
         final Project project = projectForLeadUserId("1");
 

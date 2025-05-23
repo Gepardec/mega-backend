@@ -4,6 +4,8 @@ package com.gepardec.mega.service.impl.monthlyreport;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.ProjectTime;
+import com.gepardec.mega.domain.model.RegularWorkingTime;
+import com.gepardec.mega.domain.model.RegularWorkingTimes;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
@@ -14,7 +16,6 @@ import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -120,12 +121,9 @@ class WorkingTimeUtilTest {
                 Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
                 Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
 
-        Range<LocalDate> range = Range.of(LocalDate.MIN, LocalDate.now());
-
-        Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHoursWithRange =
-                Map.of(range, regularWorkingHours);
-
-        Employee employee = createEmployee().regularWorkingHours(regularWorkingHoursWithRange).build();
+        Employee employee = createEmployee()
+                .regularWorkingTimes(new RegularWorkingTimes(new RegularWorkingTime(null, regularWorkingHours)))
+                .build();
 
         List<ProjectEntry> projectTimes = returnNormalDayProjectEntries(3);
         List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
@@ -220,12 +218,6 @@ class WorkingTimeUtilTest {
                 Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
                 Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
 
-        Range<LocalDate> range = Range.of(LocalDate.MIN, LocalDate.now());
-
-        Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHoursWithRange =
-                Map.of(range, regularWorkingHours);
-
-
         return Employee.builder()
                 .email(user.getEmail())
                 .firstname(user.getFirstname())
@@ -233,28 +225,27 @@ class WorkingTimeUtilTest {
                 .title("Ing.")
                 .userId(user.getUserId())
                 .releaseDate("2020-01-01")
-                .active(true)
-                .regularWorkingHours(regularWorkingHoursWithRange);
+                .regularWorkingTimes(new RegularWorkingTimes(new RegularWorkingTime(null, regularWorkingHours)));
     }
 
-    private List<ProjectEntry> returnNormalDayProjectEntries(int times){
+    private List<ProjectEntry> returnNormalDayProjectEntries(int times) {
         List<ProjectEntry> projectTimes = new ArrayList<>();
         for (int i = 1; i <= times; i++) {
 
             ProjectEntry projektzeitType = ProjectTimeEntry.builder()
-                .fromTime(LocalDateTime.of(2023, 11, times, 8, 0))
-                .toTime(LocalDateTime.of(2023, 11, times, 12, 0))
-                .task(Task.BEARBEITEN)
-                .workingLocation(WorkingLocation.MAIN)
-                .process("1")
-                .build();
-        ProjectEntry projektzeitTypeBilllable = ProjectTimeEntry.builder()
-                .fromTime(LocalDateTime.of(2023, 11, times, 13, 0))
-                .toTime(LocalDateTime.of(2023, 11, times, 17, 0))
-                .task(Task.BEARBEITEN)
-                .workingLocation(WorkingLocation.MAIN)
-                .process("1")
-                .build();
+                    .fromTime(LocalDateTime.of(2023, 11, times, 8, 0))
+                    .toTime(LocalDateTime.of(2023, 11, times, 12, 0))
+                    .task(Task.BEARBEITEN)
+                    .workingLocation(WorkingLocation.MAIN)
+                    .process("1")
+                    .build();
+            ProjectEntry projektzeitTypeBilllable = ProjectTimeEntry.builder()
+                    .fromTime(LocalDateTime.of(2023, 11, times, 13, 0))
+                    .toTime(LocalDateTime.of(2023, 11, times, 17, 0))
+                    .task(Task.BEARBEITEN)
+                    .workingLocation(WorkingLocation.MAIN)
+                    .process("1")
+                    .build();
 
             projectTimes.add(projektzeitTypeBilllable);
             projectTimes.add(projektzeitType);

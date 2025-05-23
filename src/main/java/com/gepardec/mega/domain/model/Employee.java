@@ -1,15 +1,10 @@
 package com.gepardec.mega.domain.model;
 
-import org.apache.commons.lang3.Range;
-
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Employee model (mutable wegen exitDate)
+ * Employee model (mutable wegen employmentPeriods und regularWorkingTimes)
  */
 public class Employee {
 
@@ -31,17 +26,9 @@ public class Employee {
 
     private final String language;
 
-    private Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHours;
+    private EmploymentPeriods employmentPeriods;
 
-    private boolean active;
-
-    /**
-     * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,
-     * wenn Mitarbeiter inaktiv ist.
-     */
-    private LocalDate exitDate;
-
-    private LocalDate firstDayCurrentEmploymentPeriod;
+    private RegularWorkingTimes regularWorkingTimes;
 
     private Employee(Builder builder) {
         this.userId = builder.userId;
@@ -53,10 +40,8 @@ public class Employee {
         this.releaseDate = builder.releaseDate;
         this.workDescription = builder.workDescription;
         this.language = builder.language;
-        this.regularWorkingHours = builder.regularWorkingHours;
-        this.active = builder.active;
-        this.exitDate = builder.exitDate;
-        this.firstDayCurrentEmploymentPeriod = builder.firstDayCurrentEmploymentPeriod;
+        this.employmentPeriods = Optional.ofNullable(builder.employmentPeriods).orElse(EmploymentPeriods.empty());
+        this.regularWorkingTimes = Optional.ofNullable(builder.regularWorkingTimes).orElse(RegularWorkingTimes.empty());
     }
 
     public static Builder builder() {
@@ -100,52 +85,45 @@ public class Employee {
         return language;
     }
 
-    public Map<Range<LocalDate>,Map<DayOfWeek, Duration>> getRegularWorkingHours() {
-        return regularWorkingHours;
+    public EmploymentPeriods getEmploymentPeriods() {
+        return employmentPeriods;
     }
 
-    public boolean isActive() {
-        return active;
+    public void setEmploymentPeriods(EmploymentPeriods employmentPeriods) {
+        this.employmentPeriods = employmentPeriods;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    public RegularWorkingTimes getRegularWorkingTimes() {
+        return regularWorkingTimes;
     }
 
-    public void setRegularWorkingHours(Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHours) {
-        this.regularWorkingHours = regularWorkingHours;
+    public void setRegularWorkingTimes(RegularWorkingTimes regularWorkingTimes) {
+        this.regularWorkingTimes = regularWorkingTimes;
     }
-
-    public LocalDate getExitDate() {
-        return exitDate;
-    }
-
-    public void setExitDate(LocalDate exitDate) {
-        this.exitDate = exitDate;
-    }
-
-    public LocalDate getFirstDayCurrentEmploymentPeriod() {
-        return firstDayCurrentEmploymentPeriod;
-    }
-
-    public void setFirstDayCurrentEmploymentPeriod(LocalDate firstDayCurrentEmploymentPeriod) {
-        this.firstDayCurrentEmploymentPeriod = firstDayCurrentEmploymentPeriod;
-    }
-
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         Employee employee = (Employee) o;
-        return isActive() == employee.isActive() && Objects.equals(getUserId(), employee.getUserId()) && Objects.equals(getEmail(), employee.getEmail()) && Objects.equals(getTitle(), employee.getTitle()) && Objects.equals(getFirstname(), employee.getFirstname()) && Objects.equals(getLastname(), employee.getLastname()) && Objects.equals(getSalutation(), employee.getSalutation()) && Objects.equals(getReleaseDate(), employee.getReleaseDate()) && Objects.equals(getWorkDescription(), employee.getWorkDescription()) && Objects.equals(getLanguage(), employee.getLanguage()) && Objects.equals(getRegularWorkingHours(), employee.getRegularWorkingHours()) && Objects.equals(getExitDate(), employee.getExitDate());
+        return Objects.equals(getUserId(), employee.getUserId()) && Objects.equals(getEmail(), employee.getEmail()) && Objects.equals(getTitle(), employee.getTitle()) && Objects.equals(getFirstname(), employee.getFirstname()) && Objects.equals(getLastname(), employee.getLastname()) && Objects.equals(getSalutation(), employee.getSalutation()) && Objects.equals(getReleaseDate(), employee.getReleaseDate()) && Objects.equals(getWorkDescription(), employee.getWorkDescription()) && Objects.equals(getLanguage(), employee.getLanguage()) && Objects.equals(getEmploymentPeriods(), employee.getEmploymentPeriods()) && Objects.equals(getRegularWorkingTimes(), employee.getRegularWorkingTimes());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getUserId(), getEmail(), getTitle(), getFirstname(), getLastname(), getSalutation(), getReleaseDate(), getWorkDescription(), getLanguage(), getRegularWorkingHours(), isActive(), getExitDate());
+        int result = Objects.hashCode(getUserId());
+        result = 31 * result + Objects.hashCode(getEmail());
+        result = 31 * result + Objects.hashCode(getTitle());
+        result = 31 * result + Objects.hashCode(getFirstname());
+        result = 31 * result + Objects.hashCode(getLastname());
+        result = 31 * result + Objects.hashCode(getSalutation());
+        result = 31 * result + Objects.hashCode(getReleaseDate());
+        result = 31 * result + Objects.hashCode(getWorkDescription());
+        result = 31 * result + Objects.hashCode(getLanguage());
+        result = 31 * result + Objects.hashCode(getEmploymentPeriods());
+        result = 31 * result + Objects.hashCode(getRegularWorkingTimes());
+        return result;
     }
-
 
     public static final class Builder {
         private String userId;
@@ -157,10 +135,8 @@ public class Employee {
         private String releaseDate;
         private String workDescription;
         private String language;
-        private Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHours;
-        private boolean active;
-        private LocalDate exitDate;
-        private LocalDate firstDayCurrentEmploymentPeriod;
+        private EmploymentPeriods employmentPeriods;
+        private RegularWorkingTimes regularWorkingTimes;
 
         private Builder() {
         }
@@ -204,11 +180,6 @@ public class Employee {
             return this;
         }
 
-        public Builder firstDayCurrentEmploymentPeriod(LocalDate firstDayCurrentEmploymentPeriod) {
-            this.firstDayCurrentEmploymentPeriod = firstDayCurrentEmploymentPeriod;
-            return this;
-        }
-
         public Builder workDescription(String workDescription) {
             this.workDescription = workDescription;
             return this;
@@ -219,18 +190,13 @@ public class Employee {
             return this;
         }
 
-        public Builder regularWorkingHours(Map<Range<LocalDate>,Map<DayOfWeek, Duration>> regularWorkingHours) {
-            this.regularWorkingHours = regularWorkingHours;
+        public Builder employmentPeriods(EmploymentPeriods employmentPeriods) {
+            this.employmentPeriods = employmentPeriods;
             return this;
         }
 
-        public Builder active(boolean active) {
-            this.active = active;
-            return this;
-        }
-
-        public Builder exitDate(LocalDate exitDate) {
-            this.exitDate = exitDate;
+        public Builder regularWorkingTimes(RegularWorkingTimes regularWorkingTimes) {
+            this.regularWorkingTimes = regularWorkingTimes;
             return this;
         }
 

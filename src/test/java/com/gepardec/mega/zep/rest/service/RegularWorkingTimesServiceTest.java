@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +43,7 @@ class RegularWorkingTimesServiceTest {
     Logger logger;
 
     @Test
-    void getRegularWorkingTimesByUsername_receiveValidWorkingTime_then_returnValidZepWorkingTime(){
+    void getRegularWorkingTimesByUsername_receiveValidWorkingTime_then_returnValidZepWorkingTime() {
 
         ZepRegularWorkingTimes regularWorkingTimes = ZepRegularWorkingTimes.builder()
                 .startDate(null)
@@ -63,7 +62,7 @@ class RegularWorkingTimesServiceTest {
         when(responseParser.retrieveAll(any(), eq(ZepRegularWorkingTimes.class)))
                 .thenReturn(regularWorkingTimesList);
 
-        List<ZepRegularWorkingTimes> allZepRegularWorkingTimes = regularWorkingTimesService.getRegularWorkingTimesByUsername("001-duser").get();
+        List<ZepRegularWorkingTimes> allZepRegularWorkingTimes = regularWorkingTimesService.getRegularWorkingTimesByUsername("001-duser");
         ZepRegularWorkingTimes actual = allZepRegularWorkingTimes.get(allZepRegularWorkingTimes.size() - 1);
 
         assertThat(actual.thursday()).isEqualTo(8.0);
@@ -75,7 +74,7 @@ class RegularWorkingTimesServiceTest {
         when(responseParser.retrieveAll(any(), eq(ZepRegularWorkingTimes.class)))
                 .thenThrow(new ZepServiceException("Service unavailable"));
 
-        Optional<List<ZepRegularWorkingTimes>> result = regularWorkingTimesService.getRegularWorkingTimesByUsername("007-jbond");
+        List<ZepRegularWorkingTimes> result = regularWorkingTimesService.getRegularWorkingTimesByUsername("007-jbond");
 
         assertThat(result).isEmpty();
         verify(logger).warn(anyString(), any(ZepServiceException.class));
@@ -86,7 +85,7 @@ class RegularWorkingTimesServiceTest {
         when(responseParser.retrieveAll(any(), eq(ZepRegularWorkingTimes.class)))
                 .thenReturn(List.of());
 
-        Optional<List<ZepRegularWorkingTimes>> result = regularWorkingTimesService.getRegularWorkingTimesByUsername("007-jbond");
+        List<ZepRegularWorkingTimes> result = regularWorkingTimesService.getRegularWorkingTimesByUsername("007-jbond");
 
         assertThat(result).isEmpty();
     }

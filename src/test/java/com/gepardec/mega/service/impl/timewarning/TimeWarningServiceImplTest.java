@@ -2,6 +2,8 @@ package com.gepardec.mega.service.impl.timewarning;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.EmploymentPeriod;
+import com.gepardec.mega.domain.model.EmploymentPeriods;
 import com.gepardec.mega.domain.model.MonthlyWarning;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
@@ -25,6 +27,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -272,7 +275,7 @@ class TimeWarningServiceImplTest {
                 .title("Ing.")
                 .userId(user.getUserId())
                 .releaseDate("2020-01-01")
-                .active(true)
+                .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)))
                 .build();
     }
 
