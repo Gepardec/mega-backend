@@ -39,10 +39,7 @@ public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
                     .workDescription(zepEmployee.priceGroup())
                     .language(language)
                     .build();
-            /**
-             * Austrittsdatum, wird durch Aufruf von employeeService.getAllEmployeesConsideringExitDate befüllt,
-             * wenn Mitarbeiter inaktiv ist.
-             */
+            // employmentPeriods and regularWorkingTimes are not mapped here, as they are not part of ZepEmployee
         } catch (Exception e) {
             throw new ZepServiceException("While trying to map ZepEmployee to Employee, an error occurred", e);
         }

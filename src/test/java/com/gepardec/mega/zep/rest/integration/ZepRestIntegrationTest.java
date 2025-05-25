@@ -1,8 +1,12 @@
 package com.gepardec.mega.zep.rest.integration;
 
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.EmploymentPeriod;
+import com.gepardec.mega.domain.model.EmploymentPeriods;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectTime;
+import com.gepardec.mega.domain.model.RegularWorkingTime;
+import com.gepardec.mega.domain.model.RegularWorkingTimes;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.impl.Rest;
@@ -33,6 +37,15 @@ class ZepRestIntegrationTest {
     @Test
     void fetchValidEmployee_thenReturnEmployee() {
 
+        Map<DayOfWeek, Duration> regularWorkingHours = Map.ofEntries(
+                Map.entry(DayOfWeek.MONDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.WEDNESDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.THURSDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
+
         Employee expected = Employee.builder()
                 .userId("001-hwirnsberger")
                 .email(null)
@@ -43,15 +56,8 @@ class ZepRestIntegrationTest {
                 .releaseDate("2021-02-28")
                 .workDescription("06")
                 .language(null)
-                .regularWorkingHours(Map.of(DayOfWeek.MONDAY, Duration.ofHours(6),
-                        DayOfWeek.TUESDAY, Duration.ofHours(6),
-                        DayOfWeek.WEDNESDAY, Duration.ofHours(6),
-                        DayOfWeek.THURSDAY, Duration.ofHours(6),
-                        DayOfWeek.FRIDAY, Duration.ofHours(6),
-                        DayOfWeek.SATURDAY, Duration.ofHours(0),
-                        DayOfWeek.SUNDAY, Duration.ofHours(0)))
-                .active(true)
-                .exitDate(null)
+                .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)))
+                .regularWorkingTimes(new RegularWorkingTimes(new RegularWorkingTime(null, regularWorkingHours)))
                 .build();
 
         Employee actual = zepService.getEmployee("001-hwirnsberger");

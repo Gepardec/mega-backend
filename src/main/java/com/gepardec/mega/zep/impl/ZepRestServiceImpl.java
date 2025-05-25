@@ -4,11 +4,13 @@ import com.gepardec.mega.db.entity.common.PaymentMethodType;
 import com.gepardec.mega.db.entity.common.ProjectTaskType;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.EmploymentPeriods;
 import com.gepardec.mega.domain.model.MonthlyBillInfo;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
+import com.gepardec.mega.domain.model.RegularWorkingTimes;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.zep.ZepService;
@@ -16,22 +18,19 @@ import com.gepardec.mega.zep.rest.dto.ZepAbsence;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
 import com.gepardec.mega.zep.rest.dto.ZepCategory;
 import com.gepardec.mega.zep.rest.dto.ZepEmployee;
-import com.gepardec.mega.zep.rest.dto.ZepEmploymentPeriod;
 import com.gepardec.mega.zep.rest.dto.ZepProject;
 import com.gepardec.mega.zep.rest.dto.ZepProjectDetail;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.rest.dto.ZepReceipt;
 import com.gepardec.mega.zep.rest.dto.ZepReceiptAttachment;
-import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
 import com.gepardec.mega.zep.rest.mapper.AbsenceMapper;
-import com.gepardec.mega.zep.rest.mapper.ActiveMapper;
 import com.gepardec.mega.zep.rest.mapper.EmployeeMapper;
-import com.gepardec.mega.zep.rest.mapper.FirstDayCurrentPeriodMapper;
+import com.gepardec.mega.zep.rest.mapper.EmploymentPeriodMapper;
 import com.gepardec.mega.zep.rest.mapper.ProjectEmployeesMapper;
 import com.gepardec.mega.zep.rest.mapper.ProjectEntryMapper;
 import com.gepardec.mega.zep.rest.mapper.ProjectMapper;
 import com.gepardec.mega.zep.rest.mapper.ProjectTimeMapper;
-import com.gepardec.mega.zep.rest.mapper.RegularWorkingHoursMapMapper;
+import com.gepardec.mega.zep.rest.mapper.RegularWorkingTimeMapper;
 import com.gepardec.mega.zep.rest.service.AbsenceService;
 import com.gepardec.mega.zep.rest.service.AttendanceService;
 import com.gepardec.mega.zep.rest.service.EmployeeService;
@@ -102,13 +101,10 @@ public class ZepRestServiceImpl implements ZepService {
     ProjectEmployeesMapper projectEmployeesMapper;
 
     @Inject
-    RegularWorkingHoursMapMapper regularWorkingTimesMapper;
+    EmploymentPeriodMapper employmentPeriodMapper;
 
     @Inject
-    ActiveMapper activeEmployeeMapper;
-
-    @Inject
-    FirstDayCurrentPeriodMapper firstDayCurrentPeriodMapper;
+    RegularWorkingTimeMapper regularWorkingTimeMapper;
 
     @Inject
     Logger logger;
@@ -123,20 +119,12 @@ public class ZepRestServiceImpl implements ZepService {
             return null;
         }
 
-        List<ZepEmploymentPeriod> periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(userId);
-        boolean active = activeEmployeeMapper.map(periods);
+        var zepEmploymentPeriods = employmentPeriodService.getZepEmploymentPeriodsByUsername(userId);
+        var zepRegularWorkingTimes = regularWorkingTimesService.getRegularWorkingTimesByUsername(userId);
 
-
-        Optional<ZepRegularWorkingTimes> zepRegularWorkingTimesOpt =
-                regularWorkingTimesService.getRegularWorkingTimesByUsername(userId);
-
-
-        Employee employee = employeeMapper.map(zepEmployee.get());
-        employee.setActive(active);
-        employee.setFirstDayCurrentEmploymentPeriod(firstDayCurrentPeriodMapper.map(periods));
-        zepRegularWorkingTimesOpt.ifPresent(rwt -> {
-            employee.setRegularWorkingHours(regularWorkingTimesMapper.map(rwt));
-        });
+        var employee = employeeMapper.map(zepEmployee.get());
+        employee.setRegularWorkingTimes(new RegularWorkingTimes(regularWorkingTimeMapper.mapList(zepRegularWorkingTimes)));
+        employee.setEmploymentPeriods(new EmploymentPeriods(employmentPeriodMapper.mapList(zepEmploymentPeriods)));
         return employee;
     }
 
@@ -146,13 +134,11 @@ public class ZepRestServiceImpl implements ZepService {
 
         List<ZepEmployee> zepEmployees = zepEmployeeService.getZepEmployees();
         List<Employee> employees = employeeMapper.mapList(zepEmployees);
-        employees.forEach(
-                employee -> {
-                    var periods = employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(employee.getUserId());
-                    boolean active = activeEmployeeMapper.map(periods);
-                    employee.setActive(active);
-                    employee.setFirstDayCurrentEmploymentPeriod(firstDayCurrentPeriodMapper.map(periods));
-                });
+        employees.forEach(employee -> {
+            // Regular working times are irrelevant when retrieving all employees, so we do not set them here
+            var zepEmploymentPeriods = employmentPeriodService.getZepEmploymentPeriodsByUsername(employee.getUserId());
+            employee.setEmploymentPeriods(new EmploymentPeriods(employmentPeriodMapper.mapList(zepEmploymentPeriods)));
+        });
 
         return employees;
     }

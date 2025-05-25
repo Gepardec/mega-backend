@@ -2,6 +2,10 @@ package com.gepardec.mega.domain.calculation.time;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.EmploymentPeriod;
+import com.gepardec.mega.domain.model.EmploymentPeriods;
+import com.gepardec.mega.domain.model.RegularWorkingTime;
+import com.gepardec.mega.domain.model.RegularWorkingTimes;
 import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
@@ -10,6 +14,8 @@ import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -17,6 +23,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -173,7 +180,6 @@ class NoEntryCalculatorTest {
 
     @Test
     void calculate_whenDateBeforeFirstWorkingDay_thenNoWarning() {
-
         var projectEntryList = createProjectEntryList(0);
         projectEntryList.remove(0);
 
@@ -238,6 +244,15 @@ class NoEntryCalculatorTest {
     private Employee createEmployeeWithReleaseDate(final int userId, String releaseDate) {
         final String name = "Max_" + userId;
 
+        Map<DayOfWeek, Duration> regularWorkingHours = Map.ofEntries(
+                Map.entry(DayOfWeek.MONDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.WEDNESDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.THURSDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(6)),
+                Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
+
         final Employee employee = Employee.builder()
                 .email(name + "@gepardec.com")
                 .firstname(name)
@@ -247,8 +262,8 @@ class NoEntryCalculatorTest {
                 .salutation("Herr")
                 .workDescription("ARCHITEKT")
                 .releaseDate(releaseDate)
-                .active(true)
-                .firstDayCurrentEmploymentPeriod(LocalDate.parse("2021-02-02"))
+                .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2021, 2, 2), null)))
+                .regularWorkingTimes(new RegularWorkingTimes(List.of(new RegularWorkingTime(null, regularWorkingHours))))
                 .build();
 
         return employee;

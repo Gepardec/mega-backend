@@ -5,6 +5,8 @@ import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.EmploymentPeriod;
+import com.gepardec.mega.domain.model.EmploymentPeriods;
 import com.gepardec.mega.rest.api.SyncResource;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -282,7 +284,7 @@ class SyncResourceTest {
                 .userId(id)
                 .email(email)
                 .releaseDate(releaseDate)
-                .active(true)
+                .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)))
                 .build();
     }
 

@@ -46,7 +46,7 @@ public class SyncServiceMapper {
         user.setEmail(employee.getEmail());
         user.setFirstname(employee.getFirstname());
         user.setLastname(employee.getLastname());
-        user.setActive(employee.isActive());
+        user.setActive(employee.getEmploymentPeriods().active(LocalDate.now()).isPresent());
         user.setReleaseDate(parseReleaseDate(employee));
         user.setRoles(determineRoles(employee, projects));
         setUserLocaleFromEmployeeLanguage(user, employee, defaultLocale);

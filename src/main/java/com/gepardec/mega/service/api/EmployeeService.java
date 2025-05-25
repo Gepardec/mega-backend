@@ -17,10 +17,10 @@ public interface EmployeeService {
      * Wenn nur aktive Employees geliefert werden würden, dann könnte man die Zeiten von dem Employee
      * nicht mehr kontrollieren, oder die Historie sehen, sobald der Mitarbeiter nicht mehr in ZEP existiert.
      *
-     * @param selectedYearMonth ausgewählter Monat (von der GUI)
+     * @param payrollMonth ausgewählter Monat (von der GUI)
      * @return Aktive Employees und inaktive Employees, die aber lt. den Kriterien von oben noch angezeigt werden sollen
      */
-    List<Employee> getAllEmployeesConsideringExitDate(YearMonth selectedYearMonth);
+    List<Employee> getAllEmployeesConsideringExitDate(YearMonth payrollMonth);
 
     void updateEmployeeReleaseDate(final String userId, final String releaseDate);
 

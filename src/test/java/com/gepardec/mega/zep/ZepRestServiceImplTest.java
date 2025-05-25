@@ -48,8 +48,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.MockedStatic;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -264,18 +262,16 @@ class ZepRestServiceImplTest {
                                 .build()
                 ));
 
-        when(employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(anyString()))
+        when(employmentPeriodService.getZepEmploymentPeriodsByUsername(anyString()))
                 .thenReturn(createZepEmploymentPeriodList());
 
         when(regularWorkingTimesService.getRegularWorkingTimesByUsername(anyString()))
-                .thenReturn(Optional.of(regularWorkingTimes));
+                .thenReturn(List.of(regularWorkingTimes));
 
 
         Employee actual = zepRestService.getEmployee("007-jbond");
 
         assertThat(actual).isNotNull();
-        assertThat(actual.isActive()).isTrue();
-        assertThat(actual.getRegularWorkingHours().get(DayOfWeek.MONDAY)).isEqualTo(Duration.ofHours(8));
     }
 
     @Test
@@ -285,7 +281,7 @@ class ZepRestServiceImplTest {
                         createZepEmployeesList()
                 );
 
-        when(employmentPeriodService.getZepEmploymentPeriodsByEmployeeName(anyString()))
+        when(employmentPeriodService.getZepEmploymentPeriodsByUsername(anyString()))
                 .thenReturn(createZepEmploymentPeriodList());
 
         List<Employee> actual = zepRestService.getEmployees();

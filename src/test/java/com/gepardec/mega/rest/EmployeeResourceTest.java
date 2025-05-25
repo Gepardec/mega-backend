@@ -186,11 +186,6 @@ class EmployeeResourceTest {
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
-
-
-
-
-
     private EmployeeDto createEmployeeForUser(final User user) {
         return EmployeeDto.builder()
                 .email(user.getEmail())
@@ -199,7 +194,7 @@ class EmployeeResourceTest {
                 .title("Ing.")
                 .userId(user.getUserId())
                 .releaseDate("2020-01-01")
-                .active(true)
+                .active(false)
                 .build();
     }
 
