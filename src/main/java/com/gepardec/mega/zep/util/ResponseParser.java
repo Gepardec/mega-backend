@@ -2,7 +2,6 @@ package com.gepardec.mega.zep.util;
 
 import com.gepardec.mega.zep.ZepServiceTooManyRequestsException;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
 import java.lang.reflect.Array;
@@ -17,9 +16,6 @@ import java.util.function.Predicate;
 public class ResponseParser {
 
     private static final String DATA_PATH = "/data";
-
-    @Inject
-    RequestThrottler requestThrottler;
 
     public <T> Optional<T> retrieveSingle(Response response, Class<T> elementClass) {
         String responseBodyAsString = readResponse(response);
@@ -91,11 +87,15 @@ public class ResponseParser {
                 throw new ZepServiceTooManyRequestsException("Too many requests to ZEP REST");
             }
 
+/*
             String xRateHeader = readXRateHeader(response);
             if (xRateHeader != null) {
                 requestThrottler.setRate(Integer.parseInt(readXRateHeader(response)));
                 requestThrottler.throttle();
             }
+
+ */
+
             return response.readEntity(String.class);
         }
     }

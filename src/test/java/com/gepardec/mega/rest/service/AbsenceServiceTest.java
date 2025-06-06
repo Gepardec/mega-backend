@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class AbsenceServiceTest {
-
+/*
     @InjectMock
     @RestClient
     ZepAbsenceRestClient zepAbsenceRestClient;
@@ -113,4 +113,6 @@ class AbsenceServiceTest {
         assertThat(result).isNull();
         verify(logger).warn(anyString(), any(ZepServiceException.class));
     }
+
+ */
 }

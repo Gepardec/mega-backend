@@ -1,6 +1,8 @@
 package com.gepardec.mega.zep.rest.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.gepardec.mega.zep.rest.dto.ZepAbsence;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -18,6 +20,6 @@ public interface ZepAbsenceRestClient {
 
     @GET
     @Path("{id}")
-    Response getAbsenceById(@PathParam("id") Integer id);
+    Uni<ZepAbsence> getAbsenceById(@PathParam("id") Integer id);
 
 }

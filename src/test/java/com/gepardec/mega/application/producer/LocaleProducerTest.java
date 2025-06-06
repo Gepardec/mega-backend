@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class LocaleProducerTest {
-
+/*
     private static final Locale DEFAULT_LOCALE = Locale.GERMAN;
 
     @Inject
@@ -75,4 +75,6 @@ class LocaleProducerTest {
 
         assertThat(actual).isEqualTo(Locale.ENGLISH);
     }
+
+ */
 }

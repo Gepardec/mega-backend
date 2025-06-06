@@ -7,18 +7,20 @@ import com.gepardec.mega.zep.rest.dto.ZepReceipt;
 import com.gepardec.mega.zep.rest.dto.ZepReceiptAmount;
 import com.gepardec.mega.zep.rest.dto.ZepReceiptAttachment;
 import com.gepardec.mega.zep.util.ResponseParser;
+import io.smallrye.faulttolerance.api.RateLimit;
+import io.smallrye.faulttolerance.api.RateLimit;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 
 import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
 public class ReceiptService {
-
     @RestClient
     ZepReceiptRestClient zepReceiptRestClient;
 
@@ -28,6 +30,7 @@ public class ReceiptService {
     @Inject
     Logger logger;
 
+    @RateLimit(value = 6, window = 1, windowUnit = ChronoUnit.SECONDS)
     public List<ZepReceipt> getAllReceiptsInRange(YearMonth payrollMonth) {
         var startDate = payrollMonth.atDay(1).toString();
         var endDate = payrollMonth.atEndOfMonth().toString();
@@ -43,6 +46,7 @@ public class ReceiptService {
         return List.of();
     }
 
+    @RateLimit(value = 6, window = 1, windowUnit = ChronoUnit.SECONDS)
     public Optional<ZepReceiptAttachment> getAttachmentByReceiptId(int receiptId) {
         try {
             return responseParser.retrieveSingle(
@@ -55,6 +59,7 @@ public class ReceiptService {
         return Optional.empty();
     }
 
+    @RateLimit(value = 6, window = 1, windowUnit = ChronoUnit.SECONDS)
     public Optional<ZepReceiptAmount> getAmountByReceiptId(int receiptId) {
         try {
 
