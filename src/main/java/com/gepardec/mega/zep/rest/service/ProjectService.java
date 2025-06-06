@@ -6,15 +6,22 @@ import com.gepardec.mega.zep.rest.dto.ZepProject;
 import com.gepardec.mega.zep.rest.dto.ZepProjectDetail;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.util.ResponseParser;
+import io.smallrye.common.annotation.Blocking;
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ProjectService {
@@ -33,11 +40,29 @@ public class ProjectService {
         String endDate = payrollMonth.atEndOfMonth().toString();
 
         try {
-            return responseParser.retrieveAll(
-                    page -> zepProjectRestClient.getProjectByStartEnd(startDate, endDate, page),
-                    ZepProject.class
-            );
-        } catch (ZepServiceException e) {
+
+            // Response rawJson = zepProjectRestClient.getProjectByStartEnd(startDate, endDate, 0).await().indefinitely();
+
+
+            Response rawJson =  zepProjectRestClient.getProjectByStartEnd(startDate, endDate, 0);
+            System.out.println("RAW JSON: " + rawJson.getStatus() + " " + rawJson.getHeaders());
+            System.out.println("Body "+rawJson.readEntity(String.class));
+            //String text = zepProjectRestClient.getProjectByStartEnd(startDate, endDate, 0).await().indefinitely();
+
+            //System.out.println(text);
+
+            /*zepProjectRestClient.getProjectByStartEnd(startDate, endDate, 0)
+                    .subscribe().with(response -> {
+                        System.out.println("ZEP response: " + response);
+                    }, failure -> {
+                        logger.error("Failed to fetch projects", failure);
+                    });
+
+
+             */
+
+        } catch (
+                ZepServiceException e) {
             logger.warn("Error retrieving projects for month + \"%s\" from ZEP: No /data field in response"
                     .formatted(payrollMonth.format(DateTimeFormatter.ofPattern("MM-yyyy"))), e);
         }

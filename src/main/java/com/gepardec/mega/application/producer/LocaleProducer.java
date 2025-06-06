@@ -7,7 +7,10 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 
+import java.util.List;
 import java.util.Locale;
 
 @RequestScoped
@@ -15,16 +18,17 @@ public class LocaleProducer {
 
     private final ApplicationConfig applicationConfig;
 
-    private final HttpServletRequest request;
+    private final HttpHeaders headers;
 
     private Locale currentLocale;
 
     @Inject
     public LocaleProducer(
             final ApplicationConfig applicationConfig,
-            HttpServletRequest request) {
+            @Context HttpHeaders headers) {
         this.applicationConfig = applicationConfig;
-        this.request = request;
+        this.headers = headers;
+        init();
     }
 
     @PostConstruct
@@ -39,9 +43,13 @@ public class LocaleProducer {
     }
 
     private Locale determineCurrentLocale() {
-        final Locale requestLocale = request.getLocale();
-        if (requestLocale != null && applicationConfig.getLocales().contains(requestLocale)) {
-            return request.getLocale();
+        List<Locale> acceptableLocales = headers.getAcceptableLanguages();
+        if (acceptableLocales != null) {
+            for (Locale locale : acceptableLocales) {
+                if (applicationConfig.getLocales().contains(locale)) {
+                    return locale;
+                }
+            }
         }
         return applicationConfig.getDefaultLocale();
     }
