@@ -2,7 +2,6 @@ package com.gepardec.mega.rest.api;
 
 
 import com.gepardec.mega.rest.model.HourlyRateFileDto;
-import io.vertx.ext.web.client.impl.MultipartFormUpload;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
