@@ -13,8 +13,8 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
         while(sc.hasNext()){
             String line = sc.nextLine();
             String[] split = line.split(";");
-            for (int i = 0; i < split.length; i++) {
-                System.out.println(split[i]);
+            for (String s : split) {
+                System.out.println(s);
             }
         }
 
