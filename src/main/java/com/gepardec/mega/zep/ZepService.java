@@ -8,7 +8,11 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
+import de.provantis.zep.RequestHeaderType;
+import de.provantis.zep.ResponseHeaderType;
 
+import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
@@ -38,4 +42,6 @@ public interface ZepService {
     List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(final Employee employee, YearMonth payrollMonth);
 
     double getDoctorsVisitingTimeForMonthAndEmployee(final Employee employee, YearMonth payrollMonth);
+
+    ResponseHeaderType updateEmployeeHourlyRate(final RequestHeaderType employee);
 }

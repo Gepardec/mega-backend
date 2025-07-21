@@ -17,32 +17,7 @@ import com.gepardec.mega.zep.ZepSoapProvider;
 import com.gepardec.mega.zep.mapper.AbsenceTimeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
 import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
-import de.provantis.zep.FehlzeitType;
-import de.provantis.zep.KategorieListeType;
-import de.provantis.zep.KategorieType;
-import de.provantis.zep.MitarbeiterType;
-import de.provantis.zep.ProjektListeType;
-import de.provantis.zep.ProjektMitarbeiterListeType;
-import de.provantis.zep.ProjektMitarbeiterType;
-import de.provantis.zep.ProjektNrListeType;
-import de.provantis.zep.ProjektType;
-import de.provantis.zep.ProjektzeitType;
-import de.provantis.zep.ReadFehlzeitRequestType;
-import de.provantis.zep.ReadFehlzeitResponseType;
-import de.provantis.zep.ReadFehlzeitSearchCriteriaType;
-import de.provantis.zep.ReadMitarbeiterRequestType;
-import de.provantis.zep.ReadMitarbeiterSearchCriteriaType;
-import de.provantis.zep.ReadProjekteRequestType;
-import de.provantis.zep.ReadProjekteResponseType;
-import de.provantis.zep.ReadProjekteSearchCriteriaType;
-import de.provantis.zep.ReadProjektzeitenRequestType;
-import de.provantis.zep.ReadProjektzeitenResponseType;
-import de.provantis.zep.ReadProjektzeitenSearchCriteriaType;
-import de.provantis.zep.ResponseHeaderType;
-import de.provantis.zep.UpdateMitarbeiterRequestType;
-import de.provantis.zep.UpdateMitarbeiterResponseType;
-import de.provantis.zep.UserIdListeType;
-import de.provantis.zep.ZepSoapPortType;
+import de.provantis.zep.*;
 import io.quarkus.cache.CacheInvalidate;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.RequestScoped;
@@ -52,6 +27,9 @@ import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
@@ -131,6 +109,13 @@ public class ZepSoapServiceImpl implements ZepService {
         if (StringUtils.isNotBlank(returnCode) && Integer.parseInt(returnCode) != 0) {
             throw new ZepServiceException("updateEmployeeReleaseDate failed with code: " + returnCode);
         }
+    }
+
+
+    public ResponseHeaderType updateEmployeeHourlyRate(final RequestHeaderType employee){
+        logger.info("start update user {}", employee.toString());
+        //TODO: implement
+        return null;
     }
 
     @CacheResult(cacheName = "fehlzeitentype")
@@ -403,4 +388,6 @@ public class ZepSoapServiceImpl implements ZepService {
                 .map(employeeMapper::map)
                 .toList();
     }
+
+
 }
