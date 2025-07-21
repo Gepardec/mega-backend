@@ -117,9 +117,25 @@ public class ZepSoapServiceImpl implements ZepService {
     }
 
 
-    public ResponseHeaderType updateEmployeeHourlyRate(final RequestHeaderType employee){
-        logger.info("start update user {}", employee.toString());
-        //TODO: implement
+    public ResponseHeaderType updateEmployeeHourlyRate(final String userId, final InternersatzListeType internersatz) {
+        logger.info("start update user {}", userId);
+
+        final UpdateMitarbeiterRequestType umrt = new UpdateMitarbeiterRequestType();
+        umrt.setRequestHeader(zepSoapProvider.createRequestHeaderType());
+
+        final MitarbeiterType employee = new MitarbeiterType();
+        employee.setUserId(userId);
+        employee.setInternersatzListe(internersatz);
+        umrt.setMitarbeiter(employee);
+
+        final UpdateMitarbeiterResponseType updateMitarbeiterResponseType = zepSoapPortType.updateMitarbeiter(umrt);
+
+        String returnCode = Optional.ofNullable(updateMitarbeiterResponseType)
+                .flatMap(response -> Optional.ofNullable(response.getResponseHeader()))
+                .map(ResponseHeaderType::getReturnCode)
+                .orElse(null);
+
+        logger.info("finish update user {} with response {}", userId, returnCode);
         return null;
     }
 
