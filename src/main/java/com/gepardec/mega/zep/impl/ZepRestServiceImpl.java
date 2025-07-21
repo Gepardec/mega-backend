@@ -39,7 +39,6 @@ import com.gepardec.mega.zep.rest.service.ProjectService;
 import com.gepardec.mega.zep.rest.service.ReceiptService;
 import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
 import de.provantis.zep.InternersatzListeType;
-import de.provantis.zep.RequestHeaderType;
 import de.provantis.zep.ResponseHeaderType;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
