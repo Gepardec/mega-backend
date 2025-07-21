@@ -7,6 +7,8 @@ import com.gepardec.mega.rest.model.HourlyRateFileDto;
 import com.gepardec.mega.zep.ZepService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+import de.provantis.zep.InternersatzListeType;
+import de.provantis.zep.InternersatzType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,12 +37,20 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
 
         if(!verifyUploadHourlyRate(lines)) return Response.status(Response.Status.BAD_REQUEST).build();
 
-        List<User> employees = new ArrayList<>();//Employees to be changed
+        if(!verifyAndGetEmployees(lines)) return Response.status(Response.Status.BAD_REQUEST).build();
 
-        if(!verifyAndGetEmployees(lines, employees)) return Response.status(Response.Status.BAD_REQUEST).build();
+        for(String l : lines){
+            InternersatzListeType hourlyRateParam = new InternersatzListeType();
+            InternersatzType hourlyRate = new InternersatzType();
+            List<InternersatzType> hourlyrateList = new ArrayList<>();
 
+            hourlyRate.setSatz(Double.parseDouble(l.split(",")[1]));
+            hourlyRate.setStartdatum(l.split(",")[2]);
+            hourlyrateList.add(hourlyRate);
+            hourlyRateParam.setInternersatz(hourlyrateList);
 
-        zepService.updateEmployeeHourlyRate();
+            zepService.updateEmployeeHourlyRate(l.split(",")[0], hourlyRateParam);
+        }
 
         return Response.ok().build();
     }
@@ -57,15 +67,13 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
         return true;
     }
 
-    private boolean verifyAndGetEmployees(List<String> lines, List<User> employees) {
+    private boolean verifyAndGetEmployees(List<String> lines) {
 
         for(String l : lines){
             String zId = l.split(",")[0];
             Optional<User> user = userRepo.findByZepId(zId);
 
             if(user.isEmpty()) return false;
-
-            employees.add(user.get());
         }
         return true;
     }
