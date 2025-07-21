@@ -5,9 +5,7 @@ import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.rest.api.BulkUpdateResource;
 import com.gepardec.mega.rest.model.HourlyRateFileDto;
 import com.gepardec.mega.zep.ZepService;
-import de.provantis.zep.RequestHeaderType;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.Response;
 
 import java.util.ArrayList;
