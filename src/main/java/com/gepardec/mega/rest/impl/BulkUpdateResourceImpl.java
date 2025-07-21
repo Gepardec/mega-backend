@@ -5,6 +5,7 @@ import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.rest.api.BulkUpdateResource;
 import com.gepardec.mega.rest.model.HourlyRateFileDto;
 import com.gepardec.mega.zep.ZepService;
+import de.provantis.zep.RequestHeaderType;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.Response;
@@ -32,13 +33,16 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
             lines.add(sc.nextLine());
         }
 
+        //TODO: write more explaining Response messages
+
         if(!verifyUploadHourlyRate(lines)) return Response.status(Response.Status.BAD_REQUEST).build();
 
-        if(!verifyEmployeeExistance(lines)) return  Response.status(Response.Status.BAD_REQUEST).build();
+        List<User> employees = new ArrayList<>();//Employees to be changed
+
+        if(!verifyAndGetEmployees(lines, employees)) return Response.status(Response.Status.BAD_REQUEST).build();
 
 
-
-        //TODO: get a list of the requested empl and check whether they exist and everything is correct. if not return.
+        zepService.updateEmployeeHourlyRate();
 
         return Response.ok().build();
     }
@@ -55,15 +59,15 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
         return true;
     }
 
-    private boolean verifyEmployeeExistance(List<String> lines) {
-        try{
-            for(String l : lines){
-                String zId = l.split(",")[0];
-                Optional<User> user = userRepo.findByZepId(zId);
-                if(user.isEmpty()) return false;
-            }
-        }catch(ForbiddenException fe){
-            return false;
+    private boolean verifyAndGetEmployees(List<String> lines, List<User> employees) {
+
+        for(String l : lines){
+            String zId = l.split(",")[0];
+            Optional<User> user = userRepo.findByZepId(zId);
+
+            if(user.isEmpty()) return false;
+
+            employees.add(user.get());
         }
         return true;
     }
