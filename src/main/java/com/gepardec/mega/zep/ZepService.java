@@ -8,6 +8,7 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
+import com.gepardec.mega.rest.impl.EmployeeResourceImpl;
 import de.provantis.zep.RequestHeaderType;
 import de.provantis.zep.ResponseHeaderType;
 
@@ -20,6 +21,8 @@ import java.util.Optional;
 public interface ZepService {
 
     Employee getEmployee(String userId);
+
+    List<Employee> getEmployees(List<String> userIds);
 
     List<Employee> getEmployees();
 

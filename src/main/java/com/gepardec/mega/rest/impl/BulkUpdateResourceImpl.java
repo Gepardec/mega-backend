@@ -1,14 +1,17 @@
 package com.gepardec.mega.rest.impl;
 
-import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.rest.api.BulkUpdateResource;
 import com.gepardec.mega.rest.model.HourlyRateFileDto;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.impl.ZepServiceImpl;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.Response;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class BulkUpdateResourceImpl implements BulkUpdateResource {
@@ -16,16 +19,22 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
     @Inject
     ZepService zepService;
 
+    @Inject
+    UserRepository userRepo;
+
     @Override
     public Response uploadHourlyRate(HourlyRateFileDto input) {
 
-        Scanner sc = new Scanner(input.file).useDelimiter("\\A");
+        Scanner sc = new Scanner(input.file);
+        List<String> lines = new ArrayList<>();
 
-        if(!verifyUploadHourlyRate(sc)) return Response.status(Response.Status.BAD_REQUEST).build(); //check this before the API call is made
+        while(sc.hasNextLine()){
+            lines.add(sc.nextLine());
+        }
 
-        List<Employee> employees = zepService.getEmployees();
+        if(!verifyUploadHourlyRate(lines)) return Response.status(Response.Status.BAD_REQUEST).build();
 
-        if(!verifyEmployeeExistance(sc, employees)) return  Response.status(Response.Status.BAD_REQUEST).build();
+        if(!verifyEmployeeExistance(lines)) return  Response.status(Response.Status.BAD_REQUEST).build();
 
 
 
@@ -34,11 +43,10 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
         return Response.ok().build();
     }
 
-    private boolean verifyUploadHourlyRate(Scanner sc) {
+    private boolean verifyUploadHourlyRate(List<String> lines) {
 
-        while(sc.hasNext()){
-            String line = sc.nextLine();
-            String[] split = line.split(",");
+        for(String l : lines){
+            String[] split = l.split(",");
 
             for (String s : split) {
                 if(s.isEmpty()) return false;
@@ -47,15 +55,15 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
         return true;
     }
 
-    private boolean verifyEmployeeExistance(Scanner sc, List<Employee> employees) {
-
-        while(sc.hasNextLine()){
-            String line = sc.nextLine();
-            String[] split = line.split(",");
-
-            for(Employee employee : employees){
-                if(!split[0].equals(employee.getUserId())) return false;
+    private boolean verifyEmployeeExistance(List<String> lines) {
+        try{
+            for(String l : lines){
+                String zId = l.split(",")[0];
+                Optional<User> user = userRepo.findByZepId(zId);
+                if(user.isEmpty()) return false;
             }
+        }catch(ForbiddenException fe){
+            return false;
         }
         return true;
     }
