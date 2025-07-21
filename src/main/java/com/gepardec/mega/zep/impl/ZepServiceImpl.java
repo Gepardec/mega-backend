@@ -34,6 +34,10 @@ public class ZepServiceImpl implements ZepService {
         return zepServiceSoap.getEmployee(userId);
     }
 
+    public List<Employee> getEmployees(List<String> userIds) {
+        return zepServiceRest.getEmployees(userIds);
+    }
+
     @Override
     public List<Employee> getEmployees() {
         return zepServiceSoap.getEmployees();

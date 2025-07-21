@@ -131,6 +131,21 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     @Override
+    public List<Employee> getEmployees(List<String> userIds){
+        List<Employee> retEmployees = new ArrayList<>();
+
+        for(String userId : userIds){
+            Employee emp =  getEmployee(userId);
+
+            if(emp == null) logger.warn("No employee found for user {}", userId);
+
+            retEmployees.add(getEmployee(userId));
+        }
+
+        return retEmployees;
+    }
+
+    @Override
     public List<Employee> getEmployees() {
         logger.debug("Retrieving employees from ZEP");
 

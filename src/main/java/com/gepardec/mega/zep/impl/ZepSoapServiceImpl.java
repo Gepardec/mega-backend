@@ -78,6 +78,11 @@ public class ZepSoapServiceImpl implements ZepService {
         return getEmployeeInternal(readMitarbeiterSearchCriteriaType).stream().findFirst().orElse(null);
     }
 
+    @Override
+    public List<Employee> getEmployees(List<String> userIds) {
+        throw new NotImplementedException("This method is not provided in SOAP, use REST instead"); // not provided due to using REST
+    }
+
     @CacheResult(cacheName = "employee")
     @Override
     public List<Employee> getEmployees() {
