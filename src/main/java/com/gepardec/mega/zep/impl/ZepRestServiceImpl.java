@@ -38,6 +38,8 @@ import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
 import com.gepardec.mega.zep.rest.service.ProjectService;
 import com.gepardec.mega.zep.rest.service.ReceiptService;
 import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
+import de.provantis.zep.RequestHeaderType;
+import de.provantis.zep.ResponseHeaderType;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -250,6 +252,11 @@ public class ZepRestServiceImpl implements ZepService {
                 .filter(attendance -> attendance.projectTaskId().equals(ProjectTaskType.TASK_DOCTOR_VISIT.getId()))
                 .mapToDouble(ZepAttendance::duration)
                 .sum();
+    }
+
+    @Override
+    public ResponseHeaderType updateEmployeeHourlyRate(RequestHeaderType employee) {
+        throw new NotImplementedException("This method is not provided in REST, use SOAP instead.");         // Currently not supported by REST - use SOAP instead
     }
 
     private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth payrollMonth) {

@@ -9,8 +9,13 @@ import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
+import de.provantis.zep.RequestHeaderType;
+import de.provantis.zep.ResponseHeaderType;
+import de.provantis.zep.UpdateMitarbeiterRequestType;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
@@ -82,5 +87,10 @@ public class ZepServiceImpl implements ZepService {
     @Override
     public double getDoctorsVisitingTimeForMonthAndEmployee(Employee employee, YearMonth payrollMonth) {
         return zepServiceRest.getDoctorsVisitingTimeForMonthAndEmployee(employee, payrollMonth);
+    }
+
+    @Override
+    public ResponseHeaderType updateEmployeeHourlyRate(final RequestHeaderType employee){
+        return zepServiceSoap.updateEmployeeHourlyRate(employee);
     }
 }
