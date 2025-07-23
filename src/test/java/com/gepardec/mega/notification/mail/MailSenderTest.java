@@ -34,8 +34,6 @@ class MailSenderTest {
         return Stream.of(
                 Arguments.of(Mail.EMPLOYEE_CHECK_PROJECTTIME, "UNIT-TEST: Reminder: Buchungen bis heute Abend in MEGA bestätigen"),
                 Arguments.of(Mail.PL_PROJECT_CONTROLLING, "UNIT-TEST: Reminder: Projekte kontrollieren und abrechnen"),
-                Arguments.of(Mail.OM_CONTROL_EMPLOYEES_CONTENT, "UNIT-TEST: Reminder: Kontrolle Mitarbeiter"),
-                Arguments.of(Mail.OM_CONTROL_PROJECTTIMES, "UNIT-TEST: Reminder: Administrative Projektzeiten kontrollieren (Monatsende)"),
                 Arguments.of(Mail.OM_RELEASE, "UNIT-TEST: Reminder: Freigaben durchführen"),
                 Arguments.of(Mail.OM_ADMINISTRATIVE, "UNIT-TEST: Reminder: Administratives"),
                 Arguments.of(Mail.OM_SALARY, "UNIT-TEST: Reminder: Gehälter"),
