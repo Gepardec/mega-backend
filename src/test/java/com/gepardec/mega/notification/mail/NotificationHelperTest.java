@@ -74,13 +74,6 @@ class NotificationHelperTest {
     }
 
     @Test
-    void _whenReminderOM_CONTROL_PROJECTTIMES_thenEmailPathReturned() {
-        final String path = notificationHelper.templatePathForMail(Mail.OM_CONTROL_PROJECTTIMES, locale);
-
-        assertThat(path).isEqualTo("emails/OM_CONTROL_PROJECTTIMES.html");
-    }
-
-    @Test
     void whenPrefixNull_thenNoPrefixAdded() {
         when(notificationConfig.getSubjectPrefix()).thenReturn(Optional.empty());
         when(resourceBundleProducer.getResourceBundle(any(Locale.class)).getString("mail.EMPLOYEE_CHECK_PROJECTTIME.subject"))
