@@ -239,20 +239,29 @@ class TimeWarningServiceImplTest {
     private List<ProjectEntry> createProjectEntryListForRequestForJourneySmall() {
         List<ProjectEntry> projectEntries = new ArrayList<>();
 
+        projectEntries.add(createProjectTimeEntry(//test for outside of this year
+                LocalDateTime.of(2019, 5, 2, 8, 0),
+                LocalDateTime.of(2019, 5, 2, 10, 0),
+                Task.BEARBEITEN, WorkingLocation.MAIN, "1033"
+        ));
+
         projectEntries.add(createJourneyTimeEntry(
                 LocalDateTime.of(2025, 7, 1, 10, 15),
                 LocalDateTime.of(2025, 7, 1, 10, 45),
-                WorkingLocation.A, JourneyDirection.TO));
+                WorkingLocation.A, JourneyDirection.TO
+        ));
 
         projectEntries.add(createProjectTimeEntry(
                 LocalDateTime.of(2025, 7, 1, 11, 0),
                 LocalDateTime.of(2025, 7, 1, 11, 30),
-                Task.BEARBEITEN, WorkingLocation.MAIN, "1033"));
+                Task.BEARBEITEN, WorkingLocation.MAIN, "1033"
+        ));
 
         projectEntries.add(createJourneyTimeEntry(
                 LocalDateTime.of(2025, 7, 1, 10, 15),
                 LocalDateTime.of(2025, 7, 1, 10, 45),
-                WorkingLocation.A, JourneyDirection.BACK));
+                WorkingLocation.A, JourneyDirection.BACK
+        ));
 
         return projectEntries;
     }
