@@ -1,5 +1,6 @@
 package com.gepardec.mega.service.impl.timewarning;
 
+import com.gepardec.mega.domain.calculation.journey.InvalidWorkingLocationInJourneyCalculator;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.EmploymentPeriod;
@@ -23,15 +24,24 @@ import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.TimeWarningService;
 import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import io.quarkus.test.InjectMock;
+import io.quarkus.test.Mock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,6 +58,17 @@ class TimeWarningServiceImplTest {
 
     @InjectMock
     UserContext userContext;
+
+    @Spy
+    @InjectMocks
+    private InvalidWorkingLocationInJourneyCalculator invalidWorkingLocationInJourneyCalculator = new  InvalidWorkingLocationInJourneyCalculator();
+
+    public static Stream<Arguments> journeyWorkingLocationPeriodArguments() {
+        return  Stream.of(Arguments.of(createProjectEntryListForRequestForJourney(), false),
+                Arguments.of(List.of(createProjectEntryListForRequestForJourneySmall()), false)
+        );
+    }
+
 
     @Test
     void getAllWarningsForEmployeeAndMonth_whenWarningsPresent_thenReturnListOfMonthlyWarning() {
@@ -96,6 +117,22 @@ class TimeWarningServiceImplTest {
         assertThat(actual.isEmpty()).isTrue();
     }
 
+    @ParameterizedTest
+    @MethodSource("journeyWorkingLocationPeriodArguments")
+    void getAllWarningsForEmployeeAndMonth_whenInvalidJourneyWorkingLocation_thenGetError(List<ProjectEntry> projectEntries, boolean throwError) {
+        User user = createUserForRole(Role.EMPLOYEE);
+        when(userContext.getUser()).thenReturn(user);
+
+        Employee employee = createEmployeeForUser(user);
+
+        List<JourneyWarning> actual = invalidWorkingLocationInJourneyCalculator.calculate(projectEntries);
+
+        assertThat(actual
+                .stream()
+                .anyMatch(it -> it.getWarningTypes().contains(JourneyWarningType.INVALID_WORKING_LOCATION))
+        ).isEqualTo(throwError);
+    }
+
     private List<AbsenceTime> createAbsenceTimeListForRequest(String userId) {
         List<AbsenceTime> absenceTimes = new ArrayList<>();
         absenceTimes.add(createAbsenceTime(userId, "2024-05-02", "2024-05-02", "KR"));
@@ -141,14 +178,106 @@ class TimeWarningServiceImplTest {
         return projectEntries;
     }
 
-    private ProjectEntry createProjectTimeEntry(LocalDateTime from, LocalDateTime to) {
+    private static List<ProjectEntry> createProjectEntryListForRequestForJourney() {
+        List<ProjectEntry> projectEntries = new ArrayList<>();
+
+        //departure day
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 1, 8, 0),
+                LocalDateTime.of(2025, 7, 1, 9, 45),
+                Task.BEARBEITEN,
+                WorkingLocation.MAIN,
+                "1033"));
+        projectEntries.add(createJourneyTimeEntry(LocalDateTime.of(2025, 7, 1, 10, 15),
+                LocalDateTime.of(2025, 7, 1, 10, 45),
+                WorkingLocation.A,
+                JourneyDirection.TO));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 1, 11, 0),
+                LocalDateTime.of(2025, 7, 1, 11, 30),
+                Task.BEARBEITEN,
+                WorkingLocation.A,
+                "1033"));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 1, 12, 0),
+                LocalDateTime.of(2025, 7, 1, 16, 30),
+                Task.BEARBEITEN,
+                WorkingLocation.A,
+                "1033"));
+
+        //Tag1 Away
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 2, 8, 0),
+                LocalDateTime.of(2025, 7, 1, 11, 30),
+                Task.BEARBEITEN,
+                WorkingLocation.MAIN,
+                "1033"));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 2, 12, 0),
+                LocalDateTime.of(2025, 7, 1, 16, 30),
+                Task.BEARBEITEN,
+                WorkingLocation.A,
+                "1033"));
+        //Tag2 Away
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 3, 8, 0),
+                LocalDateTime.of(2025, 7, 1, 11, 30),
+                Task.BEARBEITEN,
+                WorkingLocation.A,
+                "1033"));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 3, 12, 0),
+                LocalDateTime.of(2025, 7, 1, 16, 30),
+                Task.BEARBEITEN,
+                WorkingLocation.A,
+                "1033"));
+
+        //arrival day
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 4, 8, 0),
+                LocalDateTime.of(2025, 7, 1, 11, 30),
+                Task.BEARBEITEN,
+                WorkingLocation.A,
+                "1033"));
+        projectEntries.add(createJourneyTimeEntry(LocalDateTime.of(2025, 7, 4, 12, 15),
+                LocalDateTime.of(2025, 7, 1, 12, 45),
+                WorkingLocation.MAIN,
+                JourneyDirection.BACK
+                ));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 4, 12, 30),
+                LocalDateTime.of(2025, 7, 1, 16, 30),
+                Task.BEARBEITEN,
+                WorkingLocation.MAIN,
+                "1033"));
+
+        return projectEntries;
+    }
+
+    private static List<ProjectEntry> createProjectEntryListForRequestForJourneySmall() {
+        List<ProjectEntry> projectEntries = new ArrayList<>();
+
+        projectEntries.add(createJourneyTimeEntry(LocalDateTime.of(2025, 7, 1, 10, 15),
+                LocalDateTime.of(2025, 7, 1, 10, 45),
+                WorkingLocation.A,
+                JourneyDirection.TO));
+        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 1, 11, 0),
+                LocalDateTime.of(2025, 7, 1, 11, 30),
+                Task.BEARBEITEN,
+                WorkingLocation.MAIN,
+                "1033"));
+        projectEntries.add(createJourneyTimeEntry(LocalDateTime.of(2025, 7, 1, 10, 15),
+                LocalDateTime.of(2025, 7, 1, 10, 45),
+                WorkingLocation.A,
+                JourneyDirection.BACK));
+
+        return projectEntries;
+    }
+
+
+    private ProjectEntry createProjectTimeEntry(LocalDateTime from, LocalDateTime to, Task task, WorkingLocation location, String processId){
         return ProjectTimeEntry.builder()
                 .fromTime(from)
                 .toTime(to)
-                .task(Task.BEARBEITEN)
-                .workingLocation(WorkingLocation.MAIN)
-                .process("1033")
+                .task(task)
+                .workingLocation(location)
+                .process(processId)
                 .build();
+    }
+
+    private ProjectEntry createProjectTimeEntry(LocalDateTime from, LocalDateTime to) {
+        return createProjectTimeEntry(from, to, Task.BEARBEITEN, WorkingLocation.MAIN, "1033");
     }
 
     private List<ProjectEntry> createProjectEntryListForMonth() {
@@ -256,16 +385,21 @@ class TimeWarningServiceImplTest {
         return projectEntries;
     }
 
-    private JourneyTimeEntry createJourneyTimeEntry(LocalDateTime from, LocalDateTime to) {
+    private JourneyTimeEntry createJourneyTimeEntry(LocalDateTime from, LocalDateTime to, WorkingLocation workLoc, JourneyDirection direction) {
         return JourneyTimeEntry.builder()
                 .fromTime(from)
                 .toTime(to)
                 .task(Task.REISEN)
-                .workingLocation(WorkingLocation.A)
-                .journeyDirection(JourneyDirection.TO)
+                .workingLocation(workLoc)
+                .journeyDirection(direction)
                 .vehicle(Vehicle.OTHER_INACTIVE)
                 .build();
     }
+
+    private JourneyTimeEntry createJourneyTimeEntry(LocalDateTime from, LocalDateTime to) {
+        return createJourneyTimeEntry(from, to, WorkingLocation.A,  JourneyDirection.TO);
+    }
+
 
     private Employee createEmployeeForUser(final User user) {
         return Employee.builder()
