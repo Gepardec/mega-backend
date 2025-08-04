@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -120,10 +120,10 @@ class TimeWarningServiceImplTest {
 
         List<JourneyWarning> actual = invalidWorkingLocationInJourneyCalculator.calculate(projectEntries);
 
-        assertThat(actual
-                .stream()
-                .anyMatch(it -> it.getWarningTypes().contains(JourneyWarningType.INVALID_WORKING_LOCATION))
-        ).isEqualTo(false);
+        assertThat(actual)
+                .hasSize(1)
+                .flatExtracting(entry -> entry.getWarningTypes())
+                .containsExactly(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
 
     private List<AbsenceTime> createAbsenceTimeListForRequest(String userId) {
