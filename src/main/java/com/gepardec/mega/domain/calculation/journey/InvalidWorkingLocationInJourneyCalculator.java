@@ -37,10 +37,13 @@ public class InvalidWorkingLocationInJourneyCalculator implements WarningCalcula
                     workingLocation = projectEntry.getWorkingLocation();
                     journeyDirection = ((JourneyTimeEntry) projectEntry).getJourneyDirection();
                 } else {
-                    if (journeyDirection != null && journeyDirection.equals(JourneyDirection.BACK)) { //just setting to main?
+                    if (journeyDirection != null && journeyDirection.equals(JourneyDirection.BACK)) {
                         workingLocation = WorkingLocation.MAIN;
                     }
-                    if (!isProjectEntryValid(projectEntry, workingLocation, journeyDirection)) {
+                    if(workingLocation != WorkingLocation.A && workingLocation != WorkingLocation.OTHER){
+                        warnings.add(createJourneyWarningWithEnumType(projectEntry, JourneyWarningType.INVALID_WORKING_LOCATION));
+                    }
+                    if (!isProjectEntryValid(projectEntry, workingLocation, journeyDirection)) {// ??
                         boolean existsWorkingLocationWarning = warnings.stream()
                                 .anyMatch(it -> it.getWarningTypes()
                                         .contains(JourneyWarningType.INVALID_WORKING_LOCATION));
@@ -56,7 +59,7 @@ public class InvalidWorkingLocationInJourneyCalculator implements WarningCalcula
     }
 
     private boolean isProjectEntryValid(final ProjectEntry projectEntry, final WorkingLocation workingLocation, final JourneyDirection journeyDirection) {
-        if (JourneyDirection.BACK.equals(journeyDirection)) {
+        if (JourneyDirection.BACK.equals(journeyDirection)) { //this statement is never reached
             return isProjectEntryValidAfterJourneyBack(projectEntry, workingLocation);
         }
 
