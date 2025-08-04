@@ -43,7 +43,7 @@ public class InvalidWorkingLocationInJourneyCalculator implements WarningCalcula
                     if(workingLocation != WorkingLocation.A && workingLocation != WorkingLocation.OTHER){
                         warnings.add(createJourneyWarningWithEnumType(projectEntry, JourneyWarningType.INVALID_WORKING_LOCATION));
                     }
-                    if (!isProjectEntryValid(projectEntry, workingLocation, journeyDirection)) {// ??
+                    if (!isProjectEntryValid(projectEntry, workingLocation, journeyDirection)) {
                         boolean existsWorkingLocationWarning = warnings.stream()
                                 .anyMatch(it -> it.getWarningTypes()
                                         .contains(JourneyWarningType.INVALID_WORKING_LOCATION));
@@ -58,8 +58,44 @@ public class InvalidWorkingLocationInJourneyCalculator implements WarningCalcula
         return warnings;
     }
 
+    private List<JourneyWarning> calculate(List<ProjectEntry> projectEntries){
+        final List<ProjectEntry> sortedProjectEntries = projectEntries.stream() //Sorting projectEntries by time
+                .sorted(Comparator.comparing(ProjectEntry::getFromTime).thenComparing(ProjectEntry::getToTime))
+                .toList();
+        List<JourneyWarningType> warnings = new ArrayList<>();
+
+        if(!hasJourneyEntries(sortedProjectEntries)){
+            return warnings;
+        }
+
+        WorkingLocation workingLocation = sortedProjectEntries //first entry could be away from main
+                .get(0)
+                .getWorkingLocation();
+
+        for(final ProjectEntry projectEntry : sortedProjectEntries){
+            if(Task.isJourney(projectEntry.getTask())){
+                JourneyDirection journeyDirection = ((JourneyTimeEntry)projectEntry).getJourneyDirection();
+                if(journeyDirection.equals(JourneyDirection.BACK)){
+                    workingLocation = WorkingLocation.MAIN;
+                }
+                if(journeyDirection.equals(JourneyDirection.TO)){
+                    workingLocation = projectEntry.getWorkingLocation();
+                }
+                continue;
+            }
+            if(!projectEntry.getWorkingLocation().equals(workingLocation)){
+                warnings.add(JourneyWarningType.INVALID_WORKING_LOCATION);
+            }
+
+            /// TODO: finish this
+        }
+
+
+        return warnings;
+    }
+
     private boolean isProjectEntryValid(final ProjectEntry projectEntry, final WorkingLocation workingLocation, final JourneyDirection journeyDirection) {
-        if (JourneyDirection.BACK.equals(journeyDirection)) { //this statement is never reached
+        if (JourneyDirection.BACK.equals(journeyDirection)) {
             return isProjectEntryValidAfterJourneyBack(projectEntry, workingLocation);
         }
 
@@ -75,8 +111,8 @@ public class InvalidWorkingLocationInJourneyCalculator implements WarningCalcula
         final WorkingLocation workingLocation = projectEntry.getWorkingLocation();
         return (MAPPED_SUPPORTED_WORKING_LOCATIONS.containsKey(journeyBackWorkingLocation))
                 ? MAPPED_SUPPORTED_WORKING_LOCATIONS.get(journeyBackWorkingLocation).contains(workingLocation)
-                : journeyBackWorkingLocation == null || projectEntry.getWorkingLocation()
-                .equals(journeyBackWorkingLocation);
+                : journeyBackWorkingLocation == null
+                || projectEntry.getWorkingLocation().equals(journeyBackWorkingLocation);
     }
 
     private boolean hasJourneyEntries(final List<ProjectEntry> projectEntries) {
