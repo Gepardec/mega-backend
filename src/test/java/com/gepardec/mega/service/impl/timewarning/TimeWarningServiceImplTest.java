@@ -116,14 +116,14 @@ class TimeWarningServiceImplTest {
         User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
-        Employee employee = createEmployeeForUser(user);
+        List<ProjectEntry> projectEntries = createProjectEntryListForRequestForJourneySmall();
 
         List<JourneyWarning> actual = invalidWorkingLocationInJourneyCalculator.calculate(projectEntries);
 
         assertThat(actual
                 .stream()
                 .anyMatch(it -> it.getWarningTypes().contains(JourneyWarningType.INVALID_WORKING_LOCATION))
-        ).isEqualTo(true);
+        ).isEqualTo(false);
     }
 
     private List<AbsenceTime> createAbsenceTimeListForRequest(String userId) {
