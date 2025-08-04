@@ -178,89 +178,88 @@ class TimeWarningServiceImplTest {
         return projectEntries;
     }
 
-    private static List<ProjectEntry> createProjectEntryListForRequestForJourney() {
+    private List<ProjectEntry> createProjectEntryListForRequestForJourney() {
         List<ProjectEntry> projectEntries = new ArrayList<>();
 
         //departure day
-        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 1, 8, 0),
+        projectEntries.add(createProjectTimeEntry(
+                LocalDateTime.of(2025, 7, 1, 8, 0),
                 LocalDateTime.of(2025, 7, 1, 9, 45),
-                Task.BEARBEITEN,
-                WorkingLocation.MAIN,
-                "1033"));
-        projectEntries.add(createJourneyTimeEntry(LocalDateTime.of(2025, 7, 1, 10, 15),
+                Task.BEARBEITEN, WorkingLocation.MAIN, "1033"));
+
+        projectEntries.add(createJourneyTimeEntry(
+                LocalDateTime.of(2025, 7, 1, 10, 15),
                 LocalDateTime.of(2025, 7, 1, 10, 45),
-                WorkingLocation.A,
-                JourneyDirection.TO));
-        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 1, 11, 0),
+                WorkingLocation.A, JourneyDirection.TO));
+
+        projectEntries.add(createProjectTimeEntry(
+                LocalDateTime.of(2025, 7, 1, 11, 0),
                 LocalDateTime.of(2025, 7, 1, 11, 30),
-                Task.BEARBEITEN,
-                WorkingLocation.A,
-                "1033"));
-        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 1, 12, 0),
+                Task.BEARBEITEN, WorkingLocation.A, "1033"));
+
+        projectEntries.add(createProjectTimeEntry(
+                LocalDateTime.of(2025, 7, 1, 12, 0),
                 LocalDateTime.of(2025, 7, 1, 16, 30),
-                Task.BEARBEITEN,
-                WorkingLocation.A,
-                "1033"));
+                Task.BEARBEITEN, WorkingLocation.A, "1033"));
 
         //Tag1 Away
-        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 2, 8, 0),
+        projectEntries.add(createProjectTimeEntry(
+                LocalDateTime.of(2025, 7, 2, 8, 0),
                 LocalDateTime.of(2025, 7, 1, 11, 30),
-                Task.BEARBEITEN,
-                WorkingLocation.MAIN,
-                "1033"));
-        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 2, 12, 0),
+                Task.BEARBEITEN, WorkingLocation.MAIN, "1033"));
+
+        projectEntries.add(createProjectTimeEntry(
+                LocalDateTime.of(2025, 7, 2, 12, 0),
                 LocalDateTime.of(2025, 7, 1, 16, 30),
-                Task.BEARBEITEN,
-                WorkingLocation.A,
-                "1033"));
+                Task.BEARBEITEN, WorkingLocation.A, "1033"));
+
         //Tag2 Away
-        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 3, 8, 0),
+        projectEntries.add(createProjectTimeEntry(
+                LocalDateTime.of(2025, 7, 3, 8, 0),
                 LocalDateTime.of(2025, 7, 1, 11, 30),
-                Task.BEARBEITEN,
-                WorkingLocation.A,
-                "1033"));
-        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 3, 12, 0),
+                Task.BEARBEITEN, WorkingLocation.A, "1033"));
+
+        projectEntries.add(createProjectTimeEntry(
+                LocalDateTime.of(2025, 7, 3, 12, 0),
                 LocalDateTime.of(2025, 7, 1, 16, 30),
-                Task.BEARBEITEN,
-                WorkingLocation.A,
-                "1033"));
+                Task.BEARBEITEN, WorkingLocation.A, "1033"));
 
         //arrival day
-        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 4, 8, 0),
+        projectEntries.add(createProjectTimeEntry(
+                LocalDateTime.of(2025, 7, 4, 8, 0),
                 LocalDateTime.of(2025, 7, 1, 11, 30),
-                Task.BEARBEITEN,
-                WorkingLocation.A,
-                "1033"));
-        projectEntries.add(createJourneyTimeEntry(LocalDateTime.of(2025, 7, 4, 12, 15),
+                Task.BEARBEITEN, WorkingLocation.A, "1033"));
+
+        projectEntries.add(createJourneyTimeEntry(
+                LocalDateTime.of(2025, 7, 4, 12, 15),
                 LocalDateTime.of(2025, 7, 1, 12, 45),
-                WorkingLocation.MAIN,
-                JourneyDirection.BACK
-                ));
-        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 4, 12, 30),
+                WorkingLocation.MAIN, JourneyDirection.BACK));
+
+        projectEntries.add(createProjectTimeEntry(
+                LocalDateTime.of(2025, 7, 4, 12, 30),
                 LocalDateTime.of(2025, 7, 1, 16, 30),
-                Task.BEARBEITEN,
-                WorkingLocation.MAIN,
-                "1033"));
+                Task.BEARBEITEN, WorkingLocation.MAIN, "1033"));
 
         return projectEntries;
     }
 
-    private static List<ProjectEntry> createProjectEntryListForRequestForJourneySmall() {
+    private List<ProjectEntry> createProjectEntryListForRequestForJourneySmall() {
         List<ProjectEntry> projectEntries = new ArrayList<>();
 
-        projectEntries.add(createJourneyTimeEntry(LocalDateTime.of(2025, 7, 1, 10, 15),
+        projectEntries.add(createJourneyTimeEntry(
+                LocalDateTime.of(2025, 7, 1, 10, 15),
                 LocalDateTime.of(2025, 7, 1, 10, 45),
-                WorkingLocation.A,
-                JourneyDirection.TO));
-        projectEntries.add(createProjectTimeEntry(LocalDateTime.of(2025, 7, 1, 11, 0),
+                WorkingLocation.A, JourneyDirection.TO));
+
+        projectEntries.add(createProjectTimeEntry(
+                LocalDateTime.of(2025, 7, 1, 11, 0),
                 LocalDateTime.of(2025, 7, 1, 11, 30),
-                Task.BEARBEITEN,
-                WorkingLocation.MAIN,
-                "1033"));
-        projectEntries.add(createJourneyTimeEntry(LocalDateTime.of(2025, 7, 1, 10, 15),
+                Task.BEARBEITEN, WorkingLocation.MAIN, "1033"));
+
+        projectEntries.add(createJourneyTimeEntry(
+                LocalDateTime.of(2025, 7, 1, 10, 15),
                 LocalDateTime.of(2025, 7, 1, 10, 45),
-                WorkingLocation.A,
-                JourneyDirection.BACK));
+                WorkingLocation.A, JourneyDirection.BACK));
 
         return projectEntries;
     }
