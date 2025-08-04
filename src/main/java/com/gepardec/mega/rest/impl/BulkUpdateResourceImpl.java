@@ -26,7 +26,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
     @Override
     public Response uploadHourlyRate(HourlyRateFileDto input) {
 
-        Scanner sc = new Scanner(input.file);
+        Scanner sc = new Scanner(input.file); //streaming api files.lines
         List<String> lines = new ArrayList<>();
 
         while(sc.hasNextLine()){
@@ -35,15 +35,20 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
 
         //TODO: write more explaining Response messages
 
-        if(!verifyUploadHourlyRate(lines)) return Response.status(Response.Status.BAD_REQUEST).build();
+        if(!verifyUploadHourlyRate(lines)) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
 
-        if(!verifyAndGetEmployees(lines)) return Response.status(Response.Status.BAD_REQUEST).build();
+        if(!verifyAndGetEmployees(lines)) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
 
         for(String l : lines){
             InternersatzListeType hourlyRateParam = new InternersatzListeType();
             InternersatzType hourlyRate = new InternersatzType();
             List<InternersatzType> hourlyrateList = new ArrayList<>();
 
+            hourlyRate.setUserId(l.split(",")[0]);
             hourlyRate.setSatz(Double.parseDouble(l.split(",")[1]));
             hourlyRate.setStartdatum(l.split(",")[2]);
             hourlyrateList.add(hourlyRate);
@@ -51,7 +56,6 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
 
             zepService.updateEmployeeHourlyRate(l.split(",")[0], hourlyRateParam);
         }
-
         return Response.ok().build();
     }
 
