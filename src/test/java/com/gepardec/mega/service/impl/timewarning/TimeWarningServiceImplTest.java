@@ -63,12 +63,6 @@ class TimeWarningServiceImplTest {
     @InjectMocks
     private InvalidWorkingLocationInJourneyCalculator invalidWorkingLocationInJourneyCalculator = new  InvalidWorkingLocationInJourneyCalculator();
 
-    public static Stream<Arguments> journeyWorkingLocationPeriodArguments() {
-        return  Stream.of(Arguments.of(createProjectEntryListForRequestForJourney(), false),
-                Arguments.of(List.of(createProjectEntryListForRequestForJourneySmall()), false)
-        );
-    }
-
 
     @Test
     void getAllWarningsForEmployeeAndMonth_whenWarningsPresent_thenReturnListOfMonthlyWarning() {
@@ -117,9 +111,8 @@ class TimeWarningServiceImplTest {
         assertThat(actual.isEmpty()).isTrue();
     }
 
-    @ParameterizedTest
-    @MethodSource("journeyWorkingLocationPeriodArguments")
-    void getAllWarningsForEmployeeAndMonth_whenInvalidJourneyWorkingLocation_thenGetError(List<ProjectEntry> projectEntries, boolean throwError) {
+    @Test
+    void getAllWarningsForEmployeeAndMonth_whenInvalidJourneyWorkingLocation_thenGetError() {
         User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
@@ -130,7 +123,7 @@ class TimeWarningServiceImplTest {
         assertThat(actual
                 .stream()
                 .anyMatch(it -> it.getWarningTypes().contains(JourneyWarningType.INVALID_WORKING_LOCATION))
-        ).isEqualTo(throwError);
+        ).isEqualTo(true);
     }
 
     private List<AbsenceTime> createAbsenceTimeListForRequest(String userId) {
