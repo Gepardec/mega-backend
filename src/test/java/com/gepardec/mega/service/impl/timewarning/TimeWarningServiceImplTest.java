@@ -116,7 +116,7 @@ class TimeWarningServiceImplTest {
         User user = createUserForRole(Role.EMPLOYEE);
         when(userContext.getUser()).thenReturn(user);
 
-        List<ProjectEntry> projectEntries = createProjectEntryListForRequestForJourneySmall();
+        List<ProjectEntry> projectEntries = createProjectEntryListForRequestForJourney();
 
         List<JourneyWarning> actual = invalidWorkingLocationInJourneyCalculator.calculate(projectEntries);
 
@@ -239,12 +239,6 @@ class TimeWarningServiceImplTest {
     private List<ProjectEntry> createProjectEntryListForRequestForJourneySmall() {
         List<ProjectEntry> projectEntries = new ArrayList<>();
 
-        projectEntries.add(createProjectTimeEntry(//test for outside of this year
-                LocalDateTime.of(2019, 5, 2, 8, 0),
-                LocalDateTime.of(2019, 5, 2, 10, 0),
-                Task.BEARBEITEN, WorkingLocation.MAIN, "1033"
-        ));
-
         projectEntries.add(createJourneyTimeEntry(
                 LocalDateTime.of(2025, 7, 1, 10, 15),
                 LocalDateTime.of(2025, 7, 1, 10, 45),
@@ -258,9 +252,15 @@ class TimeWarningServiceImplTest {
         ));
 
         projectEntries.add(createJourneyTimeEntry(
-                LocalDateTime.of(2025, 7, 1, 10, 15),
-                LocalDateTime.of(2025, 7, 1, 10, 45),
+                LocalDateTime.of(2025, 7, 1, 11, 45),
+                LocalDateTime.of(2025, 7, 1, 12, 45),
                 WorkingLocation.A, JourneyDirection.BACK
+        ));
+
+        projectEntries.add(createProjectTimeEntry(
+                LocalDateTime.of(2025, 7, 1, 12, 15),
+                LocalDateTime.of(2025, 7, 1, 16, 00),
+                Task.BEARBEITEN, WorkingLocation.MAIN, "1033"
         ));
 
         return projectEntries;
