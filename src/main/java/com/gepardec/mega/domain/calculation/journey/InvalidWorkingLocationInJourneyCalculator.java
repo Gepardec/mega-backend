@@ -24,7 +24,6 @@ public class InvalidWorkingLocationInJourneyCalculator implements WarningCalcula
         if(!hasJourneyEntries(sortedProjectEntries)){
             return warnings;
         }
-
         WorkingLocation workingLocation = sortedProjectEntries //first entry could be away from main
                 .get(0)
                 .getWorkingLocation();
