@@ -15,6 +15,8 @@ public class ConfigDto {
 
     private final String zepOrigin;
 
+    private final String personioOrigin;
+
     private final String clientId;
 
     private final String issuer;
@@ -32,6 +34,7 @@ public class ConfigDto {
     private ConfigDto(Builder builder) {
         this.excelUrl = builder.excelUrl;
         this.zepOrigin = builder.zepOrigin;
+        this.personioOrigin = builder.personioOrigin;
         this.clientId = builder.clientId;
         this.issuer = builder.issuer;
         this.scope = builder.scope;
@@ -52,6 +55,10 @@ public class ConfigDto {
 
     public String getZepOrigin() {
         return zepOrigin;
+    }
+
+    public String getPersonioOrigin() {
+        return personioOrigin;
     }
 
     public String getClientId() {
@@ -87,18 +94,19 @@ public class ConfigDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ConfigDto configDto = (ConfigDto) o;
-        return Objects.equals(getExcelUrl(), configDto.getExcelUrl()) && Objects.equals(getZepOrigin(), configDto.getZepOrigin()) && Objects.equals(getClientId(), configDto.getClientId()) && Objects.equals(getIssuer(), configDto.getIssuer()) && Objects.equals(getScope(), configDto.getScope()) && Objects.equals(getVersion(), configDto.getVersion()) && Objects.equals(getOmMailAddresses(), configDto.getOmMailAddresses()) && Objects.equals(getSubjectPrefix(), configDto.getSubjectPrefix()) && Objects.equals(getMegaDashUrl(), configDto.getMegaDashUrl());
+        return Objects.equals(getExcelUrl(), configDto.getExcelUrl()) && Objects.equals(getZepOrigin(), configDto.getZepOrigin()) && Objects.equals(getPersonioOrigin(), configDto.getPersonioOrigin()) && Objects.equals(getClientId(), configDto.getClientId()) && Objects.equals(getIssuer(), configDto.getIssuer()) && Objects.equals(getScope(), configDto.getScope()) && Objects.equals(getVersion(), configDto.getVersion()) && Objects.equals(getOmMailAddresses(), configDto.getOmMailAddresses()) && Objects.equals(getSubjectPrefix(), configDto.getSubjectPrefix()) && Objects.equals(getMegaDashUrl(), configDto.getMegaDashUrl());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getExcelUrl(), getZepOrigin(), getClientId(), getIssuer(), getScope(), getVersion(), getOmMailAddresses(), getSubjectPrefix(), getMegaDashUrl());
+        return Objects.hash(getExcelUrl(), getZepOrigin(), getZepOrigin(), getClientId(), getIssuer(), getScope(), getVersion(), getOmMailAddresses(), getSubjectPrefix(), getMegaDashUrl());
     }
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
         private String excelUrl;
         private String zepOrigin;
+        private String personioOrigin;
         private String clientId;
         private String issuer;
         private String scope;
@@ -121,6 +129,11 @@ public class ConfigDto {
 
         public Builder zepOrigin(String zepOrigin) {
             this.zepOrigin = zepOrigin;
+            return this;
+        }
+
+        public Builder personioOrigin(String personioOrigin) {
+            this.personioOrigin = personioOrigin;
             return this;
         }
 
