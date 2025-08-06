@@ -24,9 +24,7 @@ public class InvalidWorkingLocationInJourneyCalculator implements WarningCalcula
         if(!hasJourneyEntries(sortedProjectEntries)){
             return warnings;
         }
-        WorkingLocation workingLocation = sortedProjectEntries //first entry could be away from main
-                .get(0)
-                .getWorkingLocation();
+        WorkingLocation workingLocation = WorkingLocation.MAIN; //setting to main, if a journey exceeds one month this must be changed
 
         for(final ProjectEntry projectEntry : sortedProjectEntries){
             if(Task.isJourney(projectEntry.getTask())){
