@@ -117,7 +117,7 @@ public class Employee {
         if (o == null || getClass() != o.getClass()) return false;
 
         Employee employee = (Employee) o;
-        return Objects.equals(getUserId(), employee.getUserId()) && Objects.equals(getEmail(), employee.getEmail()) && Objects.equals(getTitle(), employee.getTitle()) && Objects.equals(getFirstname(), employee.getFirstname()) && Objects.equals(getLastname(), employee.getLastname()) && Objects.equals(getSalutation(), employee.getSalutation()) && Objects.equals(getReleaseDate(), employee.getReleaseDate()) && Objects.equals(getWorkDescription(), employee.getWorkDescription()) && Objects.equals(getLanguage(), employee.getLanguage()) && Objects.equals(getEmploymentPeriods(), employee.getEmploymentPeriods()) && Objects.equals(getRegularWorkingTimes(), employee.getRegularWorkingTimes());
+        return Objects.equals(getUserId(), employee.getUserId()) && Objects.equals(getEmail(), employee.getEmail()) && Objects.equals(getTitle(), employee.getTitle()) && Objects.equals(getFirstname(), employee.getFirstname()) && Objects.equals(getLastname(), employee.getLastname()) && Objects.equals(getSalutation(), employee.getSalutation()) && Objects.equals(getReleaseDate(), employee.getReleaseDate()) && Objects.equals(getWorkDescription(), employee.getWorkDescription()) && Objects.equals(getLanguage(), employee.getLanguage()) && Objects.equals(getEmploymentPeriods(), employee.getEmploymentPeriods()) && Objects.equals(getRegularWorkingTimes(), employee.getRegularWorkingTimes()) && Objects.equals(getPersonioId(), employee.getPersonioId());
     }
 
     @Override
@@ -133,6 +133,7 @@ public class Employee {
         result = 31 * result + Objects.hashCode(getLanguage());
         result = 31 * result + Objects.hashCode(getEmploymentPeriods());
         result = 31 * result + Objects.hashCode(getRegularWorkingTimes());
+        result = 31 * result + Objects.hashCode(getPersonioId());
         return result;
     }
 
