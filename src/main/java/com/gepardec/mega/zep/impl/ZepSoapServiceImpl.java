@@ -76,8 +76,19 @@ public class ZepSoapServiceImpl implements ZepService {
     }
 
     @Override
-    public List<Employee> getEmployees(List<String> userIds) {
-        throw new NotImplementedException("This method is not provided in SOAP, use REST instead"); // not provided due to using REST
+    public MitarbeiterType getEmployeeMitarbeiterType(String userId) {
+
+        ReadMitarbeiterSearchCriteriaType searchCriteria = new ReadMitarbeiterSearchCriteriaType();
+        searchCriteria.setUserId(userId);
+        ReadMitarbeiterRequestType readMitarbeiterRequestType = new ReadMitarbeiterRequestType();
+        readMitarbeiterRequestType.setReadMitarbeiterSearchCriteria(searchCriteria);
+
+        return Optional.ofNullable(zepSoapPortType.readMitarbeiter(readMitarbeiterRequestType))
+                .flatMap(readMitarbeiterResponse -> Optional.ofNullable(readMitarbeiterResponse.getMitarbeiterListe()))
+                .stream()
+                .flatMap(mitarbeiterListe -> mitarbeiterListe.getMitarbeiter().stream())
+                .toList()
+                .get(0);
     }
 
     @CacheResult(cacheName = "employee")

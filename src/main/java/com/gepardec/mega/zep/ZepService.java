@@ -9,6 +9,7 @@ import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import de.provantis.zep.InternersatzListeType;
+import de.provantis.zep.MitarbeiterType;
 import de.provantis.zep.ResponseHeaderType;
 
 import java.time.YearMonth;
@@ -19,7 +20,7 @@ public interface ZepService {
 
     Employee getEmployee(String userId);
 
-    List<Employee> getEmployees(List<String> userIds);
+    MitarbeiterType getEmployeeMitarbeiterType(String userId);
 
     List<Employee> getEmployees();
 

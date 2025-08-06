@@ -2,9 +2,11 @@ package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.UserRepository;
+import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.rest.api.BulkUpdateResource;
 import com.gepardec.mega.rest.model.HourlyRateFileDto;
 import com.gepardec.mega.zep.ZepService;
+import de.provantis.zep.MitarbeiterType;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import de.provantis.zep.InternersatzListeType;
@@ -43,6 +45,9 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
         }
 
         for(String l : lines){
+
+            MitarbeiterType ma = zepService.getEmployeeMitarbeiterType(l.split(",")[0]);
+
             InternersatzListeType hourlyRateParam = new InternersatzListeType();
             InternersatzType hourlyRate = new InternersatzType();
             List<InternersatzType> hourlyrateList = new ArrayList<>();

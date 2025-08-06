@@ -39,6 +39,7 @@ import com.gepardec.mega.zep.rest.service.ProjectService;
 import com.gepardec.mega.zep.rest.service.ReceiptService;
 import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
 import de.provantis.zep.InternersatzListeType;
+import de.provantis.zep.MitarbeiterType;
 import de.provantis.zep.ResponseHeaderType;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -131,18 +132,8 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     @Override
-    public List<Employee> getEmployees(List<String> userIds){
-        List<Employee> retEmployees = new ArrayList<>();
-
-        for(String userId : userIds){
-            Employee emp =  getEmployee(userId);
-
-            if(emp == null) logger.warn("No employee found for user {}", userId);
-
-            retEmployees.add(getEmployee(userId));
-        }
-
-        return retEmployees;
+    public MitarbeiterType getEmployeeMitarbeiterType(String userId){
+        throw new NotImplementedException("This method is not provided in REST, use SOAP instead");
     }
 
     @Override
