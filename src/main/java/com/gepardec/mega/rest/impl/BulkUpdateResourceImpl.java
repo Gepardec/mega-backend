@@ -25,7 +25,6 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
 
     @Override
     public Response uploadHourlyRate(HourlyRateFileDto input) {
-
         Scanner sc = new Scanner(input.file); //streaming api files.lines
         List<String> lines = new ArrayList<>();
 
