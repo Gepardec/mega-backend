@@ -81,6 +81,8 @@ public class ZepSoapServiceImpl implements ZepService {
         ReadMitarbeiterSearchCriteriaType searchCriteria = new ReadMitarbeiterSearchCriteriaType();
         searchCriteria.setUserId(userId);
         ReadMitarbeiterRequestType readMitarbeiterRequestType = new ReadMitarbeiterRequestType();
+        readMitarbeiterRequestType.setRequestHeader(zepSoapProvider.createRequestHeaderType());
+
         readMitarbeiterRequestType.setReadMitarbeiterSearchCriteria(searchCriteria);
 
         return Optional.ofNullable(zepSoapPortType.readMitarbeiter(readMitarbeiterRequestType))
@@ -125,16 +127,17 @@ public class ZepSoapServiceImpl implements ZepService {
     }
 
 
-    public ResponseHeaderType updateEmployeeHourlyRate(final String userId, final InternersatzListeType internersatz) {
+    public ResponseHeaderType updateEmployeeHourlyRate(final String userId, InternersatzListeType internalRates) {
         logger.info("start update user {}", userId);
 
         final UpdateMitarbeiterRequestType umrt = new UpdateMitarbeiterRequestType();
         umrt.setRequestHeader(zepSoapProvider.createRequestHeaderType());
 
-        final MitarbeiterType employee = new MitarbeiterType();
-        employee.setUserId(userId);
-        employee.setInternersatzListe(internersatz);
-        umrt.setMitarbeiter(employee);
+        final MitarbeiterType emp = new MitarbeiterType();
+        emp.setUserId(userId);
+        emp.setInternersatzListe(internalRates);
+
+        umrt.setMitarbeiter(emp);
 
         final UpdateMitarbeiterResponseType updateMitarbeiterResponseType = zepSoapPortType.updateMitarbeiter(umrt);
 

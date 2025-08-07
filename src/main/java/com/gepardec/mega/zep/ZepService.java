@@ -44,5 +44,5 @@ public interface ZepService {
 
     double getDoctorsVisitingTimeForMonthAndEmployee(final Employee employee, YearMonth payrollMonth);
 
-    ResponseHeaderType updateEmployeeHourlyRate(String userId, InternersatzListeType internersatz);
+    ResponseHeaderType updateEmployeeHourlyRate(String userId, InternersatzListeType internalRates);
 }

@@ -27,4 +27,8 @@ public class ResourceBundleProducer {
                 // but we always want to fallback to the base bundle which is german.
                 ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_PROPERTIES));
     }
+
+    public static String getMessage(String key, Locale locale){
+        return ResourceBundle.getBundle("messages", locale).getString(key);
+    }
 }

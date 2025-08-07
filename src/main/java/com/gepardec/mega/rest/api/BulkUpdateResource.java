@@ -5,6 +5,7 @@ import com.gepardec.mega.rest.model.HourlyRateFileDto;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -18,6 +19,7 @@ public interface BulkUpdateResource {
     @POST
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
     Response uploadHourlyRate(@MultipartForm HourlyRateFileDto input);
 
 }

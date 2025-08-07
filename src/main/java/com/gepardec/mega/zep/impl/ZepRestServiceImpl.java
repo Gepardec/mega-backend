@@ -261,7 +261,7 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     @Override
-    public ResponseHeaderType updateEmployeeHourlyRate(String userId, InternersatzListeType internersatz) {
+    public ResponseHeaderType updateEmployeeHourlyRate(String userId, InternersatzListeType internalRates) {
         throw new NotImplementedException("This method is not provided in REST, use SOAP instead.");         // Currently not supported by REST - use SOAP instead
     }
 
