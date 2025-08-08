@@ -32,7 +32,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
     ResourceBundleProducer bundleProducer;
 
     @Override
-    public Response uploadHourlyRate(HourlyRateFileDto input) {
+    public Response uploadInternalRate(HourlyRateFileDto input) {
 
         List<String> lines = new BufferedReader(new InputStreamReader(input.file))
                 .lines().

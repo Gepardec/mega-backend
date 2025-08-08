@@ -20,6 +20,6 @@ public interface BulkUpdateResource {
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    Response uploadHourlyRate(@MultipartForm HourlyRateFileDto input);
+    Response uploadInternalRate(@MultipartForm HourlyRateFileDto input);
 
 }
