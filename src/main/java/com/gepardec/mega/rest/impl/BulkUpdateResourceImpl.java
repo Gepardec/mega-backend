@@ -35,34 +35,31 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
     public Response uploadInternalRate(HourlyRateFileDto input) {
 
         List<String> lines = new BufferedReader(new InputStreamReader(input.file))
-                .lines().
-                dropWhile(line -> line.startsWith("#"))
+                .lines()
                 .toList();
 
-        //TODO: write more explaining Response messages
-
-        Locale locale = getLocaleFromHeader();
-        if(!verifyUpload(lines)) { //checks the file format
-            String msg = ResourceBundleProducer.getMessage("error.bad-file", locale);
-            Map<String, Object> error = Map.of("message", msg);
-
+        if(!verifyUpload(lines).isEmpty()) { //checks if the file is formatted correctly
             return Response
                     .status(Response.Status.BAD_REQUEST)
-                    .entity(error)
+                    .entity(
+                            createErrorMapFromBundleKey(
+                                    "error.bad-file",
+                                    verifyUpload(lines)))
                     .build();
         }
 
-        if(!verifyEmployeeExistance(lines)) { //checks whether employees in the file exist locally
-            String msg = ResourceBundleProducer.getMessage("error.employee-does-not-exist", locale);
-
-            Map<String, Object> error = Map.of("message", msg);
+        if(!verifyEmployeeExistance(lines).isEmpty()) { //checks whether employees in the file exist locally
             return Response
                     .status(Response.Status.BAD_REQUEST)
-                    .entity(error)
+                    .entity(
+                            createErrorMapFromBundleKey(
+                                    "error.employee-does-not-exist",
+                                    verifyEmployeeExistance(lines)))
                     .build();
         }
 
         for(String l : lines){
+            if(l.startsWith("#")) continue;
             zepService.updateEmployeeHourlyRate(
                     l.split(",")[0],
                     createNewInternalRate(l));
@@ -80,28 +77,55 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
         newInternalRate.setStartdatum(l.split(",")[2]);
         newInternalRate.setSatztype(1); //we only use hourlyRates --> https://developer.zep.de/en/soap-documentation for more info
         internalRates.add(newInternalRate);
-
         internalRatesList.setInternersatz(internalRates);
 
         return internalRatesList;
     }
 
-    private boolean verifyUpload(List<String> lines) {
-        for(String l : lines){//there must be at least 5 chars in a line otherwise it isn't formatted correctly
-            if(l.length() <= 5) return false;
-        }
-        return true;
+    /**
+     * Creates a Map<String, Object> to use for a JSON error response.
+     * the message language is decided by getLocaleFromHeader().
+     * @param bundleKey
+     * @return the map that represents the errormessage the bundleKey specifies.
+     */
+    private Map<String, Object> createErrorMapFromBundleKey(String bundleKey, List<Integer> errorLocation){
+        return Map.of(
+                "message", ResourceBundleProducer.getMessage(bundleKey, getLocaleFromHeader()),
+                "errorLocation", errorLocation
+        );
     }
 
-    private boolean verifyEmployeeExistance(List<String> lines) {
+    /**
+     * Verifies if the lines in the File have enough chars to be formatted correctly
+     * @param lines
+     * @return the line numbers where the format error is
+     */
+    private List<Integer> verifyUpload(List<String> lines) {
+        List<Integer> retList = new  ArrayList<>();
 
-        for(String l : lines){
-            String zId = l.split(",")[0];
+        for (int i = 0; i < lines.size(); i++) {
+            if(lines.get(i).startsWith("#")) continue;
+            if(lines.get(i).length() <= 5) retList.add(i+1);
+        }
+        return retList;
+    }
+
+    /**
+     * Verifies the existence of an employee according to their ZEP id in the LOCAL mega-db
+     * @param lines
+     * @return the line numbers where the format error is
+     */
+    private List<Integer> verifyEmployeeExistance(List<String> lines) {
+        List<Integer> retList = new  ArrayList<>();
+        for (int i = 0; i < lines.size(); i++) {
+            if(lines.get(i).startsWith("#")) continue;
+
+            String zId = lines.get(i).split(",")[0];
             Optional<User> user = userRepo.findByZepId(zId);
 
-            if(user.isEmpty()) return false;
+            if(user.isEmpty()) retList.add(i+1);
         }
-        return true;
+        return retList;
     }
 
     private Locale getLocaleFromHeader(){
