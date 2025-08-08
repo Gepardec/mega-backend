@@ -13,6 +13,8 @@ import jakarta.ws.rs.core.Response;
 import de.provantis.zep.InternersatzListeType;
 import de.provantis.zep.InternersatzType;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class BulkUpdateResourceImpl implements BulkUpdateResource {
@@ -31,22 +33,19 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
 
     @Override
     public Response uploadHourlyRate(HourlyRateFileDto input) {
-        Scanner sc = new Scanner(input.file); //streaming api files.lines
-        List<String> lines = new ArrayList<>();
 
-        while(sc.hasNextLine()){
-            String line = sc.nextLine();
-            if(line.charAt(0) == '#') continue; //ignoring lines with # at the beginning for comment purposes
-            lines.add(line);
-        }
+        List<String> lines = new BufferedReader(new InputStreamReader(input.file))
+                .lines().
+                dropWhile(line -> line.startsWith("#"))
+                .toList();
 
         //TODO: write more explaining Response messages
 
         Locale locale = getLocaleFromHeader();
-        if(!verifyUploadHourlyRate(lines)) { //checks the file format
+        if(!verifyUpload(lines)) { //checks the file format
             String msg = ResourceBundleProducer.getMessage("error.bad-file", locale);
-
             Map<String, Object> error = Map.of("message", msg);
+
             return Response
                     .status(Response.Status.BAD_REQUEST)
                     .entity(error)
@@ -87,9 +86,9 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
         return internalRatesList;
     }
 
-    private boolean verifyUploadHourlyRate(List<String> lines) {
+    private boolean verifyUpload(List<String> lines) {
         for(String l : lines){//there must be at least 5 chars in a line otherwise it isn't formatted correctly
-            if(l.split(",").length <= 5) return false;
+            if(l.length() <= 5) return false;
         }
         return true;
     }
