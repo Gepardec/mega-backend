@@ -28,9 +28,6 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
     @Context
     HttpHeaders headers;
 
-    @Inject
-    ResourceBundleProducer bundleProducer;
-
     @Override
     public Response uploadInternalRate(HourlyRateFileDto input) {
 
@@ -85,7 +82,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
     /**
      * Creates a Map<String, Object> to use for a JSON error response.
      * the message language is decided by getLocaleFromHeader().
-     * @param bundleKey
+     * @param bundleKey for of the wanted error-message
      * @return the map that represents the errormessage the bundleKey specifies.
      */
     private Map<String, Object> createErrorMapFromBundleKey(String bundleKey, List<Integer> errorLocation){
@@ -97,7 +94,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
 
     /**
      * Verifies if the lines in the File have enough chars to be formatted correctly
-     * @param lines
+     * @param lines of the file
      * @return the line numbers where the format error is
      */
     private List<Integer> verifyUpload(List<String> lines) {
@@ -112,7 +109,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
 
     /**
      * Verifies the existence of an employee according to their ZEP id in the LOCAL mega-db
-     * @param lines
+     * @param lines of the file
      * @return the line numbers where the format error is
      */
     private List<Integer> verifyEmployeeExistance(List<String> lines) {
