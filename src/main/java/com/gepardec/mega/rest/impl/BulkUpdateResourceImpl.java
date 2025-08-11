@@ -80,7 +80,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
     }
 
     /**
-     * Creates a Map<String, Object> to use for a JSON error response.
+     * Creates a Map to use for a JSON error response.
      * the message language is decided by getLocaleFromHeader().
      * @param bundleKey for of the wanted error-message
      * @return the map that represents the errormessage the bundleKey specifies.
