@@ -68,9 +68,17 @@ public class WorkingTimeUtil {
                 .filter(ftl -> ftl.fromDate().getMonthValue() == payrollMonth.getMonthValue())
                 .toList();
 
-        var workingDaysCountMap = getWorkingDaysForYearMonth(payrollMonth)
-                .stream()
-                .collect(Collectors.groupingBy(LocalDate::getDayOfWeek, Collectors.counting()));
+        var workingDaysBetween = getWorkingDaysForYearMonth(payrollMonth);
+
+        if (isLastWorkingDayAfterToday(workingDaysBetween)) {
+            workingDaysBetween= workingDaysBetween.stream()
+                    .filter(date -> !date.isAfter(LocalDate.now()))
+                    .toList();
+        }
+
+        var workingDaysCountMap = workingDaysBetween.stream().collect(
+                Collectors.groupingBy(LocalDate::getDayOfWeek, Collectors.counting())
+        );
         var absenceDaysCountMap = getAbsenceDaysCountMap(fehlzeitTypeList, payrollMonth);
         var presentDaysCountMap = workingDaysCountMap.entrySet().stream()
                 .map(entry -> removeAbsenceDays(entry, absenceDaysCountMap))
@@ -91,6 +99,10 @@ public class WorkingTimeUtil {
         Duration overtime = totalWorkingHours.minus(monthlyRegularWorkingHours);
 
         return (double) overtime.toMinutes() / 60;
+    }
+
+    private static boolean isLastWorkingDayAfterToday(List<LocalDate> workingDaysBetween) {
+        return workingDaysBetween.get(workingDaysBetween.size() - 1).isAfter(LocalDate.now());
     }
 
     public Duration getDurationFromTimeString(String timeString) {
