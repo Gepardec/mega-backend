@@ -4,6 +4,7 @@ import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
+import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.ProjectService;
 import com.gepardec.mega.service.api.SyncService;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -32,6 +34,9 @@ class SyncServiceImplTest {
 
     @InjectMock
     UserRepository userRepository;
+
+    @InjectMock
+    PersonioEmployeesService personioEmployeesService;
 
     @Inject
     SyncService syncService;
@@ -59,6 +64,8 @@ class SyncServiceImplTest {
         existingUsers.add(User.of("test@gmail.com"));
         when(userRepository.listAll())
                 .thenReturn(existingUsers);
+
+        when(personioEmployeesService.getPersonioEmployeeByEmail(null)).thenReturn(Optional.empty());
 
         // Execute the method under test
         syncService.syncEmployees();
