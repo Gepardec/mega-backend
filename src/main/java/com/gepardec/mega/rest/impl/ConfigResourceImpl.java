@@ -3,6 +3,7 @@ package com.gepardec.mega.rest.impl;
 import com.gepardec.mega.application.configuration.ApplicationConfig;
 import com.gepardec.mega.application.configuration.NotificationConfig;
 import com.gepardec.mega.application.configuration.OAuthConfig;
+import com.gepardec.mega.application.configuration.PersonioConfig;
 import com.gepardec.mega.application.configuration.ZepConfig;
 import com.gepardec.mega.rest.api.ConfigResource;
 import com.gepardec.mega.rest.model.ConfigDto;
@@ -28,12 +29,16 @@ public class ConfigResourceImpl implements ConfigResource {
     ZepConfig zepConfig;
 
     @Inject
+    PersonioConfig personioConfig;
+
+    @Inject
     NotificationConfig notificationConfig;
 
     @Override
     public Response get() {
         final ConfigDto configDto = ConfigDto.builder()
                 .zepOrigin(zepConfig.getUrlForFrontend())
+                .personioOrigin(personioConfig.getOrigin())
                 .clientId(oauthConfig.getClientId())
                 .issuer(oauthConfig.getIssuer())
                 .scope(oauthConfig.getScope())

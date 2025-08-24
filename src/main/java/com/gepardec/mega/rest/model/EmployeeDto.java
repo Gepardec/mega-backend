@@ -28,6 +28,8 @@ public class EmployeeDto {
 
     private final boolean active;
 
+    public final Integer personioId;
+
     private EmployeeDto(Builder builder) {
         this.userId = builder.userId;
         this.email = builder.email;
@@ -38,6 +40,7 @@ public class EmployeeDto {
         this.releaseDate = builder.releaseDate;
         this.workDescription = builder.workDescription;
         this.active = builder.active;
+        this.personioId = builder.personioId;
     }
 
     public static Builder builder() {
@@ -80,17 +83,21 @@ public class EmployeeDto {
         return active;
     }
 
+    public Integer getPersonioId() {
+        return personioId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EmployeeDto that = (EmployeeDto) o;
-        return isActive() == that.isActive() && Objects.equals(getUserId(), that.getUserId()) && Objects.equals(getEmail(), that.getEmail()) && Objects.equals(getTitle(), that.getTitle()) && Objects.equals(getFirstname(), that.getFirstname()) && Objects.equals(getLastname(), that.getLastname()) && Objects.equals(getSalutation(), that.getSalutation()) && Objects.equals(getReleaseDate(), that.getReleaseDate()) && Objects.equals(getWorkDescription(), that.getWorkDescription());
+        return isActive() == that.isActive() && Objects.equals(getUserId(), that.getUserId()) && Objects.equals(getEmail(), that.getEmail()) && Objects.equals(getTitle(), that.getTitle()) && Objects.equals(getFirstname(), that.getFirstname()) && Objects.equals(getLastname(), that.getLastname()) && Objects.equals(getSalutation(), that.getSalutation()) && Objects.equals(getReleaseDate(), that.getReleaseDate()) && Objects.equals(getWorkDescription(), that.getWorkDescription() ) && Objects.equals(getPersonioId(), that.getPersonioId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getUserId(), getEmail(), getTitle(), getFirstname(), getLastname(), getSalutation(), getReleaseDate(), getWorkDescription(), isActive());
+        return Objects.hash(getUserId(), getEmail(), getTitle(), getFirstname(), getLastname(), getSalutation(), getReleaseDate(), getWorkDescription(), isActive(), getPersonioId());
     }
 
     @JsonPOJOBuilder(withPrefix = "")
@@ -104,6 +111,7 @@ public class EmployeeDto {
         private String releaseDate;
         private String workDescription;
         private boolean active;
+        private Integer personioId;
 
         private Builder() {
         }
@@ -154,6 +162,11 @@ public class EmployeeDto {
 
         public Builder active(boolean active) {
             this.active = active;
+            return this;
+        }
+
+        public Builder personioId(Integer personioId) {
+            this.personioId = personioId;
             return this;
         }
 

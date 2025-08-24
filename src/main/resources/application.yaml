@@ -175,6 +175,7 @@ mega:
       cron-expr: "disabled"
 
   personio:
+    origin: "https://gepardec.app.personio.com"
     api:
       client:
         id: "${PERSONIO_API_CLIENT_ID:default}"

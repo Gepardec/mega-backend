@@ -1,6 +1,7 @@
 package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.dto.ZepEmployee;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -9,6 +10,9 @@ import org.slf4j.Logger;
 
 @ApplicationScoped
 public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
+
+    @Inject
+    UserContext userContext;
 
     @Inject
     Logger logger;
@@ -38,6 +42,7 @@ public class EmployeeMapper implements Mapper<Employee, ZepEmployee> {
                     .releaseDate(releaseDate)
                     .workDescription(zepEmployee.priceGroup())
                     .language(language)
+                    .personioId(userContext.getUser().getPersonioId())
                     .build();
             // employmentPeriods and regularWorkingTimes are not mapped here, as they are not part of ZepEmployee
         } catch (Exception e) {

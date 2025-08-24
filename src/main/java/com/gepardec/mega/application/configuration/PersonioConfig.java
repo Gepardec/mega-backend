@@ -19,6 +19,10 @@ public class PersonioConfig {
     @ConfigProperty(name = "mega.personio.token.expires-in-minutes")
     long expiresInMinutes;
 
+    @Inject
+    @ConfigProperty(name = "mega.personio.origin")
+    String origin;
+
     public String getClientSecret() {
         return clientSecret;
     }
@@ -29,5 +33,9 @@ public class PersonioConfig {
 
     public long getExpiresInMinutes() {
         return expiresInMinutes;
+    }
+
+    public String getOrigin() {
+        return origin;
     }
 }
