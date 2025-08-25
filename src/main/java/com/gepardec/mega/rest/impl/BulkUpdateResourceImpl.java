@@ -1,7 +1,6 @@
 package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.application.producer.ResourceBundleProducer;
-import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.rest.api.BulkUpdateResource;
 import com.gepardec.mega.rest.model.HourlyRateFileDto;
@@ -16,6 +15,7 @@ import de.provantis.zep.InternersatzType;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class BulkUpdateResourceImpl implements BulkUpdateResource {
 
@@ -39,23 +39,27 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
                 .dropWhile(line -> line.startsWith("#"))
                 .toList();
 
-        if(!verifyUpload(lines).isEmpty()) { //checks if the file is formatted correctly
+        List<Integer> verifyUpload = determineLinesWhereLengthInvalid(lines); //checks if the file is formatted correctly
+
+        if(!verifyUpload.isEmpty()) {
             return Response
                     .status(Response.Status.BAD_REQUEST)
                     .entity(
                             createErrorMapFromBundleKey(
                                     "error.bad-file",
-                                    verifyUpload(lines)))
+                                    verifyUpload))
                     .build();
         }
 
-        if(!verifyEmployeeExistance(lines).isEmpty()) { //checks whether employees in the file exist locally
+        List<Integer> verifyEmployees = determineLinesWhereEmployeeNotExists(lines);
+
+        if(!verifyEmployees.isEmpty()) { //checks whether employees in the file exist locally
             return Response
                     .status(Response.Status.BAD_REQUEST)
                     .entity(
                             createErrorMapFromBundleKey(
                                     "error.employee-does-not-exist",
-                                    verifyEmployeeExistance(lines)))
+                                    verifyEmployees))
                     .build();
         }
 
@@ -101,13 +105,11 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
      * @param lines of the file
      * @return the line numbers where the format error is
      */
-    private List<Integer> verifyUpload(List<String> lines) {
-        List<Integer> retList = new  ArrayList<>();
-
-        for (int i = 0; i < lines.size(); i++) {
-            if(lines.get(i).length() <= 5) retList.add(i+1);
-        }
-        return retList;
+    private List<Integer> determineLinesWhereLengthInvalid(List<String> lines) {
+        return IntStream.range(0, lines.size())
+                .filter(i -> lines.get(i).length() <= 5)
+                .mapToObj(i -> i+1)
+                .toList();
     }
 
     /**
@@ -115,15 +117,12 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
      * @param lines of the file
      * @return the line numbers where the format error is
      */
-    private List<Integer> verifyEmployeeExistance(List<String> lines) {
-        List<Integer> retList = new  ArrayList<>();
-        for (int i = 0; i < lines.size(); i++) {
-            String zId = extractUserId(lines.get(i));
-            Optional<User> user = userRepo.findByZepId(zId);
-
-            if(user.isEmpty()) retList.add(i+1);
-        }
-        return retList;
+    private List<Integer> determineLinesWhereEmployeeNotExists(List<String> lines) {
+        return IntStream.range(0, lines.size())
+                .mapToObj(i -> Map.entry(i, userRepo.findByZepId(extractUserId(lines.get(i)))))
+                .filter(entry -> entry.getValue().isEmpty())
+                .map(entry -> entry.getKey()+1)
+                .toList();
     }
 
     /**
