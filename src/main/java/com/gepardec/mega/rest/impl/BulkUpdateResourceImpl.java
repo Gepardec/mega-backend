@@ -63,8 +63,8 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
                     .build();
         }
 
-        for(String l : lines){
-            if(l.startsWith("#")) continue;
+        for (String l : lines) {
+            if (l.startsWith("#")) continue;
             zepService.updateEmployeeHourlyRate(
                     l.split(",")[0],
                     createNewInternalRate(l));
@@ -109,12 +109,12 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
      * @return the line numbers where the format error is
      */
     private List<Integer> determineLinesWhereLengthInvalid(List<String> lines) {
-        List<Integer> retList = new  ArrayList<>();
+        List<Integer> retList = new ArrayList<>();
 
         for (int i = 0; i < lines.size(); i++) {
-            if(lines.get(i).startsWith("#")) continue;
-            System.out.println(i+1);
-            if(lines.get(i).length() <= 5) retList.add(i+1);
+            if (lines.get(i).startsWith("#")) continue;
+            System.out.println(i + 1);
+            if (lines.get(i).length() <= 5) retList.add(i + 1);
         }
         return retList;
     }
@@ -133,10 +133,11 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
             String zId = lines.get(i).split(",")[0];
             Optional<User> user = userRepo.findByZepId(zId);
 
-            if(user.isEmpty()) retList.add(i+1);
+            if (user.isEmpty()) retList.add(i + 1);
         }
         return retList;
     }
+
     /**
      * Extracts the first csv from one line, which is the UserId
      *
