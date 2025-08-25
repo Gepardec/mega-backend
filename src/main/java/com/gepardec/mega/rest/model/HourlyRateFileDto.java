@@ -6,9 +6,12 @@ import org.jboss.resteasy.annotations.providers.multipart.PartType;
 
 import java.io.InputStream;
 
-public record HourlyRateFileDto(
+public class HourlyRateFileDto{
         @FormParam("file")
         @PartType(MediaType.APPLICATION_OCTET_STREAM)
-        InputStream file
-) {
+        private InputStream file;
+
+    public InputStream getFile() {
+        return file;
+    }
 }

@@ -17,7 +17,6 @@ import de.provantis.zep.InternersatzType;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class BulkUpdateResourceImpl implements BulkUpdateResource {
 
@@ -36,7 +35,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
     @Override
     public Response uploadInternalRate(HourlyRateFileDto input) {
 
-        List<String> lines = new BufferedReader(new InputStreamReader(input.file()))
+        List<String> lines = new BufferedReader(new InputStreamReader(input.getFile()))
                 .lines()
                 .dropWhile(line -> line.startsWith("#"))
                 .toList();
