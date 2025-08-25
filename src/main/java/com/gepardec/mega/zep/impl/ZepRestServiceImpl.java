@@ -39,7 +39,6 @@ import com.gepardec.mega.zep.rest.service.ProjectService;
 import com.gepardec.mega.zep.rest.service.ReceiptService;
 import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
 import de.provantis.zep.InternersatzListeType;
-import de.provantis.zep.ResponseHeaderType;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -255,7 +254,7 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     @Override
-    public ResponseHeaderType updateEmployeeHourlyRate(String userId, InternersatzListeType internalRates) {
+    public void updateEmployeeHourlyRate(String userId, InternersatzListeType internalRates) {
         throw new NotImplementedException("This method is not provided in REST, use SOAP instead.");         // Currently not supported by REST - use SOAP instead
     }
 

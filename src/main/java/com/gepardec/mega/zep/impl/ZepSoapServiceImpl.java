@@ -107,8 +107,8 @@ public class ZepSoapServiceImpl implements ZepService {
         }
     }
 
-    public ResponseHeaderType updateEmployeeHourlyRate(final String userId, InternersatzListeType internalRates) {
-        logger.info("start update user {}", userId);
+    public void updateEmployeeHourlyRate(final String userId, InternersatzListeType internalRates) {
+        logger.info("start update hourly rates for employee {}", userId);
 
         final UpdateMitarbeiterRequestType umrt = new UpdateMitarbeiterRequestType();
         umrt.setRequestHeader(zepSoapProvider.createRequestHeaderType());
@@ -126,8 +126,7 @@ public class ZepSoapServiceImpl implements ZepService {
                 .map(ResponseHeaderType::getReturnCode)
                 .orElse(null);
 
-        logger.info("finish update user {} with response {}", userId, returnCode);
-        return null;
+        logger.info("update hourly rates for employee {} finished with code {}", userId, returnCode);
     }
 
     @CacheResult(cacheName = "fehlzeitentype")

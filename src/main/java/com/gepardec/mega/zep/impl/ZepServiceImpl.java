@@ -10,7 +10,6 @@ import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.InternersatzListeType;
-import de.provantis.zep.ResponseHeaderType;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.YearMonth;
@@ -87,7 +86,7 @@ public class ZepServiceImpl implements ZepService {
     }
 
     @Override
-    public ResponseHeaderType updateEmployeeHourlyRate(String userId, InternersatzListeType internalRates){
-        return zepServiceSoap.updateEmployeeHourlyRate(userId, internalRates);
+    public void updateEmployeeHourlyRate(String userId, InternersatzListeType internalRates){
+        zepServiceSoap.updateEmployeeHourlyRate(userId, internalRates);
     }
 }

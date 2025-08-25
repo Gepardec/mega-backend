@@ -9,7 +9,6 @@ import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import de.provantis.zep.InternersatzListeType;
-import de.provantis.zep.ResponseHeaderType;
 
 import java.time.YearMonth;
 import java.util.List;
@@ -41,5 +40,5 @@ public interface ZepService {
 
     double getDoctorsVisitingTimeForMonthAndEmployee(final Employee employee, YearMonth payrollMonth);
 
-    ResponseHeaderType updateEmployeeHourlyRate(String userId, InternersatzListeType internalRates);
+    void updateEmployeeHourlyRate(String userId, InternersatzListeType internalRates);
 }
