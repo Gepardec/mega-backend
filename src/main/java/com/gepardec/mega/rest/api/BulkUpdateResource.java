@@ -12,12 +12,12 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
 
-@Path("/bulkupdate")
-@Tag(name = "BulkUpdateResource")
+@Path("/employees")
+@Tag(name = "EmployeeResource")
 public interface BulkUpdateResource {
 
     @POST
-    @Path("/upload")
+    @Path("/bulkUpdate")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     Response uploadInternalRate(@MultipartForm HourlyRateFileDto input);
