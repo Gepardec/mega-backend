@@ -110,13 +110,12 @@ public class ZepSoapServiceImpl implements ZepService {
     public void updateEmployeeHourlyRate(final String userId, InternersatzListeType internalRates) {
         logger.info("start update hourly rates for employee {}", userId);
 
-        final UpdateMitarbeiterRequestType umrt = new UpdateMitarbeiterRequestType();
-        umrt.setRequestHeader(zepSoapProvider.createRequestHeaderType());
-
         final MitarbeiterType emp = new MitarbeiterType();
         emp.setUserId(userId);
         emp.setInternersatzListe(internalRates);
 
+        final UpdateMitarbeiterRequestType umrt = new UpdateMitarbeiterRequestType();
+        umrt.setRequestHeader(zepSoapProvider.createRequestHeaderType());
         umrt.setMitarbeiter(emp);
 
         final UpdateMitarbeiterResponseType updateMitarbeiterResponseType = zepSoapPortType.updateMitarbeiter(umrt);
