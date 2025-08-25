@@ -36,6 +36,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
 
         List<String> lines = new BufferedReader(new InputStreamReader(input.getFile()))
                 .lines()
+                .dropWhile(line -> line.startsWith("#"))
                 .toList();
 
         if(!verifyUpload(lines).isEmpty()) { //checks if the file is formatted correctly
@@ -59,23 +60,22 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
         }
 
         lines.forEach(line -> {
-            if(line.startsWith("#")) return; //skips one line
             zepService.updateEmployeeHourlyRate(
-                    line.split(",")[0],
+                    extractUserId(line),
                     createNewInternalRate(line));
         });
 
         return Response.ok().build();
     }
 
-    private InternersatzListeType createNewInternalRate(String l){
+    private InternersatzListeType createNewInternalRate(String line){
         List<InternersatzType> internalRates = new ArrayList<>();
         InternersatzType newInternalRate = new InternersatzType();
         InternersatzListeType internalRatesList = new InternersatzListeType();
 
-        newInternalRate.setUserId(l.split(",")[0]);
-        newInternalRate.setSatz(Double.parseDouble(l.split(",")[1]));
-        newInternalRate.setStartdatum(l.split(",")[2]);
+        newInternalRate.setUserId(extractUserId(line));
+        newInternalRate.setSatz(Double.parseDouble(line.split(",")[1]));
+        newInternalRate.setStartdatum(line.split(",")[2]);
         newInternalRate.setSatztype(1); //we only use hourlyRates --> https://developer.zep.de/en/soap-documentation for more info
         internalRates.add(newInternalRate);
         internalRatesList.setInternersatz(internalRates);
@@ -105,7 +105,6 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
         List<Integer> retList = new  ArrayList<>();
 
         for (int i = 0; i < lines.size(); i++) {
-            if(lines.get(i).startsWith("#")) continue;
             if(lines.get(i).length() <= 5) retList.add(i+1);
         }
         return retList;
@@ -119,14 +118,21 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
     private List<Integer> verifyEmployeeExistance(List<String> lines) {
         List<Integer> retList = new  ArrayList<>();
         for (int i = 0; i < lines.size(); i++) {
-            if(lines.get(i).startsWith("#")) continue;
-
-            String zId = lines.get(i).split(",")[0];
+            String zId = extractUserId(lines.get(i));
             Optional<User> user = userRepo.findByZepId(zId);
 
             if(user.isEmpty()) retList.add(i+1);
         }
         return retList;
+    }
+
+    /**
+     * Extracts the first csv from one line, which is the UserId
+     * @param line
+     * @return userId
+     */
+    private String extractUserId(String line){
+        return line.split(",")[0];
     }
 
     private Locale getLocaleFromHeader(){
