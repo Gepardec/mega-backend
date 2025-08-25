@@ -25,6 +25,9 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
     @Inject
     UserRepository userRepo;
 
+    @Inject
+    ResourceBundleProducer resourceBundleProducer;
+
     @Context
     HttpHeaders headers;
 
@@ -87,7 +90,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
      */
     private Map<String, Object> createErrorMapFromBundleKey(String bundleKey, List<Integer> errorLocation){
         return Map.of(
-                "message", ResourceBundleProducer.getMessage(bundleKey, getLocaleFromHeader()),
+                "message", resourceBundleProducer.getResourceBundle(getLocaleFromHeader()).getString(bundleKey),
                 "errorLocation", errorLocation
         );
     }
