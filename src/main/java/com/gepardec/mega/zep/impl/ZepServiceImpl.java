@@ -10,7 +10,6 @@ import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
 import de.provantis.zep.InternersatzListeType;
-import de.provantis.zep.MitarbeiterType;
 import de.provantis.zep.ResponseHeaderType;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -30,10 +29,6 @@ public class ZepServiceImpl implements ZepService {
     @Override
     public Employee getEmployee(String userId) {
         return zepServiceSoap.getEmployee(userId);
-    }
-
-    public MitarbeiterType getEmployeeMitarbeiterType(String userId) {
-        return zepServiceSoap.getEmployeeMitarbeiterType(userId);
     }
 
     @Override

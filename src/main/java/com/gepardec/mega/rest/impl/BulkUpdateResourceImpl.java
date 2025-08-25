@@ -66,8 +66,8 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
 
         lines.forEach(line -> zepService
                 .updateEmployeeHourlyRate(
-                    extractUserId(line),
-                    createNewInternalRate(line))
+                        extractUserId(line),
+                        createNewInternalRate(line))
         );
 
         return Response.ok().build();

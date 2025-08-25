@@ -39,7 +39,6 @@ import com.gepardec.mega.zep.rest.service.ProjectService;
 import com.gepardec.mega.zep.rest.service.ReceiptService;
 import com.gepardec.mega.zep.rest.service.RegularWorkingTimesService;
 import de.provantis.zep.InternersatzListeType;
-import de.provantis.zep.MitarbeiterType;
 import de.provantis.zep.ResponseHeaderType;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -129,11 +128,6 @@ public class ZepRestServiceImpl implements ZepService {
         employee.setRegularWorkingTimes(new RegularWorkingTimes(regularWorkingTimeMapper.mapList(zepRegularWorkingTimes)));
         employee.setEmploymentPeriods(new EmploymentPeriods(employmentPeriodMapper.mapList(zepEmploymentPeriods)));
         return employee;
-    }
-
-    @Override
-    public MitarbeiterType getEmployeeMitarbeiterType(String userId){
-        throw new NotImplementedException("This method is not provided in REST, use SOAP instead");
     }
 
     @Override

@@ -15,11 +15,9 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 @Path("/employees")
 @Tag(name = "EmployeeResource")
 public interface BulkUpdateResource {
-
     @POST
     @Path("/bulkUpdate")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     Response uploadInternalRate(@MultipartForm HourlyRateFileDto input);
-
 }

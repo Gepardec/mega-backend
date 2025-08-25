@@ -41,7 +41,6 @@ import java.util.function.Supplier;
 @Soap
 public class ZepSoapServiceImpl implements ZepService {
 
-
     private static final Range<Integer> PROJECT_LEAD_RANGE = Range.of(1, 2);
 
     private final EmployeeMapper employeeMapper;
@@ -73,24 +72,6 @@ public class ZepSoapServiceImpl implements ZepService {
         readMitarbeiterSearchCriteriaType.setUserId(userId);
 
         return getEmployeeInternal(readMitarbeiterSearchCriteriaType).stream().findFirst().orElse(null);
-    }
-
-    @Override
-    public MitarbeiterType getEmployeeMitarbeiterType(String userId) {
-
-        ReadMitarbeiterSearchCriteriaType searchCriteria = new ReadMitarbeiterSearchCriteriaType();
-        searchCriteria.setUserId(userId);
-        ReadMitarbeiterRequestType readMitarbeiterRequestType = new ReadMitarbeiterRequestType();
-        readMitarbeiterRequestType.setRequestHeader(zepSoapProvider.createRequestHeaderType());
-
-        readMitarbeiterRequestType.setReadMitarbeiterSearchCriteria(searchCriteria);
-
-        return Optional.ofNullable(zepSoapPortType.readMitarbeiter(readMitarbeiterRequestType))
-                .flatMap(readMitarbeiterResponse -> Optional.ofNullable(readMitarbeiterResponse.getMitarbeiterListe()))
-                .stream()
-                .flatMap(mitarbeiterListe -> mitarbeiterListe.getMitarbeiter().stream())
-                .toList()
-                .get(0);
     }
 
     @CacheResult(cacheName = "employee")
@@ -125,7 +106,6 @@ public class ZepSoapServiceImpl implements ZepService {
             throw new ZepServiceException("updateEmployeeReleaseDate failed with code: " + returnCode);
         }
     }
-
 
     public ResponseHeaderType updateEmployeeHourlyRate(final String userId, InternersatzListeType internalRates) {
         logger.info("start update user {}", userId);
