@@ -37,7 +37,6 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
 
         List<String> lines = new BufferedReader(new InputStreamReader(input.getFile()))
                 .lines()
-                .dropWhile(line -> line.startsWith("#"))
                 .toList();
 
         List<Integer> verifyUpload = determineLinesWhereLengthInvalid(lines); //checks if the file is formatted correctly
@@ -114,6 +113,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
 
         for (int i = 0; i < lines.size(); i++) {
             if(lines.get(i).startsWith("#")) continue;
+            System.out.println(i+1);
             if(lines.get(i).length() <= 5) retList.add(i+1);
         }
         return retList;
