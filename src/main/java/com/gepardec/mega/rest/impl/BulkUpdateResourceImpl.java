@@ -58,12 +58,13 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
                     .build();
         }
 
-        for(String l : lines){
-            if(l.startsWith("#")) continue;
+        lines.forEach(line -> {
+            if(line.startsWith("#")) return; //skips one line
             zepService.updateEmployeeHourlyRate(
-                    l.split(",")[0],
-                    createNewInternalRate(l));
-        }
+                    line.split(",")[0],
+                    createNewInternalRate(line));
+        });
+
         return Response.ok().build();
     }
 
