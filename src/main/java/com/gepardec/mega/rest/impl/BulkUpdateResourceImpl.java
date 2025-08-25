@@ -34,7 +34,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
     @Override
     public Response uploadInternalRate(HourlyRateFileDto input) {
 
-        List<String> lines = new BufferedReader(new InputStreamReader(input.file))
+        List<String> lines = new BufferedReader(new InputStreamReader(input.getFile()))
                 .lines()
                 .toList();
 
