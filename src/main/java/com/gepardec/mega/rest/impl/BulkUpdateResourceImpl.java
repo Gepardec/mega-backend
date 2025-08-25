@@ -1,6 +1,7 @@
 package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.application.producer.ResourceBundleProducer;
+import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.rest.api.BulkUpdateResource;
 import com.gepardec.mega.rest.model.BulkUpdateResponseDto;
@@ -64,12 +65,12 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
                     .build();
         }
 
-        lines.forEach(line -> zepService
-                .updateEmployeeHourlyRate(
-                        extractUserId(line),
-                        createNewInternalRate(line))
-        );
-
+        for(String l : lines){
+            if(l.startsWith("#")) continue;
+            zepService.updateEmployeeHourlyRate(
+                    l.split(",")[0],
+                    createNewInternalRate(l));
+        }
         return Response.ok().build();
     }
 
@@ -110,10 +111,13 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
      * @return the line numbers where the format error is
      */
     private List<Integer> determineLinesWhereLengthInvalid(List<String> lines) {
-        return IntStream.range(0, lines.size())
-                .filter(i -> lines.get(i).length() <= 5)
-                .mapToObj(i -> i + 1)
-                .toList();
+        List<Integer> retList = new  ArrayList<>();
+
+        for (int i = 0; i < lines.size(); i++) {
+            if(lines.get(i).startsWith("#")) continue;
+            if(lines.get(i).length() <= 5) retList.add(i+1);
+        }
+        return retList;
     }
 
     /**
@@ -123,13 +127,17 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
      * @return the line numbers where the format error is
      */
     private List<Integer> determineLinesWhereEmployeeNotExists(List<String> lines) {
-        return IntStream.range(0, lines.size())
-                .mapToObj(i -> Map.entry(i, userRepo.findByZepId(extractUserId(lines.get(i)))))
-                .filter(entry -> entry.getValue().isEmpty())
-                .map(entry -> entry.getKey() + 1)
-                .toList();
-    }
+        List<Integer> retList = new ArrayList<>();
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).startsWith("#")) continue;
 
+            String zId = lines.get(i).split(",")[0];
+            Optional<User> user = userRepo.findByZepId(zId);
+
+            if(user.isEmpty()) retList.add(i+1);
+        }
+        return retList;
+    }
     /**
      * Extracts the first csv from one line, which is the UserId
      *
