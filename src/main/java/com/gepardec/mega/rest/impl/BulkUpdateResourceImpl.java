@@ -29,15 +29,14 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
     @Inject
     ResourceBundleProducer resourceBundleProducer;
 
-    @Context
-    HttpHeaders headers;
-
     @Override
-    public Response uploadInternalRate(HourlyRateFileDto input) {
+    public Response uploadInternalRate(HourlyRateFileDto input, HttpHeaders headers) {
 
-        List<String> lines = new BufferedReader(new InputStreamReader(input.getFile()))
+        final List<String> lines = new BufferedReader(new InputStreamReader(input.getFile()))
                 .lines()
                 .toList();
+
+        final Locale locale = getLocaleFromHeader(headers);
 
         List<Integer> verifyUpload = determineLinesWhereLengthInvalid(lines); //checks if the file is formatted correctly
 
@@ -47,7 +46,9 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
                     .entity(
                             createErrorResponseDto(
                                     "error.bad-file",
-                                    verifyUpload))
+                                    verifyUpload,
+                                    locale
+                            ))
                     .build();
         }
 
@@ -59,12 +60,16 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
                     .entity(
                             createErrorResponseDto(
                                     "error.employee-does-not-exist",
-                                    verifyEmployees))
+                                    verifyEmployees,
+                                    locale
+                            ))
                     .build();
         }
 
         for (String l : lines) {
-            if (l.startsWith("#")) continue;
+            if (l.startsWith("#")) {
+                continue;
+            }
             zepService.updateEmployeeHourlyRate(
                     l.split(",")[0],
                     createNewInternalRate(l));
@@ -94,10 +99,10 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
      * @param bundleKey for of the wanted error-message
      * @return the map that represents the errormessage the bundleKey specifies.
      */
-    private BulkUpdateResponseDto createErrorResponseDto(String bundleKey, List<Integer> errorLocation) {
+    private BulkUpdateResponseDto createErrorResponseDto(String bundleKey, List<Integer> errorLocation, Locale locale) {
         return new BulkUpdateResponseDto(
                 resourceBundleProducer
-                        .getResourceBundle(getLocaleFromHeader())
+                        .getResourceBundle(locale)
                         .getString(bundleKey),
                 errorLocation);
     }
@@ -109,12 +114,15 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
      * @return the line numbers where the format error is
      */
     private List<Integer> determineLinesWhereLengthInvalid(List<String> lines) {
-        List<Integer> retList = new ArrayList<>();
+        final List<Integer> retList = new ArrayList<>();
 
         for (int i = 0; i < lines.size(); i++) {
-            if (lines.get(i).startsWith("#")) continue;
-            System.out.println(i + 1);
-            if (lines.get(i).length() <= 5) retList.add(i + 1);
+            if (lines.get(i).startsWith("#")) {
+                continue;
+            }
+            if (lines.get(i).length() <= 5) {
+                retList.add(i + 1);
+            }
         }
         return retList;
     }
@@ -126,14 +134,18 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
      * @return the line numbers where the format error is
      */
     private List<Integer> determineLinesWhereEmployeeNotExists(List<String> lines) {
-        List<Integer> retList = new ArrayList<>();
+        final List<Integer> retList = new ArrayList<>();
         for (int i = 0; i < lines.size(); i++) {
-            if (lines.get(i).startsWith("#")) continue;
+            if (lines.get(i).startsWith("#")) {
+                continue;
+            }
 
             String zId = lines.get(i).split(",")[0];
             Optional<User> user = userRepo.findByZepId(zId);
 
-            if (user.isEmpty()) retList.add(i + 1);
+            if (user.isEmpty()) {
+                retList.add(i + 1);
+            }
         }
         return retList;
     }
@@ -148,8 +160,8 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
         return line.split(",")[0];
     }
 
-    private Locale getLocaleFromHeader() {
-        List<Locale> langs = headers.getAcceptableLanguages();
+    private Locale getLocaleFromHeader(HttpHeaders headers) {
+        final List<Locale> langs = headers.getAcceptableLanguages();
         return langs.isEmpty() ? Locale.getDefault() : langs.get(0);
     }
 }

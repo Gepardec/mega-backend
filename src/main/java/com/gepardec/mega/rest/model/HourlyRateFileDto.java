@@ -5,6 +5,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.jboss.resteasy.annotations.providers.multipart.PartType;
 
 import java.io.InputStream;
+import java.util.Locale;
 
 public class HourlyRateFileDto {
     @FormParam("file")
@@ -13,5 +14,9 @@ public class HourlyRateFileDto {
 
     public InputStream getFile() {
         return file;
+    }
+
+    public void setFile(InputStream file) {
+        this.file = file;
     }
 }
