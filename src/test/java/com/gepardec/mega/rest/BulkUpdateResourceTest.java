@@ -33,6 +33,7 @@ import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
@@ -55,12 +56,14 @@ class BulkUpdateResourceTest {
 
     @BeforeEach
     void setUp() {
+        when(userRepo.findByZepId(any(String.class)))
+                .thenReturn(Optional.of(User.of("test@mail.com")));
     }
 
     @Test
     void uploadInternalRate() throws IOException {
-        File correctFile = createCorrectTestFile();
-        Map<String, InternersatzListeType> expectedData = getExpectedInternersatzListeToCorrectTestFile();
+        File correctFile = createCorrectTestFile(); //with this input
+        Map<String, InternersatzListeType> expectedData = getExpectedInternersatzListeToCorrectTestFile(); //this should be the outcome
 
         doNothing()
                 .when(zepService)
@@ -68,9 +71,6 @@ class BulkUpdateResourceTest {
                         any(String.class),
                         any(InternersatzListeType.class)
                 );
-
-        when(userRepo.findByZepId(any(String.class)))
-                .thenReturn(Optional.of(User.of("test@mail.com")));
 
         given()
                 .multiPart("file", correctFile, "text/plain")
@@ -88,8 +88,11 @@ class BulkUpdateResourceTest {
                 );
 
 
-        expectedData.forEach((key, value) -> {
-            verify(zepService).updateEmployeeHourlyRate(key, value);
+        verify(zepService).updateEmployeeHourlyRate(eq("005-wbruckmueller"), any(InternersatzListeType.class));
+
+        expectedData.forEach((zepId, internnalRate) -> {
+            verify(zepService)
+                    .updateEmployeeHourlyRate(eq(zepId), any(InternersatzListeType.class));
         });
     }
 
@@ -99,7 +102,7 @@ class BulkUpdateResourceTest {
         String fileData =
                 "#ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD\n" +
                         "005-wbruckmueller,72.00,2025-01-01\n" +
-                        "102-funger,20.00,2025-01-01";
+                        "102-funger,20.00,2025-12-31";
         Files.write(tempFile.toPath(), fileData.getBytes());
 
         return tempFile;
@@ -113,7 +116,7 @@ class BulkUpdateResourceTest {
                 createInternersatzListe("005-wbruckmueller", 72.00D, "2025-01-01"));
         expectedData.put(
                 "102-funger",
-                createInternersatzListe("102-funger", 20.00D, "2025-01-01")
+                createInternersatzListe("102-funger", 20.00D, "2025-12-31")
         );
 
         return expectedData;
@@ -124,6 +127,7 @@ class BulkUpdateResourceTest {
         internerSatz.setUserId(uId);
         internerSatz.setSatz(newRate);
         internerSatz.setStartdatum(date);
+        internerSatz.setSatztype(1);
 
         final List<InternersatzType> internersatzList = new ArrayList<>();
         internersatzList.add(internerSatz);
