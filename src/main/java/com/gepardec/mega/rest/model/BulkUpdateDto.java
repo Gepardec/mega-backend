@@ -5,9 +5,8 @@ import jakarta.ws.rs.core.MediaType;
 import org.jboss.resteasy.annotations.providers.multipart.PartType;
 
 import java.io.InputStream;
-import java.util.Locale;
 
-public class HourlyRateFileDto {
+public class BulkUpdateDto {
     @FormParam("file")
     @PartType(MediaType.APPLICATION_OCTET_STREAM)
     private InputStream file;

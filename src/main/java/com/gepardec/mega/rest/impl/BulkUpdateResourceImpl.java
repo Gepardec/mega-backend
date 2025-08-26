@@ -5,10 +5,9 @@ import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.rest.api.BulkUpdateResource;
 import com.gepardec.mega.rest.model.BulkUpdateResponseDto;
-import com.gepardec.mega.rest.model.HourlyRateFileDto;
+import com.gepardec.mega.rest.model.BulkUpdateDto;
 import com.gepardec.mega.zep.ZepService;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import de.provantis.zep.InternersatzListeType;
@@ -30,7 +29,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
     ResourceBundleProducer resourceBundleProducer;
 
     @Override
-    public Response uploadInternalRate(HourlyRateFileDto input, HttpHeaders headers) {
+    public Response uploadInternalRate(BulkUpdateDto input, HttpHeaders headers) {
 
         final List<String> lines = new BufferedReader(new InputStreamReader(input.getFile()))
                 .lines()
