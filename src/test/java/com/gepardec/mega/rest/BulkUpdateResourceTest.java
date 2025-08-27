@@ -9,7 +9,6 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,11 +46,10 @@ class BulkUpdateResourceTest {
     }
 
     @Test
-    void uploadInternalRate() throws IOException {
-        File correctFile = createCorrectTestFile();
+    void uploadCorrectInternalRate() throws IOException {
 
         given()
-                .multiPart("file", correctFile, "text/plain")
+                .multiPart("file", createCorrectTestFile(), "text/plain")
                 .when()
                 .post("/employees/bulkUpdate")
                 .then()
@@ -76,9 +74,33 @@ class BulkUpdateResourceTest {
         final File tempFile = Files.createTempFile("test", ".csv").toFile();
         tempFile.deleteOnExit();
         String fileData = """
-                        #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
-                        005-wbruckmueller,72.00,2025-01-01
-                        102-funger,20.00,2025-12-31""";
+                #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
+                005-wbruckmueller,72.00,2025-01-01
+                102-funger,20.00,2025-12-31""";
+        Files.write(tempFile.toPath(), fileData.getBytes());
+
+        return tempFile;
+    }
+
+    @Test
+    void uploadIncorrectInternalRate() throws IOException {
+
+        given()
+                .multiPart("file", createIncorrectTestFile(), "text/plain")
+                .when()
+                .post("/employees/bulkUpdate")
+                .then()
+                .assertThat()
+                .statusCode(400);
+    }
+
+    private File createIncorrectTestFile() throws IOException {
+        final File tempFile = Files.createTempFile("test", ".csv").toFile();
+        tempFile.deleteOnExit();
+        String fileData = """
+                #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
+                ,,
+                102-funger,20.00,2025-12-31""";
         Files.write(tempFile.toPath(), fileData.getBytes());
 
         return tempFile;
