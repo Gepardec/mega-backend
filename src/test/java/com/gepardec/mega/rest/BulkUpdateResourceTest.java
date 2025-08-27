@@ -62,14 +62,14 @@ class BulkUpdateResourceTest {
 
     @Test
     void uploadInternalRate() throws IOException {
-        File correctFile = createCorrectTestFile(); //with this input
-        Map<String, InternersatzListeType> expectedData = getExpectedInternersatzListeToCorrectTestFile(); //this should be the outcome
+        File correctFile = createCorrectTestFile();
 
         doNothing()
                 .when(zepService)
                 .updateEmployeeHourlyRate(
                         any(String.class),
-                        any(InternersatzListeType.class)
+                        any(Double.class),
+                        any(String.class)
                 );
 
         given()
@@ -84,7 +84,8 @@ class BulkUpdateResourceTest {
                 .times(2))
                 .updateEmployeeHourlyRate(
                         any(String.class),
-                        any(InternersatzListeType.class)
+                        any(Double.class),
+                        any(String.class)
                 );
 
 
@@ -92,7 +93,11 @@ class BulkUpdateResourceTest {
 
         expectedData.forEach((zepId, internnalRate) -> {
             verify(zepService)
-                    .updateEmployeeHourlyRate(eq(zepId), any(InternersatzListeType.class));
+                    .updateEmployeeHourlyRate(
+                            eq(zepId),
+                            any(Double.class),
+                            any(String.class)
+                            );
         });
     }
 
@@ -106,20 +111,6 @@ class BulkUpdateResourceTest {
         Files.write(tempFile.toPath(), fileData.getBytes());
 
         return tempFile;
-    }
-
-    private Map<String, InternersatzListeType> getExpectedInternersatzListeToCorrectTestFile() {
-        final Map<String, InternersatzListeType> expectedData = new HashMap<>();
-
-        expectedData.put(
-                "005-wbruckmueller",
-                createInternersatzListe("005-wbruckmueller", 72.00D, "2025-01-01"));
-        expectedData.put(
-                "102-funger",
-                createInternersatzListe("102-funger", 20.00D, "2025-12-31")
-        );
-
-        return expectedData;
     }
 
     private InternersatzListeType createInternersatzListe(String uId, double newRate, String date) {

@@ -86,7 +86,7 @@ public class ZepServiceImpl implements ZepService {
     }
 
     @Override
-    public void updateEmployeeHourlyRate(String userId, InternersatzListeType internalRates){
-        zepServiceSoap.updateEmployeeHourlyRate(userId, internalRates);
+    public void updateEmployeeHourlyRate(String userId, Double newRate, String fromDate){
+        zepServiceSoap.updateEmployeeHourlyRate(userId, newRate, fromDate);
     }
 }
