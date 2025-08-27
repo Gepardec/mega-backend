@@ -72,8 +72,10 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
                 continue;
             }
             zepService.updateEmployeeHourlyRate(
-                    l.split(",")[0],
-                    createNewInternalRate(l));
+                    extractUserId(l),
+                    extractNewRate(l),
+                    extractFromDate(l)
+            );
         }
         return Response.ok().build();
     }
@@ -84,7 +86,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
         InternersatzListeType internalRatesList = new InternersatzListeType();
 
         newInternalRate.setUserId(extractUserId(line));
-        newInternalRate.setSatz(Double.parseDouble(line.split(",")[1]));
+        newInternalRate.setSatz(Double.parseDouble(extractUserId(line)));
         newInternalRate.setStartdatum(line.split(",")[2]);
         newInternalRate.setSatztype(1); //we only use hourlyRates --> https://developer.zep.de/en/soap-documentation for more info
         internalRates.add(newInternalRate);
@@ -159,6 +161,26 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
      */
     private String extractUserId(String line) {
         return line.split(",")[0];
+    }
+
+    /**
+     * Extracts the second csv from one line, which is the newRate
+     *
+     * @param line one line of the request
+     * @return newRate
+     */
+    private Double extractNewRate(String line) {
+        return Double.parseDouble(line.split(",")[1]);
+    }
+
+    /**
+     * Extracts the third csv from one line, which is the fromDate
+     *
+     * @param line one line of the request
+     * @return fromDate
+     */
+    private String extractFromDate(String line) {
+        return line.split(",")[3];
     }
 
     private Locale getLocaleFromHeader(HttpHeaders headers) {

@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -107,12 +108,10 @@ public class ZepSoapServiceImpl implements ZepService {
         }
     }
 
-    public void updateEmployeeHourlyRate(final String userId, InternersatzListeType internalRates) {
+    public void updateEmployeeHourlyRate(final String userId, final Double newRate, final String dateFrom) {
         logger.info("start update hourly rates for employee {}", userId);
 
-        final MitarbeiterType emp = new MitarbeiterType();
-        emp.setUserId(userId);
-        emp.setInternersatzListe(internalRates);
+        final MitarbeiterType emp = getMitarbeiterType(userId, newRate, dateFrom);
 
         final UpdateMitarbeiterRequestType umrt = new UpdateMitarbeiterRequestType();
         umrt.setRequestHeader(zepSoapProvider.createRequestHeaderType());
@@ -126,6 +125,25 @@ public class ZepSoapServiceImpl implements ZepService {
                 .orElse(null);
 
         logger.info("update hourly rates for employee {} finished with code {}", userId, returnCode);
+    }
+
+    private MitarbeiterType getMitarbeiterType(String userId, Double newRate, String dateFrom) {
+        final InternersatzType newInternalRate = new InternersatzType();
+        final List<InternersatzType> internalRates = new ArrayList<>();
+        final InternersatzListeType internalRatesList = new InternersatzListeType();
+        final MitarbeiterType emp = new MitarbeiterType();
+
+        newInternalRate.setUserId(userId);
+        newInternalRate.setSatz(newRate);
+        newInternalRate.setStartdatum(dateFrom);
+        newInternalRate.setSatztype(1); //we only use hourlyRates --> https://developer.zep.de/en/soap-documentation for more info
+
+        internalRates.add(newInternalRate);
+        internalRatesList.setInternersatz(internalRates);
+
+        emp.setUserId(userId);
+        emp.setInternersatzListe(internalRatesList);
+        return emp;
     }
 
     @CacheResult(cacheName = "fehlzeitentype")
