@@ -11,8 +11,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
-import de.provantis.zep.InternersatzListeType;
-import de.provantis.zep.InternersatzType;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -78,21 +76,6 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
             );
         }
         return Response.ok().build();
-    }
-
-    private InternersatzListeType createNewInternalRate(String line) {
-        List<InternersatzType> internalRates = new ArrayList<>();
-        InternersatzType newInternalRate = new InternersatzType();
-        InternersatzListeType internalRatesList = new InternersatzListeType();
-
-        newInternalRate.setUserId(extractUserId(line));
-        newInternalRate.setSatz(Double.parseDouble(extractUserId(line)));
-        newInternalRate.setStartdatum(line.split(",")[2]);
-        newInternalRate.setSatztype(1); //we only use hourlyRates --> https://developer.zep.de/en/soap-documentation for more info
-        internalRates.add(newInternalRate);
-        internalRatesList.setInternersatz(internalRates);
-
-        return internalRatesList;
     }
 
     /**
@@ -180,7 +163,7 @@ public class BulkUpdateResourceImpl implements BulkUpdateResource {
      * @return fromDate
      */
     private String extractFromDate(String line) {
-        return line.split(",")[3];
+        return line.split(",")[2];
     }
 
     private Locale getLocaleFromHeader(HttpHeaders headers) {
