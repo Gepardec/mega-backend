@@ -67,8 +67,8 @@ class BulkUpdateResourceTest {
                 );
 
 
-        verify(zepService).updateEmployeeHourlyRate(eq("005-wbruckmueller"), any(Double.class), any(String.class));
-        verify(zepService).updateEmployeeHourlyRate(eq("102-funger"), any(Double.class), any(String.class));
+        verify(zepService).updateEmployeeHourlyRate(eq("005-wbruckmueller"), eq(72.00D), eq("2025-01-01"));
+        verify(zepService).updateEmployeeHourlyRate(eq("102-funger"), eq(20.00D), eq("2025-12-31"));
 
     }
 
