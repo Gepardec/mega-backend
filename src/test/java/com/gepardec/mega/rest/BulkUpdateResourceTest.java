@@ -13,9 +13,12 @@ import org.mockito.Mockito;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -33,8 +36,6 @@ class BulkUpdateResourceTest {
 
     @BeforeEach
     void setUp() {
-        when(userRepo.findByZepId(any(String.class)))
-                .thenReturn(Optional.of(User.of("test@mail.com")));
 
         doNothing()
                 .when(zepService)
@@ -47,6 +48,10 @@ class BulkUpdateResourceTest {
 
     @Test
     void uploadCorrectInternalRate() throws IOException {
+
+        when(userRepo.findByZepId(any(String.class)))
+                .thenReturn(Optional.of(User.of("test@mail.com")));
+
 
         given()
                 .multiPart("file", createCorrectTestFile(), "text/plain")
@@ -91,7 +96,11 @@ class BulkUpdateResourceTest {
                 .post("/employees/bulkUpdate")
                 .then()
                 .assertThat()
-                .statusCode(400);
+                .statusCode(400)
+                .body("message", anyOf(
+                                equalTo("Error: The uploaded file is not formatted correctly"),
+                                equalTo("Fehler: Die hochgeladene Datei ist nicht richtig formatiert")))
+                .body("location", equalTo(List.of(2)));
     }
 
     private File createIncorrectTestFile() throws IOException {
@@ -101,6 +110,35 @@ class BulkUpdateResourceTest {
                 #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
                 ,,
                 102-funger,20.00,2025-12-31""";
+        Files.write(tempFile.toPath(), fileData.getBytes());
+
+        return tempFile;
+    }
+
+    @Test
+    void uploadInternalrateWithNonExistingEmployee() throws IOException {
+        when(userRepo.findByZepId(any(String.class)))
+                .thenReturn(Optional.empty());
+
+        given()
+                .multiPart("file", createNonExistingUserFile(), "text/plain")
+                .when()
+                .post("/employees/bulkUpdate")
+                .then()
+                .assertThat()
+                .statusCode(400)
+                .body("message", anyOf(
+                        equalTo("Error: The specified employee does not exist"),
+                        equalTo("Fehler: Der angegebene Mitarbeiter existiert nicht")))
+                .body("location", equalTo(List.of(2)));
+    }
+
+    private File createNonExistingUserFile() throws IOException {
+        final File tempFile = Files.createTempFile("test", ".csv").toFile();
+        tempFile.deleteOnExit();
+        String fileData = """
+                #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
+                xxxxx,15.00,2025-01-01""";
         Files.write(tempFile.toPath(), fileData.getBytes());
 
         return tempFile;
