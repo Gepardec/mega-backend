@@ -17,8 +17,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import java.time.YearMonth;
-
 @Path("/comments")
 @Tag(name = "CommentResource")
 public interface CommentResource {
@@ -33,7 +31,7 @@ public interface CommentResource {
     @Path("/getallcommentsforemployee")
     Response getAllCommentsForEmployee(
             @QueryParam("email") @NotNull(message = "{commentResource.email.notNull}") @Email(message = "{commentResource.email.invalid}") String employeeEmail,
-            @QueryParam("date") @NotNull YearMonth payrollMonth);
+            @QueryParam("date") @NotNull String currentMonthYear);
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
