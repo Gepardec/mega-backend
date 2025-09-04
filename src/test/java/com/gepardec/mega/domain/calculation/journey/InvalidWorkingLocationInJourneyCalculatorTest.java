@@ -12,8 +12,6 @@ import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
-import io.quarkus.test.InjectMock;
-import io.quarkus.test.junit.mockito.InjectSpy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -38,7 +36,7 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
     UserContext userContext;
 
     @BeforeEach
-    void init(){
+    void init() {
         MockitoAnnotations.openMocks(this);
     }
 
@@ -122,7 +120,7 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
         return projectEntries;
     }
 
-    private ProjectEntry createProjectTimeEntry(LocalDateTime from, LocalDateTime to, Task task, WorkingLocation location, String processId){
+    private ProjectEntry createProjectTimeEntry(LocalDateTime from, LocalDateTime to, Task task, WorkingLocation location, String processId) {
         return ProjectTimeEntry.builder()
                 .fromTime(from)
                 .toTime(to)

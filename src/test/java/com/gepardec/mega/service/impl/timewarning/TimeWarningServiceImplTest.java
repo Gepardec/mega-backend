@@ -1,6 +1,5 @@
 package com.gepardec.mega.service.impl.timewarning;
 
-import com.gepardec.mega.domain.calculation.journey.InvalidWorkingLocationInJourneyCalculator;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.EmploymentPeriod;
@@ -24,24 +23,15 @@ import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.service.api.TimeWarningService;
 import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import io.quarkus.test.InjectMock;
-import io.quarkus.test.Mock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -151,7 +141,7 @@ class TimeWarningServiceImplTest {
         return projectEntries;
     }
 
-    private ProjectEntry createProjectTimeEntry(LocalDateTime from, LocalDateTime to, Task task, WorkingLocation location, String processId){
+    private ProjectEntry createProjectTimeEntry(LocalDateTime from, LocalDateTime to, Task task, WorkingLocation location, String processId) {
         return ProjectTimeEntry.builder()
                 .fromTime(from)
                 .toTime(to)
@@ -282,7 +272,7 @@ class TimeWarningServiceImplTest {
     }
 
     private JourneyTimeEntry createJourneyTimeEntry(LocalDateTime from, LocalDateTime to) {
-        return createJourneyTimeEntry(from, to, WorkingLocation.A,  JourneyDirection.TO);
+        return createJourneyTimeEntry(from, to, WorkingLocation.A, JourneyDirection.TO);
     }
 
 
