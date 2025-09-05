@@ -77,7 +77,7 @@ jobs:
           token: ${{ secrets.RENOVATE_TOKEN }}
           title: Autoupdate ${{ steps.parse.outputs.GROUPID }}
           branch: autoupdate/${{ steps.parse.outputs.NEW_BRANCH }}
-          base: main
+          base: feature/base-auto-update
           committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
           body: |
