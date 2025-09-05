@@ -2,6 +2,7 @@ package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.SourceSystem;
+import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.CommentResource;
 import com.gepardec.mega.rest.mapper.CommentMapper;
 import com.gepardec.mega.rest.model.CommentDto;
@@ -32,8 +33,11 @@ public class CommentResourceImpl implements CommentResource {
     }
 
     @Override
-    public Response getAllCommentsForEmployee(String employeeEmail, YearMonth payrollMonth) {
-        List<Comment> commentsForEmployee = commentService.findCommentsForEmployee(employeeEmail, payrollMonth);
+    public Response getAllCommentsForEmployee(String employeeEmail, String currentMonthYear) {
+        List<Comment> commentsForEmployee = commentService.findCommentsForEmployee(
+                employeeEmail,
+                YearMonth.from(DateUtils.getFirstDayOfCurrentMonth(currentMonthYear))
+        );
         return Response.ok(mapper.mapListToDto(commentsForEmployee)).build();
     }
 

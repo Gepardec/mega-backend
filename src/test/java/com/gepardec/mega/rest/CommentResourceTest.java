@@ -156,7 +156,7 @@ class CommentResourceTest {
 
         List<CommentDto> comments = given().contentType(ContentType.JSON)
                 .queryParam("email", "no-reply@gmx.at")
-                .queryParam("date", "2020-10")
+                .queryParam("date", "2020-10-01")
                 .get("/comments/getallcommentsforemployee")
                 .as(new TypeRef<>() {
                 });
