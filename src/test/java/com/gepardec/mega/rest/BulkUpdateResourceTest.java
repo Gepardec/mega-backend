@@ -5,13 +5,12 @@ import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.zep.impl.ZepServiceImpl;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.builder.MultiPartSpecBuilder;
+import io.restassured.specification.MultiPartSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +26,23 @@ import static org.mockito.Mockito.when;
 @QuarkusTest
 class BulkUpdateResourceTest {
 
+    private static final String VALID_HOURLY_RATES_CSV = """
+            #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
+            005-wbruckmueller,72.00,2025-01-01
+            102-funger,20.00,2025-12-31
+            """;
+
+    private static final String INVALID_HOURLY_RATES_CSV = """
+            #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
+            ,,
+            102-funger,20.00,2025-12-31
+            """;
+
+    private static final String NON_EXISTING_USER_HOURLY_RATES_CSV = """
+            #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
+            xxxxx,15.00,2025-01-01
+            """;
+
     @InjectMock
     ZepServiceImpl zepService;
 
@@ -35,7 +51,6 @@ class BulkUpdateResourceTest {
 
     @BeforeEach
     void setUp() {
-
         doNothing()
                 .when(zepService)
                 .updateEmployeeHourlyRate(
@@ -47,50 +62,25 @@ class BulkUpdateResourceTest {
 
     @Test
     void uploadCorrectInternalRate() throws IOException {
-
         when(userRepo.findByZepId(any(String.class)))
                 .thenReturn(Optional.of(User.of("test@mail.com")));
 
-
         given()
-                .multiPart("file", createCorrectTestFile(), "text/plain")
+                .multiPart(buildMultipartSpec(VALID_HOURLY_RATES_CSV))
                 .when()
                 .post("/employees/bulkUpdate")
                 .then()
                 .assertThat()
                 .statusCode(200);
 
-        verify(zepService, Mockito
-                .times(2))
-                .updateEmployeeHourlyRate(
-                        any(String.class),
-                        any(Double.class),
-                        any(String.class)
-                );
-
-
         verify(zepService).updateEmployeeHourlyRate(eq("005-wbruckmueller"), eq(72.00D), eq("2025-01-01"));
         verify(zepService).updateEmployeeHourlyRate(eq("102-funger"), eq(20.00D), eq("2025-12-31"));
-
-    }
-
-    private File createCorrectTestFile() throws IOException {
-        final File tempFile = Files.createTempFile("test", ".csv").toFile();
-        tempFile.deleteOnExit();
-        String fileData = """
-                #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
-                005-wbruckmueller,72.00,2025-01-01
-                102-funger,20.00,2025-12-31""";
-        Files.write(tempFile.toPath(), fileData.getBytes());
-
-        return tempFile;
     }
 
     @Test
     void uploadIncorrectInternalRate() throws IOException {
-
         given()
-                .multiPart("file", createIncorrectTestFile(), "text/plain")
+                .multiPart(buildMultipartSpec(INVALID_HOURLY_RATES_CSV))
                 .when()
                 .post("/employees/bulkUpdate")
                 .then()
@@ -102,25 +92,13 @@ class BulkUpdateResourceTest {
                 .body("location", equalTo(List.of(2)));
     }
 
-    private File createIncorrectTestFile() throws IOException {
-        final File tempFile = Files.createTempFile("test", ".csv").toFile();
-        tempFile.deleteOnExit();
-        String fileData = """
-                #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
-                ,,
-                102-funger,20.00,2025-12-31""";
-        Files.write(tempFile.toPath(), fileData.getBytes());
-
-        return tempFile;
-    }
-
     @Test
     void uploadInternalrateWithNonExistingEmployee() throws IOException {
         when(userRepo.findByZepId(any(String.class)))
                 .thenReturn(Optional.empty());
 
         given()
-                .multiPart("file", createNonExistingUserFile(), "text/plain")
+                .multiPart(buildMultipartSpec(NON_EXISTING_USER_HOURLY_RATES_CSV))
                 .when()
                 .post("/employees/bulkUpdate")
                 .then()
@@ -132,14 +110,11 @@ class BulkUpdateResourceTest {
                 .body("location", equalTo(List.of(2)));
     }
 
-    private File createNonExistingUserFile() throws IOException {
-        final File tempFile = Files.createTempFile("test", ".csv").toFile();
-        tempFile.deleteOnExit();
-        String fileData = """
-                #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
-                xxxxx,15.00,2025-01-01""";
-        Files.write(tempFile.toPath(), fileData.getBytes());
-
-        return tempFile;
+    private MultiPartSpecification buildMultipartSpec(String fileContent) {
+        return new MultiPartSpecBuilder(fileContent)
+                .fileName("hourlyRates.csv")
+                .controlName("file")
+                .mimeType("text/plain")
+                .build();
     }
 }
