@@ -2,7 +2,6 @@ package com.gepardec.mega.rest;
 
 import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.UserRepository;
-
 import com.gepardec.mega.zep.impl.ZepServiceImpl;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -98,8 +97,8 @@ class BulkUpdateResourceTest {
                 .assertThat()
                 .statusCode(400)
                 .body("message", anyOf(
-                                equalTo("Error: The uploaded file is not formatted correctly"),
-                                equalTo("Fehler: Die hochgeladene Datei ist nicht richtig formatiert")))
+                        equalTo("Error: The uploaded file is not formatted correctly"),
+                        equalTo("Fehler: Die hochgeladene Datei ist nicht richtig formatiert")))
                 .body("location", equalTo(List.of(2)));
     }
 

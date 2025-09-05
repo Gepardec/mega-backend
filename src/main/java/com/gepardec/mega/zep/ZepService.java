@@ -8,7 +8,6 @@ import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
-import de.provantis.zep.InternersatzListeType;
 
 import java.time.YearMonth;
 import java.util.List;

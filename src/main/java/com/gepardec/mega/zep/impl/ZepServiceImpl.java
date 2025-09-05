@@ -9,7 +9,6 @@ import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.zep.ZepService;
-import de.provantis.zep.InternersatzListeType;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.YearMonth;
@@ -86,7 +85,7 @@ public class ZepServiceImpl implements ZepService {
     }
 
     @Override
-    public void updateEmployeeHourlyRate(String userId, Double newRate, String fromDate){
+    public void updateEmployeeHourlyRate(String userId, Double newRate, String fromDate) {
         zepServiceSoap.updateEmployeeHourlyRate(userId, newRate, fromDate);
     }
 }

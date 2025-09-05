@@ -4,8 +4,8 @@ import com.gepardec.mega.application.producer.ResourceBundleProducer;
 import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.rest.api.BulkUpdateResource;
-import com.gepardec.mega.rest.model.BulkUpdateResponseDto;
 import com.gepardec.mega.rest.model.BulkUpdateDto;
+import com.gepardec.mega.rest.model.BulkUpdateResponseDto;
 import com.gepardec.mega.zep.ZepService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -14,7 +14,10 @@ import jakarta.ws.rs.core.Response;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 @ApplicationScoped
 public class BulkUpdateResourceImpl implements BulkUpdateResource {
