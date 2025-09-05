@@ -38,7 +38,7 @@ jobs:
           NEW_VERSION: ${{ steps.parse.outputs.NEW_VERSION }}
         run: echo "groupId=${GROUPID}, depname=${DEPNAME}, currVersion=${CURR_VERSION}, newVersion=${NEW_VERSION}"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         name: checkout
         with:
           ref: main
