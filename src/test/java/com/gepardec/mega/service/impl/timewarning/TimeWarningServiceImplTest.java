@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -141,18 +141,14 @@ class TimeWarningServiceImplTest {
         return projectEntries;
     }
 
-    private ProjectEntry createProjectTimeEntry(LocalDateTime from, LocalDateTime to, Task task, WorkingLocation location, String processId) {
+    private ProjectEntry createProjectTimeEntry(LocalDateTime from, LocalDateTime to) {
         return ProjectTimeEntry.builder()
                 .fromTime(from)
                 .toTime(to)
-                .task(task)
-                .workingLocation(location)
-                .process(processId)
+                .task(Task.BEARBEITEN)
+                .workingLocation(WorkingLocation.MAIN)
+                .process("1033")
                 .build();
-    }
-
-    private ProjectEntry createProjectTimeEntry(LocalDateTime from, LocalDateTime to) {
-        return createProjectTimeEntry(from, to, Task.BEARBEITEN, WorkingLocation.MAIN, "1033");
     }
 
     private List<ProjectEntry> createProjectEntryListForMonth() {
@@ -260,21 +256,16 @@ class TimeWarningServiceImplTest {
         return projectEntries;
     }
 
-    private JourneyTimeEntry createJourneyTimeEntry(LocalDateTime from, LocalDateTime to, WorkingLocation workLoc, JourneyDirection direction) {
+    private JourneyTimeEntry createJourneyTimeEntry(LocalDateTime from, LocalDateTime to) {
         return JourneyTimeEntry.builder()
                 .fromTime(from)
                 .toTime(to)
                 .task(Task.REISEN)
-                .workingLocation(workLoc)
-                .journeyDirection(direction)
+                .workingLocation(WorkingLocation.A)
+                .journeyDirection(JourneyDirection.TO)
                 .vehicle(Vehicle.OTHER_INACTIVE)
                 .build();
     }
-
-    private JourneyTimeEntry createJourneyTimeEntry(LocalDateTime from, LocalDateTime to) {
-        return createJourneyTimeEntry(from, to, WorkingLocation.A, JourneyDirection.TO);
-    }
-
 
     private Employee createEmployeeForUser(final User user) {
         return Employee.builder()
