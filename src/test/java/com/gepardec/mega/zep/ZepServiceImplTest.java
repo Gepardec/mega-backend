@@ -42,6 +42,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 
@@ -54,6 +55,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -444,5 +446,37 @@ class ZepServiceImplTest {
         assertThat(projectsForMonthYear).hasSize(1);
         assertThat(projectsForMonthYear.get(0).getEmployees()).isEmpty();
         assertThat(projectsForMonthYear.get(0).getLeads()).isEmpty();
+    }
+
+    @Test
+    void updateEmployeeHourlyRateTest() {
+        Mockito.when(zepSoapPortType.updateMitarbeiter(any(UpdateMitarbeiterRequestType.class)))
+                .thenReturn(null);
+
+        zepService.updateEmployeeHourlyRate("102-funger", 12.34D, "2025-01-01");
+
+        ArgumentCaptor<UpdateMitarbeiterRequestType> captor = ArgumentCaptor.forClass(UpdateMitarbeiterRequestType.class);
+
+        verify(zepSoapPortType).updateMitarbeiter(captor.capture());
+
+        MitarbeiterType employee = captor.getValue().getMitarbeiter();
+
+        assertEquals("102-funger",
+                employee
+                        .getUserId());
+
+        assertEquals(12.34D,
+                employee
+                        .getInternersatzListe()
+                        .getInternersatz()
+                        .get(0)
+                        .getSatz());
+
+        assertEquals("2025-01-01",
+                employee
+                        .getInternersatzListe()
+                        .getInternersatz()
+                        .get(0)
+                        .getStartdatum());
     }
 }

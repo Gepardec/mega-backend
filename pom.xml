@@ -1,7 +1,5 @@
-<?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.gepardec.mega</groupId>
     <artifactId>mega-backend</artifactId>
@@ -199,6 +197,10 @@
         </dependency>
         <!-- Test Dependencies -->
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-resteasy-multipart</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
@@ -269,8 +271,7 @@
                                         <extraarg>-xjc-Xsetters-mode=direct</extraarg>
                                     </extraargs>
                                     <bindingFiles>
-                                        <bindingFile>${project.basedir}/src/main/resources/wsdl/zep-bindings.xml
-                                        </bindingFile>
+                                        <bindingFile>${project.basedir}/src/main/resources/wsdl/zep-bindings.xml</bindingFile>
                                     </bindingFiles>
                                 </wsdlOption>
                             </wsdlOptions>
@@ -348,14 +349,12 @@
                                 <requireMavenVersion>
                                     <message>This project requires a maven '${maven.version}' or greater. You can
                                         download it
-                                        from here https://maven.apache.org/download.cgi
-                                    </message>
+                                        from here https://maven.apache.org/download.cgi</message>
                                     <version>${maven.version}</version>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
                                     <message>To build this project JDK ${maven.compiler.target} (or
-                                        greater) is required. Please install it.
-                                    </message>
+                                        greater) is required. Please install it.</message>
                                     <version>${maven.compiler.target}</version>
                                 </requireJavaVersion>
                             </rules>

@@ -83,4 +83,9 @@ public class ZepServiceImpl implements ZepService {
     public double getDoctorsVisitingTimeForMonthAndEmployee(Employee employee, YearMonth payrollMonth) {
         return zepServiceRest.getDoctorsVisitingTimeForMonthAndEmployee(employee, payrollMonth);
     }
+
+    @Override
+    public void updateEmployeeHourlyRate(String userId, Double newRate, String fromDate) {
+        zepServiceSoap.updateEmployeeHourlyRate(userId, newRate, fromDate);
+    }
 }
