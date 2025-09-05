@@ -15,30 +15,30 @@ import java.util.List;
 
 public class InvalidWorkingLocationInJourneyCalculator implements WarningCalculationStrategy<JourneyWarning> {
 
-    public List<JourneyWarning> calculate(List<ProjectEntry> projectEntries){
+    public List<JourneyWarning> calculate(List<ProjectEntry> projectEntries) {
         final List<ProjectEntry> sortedProjectEntries = projectEntries.stream() //Sorting projectEntries by time
                 .sorted(Comparator.comparing(ProjectEntry::getFromTime).thenComparing(ProjectEntry::getToTime))
                 .toList();
         List<JourneyWarning> warnings = new ArrayList<>();
 
-        if(!hasJourneyEntries(sortedProjectEntries)){
+        if (!hasJourneyEntries(sortedProjectEntries)) {
             return warnings;
         }
         WorkingLocation workingLocation = WorkingLocation.MAIN; //setting to main, if a journey exceeds one month this must be changed
 
-        for(final ProjectEntry projectEntry : sortedProjectEntries){
-            if(Task.isJourney(projectEntry.getTask())){
-                JourneyDirection journeyDirection = ((JourneyTimeEntry)projectEntry).getJourneyDirection();
-                if(journeyDirection.equals(JourneyDirection.BACK)){
+        for (final ProjectEntry projectEntry : sortedProjectEntries) {
+            if (Task.isJourney(projectEntry.getTask())) {
+                JourneyDirection journeyDirection = ((JourneyTimeEntry) projectEntry).getJourneyDirection();
+                if (journeyDirection.equals(JourneyDirection.BACK)) {
                     workingLocation = WorkingLocation.MAIN;
                     continue;
                 }
-                if(journeyDirection.equals(JourneyDirection.TO) || journeyDirection.equals(JourneyDirection.FURTHER)){
+                if (journeyDirection.equals(JourneyDirection.TO) || journeyDirection.equals(JourneyDirection.FURTHER)) {
                     workingLocation = projectEntry.getWorkingLocation();
                     continue;
                 }
             }
-            if(!projectEntry.getWorkingLocation().equals(workingLocation)){
+            if (!projectEntry.getWorkingLocation().equals(workingLocation)) {
                 warnings.add(createJourneyWarningWithEnumType(projectEntry, JourneyWarningType.INVALID_WORKING_LOCATION));
             }
         }
