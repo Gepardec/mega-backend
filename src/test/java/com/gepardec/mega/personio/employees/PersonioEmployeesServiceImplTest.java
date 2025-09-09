@@ -163,7 +163,7 @@ class PersonioEmployeesServiceImplTest {
     }
 
     private static List<AbsenceBalanceResponse> createValidAbsenceBalanceResponseData() {
-        var data = new AbsenceBalanceResponse(AbsenceConstants.PAID_VACATION_ID, "", List.of(), 2, 12);
+        var data = new AbsenceBalanceResponse(AbsenceConstants.PAID_VACATION_ID, "", "", 2, 12);
         return List.of(data);
     }
 
