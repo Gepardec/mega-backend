@@ -11,7 +11,7 @@ public class AbsenceBalanceResponse {
 
     private Integer id;
     private String name;
-    private List<String> category;
+    private String category;
     private Integer balance;
     private Integer availableBalance;
 
@@ -19,7 +19,7 @@ public class AbsenceBalanceResponse {
     public AbsenceBalanceResponse(
             @JsonProperty("id") Integer id,
             @JsonProperty("name") String name,
-            @JsonProperty("category") List<String> category,
+            @JsonProperty("category") String category,
             @JsonProperty("balance") Integer balance,
             @JsonProperty("available_balance") Integer availableBalance) {
         this.id = id;
@@ -45,11 +45,11 @@ public class AbsenceBalanceResponse {
         this.name = name;
     }
 
-    public List<String> getCategory() {
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(List<String> category) {
+    public void setCategory(String category) {
         this.category = category;
     }
 
