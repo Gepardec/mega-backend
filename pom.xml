@@ -10,7 +10,7 @@
     <properties>
         <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
         <maven-resource-plugin.version>3.1.0</maven-resource-plugin.version>
-        <surefire-plugin.version>3.2.3</surefire-plugin.version>
+        <surefire-plugin.version>3.5.3</surefire-plugin.version>
         <cxf-codegen-plugin.version>4.0.0</cxf-codegen-plugin.version>
         <liquibase-maven-plugin.version>4.0.0</liquibase-maven-plugin.version>
         <native2ascii-maven-plugin.plugin.version>2.1.1</native2ascii-maven-plugin.plugin.version>
