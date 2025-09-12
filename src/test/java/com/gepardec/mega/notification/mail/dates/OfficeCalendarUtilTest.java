@@ -19,6 +19,7 @@ class OfficeCalendarUtilTest {
             LocalDate.of(2022, 5, 1),
             LocalDate.of(2022, 5, 26),
             LocalDate.of(2022, 6, 6),
+            LocalDate.of(2022, 6, 5),
             LocalDate.of(2022, 6, 16),
             LocalDate.of(2022, 8, 15),
             LocalDate.of(2022, 10, 26),

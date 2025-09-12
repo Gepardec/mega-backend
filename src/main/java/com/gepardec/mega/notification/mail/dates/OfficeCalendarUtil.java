@@ -1,12 +1,13 @@
 package com.gepardec.mega.notification.mail.dates;
 
-import de.focus_shift.Holiday;
-import de.focus_shift.HolidayCalendar;
-import de.focus_shift.HolidayManager;
-import de.focus_shift.ManagerParameters;
+import de.focus_shift.jollyday.core.Holiday;
+import de.focus_shift.jollyday.core.HolidayCalendar;
+import de.focus_shift.jollyday.core.HolidayManager;
+import de.focus_shift.jollyday.core.ManagerParameters;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Year;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.function.Predicate;
@@ -42,7 +43,7 @@ public class OfficeCalendarUtil {
     }
 
     public static Stream<LocalDate> getHolidaysForYear(int year) {
-        return HOLIDAY_MANAGER.getHolidays(year).stream().map(Holiday::getDate);
+        return HOLIDAY_MANAGER.getHolidays(Year.of(year)).stream().map(Holiday::getDate);
     }
 
     public static Stream<LocalDate> getHolidaysForMonth(YearMonth yearMonth) {
