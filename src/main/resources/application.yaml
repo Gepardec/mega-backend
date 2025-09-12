@@ -240,12 +240,11 @@ mega:
       password: mega
       jdbc:
         url: 'jdbc:h2:mem:mega;MODE=PostgreSQL;INIT=create schema if not exists mega\;SET SCHEMA mega'
-
-    hibernate-orm:
-      database:
-        generation: drop-and-create
     liquibase:
       migrate-at-start: true
+    hibernate-orm:
+      schema-management:
+        strategy: drop-and-create
 
   mega:
     dash-url: "http://localhost:8080/index.html"
