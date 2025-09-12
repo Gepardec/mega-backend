@@ -39,7 +39,7 @@ class ProjectEntryServiceImplTest {
         List<ProjectEntry> actual = projectEntryService.findByNameAndDate("ABC", YearMonth.of(2024, 6));
 
         assertThat(actual.size()).isOne();
-        assertThat(actual.get(0).getName()).isEqualTo("ABC");
+        assertThat(actual.getFirst().getName()).isEqualTo("ABC");
     }
 
     @Test

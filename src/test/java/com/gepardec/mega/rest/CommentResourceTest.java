@@ -162,7 +162,7 @@ class CommentResourceTest {
                 });
 
         assertThat(comments).hasSize(1);
-        assertThat(comments.get(0)).isEqualTo(mapper.mapToDto(comment));
+        assertThat(comments.getFirst()).isEqualTo(mapper.mapToDto(comment));
     }
 
     @Test

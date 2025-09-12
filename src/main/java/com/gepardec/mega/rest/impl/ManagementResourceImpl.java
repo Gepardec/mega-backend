@@ -207,7 +207,7 @@ public class ManagementResourceImpl implements ManagementResource {
                     .toList());
 
             // it is guaranteed that the same Project instance is obtained for every ProjectEntry
-            Integer zepId = Optional.ofNullable(projectEntries.get(0))
+            Integer zepId = Optional.ofNullable(projectEntries.getFirst())
                     .map(ProjectEntry::getProject)
                     .map(com.gepardec.mega.db.entity.project.Project::getZepId)
                     .orElse(null);
@@ -291,7 +291,7 @@ public class ManagementResourceImpl implements ManagementResource {
         return projectEntries.stream()
                 .filter(p -> p.getStep() == projectStep)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(String.format("No project entry found for project step '%s'", projectStep)));
+                .orElseThrow(() -> new IllegalArgumentException("No project entry found for project step '%s'".formatted(projectStep)));
     }
 
     private Map<String, Employee> createEmployeeCache(YearMonth selectedYearMonth) {
@@ -378,7 +378,7 @@ public class ManagementResourceImpl implements ManagementResource {
                     .employeeProgresses(pmProgressDtos)
                     .finishedComments(finishedAndTotalComments.getFinishedComments())
                     .totalComments(finishedAndTotalComments.getTotalComments())
-                    .entryDate(stepEntries.get(0).getDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN)))
+                    .entryDate(stepEntries.getFirst().getDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN)))
                     .billableTime(billableTimeString)
                     .nonBillableTime(nonBillableTimeString)
                     .percentageOfHoursSpentInThisProject(percentageOfHoursSpentInThisProject)
@@ -401,16 +401,12 @@ public class ManagementResourceImpl implements ManagementResource {
     }
 
     private State mapEmployeeStateToManagementState(EmployeeState employeeState) {
-        switch (employeeState) {
-            case DONE:
-                return State.DONE;
-            case OPEN:
-                return State.OPEN;
-            case IN_PROGRESS:
-                return State.IN_PROGRESS;
-            default:
-                return null;
-        }
+        return switch (employeeState) {
+            case DONE -> State.DONE;
+            case OPEN -> State.OPEN;
+            case IN_PROGRESS -> State.IN_PROGRESS;
+            default -> null;
+        };
     }
 
     private com.gepardec.mega.domain.model.State extractInternalCheckState(List<StepEntry> stepEntries) {

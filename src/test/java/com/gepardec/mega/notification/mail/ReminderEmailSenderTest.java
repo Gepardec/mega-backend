@@ -56,7 +56,7 @@ class ReminderEmailSenderTest {
         reminderEmailSender.sendReminderToOm(OM_RELEASE);
         assertAll(
                 () -> assertThat(mailbox.getTotalMessagesSent()).isEqualTo(1),
-                () -> assertThat(mailbox.getMessagesSentTo("no-reply@gepardec.com").get(0).getSubject())
+                () -> assertThat(mailbox.getMessagesSentTo("no-reply@gepardec.com").getFirst().getSubject())
                         .isEqualTo("UNIT-TEST: Reminder: Freigaben durchführen")
         );
     }
@@ -77,7 +77,7 @@ class ReminderEmailSenderTest {
         reminderEmailSender.sendReminderToPl();
         assertAll(
                 () -> assertThat(mailbox.getTotalMessagesSent()).isEqualTo(1),
-                () -> assertThat(mailbox.getMessagesSentTo("no-reply@gepardec.com").get(0).getSubject()).isEqualTo("UNIT-TEST: Reminder: Projekte kontrollieren und abrechnen")
+                () -> assertThat(mailbox.getMessagesSentTo("no-reply@gepardec.com").getFirst().getSubject()).isEqualTo("UNIT-TEST: Reminder: Projekte kontrollieren und abrechnen")
         );
     }
 
@@ -97,7 +97,7 @@ class ReminderEmailSenderTest {
         reminderEmailSender.sendReminderToUser();
         assertAll(
                 () -> assertThat(mailbox.getTotalMessagesSent()).isEqualTo(1),
-                () -> assertThat(mailbox.getMessagesSentTo("no-reply@gepardec.com").get(0).getSubject()).isEqualTo("UNIT-TEST: Reminder: Buchungen bis heute Abend in MEGA bestätigen")
+                () -> assertThat(mailbox.getMessagesSentTo("no-reply@gepardec.com").getFirst().getSubject()).isEqualTo("UNIT-TEST: Reminder: Buchungen bis heute Abend in MEGA bestätigen")
         );
     }
 

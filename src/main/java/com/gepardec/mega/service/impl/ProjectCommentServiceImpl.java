@@ -39,7 +39,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         LocalDate from = DateUtils.getFirstDayOfCurrentMonth(currentYearMonth);
         LocalDate to = DateUtils.getLastDayOfCurrentMonth(currentYearMonth);
         List<ProjectCommentDto> projectComments = this.findForProjectNameInRange(projectName, from, to);
-        return projectComments.isEmpty() ? null : projectComments.get(0);
+        return projectComments.isEmpty() ? null : projectComments.getFirst();
     }
 
     @Override
@@ -62,7 +62,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
             return projectCommentMapper.mapToDto(newProjectComment);
         } else {
             // update comment of existing project comment
-            ProjectComment projectCommentToUpdate = existingProjectComments.get(0);
+            ProjectComment projectCommentToUpdate = existingProjectComments.getFirst();
             projectCommentToUpdate.setComment(dto.getComment());
             projectCommentRepository.update(projectCommentToUpdate);
 
@@ -75,7 +75,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
     public boolean update(Long id, String comment) {
         ProjectComment entity = projectCommentRepository.findById(id);
         if (entity == null) {
-            throw new EntityNotFoundException(String.format("No entity found for id = %d", id));
+            throw new EntityNotFoundException("No entity found for id = %d".formatted(id));
         }
         entity.setComment(comment);
         return projectCommentRepository.update(entity);

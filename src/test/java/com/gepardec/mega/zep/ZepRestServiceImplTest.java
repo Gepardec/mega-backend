@@ -220,9 +220,9 @@ class ZepRestServiceImplTest {
         List<ProjectHoursSummary> result = zepRestService.getAllProjectsForMonthAndEmployee(employee, YearMonth.of(2024, 6));
 
         assertThat(result).isNotNull();
-        assertThat(result.get(0).getBillableHoursSum()).isEqualTo(6.0);
-        assertThat(result.get(0).getNonBillableHoursSum()).isEqualTo(2.0);
-        assertThat(result.get(0).getChargeability()).isEqualTo(75.0);
+        assertThat(result.getFirst().getBillableHoursSum()).isEqualTo(6.0);
+        assertThat(result.getFirst().getNonBillableHoursSum()).isEqualTo(2.0);
+        assertThat(result.getFirst().getChargeability()).isEqualTo(75.0);
     }
 
     @Test

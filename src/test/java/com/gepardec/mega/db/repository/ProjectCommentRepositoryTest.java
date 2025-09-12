@@ -77,8 +77,8 @@ class ProjectCommentRepositoryTest {
                 LocalDate.now().minusDays(2),
                 LocalDate.now().plusDays(2)
         );
-        projectComments.get(0).setComment(NEW_COMMENT);
-        projectCommentRepository.update(projectComments.get(0));
+        projectComments.getFirst().setComment(NEW_COMMENT);
+        projectCommentRepository.update(projectComments.getFirst());
 
         List<ProjectComment> newProjectComments = projectCommentRepository.findByProjectNameAndDateBetween(
                 projectComment.getProject().getName(),

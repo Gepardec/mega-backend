@@ -276,7 +276,7 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     private Optional<ProjectHoursSummary> createProjectsHoursSummary(List<ZepAttendance> attendances, ZepProject project) {
-        Optional<ZepProjectDetail> projectRetrieved = projectService.getProjectById(attendances.get(0).projectId());
+        Optional<ZepProjectDetail> projectRetrieved = projectService.getProjectById(attendances.getFirst().projectId());
         String projectName = "";
         double billableHoursSum = 0.0;
         double nonBillableHoursSum = 0.0;

@@ -94,12 +94,11 @@ public class ZepMailToCommentService {
     }
 
     private static Supplier<IllegalArgumentException> projectNotFoundInZep(String projectName) {
-        return () -> new IllegalArgumentException(String.format("Project '%s' could not be found in ZEP!", projectName));
+        return () -> new IllegalArgumentException("Project '%s' could not be found in ZEP!".formatted(projectName));
     }
 
     private static String buildComment(ZepProjektzeitDetailsMail mail) {
-        return String.format(
-                "Buchung vom %s (%s - %s) im Projekt '%s' - '%s' mit dem Text '%s' ist anzupassen.\n %s",
+        return "Buchung vom %s (%s - %s) im Projekt '%s' - '%s' mit dem Text '%s' ist anzupassen.\n %s".formatted(
                 DATE_FORMATTER.format(mail.getTag()),
                 mail.getUhrzeitVon(),
                 mail.getUhrzeitBis(),

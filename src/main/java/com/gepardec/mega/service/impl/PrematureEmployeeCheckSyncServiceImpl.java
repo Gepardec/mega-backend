@@ -40,7 +40,7 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
                 .toList();
 
         logger.info(
-                String.format("Syncing %s PrematureEmployeeChecks with StepEntries for Month: %s",
+                "Syncing %s PrematureEmployeeChecks with StepEntries for Month: %s".formatted(
                         prematureEmployeeCheckEntities.size(),
                         payrollMonth)
         );

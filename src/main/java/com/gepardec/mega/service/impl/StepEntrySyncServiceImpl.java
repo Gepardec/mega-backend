@@ -87,8 +87,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
         return notificationConfig.getOmMailAddresses()
                 .stream()
                 .map(email -> findUserByEmail(activeUsers, email))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Optional::stream)
                 .toList();
     }
 
@@ -140,8 +139,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
         return project.getLeads()
                 .stream()
                 .map(lead -> findUserByUserId(users, lead))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Optional::stream)
                 .map(leadUser -> StepEntry.builder()
                         .date(date)
                         .project(project)

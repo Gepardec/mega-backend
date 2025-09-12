@@ -140,7 +140,7 @@ public class ProjectServiceImpl implements ProjectService {
             case IS_CUSTOMER_PROJECT:
                 return !project.getCategories().contains(INTERN_PROJECT_CATEGORY);
             default:
-                throw new IllegalStateException(String.format("projectFilter %s not implemented", projectFilter));
+                throw new IllegalStateException("projectFilter %s not implemented".formatted(projectFilter));
         }
     }
 }

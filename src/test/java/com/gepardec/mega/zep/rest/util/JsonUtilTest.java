@@ -75,8 +75,8 @@ class JsonUtilTest {
                 "]}";
 
         List<Demo> list = List.of(JsonUtil.parseJson(json, "/data", Demo[].class).get());
-        assertThat(list.get(0).id).isEqualTo(1);
-        assertThat(list.get(0).name).isEqualTo("MEGA");
+        assertThat(list.getFirst().id).isEqualTo(1);
+        assertThat(list.getFirst().name).isEqualTo("MEGA");
         assertThat(list.get(1).id).isEqualTo(2);
         assertThat(list.get(1).name).isEqualTo("GEMA");
     }

@@ -69,7 +69,7 @@ class ProjectServiceTest {
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
 
         when(zepProjectRestClient.getProjectByName(anyString(), anyString(), eq("mega")))
-                .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
+                .thenReturn(Response.ok().entity(responseJsons.getFirst()).build());
         when(zepProjectRestClient.getProjectByName(anyString(), anyString(), eq("empty")))
                 .thenReturn(Response.ok().entity(responseJsons.get(5)).build());
 

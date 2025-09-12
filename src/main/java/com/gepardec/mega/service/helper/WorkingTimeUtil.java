@@ -98,10 +98,10 @@ public class WorkingTimeUtil {
             throw new IllegalArgumentException("Time string cannot be null or empty.");
         }
         if (!timeString.contains(":")) {
-            throw new IllegalArgumentException(String.format("Invalid time string %s. Expected format is 'HH:MM'.", timeString));
+            throw new IllegalArgumentException("Invalid time string %s. Expected format is 'HH:MM'.".formatted(timeString));
         }
         String[] parts = timeString.split(":");
-        return Duration.parse(String.format("PT%sH%sM", parts[0], parts[1]));
+        return Duration.parse("PT%sH%sM".formatted(parts[0], parts[1]));
     }
 
     private static Map.Entry<DayOfWeek, Long> removeAbsenceDays(Map.Entry<DayOfWeek, Long> workingDayEntry,

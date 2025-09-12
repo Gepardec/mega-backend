@@ -68,12 +68,12 @@ class MailSenderTest {
         List<io.quarkus.mailer.Mail> sent = mailbox.getMessagesSentTo(to);
 
         assertThat(sent).hasSize(1);
-        assertThat(sent.get(0).getSubject()).isEqualTo(subject);
+        assertThat(sent.getFirst().getSubject()).isEqualTo(subject);
 
         if (Mail.COMMENT_CLOSED.equals(mail)) {
-            assertThat(sent.get(0).getHtml()).startsWith("<p>Hallo " + "Herbert");
+            assertThat(sent.getFirst().getHtml()).startsWith("<p>Hallo " + "Herbert");
         } else {
-            assertThat(sent.get(0).getHtml()).startsWith("<p>Hallo " + "Jamal");
+            assertThat(sent.getFirst().getHtml()).startsWith("<p>Hallo " + "Jamal");
         }
     }
 

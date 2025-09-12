@@ -119,7 +119,7 @@ class AttendanceServiceTest {
         );
 
         List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", YearMonth.of(2018, 12));
-        assertThat(List.of(attendances.get(0), attendances.get(1))).usingRecursiveComparison().isEqualTo(attendancesReference);
+        assertThat(List.of(attendances.getFirst(), attendances.get(1))).usingRecursiveComparison().isEqualTo(attendancesReference);
     }
 
     @Test

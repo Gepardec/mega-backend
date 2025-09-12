@@ -124,7 +124,7 @@ public class CommentServiceImpl implements CommentService {
     public Comment update(final Long id, final String message) {
         var comment = commentRepository.findById(id);
         if (comment == null) {
-            throw new EntityNotFoundException(String.format("No entity found for id = %d", id));
+            throw new EntityNotFoundException("No entity found for id = %d".formatted(id));
         }
 
         comment.setMessage(message);

@@ -106,7 +106,7 @@ class EmployeeResourceTest {
         });
 
         assertThat(employees).hasSize(1);
-        final EmployeeDto actual = employees.get(0);
+        final EmployeeDto actual = employees.getFirst();
         assertThat(actual).isEqualTo(userAsEmployee);
     }
 

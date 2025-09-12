@@ -32,7 +32,7 @@ public class NotificationHelper {
         final String emailPath = Optional.ofNullable(localizedEmailOrNull(mail, locale))
                 .orElse(localizedEmailOrNull(mail, Locale.ROOT));
         if (emailPath == null) {
-            throw new IllegalArgumentException(String.format("No template path for reminder '%s' found", mail));
+            throw new IllegalArgumentException("No template path for reminder '%s' found".formatted(mail));
         }
         return emailPath;
     }
@@ -63,13 +63,13 @@ public class NotificationHelper {
     public String subjectForMail(Mail mail, final Locale locale) {
         Objects.requireNonNull(mail, "Cannot retrieve subject for null reminder");
         return subjectPrefixOrEmptyString() + resourceBundleProducer.getResourceBundle(locale)
-                .getString(String.format(MESSAGE_KEY_TEMPLATE_REMINDER, mail.name()));
+                .getString(MESSAGE_KEY_TEMPLATE_REMINDER.formatted(mail.name()));
     }
 
     public String subjectForMail(Mail mail, final Locale locale, final List<String> parameter) {
         Objects.requireNonNull(mail, "Cannot retrieve subject for null reminder");
         final String subject = subjectPrefixOrEmptyString() + resourceBundleProducer.getResourceBundle(locale)
-                .getString(String.format(MESSAGE_KEY_TEMPLATE_REMINDER, mail.name()));
+                .getString(MESSAGE_KEY_TEMPLATE_REMINDER.formatted(mail.name()));
         if (parameter != null && !parameter.isEmpty()) {
             return MessageFormat.format(subject, parameter.toArray());
         }

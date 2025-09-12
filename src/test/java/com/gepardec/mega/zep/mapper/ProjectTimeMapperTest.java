@@ -71,7 +71,7 @@ class ProjectTimeMapperTest {
         List<ProjektzeitType> pztList = List.of(fztArr);
         List<ProjectTime> ptList = ProjectTimeMapper.mapList(pztList);
 
-        assertThat(ptList.get(0).getUserId()).isEqualTo(pztList.get(0).getUserId());
+        assertThat(ptList.getFirst().getUserId()).isEqualTo(pztList.getFirst().getUserId());
         assertThat(ptList.get(1).getUserId()).isEqualTo(pztList.get(1).getUserId());
     }
 

@@ -12,7 +12,7 @@ public class DurationSerializer extends JsonSerializer<Duration> {
     @Override
     public void serialize(Duration value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         if (value != null) {
-            final String duration = String.format("%sd %sh %sm %ss",
+            final String duration = "%sd %sh %sm %ss".formatted(
                     value.toDaysPart(),
                     value.toHoursPart(),
                     value.toMinutesPart(),

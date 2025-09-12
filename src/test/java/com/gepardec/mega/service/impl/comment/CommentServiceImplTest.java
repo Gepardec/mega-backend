@@ -64,7 +64,7 @@ class CommentServiceImplTest {
                 "max.mustermann@gpeardec.com", YearMonth.now().plusMonths(1)
         );
         assertThat(domainComments).hasSize(1);
-        assertThat(domainComments.get(0).getId()).isEqualTo(1);
+        assertThat(domainComments.getFirst().getId()).isEqualTo(1);
     }
 
     @Test

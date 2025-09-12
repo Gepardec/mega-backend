@@ -147,7 +147,7 @@ class ManagementResourceTest {
                 });
 
         assertThat(result).hasSize(1);
-        ManagementEntryDto entry = result.get(0);
+        ManagementEntryDto entry = result.getFirst();
         assertThat(entry.getInternalCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
         assertThat(entry.getEmployeeCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
         assertThat(entry.getProjectCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.DONE);
@@ -390,9 +390,9 @@ class ManagementResourceTest {
         assertThat(entry.getFinishedComments()).isEqualTo(2L);
 
         // assert billable/non billable time
-        assertThat(result.get(0).getAggregatedBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(240));
-        assertThat(result.get(0).getAggregatedNonBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(120));
-        assertThat(result.get(0).getEntries().get(0).getPercentageOfHoursSpentInThisProject()).isEqualTo(12);
+        assertThat(result.getFirst().getAggregatedBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(240));
+        assertThat(result.getFirst().getAggregatedNonBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(120));
+        assertThat(result.getFirst().getEntries().getFirst().getPercentageOfHoursSpentInThisProject()).isEqualTo(12);
     }
 
     @Test
@@ -477,9 +477,9 @@ class ManagementResourceTest {
         assertThat(entry.getFinishedComments()).isEqualTo(2L);
 
         // assert billable/non billable time
-        assertThat(result.get(0).getAggregatedBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(0));
-        assertThat(result.get(0).getAggregatedNonBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(0));
-        assertThat(result.get(0).getEntries().get(0).getPercentageOfHoursSpentInThisProject()).isEqualTo(0);
+        assertThat(result.getFirst().getAggregatedBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(0));
+        assertThat(result.getFirst().getAggregatedNonBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(0));
+        assertThat(result.getFirst().getEntries().getFirst().getPercentageOfHoursSpentInThisProject()).isEqualTo(0);
     }
 
     @Test
@@ -531,8 +531,8 @@ class ManagementResourceTest {
                 });
 
         // assert billable/non billable time
-        assertThat(result.get(0).getAggregatedBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(0));
-        assertThat(result.get(0).getAggregatedNonBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(0));
+        assertThat(result.getFirst().getAggregatedBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(0));
+        assertThat(result.getFirst().getAggregatedNonBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(0));
     }
 
     @Test
@@ -609,7 +609,7 @@ class ManagementResourceTest {
             List<CustomerProjectWithoutLeadsDto> resultList = (List<CustomerProjectWithoutLeadsDto>) actual.getEntity();
 
             assertThat(resultList).hasSize(2);
-            assertThat(resultList.get(0).getProjectName()).isEqualTo(createProjectList().get(0).getProjectId());
+            assertThat(resultList.getFirst().getProjectName()).isEqualTo(createProjectList().getFirst().getProjectId());
         }
     }
 

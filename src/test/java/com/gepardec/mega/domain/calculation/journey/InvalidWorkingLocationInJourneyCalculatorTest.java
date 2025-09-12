@@ -65,8 +65,8 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
         List<JourneyWarning> warnings = calculator.calculate(List.of(journeyTimeEntryOne, projectEntryTwo, journeyTimeEntryThree));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
 
     @Test
@@ -78,8 +78,8 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
         List<JourneyWarning> warnings = calculator.calculate(List.of(journeyTimeEntryOne, projectEntryTwo, journeyTimeEntryThree));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
 
     /*
@@ -101,8 +101,8 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
                 .calculate(List.of(journeyTimeEntryOne, projectEntryTwo, projectEntryThree, journeyTimeEntryFour));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
 
     @Test
@@ -116,8 +116,8 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
                 .calculate(List.of(journeyTimeEntryOne, projectEntryTwo, projectEntryThree, journeyTimeEntryFour));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
 
     @Test
@@ -134,8 +134,8 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
                         journeyTimeEntrySix));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
 
     @Test

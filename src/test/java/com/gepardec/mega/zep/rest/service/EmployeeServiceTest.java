@@ -118,7 +118,7 @@ class EmployeeServiceTest {
                         .build());
 
         List<String> employeeNames = List.of("000-duser", "001-tuser", "007-jbond");
-        when(employmentPeriodService.getZepEmploymentPeriodsByUsername(employeeNames.get(0))).thenReturn(periods000);
+        when(employmentPeriodService.getZepEmploymentPeriodsByUsername(employeeNames.getFirst())).thenReturn(periods000);
         when(employmentPeriodService.getZepEmploymentPeriodsByUsername(employeeNames.get(1))).thenReturn(periods001);
         when(employmentPeriodService.getZepEmploymentPeriodsByUsername(employeeNames.get(2))).thenReturn(periods007);
 

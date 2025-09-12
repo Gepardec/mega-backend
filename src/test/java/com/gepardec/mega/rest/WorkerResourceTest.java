@@ -694,7 +694,7 @@ class WorkerResourceTest {
 
         assertThat(actual.isEmpty()).isFalse();
         assertThat(actual.size()).isEqualTo(mappedWarnings.size());
-        assertThat(actual.get(0).getName()).isEqualTo(mappedWarnings.get(0).getName());
+        assertThat(actual.getFirst().getName()).isEqualTo(mappedWarnings.getFirst().getName());
     }
 
     @Test

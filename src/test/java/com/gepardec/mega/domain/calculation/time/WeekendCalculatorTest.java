@@ -56,7 +56,7 @@ class WeekendCalculatorTest {
                 .isNotEmpty();
         assertThat(result.size())
                 .isEqualTo(1);
-        assertThat(result.get(0).getDate())
+        assertThat(result.getFirst().getDate())
                 .isEqualTo(LocalDate.of(2021, 12, day));
     }
 

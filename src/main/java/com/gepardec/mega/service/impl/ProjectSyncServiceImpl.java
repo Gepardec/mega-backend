@@ -76,8 +76,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
     private List<com.gepardec.mega.db.entity.project.Project> createProjects(List<User> activeUsers, List<Project> projects, YearMonth payrollMonth) {
         return projects.stream()
                 .map(project -> createProjectEntityFromProject(activeUsers, project, payrollMonth))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Optional::stream)
                 .toList();
     }
 
@@ -89,8 +88,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
                 .filter(Objects::nonNull)
                 .filter(userid -> !userid.isBlank())
                 .map(userid -> findUserByUserId(activeUsers, userid))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Optional::stream)
                 .toList();
 
         if (leads.isEmpty()) {

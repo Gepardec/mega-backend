@@ -11,6 +11,6 @@ public enum ProjectState {
     public static ProjectState byName(String name) {
         return Arrays.stream(ProjectState.values()).filter(v -> v.name().equalsIgnoreCase(name)).
                 findFirst().
-                orElseThrow(() -> new IllegalArgumentException(String.format("No project state for given name '%s' present.", name)));
+                orElseThrow(() -> new IllegalArgumentException("No project state for given name '%s' present.".formatted(name)));
     }
 }

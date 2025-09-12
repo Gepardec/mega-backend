@@ -57,7 +57,7 @@ public class PersonioEmployeesServiceImpl implements PersonioEmployeesService {
         try {
             BaseResponse<List<EmployeesResponse>> employeesResponse = personioEmployeesClient.getByEmail(email);
             if (employeesResponse.isSuccess() && employeesResponse.getData().size() == 1) {
-                return Optional.ofNullable(employeesResponse.getData().get(0).getAttributes());
+                return Optional.ofNullable(employeesResponse.getData().getFirst().getAttributes());
             }
             return Optional.empty();
         } catch (WebApplicationException e) {

@@ -62,7 +62,7 @@ class NoEntryCalculatorTest {
 
         assertThat(result).hasSize(1)
                 .extracting(TimeWarning::getDate)
-                .containsExactly(expectedTimeWarningsList.get(0).getDate());
+                .containsExactly(expectedTimeWarningsList.getFirst().getDate());
     }
 
     @Test
@@ -181,7 +181,7 @@ class NoEntryCalculatorTest {
     @Test
     void calculate_whenDateBeforeFirstWorkingDay_thenNoWarning() {
         var projectEntryList = createProjectEntryList(0);
-        projectEntryList.remove(0);
+        projectEntryList.removeFirst();
 
         List<TimeWarning> result = noEntryCalculator.calculate(createEmployee(), projectEntryList, Collections.emptyList());
 

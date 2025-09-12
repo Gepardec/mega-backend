@@ -63,7 +63,7 @@ class RegularWorkingTimesServiceTest {
                 .thenReturn(regularWorkingTimesList);
 
         List<ZepRegularWorkingTimes> allZepRegularWorkingTimes = regularWorkingTimesService.getRegularWorkingTimesByUsername("001-duser");
-        ZepRegularWorkingTimes actual = allZepRegularWorkingTimes.get(allZepRegularWorkingTimes.size() - 1);
+        ZepRegularWorkingTimes actual = allZepRegularWorkingTimes.getLast();
 
         assertThat(actual.thursday()).isEqualTo(8.0);
     }

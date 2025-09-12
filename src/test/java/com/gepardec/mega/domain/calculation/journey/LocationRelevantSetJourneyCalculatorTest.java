@@ -28,8 +28,8 @@ class LocationRelevantSetJourneyCalculatorTest {
         List<JourneyWarning> warnings = calculator.calculate(List.of(journeyTimeEntryOne, projectEntryTwo, journeyTimeEntryThree));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.LOCATION_RELEVANT_SET);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.LOCATION_RELEVANT_SET);
     }
 
     @Test

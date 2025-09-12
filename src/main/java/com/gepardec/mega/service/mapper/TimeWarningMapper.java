@@ -44,7 +44,7 @@ public class TimeWarningMapper {
 
             types.forEach(type -> {
                 String template = templates.getString("WARNING.TIME.".concat(type.name()));
-                description.add(String.format(template, type.getTemplateValue(timeWarning)));
+                description.add(template.formatted(type.getTemplateValue(timeWarning)));
             });
 
             MappedTimeWarningDTO mtwDTO = MappedTimeWarningDTO.builder()

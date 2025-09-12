@@ -56,9 +56,9 @@ class UserRepositoryTest {
         List<User> activeUsers = userRepository.findActive();
 
         assertAll(
-                () -> assertThat(activeUsers.get(0)).isNotNull(),
-                () -> assertThat(activeUsers.get(0).getActive()).isTrue(),
-                () -> assertThat(activeUsers.get(0).getEmail()).isEqualTo(EMAIL)
+                () -> assertThat(activeUsers.getFirst()).isNotNull(),
+                () -> assertThat(activeUsers.getFirst().getActive()).isTrue(),
+                () -> assertThat(activeUsers.getFirst().getEmail()).isEqualTo(EMAIL)
         );
     }
 
@@ -73,8 +73,8 @@ class UserRepositoryTest {
         List<User> usersByRoles = userRepository.findByRoles(roles);
 
         assertAll(
-                () -> assertThat(usersByRoles.get(0)).isNotNull(),
-                () -> assertThat(usersByRoles.get(0).getEmail()).isEqualTo(EMAIL)
+                () -> assertThat(usersByRoles.getFirst()).isNotNull(),
+                () -> assertThat(usersByRoles.getFirst().getEmail()).isEqualTo(EMAIL)
         );
     }
 

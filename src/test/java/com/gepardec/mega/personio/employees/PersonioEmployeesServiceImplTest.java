@@ -110,7 +110,7 @@ class PersonioEmployeesServiceImplTest {
         var result = personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail("mega.test@gepardec.com");
 
         //THEN
-        assertThat(result).isEqualTo(createValidAbsenceBalanceResponseData().get(0).getAvailableBalance());
+        assertThat(result).isEqualTo(createValidAbsenceBalanceResponseData().getFirst().getAvailableBalance());
     }
 
     @Test

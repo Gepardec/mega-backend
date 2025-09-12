@@ -72,8 +72,8 @@ class CoreWorkingHoursCalculatorTest {
         List<TimeWarning> result = calculator.calculate(List.of(start, end));
 
         assertThat(result).isNotEmpty();
-        assertThat(result.get(0).getWarningTypes()).as("One WarningType should have been set").hasSize(1);
-        assertThat(result.get(0).getWarningTypes().get(0)).isEqualTo(TimeWarningType.OUTSIDE_CORE_WORKING_TIME);
+        assertThat(result.getFirst().getWarningTypes()).as("One WarningType should have been set").hasSize(1);
+        assertThat(result.getFirst().getWarningTypes().getFirst()).isEqualTo(TimeWarningType.OUTSIDE_CORE_WORKING_TIME);
     }
 
     @Test

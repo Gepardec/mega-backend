@@ -223,7 +223,7 @@ class StepEntryServiceImplTest {
         );
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo(1L);
+        assertThat(result.getFirst().getId()).isEqualTo(1L);
     }
 
     @Test
@@ -279,8 +279,8 @@ class StepEntryServiceImplTest {
         assertAll(
                 () -> assertThat(projectEmployees).isNotNull(),
                 () -> assertThat(projectEmployees).hasSize(1),
-                () -> assertThat(projectEmployees.get(0).getProjectId()).isEqualTo("Liwest-EMS"),
-                () -> assertThat(projectEmployees.get(0).getEmployees()).containsExactlyInAnyOrder("008", "010", "012", "020")
+                () -> assertThat(projectEmployees.getFirst().getProjectId()).isEqualTo("Liwest-EMS"),
+                () -> assertThat(projectEmployees.getFirst().getEmployees()).containsExactlyInAnyOrder("008", "010", "012", "020")
         );
     }
 
@@ -536,7 +536,7 @@ class StepEntryServiceImplTest {
 
             assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, payrollMonth))
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining(String.format("No StepEntries found for Employee %s", employeeEmail));
+                    .hasMessageContaining("No StepEntries found for Employee %s".formatted(employeeEmail));
             verify(stepEntryRepository, times(1)).findStepEntryForEmployeeAndProjectAtStepInRange(
                     fromDate, toDate, employeeEmail, stepId, assigneeEmail, project);
         }

@@ -61,14 +61,14 @@ class AbsenceServiceTest {
                         .build()
         );
 
-        Response res1 = Response.ok(mockAbsences.get(0)).build();
+        Response res1 = Response.ok(mockAbsences.getFirst()).build();
         Response res2 = Response.ok(mockAbsences.get(1)).build();
 
         when(responseParser.retrieveAll(any(), eq(ZepAbsence.class)))
                 .thenReturn(mockAbsences);
         when(responseParser.retrieveSingle(eq(res1), eq(ZepAbsence.class)))
                 .thenReturn(
-                        Optional.of(mockAbsences.get(0))
+                        Optional.of(mockAbsences.getFirst())
                 );
         when(responseParser.retrieveSingle(eq(res2), eq(ZepAbsence.class)))
                 .thenReturn(

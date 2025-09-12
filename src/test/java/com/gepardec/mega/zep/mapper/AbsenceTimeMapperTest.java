@@ -71,7 +71,7 @@ class AbsenceTimeMapperTest {
         List<FehlzeitType> fztList = List.of(fztArr);
         List<AbsenceTime> atList = AbsenceTimeMapper.mapList(fztList);
 
-        assertThat(atList.get(0).userId()).isEqualTo(fztList.get(0).getUserId());
+        assertThat(atList.getFirst().userId()).isEqualTo(fztList.getFirst().getUserId());
         assertThat(atList.get(1).userId()).isEqualTo(fztList.get(1).getUserId());
     }
 

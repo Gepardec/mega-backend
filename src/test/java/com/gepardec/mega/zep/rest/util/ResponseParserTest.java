@@ -37,7 +37,7 @@ class ResponseParserTest {
         List<String> responseJsons = resourceFileService.getDirContents("projects");
 
         when(zepProjectRestClient.getProjects(eq(1)))
-                .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
+                .thenReturn(Response.ok().entity(responseJsons.getFirst()).build());
         when(zepProjectRestClient.getProjects(eq(2)))
                 .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
         when(zepProjectRestClient.getProjects(eq(3)))
@@ -140,7 +140,7 @@ class ResponseParserTest {
 
 
         when(zepProjectRestClient.getProjects(eq(1)))
-                .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
+                .thenReturn(Response.ok().entity(responseJsons.getFirst()).build());
         when(zepProjectRestClient.getProjects(eq(2)))
                 .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
         when(zepProjectRestClient.getProjects(eq(3)))
@@ -161,7 +161,7 @@ class ResponseParserTest {
 
 
         when(zepProjectRestClient.getProjects(eq(1)))
-                .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
+                .thenReturn(Response.ok().entity(responseJsons.getFirst()).build());
         when(zepProjectRestClient.getProjects(eq(2)))
                 .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
         when(zepProjectRestClient.getProjects(eq(3)))

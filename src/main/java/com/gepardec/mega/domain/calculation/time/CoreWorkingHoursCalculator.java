@@ -64,7 +64,7 @@ public class CoreWorkingHoursCalculator extends AbstractTimeWarningCalculationSt
     }
 
     private boolean isRelevantJourneyTimeEntry(ProjectEntry projectEntry) {
-        return projectEntry instanceof JourneyTimeEntry && ((JourneyTimeEntry) projectEntry).getVehicle().activeTraveler;
+        return projectEntry instanceof JourneyTimeEntry jte && jte.getVehicle().activeTraveler;
     }
 
     private boolean isEntryOutOfRange(final ProjectEntry firstEntry, final ProjectEntry lastEntry) {

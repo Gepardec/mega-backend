@@ -25,7 +25,7 @@ public class HibernateConstraintViolationExceptionMapper implements ExceptionMap
             case "uc_premature_employee_check_userid_and_formonth":
                 String prematureEmployeeDetails = e.getMessage()
                         .split("\\(user_id, for_month\\)=\\(")[1].split("\\) already exists.")[0];
-                return String.format("Tried to add a PrematureEmployeeCheck but there already exists one with following UserId and Month: %s", prematureEmployeeDetails);
+                return "Tried to add a PrematureEmployeeCheck but there already exists one with following UserId and Month: %s".formatted(prematureEmployeeDetails);
 
             default:
                 return "Database encountered a unknown constraint violation without matching handling";

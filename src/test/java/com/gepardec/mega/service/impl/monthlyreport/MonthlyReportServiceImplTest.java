@@ -176,7 +176,7 @@ class MonthlyReportServiceImplTest {
                 .isNotNull();
         assertThat(Objects.requireNonNull(monthendReportForUser.getTimeWarnings()).isEmpty())
                 .isFalse();
-        assertThat(monthendReportForUser.getTimeWarnings().get(0).getDate())
+        assertThat(monthendReportForUser.getTimeWarnings().getFirst().getDate())
                 .isEqualTo(LocalDate.of(2020, 1, 31));
     }
 
