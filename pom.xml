@@ -11,7 +11,7 @@
         <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
         <maven-resource-plugin.version>3.1.0</maven-resource-plugin.version>
         <cxf-codegen-plugin.version>4.1.3</cxf-codegen-plugin.version>
-        <cxf-xjc-utils.version>4.0.0</cxf-xjc-utils.version>
+        <cxf-xjc-utils.version>4.1.0</cxf-xjc-utils.version>
         <surefire-plugin.version>3.5.3</surefire-plugin.version>
         <liquibase-maven-plugin.version>4.0.0</liquibase-maven-plugin.version>
         <native2ascii-maven-plugin.plugin.version>2.1.1</native2ascii-maven-plugin.plugin.version>
