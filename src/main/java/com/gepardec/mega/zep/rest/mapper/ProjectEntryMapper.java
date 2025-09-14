@@ -66,7 +66,7 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
     @Override
     public List<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry> mapList(List<ZepAttendance> zepAttendances) {
         if (zepAttendances == null) {
-            return null;
+            return List.of();
         }
         return zepAttendances.stream()
                 .map(this::map)

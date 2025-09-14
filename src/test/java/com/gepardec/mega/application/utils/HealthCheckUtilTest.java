@@ -14,7 +14,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-public class HealthCheckUtilTest {
+class HealthCheckUtilTest {
 
     @InjectMock
     @RestClient

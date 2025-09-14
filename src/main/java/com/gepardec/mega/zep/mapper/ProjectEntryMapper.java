@@ -22,7 +22,7 @@ public class ProjectEntryMapper {
 
     public List<ProjectEntry> mapList(List<ProjektzeitType> projectTimes) {
         if (projectTimes == null) {
-            return null;
+            return List.of();
         }
         return projectTimes.stream()
                 .map(this::map)

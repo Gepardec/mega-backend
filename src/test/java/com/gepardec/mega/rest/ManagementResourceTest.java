@@ -230,8 +230,8 @@ class ManagementResourceTest {
         final User user = createUserForRole(Role.PROJECT_LEAD);
         when(userContext.getUser()).thenReturn(user);
 
-        Employee employee1 = createEmployee("008", "no-reply@gepardec.com", "Max", "Mustermann");
-        Employee employee2 = createEmployee("030", "no-reply@gepardec.com", "Max", "Mustermann");
+        Employee employee1 = createEmployee("008");
+        Employee employee2 = createEmployee("030");
 
         List<String> employees = List.of(employee1.getUserId(), employee2.getUserId());
         ProjectEmployees rgkkcc = createProject("ÖGK-RGKKCC-2020", employees);
@@ -309,8 +309,8 @@ class ManagementResourceTest {
         final User user = createUserForRole(Role.PROJECT_LEAD);
         when(userContext.getUser()).thenReturn(user);
 
-        Employee employee1 = createEmployee("008", "no-reply@gepardec.com", "Max", "Mustermann");
-        Employee employee2 = createEmployee("030", "no-reply@gepardec.com", "Max", "Mustermann");
+        Employee employee1 = createEmployee("008");
+        Employee employee2 = createEmployee("030");
 
         List<String> employees = List.of(employee1.getUserId(), employee2.getUserId());
         ProjectEmployees rgkkcc = createProject("ÖGK-RGKKCC-2020", employees);
@@ -350,7 +350,7 @@ class ManagementResourceTest {
         when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(createProjectEntries());
 
-        when(workingTimeUtil.getTotalWorkingTimeForEmployee(any(), any(Employee.class))).thenReturn("25:00");
+        when(workingTimeUtil.getTotalWorkingTimeForEmployee(any())).thenReturn("25:00");
         when(workingTimeUtil.getInternalTimesForEmployee(anyList(), any(Employee.class))).thenReturn("01:00");
         when(workingTimeUtil.getBillableTimesForEmployee(anyList(), any(Employee.class))).thenReturn("02:00");
         when(workingTimeUtil.getDurationFromTimeString(("01:00"))).thenReturn(Duration.ofHours(1));
@@ -400,8 +400,8 @@ class ManagementResourceTest {
         final User user = createUserForRole(Role.PROJECT_LEAD);
         when(userContext.getUser()).thenReturn(user);
 
-        Employee employee1 = createEmployee("008", "no-reply@gepardec.com", "Max", "Mustermann");
-        Employee employee2 = createEmployee("030", "no-reply@gepardec.com", "Max", "Mustermann");
+        Employee employee1 = createEmployee("008");
+        Employee employee2 = createEmployee("030");
 
         List<String> employees = List.of(employee1.getUserId(), employee2.getUserId());
         ProjectEmployees rgkkcc = createProject("ÖGK-RGKKCC-2020", employees);
@@ -479,7 +479,7 @@ class ManagementResourceTest {
         // assert billable/non billable time
         assertThat(result.getFirst().getAggregatedBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(0));
         assertThat(result.getFirst().getAggregatedNonBillableWorkTimeInSeconds()).isEqualTo(Duration.ofMinutes(0));
-        assertThat(result.getFirst().getEntries().getFirst().getPercentageOfHoursSpentInThisProject()).isEqualTo(0);
+        assertThat(result.getFirst().getEntries().getFirst().getPercentageOfHoursSpentInThisProject()).isZero();
     }
 
     @Test
@@ -487,8 +487,8 @@ class ManagementResourceTest {
         final User user = createUserForRole(Role.PROJECT_LEAD);
         when(userContext.getUser()).thenReturn(user);
 
-        Employee employee1 = createEmployee("008", "no-reply@gepardec.com", "Max", "Mustermann");
-        Employee employee2 = createEmployee("030", "no-reply@gepardec.com", "Max", "Mustermann");
+        Employee employee1 = createEmployee("008");
+        Employee employee2 = createEmployee("030");
 
         List<String> employees = List.of(employee1.getUserId(), employee2.getUserId());
         ProjectEmployees rgkkcc = createProject("ÖGK-RGKKCC-2020", employees);
@@ -570,8 +570,8 @@ class ManagementResourceTest {
         final User user = createUserForRole(Role.PROJECT_LEAD);
         when(userContext.getUser()).thenReturn(user);
 
-        Employee employee1 = createEmployee("008", "no-reply@gepardec.com", "Max", "Mustermann");
-        Employee employee2 = createEmployee("030", "no-reply@gepardec.com", "Max", "Mustermann");
+        Employee employee1 = createEmployee("008");
+        Employee employee2 = createEmployee("030");
 
         List<String> employees = List.of(employee1.getUserId(), employee2.getUserId());
         ProjectEmployees rgkkcc = createProject("ÖGK-RGKKCC-2020", employees);
@@ -675,12 +675,12 @@ class ManagementResourceTest {
                 .build();
     }
 
-    private Employee createEmployee(String userId, String email, String firstname, String lastname) {
+    private Employee createEmployee(String userId) {
         return Employee.builder()
                 .userId(userId)
-                .firstname(firstname)
-                .lastname(lastname)
-                .email(email)
+                .firstname("Max")
+                .lastname("Mustermann")
+                .email("no-reply@gepardec.com")
                 .build();
     }
 

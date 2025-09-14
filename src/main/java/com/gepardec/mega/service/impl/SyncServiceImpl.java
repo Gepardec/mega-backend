@@ -79,7 +79,7 @@ public class SyncServiceImpl implements SyncService {
     public void syncEmployees() {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        log.info("Started user sync: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
+        log.info("Started user sync: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().getNano()));
 
         final List<Project> projects = projectService.getProjectsForMonthYear(YearMonth.now());
         log.info("Loaded projects (for employee generation): {}", projects.size());
@@ -95,7 +95,7 @@ public class SyncServiceImpl implements SyncService {
         deactivateDeletedOrInactiveUsers(employees, users);
 
         log.info("User sync took: {}ms", stopWatch.getTime());
-        log.info("Finished user sync: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
+        log.info("Finished user sync: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().getNano() + stopWatch.getTime()));
     }
 
     @Override

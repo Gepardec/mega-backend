@@ -17,8 +17,8 @@ class AbsenceTimeMapperTest {
     }
 
     @Test
-    void mapList_whenNull_thenReturnsNull() {
-        assertThat(AbsenceTimeMapper.mapList(null)).isNull();
+    void mapList_whenNull_thenReturnsEmptyList() {
+        assertThat(AbsenceTimeMapper.mapList(null)).isEmpty();
     }
 
 

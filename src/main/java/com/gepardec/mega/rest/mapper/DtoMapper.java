@@ -1,7 +1,6 @@
 package com.gepardec.mega.rest.mapper;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 // D: Domain-Object, T: Transfer-Object (DTO)
 public interface DtoMapper<D, T> {

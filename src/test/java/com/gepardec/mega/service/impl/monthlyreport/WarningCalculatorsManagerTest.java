@@ -70,8 +70,8 @@ class WarningCalculatorsManagerTest {
     }
 
     private ProjectTimeEntry projectTimeEntryFor(final int startHour, final int startMinute, final int endHour,
-                                                 final int endMinute, final String process) {
-        return projectTimeEntryFor(1, startHour, startMinute, 1, endHour, endMinute, WorkingLocation.MAIN, process);
+                                                 final int endMinute) {
+        return projectTimeEntryFor(1, startHour, startMinute, 1, endHour, endMinute, WorkingLocation.MAIN, WarningCalculatorsManagerTest.DOCTOR_APPOINTMENT);
     }
 
     private ProjectTimeEntry projectTimeEntryFor(final int startDay, final int startHour, final int startMinute, final int endDay, final int endHour,
@@ -88,15 +88,14 @@ class WarningCalculatorsManagerTest {
 
     private JourneyTimeEntry journeyTimeEntryFor(final int day, final int startHour, final int endHour, JourneyDirection journeyDirection,
                                                  WorkingLocation workingLocation, Vehicle vehicle) {
-        return journeyTimeEntryFor(day, startHour, 0, day, endHour, 0, journeyDirection, workingLocation, vehicle);
+        return journeyTimeEntryFor(day, startHour, day, endHour, journeyDirection, workingLocation, vehicle);
     }
 
-    private JourneyTimeEntry journeyTimeEntryFor(final int startDay, final int startHour, final int startMinute, final int endDay, final int endHour,
-                                                 final int endMinute,
+    private JourneyTimeEntry journeyTimeEntryFor(final int startDay, final int startHour, final int endDay, final int endHour,
                                                  JourneyDirection journeyDirection, WorkingLocation workingLocation, Vehicle vehicle) {
         return JourneyTimeEntry.builder()
-                .fromTime(LocalDateTime.of(2020, 1, startDay, startHour, startMinute))
-                .toTime(LocalDateTime.of(2020, 1, endDay, endHour, endMinute))
+                .fromTime(LocalDateTime.of(2020, 1, startDay, startHour, 0))
+                .toTime(LocalDateTime.of(2020, 1, endDay, endHour, 0))
                 .task(Task.REISEN)
                 .journeyDirection(journeyDirection)
                 .workingLocation(workingLocation)
@@ -174,7 +173,7 @@ class WarningCalculatorsManagerTest {
 
     @Test
     void whenDoctorBefore830_thenError() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(7, 25, 7, 45, DOCTOR_APPOINTMENT);
+        final ProjectTimeEntry pte = projectTimeEntryFor(7, 25, 7, 45);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
@@ -184,7 +183,7 @@ class WarningCalculatorsManagerTest {
 
     @Test
     void whenDoctorBetween12_1230_thenErrorv1() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(12, 15, 13, 45, DOCTOR_APPOINTMENT);
+        final ProjectTimeEntry pte = projectTimeEntryFor(12, 15, 13, 45);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
@@ -194,7 +193,7 @@ class WarningCalculatorsManagerTest {
 
     @Test
     void whenDoctorBetween12_1230_thenErrorv2() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(7, 45, 12, 25, DOCTOR_APPOINTMENT);
+        final ProjectTimeEntry pte = projectTimeEntryFor(7, 45, 12, 25);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
@@ -204,7 +203,7 @@ class WarningCalculatorsManagerTest {
 
     @Test
     void whenDoctorAfter17_thenError() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(15, 25, 17, 45, DOCTOR_APPOINTMENT);
+        final ProjectTimeEntry pte = projectTimeEntryFor(15, 25, 17, 45);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
@@ -218,7 +217,7 @@ class WarningCalculatorsManagerTest {
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
-        assertThat(result).hasSize(0);
+        assertThat(result).isEmpty();
     }
 
 
@@ -228,12 +227,12 @@ class WarningCalculatorsManagerTest {
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
-        assertThat(result).hasSize(0);
+        assertThat(result).isEmpty();
     }
 
     @Test
     void whenDoctorSpanOverMidday_thenError() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(8, 30, 17, 0, DOCTOR_APPOINTMENT);
+        final ProjectTimeEntry pte = projectTimeEntryFor(8, 30, 17, 0);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
@@ -243,7 +242,7 @@ class WarningCalculatorsManagerTest {
 
     @Test
     void whenDoctorSpanOverMidday_thenErrorv2() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(11, 59, 12, 31, DOCTOR_APPOINTMENT);
+        final ProjectTimeEntry pte = projectTimeEntryFor(11, 59, 12, 31);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
@@ -495,9 +494,8 @@ class WarningCalculatorsManagerTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(entryOne));
 
         assertThat(result)
-                .isNotEmpty();
-        assertThat(result.size())
-                .isEqualTo(1);
+                .isNotEmpty()
+                .hasSize(1);
         assertThat(result.getFirst().getDate())
                 .isEqualTo(entryOne.getDate());
     }
@@ -509,9 +507,8 @@ class WarningCalculatorsManagerTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(entryOne));
 
         assertThat(result)
-                .isNotEmpty();
-        assertThat(result.size())
-                .isEqualTo(1);
+                .isNotEmpty()
+                .hasSize(1);
         assertThat(result.getFirst().getDate())
                 .isEqualTo(entryOne.getDate());
     }
@@ -525,9 +522,8 @@ class WarningCalculatorsManagerTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(entryOne));
 
         assertThat(result)
-                .isNotEmpty();
-        assertThat(result.size())
-                .isEqualTo(1);
+                .isNotEmpty()
+                .hasSize(1);
         assertThat(result.getFirst().getDate())
                 .isEqualTo(entryOne.getDate());
     }
@@ -541,9 +537,8 @@ class WarningCalculatorsManagerTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(entryOne));
 
         assertThat(result)
-                .isNotEmpty();
-        assertThat(result.size())
-                .isEqualTo(1);
+                .isNotEmpty()
+                .hasSize(1);
         assertThat(result.getFirst().getDate())
                 .isEqualTo(entryOne.getDate());
     }

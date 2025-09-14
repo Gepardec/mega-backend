@@ -3,7 +3,6 @@ package com.gepardec.mega.zep.rest.mapper;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public interface Mapper <D, T>{
 

@@ -31,11 +31,10 @@ public class TimeWarningMapper {
         final HashMap<TimeWarning, ArrayList<MappedTimeWarningTypes>> timeWarningMapping = new HashMap<>();
         ResourceBundle templates = resourceBundleProducer.getWarningTemplateResourceBundle(applicationConfig.getDefaultLocale());
 
-        timeWarningPredicates.getPredicateMap().forEach((mappedTimeWarningTypes, timeWarningPredicate) -> {
-            timeWarningList.stream()
-                    .filter(timeWarningPredicate)
-                    .forEach(timeWarning -> appendMap(timeWarningMapping, timeWarning, mappedTimeWarningTypes));
-        });
+        timeWarningPredicates.getPredicateMap().forEach((mappedTimeWarningTypes, timeWarningPredicate) ->
+                timeWarningList.stream()
+                        .filter(timeWarningPredicate)
+                        .forEach(timeWarning -> appendMap(timeWarningMapping, timeWarning, mappedTimeWarningTypes)));
 
         final List<MappedTimeWarningDTO> mappedTimeWarningList = new ArrayList<>();
         timeWarningMapping.forEach((timeWarning, types) -> {

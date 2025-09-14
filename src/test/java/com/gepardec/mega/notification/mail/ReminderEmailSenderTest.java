@@ -51,12 +51,12 @@ class ReminderEmailSenderTest {
 
     @Test
     void sendReminderToOm_whenUser_thenSendsMail() {
-        when(userService.findByRoles(List.of(Role.OFFICE_MANAGEMENT))).thenReturn(List.of(userFor("no-reply@gepardec.com", "Max")));
+        when(userService.findByRoles(List.of(Role.OFFICE_MANAGEMENT))).thenReturn(List.of(userFor()));
 
         reminderEmailSender.sendReminderToOm(OM_RELEASE);
         assertAll(
                 () -> assertThat(mailbox.getTotalMessagesSent()).isEqualTo(1),
-                () -> assertThat(mailbox.getMessagesSentTo("no-reply@gepardec.com").getFirst().getSubject())
+                () -> assertThat(mailbox.getMailsSentTo("no-reply@gepardec.com").getFirst().getSubject())
                         .isEqualTo("UNIT-TEST: Reminder: Freigaben durchführen")
         );
     }
@@ -72,12 +72,12 @@ class ReminderEmailSenderTest {
 
     @Test
     void sendReminderToPl_whenUser_thenSendsMail() {
-        when(userService.findByRoles(List.of(Role.PROJECT_LEAD))).thenReturn(List.of(userFor("no-reply@gepardec.com", "Max")));
+        when(userService.findByRoles(List.of(Role.PROJECT_LEAD))).thenReturn(List.of(userFor()));
 
         reminderEmailSender.sendReminderToPl();
         assertAll(
                 () -> assertThat(mailbox.getTotalMessagesSent()).isEqualTo(1),
-                () -> assertThat(mailbox.getMessagesSentTo("no-reply@gepardec.com").getFirst().getSubject()).isEqualTo("UNIT-TEST: Reminder: Projekte kontrollieren und abrechnen")
+                () -> assertThat(mailbox.getMailsSentTo("no-reply@gepardec.com").getFirst().getSubject()).isEqualTo("UNIT-TEST: Reminder: Projekte kontrollieren und abrechnen")
         );
     }
 
@@ -92,22 +92,22 @@ class ReminderEmailSenderTest {
 
     @Test
     void sendReminderToUser_whenUser_thenSendsMail() {
-        when(userService.findActiveUsers()).thenReturn(List.of(userFor("no-reply@gepardec.com", "Max")));
+        when(userService.findActiveUsers()).thenReturn(List.of(userFor()));
 
         reminderEmailSender.sendReminderToUser();
         assertAll(
                 () -> assertThat(mailbox.getTotalMessagesSent()).isEqualTo(1),
-                () -> assertThat(mailbox.getMessagesSentTo("no-reply@gepardec.com").getFirst().getSubject()).isEqualTo("UNIT-TEST: Reminder: Buchungen bis heute Abend in MEGA bestätigen")
+                () -> assertThat(mailbox.getMailsSentTo("no-reply@gepardec.com").getFirst().getSubject()).isEqualTo("UNIT-TEST: Reminder: Buchungen bis heute Abend in MEGA bestätigen")
         );
     }
 
-    private User userFor(final String email, final String firstname) {
+    private User userFor() {
         return User.builder()
                 .dbId(1L)
                 .userId("1")
-                .email(email)
-                .firstname(firstname)
-                .lastname(firstname)
+                .email("no-reply@gepardec.com")
+                .firstname("Max")
+                .lastname("Max")
                 .roles(Set.of(Role.EMPLOYEE))
                 .build();
     }

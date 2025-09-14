@@ -124,7 +124,6 @@ class WorkerResourceTest {
     @Inject
     WorkerResource workerResource;
 
-
     @Test
     void monthlyReport_whenPOST_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
         given().contentType(ContentType.JSON)
@@ -150,7 +149,7 @@ class WorkerResourceTest {
     @TestSecurity
     @OidcSecurity
     void monthlyReport_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
-        final User user = createUserForRole(Role.EMPLOYEE);
+        final User user = createUserForRole();
         when(userContext.getUser()).thenReturn(user);
 
         given().get("/worker/monthendreports")
@@ -160,7 +159,7 @@ class WorkerResourceTest {
     @Test
     void monthlyReport_whenGET_thenReturnsMonthlyReport() {
         //GIVEN
-        User user = createUserForRole(Role.EMPLOYEE);
+        User user = createUserForRole();
         when(userContext.getUser()).thenReturn(user);
 
         Employee employee = createEmployeeForUser(user);
@@ -263,7 +262,7 @@ class WorkerResourceTest {
     @TestSecurity
     @OidcSecurity
     void monthlyReport_withYearMonth_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
-        final User user = createUserForRole(Role.EMPLOYEE);
+        final User user = createUserForRole();
         when(userContext.getUser()).thenReturn(user);
 
         given().get("/worker/monthendreports/2023-08")
@@ -273,7 +272,7 @@ class WorkerResourceTest {
     @Test
     void monthlyReport_withYearMonth_whenGET_thenReturnsMonthlyReport() {
         //GIVEN
-        User user = createUserForRole(Role.EMPLOYEE);
+        User user = createUserForRole();
         when(userContext.getUser()).thenReturn(user);
 
         Employee employee = createEmployeeForUser(user);
@@ -349,7 +348,7 @@ class WorkerResourceTest {
 
     @Test
     void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithoutAttachmentAndCreditCard_thenReturnObjectWithAttachmentWarningsAndNoCreditCard() {
-        User userForRole = createUserForRole(Role.EMPLOYEE);
+        User userForRole = createUserForRole();
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
         PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(false).build();
@@ -377,7 +376,7 @@ class WorkerResourceTest {
 
     @Test
     void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithAllAttachmentsAndNoCreditCard_thenReturnObjectWithoutAttachmentWarningsAndNoCreditCard() {
-        User userForRole = createUserForRole(Role.EMPLOYEE);
+        User userForRole = createUserForRole();
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
         PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(false).build();
@@ -405,7 +404,7 @@ class WorkerResourceTest {
 
     @Test
     void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithAllAttachmentsAndCreditCard_thenReturnObjectWithoutAttachmentWarningsAndWithCreditCard() {
-        User userForRole = createUserForRole(Role.EMPLOYEE);
+        User userForRole = createUserForRole();
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
         PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(false).build();
@@ -433,7 +432,7 @@ class WorkerResourceTest {
 
     @Test
     void getBillsForEmployeeByMonth_whenEmployeeHasNoBills_thenReturnObjectWithSumZero() {
-        User userForRole = createUserForRole(Role.EMPLOYEE);
+        User userForRole = createUserForRole();
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
         PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(false).build();
@@ -461,7 +460,7 @@ class WorkerResourceTest {
 
     @Test
     void getAllProjectsForMonthAndEmployee_whenEmployeeHasProjectTimes_thenReturnListOfProjects() {
-        User userForRole = createUserForRole(Role.EMPLOYEE);
+        User userForRole = createUserForRole();
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
@@ -474,13 +473,14 @@ class WorkerResourceTest {
 
         List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(YearMonth.of(2024, 6));
 
-        assertThat(actual).isNotNull();
-        assertThat(actual.size()).isEqualTo(4);
+        assertThat(actual)
+                .isNotNull()
+                .hasSize(4);
     }
 
     @Test
     void getAllProjectsForMonthAndEmployee_whenEmployeeHasNoProjectTimes_thenReturnListOf() {
-        User userForRole = createUserForRole(Role.EMPLOYEE);
+        User userForRole = createUserForRole();
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
@@ -493,13 +493,14 @@ class WorkerResourceTest {
 
         List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(YearMonth.of(2024, 6));
 
-        assertThat(actual).isNotNull();
-        assertThat(actual.size()).isZero();
+        assertThat(actual)
+                .isNotNull()
+                .isEmpty();
     }
 
     @Test
     void getAllAbsencesForMonthAndEmployee_whenEmployeeHasAbsences_thenReturnAbsenceObjectWithValues() {
-        User userForRole = createUserForRole(Role.EMPLOYEE);
+        User userForRole = createUserForRole();
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
@@ -542,7 +543,7 @@ class WorkerResourceTest {
 
     @Test
     void getAllAbsencesForMonthAndEmployee_whenEmployeeHasNoAbsences_thenReturnAbsenceObjectWithAllZeros() {
-        User userForRole = createUserForRole(Role.EMPLOYEE);
+        User userForRole = createUserForRole();
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
         int availableVacationDays = 0;
@@ -602,7 +603,7 @@ class WorkerResourceTest {
 
     @Test
     void getOfficeDaysForMonthAndEmployee_whenEmployeeHasAbsences_thenReturnAbsenceObjectWithValues() {
-        User userForRole = createUserForRole(Role.EMPLOYEE);
+        User userForRole = createUserForRole();
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
@@ -635,7 +636,7 @@ class WorkerResourceTest {
 
     @Test
     void getOfficeDaysForMonthAndEmployee_whenEmployeeHasNoAbsences_thenReturnAbsenceObjectWithZeroHomeOfficeDaysAndAllFridaysAtOffice() {
-        User userForRole = createUserForRole(Role.EMPLOYEE);
+        User userForRole = createUserForRole();
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
@@ -668,7 +669,7 @@ class WorkerResourceTest {
 
     @Test
     void getAllWarningsForEmployeeAndMonth_whenHasWarnings_thenReturnListOfMonthlyWarningDtos() {
-        User userForRole = createUserForRole(Role.EMPLOYEE);
+        User userForRole = createUserForRole();
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
@@ -692,14 +693,15 @@ class WorkerResourceTest {
 
         List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
 
-        assertThat(actual.isEmpty()).isFalse();
-        assertThat(actual.size()).isEqualTo(mappedWarnings.size());
+        assertThat(actual)
+                .isNotEmpty()
+                .hasSameSizeAs(mappedWarnings);
         assertThat(actual.getFirst().getName()).isEqualTo(mappedWarnings.getFirst().getName());
     }
 
     @Test
     void getAllWarningsForEmployeeAndMonth_whenHasNoWarnings_thenReturnEmptyList() {
-        User userForRole = createUserForRole(Role.EMPLOYEE);
+        User userForRole = createUserForRole();
         when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
@@ -720,7 +722,7 @@ class WorkerResourceTest {
 
         List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
 
-        assertThat(actual.isEmpty()).isTrue();
+        assertThat(actual).isEmpty();
     }
 
 
@@ -993,14 +995,14 @@ class WorkerResourceTest {
                 .build();
     }
 
-    private User createUserForRole(final Role role) {
+    private User createUserForRole() {
         return User.builder()
                 .dbId(1)
                 .userId("1")
                 .email("max.mustermann@gpeardec.com")
                 .firstname("Max")
                 .lastname("Mustermann")
-                .roles(Set.of(role))
+                .roles(Set.of(Role.EMPLOYEE))
                 .build();
     }
 }

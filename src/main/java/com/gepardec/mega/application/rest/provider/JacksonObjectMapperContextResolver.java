@@ -9,16 +9,16 @@ import jakarta.ws.rs.ext.Provider;
 @Provider
 public class JacksonObjectMapperContextResolver implements ContextResolver<ObjectMapper> {
 
-    private final ObjectMapper MAPPER;
+    private final ObjectMapper mapper;
 
     public JacksonObjectMapperContextResolver() {
-        MAPPER = new ObjectMapper();
-        MAPPER.registerModule(new JavaTimeModule());
-        MAPPER.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 
     @Override
     public ObjectMapper getContext(Class<?> type) {
-        return MAPPER;
+        return mapper;
     }
 }

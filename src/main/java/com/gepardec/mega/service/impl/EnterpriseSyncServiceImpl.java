@@ -29,7 +29,7 @@ public class EnterpriseSyncServiceImpl implements EnterpriseSyncService {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        logger.info("Started enterprise entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
+        logger.info("Started enterprise entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().toEpochMilli()));
         logger.info("Processing date: {}", payrollMonth);
 
         Optional<EnterpriseEntry> savedEnterpriseEntry = enterpriseEntryRepository.findByDate(payrollMonth.atDay(1));
@@ -51,7 +51,7 @@ public class EnterpriseSyncServiceImpl implements EnterpriseSyncService {
         stopWatch.stop();
 
         logger.info("Enterprise entry generation took: {}ms", stopWatch.getTime());
-        logger.info("Finished enterprise entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
+        logger.info("Finished enterprise entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().toEpochMilli() + stopWatch.getTime()));
 
         return enterpriseEntryRepository.findByDate(payrollMonth.atDay(1)).isPresent();
     }

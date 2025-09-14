@@ -4,7 +4,7 @@ import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.personio.commons.constants.AbsenceConstants;
 import com.gepardec.mega.personio.commons.model.BaseResponse;
 import com.gepardec.mega.personio.commons.model.ErrorResponse;
-import com.gepardec.mega.personio.employees.absenceBalance.AbsenceBalanceResponse;
+import com.gepardec.mega.personio.employees.absencebalance.AbsenceBalanceResponse;
 import com.gepardec.mega.rest.mapper.PersonioEmployeeMapper;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;

@@ -40,25 +40,6 @@ class EmployeeMapperTest {
 
     @Test
     void mapZepEmployeeToEmployee() {
-//    List<ZepEmploymentPeriod> employmentPeriods = List.of(
-//            ZepEmploymentPeriod.builder()
-//                    .startDate(LocalDateTime.of(2010,1,2, 23, 32, 48))
-//                    .endDate(LocalDateTime.of(2022, 11, 3, 12, 1, 23))
-//                    .id(10)
-//                    .build(),
-//            ZepEmploymentPeriod.builder()
-//                    .startDate(LocalDateTime.of(2022,12,22, 23, 32, 48))
-//                    .endDate(LocalDateTime.of(2023, 2, 24, 8, 4, 2))
-//                    .id(11)
-//                    .build(),
-//            ZepEmploymentPeriod.builder()
-//                    .startDate(LocalDateTime.of(2024,1,2, 14, 52, 43))
-//                    .endDate(null)
-//                    .id(12)
-//                    .build()
-//    );
-        boolean employeeActive = true;
-
         //TODO: Add regularWorkingTimes + workDescription
         ZepEmployee zepEmployee = ZepEmployee.builder()
                 .username("000-duser")

@@ -1,6 +1,5 @@
 package com.gepardec.mega.notification.mail;
 
-import com.gepardec.mega.application.configuration.ApplicationConfig;
 import io.quarkus.mailer.MockMailbox;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -22,8 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 @QuarkusTest
 class MailSenderTest {
 
-    public static final String GOOGLE_DOCS_PLANRECHNUNGS_URL = "https://docs.google.com/spreadsheets/d/1mmc1pvhr1Z_IbiMELtM98mFZ4-2uuSx6Sg_uZXRNpH0";
-
     @ConfigProperty(name = "quarkus.mailer.mock")
     boolean mailMockSetting;
 
@@ -32,9 +29,6 @@ class MailSenderTest {
 
     @Inject
     MockMailbox mailbox;
-
-    @Inject
-    ApplicationConfig applicationConfig;
 
     public static Stream<Arguments> emailsWithSubject() {
         return Stream.of(
@@ -65,7 +59,7 @@ class MailSenderTest {
                 MailParameter.RECIPIENT, "Herbert",
                 MailParameter.COMMENT, "my comment");
         mailSender.send(mail, to, "Jamal", Locale.GERMAN, mailParameter, List.of("Thomas"));
-        List<io.quarkus.mailer.Mail> sent = mailbox.getMessagesSentTo(to);
+        List<io.quarkus.mailer.Mail> sent = mailbox.getMailsSentTo(to);
 
         assertThat(sent).hasSize(1);
         assertThat(sent.getFirst().getSubject()).isEqualTo(subject);
@@ -83,7 +77,7 @@ class MailSenderTest {
         for (int i = 0; i < 10; i++) {
             mailSender.send(Mail.EMPLOYEE_CHECK_PROJECTTIME, to, "Max", Locale.GERMAN);
         }
-        List<io.quarkus.mailer.Mail> sent = mailbox.getMessagesSentTo(to);
+        List<io.quarkus.mailer.Mail> sent = mailbox.getMailsSentTo(to);
         assertThat(sent).hasSize(10);
     }
 
@@ -91,7 +85,7 @@ class MailSenderTest {
     void send_projectControllingMailHasContent() {
         final String to = "no-reply@gmail.com";
         mailSender.send(Mail.PL_PROJECT_CONTROLLING, to, "Max", Locale.GERMAN);
-        List<io.quarkus.mailer.Mail> sent = mailbox.getMessagesSentTo(to);
+        List<io.quarkus.mailer.Mail> sent = mailbox.getMailsSentTo(to);
         assertAll(
                 () -> assertThat(sent).hasSize(1)
         );

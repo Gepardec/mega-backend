@@ -238,11 +238,11 @@ class NoEntryCalculatorTest {
     }
 
     private Employee createEmployee() {
-        return createEmployeeWithReleaseDate(0, "2022-01-01");
+        return createEmployeeWithReleaseDate();
     }
 
-    private Employee createEmployeeWithReleaseDate(final int userId, String releaseDate) {
-        final String name = "Max_" + userId;
+    private Employee createEmployeeWithReleaseDate() {
+        final String name = "Max_" + 0;
 
         Map<DayOfWeek, Duration> regularWorkingHours = Map.ofEntries(
                 Map.entry(DayOfWeek.MONDAY, Duration.ofHours(8)),
@@ -253,20 +253,18 @@ class NoEntryCalculatorTest {
                 Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
                 Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
 
-        final Employee employee = Employee.builder()
+        return Employee.builder()
                 .email(name + "@gepardec.com")
                 .firstname(name)
                 .lastname(name + "_Nachname")
                 .title("Ing.")
-                .userId(String.valueOf(userId))
+                .userId(String.valueOf(0))
                 .salutation("Herr")
                 .workDescription("ARCHITEKT")
-                .releaseDate(releaseDate)
+                .releaseDate("2022-01-01")
                 .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2021, 2, 2), null)))
                 .regularWorkingTimes(new RegularWorkingTimes(List.of(new RegularWorkingTime(null, regularWorkingHours))))
                 .build();
-
-        return employee;
     }
 }
 

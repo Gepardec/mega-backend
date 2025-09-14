@@ -50,7 +50,7 @@ public class WorkingTimeUtil {
 
     }
 
-    public String getTotalWorkingTimeForEmployee(@Nonnull List<ProjectEntry> projektzeitTypeList, @Nonnull Employee employee) {
+    public String getTotalWorkingTimeForEmployee(@Nonnull List<ProjectEntry> projektzeitTypeList) {
         Duration totalWorkingTimeForEmployee = getWorkingTimes(projektzeitTypeList);
         return DurationFormatUtils.formatDuration(totalWorkingTimeForEmployee.toMillis(), BILLABLE_TIME_FORMAT);
     }

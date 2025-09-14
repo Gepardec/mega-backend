@@ -116,13 +116,13 @@ class ProjectCommentRepositoryTest {
     }
 
     private ProjectComment initializeProjectCommentObject() {
-        ProjectComment projectComment = new ProjectComment();
-        projectComment.setComment(COMMENT);
-        projectComment.setProject(initializeProjectObject());
-        projectComment.setCreationDate(LocalDateTime.now());
-        projectComment.setUpdatedDate(LocalDateTime.now());
-        projectComment.setDate(LocalDate.now());
+        ProjectComment newProjectComment = new ProjectComment();
+        newProjectComment.setComment(COMMENT);
+        newProjectComment.setProject(initializeProjectObject());
+        newProjectComment.setCreationDate(LocalDateTime.now());
+        newProjectComment.setUpdatedDate(LocalDateTime.now());
+        newProjectComment.setDate(LocalDate.now());
 
-        return projectComment;
+        return newProjectComment;
     }
 }

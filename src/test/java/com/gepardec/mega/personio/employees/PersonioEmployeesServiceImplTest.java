@@ -5,7 +5,7 @@ import com.gepardec.mega.personio.commons.constants.AbsenceConstants;
 import com.gepardec.mega.personio.commons.model.Attribute;
 import com.gepardec.mega.personio.commons.model.BaseResponse;
 import com.gepardec.mega.personio.commons.model.ErrorResponse;
-import com.gepardec.mega.personio.employees.absenceBalance.AbsenceBalanceResponse;
+import com.gepardec.mega.personio.employees.absencebalance.AbsenceBalanceResponse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;

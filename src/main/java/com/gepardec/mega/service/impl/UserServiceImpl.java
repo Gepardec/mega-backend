@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(Transactional.TxType.SUPPORTS)
     public User findUserForEmail(final String email) {
         final com.gepardec.mega.db.entity.employee.User user = userRepository.findActiveByEmail(email)
-                .orElseThrow(() -> new ForbiddenException("User with email '" + email + "' is either unknown or inactive"));
+                .orElseThrow(() -> new ForbiddenException("User with email '%s' is either unknown or inactive".formatted(email)));
 
         return mapper.mapToDomain(user);
     }
@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
     public List<User> findByRoles(List<Role> roles) {
-        if (roles == null || roles.size() == 0) {
+        if (roles == null || roles.isEmpty()) {
             throw new IllegalArgumentException("Cannot load users if no 'roles' are given");
         }
 

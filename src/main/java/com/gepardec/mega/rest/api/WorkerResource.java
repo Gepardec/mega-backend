@@ -47,9 +47,9 @@ public interface WorkerResource {
     @Parameter(name = "from",
             description = "If not given uses the whole current month. <br> " +
                     "If given uses the whole month of the parameter-date. <br>" +
-                    "For example if 2024-03 is given it retrieves all bills from 2024-03-01 to 2024-03-31.",
+                    "For examples if 2024-03 is given it retrieves all bills from 2024-03-01 to 2024-03-31.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/bills")
     @GET
     MonthlyBillInfoDto getBillInfoForEmployee(@QueryParam("from") YearMonth payrollMonth);
@@ -65,9 +65,9 @@ public interface WorkerResource {
     @Parameter(name = "from",
             description = "If not given uses the whole current month. <br> " +
                     "If given uses the whole month of the parameter-date. <br>" +
-                    "For example if 2024-03 is given it retrieves all projects from 2024-03-01 to 2024-03-31.",
+                    "For examples if 2024-03 is given it retrieves all projects from 2024-03-01 to 2024-03-31.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/projects")
     @GET
     List<ProjectHoursSummaryDto> getAllProjectsForMonthAndEmployee(@QueryParam("from") YearMonth payrollMonth);
@@ -83,9 +83,9 @@ public interface WorkerResource {
     @Parameter(name = "from",
             description = "If not given uses the whole current month. <br> " +
                     "If given uses the whole month of the parameter-date. <br>" +
-                    "For example if 2024-03 is given it retrieves all absences from 2024-03-01 to 2024-03-31.",
+                    "For examples if 2024-03 is given it retrieves all absences from 2024-03-01 to 2024-03-31.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/absences")
     @GET
     MonthlyAbsencesDto getAllAbsencesForMonthAndEmployee(@QueryParam("from") YearMonth payrollMonth);
@@ -101,9 +101,9 @@ public interface WorkerResource {
     @Parameter(name = "from",
             description = "If not given uses the whole current month. <br> " +
                     "If given uses the whole month of the parameter-date. <br>" +
-                    "For example if 2024-03 is given it retrieves all office days from 2024-03-01 to 2024-03-31.",
+                    "For examples if 2024-03 is given it retrieves all office days from 2024-03-01 to 2024-03-31.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/officedays")
     @GET
     MonthlyOfficeDaysDto getOfficeDaysForMonthAndEmployee(@QueryParam("from") YearMonth payrollMonth);
@@ -119,9 +119,9 @@ public interface WorkerResource {
     @Parameter(name = "from",
             description = "If not given uses the whole current month. <br> " +
                     "If given uses the whole month of the parameter-date. <br>" +
-                    "For example if 2024-03 is given it retrieves all warnings from 2024-03-01 to 2024-03-31.",
+                    "For examples if 2024-03 is given it retrieves all warnings from 2024-03-01 to 2024-03-31.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/warnings")
     @GET
     List<MonthlyWarningDto> getAllWarningsForEmployeeAndMonth(@QueryParam("from") YearMonth payrollMonth);

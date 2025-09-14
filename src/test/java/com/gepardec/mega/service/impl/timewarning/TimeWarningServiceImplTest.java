@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -51,13 +51,13 @@ class TimeWarningServiceImplTest {
 
     @Test
     void getAllWarningsForEmployeeAndMonth_whenWarningsPresent_thenReturnListOfMonthlyWarning() {
-        User user = createUserForRole(Role.EMPLOYEE);
+        User user = createUserForRole();
         when(userContext.getUser()).thenReturn(user);
 
         Employee employee = createEmployeeForUser(user);
 
         when(warningCalculatorsManager.determineJourneyWarnings(any()))
-                .thenReturn(List.of(createJourneyWarning("2024-05-03")));
+                .thenReturn(List.of(createJourneyWarning()));
 
         when(warningCalculatorsManager.determineTimeWarnings(any()))
                 .thenReturn(createTimeWarnings());
@@ -69,13 +69,13 @@ class TimeWarningServiceImplTest {
         List<ProjectEntry> projectEntries = createProjectEntryListForRequest();
         List<MonthlyWarning> actual = timeWarningService.getAllTimeWarningsForEmployeeAndMonth(absenceTimes, projectEntries, employee);
 
-        assertThat(actual.isEmpty()).isFalse();
-        assertThat(actual.size()).isEqualTo(9);
+        assertThat(actual).isNotEmpty()
+                .hasSize(9);
     }
 
     @Test
     void getAllWarningsForEmployeeAndMonth_whenNoWarningsPresent_thenReturnEmptyList() {
-        User user = createUserForRole(Role.EMPLOYEE);
+        User user = createUserForRole();
         when(userContext.getUser()).thenReturn(user);
 
         Employee employee = createEmployeeForUser(user);
@@ -93,7 +93,7 @@ class TimeWarningServiceImplTest {
         List<ProjectEntry> projectEntries = createProjectEntryListForMonth();
         List<MonthlyWarning> actual = timeWarningService.getAllTimeWarningsForEmployeeAndMonth(new ArrayList<>(), projectEntries, employee);
 
-        assertThat(actual.isEmpty()).isTrue();
+        assertThat(actual).isEmpty();
     }
 
     private List<AbsenceTime> createAbsenceTimeListForRequest(String userId) {
@@ -279,14 +279,14 @@ class TimeWarningServiceImplTest {
                 .build();
     }
 
-    private User createUserForRole(final Role role) {
+    private User createUserForRole() {
         return User.builder()
                 .dbId(1)
                 .userId("1")
                 .email("max.mustermann@gpeardec.com")
                 .firstname("Max")
                 .lastname("Mustermann")
-                .roles(Set.of(role))
+                .roles(Set.of(Role.EMPLOYEE))
                 .build();
     }
 
@@ -334,10 +334,10 @@ class TimeWarningServiceImplTest {
         return timeWarning;
     }
 
-    private JourneyWarning createJourneyWarning(String date) {
+    private JourneyWarning createJourneyWarning() {
         JourneyWarning journeyWarning = new JourneyWarning();
         journeyWarning.setWarningTypes(List.of(JourneyWarningType.BACK_MISSING, JourneyWarningType.INVALID_WORKING_LOCATION));
-        journeyWarning.setDate(DateUtils.parseDate(date));
+        journeyWarning.setDate(DateUtils.parseDate("2024-05-03"));
         return journeyWarning;
     }
 

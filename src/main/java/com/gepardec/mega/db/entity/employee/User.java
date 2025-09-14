@@ -13,7 +13,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
@@ -39,13 +38,11 @@ import java.util.StringJoiner;
         uniqueConstraints = {
                 @UniqueConstraint(name = "uidx_email_zep_id", columnNames = {"email", "zep_id"})
         })
-@NamedQueries({
-        @NamedQuery(name = "User.findActiveByEmail", query = "select u from User u where u.email = :email and u.active = true"),
-        @NamedQuery(name = "User.findActiveByName", query = "select u from User u where u.firstname = :firstname and u.lastname = :lastname and u.active = true"),
-        @NamedQuery(name = "User.findActiveByZepId", query = "select u from User u where u.zepId = :zepId and u.active = true"),
-        @NamedQuery(name = "User.findActive", query = "select u from User u where u.active = true"),
-        @NamedQuery(name = "User.findByRoles", query = "select distinct u from User u inner join u.roles role where u.active = true and role in (:roles)")
-})
+@NamedQuery(name = "User.findActiveByEmail", query = "select u from User u where u.email = :email and u.active = true")
+@NamedQuery(name = "User.findActiveByName", query = "select u from User u where u.firstname = :firstname and u.lastname = :lastname and u.active = true")
+@NamedQuery(name = "User.findActiveByZepId", query = "select u from User u where u.zepId = :zepId and u.active = true")
+@NamedQuery(name = "User.findActive", query = "select u from User u where u.active = true")
+@NamedQuery(name = "User.findByRoles", query = "select distinct u from User u inner join u.roles role where u.active = true and role in (:roles)")
 public class User {
 
     @Id
@@ -132,19 +129,19 @@ public class User {
             joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private Set<Role> roles = new HashSet<>(0);
+    private Set<Role> roles = HashSet.newHashSet(0);
 
     /**
      * The step entries the user is assigned to
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "assignee")
-    private Set<StepEntry> assignedStepEntries = new HashSet<>(0);
+    private Set<StepEntry> assignedStepEntries = HashSet.newHashSet(0);
 
     /**
      * The step entries the user owns
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
-    private Set<StepEntry> ownedStepEntries = new HashSet<>(0);
+    private Set<StepEntry> ownedStepEntries = HashSet.newHashSet(0);
 
     public User() {
     }

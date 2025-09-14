@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.UserTransaction;
+import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,6 +21,9 @@ public class ProjectEntryRepository implements PanacheRepository<ProjectEntry> {
 
     @Inject
     UserTransaction tx;
+
+    @Inject
+    Logger logger;
 
     public List<ProjectEntry> findByNameAndDate(String projectName, LocalDate from, LocalDate to) {
         return find("#ProjectEntry.findAllProjectEntriesForProjectNameInRange",
@@ -37,7 +41,7 @@ public class ProjectEntryRepository implements PanacheRepository<ProjectEntry> {
             tx.commit();
             return true;
         } catch (Exception exception) {
-            exception.printStackTrace();
+            logger.error(exception.getMessage(), exception);
             return false;
         }
     }
