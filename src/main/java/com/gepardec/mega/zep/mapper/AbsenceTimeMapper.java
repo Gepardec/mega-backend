@@ -17,7 +17,7 @@ public class AbsenceTimeMapper {
 
     public static List<AbsenceTime> mapList(List<FehlzeitType> absenceTimes) {
         if (absenceTimes == null) {
-            return null;
+            return List.of();
         }
 
         return absenceTimes.stream()

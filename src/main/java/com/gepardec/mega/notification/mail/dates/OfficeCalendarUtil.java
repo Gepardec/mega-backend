@@ -15,6 +15,10 @@ import java.util.stream.Stream;
 
 public class OfficeCalendarUtil {
 
+    private OfficeCalendarUtil() {
+        // nop
+    }
+
     private static final HolidayManager HOLIDAY_MANAGER = HolidayManager.getInstance(ManagerParameters.create(HolidayCalendar.AUSTRIA));
     private static final Predicate<LocalDate> isWeekend = date -> date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
     private static final Predicate<LocalDate> isHoliday = OfficeCalendarUtil::isHoliday;

@@ -55,8 +55,8 @@ class ProjectTimeMapperTest {
     }
 
     @Test
-    void whenListIsNull_thenReturnNull() {
-        assertThat(ProjectTimeMapper.mapList(null)).isNull();
+    void whenListIsNull_thenReturnEmptyList() {
+        assertThat(ProjectTimeMapper.mapList(null)).isEmpty();
     }
 
     @Test

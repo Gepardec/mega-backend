@@ -16,8 +16,8 @@ public class JourneyDirectionValidator {
                 }
                 formerDirection = currentDirection;
                 break;
-            case FURTHER:
-            case BACK:
+            case FURTHER,
+                 BACK:
                 if (formerDirection == null || formerDirection == JourneyDirection.BACK) {
                     warning = JourneyWarningType.TO_MISSING;
                 }
@@ -29,12 +29,11 @@ public class JourneyDirectionValidator {
                 throw new IllegalArgumentException("Enum type '" + currentDirection.name() + "' not supported!");
         }
         // Handles the last entry, or if the next one is starting a journey while a journey is still open
-        if (warning == null && !isFinished()) {
-            if (nextDirection == null || isStartingNewJourney(nextDirection)) {
-                formerDirection = null;
-                return JourneyWarningType.BACK_MISSING;
-            }
+        if (warning == null && !isFinished() && (nextDirection == null || isStartingNewJourney(nextDirection))) {
+            formerDirection = null;
+            return JourneyWarningType.BACK_MISSING;
         }
+
         return warning;
     }
 

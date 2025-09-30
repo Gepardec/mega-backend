@@ -2,6 +2,7 @@ package com.gepardec.mega.domain.calculation.time;
 
 import com.gepardec.mega.domain.model.monthlyreport.JourneyDirection;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
@@ -10,9 +11,13 @@ import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,11 +30,11 @@ class CoreWorkingHoursCalculatorTest {
         calculator = new CoreWorkingHoursCalculator();
     }
 
-    private ProjectTimeEntry projectTimeEntryFor(int startHour, int endHour) {
+    private static ProjectTimeEntry projectTimeEntryFor(int startHour, int endHour) {
         return projectTimeEntryFor(startHour, 0, endHour, 0);
     }
 
-    private ProjectTimeEntry projectTimeEntryFor(int startHour, int startMinute, int endHour, int endMinute) {
+    private static ProjectTimeEntry projectTimeEntryFor(int startHour, int startMinute, int endHour, int endMinute) {
         return ProjectTimeEntry.builder()
                 .fromTime(LocalDateTime.of(2020, 1, 7, startHour, startMinute))
                 .toTime(LocalDateTime.of(2020, 1, 7, endHour, endMinute))
@@ -37,13 +42,13 @@ class CoreWorkingHoursCalculatorTest {
                 .workingLocation(WorkingLocation.MAIN).build();
     }
 
-    private JourneyTimeEntry journeyTimeEntryFor(int startHour, int endHour, Vehicle vehicle) {
-        return journeyTimeEntryFor(startHour, 0, endHour, 0, vehicle);
+    private static JourneyTimeEntry journeyTimeEntryFor(int startHour, int endHour, Vehicle vehicle) {
+        return journeyTimeEntryFor(startHour, endHour, 0, vehicle);
     }
 
-    private JourneyTimeEntry journeyTimeEntryFor(int startHour, int startMinute, int endHour, int endMinute, Vehicle vehicle) {
+    private static JourneyTimeEntry journeyTimeEntryFor(int startHour, int endHour, int endMinute, Vehicle vehicle) {
         return JourneyTimeEntry.builder()
-                .fromTime(LocalDateTime.of(2020, 1, 7, startHour, startMinute))
+                .fromTime(LocalDateTime.of(2020, 1, 7, startHour, 0))
                 .toTime(LocalDateTime.of(2020, 1, 7, endHour, endMinute))
                 .task(Task.REISEN)
                 .workingLocation(WorkingLocation.MAIN)
@@ -76,34 +81,38 @@ class CoreWorkingHoursCalculatorTest {
         assertThat(result.getFirst().getWarningTypes().getFirst()).isEqualTo(TimeWarningType.OUTSIDE_CORE_WORKING_TIME);
     }
 
-    @Test
-    void whenStartedToEarlyAt5_thenWarning() {
-        ProjectTimeEntry start = projectTimeEntryFor(5, 12);
-        ProjectTimeEntry end = projectTimeEntryFor(13, 16);
-
-        List<TimeWarning> result = calculator.calculate(List.of(start, end));
-
-        assertThat(result).hasSize(1);
+    private static Stream<Arguments> provideTimeEntries() {
+        return Stream.of(
+                Arguments.of(
+                        List.of(
+                                projectTimeEntryFor(5, 12),
+                                projectTimeEntryFor(13, 16)
+                        ),
+                        1
+                ),
+                Arguments.of(
+                        List.of(
+                                journeyTimeEntryFor(5, 12, Vehicle.CAR_ACTIVE),
+                                journeyTimeEntryFor(13, 16, Vehicle.CAR_ACTIVE)
+                        ),
+                        1
+                ),
+                Arguments.of(
+                        List.of(
+                                projectTimeEntryFor(5, 12),
+                                projectTimeEntryFor(18, 23)
+                        ),
+                        1
+                )
+        );
     }
 
-    @Test
-    void whenStartedToEarlyAndBothActiveTravel_thenWarning() {
-        JourneyTimeEntry start = journeyTimeEntryFor(5, 12, Vehicle.CAR_ACTIVE);
-        JourneyTimeEntry end = journeyTimeEntryFor(13, 16, Vehicle.CAR_ACTIVE);
+    @ParameterizedTest
+    @MethodSource("provideTimeEntries")
+    void whenStartedTooEarly_thenWarning(List<ProjectEntry> entries, int expectedWarnings) {
+        List<TimeWarning> result = calculator.calculate(entries);
 
-        List<TimeWarning> result = calculator.calculate(List.of(start, end));
-
-        assertThat(result).hasSize(1);
-    }
-
-    @Test
-    void whenStartedToEarlyAt5AndStoppedToLateAt23_thenWarning() {
-        ProjectTimeEntry start = projectTimeEntryFor(5, 12);
-        ProjectTimeEntry end = projectTimeEntryFor(18, 23);
-
-        List<TimeWarning> result = calculator.calculate(List.of(start, end));
-
-        assertThat(result).hasSize(1);
+        assertThat(result).hasSize(expectedWarnings);
     }
 
     @Test
@@ -192,7 +201,7 @@ class CoreWorkingHoursCalculatorTest {
     @Test
     void calculate_JourneyDurationNotZeroOutsideCoreWorkingTime_Warning() {
         // Given
-        var entry = journeyTimeEntryFor(3, 0, 3, 30, Vehicle.CAR_ACTIVE);
+        var entry = journeyTimeEntryFor(3, 3, 30, Vehicle.CAR_ACTIVE);
 
         // When
         var result = calculator.calculate(List.of(entry));

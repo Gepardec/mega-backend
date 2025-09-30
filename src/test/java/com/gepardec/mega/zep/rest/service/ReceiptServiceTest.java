@@ -70,8 +70,9 @@ class ReceiptServiceTest {
         List<ZepReceipt> result = receiptService.getAllReceiptsInRange(payrollMonth);
 
         // Assert
-        assertThat(result).isNotNull();
-        assertThat(result.size()).isEqualTo(2);
+        assertThat(result)
+                .isNotNull()
+                .hasSize(2);
         assertThat(result.getFirst().id()).isEqualTo(1);
         assertThat(result.get(1).id()).isEqualTo(2);
     }

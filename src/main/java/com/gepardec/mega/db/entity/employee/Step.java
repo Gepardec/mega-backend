@@ -36,7 +36,7 @@ public class Step {
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "step")
     @MapKeyColumn(name = "entry_date")
-    public Map<LocalDate, StepEntry> stepEntries = new HashMap<>(0);
+    public Map<LocalDate, StepEntry> stepEntries = HashMap.newHashMap(0);
 
     @Id
     @Column(name = "id", insertable = false, updatable = false)

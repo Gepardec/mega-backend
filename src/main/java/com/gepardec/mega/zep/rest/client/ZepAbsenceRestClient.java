@@ -6,7 +6,6 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
@@ -15,7 +14,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @RegisterClientHeaders(AuthHeaders.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApplicationScoped
-public interface ZepAbsenceRestClient{
+public interface ZepAbsenceRestClient {
 
     @GET
     @Path("{id}")

@@ -35,37 +35,37 @@ class HolidayCalculatorTest {
     @Test
     @DisplayName("Test if correct holiday warning for 8.12.2021 Immaculate Conception is created")
     void calculate_whenEntryIsOnImmaculateConception_thenReturnsHolidayWarning() {
-        ProjectEntry entry = createEntry(8, 8, 0, 12, 0);
+        ProjectEntry entry = createEntry(8);
 
         List<TimeWarning> result = calculator.calculate(List.of(entry));
 
-        assertThat(result.size()).isEqualTo(1);
+        assertThat(result).hasSize(1);
     }
 
     @ParameterizedTest
     @MethodSource("streamOfHolidays")
     void calculate_whenEntryIsAHoliday_thenReturnsHolidayWarning(int day) {
-        ProjectEntry entry = createEntry(day, 8, 0, 12, 0);
+        ProjectEntry entry = createEntry(day);
 
         List<TimeWarning> result = calculator.calculate(List.of(entry));
 
-        assertThat(result.size()).isEqualTo(1);
+        assertThat(result).hasSize(1);
     }
 
     @ParameterizedTest
     @MethodSource("streamOfNonHolidays")
     void calculate_whenEntryIsntAHoliday_thenReturnsNoHolidayWarning(int day) {
-        ProjectEntry entry = createEntry(day, 8, 0, 12, 0);
+        ProjectEntry entry = createEntry(day);
 
         List<TimeWarning> result = calculator.calculate(List.of(entry));
 
-        assertThat(result.size()).isZero();
+        assertThat(result).isEmpty();
     }
 
-    private ProjectTimeEntry createEntry(int day, int startHour, int startMinute, int endHour, int endMinute) {
+    private ProjectTimeEntry createEntry(int day) {
         return ProjectTimeEntry.builder()
-                .fromTime(LocalDateTime.of(2021, 12, day, startHour, startMinute))
-                .toTime(LocalDateTime.of(2021, 12, day, endHour, endMinute))
+                .fromTime(LocalDateTime.of(2021, 12, day, 8, 0))
+                .toTime(LocalDateTime.of(2021, 12, day, 12, 0))
                 .task(Task.BEARBEITEN)
                 .workingLocation(WorkingLocation.MAIN)
                 .build();

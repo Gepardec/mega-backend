@@ -144,11 +144,10 @@ public class CommentServiceImpl implements CommentService {
         var recipientEmail = Mail.COMMENT_CLOSED.equals(mail)
                 ? stepEntry.getAssignee().getEmail()
                 : stepEntry.getOwner().getEmail();
-        Map<String, String> mailParameter = new HashMap<>() {{
-            put(MailParameter.CREATOR, creator);
-            put(MailParameter.RECIPIENT, recipient);
-            put(MailParameter.COMMENT, comment.getMessage());
-        }};
+        Map<String, String> mailParameter = new HashMap<>();
+        mailParameter.put(MailParameter.CREATOR, creator);
+        mailParameter.put(MailParameter.RECIPIENT, recipient);
+        mailParameter.put(MailParameter.COMMENT, comment.getMessage());
 
         mailSender.send(
                 mail,

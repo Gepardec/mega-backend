@@ -8,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
@@ -23,11 +22,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "premature_employee_check", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "for_month"}))
-@NamedQueries({
-        @NamedQuery(name = "PrematureEmployeeCheck.findByEmailAndMonth", query = "select p from PrematureEmployeeCheckEntity p where p.user.email = :email and p.forMonth = :forMonth"),
-        @NamedQuery(name = "PrematureEmployeeCheck.findAllByMonth", query = "select p from PrematureEmployeeCheckEntity p where p.forMonth = :forMonth"),
-        @NamedQuery(name = "PrematureEmployeeCheck.deleteAllByMonthAndStates", query = "delete from PrematureEmployeeCheckEntity p  where p.forMonth = :forMonth and p.state in :states")
-})
+@NamedQuery(name = "PrematureEmployeeCheck.findByEmailAndMonth", query = "select p from PrematureEmployeeCheckEntity p where p.user.email = :email and p.forMonth = :forMonth")
+@NamedQuery(name = "PrematureEmployeeCheck.findAllByMonth", query = "select p from PrematureEmployeeCheckEntity p where p.forMonth = :forMonth")
+@NamedQuery(name = "PrematureEmployeeCheck.deleteAllByMonthAndStates", query = "delete from PrematureEmployeeCheckEntity p  where p.forMonth = :forMonth and p.state in :states")
 public class PrematureEmployeeCheckEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PrematureEmployeeCheck_GEN")

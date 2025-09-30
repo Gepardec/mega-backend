@@ -13,6 +13,7 @@ import com.gepardec.mega.zep.rest.dto.ZepAttendanceDirectionOfTravel;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
@@ -83,7 +84,7 @@ class ProjectEntryMapperTest {
 
     @Test
     void mapList_whenZepAttendanceListIsNull_thenReturnNull() {
-        assertThat(projectEntryMapper.mapList(null)).isNull();
+        assertThat(projectEntryMapper.mapList(null)).isEmpty();
     }
 
     @Test
@@ -91,17 +92,18 @@ class ProjectEntryMapperTest {
         ZepAttendance.Builder zepAttendance = generateZepAttendanceBuilder();
         zepAttendance.activity("nasebohren");
 
-        assertThatExceptionOfType(ZepServiceException.class).isThrownBy(() -> projectEntryMapper.map(zepAttendance.build()));
+        ThrowableAssert.ThrowingCallable throwingCallable = () -> projectEntryMapper.map(zepAttendance.build());
+        assertThatExceptionOfType(ZepServiceException.class).isThrownBy(throwingCallable);
     }
 
     @Test
     void mapListToProjektEntry_thenReturnList() {
-        List<ZepAttendance> Zeplist = new ArrayList<ZepAttendance>();
-        Zeplist.add(generateZepAttendanceBuilder().build());
-        Zeplist.add(generateZepAttendanceBuilder().build());
-        List<ProjectEntry> mappedProjectEntryList = projectEntryMapper.mapList(Zeplist);
+        List<ZepAttendance> zepList = new ArrayList<ZepAttendance>();
+        zepList.add(generateZepAttendanceBuilder().build());
+        zepList.add(generateZepAttendanceBuilder().build());
+        List<ProjectEntry> mappedProjectEntryList = projectEntryMapper.mapList(zepList);
 
-        assertThat(mappedProjectEntryList.size()).isEqualTo(2);
+        assertThat(mappedProjectEntryList).hasSize(2);
         assertThat(mappedProjectEntryList.getFirst()).isNotNull();
         assertThat(mappedProjectEntryList.get(1)).isNotNull();
     }

@@ -54,7 +54,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        logger.info("Started step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
+        logger.info("Started step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().getNano()));
         logger.info("Processing date: {}", payrollMonth);
 
         final List<User> activeUsers = userService.findActiveUsers();
@@ -78,7 +78,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
 
         logger.info("Created step entries: {}", toBeCreatedStepEntries.size());
         logger.info("Step entry generation took: {}ms", stopWatch.getTime());
-        logger.info("Finished step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
+        logger.info("Finished step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().getNano() + stopWatch.getTime()));
 
         return true;
     }

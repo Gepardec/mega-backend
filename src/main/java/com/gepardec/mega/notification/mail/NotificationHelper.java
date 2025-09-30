@@ -19,7 +19,7 @@ public class NotificationHelper {
 
     private static final String MESSAGE_KEY_TEMPLATE_REMINDER = "mail.%s.subject";
 
-    private static final String EMAIL_PATH = "emails";
+    private static final String EMAIL_PATH = "emails/";
 
     @Inject
     NotificationConfig notificationConfig;
@@ -42,7 +42,7 @@ public class NotificationHelper {
             if (is == null) {
                 throw new IllegalStateException("Could not get inputStream of email template resource '" + resourcePath + "' resource");
             }
-            return IOUtils.toString(is, StandardCharsets.UTF_8.name());
+            return IOUtils.toString(is, StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new IllegalStateException("Cannot read email template '" + resourcePath + "' resource as stream", e);
         }
@@ -82,7 +82,7 @@ public class NotificationHelper {
     }
 
     private String localizedEmailOrNull(final Mail mail, final Locale locale) {
-        String emailPath = EMAIL_PATH + "/";
+        String emailPath = EMAIL_PATH;
         if (!locale.getLanguage().isEmpty()) {
             emailPath += locale.getLanguage().toLowerCase() + "/";
         }

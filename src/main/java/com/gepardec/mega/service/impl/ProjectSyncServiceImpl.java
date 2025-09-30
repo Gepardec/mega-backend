@@ -47,7 +47,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        logger.info("Started project generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
+        logger.info("Started project generation: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().getNano()));
         logger.info("Processing date: {}", payrollMonth);
 
         List<User> activeUsers = userService.findActiveUsers();
@@ -68,7 +68,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         logger.debug("projects in db are {}", projects);
 
         logger.info("Project generation took: {}ms", stopWatch.getTime());
-        logger.info("Finished project generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
+        logger.info("Finished project generation: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().getNano() + stopWatch.getTime()));
 
         return !projects.isEmpty();
     }

@@ -52,7 +52,7 @@ public class GmailServiceImpl implements GmailService {
             logger.error(e.getMessage());
         }
 
-        return null;
+        return new WatchResponse();
     }
 
     @Override

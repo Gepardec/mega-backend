@@ -6,10 +6,8 @@ import com.gepardec.mega.db.entity.employee.User;
 import com.gepardec.mega.db.repository.CommentRepository;
 import com.gepardec.mega.domain.mapper.CommentMapper;
 import com.gepardec.mega.domain.model.Comment;
-import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.FinishedAndTotalComments;
 import com.gepardec.mega.domain.model.SourceSystem;
-import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.notification.mail.Mail;
 import com.gepardec.mega.notification.mail.MailParameter;
 import com.gepardec.mega.notification.mail.MailSender;
@@ -53,7 +51,7 @@ class CommentServiceImplTest {
     MailSender mailSender;
 
     @InjectMock
-    private CommentRepository commentRepository;
+    CommentRepository commentRepository;
 
     @Test
     void findCommentsForEmployee_when1DbComment_thenMap1DomainComment() {
@@ -127,8 +125,6 @@ class CommentServiceImplTest {
                 createComment(3L, EmployeeState.OPEN)
         ));
 
-        LocalDate fromDate = DateUtils.getFirstDayOfFollowingMonth(LocalDate.now().toString());
-        LocalDate toDate = DateUtils.getLastDayOfFollowingMonth(LocalDate.now().toString());
         FinishedAndTotalComments result = commentService.countFinishedAndTotalComments("max.mustermann@gpeardec.com", YearMonth.now().plusMonths(1));
         assertThat(result).isNotNull();
         assertThat(result.getTotalComments()).isEqualTo(3L);
@@ -143,8 +139,6 @@ class CommentServiceImplTest {
                 ArgumentMatchers.anyString()
         )).thenReturn(List.of());
 
-        LocalDate fromDate = DateUtils.getFirstDayOfFollowingMonth(LocalDate.now().toString());
-        LocalDate toDate = DateUtils.getLastDayOfFollowingMonth(LocalDate.now().toString());
         FinishedAndTotalComments result = commentService.countFinishedAndTotalComments("max.mustermann@gpeardec.com", YearMonth.now().plusMonths(1));
         assertThat(result).isNotNull();
         assertThat(result.getTotalComments()).isZero();
@@ -161,13 +155,13 @@ class CommentServiceImplTest {
     @Test
     void createNewCommentForEmployee_whenValid_thenReturnCreatedComment() {
         //GIVEN
-        StepEntry stepEntry = createStepEntry(1L);
+        StepEntry stepEntry = createStepEntry();
         when(stepEntryService.findStepEntryForEmployeeAtStep(
                 ArgumentMatchers.anyLong(),
                 ArgumentMatchers.any(String.class),
                 ArgumentMatchers.anyString(),
                 ArgumentMatchers.any(YearMonth.class)
-        )).thenReturn(createStepEntry(1L));
+        )).thenReturn(createStepEntry());
 
         doAnswer(invocation -> {
             Object[] args = invocation.getArguments();
@@ -185,7 +179,6 @@ class CommentServiceImplTest {
                 ArgumentMatchers.anyList()
         );
 
-        Employee employee = createEmployee();
         String newComment = "My new comment!";
 
         //WHEN
@@ -276,22 +269,13 @@ class CommentServiceImplTest {
         comment.setMessage("Reisezeiten eintragen!");
         comment.setState(employeeState);
         comment.setUpdatedDate(LocalDateTime.now());
-        comment.setStepEntry(createStepEntry(1L));
+        comment.setStepEntry(createStepEntry());
         return comment;
     }
 
-    private Employee createEmployee() {
-        return Employee.builder()
-                .userId("1")
-                .email("max.mustermann@gpeardec.com")
-                .releaseDate(LocalDate.now().toString())
-                .firstname("Max")
-                .build();
-    }
-
-    private StepEntry createStepEntry(Long id) {
+    private StepEntry createStepEntry() {
         StepEntry stepEntry = new StepEntry();
-        stepEntry.setId(id);
+        stepEntry.setId(1L);
         stepEntry.setCreationDate(LocalDateTime.now());
         stepEntry.setDate(LocalDate.now());
         stepEntry.setProject("Liwest-EMS");

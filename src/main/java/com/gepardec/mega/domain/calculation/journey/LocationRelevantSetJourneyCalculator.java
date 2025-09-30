@@ -13,7 +13,7 @@ public class LocationRelevantSetJourneyCalculator implements WarningCalculationS
         final List<JourneyWarning> warnings = new ArrayList<>();
 
         for (ProjectEntry projectEntry : projectEntries) {
-            if (projectEntry.getWorkLocationIsProjectRelevant() &&
+            if (Boolean.TRUE.equals(projectEntry.getWorkLocationIsProjectRelevant()) &&
                     warnings.stream().noneMatch(e -> e.getDate().equals(projectEntry.getDate()))) {
                     warnings.add(createJourneyWarning(projectEntry));
                 }

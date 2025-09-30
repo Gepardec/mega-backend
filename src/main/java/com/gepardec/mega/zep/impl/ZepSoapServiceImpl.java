@@ -142,7 +142,7 @@ public class ZepSoapServiceImpl implements ZepService {
         final Optional<ReadFehlzeitSearchCriteriaType> searchCriteria = getSearchCriteria(employee, payrollMonth, this::createAbsenceSearchCriteria);
 
         if (searchCriteria.isEmpty()) {
-            return null;
+            return List.of();
         }
 
         fehlzeitenRequest.setReadFehlzeitSearchCriteria(searchCriteria.get());

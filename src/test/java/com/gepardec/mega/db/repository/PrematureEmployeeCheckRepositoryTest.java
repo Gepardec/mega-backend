@@ -42,7 +42,7 @@ class PrematureEmployeeCheckRepositoryTest {
         persistUser();
 
 //        When
-        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck(null));
+        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck());
 
 //        Then
         assertThat(saved.getId()).isNotZero();
@@ -52,11 +52,11 @@ class PrematureEmployeeCheckRepositoryTest {
     void save_secondEntry_throwConstraintViolationException() {
 //        Given
         persistUser();
-        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck(null));
+        PrematureEmployeeCheckEntity saved = prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck());
 
 //        When
         try {
-            PrematureEmployeeCheckEntity saved2 = prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck(null));
+            prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck());
             prematureEmployeeCheckRepository.flush();
 
 //            Then
@@ -98,13 +98,13 @@ class PrematureEmployeeCheckRepositoryTest {
     }
 
     private void persistPrematureEmployeeCheck() {
-        prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck(null));
+        prematureEmployeeCheckRepository.create(createDBPrematureEmployeeCheck());
     }
 
 
-    private PrematureEmployeeCheckEntity createDBPrematureEmployeeCheck(Long id) {
+    private PrematureEmployeeCheckEntity createDBPrematureEmployeeCheck() {
         PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
-        prematureEmployeeCheckEntity.setId(id);
+        prematureEmployeeCheckEntity.setId(null);
         prematureEmployeeCheckEntity.setUser(this.user);
         prematureEmployeeCheckEntity.setForMonth(DATE);
         prematureEmployeeCheckEntity.setState(PrematureEmployeeCheckState.DONE);

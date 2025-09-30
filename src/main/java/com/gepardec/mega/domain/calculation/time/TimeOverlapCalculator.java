@@ -18,16 +18,14 @@ public class TimeOverlapCalculator extends AbstractTimeWarningCalculationStrateg
     public List<TimeWarning> calculate(List<ProjectEntry> projectEntries) {
         Set<TimeWarning> warningList = new HashSet<>();
 
-        projectEntries.forEach(entry -> {
-            projectEntries.forEach(projectEntry -> {
-                if (isOverlapping(entry, projectEntry) && entry != projectEntry) {
-                    TimeWarning tempTimeOverlapWarning = new TimeWarning();
-                    tempTimeOverlapWarning.setDate(entry.getDate());
-                    tempTimeOverlapWarning.getWarningTypes().add(TimeWarningType.TIME_OVERLAP);
-                    warningList.add(tempTimeOverlapWarning);
-                }
-            });
-        });
+        projectEntries.forEach(entry -> projectEntries.forEach(projectEntry -> {
+            if (isOverlapping(entry, projectEntry) && entry != projectEntry) {
+                TimeWarning tempTimeOverlapWarning = new TimeWarning();
+                tempTimeOverlapWarning.setDate(entry.getDate());
+                tempTimeOverlapWarning.getWarningTypes().add(TimeWarningType.TIME_OVERLAP);
+                warningList.add(tempTimeOverlapWarning);
+            }
+        }));
 
         return new ArrayList<>(warningList);
     }

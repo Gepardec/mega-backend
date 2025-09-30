@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 @QuarkusTest
@@ -20,9 +20,9 @@ class ProjectEmployeesMapperTest {
 
     @Test
     void map_whenZepProjectEmployeesContainsUserAndLead_thenReturnMultivaluedMap() {
-        assertThat(mapper.map(createListOfUserAndLead()).size()).isEqualTo(2);
-        assertThat(mapper.map(createListOfUserAndLead()).get("user").size()).isEqualTo(2);
-        assertThat(mapper.map(createListOfUserAndLead()).get("lead").size()).isOne();
+        assertThat(mapper.map(createListOfUserAndLead())).hasSize(2);
+        assertThat(mapper.map(createListOfUserAndLead()).get("user")).hasSize(2);
+        assertThat(mapper.map(createListOfUserAndLead()).get("lead")).hasSize(1);
     }
 
     @Test

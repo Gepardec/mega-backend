@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.core.MultivaluedHashMap;
 import org.apache.http.HttpHeaders;
+import org.assertj.core.api.ThrowableAssert;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 
@@ -51,8 +52,9 @@ class PersonioHeadersFactoryTest {
         //THEN
         verify(personioAuthClient, times(0)).authenticate(any());
 
-        assertThat(result).hasSize(2);
-        assertThat(result).containsKey(HttpHeaders.AUTHORIZATION);
+        assertThat(result)
+                .hasSize(2)
+                .containsKey(HttpHeaders.AUTHORIZATION);
         assertThat(result.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer valid-token");
     }
 
@@ -75,8 +77,9 @@ class PersonioHeadersFactoryTest {
         //THEN
         verify(personioAuthClient).authenticate(any());
 
-        assertThat(result).hasSize(2);
-        assertThat(result).containsKey(HttpHeaders.AUTHORIZATION);
+        assertThat(result)
+                .hasSize(2)
+                .containsKey(HttpHeaders.AUTHORIZATION);
         assertThat(result.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer generated-token");
     }
 
@@ -90,8 +93,9 @@ class PersonioHeadersFactoryTest {
 
         //WHEN
         //THEN
+        ThrowableAssert.ThrowingCallable throwingCallable = () -> personioHeadersFactory.update(new MultivaluedHashMap<>(), new MultivaluedHashMap<>());
         assertThatExceptionOfType(NotAuthorizedException.class)
-                .isThrownBy(() -> personioHeadersFactory.update(new MultivaluedHashMap<>(), new MultivaluedHashMap<>()))
+                .isThrownBy(throwingCallable)
                 .withMessage("HTTP 401 Unauthorized");
     }
 }

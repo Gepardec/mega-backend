@@ -50,8 +50,8 @@ class ProjectEntryMapperTest {
     }
 
     @Test
-    void mapList_whenNull_thenReturnsNull() {
-        assertThat(mapper.mapList(null)).isNull();
+    void mapList_whenNull_thenReturnsEmptyList() {
+        assertThat(mapper.mapList(null)).isEmpty();
     }
 
     @Test

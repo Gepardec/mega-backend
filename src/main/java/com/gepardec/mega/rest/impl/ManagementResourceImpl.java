@@ -38,6 +38,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 
@@ -353,7 +354,7 @@ public class ManagementResourceImpl implements ManagementResource {
 
             // used later on to compute the percentage of hours which were spent in this project (both billable and non-billable)
             List<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry> projectEntriesForEmployee = zepRestService.getProjectTimes(employee, payrollMonth);
-            long totalWorkingHoursInMinutesForMonthAndEmployee = workingTimeUtil.getDurationFromTimeString(workingTimeUtil.getTotalWorkingTimeForEmployee(projectEntriesForEmployee, employee)).toMinutes();
+            long totalWorkingHoursInMinutesForMonthAndEmployee = workingTimeUtil.getDurationFromTimeString(workingTimeUtil.getTotalWorkingTimeForEmployee(projectEntriesForEmployee)).toMinutes();
 
             String billableTimeString = workingTimeUtil.getBillableTimesForEmployee(projectTime, employee);
             String nonBillableTimeString = workingTimeUtil.getInternalTimesForEmployee(projectTime, employee);
@@ -361,7 +362,7 @@ public class ManagementResourceImpl implements ManagementResource {
             long nonBillableTimeInMinutes = workingTimeUtil.getDurationFromTimeString(nonBillableTimeString).toMinutes();
 
             double percentageOfHoursSpentInThisProject = 0.0;
-            if (!(Double.compare(totalWorkingHoursInMinutesForMonthAndEmployee, 0.0d) == 0)) {
+            if (Double.compare(totalWorkingHoursInMinutesForMonthAndEmployee, 0.0d) != 0) {
                 percentageOfHoursSpentInThisProject = (double) (billableTimeInMinutes + nonBillableTimeInMinutes) / totalWorkingHoursInMinutesForMonthAndEmployee;
                 percentageOfHoursSpentInThisProject =
                         BigDecimal.valueOf(percentageOfHoursSpentInThisProject)
@@ -417,7 +418,7 @@ public class ManagementResourceImpl implements ManagementResource {
         boolean internalCheckStateOpen = stepEntries.stream()
                 .filter(stepEntry ->
                         StepName.CONTROL_INTERNAL_TIMES.name().equalsIgnoreCase(stepEntry.getStep().getName())
-                                && StringUtils.equalsIgnoreCase(
+                                && Strings.CS.equals(
                                 Objects.requireNonNull(userContext.getUser()).getEmail(),
                                 stepEntry.getAssignee().getEmail()
                         )
@@ -436,7 +437,7 @@ public class ManagementResourceImpl implements ManagementResource {
                         return StepName.CONTROL_TIME_EVIDENCES.name().equalsIgnoreCase(se.getStep().getName());
                     } else {
                         return StepName.CONTROL_TIME_EVIDENCES.name().equalsIgnoreCase(se.getStep().getName()) &&
-                                StringUtils.equalsIgnoreCase(se.getProject(), projectId);
+                                Strings.CS.equals(se.getProject(), projectId);
                     }
                 })
                 .map(StepEntry::getState)

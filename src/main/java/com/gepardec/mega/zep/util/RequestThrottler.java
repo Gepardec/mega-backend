@@ -29,6 +29,8 @@ public class RequestThrottler {
         long sleepTime = (long) (10 / (Math.exp(rate / 2.5)) * 1000);
         try {
             TimeUnit.MILLISECONDS.sleep(sleepTime);
-        } catch (InterruptedException ignored) { }
+        } catch (InterruptedException ignored) {
+            // nop
+        }
     }
 }

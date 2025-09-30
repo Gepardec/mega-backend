@@ -1,7 +1,6 @@
 package com.gepardec.mega.domain.mapper;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 // D: Domain-Object, E: Entity-Object
 public interface EntityMapper<D, E> {
