@@ -30,7 +30,7 @@ public class BusinessDayCalculator {
     public List<Mail> getRemindersForDate(LocalDate actualDate) {
         logger.info("starting getEventForDate with date {}", actualDate);
 
-        Map<LocalDate, List<Mail>> remindersByDate = new HashMap<>(0);
+        Map<LocalDate, List<Mail>> remindersByDate = HashMap.newHashMap(0);
         LocalDate firstWorkingDayOfMonth = calcFirstWorkingDayOfMonthForDate(actualDate);
 
         Arrays.stream(Mail.values())
@@ -45,23 +45,21 @@ public class BusinessDayCalculator {
 
         var relevantReminders = remindersByDate.getOrDefault(actualDate, Collections.emptyList());
         if (!relevantReminders.isEmpty()) {
-            logger.info(
-                    "Reminder(s) {} was/were calculated",
-                    relevantReminders.stream().map(Mail::name).collect(Collectors.joining(", "))
-            );
+            String mailNames = relevantReminders.stream().map(Mail::name).collect(Collectors.joining(", "));
+            logger.info("Reminder(s) {} was/were calculated", mailNames);
         }
 
         return relevantReminders;
     }
 
-    private LocalDate calcDateForReminder(LocalDate firstWorkingdayOfMonth, Mail mail) {
+    private LocalDate calcDateForReminder(LocalDate firstWorkingDayOfMonth, Mail mail) {
         if (mail.getType() == MailType.DAY_OF_MONTH_BASED) {
-            return calcNextWorkingdayForDayOfMonth(firstWorkingdayOfMonth, mail.getDay());
+            return calcNextWorkingdayForDayOfMonth(firstWorkingDayOfMonth, mail.getDay());
         } else if (mail.getType() == MailType.WORKING_DAY_BASED) {
             if (mail.getDay() > 0) {
-                return addWorkingdays(firstWorkingdayOfMonth, mail.getDay() - 1);
+                return addWorkingdays(firstWorkingDayOfMonth, mail.getDay() - 1);
             } else {
-                return removeWorkingdaysFromNextMonth(firstWorkingdayOfMonth, mail.getDay());
+                return removeWorkingdaysFromNextMonth(firstWorkingDayOfMonth, mail.getDay());
             }
         } else {
             return LocalDate.MIN;

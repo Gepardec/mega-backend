@@ -98,7 +98,7 @@ class MonthlyReportMapperTest {
         assertThat(actual.getBillableTime()).isEqualTo("100.5");
         assertThat(actual.getOvertime()).isEqualTo(12.5);
         assertThat(actual.getTotalWorkingTime()).isEqualTo("144.5");
-        assertThat(actual.getGuildLead()).isEqualTo("");
+        assertThat(actual.getGuildLead()).isEmpty();
         assertThat(actual.getInternalProjectLead()).isEqualTo("Maria Musterfrau");
     }
 
@@ -161,7 +161,7 @@ class MonthlyReportMapperTest {
         assertThat(actual.getBillableTime()).isEqualTo("100.5");
         assertThat(actual.getOvertime()).isEqualTo(12.5);
         assertThat(actual.getTotalWorkingTime()).isEqualTo("144.5");
-        assertThat(actual.getGuildLead()).isEqualTo(null);
-        assertThat(actual.getInternalProjectLead()).isEqualTo(null);
+        assertThat(actual.getGuildLead()).isNull();
+        assertThat(actual.getInternalProjectLead()).isNull();
     }
 }

@@ -62,7 +62,7 @@ class AbsenceMapperTest {
         assertThat(absence.userId()).isEqualTo(zepAbsence.employeeId());
         assertThat(absence.fromDate()).isEqualTo(zepAbsence.startDate());
         assertThat(absence.toDate()).isEqualTo(zepAbsence.endDate());
-        assertThat(absence.reason()).isEqualTo("");
+        assertThat(absence.reason()).isEmpty();
         assertThat(absence.accepted()).isEqualTo(zepAbsence.approved());
     }
 

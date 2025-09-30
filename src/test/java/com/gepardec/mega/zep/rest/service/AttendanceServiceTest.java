@@ -40,11 +40,6 @@ class AttendanceServiceTest {
     @Inject
     AttendanceService attendanceService;
 
-    //TODO: Use a mocked response parser instead of the real one and actually only test the service
-//    @Inject
-//    @Mock
-//    ResponseParser responseParser;
-
     @Inject
     ResourceFileService resourceFileService;
 
@@ -63,7 +58,6 @@ class AttendanceServiceTest {
                     when(zepAttendanceRestClient
                             .getAttendance(anyString(), anyString(), eq(user), eq(i + 1)))
                             .thenReturn(Response.ok().entity(responseJson.get(i)).build());
-//                    System.out.println(responseJson.get(i));
                 }
         );
     }
@@ -76,7 +70,6 @@ class AttendanceServiceTest {
                     when(zepAttendanceRestClient
                             .getAttendanceForUserAndProject(anyString(), anyString(), eq(user), eq(1), eq(i + 1)))
                             .thenReturn(Response.ok().entity(responseJson.get(i)).build());
-//                        System.out.println(responseJson.get(i));
                 }
         );
     }
@@ -119,7 +112,7 @@ class AttendanceServiceTest {
         );
 
         List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", YearMonth.of(2018, 12));
-        assertThat(List.of(attendances.get(0), attendances.get(1))).usingRecursiveComparison().isEqualTo(attendancesReference);
+        assertThat(List.of(attendances.getFirst(), attendances.get(1))).usingRecursiveComparison().isEqualTo(attendancesReference);
     }
 
     @Test
@@ -133,7 +126,7 @@ class AttendanceServiceTest {
     @Test
     void notBillableAttendances_thenReturnNull() {
         List<ZepAttendance> attendances = attendanceService.getBillableAttendancesForUserAndMonth("001-duser", YearMonth.now());
-        assertThat(attendances.size()).isEqualTo(3);
+        assertThat(attendances).hasSize(3);
     }
 
     @Test
@@ -174,6 +167,6 @@ class AttendanceServiceTest {
     void filterAttendanceResponse_thenReturnProjectEntriesWithGivenID() {
         List<ZepAttendance> result = attendanceService.getAttendanceForUserProjectAndMonth("003-tuser", YearMonth.of(2021, 12), 1);
 
-        assertThat(result.size()).isEqualTo(2);
+        assertThat(result).hasSize(2);
     }
 }

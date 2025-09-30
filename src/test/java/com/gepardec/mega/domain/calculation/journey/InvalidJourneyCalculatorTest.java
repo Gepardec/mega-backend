@@ -62,8 +62,8 @@ class InvalidJourneyCalculatorTest {
         final List<JourneyWarning> warnings = calculator.calculate(List.of(journeyTimeEntry));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.BACK_MISSING);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.BACK_MISSING);
 
     }
 
@@ -75,8 +75,8 @@ class InvalidJourneyCalculatorTest {
         final List<JourneyWarning> warnings = calculator.calculate(List.of(journeyTimeEntry, projectTimeEntry));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.BACK_MISSING);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.BACK_MISSING);
     }
 
     @Test
@@ -89,9 +89,9 @@ class InvalidJourneyCalculatorTest {
 
         // TODO: Both journey entries cause TO_MISSING Warning, because all are checked separately
         assertThat(warnings).hasSize(2);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.TO_MISSING);
-        assertThat(warnings.get(1).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.TO_MISSING);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.TO_MISSING);
+        assertThat(warnings.get(1).getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.TO_MISSING);
     }
 
     @Test
@@ -104,9 +104,9 @@ class InvalidJourneyCalculatorTest {
 
         // TODO: Both journey entries cause BACK_MISSING Warning, because all are checked separately
         assertThat(warnings).hasSize(2);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.BACK_MISSING);
-        assertThat(warnings.get(1).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.BACK_MISSING);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.BACK_MISSING);
+        assertThat(warnings.get(1).getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.BACK_MISSING);
     }
 
     @Test
@@ -119,9 +119,9 @@ class InvalidJourneyCalculatorTest {
 
         // TODO: Both journey entries cause TO_MISSING Warning, because all are checked separately
         assertThat(warnings).hasSize(2);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.TO_MISSING);
-        assertThat(warnings.get(1).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.TO_MISSING);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.TO_MISSING);
+        assertThat(warnings.get(1).getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.TO_MISSING);
     }
 
     @Test
@@ -134,9 +134,9 @@ class InvalidJourneyCalculatorTest {
 
         // TODO: Both journey entries cause TO_MISSING Warning, because all are checked separately
         assertThat(warnings).hasSize(2);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.TO_MISSING);
-        assertThat(warnings.get(1).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.TO_MISSING);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.TO_MISSING);
+        assertThat(warnings.get(1).getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.TO_MISSING);
     }
 
     @Test

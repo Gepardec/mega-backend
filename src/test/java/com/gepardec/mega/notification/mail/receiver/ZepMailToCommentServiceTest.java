@@ -82,8 +82,10 @@ class ZepMailToCommentServiceTest {
                 StepName.CONTROL_TIME_EVIDENCES.getId(),
                 SourceSystem.ZEP,
                 "max.empfaengermann@gepardec.com",
-                "Buchung vom 03.11.2023 (11:15 - 12:00) im Projekt 'Gepardec' - 'Learning Friday' " +
-                        "mit dem Text 'MEGA' ist anzupassen.\n Falsche Buchung!",
+                """
+                Buchung vom 03.11.2023 (11:15 - 12:00) im Projekt 'Gepardec' - 'Learning Friday' \
+                mit dem Text 'MEGA' ist anzupassen.
+                 Falsche Buchung!""",
                 "max.erstellermann@gepardec.com",
                 "Gepardec",
                 YearMonth.of(2023, 11)
@@ -113,8 +115,10 @@ class ZepMailToCommentServiceTest {
                 StepName.CONTROL_INTERNAL_TIMES.getId(),
                 SourceSystem.ZEP,
                 "max.empfaengermann@gepardec.com",
-                "Buchung vom 03.11.2023 (11:15 - 12:00) im Projekt 'Gepardec' - 'Learning Friday' " +
-                        "mit dem Text 'MEGA' ist anzupassen.\n Falsche Buchung!",
+                """
+                Buchung vom 03.11.2023 (11:15 - 12:00) im Projekt 'Gepardec' - 'Learning Friday' \
+                mit dem Text 'MEGA' ist anzupassen.
+                 Falsche Buchung!""",
                 "max.erstellermann@gepardec.com",
                 null,
                 YearMonth.of(2023, 11)

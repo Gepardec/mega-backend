@@ -15,7 +15,7 @@ public class ProjectTimeMapper {
 
     public static List<ProjectTime> mapList(List<ProjektzeitType> projectTimes) {
         if (projectTimes == null) {
-            return null;
+            return List.of();
         }
         return projectTimes.stream()
                 .map(ProjectTimeMapper::map)

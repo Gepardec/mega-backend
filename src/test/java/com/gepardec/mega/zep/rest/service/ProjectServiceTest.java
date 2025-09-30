@@ -59,8 +59,10 @@ class ProjectServiceTest {
         List<String> responseJsons = resourceFileService.getDirContents("projects");
         System.out.println(resourceFileService.getSingleFile("projects/singlePage1.json"));
 
+        Optional<String> singleFile1 = resourceFileService.getSingleFile("projects/projectPage1.json");
+        assertThat(singleFile1).isPresent();
         when(zepProjectRestClient.getProjectByStartEnd(eq("2024-01-01"), eq("2024-01-31"), eq(1)))
-                .thenReturn(Response.ok().entity(resourceFileService.getSingleFile("projects/projectPage1.json").get()).build());
+                .thenReturn(Response.ok().entity(singleFile1.get()).build());
 
 
         when(zepProjectRestClient.getProjectByStartEnd(anyString(), anyString(), eq(2)))
@@ -69,14 +71,16 @@ class ProjectServiceTest {
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
 
         when(zepProjectRestClient.getProjectByName(anyString(), anyString(), eq("mega")))
-                .thenReturn(Response.ok().entity(responseJsons.get(0)).build());
+                .thenReturn(Response.ok().entity(responseJsons.getFirst()).build());
         when(zepProjectRestClient.getProjectByName(anyString(), anyString(), eq("empty")))
                 .thenReturn(Response.ok().entity(responseJsons.get(5)).build());
 
+        Optional<String> singleFile = resourceFileService.getSingleFile("projects/singlePage2.json");
+        assertThat(singleFile).isPresent();
         when(zepProjectRestClient.getProjectById(12))
-                .thenReturn(Response.ok().entity(resourceFileService.getSingleFile("projects/singlePage2.json").get()).build());
+                .thenReturn(Response.ok().entity(singleFile.get()).build());
 
-        when(zepProjectRestClient.getProjectById(eq(1)))
+        when(zepProjectRestClient.getProjectById(1))
                 .thenReturn(Response.ok().entity(responseJsons.get(5)).build());
     }
 
@@ -115,13 +119,14 @@ class ProjectServiceTest {
                 .thenReturn(Optional.of(projectsArray));
 
         Optional<ZepProject> result = projectService.getProjectByName("XYZ", YearMonth.of(2024, 1));
+        assertThat(result).isNotEmpty();
         assertThat(result.get().id()).isEqualTo(1);
     }
 
     @Test
     void getProjectByName_whenNoProjectOfName() {
         Optional<ZepProject> result = projectService.getProjectByName(null, YearMonth.of(2024, 1));
-        assertThat(result.isEmpty()).isTrue();
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -130,7 +135,7 @@ class ProjectServiceTest {
                 .thenThrow(new ZepServiceException("Something went wrong"));
 
         Optional<ZepProject> result = projectService.getProjectByName("ABC", YearMonth.of(2022, 1));
-        assertThat(result.isEmpty()).isTrue();
+        assertThat(result).isEmpty();
         verify(logger).warn(anyString(), any(ZepServiceException.class));
     }
 
@@ -143,13 +148,13 @@ class ProjectServiceTest {
                 .thenReturn(project);
 
         Optional<ZepProjectDetail> result = projectService.getProjectById(1);
-        assertThat(result.isPresent()).isTrue();
+        assertThat(result).isPresent();
     }
 
     @Test
     void getProjectById_whenNoProjectWithId() {
         Optional<ZepProjectDetail> project = projectService.getProjectById(1);
-        assertThat(project.isEmpty()).isTrue();
+        assertThat(project).isEmpty();
     }
 
     @Test
@@ -158,7 +163,7 @@ class ProjectServiceTest {
                 .thenThrow(new ZepServiceException("Something went wrong"));
 
         Optional<ZepProjectDetail> result = projectService.getProjectById(100);
-        assertThat(result.isEmpty()).isTrue();
+        assertThat(result).isEmpty();
         verify(logger).warn(anyString(), any(ZepServiceException.class));
 
     }
@@ -178,8 +183,9 @@ class ProjectServiceTest {
 
         List<ZepProjectEmployee> result = projectService.getProjectEmployeesForId(1);
 
-        assertThat(result).isNotNull();
-        assertThat(result.size()).isEqualTo(2);
+        assertThat(result)
+                .isNotNull()
+                .hasSize(2);
     }
 
     @Test
@@ -188,7 +194,7 @@ class ProjectServiceTest {
                 .thenThrow(new ZepServiceException("Something went wrong"));
 
         List<ZepProjectEmployee> result = projectService.getProjectEmployeesForId(100);
-        assertThat(result.isEmpty()).isTrue();
+        assertThat(result).isEmpty();
         verify(logger).warn(anyString(), any(ZepServiceException.class));
 
     }
@@ -199,7 +205,7 @@ class ProjectServiceTest {
                 .thenThrow(new ZepServiceException("Something went wrong"));
 
         List<ZepProject> result = projectService.getProjectsForMonthYear(YearMonth.of(2024, 5));
-        assertThat(result.isEmpty()).isTrue();
+        assertThat(result).isEmpty();
         verify(logger).warn(anyString(), any(ZepServiceException.class));
     }
 }

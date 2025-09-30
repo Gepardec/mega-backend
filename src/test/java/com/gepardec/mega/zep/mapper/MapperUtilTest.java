@@ -38,8 +38,9 @@ class MapperUtilTest {
 
         Map<String, String> attributesMap = MapperUtil.convertAttributesToMap(attributes);
 
-        assertThat(attributesMap.get(attribute.getName())).isEqualTo(attribute.getValue());
-        assertThat(attributesMap.get(attribute2.getName())).isEqualTo(attribute2.getValue());
+        assertThat(attributesMap)
+                .containsEntry(attribute.getName(), attribute.getValue())
+                .containsEntry(attribute2.getName(), attribute2.getValue());
 
     }
 

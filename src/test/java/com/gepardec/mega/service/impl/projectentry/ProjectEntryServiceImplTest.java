@@ -39,7 +39,7 @@ class ProjectEntryServiceImplTest {
         List<ProjectEntry> actual = projectEntryService.findByNameAndDate("ABC", YearMonth.of(2024, 6));
 
         assertThat(actual.size()).isOne();
-        assertThat(actual.get(0).getName()).isEqualTo("ABC");
+        assertThat(actual.getFirst().getName()).isEqualTo("ABC");
     }
 
     @Test
@@ -74,14 +74,12 @@ class ProjectEntryServiceImplTest {
     }
 
     private ProjectEntryDto createProjectEntryDto() {
-        ProjectEntryDto projectEntryDto = ProjectEntryDto.builder()
+        return ProjectEntryDto.builder()
                 .projectName("ABC")
                 .state(ProjectState.OPEN)
                 .step(com.gepardec.mega.domain.model.ProjectStep.CONTROL_PROJECT)
                 .currentMonthYear("2024-06-01")
                 .preset(true)
                 .build();
-
-        return projectEntryDto;
     }
 }

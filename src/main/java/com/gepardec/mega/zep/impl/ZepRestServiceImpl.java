@@ -111,7 +111,8 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public Employee getEmployee(String userId) {
-        logger.debug("Retrieving employee %s from ZEP".formatted(userId));
+        String debugMessage = "Retrieving employee %s from ZEP".formatted(userId);
+        logger.debug(debugMessage);
 
         Optional<ZepEmployee> zepEmployee = zepEmployeeService.getZepEmployeeByUsername(userId);
         if (zepEmployee.isEmpty()) {
@@ -150,7 +151,8 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<ProjectEntry> getProjectTimes(Employee employee, YearMonth payrollMonth) {
-        logger.debug("Retrieving project times from ZEP of %s".formatted(employee.getUserId()));
+        String debugMessage = "Retrieving project times from ZEP of %s".formatted(employee.getUserId());
+        logger.debug(debugMessage);
         return projectEntryMapper.mapList(
                 attendanceService.getAttendanceForUserAndMonth(
                         employee.getUserId(),
@@ -166,7 +168,8 @@ public class ZepRestServiceImpl implements ZepService {
     public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, YearMonth payrollMonth) {
         List<ZepAttendance> allZepAttendancesForProject = new ArrayList<>();
 
-        logger.debug("Retrieving project %s from ZEP".formatted(project));
+        String debugMessage = "Retrieving project %s from ZEP".formatted(project);
+        logger.debug(debugMessage);
 
         Optional<ZepProject> projectOpt = projectService.getProjectByName(project, payrollMonth);
         if (projectOpt.isEmpty()) {
@@ -176,11 +179,13 @@ public class ZepRestServiceImpl implements ZepService {
 
         Integer projectId = projectOpt.get().id();
 
-        logger.debug("Retrieving project employees of %d from ZEP".formatted(projectId));
+        String debugMessage2 = "Retrieving project employees of %d from ZEP".formatted(projectId);
+        logger.debug(debugMessage2);
         List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(projectId);
 
         projectEmployees.forEach(projectEmployee -> {
-            logger.debug("Retrieving attendance of user %s of project %d from ZEP".formatted(projectEmployee.username(), projectId));
+            String debugMessage3 = "Retrieving attendance of user %s of project %d from ZEP".formatted(projectEmployee.username(), projectId);
+            logger.debug(debugMessage3);
             allZepAttendancesForProject.addAll(attendanceService.getAttendanceForUserProjectAndMonth(projectEmployee.username(), payrollMonth, projectId));
         });
         return projectTimeMapper.mapList(allZepAttendancesForProject);
@@ -188,7 +193,8 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<Project> getProjectsForMonthYear(YearMonth payrollMonth) {
-        logger.debug("Retrieving projects for payroll month %s from ZEP".formatted(payrollMonth.toString()));
+        String debugMessage = "Retrieving projects for payroll month %s from ZEP".formatted(payrollMonth.toString());
+        logger.debug(debugMessage);
         List<ZepProject> zepProjects = projectService.getProjectsForMonthYear(payrollMonth);
         List<Project.Builder> projects = projectMapper.mapList(zepProjects);
         IntStream.range(0, projects.size())
@@ -200,14 +206,16 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public Optional<Project> getProjectByName(String projectName, YearMonth payrollMonth) {
-        logger.debug("Retrieving project %s from ZEP".formatted(projectName));
+        String debugMessage = "Retrieving project %s from ZEP".formatted(projectName);
+        logger.debug(debugMessage);
         Optional<ZepProject> zepProject = projectService.getProjectByName(projectName, payrollMonth);
         return zepProject.map(project -> projectMapper.map(project).build());
     }
 
     @Override
     public List<AbsenceTime> getAbsenceForEmployee(Employee employee, YearMonth payrollMonth) {
-        logger.debug("Retrieving absences of %s from ZEP".formatted(employee.getUserId()));
+        String debugMessage = "Retrieving absences of %s from ZEP".formatted(employee.getUserId());
+        logger.debug(debugMessage);
         List<ZepAbsence> zepAbsences = absenceService.getZepAbsencesByEmployeeNameForDateRange(
                 employee.getUserId(),
                 payrollMonth
@@ -218,7 +226,8 @@ public class ZepRestServiceImpl implements ZepService {
 
     @Override
     public List<ProjectTime> getBillableForEmployee(Employee employee, YearMonth payrollMonth) {
-        logger.debug("Retrieving billable entries of employee %s from ZEP".formatted(employee.getUserId()));
+        String debugMessage = "Retrieving billable entries of employee %s from ZEP".formatted(employee.getUserId());
+        logger.debug(debugMessage);
         List<ZepAttendance> projectTimes = attendanceService.getBillableAttendancesForUserAndMonth(employee.getUserId(), payrollMonth);
         return projectTimeMapper.mapList(projectTimes);
     }
@@ -253,7 +262,6 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth payrollMonth) {
-        Employee employeeForRequest = employeeMapper.map(employee);
         List<ProjectHoursSummary> resultProjectHoursSummary = new ArrayList<>();
         List<ZepProject> projectsRetrieved = projectService.getProjectsForMonthYear(payrollMonth);
 
@@ -276,7 +284,7 @@ public class ZepRestServiceImpl implements ZepService {
     }
 
     private Optional<ProjectHoursSummary> createProjectsHoursSummary(List<ZepAttendance> attendances, ZepProject project) {
-        Optional<ZepProjectDetail> projectRetrieved = projectService.getProjectById(attendances.get(0).projectId());
+        Optional<ZepProjectDetail> projectRetrieved = projectService.getProjectById(attendances.getFirst().projectId());
         String projectName = "";
         double billableHoursSum = 0.0;
         double nonBillableHoursSum = 0.0;
@@ -300,7 +308,7 @@ public class ZepRestServiceImpl implements ZepService {
 
         double totalHours = Double.sum(billableHoursSum, nonBillableHoursSum);
 
-        if (!(Double.compare(totalHours, 0.0d) == 0)) {
+        if (Double.compare(totalHours, 0.0d) != 0) {
             chargeability = billableHoursSum / totalHours;
             chargeability = BigDecimal.valueOf(chargeability)
                     .setScale(2, RoundingMode.HALF_UP)

@@ -112,7 +112,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                         )
                         .handle((aVoid, throwable) -> {
                                     Optional.ofNullable(throwable).ifPresent(t -> {
-                                        logger.error(String.format("error updating %s", employee.getUserId()), t);
+                                        logger.error("error updating %s".formatted(employee.getUserId()), t);
                                         failedUserIds.add(employee.getUserId());
                                     });
                                     return null;

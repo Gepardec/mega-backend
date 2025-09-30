@@ -81,9 +81,9 @@ class EnterpriseEntryServiceImplTest {
         assertThat(result).isTrue();
         verify(enterpriseEntryRepository).findByDate(fromDate, toDate);
         verify(enterpriseEntryRepository).updateEntry(entry);
-        assertThat(State.DONE).isEqualTo(entry.getZepTimesReleased());
-        assertThat(State.WORK_IN_PROGRESS).isEqualTo(entry.getChargeabilityExternalEmployeesRecorded());
-        assertThat(State.DONE).isEqualTo(entry.getPayrollAccountingSent());
+        assertThat(entry.getZepTimesReleased()).isEqualTo(State.DONE);
+        assertThat(entry.getChargeabilityExternalEmployeesRecorded()).isEqualTo(State.WORK_IN_PROGRESS);
+        assertThat(entry.getPayrollAccountingSent()).isEqualTo(State.DONE);
     }
 
     @Test

@@ -12,21 +12,18 @@ public class EnterpriseEntryMapper {
     // TODO maps a database entity to a dto object -- there should be a domain entity
 
     public EnterpriseEntryDto map(final Optional<EnterpriseEntry> enterpriseEntry) {
-        if (enterpriseEntry.isEmpty()) {
-            return null;
-        }
-        return EnterpriseEntryDto.builder()
-                .creationDate(enterpriseEntry.get().getCreationDate())
-                .date(enterpriseEntry.get().getDate())
+        return enterpriseEntry.map(entry -> EnterpriseEntryDto.builder()
+                .creationDate(entry.getCreationDate())
+                .date(entry.getDate())
                 .chargeabilityExternalEmployeesRecorded(
                         ProjectState.byName(
-                                enterpriseEntry.get()
+                                entry
                                         .getChargeabilityExternalEmployeesRecorded()
                                         .name()
                         )
                 )
-                .payrollAccountingSent(ProjectState.byName(enterpriseEntry.get().getPayrollAccountingSent().name()))
-                .zepTimesReleased(ProjectState.byName(enterpriseEntry.get().getZepTimesReleased().name()))
-                .build();
+                .payrollAccountingSent(ProjectState.byName(entry.getPayrollAccountingSent().name()))
+                .zepTimesReleased(ProjectState.byName(entry.getZepTimesReleased().name()))
+                .build()).orElse(null);
     }
 }

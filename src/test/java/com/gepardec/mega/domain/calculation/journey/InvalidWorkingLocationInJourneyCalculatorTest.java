@@ -10,7 +10,6 @@ import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -28,13 +27,13 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
     }
 
     private ProjectTimeEntry projectTimeEntryFor(int startHour, int endHour, WorkingLocation workingLocation) {
-        return projectTimeEntryFor(startHour, 0, endHour, 0, workingLocation);
+        return projectTimeEntryFor(startHour, endHour, 0, workingLocation);
     }
 
-    private ProjectTimeEntry projectTimeEntryFor(int startHour, int startMinute, int endHour, int endMinute, WorkingLocation workingLocation) {
+    private ProjectTimeEntry projectTimeEntryFor(int startHour, int endHour, int endMinute, WorkingLocation workingLocation) {
 
         return ProjectTimeEntry.builder()
-                .fromTime(LocalDateTime.of(2020, 1, 7, startHour, startMinute))
+                .fromTime(LocalDateTime.of(2020, 1, 7, startHour, 0))
                 .toTime(LocalDateTime.of(2020, 1, 7, endHour, endMinute))
                 .task(Task.BEARBEITEN)
                 .workingLocation(workingLocation)
@@ -42,12 +41,12 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
     }
 
     private JourneyTimeEntry journeyTimeEntryFor(int startHour, int endHour, JourneyDirection direction, WorkingLocation workingLocation) {
-        return journeyTimeEntryFor(startHour, 0, endHour, 0, direction, workingLocation);
+        return journeyTimeEntryFor(startHour, endHour, 0, direction, workingLocation);
     }
 
-    private JourneyTimeEntry journeyTimeEntryFor(int startHour, int startMinute, int endHour, int endMinute, JourneyDirection direction, WorkingLocation workingLocation) {
+    private JourneyTimeEntry journeyTimeEntryFor(int startHour, int endHour, int endMinute, JourneyDirection direction, WorkingLocation workingLocation) {
         return JourneyTimeEntry.builder()
-                .fromTime(LocalDateTime.of(2020, 1, 7, startHour, startMinute))
+                .fromTime(LocalDateTime.of(2020, 1, 7, startHour, 0))
                 .toTime(LocalDateTime.of(2020, 1, 7, endHour, endMinute))
                 .task(Task.REISEN)
                 .workingLocation(workingLocation)
@@ -65,8 +64,8 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
         List<JourneyWarning> warnings = calculator.calculate(List.of(journeyTimeEntryOne, projectEntryTwo, journeyTimeEntryThree));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
 
     @Test
@@ -78,31 +77,8 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
         List<JourneyWarning> warnings = calculator.calculate(List.of(journeyTimeEntryOne, projectEntryTwo, journeyTimeEntryThree));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
-    }
-
-    /*
-        Comment disabled because:
-                       journeys grouped in days     ->      now grouped in months
-                       this allows journeys over multiple days
-                       this prevents to group multiple warnings on one day
-                        -without implementing 'complex' logic
-         */
-    @Disabled
-    @Test
-    void whenTwoProjectTimeEntryWithinJourneyWithWorkingLocationMain_thenOneWarning() {
-        JourneyTimeEntry journeyTimeEntryOne = journeyTimeEntryFor(7, 8, JourneyDirection.TO, WorkingLocation.A);
-        ProjectEntry projectEntryTwo = projectTimeEntryFor(8, 9, WorkingLocation.MAIN);
-        ProjectEntry projectEntryThree = projectTimeEntryFor(9, 10, WorkingLocation.MAIN);
-        JourneyTimeEntry journeyTimeEntryFour = journeyTimeEntryFor(10, 11, JourneyDirection.BACK, WorkingLocation.A);
-
-        List<JourneyWarning> warnings = calculator
-                .calculate(List.of(journeyTimeEntryOne, projectEntryTwo, projectEntryThree, journeyTimeEntryFour));
-
-        assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
 
     @Test
@@ -116,8 +92,8 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
                 .calculate(List.of(journeyTimeEntryOne, projectEntryTwo, projectEntryThree, journeyTimeEntryFour));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
 
     @Test
@@ -134,8 +110,8 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
                         journeyTimeEntrySix));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
 
     @Test

@@ -158,7 +158,7 @@ public class StepEntryServiceImpl implements StepEntryService {
                         assigneeEmail
                 )
                 .orElseThrow(() ->
-                        new IllegalStateException(String.format("No StepEntries found for Employee %s", employeeEmail))
+                        new IllegalStateException("No StepEntries found for Employee %s".formatted(employeeEmail))
                 );
     }
 
@@ -181,7 +181,7 @@ public class StepEntryServiceImpl implements StepEntryService {
                         project
                 )
                 .orElseThrow(() ->
-                        new IllegalStateException(String.format("No StepEntries found for Employee %s", employeeEmail))
+                        new IllegalStateException("No StepEntries found for Employee %s".formatted(employeeEmail))
                 );
     }
 

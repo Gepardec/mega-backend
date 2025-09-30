@@ -38,14 +38,14 @@ class RegularWorkingTimeMapperTest {
 
         Map<DayOfWeek, Duration> workingHours = regularWorkingTime.workingHours();
         assertThat(regularWorkingTime.start()).isEqualTo(date.toLocalDate());
-        assertThat(workingHours).containsEntry(DayOfWeek.MONDAY, Duration.ofHours(8));
-        assertThat(workingHours).containsEntry(DayOfWeek.TUESDAY, Duration.ofHours(8));
-        assertThat(workingHours).containsEntry(DayOfWeek.WEDNESDAY, Duration.ofHours(8));
-        assertThat(workingHours).containsEntry(DayOfWeek.THURSDAY, Duration.ofHours(8));
-        assertThat(workingHours).containsEntry(DayOfWeek.FRIDAY, Duration.ofHours(8));
-        assertThat(workingHours).containsEntry(DayOfWeek.SATURDAY, Duration.ofHours(0));
-        assertThat(workingHours).containsEntry(DayOfWeek.SUNDAY, Duration.ofHours(0));
-
+        assertThat(workingHours)
+                .containsEntry(DayOfWeek.MONDAY, Duration.ofHours(8))
+                .containsEntry(DayOfWeek.TUESDAY, Duration.ofHours(8))
+                .containsEntry(DayOfWeek.WEDNESDAY, Duration.ofHours(8))
+                .containsEntry(DayOfWeek.THURSDAY, Duration.ofHours(8))
+                .containsEntry(DayOfWeek.FRIDAY, Duration.ofHours(8))
+                .containsEntry(DayOfWeek.SATURDAY, Duration.ofHours(0))
+                .containsEntry(DayOfWeek.SUNDAY, Duration.ofHours(0));
     }
 
     @Test
@@ -66,13 +66,13 @@ class RegularWorkingTimeMapperTest {
 
         Map<DayOfWeek, Duration> workingHours = regularWorkingTime.workingHours();
         assertThat(regularWorkingTime.start()).isEqualTo(date.toLocalDate());
-        assertThat(workingHours.get(DayOfWeek.MONDAY)).isEqualTo(Duration.ofHours(0));
-        assertThat(workingHours.get(DayOfWeek.TUESDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(workingHours.get(DayOfWeek.WEDNESDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(workingHours.get(DayOfWeek.THURSDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(workingHours.get(DayOfWeek.FRIDAY)).isEqualTo(Duration.ofHours(8));
-        assertThat(workingHours.get(DayOfWeek.SATURDAY)).isEqualTo(Duration.ofHours(0));
-        assertThat(workingHours.get(DayOfWeek.SUNDAY)).isEqualTo(Duration.ofHours(0));
+        assertThat(workingHours).containsEntry(DayOfWeek.MONDAY, Duration.ofHours(0))
+                .containsEntry(DayOfWeek.TUESDAY, Duration.ofHours(8))
+                .containsEntry(DayOfWeek.WEDNESDAY, Duration.ofHours(8))
+                .containsEntry(DayOfWeek.THURSDAY, Duration.ofHours(8))
+                .containsEntry(DayOfWeek.FRIDAY, Duration.ofHours(8))
+                .containsEntry(DayOfWeek.SATURDAY, Duration.ofHours(0))
+                .containsEntry(DayOfWeek.SUNDAY, Duration.ofHours(0));
     }
 
     @Test
@@ -83,12 +83,13 @@ class RegularWorkingTimeMapperTest {
 
         Map<DayOfWeek, Duration> workingHours = regularWorkingTime.workingHours();
         assertThat(regularWorkingTime.start()).isNull();
-        assertThat(workingHours.get(DayOfWeek.MONDAY)).isEqualTo(Duration.ofHours(0));
-        assertThat(workingHours.get(DayOfWeek.TUESDAY)).isEqualTo(Duration.ofHours(0));
-        assertThat(workingHours.get(DayOfWeek.WEDNESDAY)).isEqualTo(Duration.ofHours(0));
-        assertThat(workingHours.get(DayOfWeek.THURSDAY)).isEqualTo(Duration.ofHours(0));
-        assertThat(workingHours.get(DayOfWeek.FRIDAY)).isEqualTo(Duration.ofHours(0));
-        assertThat(workingHours.get(DayOfWeek.SATURDAY)).isEqualTo(Duration.ofHours(0));
-        assertThat(workingHours.get(DayOfWeek.SUNDAY)).isEqualTo(Duration.ofHours(0));
+        assertThat(workingHours)
+                .containsEntry(DayOfWeek.MONDAY, Duration.ofHours(0))
+                .containsEntry(DayOfWeek.TUESDAY, Duration.ofHours(0))
+                .containsEntry(DayOfWeek.WEDNESDAY, Duration.ofHours(0))
+                .containsEntry(DayOfWeek.THURSDAY, Duration.ofHours(0))
+                .containsEntry(DayOfWeek.FRIDAY, Duration.ofHours(0))
+                .containsEntry(DayOfWeek.SATURDAY, Duration.ofHours(0))
+                .containsEntry(DayOfWeek.SUNDAY, Duration.ofHours(0));
     }
 }

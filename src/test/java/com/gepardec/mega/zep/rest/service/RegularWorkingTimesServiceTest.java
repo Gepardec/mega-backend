@@ -1,14 +1,11 @@
 package com.gepardec.mega.zep.rest.service;
 
-import com.gepardec.mega.helper.ResourceFileService;
 import com.gepardec.mega.zep.ZepServiceException;
-import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
 import com.gepardec.mega.zep.util.ResponseParser;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
@@ -25,16 +22,8 @@ import static org.mockito.Mockito.when;
 @QuarkusTest
 class RegularWorkingTimesServiceTest {
 
-
-    @RestClient
-    @InjectMock
-    ZepEmployeeRestClient zepEmployeeRestClient;
-
     @Inject
     RegularWorkingTimesService regularWorkingTimesService;
-
-    @Inject
-    ResourceFileService resourceFileService;
 
     @InjectMock
     ResponseParser responseParser;
@@ -63,7 +52,7 @@ class RegularWorkingTimesServiceTest {
                 .thenReturn(regularWorkingTimesList);
 
         List<ZepRegularWorkingTimes> allZepRegularWorkingTimes = regularWorkingTimesService.getRegularWorkingTimesByUsername("001-duser");
-        ZepRegularWorkingTimes actual = allZepRegularWorkingTimes.get(allZepRegularWorkingTimes.size() - 1);
+        ZepRegularWorkingTimes actual = allZepRegularWorkingTimes.getLast();
 
         assertThat(actual.thursday()).isEqualTo(8.0);
     }
@@ -89,46 +78,4 @@ class RegularWorkingTimesServiceTest {
 
         assertThat(result).isEmpty();
     }
-//    @Test
-//    void getRegularWorkingTimesByUsername_receiveEmptyDataArray_then_ThrowException(){
-//        String responseBody = "{\"data\": []}";
-//
-//        Response response = Response.ok().entity(responseBody).build();
-//
-//        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString(), Mockito.anyInt())).thenReturn(response);
-//
-//        assertThrows(ZepServiceException.class, () -> {
-//            System.out.println(regularWorkingTimesService.getRegularWorkingTimesByUsername("082-tmeindl")
-//                    .map(ZepRegularWorkingTimes::getEmployee_id)
-//            );
-//        });
-//    }
-//
-//    @Test
-//    void getRegularWorkingTimesByUsername_receive404_then_ThrowException(){
-//
-//        Response response = Response.status(404).build();
-//
-//        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString(), Mockito.anyInt())).thenReturn(response);
-//
-//        assertThrows(ZepServiceException.class, () -> {
-//            System.out.println(regularWorkingTimesService.getRegularWorkingTimesByUsername("non-existing-user")
-//                    .map(ZepRegularWorkingTimes::getEmployee_id));
-//
-//        });
-//    }
-//
-//    @Test
-//    void getRegularWorkingTimesByUsername_receive401_then_ThrowException(){
-//
-//        Response response = Response.status(401).build();
-//
-//        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(Mockito.anyString(), Mockito.anyInt())).thenReturn(response);
-//
-//        assertThrows(ZepServiceException.class, () -> {
-//            System.out.println(regularWorkingTimesService.getRegularWorkingTimesByUsername("")
-//                    .map(ZepRegularWorkingTimes::getEmployee_id));
-//        });
-//    }
-
 }

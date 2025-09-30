@@ -73,14 +73,14 @@ public class ZepMailToCommentService {
                                 .orElseThrow(projectNotFoundInZep(zepProjektzeitDetailsMail.getProjekt()));
 
                         commentService.create(
-                                projectBillable
+                                Boolean.TRUE.equals(projectBillable)
                                         ? StepName.CONTROL_TIME_EVIDENCES.getId()
                                         : StepName.CONTROL_INTERNAL_TIMES.getId(),
                                 SourceSystem.ZEP,
                                 empfaenger.getEmail(),
                                 buildComment(zepProjektzeitDetailsMail),
                                 ersteller.getEmail(),
-                                projectBillable
+                                Boolean.TRUE.equals(projectBillable)
                                         ? zepProjektzeitDetailsMail.getProjekt()
                                         : null,
                                 YearMonth.from(zepProjektzeitDetailsMail.getTag())
@@ -94,12 +94,11 @@ public class ZepMailToCommentService {
     }
 
     private static Supplier<IllegalArgumentException> projectNotFoundInZep(String projectName) {
-        return () -> new IllegalArgumentException(String.format("Project '%s' could not be found in ZEP!", projectName));
+        return () -> new IllegalArgumentException("Project '%s' could not be found in ZEP!".formatted(projectName));
     }
 
     private static String buildComment(ZepProjektzeitDetailsMail mail) {
-        return String.format(
-                "Buchung vom %s (%s - %s) im Projekt '%s' - '%s' mit dem Text '%s' ist anzupassen.\n %s",
+        return "Buchung vom %s (%s - %s) im Projekt '%s' - '%s' mit dem Text '%s' ist anzupassen.%n %s".formatted(
                 DATE_FORMATTER.format(mail.getTag()),
                 mail.getUhrzeitVon(),
                 mail.getUhrzeitBis(),
@@ -114,11 +113,10 @@ public class ZepMailToCommentService {
         if (mailSenderMetadata.getRecipientEmail() != null) {
             logger.error("Error processing E-Mail: {}.", e.getMessage());
 
-            Map<String, String> mailParameter = new HashMap<>() {{
-                put(MailParameter.RECIPIENT, mailSenderMetadata.getRecipientFirstname()); // employee who sent the comment
-                put(MailParameter.COMMENT, e.getMessage()); // error message
-                put(MailParameter.ORIGINAL_MAIL, mailSenderMetadata.getRawContent()); // original E-Mail
-            }};
+            Map<String, String> mailParameter = new HashMap<>();
+            mailParameter.put(MailParameter.RECIPIENT, mailSenderMetadata.getRecipientFirstname()); // employee who sent the comment
+            mailParameter.put(MailParameter.COMMENT, e.getMessage()); // error message
+            mailParameter.put(MailParameter.ORIGINAL_MAIL, mailSenderMetadata.getRawContent()); // original E-Mail
 
             mailSender.send(
                     Mail.ZEP_COMMENT_PROCESSING_ERROR,

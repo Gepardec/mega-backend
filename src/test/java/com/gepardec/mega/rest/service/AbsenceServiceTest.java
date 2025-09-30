@@ -18,7 +18,7 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -61,30 +61,31 @@ class AbsenceServiceTest {
                         .build()
         );
 
-        Response res1 = Response.ok(mockAbsences.get(0)).build();
+        Response res1 = Response.ok(mockAbsences.getFirst()).build();
         Response res2 = Response.ok(mockAbsences.get(1)).build();
 
         when(responseParser.retrieveAll(any(), eq(ZepAbsence.class)))
                 .thenReturn(mockAbsences);
-        when(responseParser.retrieveSingle(eq(res1), eq(ZepAbsence.class)))
+        when(responseParser.retrieveSingle(eq(res1), any()))
                 .thenReturn(
-                        Optional.of(mockAbsences.get(0))
+                        Optional.of(mockAbsences.getFirst())
                 );
-        when(responseParser.retrieveSingle(eq(res2), eq(ZepAbsence.class)))
+        when(responseParser.retrieveSingle(eq(res2), any()))
                 .thenReturn(
                         Optional.of(mockAbsences.get(1))
                 );
 
-        when(zepAbsenceRestClient.getAbsenceById(eq(1)))
+        when(zepAbsenceRestClient.getAbsenceById(1))
                 .thenReturn(res1);
-        when(zepAbsenceRestClient.getAbsenceById(eq(2)))
+        when(zepAbsenceRestClient.getAbsenceById(2))
                 .thenReturn(res2);
 
 
         List<ZepAbsence> result = absenceService.getZepAbsencesByEmployeeNameForDateRange(employeeName, payrollMonth);
 
-        assertThat(result).isNotNull();
-        assertThat(result.size()).isEqualTo(2);
+        assertThat(result)
+                .isNotNull()
+                .hasSize(2);
     }
 
     @Test
@@ -96,9 +97,9 @@ class AbsenceServiceTest {
                 .thenThrow(new ZepServiceException("Service unavailable"));
 
         List<ZepAbsence> result = absenceService.getZepAbsencesByEmployeeNameForDateRange(employeeName, payrollMonth);
-
-        assertThat(result).isNotNull();
-        assertThat(result.size()).isZero();
+        assertThat(result)
+                .isNotNull()
+                .isEmpty();
         verify(logger).warn(anyString(), any(ZepServiceException.class));
     }
 

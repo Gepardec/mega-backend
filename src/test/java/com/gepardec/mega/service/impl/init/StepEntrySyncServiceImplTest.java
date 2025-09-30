@@ -131,13 +131,13 @@ class StepEntrySyncServiceImplTest {
                 .firstname(firstname + id)
                 .lastname(lastname)
                 .roles(Set.of(Role.EMPLOYEE))
-                .email(String.format("%s%s.%s@gepardec.com", firstname, id, lastname));
+                .email("%s%s.%s@gepardec.com".formatted(firstname, id, lastname));
     }
 
     private Project.Builder projectFor(final int id) {
         return Project.builder()
                 .projectId(String.valueOf(id))
-                .description(String.format("Description of Project %s", id))
+                .description("Description of Project %s".formatted(id))
                 .categories(List.of());
     }
 

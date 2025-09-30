@@ -45,12 +45,12 @@ class PrematureEmployeeCheckServiceTest {
     void addPrematureEmployeeCheck_addValid_returnTrue() {
 //        Given
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
-                .user(createUserForRole(Role.EMPLOYEE))
+                .user(createUserForRole())
                 .forMonth(LocalDate.of(2023, 10, 1))
                 .state(PrematureEmployeeCheckState.DONE)
                 .build();
 
-        when(userRepository.findActiveByEmail(any())).thenReturn(Optional.of(createDBUserForRole(Role.EMPLOYEE)));
+        when(userRepository.findActiveByEmail(any())).thenReturn(Optional.of(createDBUserForRole()));
         when(prematureEmployeeCheckRepository.create(any())).thenReturn(createDBPrematureEmployeeCheck(1L));
         when(prematureEmployeeCheckMapper.mapToEntity(any())).thenReturn(createDBPrematureEmployeeCheck(null));
 
@@ -62,12 +62,12 @@ class PrematureEmployeeCheckServiceTest {
     void addPrematureEmployeeCheck_dbFails_returnFalse() {
 //        Given
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
-                .user(createUserForRole(Role.EMPLOYEE))
+                .user(createUserForRole())
                 .forMonth(LocalDate.of(2023, 10, 1))
                 .state(PrematureEmployeeCheckState.DONE)
                 .build();
 
-        when(userRepository.findActiveByEmail(any())).thenReturn(Optional.of(createDBUserForRole(Role.EMPLOYEE)));
+        when(userRepository.findActiveByEmail(any())).thenReturn(Optional.of(createDBUserForRole()));
         when(prematureEmployeeCheckRepository.create(any())).thenReturn(createDBPrematureEmployeeCheck(null));
         when(prematureEmployeeCheckMapper.mapToEntity(any())).thenReturn(createDBPrematureEmployeeCheck(null));
 
@@ -79,7 +79,7 @@ class PrematureEmployeeCheckServiceTest {
     void updatePrematureEmployeeCheck_validUpdate_returnTrue() {
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .id(1L)
-                .user(createUserForRole(Role.EMPLOYEE))
+                .user(createUserForRole())
                 .forMonth(LocalDate.of(2023, 10, 1))
                 .state(PrematureEmployeeCheckState.DONE)
                 .build();
@@ -97,7 +97,7 @@ class PrematureEmployeeCheckServiceTest {
     void updatePrematureEmployeeCheck_updateFails_returnFalse() {
         PrematureEmployeeCheck prematureEmployeeCheck = PrematureEmployeeCheck.builder()
                 .id(1L)
-                .user(createUserForRole(Role.EMPLOYEE))
+                .user(createUserForRole())
                 .forMonth(LocalDate.of(2023, 10, 1))
                 .state(PrematureEmployeeCheckState.DONE)
                 .build();
@@ -152,18 +152,18 @@ class PrematureEmployeeCheckServiceTest {
         assertThat(prematureEmployeeCheckService.deleteById(id)).isFalse();
     }
 
-    private User createUserForRole(final Role role) {
+    private User createUserForRole() {
         return User.builder()
                 .dbId(1)
                 .userId("1")
                 .email("max.mustermann@gpeardec.com")
                 .firstname("Max")
                 .lastname("Mustermann")
-                .roles(Set.of(role))
+                .roles(Set.of(Role.EMPLOYEE))
                 .build();
     }
 
-    private com.gepardec.mega.db.entity.employee.User createDBUserForRole(final Role role) {
+    private com.gepardec.mega.db.entity.employee.User createDBUserForRole() {
         com.gepardec.mega.db.entity.employee.User user = new com.gepardec.mega.db.entity.employee.User();
         user.setId(1L);
         user.setActive(true);
@@ -175,7 +175,7 @@ class PrematureEmployeeCheckServiceTest {
     private PrematureEmployeeCheckEntity createDBPrematureEmployeeCheck(Long id) {
         PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
         prematureEmployeeCheckEntity.setId(id);
-        prematureEmployeeCheckEntity.setUser(createDBUserForRole(Role.EMPLOYEE));
+        prematureEmployeeCheckEntity.setUser(createDBUserForRole());
         prematureEmployeeCheckEntity.setForMonth(LocalDate.of(2023, 10, 1));
         prematureEmployeeCheckEntity.setState(PrematureEmployeeCheckState.DONE);
         return prematureEmployeeCheckEntity;

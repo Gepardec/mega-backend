@@ -124,7 +124,7 @@ public class CommentServiceImpl implements CommentService {
     public Comment update(final Long id, final String message) {
         var comment = commentRepository.findById(id);
         if (comment == null) {
-            throw new EntityNotFoundException(String.format("No entity found for id = %d", id));
+            throw new EntityNotFoundException("No entity found for id = %d".formatted(id));
         }
 
         comment.setMessage(message);
@@ -144,11 +144,10 @@ public class CommentServiceImpl implements CommentService {
         var recipientEmail = Mail.COMMENT_CLOSED.equals(mail)
                 ? stepEntry.getAssignee().getEmail()
                 : stepEntry.getOwner().getEmail();
-        Map<String, String> mailParameter = new HashMap<>() {{
-            put(MailParameter.CREATOR, creator);
-            put(MailParameter.RECIPIENT, recipient);
-            put(MailParameter.COMMENT, comment.getMessage());
-        }};
+        Map<String, String> mailParameter = new HashMap<>();
+        mailParameter.put(MailParameter.CREATOR, creator);
+        mailParameter.put(MailParameter.RECIPIENT, recipient);
+        mailParameter.put(MailParameter.COMMENT, comment.getMessage());
 
         mailSender.send(
                 mail,

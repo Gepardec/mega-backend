@@ -25,14 +25,14 @@ class PrematureEmployeeCheckMapperTest {
     @Test
     void mapToDomain_dbEntity_mappedCorrectly() {
 //        Given
-        PrematureEmployeeCheckEntity dbPrematureEmployeeCheck = createDBPrematureEmployeeCheck(1L);
+        PrematureEmployeeCheckEntity dbPrematureEmployeeCheck = createDBPrematureEmployeeCheck();
 
 //        When
         PrematureEmployeeCheck prematureEmployeeCheck = prematureEmployeeCheckMapper.mapToDomain(dbPrematureEmployeeCheck);
 
 //        Then
         assertAll(
-                () -> assertThat(prematureEmployeeCheck.getId()).isEqualTo(1L).as("checkIdMappedCorrectly"),
+                () -> assertThat(prematureEmployeeCheck.getId()).isEqualTo(1L),
                 () -> assertThat(prematureEmployeeCheck.getForMonth()).isEqualTo(LocalDate.of(2023, 10, 1))
                         .as("checkDateMappedCorrectly"),
                 () -> assertThat(prematureEmployeeCheck.getReason()).isEqualTo("reason")
@@ -45,18 +45,18 @@ class PrematureEmployeeCheckMapperTest {
     @Test
     void mapListToDomain_dbEntityList_correctLength() {
 //        Given
-        List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntity = List.of(createDBPrematureEmployeeCheck(1L), createDBPrematureEmployeeCheck(1L));
+        List<PrematureEmployeeCheckEntity> prematureEmployeeCheckEntity = List.of(createDBPrematureEmployeeCheck(), createDBPrematureEmployeeCheck());
 
 //        When
         List<PrematureEmployeeCheck> prematureEmployeeChecks = prematureEmployeeCheckMapper.mapListToDomain(prematureEmployeeCheckEntity);
 
 //        Then
-        assertThat(prematureEmployeeChecks.size()).isEqualTo(2);
+        assertThat(prematureEmployeeChecks).hasSize(2);
     }
 
     @Test
     void mapToEntity() {
-        PrematureEmployeeCheck domain = createPrematureEmployeeCheck(1L, User.builder().userId("001-maxmustermann").build(), "Test reason");
+        PrematureEmployeeCheck domain = createPrematureEmployeeCheck(User.builder().userId("001-maxmustermann").build(), "Test reason");
         PrematureEmployeeCheckEntity actual = prematureEmployeeCheckMapper
                 .mapToEntity(domain);
 
@@ -67,7 +67,7 @@ class PrematureEmployeeCheckMapperTest {
 
     @Test
     void mapToEntityWithTwoParams_whenReasonNotNull() {
-        PrematureEmployeeCheck domain = createPrematureEmployeeCheck(1L, User.builder().userId("001-maxmustermann").build(), "Test reason");
+        PrematureEmployeeCheck domain = createPrematureEmployeeCheck(User.builder().userId("001-maxmustermann").build(), "Test reason");
         PrematureEmployeeCheckEntity entity = new PrematureEmployeeCheckEntity();
         entity.setId(domain.getId());
 
@@ -80,7 +80,7 @@ class PrematureEmployeeCheckMapperTest {
 
     @Test
     void mapToEntity_WithTwoParams_whenReasonIsNull() {
-        PrematureEmployeeCheck domain = createPrematureEmployeeCheck(1L, User.builder().userId("001-maxmustermann").build(), null);
+        PrematureEmployeeCheck domain = createPrematureEmployeeCheck(User.builder().userId("001-maxmustermann").build(), null);
         PrematureEmployeeCheckEntity entity = new PrematureEmployeeCheckEntity();
         entity.setId(domain.getId());
 
@@ -100,9 +100,9 @@ class PrematureEmployeeCheckMapperTest {
         return user;
     }
 
-    private PrematureEmployeeCheck createPrematureEmployeeCheck(Long id, User user, String reason) {
+    private PrematureEmployeeCheck createPrematureEmployeeCheck(User user, String reason) {
         return PrematureEmployeeCheck.builder()
-                .id(id)
+                .id(1L)
                 .user(user)
                 .forMonth(LocalDate.of(2024, 6, 1))
                 .reason(reason)
@@ -110,9 +110,9 @@ class PrematureEmployeeCheckMapperTest {
                 .build();
     }
 
-    private PrematureEmployeeCheckEntity createDBPrematureEmployeeCheck(Long id) {
+    private PrematureEmployeeCheckEntity createDBPrematureEmployeeCheck() {
         PrematureEmployeeCheckEntity prematureEmployeeCheckEntity = new PrematureEmployeeCheckEntity();
-        prematureEmployeeCheckEntity.setId(id);
+        prematureEmployeeCheckEntity.setId(1L);
         prematureEmployeeCheckEntity.setUser(createDBUserForRole());
         prematureEmployeeCheckEntity.setForMonth(LocalDate.of(2023, 10, 1));
         prematureEmployeeCheckEntity.setReason("reason");

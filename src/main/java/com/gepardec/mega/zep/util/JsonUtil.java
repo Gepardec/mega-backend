@@ -12,6 +12,10 @@ import java.util.Optional;
 
 public class JsonUtil {
 
+    private JsonUtil() {
+        // nop
+    }
+
     public static <T> Optional<T> parseJson (String json, String path, Class<T> resultClass) {
         var objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules();

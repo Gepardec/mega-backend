@@ -1,13 +1,12 @@
 package com.gepardec.mega.notification.mail;
 
-import com.gepardec.mega.application.configuration.ApplicationConfig;
 import com.gepardec.mega.application.configuration.NotificationConfig;
 import com.google.common.collect.Maps;
 import com.google.common.net.MediaType;
 import io.quarkus.mailer.Mailer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
@@ -32,9 +31,6 @@ public class MailSender {
     NotificationConfig notificationConfig;
 
     @Inject
-    ApplicationConfig applicationConfig;
-
-    @Inject
     Mailer mailer;
 
     public void send(Mail mail, String eMail, String firstName, Locale locale) {
@@ -45,23 +41,18 @@ public class MailSender {
         String subject = notificationHelper.subjectForMail(mail, locale, subjectParameter);
         String text = notificationHelper.readEmailTemplateResourceFromStream(notificationHelper.templatePathForMail(mail, locale));
         final String mailTemplateText = (mail.getTemplate() != null) ? notificationHelper.readEmailTemplateResourceFromStream(mail.getTemplate()) : text;
-        final Map<String, String> templateParameters = new HashMap<>() {
-
-            {
-                put(MailParameter.FIRST_NAME, firstName);
-                put(MailParameter.MAIL_TEXT, text);
-                put(MailParameter.WIKI_EOM_URL, notificationConfig.getMegaWikiEomUrl());
-                put(MailParameter.MEGA_DASH, notificationConfig.getMegaDashUrl());
-            }
-        };
+        final Map<String, String> templateParameters = new HashMap<>();
+        templateParameters.put(MailParameter.FIRST_NAME, firstName);
+        templateParameters.put(MailParameter.MAIL_TEXT, text);
+        templateParameters.put(MailParameter.WIKI_EOM_URL, notificationConfig.getMegaWikiEomUrl());
+        templateParameters.put(MailParameter.MEGA_DASH, notificationConfig.getMegaDashUrl());
 
         Map<String, String> modifiableMap = Maps.newHashMap(mailParameter);
-        if (modifiableMap.containsKey(MailParameter.COMMENT)) {
-            modifiableMap.put(
-                    MailParameter.COMMENT,
-                    StringUtils.replace(modifiableMap.get(MailParameter.COMMENT), NEW_LINE_STRING, NEW_LINE_HTML)
-            );
-        }
+
+        modifiableMap.computeIfPresent(
+                MailParameter.COMMENT,
+                (k, v) -> Strings.CS.replace(v, NEW_LINE_STRING, NEW_LINE_HTML)
+        );
 
         templateParameters.putAll(modifiableMap);
 

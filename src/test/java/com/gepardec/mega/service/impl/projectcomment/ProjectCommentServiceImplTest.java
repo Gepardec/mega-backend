@@ -77,7 +77,7 @@ class ProjectCommentServiceImplTest {
                 LocalDate.of(2023, 10, 1), LocalDate.of(2023, 10, 31));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0)).isEqualTo(projectCommentDto);
+        assertThat(result.getFirst()).isEqualTo(projectCommentDto);
     }
 
     @Test

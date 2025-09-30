@@ -111,7 +111,7 @@ class SyncResourceTest {
         assertThat(employeeArgumentCaptor.getValue()).isEqualTo(userUnderTest);
         assertThat(longArgumentCaptor.getValue()).isEqualTo(1L);
         assertThat(payrollMonthCaptor.getValue()).isEqualTo(previousMonth);
-        assertThat(actual.get(0).getUserId()).isEqualTo(userUnderTest.getUserId());
+        assertThat(actual.getFirst().getUserId()).isEqualTo(userUnderTest.getUserId());
     }
 
 

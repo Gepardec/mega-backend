@@ -21,8 +21,8 @@ public class WeekendCalculator extends AbstractTimeWarningCalculationStrategy im
         if (projectTimeEntries.isEmpty()) {
             return warnings;
         } else {
-            int year = projectTimeEntries.get(0).getDate().getYear();
-            int month = projectTimeEntries.get(0).getDate().getMonth().getValue();
+            int year = projectTimeEntries.getFirst().getDate().getYear();
+            int month = projectTimeEntries.getFirst().getDate().getMonth().getValue();
 
             List<LocalDate> weekendDays = getWeekEndDaysOfMonth(year, month);
             projectTimeEntries.forEach(projectTimeEntry -> {

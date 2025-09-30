@@ -30,6 +30,7 @@ class JsonUtilTest {
                 "}";
 
         Optional<Demo> demoOpt = JsonUtil.parseJson(json, "/data", Demo.class);
+        assertThat(demoOpt).isPresent();
         assertThat(demoOpt.get().id).isEqualTo(1);
         assertThat(demoOpt.get().name).isEqualTo("mega");
     }
@@ -50,6 +51,7 @@ class JsonUtilTest {
                 "}";
 
         Optional<Demo> demoOpt = JsonUtil.parseJson(json, "/data3", Demo.class);
+        assertThat(demoOpt).isPresent();
         assertThat(demoOpt.get().id).isEqualTo(3);
         assertThat(demoOpt.get().name).isEqualTo("mega3");
     }
@@ -58,14 +60,14 @@ class JsonUtilTest {
         String json = "{\"data\": {}}";
 
         Optional<Demo> demoOpt = JsonUtil.parseJson(json, "/data", Demo.class);
-        assertThat(demoOpt.isEmpty()).isTrue();
+        assertThat(demoOpt).isEmpty();
     }
     @Test
     void getEmptyArr_thenReturnEmpty() {
         String json = "{\"data\": []}";
 
         Optional<Demo> demoOpt = JsonUtil.parseJson(json, "/data", Demo.class);
-        assertThat(demoOpt.isEmpty()).isTrue();
+        assertThat(demoOpt).isEmpty();
     }
     @Test
     void getArr_thenReturnArr() {
@@ -74,9 +76,11 @@ class JsonUtilTest {
                 "{\"id\": 2, \"name\": \"GEMA\"}" +
                 "]}";
 
-        List<Demo> list = List.of(JsonUtil.parseJson(json, "/data", Demo[].class).get());
-        assertThat(list.get(0).id).isEqualTo(1);
-        assertThat(list.get(0).name).isEqualTo("MEGA");
+        Optional<Demo[]> demos = JsonUtil.parseJson(json, "/data", Demo[].class);
+        assertThat(demos).isPresent();
+        List<Demo> list = List.of(demos.get());
+        assertThat(list.getFirst().id).isEqualTo(1);
+        assertThat(list.getFirst().name).isEqualTo("MEGA");
         assertThat(list.get(1).id).isEqualTo(2);
         assertThat(list.get(1).name).isEqualTo("GEMA");
     }

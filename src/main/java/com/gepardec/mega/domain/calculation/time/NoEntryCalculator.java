@@ -29,7 +29,7 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
             return timeWarnings;
         }
 
-        YearMonth payrollMonth = YearMonth.from(projectEntries.get(0).getDate());
+        YearMonth payrollMonth = YearMonth.from(projectEntries.getFirst().getDate());
         List<LocalDate> futureDays = getFutureDays();
         List<LocalDate> regularWorking0Days = getRegularWorkingHours0Dates(employee, payrollMonth);
         List<LocalDate> compensatoryDays = filterAbsenceTypesAndCompileLocalDateList(AbsenteeType.COMPENSATORY_DAYS.getType(), absenceEntries);

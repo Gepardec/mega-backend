@@ -83,7 +83,7 @@ class ExceededMaximumWorkingHoursPerDayCalculatorTest {
         List<TimeWarning> warnings = calculator.calculate(List.of(timeEntryOne, timeEntryTwo, timeEntryThree));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getExcessWorkTime()).isEqualTo(4);
+        assertThat(warnings.getFirst().getExcessWorkTime()).isEqualTo(4);
     }
 
     @Test
@@ -95,7 +95,7 @@ class ExceededMaximumWorkingHoursPerDayCalculatorTest {
         List<TimeWarning> warnings = calculator.calculate(List.of(timeEntryTwo, timeEntryOne, timeEntryThree));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getExcessWorkTime()).isEqualTo(2);
+        assertThat(warnings.getFirst().getExcessWorkTime()).isEqualTo(2);
     }
 
     @Test
@@ -121,7 +121,7 @@ class ExceededMaximumWorkingHoursPerDayCalculatorTest {
         List<TimeWarning> warnings = calculator.calculate(List.of(timeEntryOne, timeEntryTwo));
 
         assertThat(warnings).hasSize(1);
-        TimeWarning warning = warnings.get(0);
+        TimeWarning warning = warnings.getFirst();
         assertThat(warning.getDate()).isNotNull();
         assertThat(warning.getExcessWorkTime()).isNotNull();
         assertThat(warning.getMissingRestTime()).isNull();
@@ -136,7 +136,7 @@ class ExceededMaximumWorkingHoursPerDayCalculatorTest {
         List<TimeWarning> warnings = calculator.calculate(List.of(timeEntryTwo, timeEntryOne));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getExcessWorkTime()).isEqualTo(1);
+        assertThat(warnings.getFirst().getExcessWorkTime()).isEqualTo(1);
     }
 
     @Test
@@ -147,7 +147,7 @@ class ExceededMaximumWorkingHoursPerDayCalculatorTest {
         List<TimeWarning> warnings = calculator.calculate(List.of(timeEntryOne, timeEntryTwo));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getExcessWorkTime()).isEqualTo(1);
+        assertThat(warnings.getFirst().getExcessWorkTime()).isEqualTo(1);
     }
 
     @Test
@@ -159,6 +159,6 @@ class ExceededMaximumWorkingHoursPerDayCalculatorTest {
         List<TimeWarning> warnings = calculator.calculate(List.of(timeEntryOne, timeEntryTwo, timeEntryThree));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getExcessWorkTime()).isEqualTo(1);
+        assertThat(warnings.getFirst().getExcessWorkTime()).isEqualTo(1);
     }
 }

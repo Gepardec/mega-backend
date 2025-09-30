@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -50,11 +50,9 @@ class EmployeeServiceTest {
         List<String> responseJson = resourceFileService.getDirContents("/users");
 
         IntStream.range(0, responseJson.size()).forEach(
-                i -> {
-                    when(zepEmployeeRestClient
-                            .getAllEmployeesOfPage(i + 1))
-                            .thenReturn(Response.ok().entity(responseJson.get(i)).build());
-                }
+                i -> when(zepEmployeeRestClient
+                        .getAllEmployeesOfPage(i + 1))
+                        .thenReturn(Response.ok().entity(responseJson.get(i)).build())
         );
     }
 
@@ -89,6 +87,7 @@ class EmployeeServiceTest {
 
         Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByPersonalNumber("007");
 
+        assertThat(zepEmployee).isPresent();
         assertThat(zepEmployee.get()).usingRecursiveComparison().isEqualTo(referenceEmployee);
     }
 
@@ -118,13 +117,13 @@ class EmployeeServiceTest {
                         .build());
 
         List<String> employeeNames = List.of("000-duser", "001-tuser", "007-jbond");
-        when(employmentPeriodService.getZepEmploymentPeriodsByUsername(employeeNames.get(0))).thenReturn(periods000);
+        when(employmentPeriodService.getZepEmploymentPeriodsByUsername(employeeNames.getFirst())).thenReturn(periods000);
         when(employmentPeriodService.getZepEmploymentPeriodsByUsername(employeeNames.get(1))).thenReturn(periods001);
         when(employmentPeriodService.getZepEmploymentPeriodsByUsername(employeeNames.get(2))).thenReturn(periods007);
 
         List<ZepEmployee> employees = employeeService.getZepEmployees();
 
-        employees.forEach(employee -> assertThat(employeeNames.contains(employee.username())).isTrue());
+        employees.forEach(employee -> assertThat(employeeNames).contains(employee.username()));
     }
 
 

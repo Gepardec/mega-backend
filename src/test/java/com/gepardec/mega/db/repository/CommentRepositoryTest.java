@@ -28,7 +28,7 @@ class CommentRepositoryTest {
 
     private static final String EMAIL = "max.muster@gepardec.com";
 
-    private final LocalDateTime LOCALDATETIME = LocalDateTime.now();
+    private static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.now();
 
     @Inject
     CommentRepository commentRepository;
@@ -81,15 +81,6 @@ class CommentRepositoryTest {
     }
 
     @Test
-    void setStatusDone_whenCommentExists_thenSetsStatusToDone() {
-        persistEntities();
-
-        int result = commentRepository.setStatusDone(comment.getId());
-
-        assertThat(result).isEqualTo(1);
-    }
-
-    @Test
     void setStatusDone_whenCommentExistsAndHasStatusDone_thenSetsStatusDone() {
         persistEntities();
 
@@ -109,15 +100,6 @@ class CommentRepositoryTest {
 
     @Test
     void deleteComment_whenCommentIsPersistedAndDeleteCommentIsCalled_thenDeletesComment() {
-        persistEntities();
-
-        boolean result = commentRepository.deleteComment(comment.getId());
-
-        assertThat(result).isTrue();
-    }
-
-    @Test
-    void deleteComment_whenCommentIsntPersisted_thenReturnsFalse() {
         persistEntities();
 
         boolean result = commentRepository.deleteComment(comment.getId());
@@ -151,8 +133,8 @@ class CommentRepositoryTest {
 
     private StepEntry initializeStepEntryObject() {
         StepEntry initStepEntry = new StepEntry();
-        initStepEntry.setCreationDate(LOCALDATETIME);
-        initStepEntry.setUpdatedDate(LOCALDATETIME);
+        initStepEntry.setCreationDate(LOCAL_DATE_TIME);
+        initStepEntry.setUpdatedDate(LOCAL_DATE_TIME);
         initStepEntry.setDate(LocalDate.now());
         initStepEntry.setProject(project.getName());
         initStepEntry.setState(EmployeeState.IN_PROGRESS);
@@ -168,7 +150,7 @@ class CommentRepositoryTest {
         initComment.setState(EmployeeState.OPEN);
         initComment.setMessage("Test Message");
         initComment.setCreationDate(LocalDateTime.of(2021, 1, 18, 10, 10));
-        initComment.setUpdatedDate(LOCALDATETIME);
+        initComment.setUpdatedDate(LOCAL_DATE_TIME);
         initComment.setStepEntry(stepEntry);
         initComment.setSourceSystem(SourceSystem.MEGA);
 

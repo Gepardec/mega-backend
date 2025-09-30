@@ -81,7 +81,7 @@ public class ZepProjektzeitDetailsMail {
     }
 
     public String getMitarbeiterName() {
-        return String.format("%s, %s", mitarbeiterNachname, mitarbeiterVorname);
+        return "%s, %s".formatted(mitarbeiterNachname, mitarbeiterVorname);
     }
 
     @Override

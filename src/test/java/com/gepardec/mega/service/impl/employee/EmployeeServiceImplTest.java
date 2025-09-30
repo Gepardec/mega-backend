@@ -71,8 +71,8 @@ class EmployeeServiceImplTest {
         assertAll(
                 () -> assertThat(employees).isNotNull(),
                 () -> assertThat(employees).hasSize(1),
-                () -> assertThat(employees.get(0).getUserId()).isEqualTo("0"),
-                () -> assertThat(employees.get(0).getFirstname()).isEqualTo("Max_0")
+                () -> assertThat(employees.getFirst().getUserId()).isEqualTo("0"),
+                () -> assertThat(employees.getFirst().getFirstname()).isEqualTo("Max_0")
         );
     }
 
@@ -173,7 +173,7 @@ class EmployeeServiceImplTest {
         assertAll(
                 () -> assertThat(result).isNotNull(),
                 () -> assertThat(result).hasSize(1),
-                () -> assertThat(result.get(0)).isEqualTo("0")
+                () -> assertThat(result.getFirst()).isEqualTo("0")
         );
     }
 
@@ -198,7 +198,7 @@ class EmployeeServiceImplTest {
         assertAll(
                 () -> assertThat(result).isNotNull(),
                 () -> assertThat(result).hasSize(10),
-                () -> assertThat(result.get(0)).isEqualTo("0"),
+                () -> assertThat(result.getFirst()).isEqualTo("0"),
                 () -> assertThat(result.get(9)).isEqualTo("9")
         );
     }

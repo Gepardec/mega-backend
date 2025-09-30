@@ -4,8 +4,6 @@ import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.zep.rest.dto.ZepBillingType;
 import com.gepardec.mega.zep.rest.dto.ZepProject;
-import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
-import com.gepardec.mega.zep.rest.dto.ZepProjectEmployeeType;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -15,7 +13,6 @@ import org.slf4j.Logger;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,22 +26,6 @@ class ProjectMapperTest {
 
     @Test
     void fullZepProject_thenFullProject() {
-        List<ZepProjectEmployee> zepProjectEmployees = List.of(
-                ZepProjectEmployee.builder()
-                        .username("Anton")
-                        .type(ZepProjectEmployeeType.builder().id(1).build())
-                        .build(),
-                ZepProjectEmployee.builder()
-                        .username("Berta")
-                        .type(ZepProjectEmployeeType.builder().id(2).build())
-                        .build(),
-                ZepProjectEmployee.builder()
-                        .username("Caesar")
-                        .type(ZepProjectEmployeeType.builder().id(2).build())
-                        .build()
-        );
-
-
         int billabilityZepId = BillabilityPreset.BILLABLE.getZepId();
 
         ZepProject zepProject = ZepProject.builder()

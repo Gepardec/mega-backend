@@ -47,7 +47,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        logger.info("Started project generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
+        logger.info("Started project generation: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().getNano()));
         logger.info("Processing date: {}", payrollMonth);
 
         List<User> activeUsers = userService.findActiveUsers();
@@ -68,7 +68,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         logger.debug("projects in db are {}", projects);
 
         logger.info("Project generation took: {}ms", stopWatch.getTime());
-        logger.info("Finished project generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
+        logger.info("Finished project generation: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().getNano() + stopWatch.getTime()));
 
         return !projects.isEmpty();
     }
@@ -76,8 +76,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
     private List<com.gepardec.mega.db.entity.project.Project> createProjects(List<User> activeUsers, List<Project> projects, YearMonth payrollMonth) {
         return projects.stream()
                 .map(project -> createProjectEntityFromProject(activeUsers, project, payrollMonth))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Optional::stream)
                 .toList();
     }
 
@@ -89,8 +88,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
                 .filter(Objects::nonNull)
                 .filter(userid -> !userid.isBlank())
                 .map(userid -> findUserByUserId(activeUsers, userid))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Optional::stream)
                 .toList();
 
         if (leads.isEmpty()) {
