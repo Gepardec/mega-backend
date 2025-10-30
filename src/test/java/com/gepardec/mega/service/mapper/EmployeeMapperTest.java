@@ -1,15 +1,12 @@
 package com.gepardec.mega.service.mapper;
 
 import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.model.User;
-import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.utils.DateUtils;
 import de.provantis.zep.BeschaeftigungszeitListeType;
 import de.provantis.zep.BeschaeftigungszeitType;
 import de.provantis.zep.MitarbeiterType;
 import de.provantis.zep.RegelarbeitszeitListeTypeTs;
 import de.provantis.zep.RegelarbeitszeitType;
-import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.Range;
@@ -19,13 +16,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 @QuarkusTest
 class EmployeeMapperTest {
-
-    @InjectMock
-    UserContext userContext;
 
     @Inject
     EmployeeMapper mapper;
@@ -56,8 +49,6 @@ class EmployeeMapperTest {
         employee.setBeschaeftigungszeitListe(employments);
         employee.setRegelarbeitszeitListe(regelarbeitszeiten);
 
-        when(userContext.getUser()).thenReturn(User.builder().personioId(123).build());
-
         final Employee actual = mapper.map(employee);
         assertThat(employee).isNotNull();
         assertThat(actual.getUserId()).isEqualTo(employee.getUserId());
@@ -70,7 +61,6 @@ class EmployeeMapperTest {
         assertThat(actual.getReleaseDate()).isEqualTo(employee.getFreigabedatum());
         assertThat(actual.getEmploymentPeriods()).isNotNull();
         assertThat(actual.getRegularWorkingTimes()).isNotNull();
-        assertThat(actual.getPersonioId()).isEqualTo(123);
     }
 
     private BeschaeftigungszeitType createBeschaeftigungszeitType(final LocalDate start, final LocalDate end) {

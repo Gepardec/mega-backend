@@ -5,14 +5,12 @@ import com.gepardec.mega.domain.model.EmploymentPeriod;
 import com.gepardec.mega.domain.model.EmploymentPeriods;
 import com.gepardec.mega.domain.model.RegularWorkingTime;
 import com.gepardec.mega.domain.model.RegularWorkingTimes;
-import com.gepardec.mega.domain.model.UserContext;
 import de.provantis.zep.BeschaeftigungszeitListeType;
 import de.provantis.zep.BeschaeftigungszeitType;
 import de.provantis.zep.MitarbeiterType;
 import de.provantis.zep.RegelarbeitszeitListeTypeTs;
 import de.provantis.zep.RegelarbeitszeitType;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -27,9 +25,6 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class EmployeeMapper {
-
-    @Inject
-    UserContext userContext;
 
     public Employee map(MitarbeiterType mitarbeiterType) {
         if (mitarbeiterType == null) {
@@ -48,7 +43,6 @@ public class EmployeeMapper {
                 .language(mitarbeiterType.getSprache())
                 .employmentPeriods(new EmploymentPeriods(mapEmploymentPeriods(mitarbeiterType)))
                 .regularWorkingTimes(new RegularWorkingTimes(mapRegularWorkingHoursList(mitarbeiterType.getRegelarbeitszeitListe())))
-                .personioId(userContext.getUser().getPersonioId())
                 .build();
     }
 
