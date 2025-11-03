@@ -3,6 +3,7 @@ package com.gepardec.mega.domain.model;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +52,18 @@ public record RegularWorkingTimes(List<RegularWorkingTime> regularWorkingTimes) 
                                 Comparator.nullsFirst(Comparator.naturalOrder())
                         )
                 );
+    }
+
+    /**
+     * Returns the active regular working time for the given payroll month.
+     * If there is only one regular working time entry with a null start date,
+     * it is considered active from the start of the employment period.
+     *
+     * @param payrollMonth the month to check for active regular working time
+     * @return Optional containing the active regular working time or empty if none are active
+     */
+    public Optional<RegularWorkingTime> active(YearMonth payrollMonth) {
+        return active(payrollMonth.atDay(1)).or(() -> active(payrollMonth.atEndOfMonth()));
     }
 
     private Predicate<RegularWorkingTime> isStartInPast(LocalDate referenceDate) {

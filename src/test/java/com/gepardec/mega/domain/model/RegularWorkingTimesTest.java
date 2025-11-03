@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -233,6 +234,47 @@ class RegularWorkingTimesTest {
 
             // Act & Assert
             assertThat(regularWorkingTimes.active(referenceDate)).isEmpty();
+        }
+
+        @Test
+        void active_WhenReferenceDateInSameMonthButBeforeStart_ThenShouldReturnEmptyOptional() {
+            // Arrange
+            LocalDate referenceDate = LocalDate.of(2025, 10, 1);
+            Map<DayOfWeek, Duration> workingHours1 = createWorkingHoursMap(8);
+            Map<DayOfWeek, Duration> workingHours2 = createWorkingHoursMap(6);
+
+            RegularWorkingTimes regularWorkingTimes = new RegularWorkingTimes(
+                    List.of(
+                            new RegularWorkingTime(null, workingHours1),
+                            new RegularWorkingTime(LocalDate.of(2025, 10, 18), workingHours2)
+                    )
+            );
+
+            // Act & Assert
+            assertThat(regularWorkingTimes.active(referenceDate)).isEmpty();
+        }
+
+        @Test
+        void active_WhenPayrollMonthInSameMonth_ThenShouldReturnWorkingTimes() {
+            // Arrange
+            YearMonth referenceDate = YearMonth.of(2025, 10);
+            Map<DayOfWeek, Duration> workingHours1 = createWorkingHoursMap(8);
+            Map<DayOfWeek, Duration> workingHours2 = createWorkingHoursMap(6);
+
+            RegularWorkingTimes regularWorkingTimes = new RegularWorkingTimes(
+                    List.of(
+                            new RegularWorkingTime(null, workingHours1),
+                            new RegularWorkingTime(LocalDate.of(2025, 10, 18), workingHours2)
+                    )
+            );
+
+            // Act & Assert
+            assertThat(regularWorkingTimes.active(referenceDate))
+                    .isPresent()
+                    .hasValueSatisfying(hours -> {
+                        assertThat(hours.start()).isEqualTo(LocalDate.of(2025, 10, 18));
+                        assertThat(hours.workingHours()).isEqualTo(workingHours2);
+                    });
         }
     }
 

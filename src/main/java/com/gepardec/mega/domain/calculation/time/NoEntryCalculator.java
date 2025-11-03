@@ -80,7 +80,7 @@ public class NoEntryCalculator extends AbstractTimeWarningCalculationStrategy {
             return allNonRegularWorkingHourDates;
         }
 
-        employee.getRegularWorkingTimes().active(payrollMonth.atDay(1))
+        employee.getRegularWorkingTimes().active(payrollMonth)
                 .orElseThrow(() -> new IllegalStateException("Employee %s has no regular working times for the given payroll month".formatted(employee.getUserId())))
                 .workingHours()
                 .forEach((dayOfWeek, regularHours) -> {
