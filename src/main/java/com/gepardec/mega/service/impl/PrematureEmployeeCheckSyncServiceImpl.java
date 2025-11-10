@@ -39,10 +39,7 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
                 .filter(pec -> pec.getState().equals(PrematureEmployeeCheckState.DONE) || pec.getState().equals(PrematureEmployeeCheckState.IN_PROGRESS))
                 .toList();
 
-        String logMessage = "Syncing %s PrematureEmployeeChecks with StepEntries for Month: %s".formatted(
-                prematureEmployeeCheckEntities.size(),
-                payrollMonth);
-        logger.info(logMessage);
+        logger.info("Syncing {} PrematureEmployeeChecks with StepEntries for Month: {}", prematureEmployeeCheckEntities.size(), payrollMonth);
 
         for (PrematureEmployeeCheck pec : prematureEmployeeCheckEntities) {
             boolean couldUpdatePec = updateStepEntry(pec) != 0;
@@ -50,12 +47,12 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
             if (couldUpdatePec) {
                 prematureEmployeeCheckService.deleteById(pec.getId());
             } else {
-                String errorMessage = """
-                        Could not find StepEntry for PrematureEmployeeCheck! \
-                        StepEntries or PrematureEmployeeChecks must be malformed! \
-                        (PrematureEmployeeCheck ID: %s)"""
-                        .formatted(pec.getId());
-                logger.error(errorMessage);
+                logger.error("""
+                                Could not find StepEntry for PrematureEmployeeCheck! \
+                                StepEntries or PrematureEmployeeChecks must be malformed! \
+                                (PrematureEmployeeCheck ID: {})""",
+                        pec.getId()
+                );
                 allEntriesUpdated = false;
             }
         }

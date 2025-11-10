@@ -34,8 +34,7 @@ public class MegaRolesAllowedInterceptor {
         if (isInRole(userContext.getUser().getRoles(), allowedRoles)) {
             return invocationContext.proceed();
         } else {
-            throw new ForbiddenException("User has insufficient role %s".formatted(userContext.getUser()
-                    .getRoles()));
+            throw new ForbiddenException("User has insufficient role %s".formatted(userContext.getUser().getRoles()));
         }
     }
 

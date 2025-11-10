@@ -13,17 +13,19 @@ public class EnterpriseEntryMapper {
 
     public EnterpriseEntryDto map(final Optional<EnterpriseEntry> enterpriseEntry) {
         return enterpriseEntry.map(entry -> EnterpriseEntryDto.builder()
-                .creationDate(entry.getCreationDate())
-                .date(entry.getDate())
-                .chargeabilityExternalEmployeesRecorded(
-                        ProjectState.byName(
-                                entry
-                                        .getChargeabilityExternalEmployeesRecorded()
-                                        .name()
+                        .creationDate(entry.getCreationDate())
+                        .date(entry.getDate())
+                        .chargeabilityExternalEmployeesRecorded(
+                                ProjectState.byName(
+                                        entry
+                                                .getChargeabilityExternalEmployeesRecorded()
+                                                .name()
+                                )
                         )
+                        .payrollAccountingSent(ProjectState.byName(entry.getPayrollAccountingSent().name()))
+                        .zepTimesReleased(ProjectState.byName(entry.getZepTimesReleased().name()))
+                        .build()
                 )
-                .payrollAccountingSent(ProjectState.byName(entry.getPayrollAccountingSent().name()))
-                .zepTimesReleased(ProjectState.byName(entry.getZepTimesReleased().name()))
-                .build()).orElse(null);
+                .orElse(null);
     }
 }

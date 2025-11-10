@@ -24,7 +24,8 @@ public class CommentMapper implements EntityMapper<Comment, com.gepardec.mega.db
                 .authorEmail(dbComment.getStepEntry().getAssignee().getEmail())
                 .authorName("%s %s".formatted(
                         dbComment.getStepEntry().getAssignee().getFirstname(),
-                        dbComment.getStepEntry().getAssignee().getLastname()))
+                        dbComment.getStepEntry().getAssignee().getLastname())
+                )
                 .updateDate(dbComment.getUpdatedDate().toString())
                 .message(dbComment.getMessage())
                 .state(dbComment.getState())
