@@ -56,9 +56,10 @@ public record RegularWorkingTimes(List<RegularWorkingTime> regularWorkingTimes) 
 
     /**
      * Returns the active regular working time for the given payroll month.
-     * If there is only one regular working time entry with a null start date,
-     * it is considered active from the start of the employment period.
-     *
+     * This method first checks for an active working time at the start of the month,
+     * and if none is found, checks at the end of the month. This ensures that working
+     * times starting mid-month are correctly identified.
+     * 
      * @param payrollMonth the month to check for active regular working time
      * @return Optional containing the active regular working time or empty if none are active
      */
