@@ -9,7 +9,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.MapKey;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -35,7 +35,7 @@ public class Step {
      * The related step entries whereby each step entry
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "step")
-    @MapKeyColumn(name = "entry_date")
+    @MapKey(name = "date")
     public Map<LocalDate, StepEntry> stepEntries = HashMap.newHashMap(0);
 
     @Id
