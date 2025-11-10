@@ -50,10 +50,11 @@ public class PrematureEmployeeCheckSyncServiceImpl implements PrematureEmployeeC
             if (couldUpdatePec) {
                 prematureEmployeeCheckService.deleteById(pec.getId());
             } else {
-                String errorMessage = String.format("Could not find StepEntry for PrematureEmployeeCheck! " +
-                                "StepEntries or PrematureEmployeeChecks must be malformed! " +
-                                "(PrematureEmployeeCheck ID: %s)",
-                        pec.getId());
+                String errorMessage = """
+                        Could not find StepEntry for PrematureEmployeeCheck! \
+                        StepEntries or PrematureEmployeeChecks must be malformed! \
+                        (PrematureEmployeeCheck ID: %s)"""
+                        .formatted(pec.getId());
                 logger.error(errorMessage);
                 allEntriesUpdated = false;
             }
