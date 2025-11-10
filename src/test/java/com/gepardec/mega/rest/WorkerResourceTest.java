@@ -6,12 +6,12 @@ import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.MonthlyAbsences;
 import com.gepardec.mega.domain.model.MonthlyBillInfo;
-import com.gepardec.mega.domain.model.MonthlyWarning;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
+import com.gepardec.mega.domain.model.WorkTimeBookingWarning;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyDirection;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
@@ -27,14 +27,14 @@ import com.gepardec.mega.rest.api.WorkerResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
 import com.gepardec.mega.rest.mapper.MonthlyBillInfoMapper;
-import com.gepardec.mega.rest.mapper.MonthlyWarningMapper;
+import com.gepardec.mega.rest.mapper.WorkTimeBookingWarningMapper;
 import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.MonthlyReportDto;
-import com.gepardec.mega.rest.model.MonthlyWarningDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
+import com.gepardec.mega.rest.model.WorkTimeBookingWarningDto;
 import com.gepardec.mega.rest.provider.PayrollContext;
 import com.gepardec.mega.rest.provider.PayrollMonthProvider;
 import com.gepardec.mega.service.api.AbsenceService;
@@ -112,7 +112,7 @@ class WorkerResourceTest {
     MonthlyAbsencesMapper monthlyAbsencesMapper;
 
     @Inject
-    MonthlyWarningMapper monthlyWarningMapper;
+    WorkTimeBookingWarningMapper workTimeBookingWarningMapper;
 
     @InjectMock
     DateHelperService dateHelperService;
@@ -687,11 +687,11 @@ class WorkerResourceTest {
         when(timeWarningService.getAllTimeWarningsForEmployeeAndMonth(any(), any(), any(Employee.class)))
                 .thenReturn(createMonthlyWarningListForRequest());
 
-        List<MonthlyWarningDto> mappedWarnings = createMonthlyWarningListForRequest().stream()
-                .map(monthlyWarningMapper::mapToDto)
+        List<WorkTimeBookingWarningDto> mappedWarnings = createMonthlyWarningListForRequest().stream()
+                .map(workTimeBookingWarningMapper::mapToDto)
                 .toList();
 
-        List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
+        List<WorkTimeBookingWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
 
         assertThat(actual)
                 .isNotEmpty()
@@ -720,7 +720,7 @@ class WorkerResourceTest {
                 .thenReturn(new ArrayList<>());
 
 
-        List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
+        List<WorkTimeBookingWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
 
         assertThat(actual).isEmpty();
     }
@@ -859,7 +859,7 @@ class WorkerResourceTest {
         return projectEntries;
     }
 
-    private List<MonthlyWarning> createMonthlyWarningListForRequest() {
+    private List<WorkTimeBookingWarning> createMonthlyWarningListForRequest() {
         return List.of(
                 createMonthlyWarning("Zeit-Buchung außerhalb der Kernarbeitszeit", List.of("2024-05-03", "2024-05-22", "2024-05-29")),
                 createMonthlyWarning("Keine Zeit-Buchung vorhanden",
@@ -875,10 +875,10 @@ class WorkerResourceTest {
         );
     }
 
-    private MonthlyWarning createMonthlyWarning(String name, List<String> dates) {
-        return MonthlyWarning.builder()
+    private WorkTimeBookingWarning createMonthlyWarning(String name, List<String> dates) {
+        return WorkTimeBookingWarning.builder()
                 .name(name)
-                .datesWhenWarningOccurred(new ArrayList<>(dates))
+                .warningDates(dates.stream().map(date -> new WorkTimeBookingWarning.WarningDate(date, null)).toList())
                 .build();
     }
 

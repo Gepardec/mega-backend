@@ -1,10 +1,12 @@
 package com.gepardec.mega.rest.api;
 
+import com.gepardec.mega.rest.model.AttendancesDto;
+import com.gepardec.mega.rest.model.LeadersDto;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
-import com.gepardec.mega.rest.model.MonthlyWarningDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
+import com.gepardec.mega.rest.model.WorkTimeBookingWarningDto;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -113,7 +115,7 @@ public interface WorkerResource {
             description = "Successfully retrieved all warnings for employee.",
             content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = MonthlyWarningDto[].class))
+                            schema = @Schema(implementation = WorkTimeBookingWarningDto[].class))
             }
     )
     @Parameter(name = "from",
@@ -124,6 +126,13 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/warnings")
     @GET
-    List<MonthlyWarningDto> getAllWarningsForEmployeeAndMonth(@QueryParam("from") YearMonth payrollMonth);
+    List<WorkTimeBookingWarningDto> getAllWarningsForEmployeeAndMonth(@QueryParam("from") YearMonth payrollMonth);
 
+    @Path("/leaders")
+    @GET
+    LeadersDto getLeaders();
+
+    @Path("/attendances")
+    @GET
+    AttendancesDto getAttendances(@QueryParam("from") YearMonth payrollMonth);
 }
