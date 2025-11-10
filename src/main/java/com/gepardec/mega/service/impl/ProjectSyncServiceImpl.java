@@ -16,7 +16,6 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Arrays;
@@ -47,7 +46,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        logger.info("Started project generation: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().getNano()));
+        logger.info("Started project generation: {}", stopWatch.getStartInstant());
         logger.info("Processing date: {}", payrollMonth);
 
         List<User> activeUsers = userService.findActiveUsers();
@@ -68,7 +67,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         logger.debug("projects in db are {}", projects);
 
         logger.info("Project generation took: {}ms", stopWatch.getTime());
-        logger.info("Finished project generation: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().getNano() + stopWatch.getTime()));
+        logger.info("Finished project generation: {}", stopWatch.getStopInstant());
 
         return !projects.isEmpty();
     }

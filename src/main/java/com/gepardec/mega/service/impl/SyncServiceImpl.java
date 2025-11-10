@@ -25,7 +25,6 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -79,7 +78,7 @@ public class SyncServiceImpl implements SyncService {
     public void syncEmployees() {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        log.info("Started user sync: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().getNano()));
+        log.info("Started user sync: {}", stopWatch.getStartInstant());
 
         final List<Project> projects = projectService.getProjectsForMonthYear(YearMonth.now());
         log.info("Loaded projects (for employee generation): {}", projects.size());
@@ -94,8 +93,9 @@ public class SyncServiceImpl implements SyncService {
         updateModifiedUsers(employees, users, projects);
         deactivateDeletedOrInactiveUsers(employees, users);
 
+        stopWatch.stop();
         log.info("User sync took: {}ms", stopWatch.getTime());
-        log.info("Finished user sync: {}", Instant.ofEpochMilli(stopWatch.getStartInstant().getNano() + stopWatch.getTime()));
+        log.info("Finished user sync: {}", stopWatch.getStopInstant());
     }
 
     @Override
