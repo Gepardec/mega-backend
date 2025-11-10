@@ -210,8 +210,7 @@ class ZepRestServiceImplTest {
                         ZepAttendance.builder().billable(true).duration(4.0).projectId(1).date(LocalDate.of(2024, 6, 12)).build()
                 ));
 
-        var zepProjectDetail = new ZepProjectDetail();
-        zepProjectDetail.setProject(ZepProject.builder().id(1).name("XYZ").billingType(new ZepBillingType(1)).build());
+        var zepProjectDetail = new ZepProjectDetail(ZepProject.builder().id(1).name("XYZ").billingType(new ZepBillingType(1)).build(), null);
         when(projectService.getProjectById(anyInt()))
                 .thenReturn(Optional.of(zepProjectDetail));
 
@@ -587,11 +586,7 @@ class ZepRestServiceImplTest {
         }
 
         private ZepProjectDetail createZepProjectDetail(ZepProject zepProject) {
-            var zepProjectDetail = new ZepProjectDetail();
-            zepProjectDetail.setProject(zepProject);
-            zepProjectDetail.setCategories(List.of(new ZepCategory("INT", Collections.emptyMap())));
-
-            return zepProjectDetail;
+            return new ZepProjectDetail(zepProject, List.of(new ZepCategory("INT", Collections.emptyMap())));
         }
     }
 

@@ -6,29 +6,12 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import java.util.List;
 
-//FIXME: Must be a class until jackson supports records with JsonUnwrapped (fixed in v.2.19.0 or 3.0.0)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ZepProjectDetail {
+public record ZepProjectDetail(
+        @JsonUnwrapped
+        ZepProject project,
 
-    @JsonUnwrapped
-    private ZepProject project;
-
-    @JsonProperty("categories")
-    private List<ZepCategory> categories;
-
-    public ZepProject getProject() {
-        return project;
-    }
-
-    public void setProject(ZepProject project) {
-        this.project = project;
-    }
-
-    public List<ZepCategory> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(List<ZepCategory> categories) {
-        this.categories = categories;
-    }
+        @JsonProperty("categories")
+        List<ZepCategory> categories
+) {
 }

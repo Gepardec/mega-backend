@@ -294,7 +294,7 @@ public class ZepRestServiceImpl implements ZepService {
             return Optional.empty();
         }
 
-        projectName = projectRetrieved.get().getProject().name();
+        projectName = projectRetrieved.get().project().name();
 
         billableHoursSum += attendances.stream()
                 .filter(ZepAttendance::billable)
@@ -383,7 +383,7 @@ public class ZepRestServiceImpl implements ZepService {
         projectBuilder.employees(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.USER, new ArrayList<>()));
         projectBuilder.leads(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.LEAD, new ArrayList<>()));
         projectBuilder.categories(
-                projectDetails.map(ZepProjectDetail::getCategories)
+                projectDetails.map(ZepProjectDetail::categories)
                         .stream()
                         .flatMap(List::stream)
                         .map(ZepCategory::name)

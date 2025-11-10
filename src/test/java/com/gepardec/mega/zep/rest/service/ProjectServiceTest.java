@@ -141,8 +141,7 @@ class ProjectServiceTest {
 
     @Test
     void getProjectById() {
-        var zepProjectDetail = new ZepProjectDetail();
-        zepProjectDetail.setProject(ZepProject.builder().id(1).build());
+        var zepProjectDetail = new ZepProjectDetail(ZepProject.builder().id(1).build(), null);
         Optional<ZepProjectDetail> project = Optional.of(zepProjectDetail);
         when(responseParser.retrieveSingle(any(), eq(ZepProjectDetail.class)))
                 .thenReturn(project);
