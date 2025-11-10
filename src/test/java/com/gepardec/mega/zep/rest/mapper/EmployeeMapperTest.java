@@ -40,7 +40,6 @@ class EmployeeMapperTest {
 
     @Test
     void mapZepEmployeeToEmployee() {
-        //TODO: Add regularWorkingTimes + workDescription
         ZepEmployee zepEmployee = ZepEmployee.builder()
                 .username("000-duser")
                 .email("demo@gepardec.com")

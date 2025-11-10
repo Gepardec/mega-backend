@@ -26,7 +26,6 @@ import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -139,7 +138,7 @@ class WarningCalculatorsManagerTest {
     void whenWarning_thenTranslatedWarning() {
         final ProjectTimeEntry start = projectTimeEntryFor(5, 12);
         final ProjectTimeEntry end = projectTimeEntryFor(18, 23);
-        when(messages.getString(eq("warning.time.OUTSIDE_CORE_WORKING_TIME"))).thenReturn("WARNING_STRING");
+        when(messages.getString("warning.time.OUTSIDE_CORE_WORKING_TIME")).thenReturn("WARNING_STRING");
 
         final List<TimeWarning> warnings = calculator.determineTimeWarnings(List.of(start, end));
 
@@ -514,24 +513,9 @@ class WarningCalculatorsManagerTest {
     }
 
     @ParameterizedTest
-    @DisplayName("Tests all holidays for december 2020")
-    @MethodSource("holidaysStream")
+    @DisplayName("Tests all holidays and weekend days for december 2020")
+    @MethodSource({"holidaysStream", "weekendDaysStream"})
     void whenEntryDayIsHoliday_thenReturnsWarning(int day) {
-        final ProjectTimeEntry entryOne = getProjectTimeEntry(day);
-
-        final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(entryOne));
-
-        assertThat(result)
-                .isNotEmpty()
-                .hasSize(1);
-        assertThat(result.getFirst().getDate())
-                .isEqualTo(entryOne.getDate());
-    }
-
-    @ParameterizedTest
-    @DisplayName("Tests all weekend days for december 2020")
-    @MethodSource("weekendDaysStream")
-    void whenEntryDayIsOnWeekend_thenReturnsWarning(int day) {
         final ProjectTimeEntry entryOne = getProjectTimeEntry(day);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(entryOne));

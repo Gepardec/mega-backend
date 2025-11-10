@@ -33,10 +33,10 @@ import java.util.StringJoiner;
 // 1 = CONTROL_TIMES
 @NamedQuery(name = "StepEntry.findAllOwnedAndUnassignedStepEntriesForPMProgress", query = "SELECT s FROM StepEntry s WHERE s.date = :entryDate AND s.owner.email = :ownerEmail AND s.step.id = :stepId")
 @NamedQuery(name = "StepEntry.findAllOwnedStepEntriesInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.owner.email = :ownerEmail")
-@NamedQuery(name = "StepEntry.findAllOwnedStepEntriesInRangeForProject", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.owner.email = :ownerEmail AND s.assignee.email like :assigneEmail AND s.project like :projectId")
+@NamedQuery(name = "StepEntry.findAllOwnedStepEntriesInRangeForProject", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.owner.email = :ownerEmail AND s.assignee.email like :assigneeEmail AND s.project like :projectId")
 @NamedQuery(name = "StepEntry.findStepEntryForEmployeeAtStepInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId and s.owner.email = :ownerEmail and s.assignee.email = :assigneeEmail")
 @NamedQuery(name = "StepEntry.findStepEntryForEmployeeAndProjectAtStepInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId and s.owner.email = :ownerEmail and s.assignee.email = :assigneeEmail and s.project like :project")
-@NamedQuery(name = "StepEntry.findAllStepEntriesForPMInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId and s.assignee.email = :assigneEmail")
+@NamedQuery(name = "StepEntry.findAllStepEntriesForPMInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId and s.assignee.email = :assigneeEmail")
 @NamedQuery(name = "StepEntry.findAllStepEntriesForAllPMInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId")
 public class StepEntry {
 

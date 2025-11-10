@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -35,7 +34,7 @@ class EmploymentPeriodServiceTest {
     void init() {
         resourceFileService.getSingleFile("/employmentPeriods/001-duser.json").ifPresent(json -> {
             Response response = Response.ok().entity(json).build();
-            when(zepEmployeeRestClient.getEmploymentPeriodByUserName(eq("001-duser"), eq(1))).thenReturn(response);
+            when(zepEmployeeRestClient.getEmploymentPeriodByUserName("001-duser", 1)).thenReturn(response);
         });
     }
 

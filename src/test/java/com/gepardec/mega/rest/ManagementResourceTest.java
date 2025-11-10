@@ -18,7 +18,6 @@ import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
-import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.rest.api.ManagementResource;
 import com.gepardec.mega.rest.model.CustomerProjectWithoutLeadsDto;
 import com.gepardec.mega.rest.model.ManagementEntryDto;
@@ -43,7 +42,6 @@ import jakarta.ws.rs.core.Response;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.MockedStatic;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -60,7 +58,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -595,22 +592,17 @@ class ManagementResourceTest {
         when(userContext.getUser())
                 .thenReturn(user);
 
-        try (MockedStatic<DateUtils> dateUtilsMockedStatic = mockStatic(DateUtils.class)) {
-            dateUtilsMockedStatic.when(DateUtils::getFirstDayOfCurrentMonth)
-                    .thenReturn(LocalDate.of(2024, 5, 4));
+        when(projectService.getProjectsForMonthYear(any(YearMonth.class), any()))
+                .thenReturn(createProjectList());
 
-            when(projectService.getProjectsForMonthYear(any(YearMonth.class), any()))
-                    .thenReturn(createProjectList());
+        Response actual = managementResource.getProjectsWithoutLeads();
 
-            Response actual = managementResource.getProjectsWithoutLeads();
+        assertThat(actual.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-            assertThat(actual.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        List<CustomerProjectWithoutLeadsDto> resultList = (List<CustomerProjectWithoutLeadsDto>) actual.getEntity();
 
-            List<CustomerProjectWithoutLeadsDto> resultList = (List<CustomerProjectWithoutLeadsDto>) actual.getEntity();
-
-            assertThat(resultList).hasSize(2);
-            assertThat(resultList.getFirst().getProjectName()).isEqualTo(createProjectList().getFirst().getProjectId());
-        }
+        assertThat(resultList).hasSize(2);
+        assertThat(resultList.getFirst().getProjectName()).isEqualTo(createProjectList().getFirst().getProjectId());
     }
 
     private List<Project> createProjectList() {

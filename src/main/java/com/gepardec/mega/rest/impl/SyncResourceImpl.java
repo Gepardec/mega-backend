@@ -16,7 +16,7 @@ import jakarta.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 @RequestScoped
 @IfBuildProperty(name = "mega.endpoint.test.enable", stringValue = "true", enableIfMissing = true)
@@ -84,20 +84,20 @@ public class SyncResourceImpl implements SyncResource {
         return LocalDateTime.now();
     }
 
-    private Response syncFromTo(Function<YearMonth, Boolean> syncFunction, YearMonth from, YearMonth to) {
+    private Response syncFromTo(Predicate<YearMonth> syncFunction, YearMonth from, YearMonth to) {
         if (from == null) {
-            return Response.ok(syncFunction.apply(YearMonth.now())).build();
+            return Response.ok(syncFunction.test(YearMonth.now())).build();
         }
 
         if (to == null) {
-            return Response.ok(syncFunction.apply(from)).build();
+            return Response.ok(syncFunction.test(from)).build();
         }
 
         while (from.isBefore(to)) {
-            syncFunction.apply(from);
+            syncFunction.test(from);
             from = from.plusMonths(1);
         }
 
-        return Response.ok(syncFunction.apply(from)).build();
+        return Response.ok(syncFunction.test(from)).build();
     }
 }

@@ -16,7 +16,6 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -27,7 +26,7 @@ import java.util.Objects;
         name = "ProjectComment.findByProjectNameAndEntryDateBetween",
         query = "SELECT c FROM ProjectComment c WHERE c.project.name = :projectName AND (c.date BETWEEN :start AND :end)"
 )
-public class ProjectComment implements Serializable {
+public class ProjectComment {
 
     @Id
     @Column(name = "id", insertable = false, updatable = false)

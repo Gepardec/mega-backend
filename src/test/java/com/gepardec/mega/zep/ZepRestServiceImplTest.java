@@ -13,7 +13,6 @@ import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
-import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.zep.impl.Rest;
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
@@ -48,7 +47,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.MockedStatic;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -63,7 +61,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -392,24 +389,17 @@ class ZepRestServiceImplTest {
         List<AbsenceTime> absenceTimes = createAbsencesList();
         Employee employee = Employee.builder().userId("007-jbond").build();
 
-        try (MockedStatic<DateUtils> dateUtilsMockedStatic = mockStatic(DateUtils.class)) {
-            dateUtilsMockedStatic.when(() -> DateUtils.getFirstDayOfMonth(anyInt(), anyInt()))
-                    .thenReturn(LocalDate.of(2024, 5, 1));
-            dateUtilsMockedStatic.when(() -> DateUtils.getLastDayOfMonth(anyInt(), anyInt()))
-                    .thenReturn(LocalDate.of(2024, 5, 30));
+        when(absenceService.getZepAbsencesByEmployeeNameForDateRange(anyString(), any(YearMonth.class)))
+                .thenReturn(createZepAbsencesList());
 
-            when(absenceService.getZepAbsencesByEmployeeNameForDateRange(anyString(), any(YearMonth.class)))
-                    .thenReturn(createZepAbsencesList());
+        when(absenceMapper.mapList(any()))
+                .thenReturn(absenceTimes);
 
-            when(absenceMapper.mapList(any()))
-                    .thenReturn(absenceTimes);
+        List<AbsenceTime> actual = zepRestService.getAbsenceForEmployee(employee, YearMonth.of(2024, 5));
 
-            List<AbsenceTime> actual = zepRestService.getAbsenceForEmployee(employee, YearMonth.of(2024, 5));
-
-            assertThat(actual)
-                    .isNotNull()
-                    .hasSize(2);
-        }
+        assertThat(actual)
+                .isNotNull()
+                .hasSize(2);
     }
 
     private List<AbsenceTime> createAbsencesList() {

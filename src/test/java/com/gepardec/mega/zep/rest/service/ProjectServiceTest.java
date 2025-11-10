@@ -61,7 +61,7 @@ class ProjectServiceTest {
 
         Optional<String> singleFile1 = resourceFileService.getSingleFile("projects/projectPage1.json");
         assertThat(singleFile1).isPresent();
-        when(zepProjectRestClient.getProjectByStartEnd(eq("2024-01-01"), eq("2024-01-31"), eq(1)))
+        when(zepProjectRestClient.getProjectByStartEnd("2024-01-01", "2024-01-31", 1))
                 .thenReturn(Response.ok().entity(singleFile1.get()).build());
 
 

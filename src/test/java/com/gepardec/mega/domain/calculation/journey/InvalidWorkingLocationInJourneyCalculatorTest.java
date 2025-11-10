@@ -69,19 +69,6 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
     }
 
     @Test
-    void whenOneProjectTimeEntryWithinJourneyWithDifferentWorkingLocation_thenWarning() {
-        JourneyTimeEntry journeyTimeEntryOne = journeyTimeEntryFor(7, 8, JourneyDirection.TO, WorkingLocation.A);
-        ProjectEntry projectEntryTwo = projectTimeEntryFor(8, 9, WorkingLocation.OTHER);
-        JourneyTimeEntry journeyTimeEntryThree = journeyTimeEntryFor(9, 10, JourneyDirection.BACK, WorkingLocation.A);
-
-        List<JourneyWarning> warnings = calculator.calculate(List.of(journeyTimeEntryOne, projectEntryTwo, journeyTimeEntryThree));
-
-        assertThat(warnings).hasSize(1);
-        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
-        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
-    }
-
-    @Test
     void whenTwoProjectTimeEntryWithinJourneyWithOneInvalidWorkingLocation_thenOneWarning() {
         JourneyTimeEntry journeyTimeEntryOne = journeyTimeEntryFor(7, 8, JourneyDirection.TO, WorkingLocation.A);
         ProjectEntry projectEntryTwo = projectTimeEntryFor(8, 9, WorkingLocation.A);

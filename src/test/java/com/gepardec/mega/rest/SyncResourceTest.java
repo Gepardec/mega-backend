@@ -87,7 +87,7 @@ class SyncResourceTest {
                 .thenReturn(fehlzeitList);
 
 
-        when(zepService.getEmployee(eq(userUnderTest.getUserId())))
+        when(zepService.getEmployee(userUnderTest.getUserId()))
                 .thenReturn(userUnderTest);
 
         ArgumentCaptor<Employee> employeeArgumentCaptor = ArgumentCaptor.forClass(Employee.class);
@@ -171,7 +171,7 @@ class SyncResourceTest {
                 .thenReturn(fehlzeitList);
 
 
-        when(zepService.getEmployee(eq(userUnderTest.getUserId())))
+        when(zepService.getEmployee(userUnderTest.getUserId()))
                 .thenReturn(createEmployeeForId("099-testUser", "test.user@gepardec.com", "2024-02-29"));
 
         List<EmployeeDto> actual = syncResource.updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();
@@ -206,7 +206,7 @@ class SyncResourceTest {
 
         doNothing().when(zepService).updateEmployeesReleaseDate(anyString(), anyString());
 
-        when(zepService.getEmployee(eq(userUnderTest.getUserId())))
+        when(zepService.getEmployee(userUnderTest.getUserId()))
                 .thenReturn(createEmployeeForId("e02-externalUser", "external.user@gepardec.com", "2024-02-29"));
 
         List<EmployeeDto> actual = syncResource.updateEmployeesWithoutTimeBookingsAndAbsentWholeMonth();

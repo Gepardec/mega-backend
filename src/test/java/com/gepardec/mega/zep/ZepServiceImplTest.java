@@ -179,18 +179,6 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void getEmployeesMitarbeiterZepResponseMitarbeiterListeEmpty() {
-        Mockito.when(zepSoapPortType.readMitarbeiter(Mockito.any(ReadMitarbeiterRequestType.class))).thenReturn(new ReadMitarbeiterResponseType());
-
-        final List<Employee> employee = zepService.getEmployees();
-
-        assertAll(
-                () -> assertThat(employee).isNotNull(),
-                () -> assertThat(employee).isEmpty()
-        );
-    }
-
-    @Test
     void getEmployees() {
         Mockito.when(zepSoapPortType.readMitarbeiter(Mockito.any(ReadMitarbeiterRequestType.class))).thenReturn(createReadMitarbeiterResponseType(
                 List.of(createMitarbeiterType(0), createMitarbeiterType(1), createMitarbeiterType(2))

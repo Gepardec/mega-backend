@@ -60,7 +60,7 @@ class ProjectSyncServiceImplTest {
         assertThat(result).isTrue();
         verify(userService).findActiveUsers();
         verify(projectService).getProjectsForMonthYear(eq(payrollMonth), anyList());
-        verify(projectService).getProjectsForMonthYear(eq(payrollMonth));
+        verify(projectService).getProjectsForMonthYear(payrollMonth);
         verify(logger, atLeastOnce()).info(anyString(), any(Instant.class));
     }
 
@@ -82,7 +82,7 @@ class ProjectSyncServiceImplTest {
         assertThat(result).isTrue();
         verify(userService).findActiveUsers();
         verify(projectService).getProjectsForMonthYear(eq(payrollMonth), anyList());
-        verify(projectService).getProjectsForMonthYear(eq(payrollMonth));
+        verify(projectService).getProjectsForMonthYear(payrollMonth);
         verify(logger, atLeastOnce()).info(anyString(), any(Instant.class));
     }
 }

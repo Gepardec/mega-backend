@@ -16,12 +16,14 @@ import java.util.function.Predicate;
 @ApplicationScoped
 public class ResponseParser {
 
+    private static final String DATA_PATH = "/data";
+
     @Inject
     RequestThrottler requestThrottler;
 
     public <T> Optional<T> retrieveSingle(Response response, Class<T> elementClass) {
         String responseBodyAsString = readResponse(response);
-        return JsonUtil.parseJson(responseBodyAsString, "/data", elementClass);
+        return JsonUtil.parseJson(responseBodyAsString, DATA_PATH, elementClass);
     }
 
     public <T> List<T> retrieveAll(Function<Integer, Response> pageSupplier, Class<T> elementClass) {
@@ -34,7 +36,7 @@ public class ResponseParser {
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
         T[] data = arrayClass.cast(JsonUtil
-                .parseJson(responseBodyAsString, "/data", arrayClass)
+                .parseJson(responseBodyAsString, DATA_PATH, arrayClass)
                 .orElse((T[]) Array.newInstance(elementClass, 0)));
 
         List<T> result = new ArrayList<>(Arrays.asList(data));
@@ -49,22 +51,22 @@ public class ResponseParser {
     }
 
     public <T> Optional<T> searchInAll(Function<Integer, Response> function,
-                                              Predicate<T> filter,
-                                              Class<T> elementClass) {
+                                       Predicate<T> filter,
+                                       Class<T> elementClass) {
         int page = 1;
         return this.searchInAll(function, filter, page, elementClass);
     }
 
-    private  <T> Optional<T> searchInAll(Function<Integer, Response> pageSupplier,
-                                               Predicate<T> filter,
-                                               Integer page,
-                                               Class<T> elementClass) {
+    private <T> Optional<T> searchInAll(Function<Integer, Response> pageSupplier,
+                                        Predicate<T> filter,
+                                        Integer page,
+                                        Class<T> elementClass) {
 
         String responseBodyAsString = this.readResponse(pageSupplier.apply(page));
 
 
         Class<T[]> arrayClass = convertClassToArrayClass(elementClass);
-        T[] data = arrayClass.cast(JsonUtil.parseJson(responseBodyAsString, "/data", arrayClass)
+        T[] data = arrayClass.cast(JsonUtil.parseJson(responseBodyAsString, DATA_PATH, arrayClass)
                 .orElse((T[]) Array.newInstance(elementClass, 0)));
 
         Optional<T> current = filterList(Arrays.asList(data), filter);
@@ -85,7 +87,7 @@ public class ResponseParser {
     private String readResponse(Response response) {
         try (response) {
             //If we reach the rate limit, we throw an exception
-            if (response.getStatus() == Response.Status.TOO_MANY_REQUESTS.getStatusCode() ) {
+            if (response.getStatus() == Response.Status.TOO_MANY_REQUESTS.getStatusCode()) {
                 throw new ZepServiceTooManyRequestsException("Too many requests to ZEP REST");
             }
 

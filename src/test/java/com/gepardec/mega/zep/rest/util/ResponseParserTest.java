@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -36,11 +35,11 @@ class ResponseParserTest {
     void withFullPaginatedJsons_thenReturnList() {
         List<String> responseJsons = resourceFileService.getDirContents("projects");
 
-        when(zepProjectRestClient.getProjects(eq(1)))
+        when(zepProjectRestClient.getProjects(1))
                 .thenReturn(Response.ok().entity(responseJsons.getFirst()).build());
-        when(zepProjectRestClient.getProjects(eq(2)))
+        when(zepProjectRestClient.getProjects(2))
                 .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
-        when(zepProjectRestClient.getProjects(eq(3)))
+        when(zepProjectRestClient.getProjects(3))
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
 
         String[] names = {"MEGA", "gema", "EGA", "SUPERMEGA", "mega", "ega"};
@@ -140,11 +139,11 @@ class ResponseParserTest {
         List<String> responseJsons = resourceFileService.getDirContents("projects");
 
 
-        when(zepProjectRestClient.getProjects(eq(1)))
+        when(zepProjectRestClient.getProjects(1))
                 .thenReturn(Response.ok().entity(responseJsons.getFirst()).build());
-        when(zepProjectRestClient.getProjects(eq(2)))
+        when(zepProjectRestClient.getProjects(2))
                 .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
-        when(zepProjectRestClient.getProjects(eq(3)))
+        when(zepProjectRestClient.getProjects(3))
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
 
 
@@ -161,11 +160,11 @@ class ResponseParserTest {
         List<String> responseJsons = resourceFileService.getDirContents("projects");
 
 
-        when(zepProjectRestClient.getProjects(eq(1)))
+        when(zepProjectRestClient.getProjects(1))
                 .thenReturn(Response.ok().entity(responseJsons.getFirst()).build());
-        when(zepProjectRestClient.getProjects(eq(2)))
+        when(zepProjectRestClient.getProjects(2))
                 .thenReturn(Response.ok().entity(responseJsons.get(1)).build());
-        when(zepProjectRestClient.getProjects(eq(3)))
+        when(zepProjectRestClient.getProjects(3))
                 .thenReturn(Response.ok().entity(responseJsons.get(2)).build());
 
         Optional<ZepProject> projectOpt = responseParser.searchInAll(

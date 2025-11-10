@@ -178,7 +178,7 @@ class StepEntryServiceImplTest {
         boolean result = stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, stepId, payrollMonth, reason);
 
         assertThat(result).isTrue();
-        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(eq(payrollMonth.atDay(1)), eq(payrollMonth.atEndOfMonth()), eq(employee.getEmail()), eq(stepId), eq(reason));
+        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail(), stepId, reason);
     }
 
     @Test
@@ -194,7 +194,7 @@ class StepEntryServiceImplTest {
         boolean result = stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, stepId, payrollMonth, reason);
 
         assertThat(result).isFalse();
-        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(eq(payrollMonth.atDay(1)), eq(payrollMonth.atEndOfMonth()), eq(employee.getEmail()), eq(stepId), eq(reason));
+        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail(), stepId, reason);
     }
 
     @Test
