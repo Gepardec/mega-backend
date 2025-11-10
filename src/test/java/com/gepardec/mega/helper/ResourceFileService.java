@@ -65,7 +65,7 @@ public class ResourceFileService {
         try {
             URL resource = getClass().getResource("/");
             if (resource == null) {
-                throw new RuntimeException("Resource not found: " + path);
+                throw new IOException("Resource not found: " + path);
             }
             String resourcesPath = resource.getPath();
             String absPath = resourcesPath + path;
