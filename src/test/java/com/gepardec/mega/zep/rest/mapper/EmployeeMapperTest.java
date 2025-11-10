@@ -61,7 +61,6 @@ class EmployeeMapperTest {
         assertThat(employee.getSalutation()).isEqualTo(zepEmployee.salutation().name());
         assertThat(employee.getReleaseDate()).isEqualTo(zepEmployee.releaseDate().toString());
         assertThat(employee.getLanguage()).isEqualTo(zepEmployee.language().id());
-        assertThat(employee.getPersonioId()).isEqualTo(123);
     }
 
     @Test

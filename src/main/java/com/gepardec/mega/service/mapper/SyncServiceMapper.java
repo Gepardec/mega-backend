@@ -39,13 +39,11 @@ public class SyncServiceMapper {
     public User mapEmployeeToNewUser(final Employee employee, List<Project> projects, Locale defaultLocale) {
         final User user = new User();
         user.setZepId(employee.getUserId());
-        user.setPersonioId(employee.getPersonioId());
         return mapEmployeeToUser(user, employee, projects, defaultLocale);
     }
 
     public User mapEmployeeToUser(User user, Employee employee, List<Project> projects, Locale defaultLocale) {
         user.setEmail(employee.getEmail());
-        user.setPersonioId(employee.getPersonioId());
         user.setFirstname(employee.getFirstname());
         user.setLastname(employee.getLastname());
         user.setActive(employee.getEmploymentPeriods().active(LocalDate.now()).isPresent());

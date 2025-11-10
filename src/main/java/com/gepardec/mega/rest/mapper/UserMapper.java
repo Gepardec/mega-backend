@@ -17,6 +17,7 @@ public class UserMapper implements DtoMapper<User, UserDto> {
                 .lastname(object.getLastname())
                 .releaseDate(object.getReleaseDate())
                 .roles(object.getRoles())
+                .personioId(object.getPersonioId())
                 .build();
     }
 
@@ -30,6 +31,7 @@ public class UserMapper implements DtoMapper<User, UserDto> {
                 .lastname(object.getLastname())
                 .releaseDate(object.getReleaseDate())
                 .roles(object.getRoles())
+                .personioId(object.getPersonioId())
                 .build();
     }
 }
