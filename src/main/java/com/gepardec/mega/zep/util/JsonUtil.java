@@ -16,7 +16,7 @@ public class JsonUtil {
         // nop
     }
 
-    public static <T> Optional<T> parseJson (String json, String path, Class<T> resultClass) {
+    public static <T> Optional<T> parseJson(String json, String path, Class<T> resultClass) {
         var objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules();
         try {
@@ -34,7 +34,7 @@ public class JsonUtil {
             }
 
             return Optional.of(objectMapper.treeToValue(jsonNode, resultClass));
-        }  catch (JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             if (e instanceof MismatchedInputException mme) {
                 throw new InternalServerErrorException(mme.getMessage());
             }

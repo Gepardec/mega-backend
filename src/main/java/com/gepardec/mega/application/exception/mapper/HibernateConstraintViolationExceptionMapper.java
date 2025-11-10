@@ -22,7 +22,7 @@ public class HibernateConstraintViolationExceptionMapper implements ExceptionMap
 
     private String getLogMessage(ConstraintViolationException e) {
         final String errorMessage = "Database encountered a unknown constraint violation without matching handling";
-        if(e == null || e.getConstraintName() == null) {
+        if (e == null || e.getConstraintName() == null) {
             return errorMessage;
         }
 

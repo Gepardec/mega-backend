@@ -1,7 +1,9 @@
 package com.gepardec.mega.domain.calculation.journey;
 
 import com.gepardec.mega.domain.calculation.WarningCalculationStrategy;
-import com.gepardec.mega.domain.model.monthlyreport.*;
+import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
+import com.gepardec.mega.domain.model.monthlyreport.JourneyWarningType;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +17,8 @@ public class LocationRelevantSetJourneyCalculator implements WarningCalculationS
         for (ProjectEntry projectEntry : projectEntries) {
             if (Boolean.TRUE.equals(projectEntry.getWorkLocationIsProjectRelevant()) &&
                     warnings.stream().noneMatch(e -> e.getDate().equals(projectEntry.getDate()))) {
-                    warnings.add(createJourneyWarning(projectEntry));
-                }
+                warnings.add(createJourneyWarning(projectEntry));
+            }
         }
         return warnings;
     }

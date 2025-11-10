@@ -83,9 +83,9 @@ class ZepMailToCommentServiceTest {
                 SourceSystem.ZEP,
                 "max.empfaengermann@gepardec.com",
                 """
-                Buchung vom 03.11.2023 (11:15 - 12:00) im Projekt 'Gepardec' - 'Learning Friday' \
-                mit dem Text 'MEGA' ist anzupassen.
-                 Falsche Buchung!""",
+                        Buchung vom 03.11.2023 (11:15 - 12:00) im Projekt 'Gepardec' - 'Learning Friday' \
+                        mit dem Text 'MEGA' ist anzupassen.
+                         Falsche Buchung!""",
                 "max.erstellermann@gepardec.com",
                 "Gepardec",
                 YearMonth.of(2023, 11)
@@ -116,9 +116,9 @@ class ZepMailToCommentServiceTest {
                 SourceSystem.ZEP,
                 "max.empfaengermann@gepardec.com",
                 """
-                Buchung vom 03.11.2023 (11:15 - 12:00) im Projekt 'Gepardec' - 'Learning Friday' \
-                mit dem Text 'MEGA' ist anzupassen.
-                 Falsche Buchung!""",
+                        Buchung vom 03.11.2023 (11:15 - 12:00) im Projekt 'Gepardec' - 'Learning Friday' \
+                        mit dem Text 'MEGA' ist anzupassen.
+                         Falsche Buchung!""",
                 "max.erstellermann@gepardec.com",
                 null,
                 YearMonth.of(2023, 11)

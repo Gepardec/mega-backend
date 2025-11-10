@@ -79,7 +79,7 @@ public class CoreWorkingHoursCalculator extends AbstractTimeWarningCalculationSt
     }
 
     private TimeWarning createTimeWarning(final ProjectEntry projectEntry) {
-        if(projectEntry == null) {
+        if (projectEntry == null) {
             return null;
         }
 

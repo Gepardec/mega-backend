@@ -78,26 +78,26 @@ public class ProjectServiceImpl implements ProjectService {
         }
 
         if (noProjectEntriesExist && project.getProjectEntries() != null) {
-                project.getProjectEntries().forEach(projectEntry -> {
+            project.getProjectEntries().forEach(projectEntry -> {
 
-                    User owner = userRepository.findById(projectEntry.getOwner().getId());
-                    User assignee = userRepository.findById(projectEntry.getAssignee().getId());
+                User owner = userRepository.findById(projectEntry.getOwner().getId());
+                User assignee = userRepository.findById(projectEntry.getAssignee().getId());
 
-                    ProjectEntry pe = new ProjectEntry();
-                    pe.setPreset(projectEntry.isPreset());
-                    pe.setProject(projectEntry.getProject());
-                    pe.setStep(projectEntry.getStep());
-                    pe.setState(projectEntry.getState());
-                    pe.setUpdatedDate(projectEntry.getUpdatedDate());
-                    pe.setCreationDate(projectEntry.getCreationDate());
-                    pe.setDate(projectEntry.getDate());
-                    pe.setName(projectEntry.getName());
-                    pe.setOwner(owner);
-                    pe.setAssignee(assignee);
+                ProjectEntry pe = new ProjectEntry();
+                pe.setPreset(projectEntry.isPreset());
+                pe.setProject(projectEntry.getProject());
+                pe.setStep(projectEntry.getStep());
+                pe.setState(projectEntry.getState());
+                pe.setUpdatedDate(projectEntry.getUpdatedDate());
+                pe.setCreationDate(projectEntry.getCreationDate());
+                pe.setDate(projectEntry.getDate());
+                pe.setName(projectEntry.getName());
+                pe.setOwner(owner);
+                pe.setAssignee(assignee);
 
-                    finalProjectEntity1.addProjectEntry(pe);
-                });
-            }
+                finalProjectEntity1.addProjectEntry(pe);
+            });
+        }
 
 
         projectEntity.setName(project.getName());

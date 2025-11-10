@@ -34,6 +34,7 @@ class JsonUtilTest {
         assertThat(demoOpt.get().id).isEqualTo(1);
         assertThat(demoOpt.get().name).isEqualTo("mega");
     }
+
     @Test
     void getDataUnderOtherFields_thenReturnObject() {
         String json = "{" +
@@ -55,6 +56,7 @@ class JsonUtilTest {
         assertThat(demoOpt.get().id).isEqualTo(3);
         assertThat(demoOpt.get().name).isEqualTo("mega3");
     }
+
     @Test
     void getEmptyData_thenReturnEmpty() {
         String json = "{\"data\": {}}";
@@ -62,6 +64,7 @@ class JsonUtilTest {
         Optional<Demo> demoOpt = JsonUtil.parseJson(json, "/data", Demo.class);
         assertThat(demoOpt).isEmpty();
     }
+
     @Test
     void getEmptyArr_thenReturnEmpty() {
         String json = "{\"data\": []}";
@@ -69,6 +72,7 @@ class JsonUtilTest {
         Optional<Demo> demoOpt = JsonUtil.parseJson(json, "/data", Demo.class);
         assertThat(demoOpt).isEmpty();
     }
+
     @Test
     void getArr_thenReturnArr() {
         String json = "{\"data\": [" +
@@ -84,7 +88,6 @@ class JsonUtilTest {
         assertThat(list.get(1).id).isEqualTo(2);
         assertThat(list.get(1).name).isEqualTo("GEMA");
     }
-
 
 
     private static class Demo {
