@@ -71,10 +71,9 @@ public class ProjectServiceImpl implements ProjectService {
 
         boolean noProjectEntriesExist = true;
         if (projectEntity.getProjectEntries() != null) {
-            // TODO Oliver: can't match -> incompatible types
             noProjectEntriesExist = projectEntity.getProjectEntries()
                     .stream()
-                    .noneMatch(pe -> pe.getDate().equals(payrollMonth));
+                    .noneMatch(pe -> YearMonth.from(pe.getDate()).equals(payrollMonth));
         }
 
         if (noProjectEntriesExist && project.getProjectEntries() != null) {
