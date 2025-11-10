@@ -98,9 +98,6 @@ quarkus:
       application-type: "service"
       token:
         verify-access-token-with-user-info: false
-  jacoco:
-    excludes:
-      - "**/provantis/**"
 
 mp:
   openapi:
@@ -238,6 +235,9 @@ mega:
     hibernate-orm:
       schema-management:
         strategy: drop-and-create
+    jacoco:
+      excludes:
+        - "**/provantis/**"
 
   mega:
     dash-url: "http://localhost:8080/index.html"
