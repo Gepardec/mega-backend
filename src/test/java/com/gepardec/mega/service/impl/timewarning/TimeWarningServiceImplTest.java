@@ -4,10 +4,10 @@ import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.EmploymentPeriod;
 import com.gepardec.mega.domain.model.EmploymentPeriods;
-import com.gepardec.mega.domain.model.MonthlyWarning;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
+import com.gepardec.mega.domain.model.WorkTimeBookingWarning;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyDirection;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
@@ -67,7 +67,7 @@ class TimeWarningServiceImplTest {
 
         List<AbsenceTime> absenceTimes = createAbsenceTimeListForRequest(employee.getUserId());
         List<ProjectEntry> projectEntries = createProjectEntryListForRequest();
-        List<MonthlyWarning> actual = timeWarningService.getAllTimeWarningsForEmployeeAndMonth(absenceTimes, projectEntries, employee);
+        List<WorkTimeBookingWarning> actual = timeWarningService.getAllTimeWarningsForEmployeeAndMonth(absenceTimes, projectEntries, employee);
 
         assertThat(actual).isNotEmpty()
                 .hasSize(9);
@@ -91,7 +91,7 @@ class TimeWarningServiceImplTest {
 
 
         List<ProjectEntry> projectEntries = createProjectEntryListForMonth();
-        List<MonthlyWarning> actual = timeWarningService.getAllTimeWarningsForEmployeeAndMonth(new ArrayList<>(), projectEntries, employee);
+        List<WorkTimeBookingWarning> actual = timeWarningService.getAllTimeWarningsForEmployeeAndMonth(new ArrayList<>(), projectEntries, employee);
 
         assertThat(actual).isEmpty();
     }

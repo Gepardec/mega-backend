@@ -18,13 +18,15 @@ import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
 import com.gepardec.mega.rest.mapper.MonthlyBillInfoMapper;
 import com.gepardec.mega.rest.mapper.MonthlyOfficeDaysMapper;
 import com.gepardec.mega.rest.mapper.MonthlyReportMapper;
-import com.gepardec.mega.rest.mapper.MonthlyWarningMapper;
 import com.gepardec.mega.rest.mapper.ProjectHoursSummaryMapper;
+import com.gepardec.mega.rest.mapper.WorkTimeBookingWarningMapper;
+import com.gepardec.mega.rest.model.AttendancesDto;
+import com.gepardec.mega.rest.model.LeadersDto;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
-import com.gepardec.mega.rest.model.MonthlyWarningDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
+import com.gepardec.mega.rest.model.WorkTimeBookingWarningDto;
 import com.gepardec.mega.rest.provider.PayrollContext;
 import com.gepardec.mega.rest.provider.PayrollMonthProvider;
 import com.gepardec.mega.service.api.AbsenceService;
@@ -61,7 +63,7 @@ public class WorkerResourceImpl implements WorkerResource {
     TimeWarningService timeWarningService;
 
     @Inject
-    MonthlyWarningMapper monthlyWarningMapper;
+    WorkTimeBookingWarningMapper workTimeBookingWarningMapper;
 
     @Inject
     AbsenceService absenceService;
@@ -150,17 +152,28 @@ public class WorkerResourceImpl implements WorkerResource {
     }
 
     @Override
-    public List<MonthlyWarningDto> getAllWarningsForEmployeeAndMonth(YearMonth payrollMonth) {
+    public List<WorkTimeBookingWarningDto> getAllWarningsForEmployeeAndMonth(YearMonth payrollMonth) {
         Employee employee = employeeService.getEmployee(userContext.getUser().getUserId());
         List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee, payrollMonth);
         List<ProjectEntry> projectEntries = zepService.getProjectTimes(employee, payrollMonth);
 
         return timeWarningService.getAllTimeWarningsForEmployeeAndMonth(absences, projectEntries, employee)
                 .stream()
-                .map(monthlyWarningMapper::mapToDto)
+                .map(workTimeBookingWarningMapper::mapToDto)
                 .toList();
     }
 
+    @Override
+    public LeadersDto getLeaders() {
+        return personioEmployeesService.getPersonioEmployeeByEmail(userContext.getUser().getEmail())
+                .map(employee -> new LeadersDto(employee.getInternalProjectLead(), employee.getGuildLead()))
+                .orElseThrow();
+    }
+
+    @Override
+    public AttendancesDto getAttendances(YearMonth payrollMonth) {
+        return new AttendancesDto(3.49, 2.5, 3.4, 0.0);
+    }
 
     private MonthlyOfficeDays createMonthlyOfficeDays(List<AbsenceTime> absences, YearMonth payrollMonth) {
         int homeOfficeDaysCount = workingTimeUtil.getAbsenceTimesForEmployee(absences, AbsenceType.HOME_OFFICE_DAYS.getAbsenceName(), payrollMonth);
