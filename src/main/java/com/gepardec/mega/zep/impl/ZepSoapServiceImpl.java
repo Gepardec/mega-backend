@@ -142,7 +142,7 @@ public class ZepSoapServiceImpl implements ZepService {
         final Optional<ReadFehlzeitSearchCriteriaType> searchCriteria = getSearchCriteria(employee, payrollMonth, this::createAbsenceSearchCriteria);
 
         if (searchCriteria.isEmpty()) {
-            return null;
+            return List.of();
         }
 
         fehlzeitenRequest.setReadFehlzeitSearchCriteria(searchCriteria.get());
@@ -244,7 +244,7 @@ public class ZepSoapServiceImpl implements ZepService {
             return Optional.empty();
         }
 
-        return Optional.of(createProject(projects.get(0), payrollMonth));
+        return Optional.of(createProject(projects.getFirst(), payrollMonth));
     }
 
     private <T, U, R> Optional<R> getSearchCriteria(final T par1, final U par2, final BiFunction<T, U, R> searchCriteriaFunction) {

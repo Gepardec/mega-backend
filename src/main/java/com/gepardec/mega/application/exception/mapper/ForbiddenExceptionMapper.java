@@ -29,8 +29,9 @@ public class ForbiddenExceptionMapper implements ExceptionMapper<ForbiddenExcept
 
     @Override
     public Response toResponse(ForbiddenException exception) {
+        String userEmail = Optional.ofNullable(userContext.getUser()).map(User::getEmail).orElse("unknown");
         logger.warn("Forbidden access of user '{}' on resource: '{}' with message: '{}'",
-                Optional.ofNullable(userContext.getUser()).map(User::getEmail).orElse("unknown"),
+                userEmail,
                 uriInfo.getPath(),
                 exception.getMessage());
         return Response.status(Response.Status.FORBIDDEN).build();

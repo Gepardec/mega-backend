@@ -18,7 +18,6 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Collection;
@@ -54,7 +53,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        logger.info("Started step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime()));
+        logger.info("Started step entry generation: {}", stopWatch.getStartInstant());
         logger.info("Processing date: {}", payrollMonth);
 
         final List<User> activeUsers = userService.findActiveUsers();
@@ -78,7 +77,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
 
         logger.info("Created step entries: {}", toBeCreatedStepEntries.size());
         logger.info("Step entry generation took: {}ms", stopWatch.getTime());
-        logger.info("Finished step entry generation: {}", Instant.ofEpochMilli(stopWatch.getStartTime() + stopWatch.getTime()));
+        logger.info("Finished step entry generation: {}", stopWatch.getStopInstant());
 
         return true;
     }
@@ -87,8 +86,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
         return notificationConfig.getOmMailAddresses()
                 .stream()
                 .map(email -> findUserByEmail(activeUsers, email))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Optional::stream)
                 .toList();
     }
 
@@ -140,8 +138,7 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
         return project.getLeads()
                 .stream()
                 .map(lead -> findUserByUserId(users, lead))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Optional::stream)
                 .map(leadUser -> StepEntry.builder()
                         .date(date)
                         .project(project)

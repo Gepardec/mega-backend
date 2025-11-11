@@ -5,7 +5,9 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,9 +20,9 @@ public class ResourceFileService {
     }
 
     public ResourceFileService(@ResourcePath String filesPath) {
-        File filesDir = getFileOfResourcesPath(filesPath);
-        if (filesDir.isDirectory()) {
-            this.filesDir = filesDir;
+        File filesDirectory = getFileOfResourcesPath(filesPath);
+        if (filesDirectory.isDirectory()) {
+            this.filesDir = filesDirectory;
         }
     }
 
@@ -44,7 +46,7 @@ public class ResourceFileService {
         }
 
         return Arrays.stream(files)
-                .sorted((f1, f2) -> f1.getName().compareTo(f2.getName()))
+                .sorted(Comparator.comparing(File::getName))
 //                .peek(f -> System.out.println(f.getName()))
                 .map(ResourceFileService::readFile)
                 .toList();
@@ -60,11 +62,15 @@ public class ResourceFileService {
     }
 
     private File getFileOfResourcesPath(String path) {
-        try{
-        String resourcesPath = this.getClass().getResource("/").getPath();
-        String absPath = resourcesPath + path;
-        return new File(absPath);
-        }catch(Exception e){
+        try {
+            URL resource = getClass().getResource("/");
+            if (resource == null) {
+                throw new IOException("Resource not found: " + path);
+            }
+            String resourcesPath = resource.getPath();
+            String absPath = resourcesPath + path;
+            return new File(absPath);
+        } catch (Exception e) {
             throw new RuntimeException("Error reading resource Path for test resources", e);
         }
     }

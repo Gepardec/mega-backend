@@ -55,7 +55,7 @@ class WorkingTimeUtilTest {
     void getInternalTimesForEmployeeTest() {
         Employee employee = createEmployee().build();
 
-        List<ProjectTime> projectTimes = returnNormalDayProjectTimes(5);
+        List<ProjectTime> projectTimes = returnNormalDayProjectTimes();
         String internalTimesForEmployee = workingTimeUtil.getInternalTimesForEmployee(projectTimes, employee);
         assertThat(internalTimesForEmployee).isEqualTo("20:00");
     }
@@ -64,16 +64,15 @@ class WorkingTimeUtilTest {
     void getBillableTimesForEmployeeTest() {
         Employee employee = createEmployee().build();
 
-        List<ProjectTime> projectTimes = returnNormalDayProjectTimes(5);
+        List<ProjectTime> projectTimes = returnNormalDayProjectTimes();
         String internalTimesForEmployee = workingTimeUtil.getBillableTimesForEmployee(projectTimes, employee);
         assertThat(internalTimesForEmployee).isEqualTo("20:00");
     }
 
     @Test
     void getTotalWorkingTimes_ProjectTime() {
-        Employee employee = createEmployee().build();
         List<ProjectEntry> projectEntries = getProjectentries();
-        String totalWorkingTimes = workingTimeUtil.getTotalWorkingTimeForEmployee(projectEntries, employee);
+        String totalWorkingTimes = workingTimeUtil.getTotalWorkingTimeForEmployee(projectEntries);
         assertThat(totalWorkingTimes).isEqualTo("24:15");
     }
 
@@ -128,19 +127,17 @@ class WorkingTimeUtilTest {
         List<ProjectEntry> projectTimes = returnNormalDayProjectEntries(3);
         List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
 
-        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(
+        double overtimeForEmployee = workingTimeUtil.getOvertimeForEmployee(
                 employee,
                 projectTimes,
                 fehlzeitTypes,
                 YearMonth.of(2023, 10)
         );
-        assertThat(overtimeforEmployee).isEqualTo(0);
+        assertThat(overtimeForEmployee).isZero();
     }
 
     @Test
     void getAbsenceTimesForEmployee() {
-        Employee employee = createEmployee().build();
-
         List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
         int absenceTimesForEmployee = workingTimeUtil.getAbsenceTimesForEmployee(fehlzeitTypes, "UB", YearMonth.of(2023, 11));
         assertThat(absenceTimesForEmployee).isEqualTo(2);
@@ -179,22 +176,22 @@ class WorkingTimeUtilTest {
         return List.of(fehlzeitType);
     }
 
-    private List<ProjectTime> returnNormalDayProjectTimes(int times) {
+    private List<ProjectTime> returnNormalDayProjectTimes() {
         ProjectTime projektzeitType = ProjectTime.builder().build();
         projektzeitType.setDuration("04:00");
         projektzeitType.setUserId("1");
         projektzeitType.setBillable(false);
 
-        ProjectTime projektzeitTypeBilllable = ProjectTime.builder().build();
-        projektzeitTypeBilllable.setDuration("04:00");
-        projektzeitTypeBilllable.setUserId("1");
-        projektzeitTypeBilllable.setBillable(true);
+        ProjectTime projektzeitTypeBillable = ProjectTime.builder().build();
+        projektzeitTypeBillable.setDuration("04:00");
+        projektzeitTypeBillable.setUserId("1");
+        projektzeitTypeBillable.setBillable(true);
 
 
         List<ProjectTime> projectTimes = new ArrayList<>();
 
-        for (int i = 0; i < times; i++) {
-            projectTimes.add(projektzeitTypeBilllable);
+        for (int i = 0; i < 5; i++) {
+            projectTimes.add(projektzeitTypeBillable);
             projectTimes.add(projektzeitType);
         }
         return projectTimes;

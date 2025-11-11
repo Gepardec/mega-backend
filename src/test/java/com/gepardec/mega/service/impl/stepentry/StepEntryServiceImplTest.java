@@ -13,6 +13,7 @@ import com.gepardec.mega.service.api.StepEntryService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
@@ -158,8 +159,6 @@ class StepEntryServiceImplTest {
                 .thenReturn(1);
 
         Employee employee = createEmployee();
-        LocalDate from = DateUtils.getFirstDayOfFollowingMonth(employee.getReleaseDate());
-        LocalDate to = DateUtils.getLastDayOfFollowingMonth(employee.getReleaseDate());
 
         boolean updated = stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L, YearMonth.now().plusMonths(1));
 
@@ -179,7 +178,7 @@ class StepEntryServiceImplTest {
         boolean result = stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, stepId, payrollMonth, reason);
 
         assertThat(result).isTrue();
-        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(eq(payrollMonth.atDay(1)), eq(payrollMonth.atEndOfMonth()), eq(employee.getEmail()), eq(stepId), eq(reason));
+        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail(), stepId, reason);
     }
 
     @Test
@@ -195,7 +194,7 @@ class StepEntryServiceImplTest {
         boolean result = stepEntryService.updateStepEntryReasonForStepWithStateDone(employee, stepId, payrollMonth, reason);
 
         assertThat(result).isFalse();
-        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(eq(payrollMonth.atDay(1)), eq(payrollMonth.atEndOfMonth()), eq(employee.getEmail()), eq(stepId), eq(reason));
+        verify(stepEntryRepository).updateReasonForStepEntryWithStateDone(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail(), stepId, reason);
     }
 
     @Test
@@ -223,7 +222,7 @@ class StepEntryServiceImplTest {
         );
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo(1L);
+        assertThat(result.getFirst().getId()).isEqualTo(1L);
     }
 
     @Test
@@ -245,7 +244,8 @@ class StepEntryServiceImplTest {
 
         Employee employee = createEmployee();
 
-        assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAtStep(2L, employee.getEmail(), "", YearMonth.now()))
+        ThrowableAssert.ThrowingCallable throwingCallable = () -> stepEntryService.findStepEntryForEmployeeAtStep(2L, employee.getEmail(), "", YearMonth.now());
+        assertThatThrownBy(throwingCallable)
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("No StepEntries found for Employee ");
     }
@@ -276,12 +276,11 @@ class StepEntryServiceImplTest {
 
         List<ProjectEmployees> projectEmployees = stepEntryService.getProjectEmployeesForPM(YearMonth.now(), "no-reply@gepardec.com");
 
-        assertAll(
-                () -> assertThat(projectEmployees).isNotNull(),
-                () -> assertThat(projectEmployees).hasSize(1),
-                () -> assertThat(projectEmployees.get(0).getProjectId()).isEqualTo("Liwest-EMS"),
-                () -> assertThat(projectEmployees.get(0).getEmployees()).containsExactlyInAnyOrder("008", "010", "012", "020")
-        );
+        assertThat(projectEmployees)
+                .isNotNull()
+                .hasSize(1);
+        assertThat(projectEmployees.getFirst().getProjectId()).isEqualTo("Liwest-EMS");
+        assertThat(projectEmployees.getFirst().getEmployees()).containsExactlyInAnyOrder("008", "010", "012", "020");
     }
 
     @Test
@@ -374,7 +373,8 @@ class StepEntryServiceImplTest {
                 )
         ).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAndProjectAtStep(1L, "max.mustermann@gmail.com", "max.mustermann@gmail.com", "ABC", YearMonth.of(2025, 5)))
+        ThrowableAssert.ThrowingCallable throwingCallable = () -> stepEntryService.findStepEntryForEmployeeAndProjectAtStep(1L, "max.mustermann@gmail.com", "max.mustermann@gmail.com", "ABC", YearMonth.of(2025, 5));
+        assertThatThrownBy(throwingCallable)
                 .isInstanceOf(IllegalStateException.class);
     }
 
@@ -471,9 +471,9 @@ class StepEntryServiceImplTest {
 
         List<StepEntry> result = stepEntryService.findAllStepEntriesForEmployeeAndProject(employee, projectId, assigneeEmail, payrollMonth);
 
-        assertThat(result).hasSize(4);
-        assertThat(result).containsAll(stepEntriesProjectSpecific);
-        assertThat(result).containsAll(stepEntriesGeneral);
+        assertThat(result).hasSize(4)
+                .containsAll(stepEntriesProjectSpecific)
+                .containsAll(stepEntriesGeneral);
 
         verify(stepEntryRepository, times(1))
                 .findAllOwnedStepEntriesInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail(), projectId, assigneeEmail);
@@ -536,7 +536,7 @@ class StepEntryServiceImplTest {
 
             assertThatThrownBy(() -> stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, payrollMonth))
                     .isInstanceOf(IllegalStateException.class)
-                    .hasMessageContaining(String.format("No StepEntries found for Employee %s", employeeEmail));
+                    .hasMessageContaining("No StepEntries found for Employee %s".formatted(employeeEmail));
             verify(stepEntryRepository, times(1)).findStepEntryForEmployeeAndProjectAtStepInRange(
                     fromDate, toDate, employeeEmail, stepId, assigneeEmail, project);
         }
@@ -592,17 +592,17 @@ class StepEntryServiceImplTest {
 
     private List<StepEntry> createStepEntriesForPM() {
         return List.of(
-                createStepEntry(1L, "no-reply@gepardec.com", "008"),
-                createStepEntry(2L, "no-reply@gepardec.com", "010"),
-                createStepEntry(3L, "no-reply@gepardec.com", "012"),
-                createStepEntry(4L, "no-reply@gepardec.com", "020")
+                createStepEntry(1L, "008"),
+                createStepEntry(2L, "010"),
+                createStepEntry(3L, "012"),
+                createStepEntry(4L, "020")
         );
     }
 
-    private StepEntry createStepEntry(Long id, String ownerEmail, String ownerZepId) {
+    private StepEntry createStepEntry(Long id, String ownerZepId) {
         StepEntry entry = createStepEntry(id);
         User owner = new User();
-        owner.setEmail(ownerEmail);
+        owner.setEmail("no-reply@gepardec.com");
         owner.setZepId(ownerZepId);
         entry.setOwner(owner);
         return entry;

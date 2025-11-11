@@ -1,4 +1,4 @@
-package com.gepardec.mega.personio.employees.absenceBalance;
+package com.gepardec.mega.personio.employees.absencebalance;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

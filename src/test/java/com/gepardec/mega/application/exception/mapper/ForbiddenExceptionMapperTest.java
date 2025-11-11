@@ -40,14 +40,14 @@ class ForbiddenExceptionMapperTest {
     @Test
     void toResponse_whenUserNotLogged_thenLoggerWarnCalledAndMessageContainsUnknown() {
         when(uriInfo.getPath()).thenReturn("/path/resource");
-        final Response response = mapper.toResponse(new ForbiddenException("exception-message"));
+        mapper.toResponse(new ForbiddenException("exception-message"));
 
         verify(logger, times(1)).warn(anyString(), eq("unknown"), eq("/path/resource"), eq("exception-message"));
     }
 
     @Test
     void toResponse_whenUserNotLogged_thenLoggerWarnCalledAndMessageContainsUserEmail() {
-        when(userContext.getUser()).thenReturn(createUserForEmail("no-reply@gepardec.com"));
+        when(userContext.getUser()).thenReturn(createUserForEmail());
         when(uriInfo.getPath()).thenReturn("/path/resource");
         final Response response = mapper.toResponse(new ForbiddenException("exception-message"));
 
@@ -57,18 +57,18 @@ class ForbiddenExceptionMapperTest {
 
     @Test
     void toResponse_whenCalled_thenReturnsHttpErrorFORBIDDEN() {
-        when(userContext.getUser()).thenReturn(createUserForEmail("no-reply@gepardec.com"));
+        when(userContext.getUser()).thenReturn(createUserForEmail());
         when(uriInfo.getPath()).thenReturn("/path/resource");
         final Response response = mapper.toResponse(new ForbiddenException("exception-message"));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
     }
 
-    private User createUserForEmail(final String email) {
+    private User createUserForEmail() {
         return User.builder()
                 .dbId(1)
                 .userId("1")
-                .email(email)
+                .email("no-reply@gepardec.com")
                 .firstname("Max")
                 .lastname("Mustermann")
                 .roles(Set.of(Role.EMPLOYEE))

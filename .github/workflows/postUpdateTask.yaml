@@ -38,15 +38,15 @@ jobs:
           NEW_VERSION: ${{ steps.parse.outputs.NEW_VERSION }}
         run: echo "groupId=${GROUPID}, depname=${DEPNAME}, currVersion=${CURR_VERSION}, newVersion=${NEW_VERSION}"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         name: checkout
         with:
           ref: feature/base-auto-update
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Upgrade
         env:

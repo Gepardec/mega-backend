@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
-public class EmployeeService{
+public class EmployeeService {
 
     @RestClient
     ZepEmployeeRestClient zepEmployeeRestClient;
@@ -29,23 +29,24 @@ public class EmployeeService{
             return responseParser.retrieveSingle(zepEmployeeRestClient.getByUsername(name),
                     ZepEmployee.class);
         } catch (ZepServiceException e) {
-            logger.warn("Error retrieving employee + \"%s\" from ZEP: No /data field in response"
-                            .formatted(name), e);
+            String message = "Error retrieving employee \"%s\" from ZEP: No /data field in response".formatted(name);
+            logger.warn(message, e);
         }
         return Optional.empty();
     }
-    public Optional<ZepEmployee> getZepEmployeeByPersonalNumber(String personalNumber) {
-            try {
-                return responseParser
-                        .retrieveSingle(zepEmployeeRestClient.getByPersonalNumber(personalNumber),
-                            ZepEmployee[].class)
-                        .map(employees -> employees[0]);
-            } catch (ZepServiceException e) {
-                logger.warn("Error retrieving employee + \"%s\" from ZEP: No /data field in response"
-                                .formatted(personalNumber), e);
-            }
 
-            return Optional.empty();
+    public Optional<ZepEmployee> getZepEmployeeByPersonalNumber(String personalNumber) {
+        try {
+            return responseParser
+                    .retrieveSingle(zepEmployeeRestClient.getByPersonalNumber(personalNumber),
+                            ZepEmployee[].class)
+                    .map(employees -> employees[0]);
+        } catch (ZepServiceException e) {
+            String message = "Error retrieving employee \"%s\" from ZEP: No /data field in response".formatted(personalNumber);
+            logger.warn(message, e);
+        }
+
+        return Optional.empty();
 
     }
 

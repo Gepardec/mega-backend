@@ -15,6 +15,10 @@ import java.util.Optional;
 @Transactional
 public class PrematureEmployeeCheckRepository implements PanacheRepository<PrematureEmployeeCheckEntity> {
 
+    private static final String P_EMAIL = "email";
+    private static final String P_FOR_MONTH = "forMonth";
+    private static final String P_STATES = "states";
+
     public PrematureEmployeeCheckEntity create(final PrematureEmployeeCheckEntity prematureEmployeeCheckEntity) {
         // Flushing to trigger the ConstraintViolationException to be able to catch it
         persistAndFlush(prematureEmployeeCheckEntity);
@@ -31,18 +35,18 @@ public class PrematureEmployeeCheckRepository implements PanacheRepository<Prema
 
     public List<PrematureEmployeeCheckEntity> findAllForMonth(LocalDate forMonth) {
         return find("#PrematureEmployeeCheck.findAllByMonth",
-                Parameters.with("forMonth", forMonth))
+                Parameters.with(P_FOR_MONTH, forMonth))
                 .list();
     }
 
     public Optional<PrematureEmployeeCheckEntity> findByEmailAndMonth(String email, LocalDate forMonth) {
         return find("#PrematureEmployeeCheck.findByEmailAndMonth",
-                Parameters.with("email", email).and("forMonth", forMonth))
+                Parameters.with(P_EMAIL, email).and(P_FOR_MONTH, forMonth))
                 .firstResultOptional();
     }
 
     public long deleteByMonthAndStates(LocalDate forMonth, List<PrematureEmployeeCheckState> states) {
         return delete("#PrematureEmployeeCheck.deleteAllByMonthAndStates",
-                Parameters.with("forMonth", forMonth).and("states", states));
+                Parameters.with(P_FOR_MONTH, forMonth).and(P_STATES, states));
     }
 }

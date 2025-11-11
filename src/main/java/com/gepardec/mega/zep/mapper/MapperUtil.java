@@ -12,6 +12,11 @@ import java.util.stream.Collectors;
 
 
 public class MapperUtil {
+
+    private MapperUtil() {
+        // nop
+    }
+
     public static Map<String, String> convertAttributesToMap(AttributesType attributes) {
         if (attributes == null) {
             return Collections.emptyMap();

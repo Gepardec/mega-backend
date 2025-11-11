@@ -12,12 +12,14 @@ public class DurationSerializer extends JsonSerializer<Duration> {
     @Override
     public void serialize(Duration value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         if (value != null) {
-            final String duration = String.format("%sd %sh %sm %ss",
-                    value.toDaysPart(),
-                    value.toHoursPart(),
-                    value.toMinutesPart(),
-                    value.toSecondsPart());
-            gen.writeString(duration);
+            gen.writeString(
+                    "%sd %sh %sm %ss".formatted(
+                            value.toDaysPart(),
+                            value.toHoursPart(),
+                            value.toMinutesPart(),
+                            value.toSecondsPart()
+                    )
+            );
         }
     }
 }

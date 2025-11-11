@@ -1,31 +1,24 @@
 # GLOBAL Properties
 quarkus:
-  scheduler:
-    enabled: true
-
   swagger-ui:
     always-include: true
 
   http:
     cors:
-      ~: true
+      enabled: true
       origins: "/https://mega-frontend([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/,/https://gepardec-sso([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/,/https://mega-backend([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/"
       access-control-allow-credentials: true
-    root-path: "/"
-    non-application-root-path: "/"
-    port: 8080
+    non-application-root-path: ${quarkus.http.root-path}
+
     auth:
       proactive: false
 
-  log:
-    level: INFO
   smallrye-metrics:
     jaxrs:
       enabled: true
 
   liquibase:
     change-log: "db/changelog-master.xml"
-    migrate-at-start: false
 
   cache:
     caffeine:
@@ -52,7 +45,7 @@ quarkus:
     from: "service@gepardec.com (MEGA Mailer)"
     host: "smtp.gmail.com"
     port: 465
-    ssl: true
+    tls: true
     username: "service@gepardec.com"
     password: "${MAILER_PASSWORD:default}"
 
@@ -105,9 +98,6 @@ quarkus:
       application-type: "service"
       token:
         verify-access-token-with-user-info: false
-  jacoco:
-    excludes:
-      - "**/provantis/**"
 
 mp:
   openapi:
@@ -240,12 +230,14 @@ mega:
       password: mega
       jdbc:
         url: 'jdbc:h2:mem:mega;MODE=PostgreSQL;INIT=create schema if not exists mega\;SET SCHEMA mega'
-
-    hibernate-orm:
-      database:
-        generation: drop-and-create
     liquibase:
       migrate-at-start: true
+    hibernate-orm:
+      schema-management:
+        strategy: drop-and-create
+    jacoco:
+      excludes:
+        - "**/provantis/**"
 
   mega:
     dash-url: "http://localhost:8080/index.html"

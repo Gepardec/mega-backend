@@ -47,13 +47,13 @@ public interface SyncResource {
             description = "If not given uses the current month. " +
                     "If given uses the parameter-date.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Parameter(name = "to",
             description = "If not given uses the current month. " +
                     "If 'from' is not given but 'to' is given, uses the current month. " +
                     "If both are given uses the span between them.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/projects")
     @GET
     Response syncProjects(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
@@ -68,13 +68,13 @@ public interface SyncResource {
             description = "If not given uses the current month. " +
                     "If given uses the parameter-date.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Parameter(name = "to",
             description = "If not given uses the current month. " +
                     "If 'from' is not given but 'to' is given, uses the current month. " +
                     "If both are given uses the span between them.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/enterprise-entries")
     @GET
     Response generateEnterpriseEntries(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
@@ -84,13 +84,13 @@ public interface SyncResource {
             description = "If not given uses the current month. " +
                     "If given uses the parameter-date.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Parameter(name = "to",
             description = "If not given uses the current month. " +
                     "If 'from' is not given but 'to' is given, uses the current month. " +
                     "If both are given uses the span between them.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/step-entries")
     @GET
     Response generateStepEntries(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
@@ -100,13 +100,13 @@ public interface SyncResource {
             description = "If not given uses the current month. " +
                     "If given uses the parameter-date.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Parameter(name = "to",
             description = "If not given uses the current month. " +
                     "If 'from' is not given but 'to' is given, uses the current month. " +
                     "If both are given uses the span between them.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/prematureemployeecheck")
     @GET
     Response syncPrematureEmployeeChecks(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);
@@ -116,13 +116,13 @@ public interface SyncResource {
             description = "If not given uses the current month. " +
                     "If given uses the parameter-date.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Parameter(name = "to",
             description = "If not given uses the current month. " +
                     "If 'from' is not given but 'to' is given, uses the current month. " +
                     "If both are given uses the span between them.",
             in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, example = "yyyy-MM"))
+            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/all")
     @GET
     Response syncAll(@QueryParam("from") YearMonth from, @QueryParam("to") YearMonth to);

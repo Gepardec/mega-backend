@@ -30,8 +30,8 @@ public class EmploymentPeriodService {
                     ZepEmploymentPeriod.class
             );
         } catch (ZepServiceException e) {
-            logger.warn("Error retrieving employment periods for employee \"%s\" from ZEP: No /data field in response"
-                    .formatted(username), e);
+            String message = "Error retrieving employment periods for employee \"%s\" from ZEP: No /data field in response".formatted(username);
+            logger.warn(message, e);
         }
 
         return List.of();

@@ -30,8 +30,8 @@ public class AttendanceService {
                     .filter(ZepAttendance::billable)
                     .toList();
         } catch (ZepServiceException e) {
-            logger.warn("Error retrieving billable attendances for user + \"%s\" from ZEP: No /data field in response"
-                    .formatted(username), e);
+            String message = "Error retrieving billable attendances for user \"%s\" from ZEP: No /data field in response".formatted(username);
+            logger.warn(message, e);
         }
         return List.of();
 
@@ -47,8 +47,8 @@ public class AttendanceService {
                     page -> zepAttendanceRestClient.getAttendance(startDate, endDate, username, page),
                     ZepAttendance.class);
         } catch (ZepServiceException e) {
-            logger.warn("Error retrieving attendances for user + \"%s\" from ZEP: No /data field in response"
-                    .formatted(username), e);
+            String message = "Error retrieving attendances for user \"%s\" from ZEP: No /data field in response".formatted(username);
+            logger.warn(message, e);
         }
         return List.of();
     }
@@ -63,9 +63,11 @@ public class AttendanceService {
                     ZepAttendance.class);
 
         } catch (ZepServiceException e) {
-            logger.warn(("Error retrieving billable attendances for user \"%s\" and project \"%d\" from ZEP: " +
-                    "No /data field in response")
-                    .formatted(username, projectId), e);
+            String message = """
+                    Error retrieving billable attendances for user "%s" and project "%d" from ZEP: \
+                    No /data field in response"""
+                    .formatted(username, projectId);
+            logger.warn(message, e);
         }
         return List.of();
     }

@@ -31,11 +31,10 @@ public class TimeWarningMapper {
         final HashMap<TimeWarning, ArrayList<MappedTimeWarningTypes>> timeWarningMapping = new HashMap<>();
         ResourceBundle templates = resourceBundleProducer.getWarningTemplateResourceBundle(applicationConfig.getDefaultLocale());
 
-        timeWarningPredicates.getPredicateMap().forEach((mappedTimeWarningTypes, timeWarningPredicate) -> {
-            timeWarningList.stream()
-                    .filter(timeWarningPredicate)
-                    .forEach(timeWarning -> appendMap(timeWarningMapping, timeWarning, mappedTimeWarningTypes));
-        });
+        timeWarningPredicates.getPredicateMap().forEach((mappedTimeWarningTypes, timeWarningPredicate) ->
+                timeWarningList.stream()
+                        .filter(timeWarningPredicate)
+                        .forEach(timeWarning -> appendMap(timeWarningMapping, timeWarning, mappedTimeWarningTypes)));
 
         final List<MappedTimeWarningDTO> mappedTimeWarningList = new ArrayList<>();
         timeWarningMapping.forEach((timeWarning, types) -> {
@@ -44,7 +43,7 @@ public class TimeWarningMapper {
 
             types.forEach(type -> {
                 String template = templates.getString("WARNING.TIME.".concat(type.name()));
-                description.add(String.format(template, type.getTemplateValue(timeWarning)));
+                description.add(template.formatted(type.getTemplateValue(timeWarning)));
             });
 
             MappedTimeWarningDTO mtwDTO = MappedTimeWarningDTO.builder()

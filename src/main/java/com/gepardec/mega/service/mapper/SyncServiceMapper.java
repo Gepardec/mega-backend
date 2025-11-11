@@ -96,9 +96,12 @@ public class SyncServiceMapper {
                 }
                 user.setLocale(Locale.forLanguageTag(employee.getLanguage()));
             } catch (Exception e) {
-                log.warn("Employee '" + employee.getEmail()
-                        + "' has an invalid language '" + employee.getLanguage()
-                        + "' set, therefore set default Locale '" + defaultLocale.toString() + "'");
+                log.warn(
+                        "Employee '{}' has an invalid language '{}' set, therefore set default Locale '{}'",
+                        employee.getEmail(),
+                        employee.getLanguage(),
+                        defaultLocale
+                );
                 user.setLocale(defaultLocale);
             }
         }

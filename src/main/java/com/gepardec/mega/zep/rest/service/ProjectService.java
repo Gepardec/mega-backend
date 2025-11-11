@@ -12,7 +12,6 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,8 +37,8 @@ public class ProjectService {
                     ZepProject.class
             );
         } catch (ZepServiceException e) {
-            logger.warn("Error retrieving projects for month + \"%s\" from ZEP: No /data field in response"
-                    .formatted(payrollMonth.format(DateTimeFormatter.ofPattern("MM-yyyy"))), e);
+            String message = "Error retrieving projects for month \"%s\" from ZEP: No /data field in response".formatted(payrollMonth);
+            logger.warn(message, e);
         }
 
         return List.of();
@@ -58,8 +57,8 @@ public class ProjectService {
                     ZepProject[].class
             ).map(x -> x[0]);
         } catch (ZepServiceException e) {
-            logger.warn("Error retrieving project + \"%s\" from ZEP: No /data field in response"
-                    .formatted(name), e);
+            String message = "Error retrieving project \"%s\" from ZEP: No /data field in response".formatted(name);
+            logger.warn(message, e);
         }
         return Optional.empty();
     }
@@ -71,8 +70,8 @@ public class ProjectService {
                     ZepProjectDetail.class
             );
         } catch (ZepServiceException e) {
-            logger.warn("Error retrieving project + \"%d\" from ZEP: No /data field in response"
-                    .formatted(projectId), e);
+            String message = "Error retrieving project \"%d\" from ZEP: No /data field in response".formatted(projectId);
+            logger.warn(message, e);
         }
         return Optional.empty();
     }
@@ -85,8 +84,8 @@ public class ProjectService {
                     ZepProjectEmployee.class
             );
         } catch (ZepServiceException e) {
-            logger.warn("Error retrieving project employees for project + \"%d\" from ZEP: No /data field in response"
-                    .formatted(projectId), e);
+            String message = "Error retrieving project employees for project \"%d\" from ZEP: No /data field in response".formatted(projectId);
+            logger.warn(message, e);
         }
 
         return List.of();

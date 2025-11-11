@@ -12,7 +12,7 @@ public class CommentMapper implements EntityMapper<Comment, com.gepardec.mega.db
         comment.setId(object.getId());
         comment.setMessage(object.getMessage());
         comment.setState(object.getState());
-        comment.setSourceSystem(object.getSourceSystem());;
+        comment.setSourceSystem(object.getSourceSystem());
         return comment;
     }
 
@@ -22,9 +22,10 @@ public class CommentMapper implements EntityMapper<Comment, com.gepardec.mega.db
                 .builder()
                 .id(dbComment.getId())
                 .authorEmail(dbComment.getStepEntry().getAssignee().getEmail())
-                .authorName(String.format("%s %s",
+                .authorName("%s %s".formatted(
                         dbComment.getStepEntry().getAssignee().getFirstname(),
-                        dbComment.getStepEntry().getAssignee().getLastname()))
+                        dbComment.getStepEntry().getAssignee().getLastname())
+                )
                 .updateDate(dbComment.getUpdatedDate().toString())
                 .message(dbComment.getMessage())
                 .state(dbComment.getState())

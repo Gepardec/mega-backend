@@ -51,7 +51,7 @@ class ProjectServiceImplTest {
     private Project.Builder projectFor(final String id) {
         return Project.builder()
                 .projectId(id)
-                .description(String.format("Description of Project %s", id));
+                .description("Description of Project %s".formatted(id));
     }
 
     @Test
@@ -105,7 +105,7 @@ class ProjectServiceImplTest {
 
         // Then
         assertThat(projectsForMonthYear).hasSize(1);
-        assertThat(projectsForMonthYear.get(0).getProjectId()).isEqualTo("Kunde");
+        assertThat(projectsForMonthYear.getFirst().getProjectId()).isEqualTo("Kunde");
     }
 
     @Test
@@ -118,7 +118,7 @@ class ProjectServiceImplTest {
                                         .userId("userId")
                                         .firstname("Gepard")
                                         .lastname("Gepardec")
-                                        .email(String.format("%s%s.%s@gepardec.com", "Gepard", 1, "Gepardec"))
+                                        .email("%s%s.%s@gepardec.com".formatted("Gepard", 1, "Gepardec"))
                                         .roles(Set.of(Role.EMPLOYEE)).build())
                                 .stream().map(User::getUserId).toList())
                         .employees(List.of())
@@ -137,7 +137,7 @@ class ProjectServiceImplTest {
 
         // Then
         assertThat(projectsForMonthYear).hasSize(1);
-        assertThat(projectsForMonthYear.get(0).getProjectId()).isEqualTo("1");
+        assertThat(projectsForMonthYear.getFirst().getProjectId()).isEqualTo("1");
     }
 
     @Test

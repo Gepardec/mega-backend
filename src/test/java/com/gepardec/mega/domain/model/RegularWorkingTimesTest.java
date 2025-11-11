@@ -9,7 +9,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -69,9 +69,7 @@ class RegularWorkingTimesTest {
             // Act & Assert
             assertThat(regularWorkingTimes.latest())
                     .isPresent()
-                    .hasValueSatisfying(hours -> {
-                        assertThat(hours.start()).isEqualTo(sameStartDate);
-                    });
+                    .hasValueSatisfying(hours -> assertThat(hours.start()).isEqualTo(sameStartDate));
         }
     }
 
@@ -285,7 +283,7 @@ class RegularWorkingTimesTest {
      * @return map with days of week as keys and durations as values
      */
     private Map<DayOfWeek, Duration> createWorkingHoursMap(int hours) {
-        Map<DayOfWeek, Duration> workingHours = new HashMap<>();
+        Map<DayOfWeek, Duration> workingHours = new EnumMap<>(DayOfWeek.class);
         for (DayOfWeek day : DayOfWeek.values()) {
             if (day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY) {
                 workingHours.put(day, Duration.ofHours(hours));

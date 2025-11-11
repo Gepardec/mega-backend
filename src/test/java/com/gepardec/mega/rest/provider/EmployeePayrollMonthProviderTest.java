@@ -19,7 +19,6 @@ import java.util.Optional;
 
 import static com.gepardec.mega.rest.provider.PayrollContext.PayrollContextType.EMPLOYEE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -60,7 +59,7 @@ class EmployeePayrollMonthProviderTest {
                 // Mock step entry with IN_PROGRESS state
                 StepEntry stepEntry = Mockito.mock(StepEntry.class);
                 when(stepEntry.getState()).thenReturn(EmployeeState.IN_PROGRESS);
-                when(stepEntryService.findControlTimesStepEntry(eq(TEST_EMAIL), eq(firstOfPreviousMonth)))
+                when(stepEntryService.findControlTimesStepEntry(TEST_EMAIL, firstOfPreviousMonth))
                         .thenReturn(Optional.of(stepEntry));
 
                 when(payrollMonthProvider.getSysdate()).thenReturn(afterMidOfMonth);
@@ -81,7 +80,7 @@ class EmployeePayrollMonthProviderTest {
                 // Mock step entry with DONE state
                 StepEntry stepEntry = Mockito.mock(StepEntry.class);
                 when(stepEntry.getState()).thenReturn(EmployeeState.DONE);
-                when(stepEntryService.findControlTimesStepEntry(eq(TEST_EMAIL), eq(firstOfPreviousMonth)))
+                when(stepEntryService.findControlTimesStepEntry(TEST_EMAIL, firstOfPreviousMonth))
                         .thenReturn(Optional.of(stepEntry));
 
                 when(payrollMonthProvider.getSysdate()).thenReturn(afterMidOfMonth);
@@ -106,7 +105,7 @@ class EmployeePayrollMonthProviderTest {
                 // Mock step entry with DONE state
                 StepEntry stepEntry = Mockito.mock(StepEntry.class);
                 when(stepEntry.getState()).thenReturn(EmployeeState.DONE);
-                when(stepEntryService.findControlTimesStepEntry(eq(TEST_EMAIL), eq(firstOfPreviousMonth)))
+                when(stepEntryService.findControlTimesStepEntry(TEST_EMAIL, firstOfPreviousMonth))
                         .thenReturn(Optional.of(stepEntry));
 
                 when(payrollMonthProvider.getSysdate()).thenReturn(firstOfCurrentMonth);

@@ -9,7 +9,6 @@ import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -55,8 +54,8 @@ public class CoreWorkingHoursCalculator extends AbstractTimeWarningCalculationSt
     }
 
     private boolean isJourneyDurationZero(ProjectEntry startEntry, ProjectEntry endEntry) {
-        return startEntry.getDurationInHours() == 0 && isRelevantJourneyTimeEntry(startEntry)
-                || endEntry.getDurationInHours() == 0 && isRelevantProjectTimeEntry(endEntry);
+        return (startEntry != null && startEntry.getDurationInHours() == 0 && isRelevantJourneyTimeEntry(startEntry))
+                || (endEntry != null && endEntry.getDurationInHours() == 0 && isRelevantProjectTimeEntry(endEntry));
     }
 
     private boolean isRelevantProjectTimeEntry(ProjectEntry projectEntry) {
@@ -64,7 +63,7 @@ public class CoreWorkingHoursCalculator extends AbstractTimeWarningCalculationSt
     }
 
     private boolean isRelevantJourneyTimeEntry(ProjectEntry projectEntry) {
-        return projectEntry instanceof JourneyTimeEntry && ((JourneyTimeEntry) projectEntry).getVehicle().activeTraveler;
+        return projectEntry instanceof JourneyTimeEntry jte && jte.getVehicle().activeTraveler;
     }
 
     private boolean isEntryOutOfRange(final ProjectEntry firstEntry, final ProjectEntry lastEntry) {
@@ -72,14 +71,18 @@ public class CoreWorkingHoursCalculator extends AbstractTimeWarningCalculationSt
     }
 
     private boolean hasStartedToEarly(ProjectEntry projectTimeEntry) {
-        return projectTimeEntry != null && EARLIEST_HOUR > projectTimeEntry.getFromTime().get(ChronoField.HOUR_OF_DAY);
+        return projectTimeEntry != null && EARLIEST_HOUR > projectTimeEntry.getFromTime().getHour();
     }
 
     private boolean hasFinishedToLate(ProjectEntry projectTimeEntry) {
-        return projectTimeEntry != null && LATEST_HOUR < projectTimeEntry.getToTime().get(ChronoField.HOUR_OF_DAY);
+        return projectTimeEntry != null && LATEST_HOUR < projectTimeEntry.getToTime().getHour();
     }
 
     private TimeWarning createTimeWarning(final ProjectEntry projectEntry) {
+        if (projectEntry == null) {
+            return null;
+        }
+
         TimeWarning timeWarning = new TimeWarning();
         timeWarning.setDate(projectEntry.getDate());
         timeWarning.getWarningTypes().add(TimeWarningType.OUTSIDE_CORE_WORKING_TIME);

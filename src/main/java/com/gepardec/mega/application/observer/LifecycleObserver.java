@@ -2,7 +2,6 @@ package com.gepardec.mega.application.observer;
 
 import com.gepardec.mega.application.configuration.ApplicationConfig;
 import com.gepardec.mega.service.api.GmailService;
-import io.quarkus.arc.profile.IfBuildProfile;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.configuration.ConfigUtils;
 import jakarta.enterprise.context.Dependent;
@@ -16,6 +15,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 
 /**
  * With Quarkus we need to inject in the observer method and not in the bean itself.
@@ -32,11 +32,16 @@ public class LifecycleObserver {
                       final DataSource dataSource,
                       final @ConfigProperty(name = "quarkus.liquibase.change-log") String masterChangeLogFile,
                       final Logger logger) {
-        try {
-            ResourceAccessor resourceAccessor = new ClassLoaderResourceAccessor(LifecycleObserver.class.getClassLoader());
-            Liquibase liquibase = new Liquibase(masterChangeLogFile, resourceAccessor, new JdbcConnection(dataSource.getConnection()));
-            liquibase.update(new Contexts());
-            logger.info("Initialized database with liquibase");
+        try (Connection connection = dataSource.getConnection()) {
+            ResourceAccessor resourceAccessor =
+                    new ClassLoaderResourceAccessor(LifecycleObserver.class.getClassLoader());
+
+            try (Liquibase liquibase =
+                         new Liquibase(masterChangeLogFile, resourceAccessor, new JdbcConnection(connection))) {
+
+                liquibase.update(new Contexts());
+                logger.info("Initialized database with liquibase");
+            }
         } catch (Exception e) {
             logger.error("Initialization of the database with liquibase failed", e);
         }

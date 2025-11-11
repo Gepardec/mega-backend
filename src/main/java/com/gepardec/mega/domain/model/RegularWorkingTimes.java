@@ -40,8 +40,8 @@ public record RegularWorkingTimes(List<RegularWorkingTime> regularWorkingTimes) 
     public Optional<RegularWorkingTime> active(LocalDate referenceDate) {
         if (CollectionUtils.isNotEmpty(regularWorkingTimes)
                 && regularWorkingTimes.size() == 1
-                && regularWorkingTimes.get(0).start() == null) {
-            return Optional.of(regularWorkingTimes.get(0));
+                && regularWorkingTimes.getFirst().start() == null) {
+            return Optional.of(regularWorkingTimes.getFirst());
         }
 
         return regularWorkingTimes.stream()

@@ -77,8 +77,8 @@ class ProjectCommentRepositoryTest {
                 LocalDate.now().minusDays(2),
                 LocalDate.now().plusDays(2)
         );
-        projectComments.get(0).setComment(NEW_COMMENT);
-        projectCommentRepository.update(projectComments.get(0));
+        projectComments.getFirst().setComment(NEW_COMMENT);
+        projectCommentRepository.update(projectComments.getFirst());
 
         List<ProjectComment> newProjectComments = projectCommentRepository.findByProjectNameAndDateBetween(
                 projectComment.getProject().getName(),
@@ -116,13 +116,13 @@ class ProjectCommentRepositoryTest {
     }
 
     private ProjectComment initializeProjectCommentObject() {
-        ProjectComment projectComment = new ProjectComment();
-        projectComment.setComment(COMMENT);
-        projectComment.setProject(initializeProjectObject());
-        projectComment.setCreationDate(LocalDateTime.now());
-        projectComment.setUpdatedDate(LocalDateTime.now());
-        projectComment.setDate(LocalDate.now());
+        ProjectComment newProjectComment = new ProjectComment();
+        newProjectComment.setComment(COMMENT);
+        newProjectComment.setProject(initializeProjectObject());
+        newProjectComment.setCreationDate(LocalDateTime.now());
+        newProjectComment.setUpdatedDate(LocalDateTime.now());
+        newProjectComment.setDate(LocalDate.now());
 
-        return projectComment;
+        return newProjectComment;
     }
 }

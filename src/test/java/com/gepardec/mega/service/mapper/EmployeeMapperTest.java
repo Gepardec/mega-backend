@@ -9,7 +9,6 @@ import de.provantis.zep.RegelarbeitszeitListeTypeTs;
 import de.provantis.zep.RegelarbeitszeitType;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -93,9 +92,5 @@ class EmployeeMapperTest {
         final RegelarbeitszeitListeTypeTs regelarbeitszeitListeTypeTs = new RegelarbeitszeitListeTypeTs();
         regelarbeitszeitListeTypeTs.getRegelarbeitszeit().addAll(regelarbeitszeiten);
         return regelarbeitszeitListeTypeTs;
-    }
-
-    private Range<LocalDate> createRange(LocalDate from, LocalDate to) {
-        return Range.of(from, to, LocalDate::compareTo);
     }
 }

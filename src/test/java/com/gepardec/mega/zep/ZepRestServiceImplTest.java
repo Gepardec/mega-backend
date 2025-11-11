@@ -13,7 +13,6 @@ import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
-import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.zep.impl.Rest;
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
@@ -48,7 +47,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.MockedStatic;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -63,7 +61,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -210,8 +207,7 @@ class ZepRestServiceImplTest {
                         ZepAttendance.builder().billable(true).duration(4.0).projectId(1).date(LocalDate.of(2024, 6, 12)).build()
                 ));
 
-        var zepProjectDetail = new ZepProjectDetail();
-        zepProjectDetail.setProject(ZepProject.builder().id(1).name("XYZ").billingType(new ZepBillingType(1)).build());
+        var zepProjectDetail = new ZepProjectDetail(ZepProject.builder().id(1).name("XYZ").billingType(new ZepBillingType(1)).build(), null);
         when(projectService.getProjectById(anyInt()))
                 .thenReturn(Optional.of(zepProjectDetail));
 
@@ -220,9 +216,9 @@ class ZepRestServiceImplTest {
         List<ProjectHoursSummary> result = zepRestService.getAllProjectsForMonthAndEmployee(employee, YearMonth.of(2024, 6));
 
         assertThat(result).isNotNull();
-        assertThat(result.get(0).getBillableHoursSum()).isEqualTo(6.0);
-        assertThat(result.get(0).getNonBillableHoursSum()).isEqualTo(2.0);
-        assertThat(result.get(0).getChargeability()).isEqualTo(75.0);
+        assertThat(result.getFirst().getBillableHoursSum()).isEqualTo(6.0);
+        assertThat(result.getFirst().getNonBillableHoursSum()).isEqualTo(2.0);
+        assertThat(result.getFirst().getChargeability()).isEqualTo(75.0);
     }
 
     @Test
@@ -233,8 +229,8 @@ class ZepRestServiceImplTest {
 
         List<ProjectHoursSummary> result = zepRestService.getAllProjectsForMonthAndEmployee(employee, YearMonth.of(2024, 6));
 
-        assertThat(result).isNotNull();
-        assertThat(result.size()).isZero();
+        assertThat(result).isNotNull()
+                .isEmpty();
     }
 
     @Test
@@ -297,8 +293,9 @@ class ZepRestServiceImplTest {
 
         List<Employee> actual = zepRestService.getEmployees();
 
-        assertThat(actual).isNotNull();
-        assertThat(actual.size()).isEqualTo(2);
+        assertThat(actual)
+                .isNotNull()
+                .hasSize(2);
     }
 
     @Test
@@ -308,8 +305,9 @@ class ZepRestServiceImplTest {
 
         List<ProjectTime> actual = zepRestService.getProjectTimesForEmployeePerProject("ABC", YearMonth.now());
 
-        assertThat(actual).isNotNull();
-        assertThat(actual.isEmpty()).isTrue();
+        assertThat(actual)
+                .isNotNull()
+                .isEmpty();
     }
 
     @Test
@@ -330,8 +328,9 @@ class ZepRestServiceImplTest {
 
         List<ProjectTime> actual = zepRestService.getProjectTimesForEmployeePerProject("ABC", YearMonth.of(2024, 6));
 
-        assertThat(actual).isNotNull();
-        assertThat(actual.size()).isEqualTo(6);
+        assertThat(actual)
+                .isNotNull()
+                .hasSize(6);
     }
 
     @ParameterizedTest
@@ -390,25 +389,17 @@ class ZepRestServiceImplTest {
         List<AbsenceTime> absenceTimes = createAbsencesList();
         Employee employee = Employee.builder().userId("007-jbond").build();
 
-        try (MockedStatic<DateUtils> dateUtilsMockedStatic = mockStatic(DateUtils.class)) {
-            dateUtilsMockedStatic.when(() -> DateUtils.getFirstDayOfMonth(anyInt(), anyInt()))
-                    .thenReturn(LocalDate.of(2024, 5, 1));
-            dateUtilsMockedStatic.when(() -> DateUtils.getLastDayOfMonth(anyInt(), anyInt()))
-                    .thenReturn(LocalDate.of(2024, 5, 30));
+        when(absenceService.getZepAbsencesByEmployeeNameForDateRange(anyString(), any(YearMonth.class)))
+                .thenReturn(createZepAbsencesList());
 
-            when(absenceService.getZepAbsencesByEmployeeNameForDateRange(anyString(), any(YearMonth.class)))
-                    .thenReturn(createZepAbsencesList());
+        when(absenceMapper.mapList(any()))
+                .thenReturn(absenceTimes);
 
-            when(absenceMapper.mapList(any()))
-                    .thenReturn(absenceTimes);
+        List<AbsenceTime> actual = zepRestService.getAbsenceForEmployee(employee, YearMonth.of(2024, 5));
 
-            List<AbsenceTime> actual = zepRestService.getAbsenceForEmployee(employee, YearMonth.of(2024, 5));
-
-            assertThat(actual).isNotNull();
-            assertThat(actual.size()).isEqualTo(2);
-
-
-        }
+        assertThat(actual)
+                .isNotNull()
+                .hasSize(2);
     }
 
     private List<AbsenceTime> createAbsencesList() {
@@ -585,11 +576,7 @@ class ZepRestServiceImplTest {
         }
 
         private ZepProjectDetail createZepProjectDetail(ZepProject zepProject) {
-            var zepProjectDetail = new ZepProjectDetail();
-            zepProjectDetail.setProject(zepProject);
-            zepProjectDetail.setCategories(List.of(new ZepCategory("INT", Collections.emptyMap())));
-
-            return zepProjectDetail;
+            return new ZepProjectDetail(zepProject, List.of(new ZepCategory("INT", Collections.emptyMap())));
         }
     }
 

@@ -29,8 +29,8 @@ public class RegularWorkingTimesService {
                     page -> zepEmployeeRestClient.getRegularWorkingTimesByUsername(username, page),
                     ZepRegularWorkingTimes.class);
         } catch (ZepServiceException e) {
-            logger.warn("Error retrieving regular working times for employee \"%s\" from ZEP: No /data field in response"
-                    .formatted(username), e);
+            String message = "Error retrieving regular working times for employee \"%s\" from ZEP: No /data field in response".formatted(username);
+            logger.warn(message, e);
         }
 
         return List.of();

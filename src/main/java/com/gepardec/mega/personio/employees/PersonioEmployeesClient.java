@@ -2,7 +2,7 @@ package com.gepardec.mega.personio.employees;
 
 import com.gepardec.mega.personio.commons.factory.PersonioHeadersFactory;
 import com.gepardec.mega.personio.commons.model.BaseResponse;
-import com.gepardec.mega.personio.employees.absenceBalance.AbsenceBalanceResponse;
+import com.gepardec.mega.personio.employees.absencebalance.AbsenceBalanceResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;

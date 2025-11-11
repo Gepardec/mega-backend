@@ -34,8 +34,9 @@ class HibernateConstraintValidationExceptionMapperTest {
 
     @Test
     void when_ConstraintViolationExcpetion_THEN_LOG_WITH_STATUS_400() {
-        final Response response = hibernateConstraintViolationExceptionMapper.toResponse(new ConstraintViolationException(" ERROR: duplicate key value violates unique constraint \"uc_premature_employee_check_userid_and_formonth\"\n" +
-                "  Detail: Key (user_id, for_month)=(18, 2023-11-01) already exists.", new SQLException(), "uc_premature_employee_check_userid_and_formonth"));
+        final Response response = hibernateConstraintViolationExceptionMapper.toResponse(new ConstraintViolationException("""
+                ERROR: duplicate key value violates unique constraint "uc_premature_employee_check_userid_and_formonth"
+                 Detail: Key (user_id, for_month)=(18, 2023-11-01) already exists.""", new SQLException(), "uc_premature_employee_check_userid_and_formonth"));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         verify(logger, times(1)).error(contains("PrematureEmployeeCheck"));

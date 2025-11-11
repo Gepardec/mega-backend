@@ -44,8 +44,8 @@ public class AbsenceService {
                     .toList();
             return getFullZepAbsences(filteredAbsences);
         } catch (ZepServiceException e) {
-            logger.warn("Error retrieving employee + \"%s\" from ZEP: No /data field in response".formatted(employeeName),
-                    e);
+            String message = "Error retrieving employee \"%s\" from ZEP: No /data field in response".formatted(employeeName);
+            logger.warn(message, e);
             return List.of();
         }
     }
@@ -55,8 +55,8 @@ public class AbsenceService {
             return responseParser.retrieveSingle(zepAbsenceRestClient.getAbsenceById(id),
                     ZepAbsence.class).orElse(null);
         } catch (ZepServiceException e) {
-            logger.warn("Error retrieving absence + \"%s\" from ZEP: No /data field in response".formatted(id),
-                    e);
+            String message = "Error retrieving absence \"%s\" from ZEP: No /data field in response".formatted(id);
+            logger.warn(message, e);
             return null;
         }
     }

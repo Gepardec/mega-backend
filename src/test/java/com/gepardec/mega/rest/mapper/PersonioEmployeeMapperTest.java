@@ -47,7 +47,7 @@ class PersonioEmployeeMapperTest {
 
     @Test
     void mapToDto_whenHasCreditCardFalse_thenReturnDtoWithRelevantFields() {
-        PersonioEmployee domain = PersonioEmployee.builder()
+        PersonioEmployee personioEmployee = PersonioEmployee.builder()
                 .email("testuser@testmail.com")
                 .vacationDayBalance(0.0)
                 .guildLead(null)
@@ -55,9 +55,9 @@ class PersonioEmployeeMapperTest {
                 .internalProjectLead(null)
                 .build();
 
-        PersonioEmployeeDto actual = personioEmployeeMapper.mapToDto(domain);
+        PersonioEmployeeDto actual = personioEmployeeMapper.mapToDto(personioEmployee);
 
-        assertThat(actual.hasCreditCard().getValue()).isEqualTo("");
+        assertThat(actual.hasCreditCard().getValue()).isEmpty();
     }
 
 

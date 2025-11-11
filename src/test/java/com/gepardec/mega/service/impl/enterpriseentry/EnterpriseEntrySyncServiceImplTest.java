@@ -78,7 +78,7 @@ class EnterpriseEntrySyncServiceImplTest {
 
         verify(enterpriseEntryRepository, times(2)).findByDate(any(LocalDate.class));
         verify(logger, times(2)).info(anyString(), any(Instant.class));
-        verify(logger, times(1)).info(eq("Processing date: {}"), eq(payrollMonth));
+        verify(logger, times(1)).info("Processing date: {}", payrollMonth);
 
         assertThat(result).isTrue();
     }
@@ -90,10 +90,10 @@ class EnterpriseEntrySyncServiceImplTest {
         boolean result = enterpriseSyncService.generateEnterpriseEntries(payrollMonth);
 
         verify(enterpriseEntryRepository, never()).persist(any(EnterpriseEntry.class));
-        verify(logger, times(1)).debug(eq("Enterprise entry for month {} already exists."), eq(payrollMonth.getMonth()));
+        verify(logger, times(1)).debug("Enterprise entry for month {} already exists.", payrollMonth.getMonth());
         verify(logger, times(1)).info(eq("Started enterprise entry generation: {}"), any(Instant.class));
         verify(logger, times(1)).info(eq("Finished enterprise entry generation: {}"), any(Instant.class));
-        verify(logger, times(1)).info(eq("Processing date: {}"), eq(payrollMonth));
+        verify(logger, times(1)).info("Processing date: {}", payrollMonth);
         verify(logger, times(1)).info(eq("Enterprise entry generation took: {}ms"), anyLong());
 
         assertThat(result).isTrue();

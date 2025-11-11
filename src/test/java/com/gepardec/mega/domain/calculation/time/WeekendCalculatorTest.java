@@ -53,10 +53,9 @@ class WeekendCalculatorTest {
         List<TimeWarning> result = calculator.calculate(List.of(entry));
 
         assertThat(result)
-                .isNotEmpty();
-        assertThat(result.size())
-                .isEqualTo(1);
-        assertThat(result.get(0).getDate())
+                .isNotEmpty()
+                .hasSize(1);
+        assertThat(result.getFirst().getDate())
                 .isEqualTo(LocalDate.of(2021, 12, day));
     }
 

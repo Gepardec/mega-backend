@@ -31,7 +31,7 @@ public class ZepConfig {
     }
 
     public String getUrlAsString() {
-        return String.format("%s%s", origin.toString(), soapPath);
+        return "%s%s".formatted(origin.toString(), soapPath);
     }
 
     public String getUrlForFrontend() {

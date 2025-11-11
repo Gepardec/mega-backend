@@ -73,32 +73,31 @@ public class ProjectServiceImpl implements ProjectService {
         if (projectEntity.getProjectEntries() != null) {
             noProjectEntriesExist = projectEntity.getProjectEntries()
                     .stream()
-                    .noneMatch(pe -> pe.getDate().equals(payrollMonth));
+                    .noneMatch(pe -> YearMonth.from(pe.getDate()).equals(payrollMonth));
         }
 
-        if (noProjectEntriesExist) {
-            if (project.getProjectEntries() != null) {
-                project.getProjectEntries().forEach(projectEntry -> {
+        if (noProjectEntriesExist && project.getProjectEntries() != null) {
+            project.getProjectEntries().forEach(projectEntry -> {
 
-                    User owner = userRepository.findById(projectEntry.getOwner().getId());
-                    User assignee = userRepository.findById(projectEntry.getAssignee().getId());
+                User owner = userRepository.findById(projectEntry.getOwner().getId());
+                User assignee = userRepository.findById(projectEntry.getAssignee().getId());
 
-                    ProjectEntry pe = new ProjectEntry();
-                    pe.setPreset(projectEntry.isPreset());
-                    pe.setProject(projectEntry.getProject());
-                    pe.setStep(projectEntry.getStep());
-                    pe.setState(projectEntry.getState());
-                    pe.setUpdatedDate(projectEntry.getUpdatedDate());
-                    pe.setCreationDate(projectEntry.getCreationDate());
-                    pe.setDate(projectEntry.getDate());
-                    pe.setName(projectEntry.getName());
-                    pe.setOwner(owner);
-                    pe.setAssignee(assignee);
+                ProjectEntry pe = new ProjectEntry();
+                pe.setPreset(projectEntry.isPreset());
+                pe.setProject(projectEntry.getProject());
+                pe.setStep(projectEntry.getStep());
+                pe.setState(projectEntry.getState());
+                pe.setUpdatedDate(projectEntry.getUpdatedDate());
+                pe.setCreationDate(projectEntry.getCreationDate());
+                pe.setDate(projectEntry.getDate());
+                pe.setName(projectEntry.getName());
+                pe.setOwner(owner);
+                pe.setAssignee(assignee);
 
-                    finalProjectEntity1.addProjectEntry(pe);
-                });
-            }
+                finalProjectEntity1.addProjectEntry(pe);
+            });
         }
+
 
         projectEntity.setName(project.getName());
         projectEntity.setZepId(project.getZepId());
@@ -132,15 +131,10 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private boolean filterProject(final Project project, final ProjectFilter projectFilter) {
-        switch (projectFilter) {
-            case IS_LEADS_AVAILABLE:
-                return !project.getLeads().isEmpty();
-            case WITHOUT_LEADS:
-                return project.getLeads().isEmpty();
-            case IS_CUSTOMER_PROJECT:
-                return !project.getCategories().contains(INTERN_PROJECT_CATEGORY);
-            default:
-                throw new IllegalStateException(String.format("projectFilter %s not implemented", projectFilter));
-        }
+        return switch (projectFilter) {
+            case IS_LEADS_AVAILABLE -> !project.getLeads().isEmpty();
+            case WITHOUT_LEADS -> project.getLeads().isEmpty();
+            case IS_CUSTOMER_PROJECT -> !project.getCategories().contains(INTERN_PROJECT_CATEGORY);
+        };
     }
 }

@@ -26,7 +26,6 @@ import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -70,8 +69,8 @@ class WarningCalculatorsManagerTest {
     }
 
     private ProjectTimeEntry projectTimeEntryFor(final int startHour, final int startMinute, final int endHour,
-                                                 final int endMinute, final String process) {
-        return projectTimeEntryFor(1, startHour, startMinute, 1, endHour, endMinute, WorkingLocation.MAIN, process);
+                                                 final int endMinute) {
+        return projectTimeEntryFor(1, startHour, startMinute, 1, endHour, endMinute, WorkingLocation.MAIN, WarningCalculatorsManagerTest.DOCTOR_APPOINTMENT);
     }
 
     private ProjectTimeEntry projectTimeEntryFor(final int startDay, final int startHour, final int startMinute, final int endDay, final int endHour,
@@ -88,15 +87,14 @@ class WarningCalculatorsManagerTest {
 
     private JourneyTimeEntry journeyTimeEntryFor(final int day, final int startHour, final int endHour, JourneyDirection journeyDirection,
                                                  WorkingLocation workingLocation, Vehicle vehicle) {
-        return journeyTimeEntryFor(day, startHour, 0, day, endHour, 0, journeyDirection, workingLocation, vehicle);
+        return journeyTimeEntryFor(day, startHour, day, endHour, journeyDirection, workingLocation, vehicle);
     }
 
-    private JourneyTimeEntry journeyTimeEntryFor(final int startDay, final int startHour, final int startMinute, final int endDay, final int endHour,
-                                                 final int endMinute,
+    private JourneyTimeEntry journeyTimeEntryFor(final int startDay, final int startHour, final int endDay, final int endHour,
                                                  JourneyDirection journeyDirection, WorkingLocation workingLocation, Vehicle vehicle) {
         return JourneyTimeEntry.builder()
-                .fromTime(LocalDateTime.of(2020, 1, startDay, startHour, startMinute))
-                .toTime(LocalDateTime.of(2020, 1, endDay, endHour, endMinute))
+                .fromTime(LocalDateTime.of(2020, 1, startDay, startHour, 0))
+                .toTime(LocalDateTime.of(2020, 1, endDay, endHour, 0))
                 .task(Task.REISEN)
                 .journeyDirection(journeyDirection)
                 .workingLocation(workingLocation)
@@ -140,11 +138,11 @@ class WarningCalculatorsManagerTest {
     void whenWarning_thenTranslatedWarning() {
         final ProjectTimeEntry start = projectTimeEntryFor(5, 12);
         final ProjectTimeEntry end = projectTimeEntryFor(18, 23);
-        when(messages.getString(eq("warning.time.OUTSIDE_CORE_WORKING_TIME"))).thenReturn("WARNING_STRING");
+        when(messages.getString("warning.time.OUTSIDE_CORE_WORKING_TIME")).thenReturn("WARNING_STRING");
 
         final List<TimeWarning> warnings = calculator.determineTimeWarnings(List.of(start, end));
 
-        assertThat(warnings.get(0).getWarnings().get(0)).isEqualTo("WARNING_STRING");
+        assertThat(warnings.getFirst().getWarnings().getFirst()).isEqualTo("WARNING_STRING");
     }
 
     @Test
@@ -168,48 +166,48 @@ class WarningCalculatorsManagerTest {
                 .determineJourneyWarnings(List.of(journeyTimeEntryFour, projectEntryThree, projectEntryTwo, journeyTimeEntryOne));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes()).hasSize(1);
-        assertThat(warnings.get(0).getWarningTypes().get(0)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
 
     @Test
     void whenDoctorBefore830_thenError() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(7, 25, 7, 45, DOCTOR_APPOINTMENT);
+        final ProjectTimeEntry pte = projectTimeEntryFor(7, 25, 7, 45);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
+        assertThat(result.getFirst().getWarnings().getFirst()).isEqualTo(DOCTOR_APPOINTMENT);
     }
 
     @Test
     void whenDoctorBetween12_1230_thenErrorv1() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(12, 15, 13, 45, DOCTOR_APPOINTMENT);
+        final ProjectTimeEntry pte = projectTimeEntryFor(12, 15, 13, 45);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
+        assertThat(result.getFirst().getWarnings().getFirst()).isEqualTo(DOCTOR_APPOINTMENT);
     }
 
     @Test
     void whenDoctorBetween12_1230_thenErrorv2() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(7, 45, 12, 25, DOCTOR_APPOINTMENT);
+        final ProjectTimeEntry pte = projectTimeEntryFor(7, 45, 12, 25);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
+        assertThat(result.getFirst().getWarnings().getFirst()).isEqualTo(DOCTOR_APPOINTMENT);
     }
 
     @Test
     void whenDoctorAfter17_thenError() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(15, 25, 17, 45, DOCTOR_APPOINTMENT);
+        final ProjectTimeEntry pte = projectTimeEntryFor(15, 25, 17, 45);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
+        assertThat(result.getFirst().getWarnings().getFirst()).isEqualTo(DOCTOR_APPOINTMENT);
     }
 
     @Test
@@ -218,7 +216,7 @@ class WarningCalculatorsManagerTest {
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
-        assertThat(result).hasSize(0);
+        assertThat(result).isEmpty();
     }
 
 
@@ -228,27 +226,27 @@ class WarningCalculatorsManagerTest {
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
-        assertThat(result).hasSize(0);
+        assertThat(result).isEmpty();
     }
 
     @Test
     void whenDoctorSpanOverMidday_thenError() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(8, 30, 17, 0, DOCTOR_APPOINTMENT);
+        final ProjectTimeEntry pte = projectTimeEntryFor(8, 30, 17, 0);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
+        assertThat(result.getFirst().getWarnings().getFirst()).isEqualTo(DOCTOR_APPOINTMENT);
     }
 
     @Test
     void whenDoctorSpanOverMidday_thenErrorv2() {
-        final ProjectTimeEntry pte = projectTimeEntryFor(11, 59, 12, 31, DOCTOR_APPOINTMENT);
+        final ProjectTimeEntry pte = projectTimeEntryFor(11, 59, 12, 31);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(pte));
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getWarnings().get(0)).isEqualTo(DOCTOR_APPOINTMENT);
+        assertThat(result.getFirst().getWarnings().getFirst()).isEqualTo(DOCTOR_APPOINTMENT);
     }
 
     @Test
@@ -279,7 +277,7 @@ class WarningCalculatorsManagerTest {
                 .determineTimeWarnings(List.of(secondDaytimeEntryTwo, secondDaytimeEntryOne, firstDaytimeEntryTwo, firstDaytimeEntryOne));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getDate()).isEqualTo(firstDaytimeEntryOne.getDate());
+        assertThat(warnings.getFirst().getDate()).isEqualTo(firstDaytimeEntryOne.getDate());
     }
 
     @Test
@@ -293,8 +291,8 @@ class WarningCalculatorsManagerTest {
                 .determineTimeWarnings(List.of(firstDaytimeEntryOne, firstDaytimeEntryTwo, secondDaytimeEntryOne, secondDaytimeEntryTwo));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getDate()).isEqualTo(firstDaytimeEntryOne.getDate());
-        assertThat(warnings.get(0).getMissingBreakTime()).isEqualTo(0.25);
+        assertThat(warnings.getFirst().getDate()).isEqualTo(firstDaytimeEntryOne.getDate());
+        assertThat(warnings.getFirst().getMissingBreakTime()).isEqualTo(0.25);
     }
 
     @Test
@@ -308,8 +306,8 @@ class WarningCalculatorsManagerTest {
                 .determineTimeWarnings(List.of(firstDaytimeEntryOne, firstDaytimeEntryTwo, secondDaytimeEntryOne, secondDaytimeEntryTwo));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getDate()).isEqualTo(secondDaytimeEntryOne.getDate());
-        assertThat(warnings.get(0).getMissingBreakTime()).isEqualTo(0.25);
+        assertThat(warnings.getFirst().getDate()).isEqualTo(secondDaytimeEntryOne.getDate());
+        assertThat(warnings.getFirst().getMissingBreakTime()).isEqualTo(0.25);
     }
 
     @Test
@@ -336,7 +334,7 @@ class WarningCalculatorsManagerTest {
                 .determineTimeWarnings(List.of(thirdDaytimeEntry, secondDaytimeEntryTwo, secondDaytimeEntryOne, firstDaytimeEntry));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getDate()).isEqualTo(secondDaytimeEntryOne.getDate());
+        assertThat(warnings.getFirst().getDate()).isEqualTo(secondDaytimeEntryOne.getDate());
     }
 
     @Test
@@ -363,8 +361,8 @@ class WarningCalculatorsManagerTest {
                 .determineTimeWarnings(List.of(firstDaytimeEntry, secondDaytimeEntryOne, secondDaytimeEntryTwo, thirdDaytimeEntry));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getDate()).isEqualTo(secondDaytimeEntryOne.getDate());
-        assertThat(warnings.get(0).getMissingRestTime()).isEqualTo(1);
+        assertThat(warnings.getFirst().getDate()).isEqualTo(secondDaytimeEntryOne.getDate());
+        assertThat(warnings.getFirst().getMissingRestTime()).isEqualTo(1);
     }
 
     @Test
@@ -378,8 +376,8 @@ class WarningCalculatorsManagerTest {
                 .determineTimeWarnings(List.of(firstDaytimeEntry, secondDaytimeEntryOne, secondDaytimeEntryTwo, thirdDaytimeEntry));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getDate()).isEqualTo(thirdDaytimeEntry.getDate());
-        assertThat(warnings.get(0).getMissingRestTime()).isEqualTo(1);
+        assertThat(warnings.getFirst().getDate()).isEqualTo(thirdDaytimeEntry.getDate());
+        assertThat(warnings.getFirst().getMissingRestTime()).isEqualTo(1);
     }
 
     @Test
@@ -419,7 +417,7 @@ class WarningCalculatorsManagerTest {
                 .determineTimeWarnings(List.of(secondDayTimeEntryTwo, secondDayTimeEntryOne, firstDayTimeEntryTwo, firstDayTimeEntryOne));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getDate()).isEqualTo(firstDayTimeEntryOne.getDate());
+        assertThat(warnings.getFirst().getDate()).isEqualTo(firstDayTimeEntryOne.getDate());
     }
 
     @Test
@@ -433,7 +431,7 @@ class WarningCalculatorsManagerTest {
                 .determineTimeWarnings(List.of(firstDayTimeEntryOne, firstDayTimeEntryTwo, secondDayTimeEntryOne, secondDayTimeEntryTwo));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getExcessWorkTime()).isEqualTo(1);
+        assertThat(warnings.getFirst().getExcessWorkTime()).isEqualTo(1);
     }
 
     @Test
@@ -447,7 +445,7 @@ class WarningCalculatorsManagerTest {
                 .determineTimeWarnings(List.of(firstDayTimeEntryOne, firstDayTimeEntryTwo, secondDayTimeEntryOne, secondDayTimeEntryTwo));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.get(0).getExcessWorkTime()).isEqualTo(1);
+        assertThat(warnings.getFirst().getExcessWorkTime()).isEqualTo(1);
     }
 
     @Test
@@ -495,10 +493,9 @@ class WarningCalculatorsManagerTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(entryOne));
 
         assertThat(result)
-                .isNotEmpty();
-        assertThat(result.size())
-                .isEqualTo(1);
-        assertThat(result.get(0).getDate())
+                .isNotEmpty()
+                .hasSize(1);
+        assertThat(result.getFirst().getDate())
                 .isEqualTo(entryOne.getDate());
     }
 
@@ -509,42 +506,24 @@ class WarningCalculatorsManagerTest {
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(entryOne));
 
         assertThat(result)
-                .isNotEmpty();
-        assertThat(result.size())
-                .isEqualTo(1);
-        assertThat(result.get(0).getDate())
+                .isNotEmpty()
+                .hasSize(1);
+        assertThat(result.getFirst().getDate())
                 .isEqualTo(entryOne.getDate());
     }
 
     @ParameterizedTest
-    @DisplayName("Tests all holidays for december 2020")
-    @MethodSource("holidaysStream")
+    @DisplayName("Tests all holidays and weekend days for december 2020")
+    @MethodSource({"holidaysStream", "weekendDaysStream"})
     void whenEntryDayIsHoliday_thenReturnsWarning(int day) {
         final ProjectTimeEntry entryOne = getProjectTimeEntry(day);
 
         final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(entryOne));
 
         assertThat(result)
-                .isNotEmpty();
-        assertThat(result.size())
-                .isEqualTo(1);
-        assertThat(result.get(0).getDate())
-                .isEqualTo(entryOne.getDate());
-    }
-
-    @ParameterizedTest
-    @DisplayName("Tests all weekend days for december 2020")
-    @MethodSource("weekendDaysStream")
-    void whenEntryDayIsOnWeekend_thenReturnsWarning(int day) {
-        final ProjectTimeEntry entryOne = getProjectTimeEntry(day);
-
-        final List<TimeWarning> result = calculator.determineTimeWarnings(List.of(entryOne));
-
-        assertThat(result)
-                .isNotEmpty();
-        assertThat(result.size())
-                .isEqualTo(1);
-        assertThat(result.get(0).getDate())
+                .isNotEmpty()
+                .hasSize(1);
+        assertThat(result.getFirst().getDate())
                 .isEqualTo(entryOne.getDate());
     }
 

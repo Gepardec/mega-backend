@@ -1,20 +1,12 @@
 package com.gepardec.mega.zep;
 
-import com.gepardec.mega.db.entity.common.PaymentMethodType;
 import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.model.EmploymentPeriod;
-import com.gepardec.mega.domain.model.EmploymentPeriods;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.impl.ZepSoapServiceImpl;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
-import de.provantis.zep.AnhangType;
-import de.provantis.zep.BelegListeType;
-import de.provantis.zep.BelegType;
-import de.provantis.zep.BelegbetragListeType;
-import de.provantis.zep.BelegbetragType;
 import de.provantis.zep.BeschaeftigungszeitListeType;
 import de.provantis.zep.BeschaeftigungszeitType;
 import de.provantis.zep.MitarbeiterListeType;
@@ -23,8 +15,6 @@ import de.provantis.zep.ProjektListeType;
 import de.provantis.zep.ProjektMitarbeiterListeType;
 import de.provantis.zep.ProjektMitarbeiterType;
 import de.provantis.zep.ProjektType;
-import de.provantis.zep.ReadBelegAnhangResponseType;
-import de.provantis.zep.ReadBelegResponseType;
 import de.provantis.zep.ReadMitarbeiterRequestType;
 import de.provantis.zep.ReadMitarbeiterResponseType;
 import de.provantis.zep.ReadProjekteRequestType;
@@ -189,18 +179,6 @@ class ZepServiceImplTest {
     }
 
     @Test
-    void getEmployeesMitarbeiterZepResponseMitarbeiterListeEmpty() {
-        Mockito.when(zepSoapPortType.readMitarbeiter(Mockito.any(ReadMitarbeiterRequestType.class))).thenReturn(new ReadMitarbeiterResponseType());
-
-        final List<Employee> employee = zepService.getEmployees();
-
-        assertAll(
-                () -> assertThat(employee).isNotNull(),
-                () -> assertThat(employee).isEmpty()
-        );
-    }
-
-    @Test
     void getEmployees() {
         Mockito.when(zepSoapPortType.readMitarbeiter(Mockito.any(ReadMitarbeiterRequestType.class))).thenReturn(createReadMitarbeiterResponseType(
                 List.of(createMitarbeiterType(0), createMitarbeiterType(1), createMitarbeiterType(2))
@@ -294,54 +272,11 @@ class ZepServiceImplTest {
         return beschaeftigungszeitListeTyp;
     }
 
-    private BelegType createBelegType(final int belegNr) {
-        final BelegType beleg = new BelegType();
-        final BelegbetragListeType belegbetragListeType = new BelegbetragListeType();
-
-        final BelegbetragType belegbetragType = new BelegbetragType();
-        belegbetragType.setBetrag(4.0);
-        belegbetragType.setMenge(2.0);
-
-        belegbetragListeType.setBelegbetrag(List.of(belegbetragType));
-
-        beleg.setBelegNr(belegNr);
-        beleg.setBelegart("Lebensmittel");
-        beleg.setDatum("2024-04-19");
-        beleg.setProjektNr("3BankenIT - JBoss");
-        beleg.setBelegbetragListe(belegbetragListeType);
-        beleg.setZahlungsart(PaymentMethodType.COMPANY.getPaymentMethodName());
-
-        return beleg;
-    }
-
     private ReadMitarbeiterResponseType createReadMitarbeiterResponseType(final List<MitarbeiterType> mitarbeiterType) {
         final ReadMitarbeiterResponseType readMitarbeiterResponseType = new ReadMitarbeiterResponseType();
         readMitarbeiterResponseType.setMitarbeiterListe(new MitarbeiterListeType());
         readMitarbeiterResponseType.getMitarbeiterListe().getMitarbeiter().addAll(mitarbeiterType);
         return readMitarbeiterResponseType;
-    }
-
-    private ReadBelegResponseType createReadBelegResponseType(final List<BelegType> belegType) {
-        final ReadBelegResponseType readBelegResponseType = new ReadBelegResponseType();
-        readBelegResponseType.setBelegListe(new BelegListeType());
-        readBelegResponseType.getBelegListe().getBeleg().addAll(belegType);
-        return readBelegResponseType;
-    }
-
-    private ReadBelegAnhangResponseType createReadBelegAnhangResponseType() {
-        final ReadBelegAnhangResponseType readBelegAnhangResponseType = new ReadBelegAnhangResponseType();
-        readBelegAnhangResponseType.setAnhang(new AnhangType());
-        readBelegAnhangResponseType.getAnhang().setInhalt(null);
-        return readBelegAnhangResponseType;
-    }
-
-    private Employee createEmployeeForId(final String id, final String email, final String releaseDate) {
-        return Employee.builder()
-                .userId(id)
-                .email(email)
-                .releaseDate(releaseDate)
-                .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)))
-                .build();
     }
 
     private ResponseHeaderType createResponseHeaderType(final String returnCode) {
@@ -372,8 +307,8 @@ class ZepServiceImplTest {
 
         // Then
         assertThat(projectsForMonthYear).hasSize(1);
-        assertThat(projectsForMonthYear.get(0).getEmployees()).hasSize(1);
-        assertThat(projectsForMonthYear.get(0).getLeads()).hasSize(1);
+        assertThat(projectsForMonthYear.getFirst().getEmployees()).hasSize(1);
+        assertThat(projectsForMonthYear.getFirst().getLeads()).hasSize(1);
     }
 
     @ParameterizedTest
@@ -392,8 +327,8 @@ class ZepServiceImplTest {
 
         // Then
         assertThat(projectsForMonthYear).hasSize(1);
-        assertThat(projectsForMonthYear.get(0).getEmployees()).isEmpty();
-        assertThat(projectsForMonthYear.get(0).getLeads()).isEmpty();
+        assertThat(projectsForMonthYear.getFirst().getEmployees()).isEmpty();
+        assertThat(projectsForMonthYear.getFirst().getLeads()).isEmpty();
     }
 
     @Test
@@ -417,8 +352,8 @@ class ZepServiceImplTest {
 
         // Then
         assertThat(projectsForMonthYear).hasSize(1);
-        assertThat(projectsForMonthYear.get(0).getEmployees()).hasSize(1);
-        assertThat(projectsForMonthYear.get(0).getLeads()).hasSize(1);
+        assertThat(projectsForMonthYear.getFirst().getEmployees()).hasSize(1);
+        assertThat(projectsForMonthYear.getFirst().getLeads()).hasSize(1);
     }
 
     @Test
@@ -442,7 +377,7 @@ class ZepServiceImplTest {
 
         // Then
         assertThat(projectsForMonthYear).hasSize(1);
-        assertThat(projectsForMonthYear.get(0).getEmployees()).isEmpty();
-        assertThat(projectsForMonthYear.get(0).getLeads()).isEmpty();
+        assertThat(projectsForMonthYear.getFirst().getEmployees()).isEmpty();
+        assertThat(projectsForMonthYear.getFirst().getLeads()).isEmpty();
     }
 }

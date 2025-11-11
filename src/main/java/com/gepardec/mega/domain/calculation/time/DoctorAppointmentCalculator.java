@@ -10,7 +10,6 @@ import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DoctorAppointmentCalculator extends AbstractTimeWarningCalculationStrategy implements WarningCalculationStrategy<TimeWarning> {
 
@@ -29,7 +28,8 @@ public class DoctorAppointmentCalculator extends AbstractTimeWarningCalculationS
                 .toList();
 
 
-        LocalTime projectEntryFromTime, projectEntryToTime;
+        LocalTime projectEntryFromTime;
+        LocalTime projectEntryToTime;
 
         for (ProjectTimeEntry projectEntry : projectTimeEntries) {
             if (projectEntry.getProcess() == null || !projectEntry.getProcess().equals(DOCTOR_APPOINTMENT)) continue;

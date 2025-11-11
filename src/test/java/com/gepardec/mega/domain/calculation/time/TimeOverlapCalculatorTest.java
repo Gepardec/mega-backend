@@ -51,7 +51,7 @@ class TimeOverlapCalculatorTest {
 
         List<TimeWarning> warnings = timeOverlapCalculator.calculate(projectEntries);
 
-        assertThat(warnings.get(0).getDate()).isEqualTo(LocalDate.of(2020, 1, 7));
+        assertThat(warnings.getFirst().getDate()).isEqualTo(LocalDate.of(2020, 1, 7));
     }
 
     @Test
