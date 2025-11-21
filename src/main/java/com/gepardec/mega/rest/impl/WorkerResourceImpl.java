@@ -14,6 +14,7 @@ import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.api.WorkerResource;
+import com.gepardec.mega.rest.mapper.AttendancesMapper;
 import com.gepardec.mega.rest.mapper.EmployeeCheckMapper;
 import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
 import com.gepardec.mega.rest.mapper.MonthlyBillInfoMapper;
@@ -87,6 +88,9 @@ public class WorkerResourceImpl implements WorkerResource {
 
     @Inject
     ProjectHoursSummaryMapper projectHoursSummaryMapper;
+
+    @Inject
+    AttendancesMapper attendancesMapper;
 
     @Inject
     @Rest
@@ -187,7 +191,7 @@ public class WorkerResourceImpl implements WorkerResource {
 
     @Override
     public AttendancesDto getAttendances(YearMonth payrollMonth) {
-        return new AttendancesDto(3.49, 2.5, 3.4, 0.0);
+        return attendancesMapper.mapToDto(monthlyReportService.getAttendances(payrollMonth));
     }
 
     private MonthlyOfficeDays createMonthlyOfficeDays(List<AbsenceTime> absences, YearMonth payrollMonth) {

@@ -201,4 +201,19 @@ public class WorkingTimeUtil {
                 .fromDate(fromDate)
                 .build();
     }
+
+    public double getBillablePercentage(Duration totalWorkingTime, Duration billableTime) {
+        if (totalWorkingTime == null || billableTime == null) {
+            return 0.0;
+        }
+
+        double totalMinutes = totalWorkingTime.toMinutes();
+        double billableMinutes = billableTime.toMinutes();
+
+        if (totalMinutes == 0.0 || billableMinutes == 0.0) {
+            return 0.0;
+        }
+
+        return (billableMinutes / totalMinutes) * 100.0;
+    }
 }

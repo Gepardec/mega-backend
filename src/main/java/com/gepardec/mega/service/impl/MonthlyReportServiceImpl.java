@@ -4,6 +4,7 @@ import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.AbsenceTime;
+import com.gepardec.mega.domain.model.Attendances;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.EmployeeCheck;
@@ -111,6 +112,29 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
         var internalCheckState = stepEntryService.findEmployeeInternalCheckState(employee, payrollMonth);
 
         return buildEmployeeCheck(employee, employeeCheckState, internalCheckState, payrollMonth);
+    }
+
+    @Override
+    public Attendances getAttendances(YearMonth payrollMonth) {
+        var employee = employeeService.getEmployee(userContext.getUser().getUserId());
+        var projectTimes = zepService.getProjectTimes(employee, payrollMonth);
+        var billableTimes = zepService.getBillableForEmployee(employee, payrollMonth);
+        var absenceTimes = zepService.getAbsenceForEmployee(employee, payrollMonth);
+
+        var totalWorkingTimeHours = workingTimeUtil.getTotalWorkingTimeForEmployee(projectTimes);
+        var overtimeHours = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, absenceTimes, payrollMonth);
+        var billableTimeHours = workingTimeUtil.getBillableTimesForEmployee(billableTimes, employee);
+        var billablePercentage = workingTimeUtil.getBillablePercentage(
+                workingTimeUtil.getDurationFromTimeString(totalWorkingTimeHours),
+                workingTimeUtil.getDurationFromTimeString(billableTimeHours)
+        );
+
+        return new Attendances(
+                (double) workingTimeUtil.getDurationFromTimeString(totalWorkingTimeHours).toMinutes() / 60,
+                overtimeHours,
+                (double) workingTimeUtil.getDurationFromTimeString(billableTimeHours).toMinutes() / 60,
+                billablePercentage
+        );
     }
 
     private EmployeeCheck buildEmployeeCheck(Employee employee, Optional<Pair<EmployeeState, String>> employeeCheckState, Optional<EmployeeState> internalCheckState, YearMonth payrollMonth) {
