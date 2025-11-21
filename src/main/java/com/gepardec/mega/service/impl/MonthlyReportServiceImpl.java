@@ -6,6 +6,7 @@ import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.EmployeeCheck;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.StepName;
@@ -102,6 +103,44 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                 allOwnedAndUnassignedStepEntriesForOtherChecks.stream()
                         .filter(se -> !StepName.CONTROL_TIME_EVIDENCES.name().equals(se.getStep().getName()))
                         .allMatch(this::isStepEntryDone);
+    }
+
+    public EmployeeCheck getEmployeeCheck(YearMonth payrollMonth) {
+        var employee = employeeService.getEmployee(userContext.getUser().getUserId());
+        var employeeCheckState = stepEntryService.findEmployeeCheckState(employee, payrollMonth);
+        var internalCheckState = stepEntryService.findEmployeeInternalCheckState(employee, payrollMonth);
+
+        return buildEmployeeCheck(employee, employeeCheckState, internalCheckState, payrollMonth);
+    }
+
+    private EmployeeCheck buildEmployeeCheck(Employee employee, Optional<Pair<EmployeeState, String>> employeeCheckState, Optional<EmployeeState> internalCheckState, YearMonth payrollMonth) {
+        List<Comment> comments = commentService.findCommentsForEmployee(employee.getEmail(), payrollMonth);
+
+        var prematureEmployeeCheck = prematureEmployeeCheckService.findByEmailAndMonth(employee.getEmail(), payrollMonth);
+        String stepEntryForAutomaticReleaseReason = null;
+        try {
+            var stepEntry = stepEntryService.findStepEntryForEmployeeAtStep(1L, employee.getEmail(), employee.getEmail(), payrollMonth);
+            if (stepEntry != null) {
+                stepEntryForAutomaticReleaseReason = stepEntry.getStateReason();
+            }
+        } catch (IllegalStateException exception) {
+            // is already null here
+        }
+
+        var employeeCheckState2 = employeeCheckState.map(Pair::getLeft).orElse(EmployeeState.PREMATURE_CHECK);
+        if (employeeCheckState2 == EmployeeState.PREMATURE_CHECK && payrollMonth.isBefore(YearMonth.now())) {
+            employeeCheckState2 = null;
+        }
+
+        return new EmployeeCheck(
+                employee,
+                employeeCheckState2,
+                employeeCheckState.map(Pair::getRight).orElse(prematureEmployeeCheck.map(PrematureEmployeeCheck::getReason).orElse(stepEntryForAutomaticReleaseReason)),
+                internalCheckState.orElse(null),
+                isMonthCompletedForEmployee(employee, payrollMonth),
+                comments,
+                prematureEmployeeCheck.orElse(null)
+        );
     }
 
     private MonthlyReport buildMonthlyReport(
