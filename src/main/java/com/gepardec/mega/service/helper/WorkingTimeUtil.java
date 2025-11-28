@@ -29,7 +29,7 @@ import static com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil.getWo
 
 @ApplicationScoped
 public class WorkingTimeUtil {
-    
+
     @Inject
     Clock clock;
 
@@ -77,13 +77,18 @@ public class WorkingTimeUtil {
 
         // If processing current month, only include dates up to today
         if (YearMonth.now(clock).equals(payrollMonth)) {
+            LocalDate now = LocalDate.now(clock);
             var filteredWorkingDays = workingDaysBetween.stream()
-                    .filter(date -> !date.isAfter(LocalDate.now(clock)))
+                    .filter(date -> !date.isAfter(now))
                     .toList();
             workingDaysBetween = filteredWorkingDays;
 
             projectEntries = projectEntries.stream()
                     .filter(pe -> filteredWorkingDays.contains(pe.getDate()))
+                    .toList();
+
+            fehlzeitTypeList = fehlzeitTypeList.stream()
+                    .filter(absence -> !absence.fromDate().isAfter(now))
                     .toList();
         }
 

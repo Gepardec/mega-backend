@@ -33,7 +33,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +56,7 @@ class WorkingTimeUtilTest {
         public Clock clock() {
             return Clock.fixed(
                     LocalDate.of(2023, 11, 3).atStartOfDay(ZoneOffset.UTC).toInstant(),
-                    ZoneId.systemDefault()
+                    ZoneOffset.UTC
             );
         }
     }
@@ -103,14 +102,15 @@ class WorkingTimeUtilTest {
     class GetOvertimeForEmployee {
 
         @Nested
-        class When1stOfNovemberIsHolidayAndSysdateIs3rdOfNovember {
+        class When1stOfNovemberIsHolidayAndTodayIs3rdOfNovember {
 
             @Test
             void whenWorkingTimeIsMoreThanRegular_thenShouldReturnPositiveOvertime() {
                 Employee employee = createEmployee().build();
                 List<ProjectEntry> projectEntries = new ArrayList<>();
 
-                // Every day 1 hour overtime = 2h
+                // 1 hour overtime per day for days 1-5, but since November 1st is a holiday and the clock is fixed to November 3rd,
+                // only entries for November 2nd and 3rd are counted, resulting in a total of 2 hours overtime.
                 for (int day = 1; day <= 5; day++) {
                     projectEntries.add(createProjectTimeEntry(day, LocalTime.of(8, 0), LocalTime.of(12, 0)));
                     projectEntries.add(createProjectTimeEntry(day, LocalTime.of(13, 0), LocalTime.of(18, 0)));
@@ -126,7 +126,8 @@ class WorkingTimeUtilTest {
                 Employee employee = createEmployee().build();
                 List<ProjectEntry> projectEntries = new ArrayList<>();
 
-                // Every day 1 hour to less = -2h
+                // Entries for 5 days, but only 2 working days (Nov 2nd and 3rd) are counted due to the fixed clock at Nov 3rd and Nov 1st being a holiday.
+                // Each counted day is 1 hour less than regular, so total overtime = -2h.
                 for (int day = 1; day <= 5; day++) {
                     projectEntries.add(createProjectTimeEntry(day, LocalTime.of(8, 0), LocalTime.of(12, 0)));
                     projectEntries.add(createProjectTimeEntry(day, LocalTime.of(13, 0), LocalTime.of(16, 0)));
@@ -142,13 +143,35 @@ class WorkingTimeUtilTest {
                 Employee employee = createEmployee().build();
                 List<ProjectEntry> projectEntries = new ArrayList<>();
 
-                // Every day regular working hours = 0
+                // Each day, working time matches the regular working hours (8 hours per day)
                 for (int day = 1; day <= 5; day++) {
                     projectEntries.add(createProjectTimeEntry(day, LocalTime.of(8, 0), LocalTime.of(12, 0)));
                     projectEntries.add(createProjectTimeEntry(day, LocalTime.of(13, 0), LocalTime.of(17, 0)));
                 }
 
                 double overtime = workingTimeUtil.getOvertimeForEmployee(employee, projectEntries, List.of(), YearMonth.of(2023, 11));
+                assertThat(overtime).isZero();
+            }
+
+            @Test
+            void when2ndOfNovemberIsAbsenceDay_thenShouldIgnoreAbsentDay() {
+                Employee employee = createEmployee().build();
+                List<ProjectEntry> projectEntries = new ArrayList<>();
+
+                // Only entry for the 3rd of November, since 1st is a Holiday and 2nd is Absence Day.
+                projectEntries.add(createProjectTimeEntry(3, LocalTime.of(8, 0), LocalTime.of(12, 0)));
+                projectEntries.add(createProjectTimeEntry(3, LocalTime.of(13, 0), LocalTime.of(17, 0)));
+
+                List<AbsenceTime> fehlzeitTypes = List.of(
+                        AbsenceTime.builder()
+                                .fromDate(LocalDate.of(2023, 11, 2))
+                                .toDate(LocalDate.of(2023, 11, 2))
+                                .reason("UB")
+                                .accepted(true)
+                                .build()
+                );
+
+                double overtime = workingTimeUtil.getOvertimeForEmployee(employee, projectEntries, fehlzeitTypes, YearMonth.of(2023, 11));
                 assertThat(overtime).isZero();
             }
         }
