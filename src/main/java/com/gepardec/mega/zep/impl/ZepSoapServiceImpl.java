@@ -18,6 +18,8 @@ import com.gepardec.mega.zep.mapper.AbsenceTimeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
 import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
 import de.provantis.zep.FehlzeitType;
+import de.provantis.zep.InternersatzListeType;
+import de.provantis.zep.InternersatzType;
 import de.provantis.zep.KategorieListeType;
 import de.provantis.zep.KategorieType;
 import de.provantis.zep.MitarbeiterType;
@@ -56,6 +58,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +68,6 @@ import java.util.function.Supplier;
 @RequestScoped
 @Soap
 public class ZepSoapServiceImpl implements ZepService {
-
 
     private static final Range<Integer> PROJECT_LEAD_RANGE = Range.of(1, 2);
 
@@ -131,6 +133,44 @@ public class ZepSoapServiceImpl implements ZepService {
         if (StringUtils.isNotBlank(returnCode) && Integer.parseInt(returnCode) != 0) {
             throw new ZepServiceException("updateEmployeeReleaseDate failed with code: " + returnCode);
         }
+    }
+
+    public void updateEmployeeHourlyRate(final String userId, final Double newRate, final String dateFrom) {
+        logger.info("start update hourly rates for employee {}", userId);
+
+        final MitarbeiterType emp = getMitarbeiterType(userId, newRate, dateFrom);
+
+        final UpdateMitarbeiterRequestType umrt = new UpdateMitarbeiterRequestType();
+        umrt.setRequestHeader(zepSoapProvider.createRequestHeaderType());
+        umrt.setMitarbeiter(emp);
+
+        final UpdateMitarbeiterResponseType updateMitarbeiterResponseType = zepSoapPortType.updateMitarbeiter(umrt);
+
+        String returnCode = Optional.ofNullable(updateMitarbeiterResponseType)
+                .flatMap(response -> Optional.ofNullable(response.getResponseHeader()))
+                .map(ResponseHeaderType::getReturnCode)
+                .orElse(null);
+
+        logger.info("update hourly rates for employee {} finished with code {}", userId, returnCode);
+    }
+
+    private MitarbeiterType getMitarbeiterType(String userId, Double newRate, String dateFrom) {
+        final InternersatzType newInternalRate = new InternersatzType();
+        final List<InternersatzType> internalRates = new ArrayList<>();
+        final InternersatzListeType internalRatesList = new InternersatzListeType();
+        final MitarbeiterType emp = new MitarbeiterType();
+
+        newInternalRate.setUserId(userId);
+        newInternalRate.setSatz(newRate);
+        newInternalRate.setStartdatum(dateFrom);
+        newInternalRate.setSatztype(1); //we only use hourlyRates --> https://developer.zep.de/en/soap-documentation for more info
+
+        internalRates.add(newInternalRate);
+        internalRatesList.setInternersatz(internalRates);
+
+        emp.setUserId(userId);
+        emp.setInternersatzListe(internalRatesList);
+        return emp;
     }
 
     @CacheResult(cacheName = "fehlzeitentype")

@@ -102,6 +102,10 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-resteasy-client-jackson</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-resteasy-multipart</artifactId>
+        </dependency>
 
         <!-- Quarkus MicroProfile-Extensions -->
         <dependency>
