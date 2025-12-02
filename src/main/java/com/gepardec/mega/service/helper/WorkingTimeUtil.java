@@ -7,8 +7,10 @@ import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import jakarta.annotation.Nonnull;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
+import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -27,6 +29,9 @@ import static com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil.getWo
 
 @ApplicationScoped
 public class WorkingTimeUtil {
+
+    @Inject
+    Clock clock;
 
     private static final String BILLABLE_TIME_FORMAT = "HH:mm";
     private static final List<String> BOOKABLE_ABSENCES = List.of(
@@ -68,9 +73,28 @@ public class WorkingTimeUtil {
                 .filter(ftl -> ftl.fromDate().getMonthValue() == payrollMonth.getMonthValue())
                 .toList();
 
-        var workingDaysCountMap = getWorkingDaysForYearMonth(payrollMonth)
-                .stream()
-                .collect(Collectors.groupingBy(LocalDate::getDayOfWeek, Collectors.counting()));
+        var workingDaysBetween = getWorkingDaysForYearMonth(payrollMonth);
+
+        // If processing current month, only include dates up to today
+        if (YearMonth.now(clock).equals(payrollMonth)) {
+            LocalDate now = LocalDate.now(clock);
+            var filteredWorkingDays = workingDaysBetween.stream()
+                    .filter(date -> !date.isAfter(now))
+                    .toList();
+            workingDaysBetween = filteredWorkingDays;
+
+            projectEntries = projectEntries.stream()
+                    .filter(pe -> filteredWorkingDays.contains(pe.getDate()))
+                    .toList();
+
+            fehlzeitTypeList = fehlzeitTypeList.stream()
+                    .filter(absence -> !absence.fromDate().isAfter(now))
+                    .toList();
+        }
+
+        var workingDaysCountMap = workingDaysBetween.stream().collect(
+                Collectors.groupingBy(LocalDate::getDayOfWeek, Collectors.counting())
+        );
         var absenceDaysCountMap = getAbsenceDaysCountMap(fehlzeitTypeList, payrollMonth);
         var presentDaysCountMap = workingDaysCountMap.entrySet().stream()
                 .map(entry -> removeAbsenceDays(entry, absenceDaysCountMap))
