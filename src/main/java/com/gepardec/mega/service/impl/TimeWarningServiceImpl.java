@@ -2,7 +2,7 @@ package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.model.MonthlyWarning;
+import com.gepardec.mega.domain.model.WorkTimeBookingWarning;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarningType;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
@@ -18,6 +18,8 @@ import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import static com.gepardec.mega.domain.model.monthlyreport.TimeWarningType.EMPTY_ENTRY_LIST;
 import static com.gepardec.mega.domain.model.monthlyreport.TimeWarningType.EXCESS_WORKING_TIME_PRESENT;
@@ -55,33 +57,25 @@ public class TimeWarningServiceImpl implements TimeWarningService {
     );
 
     @Override
-    public List<MonthlyWarning> getAllTimeWarningsForEmployeeAndMonth(List<AbsenceTime> absences, List<ProjectEntry> projectEntries, Employee employee) {
-        final List<JourneyWarning> journeyWarnings = warningCalculatorsManager.determineJourneyWarnings(projectEntries);
+    public List<WorkTimeBookingWarning> getAllTimeWarningsForEmployeeAndMonth(List<AbsenceTime> absences, List<ProjectEntry> projectEntries, Employee employee) {
         final List<TimeWarning> timeWarnings = warningCalculatorsManager.determineTimeWarnings(projectEntries);
         timeWarnings.addAll(warningCalculatorsManager.determineNoTimeEntries(employee, projectEntries, absences));
         timeWarnings.sort(Comparator.comparing(ProjectEntryWarning::getDate));
-        List<MonthlyWarning> monthlyWarnings = new ArrayList<>();
+        var monthlyTimeWarnings = Stream.of(TimeWarningType.values())
+                .map(warningType -> createMonthlyTimeWarning(timeWarnings, warningType))
+                .filter(Objects::nonNull);
 
+        final List<JourneyWarning> journeyWarnings = warningCalculatorsManager.determineJourneyWarnings(projectEntries);
+        var monthlyJourneyWarnings = Stream.of(JourneyWarningType.values())
+                .map(warningType -> createMonthlyJourneyWarning(journeyWarnings, warningType))
+                .filter(Objects::nonNull);
 
-        timeWarningTypes.forEach(warningType -> {
-            MonthlyWarning warningEntry = createMonthlyTimeWarning(timeWarnings, warningType);
-            if (warningEntry != null) {
-                monthlyWarnings.add(warningEntry);
-            }
-        });
-
-        journeyWarningTypes.forEach(warningType -> {
-            MonthlyWarning warningEntry = createMonthlyJourneyWarning(journeyWarnings, warningType);
-            if (warningEntry != null) {
-                monthlyWarnings.add(warningEntry);
-            }
-        });
-        return monthlyWarnings;
+        return Stream.concat(monthlyTimeWarnings, monthlyJourneyWarnings).toList();
     }
 
-    private MonthlyWarning createMonthlyTimeWarning(List<TimeWarning> timeWarnings, TimeWarningType warningType) {
+    private WorkTimeBookingWarning createMonthlyTimeWarning(List<TimeWarning> timeWarnings, TimeWarningType warningType) {
         String name = "";
-        List<String> datesWhenWarningsOccurred = new ArrayList<>();
+        List<WorkTimeBookingWarning.WarningDate> datesWhenWarningsOccurred = new ArrayList<>();
 
         for (TimeWarning timeWarning : timeWarnings) {
             if (timeWarning.getWarningTypes().contains(warningType)) {
@@ -100,24 +94,35 @@ public class TimeWarningServiceImpl implements TimeWarningService {
                     };
                 }
                 if (timeWarning.getDate() != null) {
-                    datesWhenWarningsOccurred.add(DateUtils.formatDate(timeWarning.getDate()));
+                    Double hours = switch (warningType) {
+                        case MISSING_BREAK_TIME -> timeWarning.getMissingBreakTime();
+                        case MISSING_REST_TIME -> timeWarning.getMissingRestTime();
+                        case EXCESS_WORKING_TIME_PRESENT -> timeWarning.getExcessWorkTime();
+                        default -> null;
+                    };
+                    datesWhenWarningsOccurred.add(
+                            new WorkTimeBookingWarning.WarningDate(
+                                    DateUtils.formatDate(timeWarning.getDate()),
+                                    hours
+                            )
+                    );
                 }
             }
         }
 
         // if we do not check this we get empty objects
         if (!name.isEmpty()) {
-            return MonthlyWarning.builder()
+            return WorkTimeBookingWarning.builder()
                     .name(name)
-                    .datesWhenWarningOccurred(datesWhenWarningsOccurred)
+                    .warningDates(datesWhenWarningsOccurred)
                     .build();
         }
         return null;
     }
 
-    private MonthlyWarning createMonthlyJourneyWarning(List<JourneyWarning> journeyWarnings, JourneyWarningType warningType) {
+    private WorkTimeBookingWarning createMonthlyJourneyWarning(List<JourneyWarning> journeyWarnings, JourneyWarningType warningType) {
         String name = "";
-        List<String> datesWhenWarningsOccurred = new ArrayList<>();
+        List<WorkTimeBookingWarning.WarningDate> datesWhenWarningsOccurred = new ArrayList<>();
 
         for (JourneyWarning journeyWarning : journeyWarnings) {
             if (journeyWarning.getWarningTypes().contains(warningType)) {
@@ -126,19 +131,25 @@ public class TimeWarningServiceImpl implements TimeWarningService {
                         case BACK_MISSING -> "Rückreise fehlt oder ist nach dem Zeitraum";
                         case TO_MISSING -> "Hinreise fehlt oder ist vor dem Zeitraum";
                         case INVALID_WORKING_LOCATION -> "Ungültiger Arbeitsort während einer Reise";
-                        case LOCATION_RELEVANT_SET -> "\"Ort projektrelevant\" darf nur gesetzt sein, wenn die Reisezeit verrechnet wird";
+                        case LOCATION_RELEVANT_SET ->
+                                "\"Ort projektrelevant\" darf nur gesetzt sein, wenn die Reisezeit verrechnet wird";
                     };
                 }
-                if(journeyWarning.getDate() != null) {
-                    datesWhenWarningsOccurred.add(DateUtils.formatDate(journeyWarning.getDate()));
+                if (journeyWarning.getDate() != null) {
+                    datesWhenWarningsOccurred.add(
+                            new WorkTimeBookingWarning.WarningDate(
+                                    DateUtils.formatDate(journeyWarning.getDate()),
+                                    null
+                            )
+                    );
                 }
             }
         }
 
-        if(!name.isEmpty()) {
-            return MonthlyWarning.builder()
+        if (!name.isEmpty()) {
+            return WorkTimeBookingWarning.builder()
                     .name(name)
-                    .datesWhenWarningOccurred(datesWhenWarningsOccurred)
+                    .warningDates(datesWhenWarningsOccurred)
                     .build();
         }
         return null;
