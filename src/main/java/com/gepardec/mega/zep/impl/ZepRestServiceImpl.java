@@ -354,7 +354,7 @@ public class ZepRestServiceImpl implements ZepService {
         int sumPrivateBills = 0;
 
         for (ZepReceipt receipt : zepReceipts) {
-            Optional<ZepReceiptAttachment> attachment = receiptService.getAttachmentByReceiptId(receipt.id());
+            Optional<ZepReceiptAttachment> attachment = receiptService.getAttachmentByReceiptId(receipt.id(), receipt.attachmentFileName());
             if (attachment.isEmpty()) {
                 hasAttachmentWarnings = true;
             }

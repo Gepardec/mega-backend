@@ -233,9 +233,12 @@ class EmployeeResourceTest {
     }
 
     @Test
-    void update_whenContentTypeNotSet_returnsHttpStatusUNSUPPORTED_MEDIA_TYPE() {
+    void update_whenContentTypeNotSetAndNoPayload_returnsHttpStatusBAD_REQUEST() {
+        final User user = createUserForRole(Role.PROJECT_LEAD);
+        when(userContext.getUser()).thenReturn(user);
+
         given().put("/employees")
-                .then().statusCode(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE);
+                .then().statusCode(HttpStatus.SC_BAD_REQUEST);
     }
 
     @Test
