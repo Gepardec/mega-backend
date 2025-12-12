@@ -1,10 +1,10 @@
 name: SBOM to Dependency-Track
 
 on:
-  workflow_run:
-    workflows: ["Release Containerimage"]
-    types:
-      - completed
+  push:
+    branches:
+      - feature/base-auto-update
+  workflow_dispatch:
 
 jobs:
   sbom:
@@ -22,6 +22,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+
+      - name: Build (and test) project with Maven
+        run: mvn -B package --file pom.xml
 
       - name: Generate CycloneDX SBOM
         run: mvn cyclonedx:makeAggregateBom
