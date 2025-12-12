@@ -2,7 +2,7 @@ name: PostUpdateTask
 
 on:
   workflow_dispatch:
-  pull_request_target:
+  pull_request:
     types: [ opened, reopened ]
     branches:
       - 'feature/base-auto-update'
