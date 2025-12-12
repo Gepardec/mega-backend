@@ -15,17 +15,25 @@ import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,9 +46,23 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 @QuarkusTest
 class WorkingTimeUtilTest {
 
+    @Alternative
+    @Priority(1)
+    @ApplicationScoped
+    public static class TestClockProducer {
+
+        @Produces
+        @ApplicationScoped
+        public Clock clock() {
+            return Clock.fixed(
+                    LocalDate.of(2023, 11, 3).atStartOfDay(ZoneOffset.UTC).toInstant(),
+                    ZoneOffset.UTC
+            );
+        }
+    }
+
     @Inject
     WorkingTimeUtil workingTimeUtil;
-
 
     static Stream<String> invalidTimeStrings() {
         return Stream.of(
@@ -76,64 +98,83 @@ class WorkingTimeUtilTest {
         assertThat(totalWorkingTimes).isEqualTo("24:15");
     }
 
-    @Test
-    void getOvertimeForEmployee_RETURN_POSITIVE_OVERTIME() {
-        Employee employee = createEmployee().build();
+    @Nested
+    class GetOvertimeForEmployee {
 
-        List<ProjectEntry> projectTimes = returnNormalDayProjectEntries(5);
-        List<AbsenceTime> fehlzeitTypes = List.of();
+        @Nested
+        class When1stOfNovemberIsHolidayAndTodayIs3rdOfNovember {
 
-        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, fehlzeitTypes, YearMonth.of(2023, 11));
-        assertThat(overtimeforEmployee).isEqualTo(8.0);
-    }
+            @Test
+            void whenWorkingTimeIsMoreThanRegular_thenShouldReturnPositiveOvertime() {
+                Employee employee = createEmployee().build();
+                List<ProjectEntry> projectEntries = new ArrayList<>();
 
-    @Test
-    void getOvertimeForEmployee_RETURN_NEGATIVE_OVERTIME() {
-        Employee employee = createEmployee().build();
+                // 1 hour overtime per day for days 1-5, but since November 1st is a holiday and the clock is fixed to November 3rd,
+                // only entries for November 2nd and 3rd are counted, resulting in a total of 2 hours overtime.
+                for (int day = 1; day <= 5; day++) {
+                    projectEntries.add(createProjectTimeEntry(day, LocalTime.of(8, 0), LocalTime.of(12, 0)));
+                    projectEntries.add(createProjectTimeEntry(day, LocalTime.of(13, 0), LocalTime.of(18, 0)));
+                }
 
-        List<ProjectEntry> projectTimes = returnNormalDayProjectEntries(3);
-        List<AbsenceTime> fehlzeitTypes = List.of();
+                double overtime = workingTimeUtil.getOvertimeForEmployee(employee, projectEntries, List.of(), YearMonth.of(2023, 11));
 
-        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, fehlzeitTypes, YearMonth.of(2023, 11));
-        assertThat(overtimeforEmployee).isEqualTo(-8.);
-    }
+                assertThat(overtime).isEqualTo(2d);
+            }
 
-    @Test
-    void getOvertimeForEmployee_WITH_ABSENCE() {
-        Employee employee = createEmployee().build();
+            @Test
+            void whenWorkingTimeIsLessThanRegular_thenShouldReturnNegativeOvertime() {
+                Employee employee = createEmployee().build();
+                List<ProjectEntry> projectEntries = new ArrayList<>();
 
-        List<ProjectEntry> projectTimes = returnNormalDayProjectEntries(3);
-        List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
+                // Entries for 5 days, but only 2 working days (Nov 2nd and 3rd) are counted due to the fixed clock at Nov 3rd and Nov 1st being a holiday.
+                // Each counted day is 1 hour less than regular, so total overtime = -2h.
+                for (int day = 1; day <= 5; day++) {
+                    projectEntries.add(createProjectTimeEntry(day, LocalTime.of(8, 0), LocalTime.of(12, 0)));
+                    projectEntries.add(createProjectTimeEntry(day, LocalTime.of(13, 0), LocalTime.of(16, 0)));
+                }
 
-        double overtimeforEmployee = workingTimeUtil.getOvertimeForEmployee(employee, projectTimes, fehlzeitTypes, YearMonth.of(2023, 11));
-        assertThat(overtimeforEmployee).isZero();
-    }
+                double overtime = workingTimeUtil.getOvertimeForEmployee(employee, projectEntries, List.of(), YearMonth.of(2023, 11));
 
-    @Test
-    void getOvertimeForEmployee_WITH_HOLIDAY() {
-        Map<DayOfWeek, Duration> regularWorkingHours = Map.ofEntries(
-                Map.entry(DayOfWeek.MONDAY, Duration.ofHours(0)),
-                Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(0)),
-                Map.entry(DayOfWeek.WEDNESDAY, Duration.ofHours(0)),
-                Map.entry(DayOfWeek.THURSDAY, Duration.ofHours(8)),
-                Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(0)),
-                Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
-                Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
+                assertThat(overtime).isEqualTo(-2d);
+            }
 
-        Employee employee = createEmployee()
-                .regularWorkingTimes(new RegularWorkingTimes(new RegularWorkingTime(null, regularWorkingHours)))
-                .build();
+            @Test
+            void whenWorkingTimeIsRegular_thenShouldReturnZero() {
+                Employee employee = createEmployee().build();
+                List<ProjectEntry> projectEntries = new ArrayList<>();
 
-        List<ProjectEntry> projectTimes = returnNormalDayProjectEntries(3);
-        List<AbsenceTime> fehlzeitTypes = returnFehlzeitTypeList();
+                // Each day, working time matches the regular working hours (8 hours per day)
+                for (int day = 1; day <= 5; day++) {
+                    projectEntries.add(createProjectTimeEntry(day, LocalTime.of(8, 0), LocalTime.of(12, 0)));
+                    projectEntries.add(createProjectTimeEntry(day, LocalTime.of(13, 0), LocalTime.of(17, 0)));
+                }
 
-        double overtimeForEmployee = workingTimeUtil.getOvertimeForEmployee(
-                employee,
-                projectTimes,
-                fehlzeitTypes,
-                YearMonth.of(2023, 10)
-        );
-        assertThat(overtimeForEmployee).isZero();
+                double overtime = workingTimeUtil.getOvertimeForEmployee(employee, projectEntries, List.of(), YearMonth.of(2023, 11));
+                assertThat(overtime).isZero();
+            }
+
+            @Test
+            void when2ndOfNovemberIsAbsenceDay_thenShouldIgnoreAbsentDay() {
+                Employee employee = createEmployee().build();
+                List<ProjectEntry> projectEntries = new ArrayList<>();
+
+                // Only entry for the 3rd of November, since 1st is a Holiday and 2nd is Absence Day.
+                projectEntries.add(createProjectTimeEntry(3, LocalTime.of(8, 0), LocalTime.of(12, 0)));
+                projectEntries.add(createProjectTimeEntry(3, LocalTime.of(13, 0), LocalTime.of(17, 0)));
+
+                List<AbsenceTime> fehlzeitTypes = List.of(
+                        AbsenceTime.builder()
+                                .fromDate(LocalDate.of(2023, 11, 2))
+                                .toDate(LocalDate.of(2023, 11, 2))
+                                .reason("UB")
+                                .accepted(true)
+                                .build()
+                );
+
+                double overtime = workingTimeUtil.getOvertimeForEmployee(employee, projectEntries, fehlzeitTypes, YearMonth.of(2023, 11));
+                assertThat(overtime).isZero();
+            }
+        }
     }
 
     @Test
@@ -208,10 +249,10 @@ class WorkingTimeUtilTest {
                 .build();
         Map<DayOfWeek, Duration> regularWorkingHours = Map.ofEntries(
                 Map.entry(DayOfWeek.MONDAY, Duration.ofHours(8)),
-                Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(0)),
-                Map.entry(DayOfWeek.WEDNESDAY, Duration.ofHours(0)),
-                Map.entry(DayOfWeek.THURSDAY, Duration.ofHours(0)),
-                Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(0)),
+                Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.WEDNESDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.THURSDAY, Duration.ofHours(8)),
+                Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(8)),
                 Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
                 Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
 
@@ -223,31 +264,6 @@ class WorkingTimeUtilTest {
                 .userId(user.getUserId())
                 .releaseDate("2020-01-01")
                 .regularWorkingTimes(new RegularWorkingTimes(new RegularWorkingTime(null, regularWorkingHours)));
-    }
-
-    private List<ProjectEntry> returnNormalDayProjectEntries(int times) {
-        List<ProjectEntry> projectTimes = new ArrayList<>();
-        for (int i = 1; i <= times; i++) {
-
-            ProjectEntry projektzeitType = ProjectTimeEntry.builder()
-                    .fromTime(LocalDateTime.of(2023, 11, times, 8, 0))
-                    .toTime(LocalDateTime.of(2023, 11, times, 12, 0))
-                    .task(Task.BEARBEITEN)
-                    .workingLocation(WorkingLocation.MAIN)
-                    .process("1")
-                    .build();
-            ProjectEntry projektzeitTypeBilllable = ProjectTimeEntry.builder()
-                    .fromTime(LocalDateTime.of(2023, 11, times, 13, 0))
-                    .toTime(LocalDateTime.of(2023, 11, times, 17, 0))
-                    .task(Task.BEARBEITEN)
-                    .workingLocation(WorkingLocation.MAIN)
-                    .process("1")
-                    .build();
-
-            projectTimes.add(projektzeitTypeBilllable);
-            projectTimes.add(projektzeitType);
-        }
-        return projectTimes;
     }
 
     private List<ProjectEntry> getProjectentries() {
@@ -293,5 +309,15 @@ class WorkingTimeUtilTest {
                         .workingLocation(WorkingLocation.MAIN)
                         .build()
         );
+    }
+
+    private ProjectTimeEntry createProjectTimeEntry(int dayOfMonth, LocalTime timeFrom, LocalTime timeTo) {
+        return ProjectTimeEntry.builder()
+                .fromTime(LocalDate.of(2023, 11, dayOfMonth).atTime(timeFrom))
+                .toTime(LocalDate.of(2023, 11, dayOfMonth).atTime(timeTo))
+                .task(Task.BEARBEITEN)
+                .workingLocation(WorkingLocation.MAIN)
+                .process("1")
+                .build();
     }
 }

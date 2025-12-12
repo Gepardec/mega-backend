@@ -38,7 +38,7 @@ jobs:
           NEW_VERSION: ${{ steps.parse.outputs.NEW_VERSION }}
         run: echo "groupId=${GROUPID}, depname=${DEPNAME}, currVersion=${CURR_VERSION}, newVersion=${NEW_VERSION}"
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         name: checkout
         with:
           ref: feature/base-auto-update
@@ -72,7 +72,7 @@ jobs:
           yes | mvn io.quarkus.platform:quarkus-maven-plugin:${NEW_VERSION}:update
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.RENOVATE_TOKEN }}
           title: Autoupdate ${{ steps.parse.outputs.GROUPID }}

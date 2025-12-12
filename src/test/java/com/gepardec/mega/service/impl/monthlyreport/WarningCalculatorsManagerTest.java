@@ -166,8 +166,9 @@ class WarningCalculatorsManagerTest {
                 .determineJourneyWarnings(List.of(journeyTimeEntryFour, projectEntryThree, projectEntryTwo, journeyTimeEntryOne));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.getFirst().getWarningTypes()).hasSize(1);
+        assertThat(warnings.getFirst().getWarningTypes()).hasSize(2);
         assertThat(warnings.getFirst().getWarningTypes().getFirst()).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
+        assertThat(warnings.get(0).getWarningTypes().get(1)).isEqualTo(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
 
     @Test
