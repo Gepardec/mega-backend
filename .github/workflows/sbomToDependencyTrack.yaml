@@ -9,9 +9,6 @@ on:
 jobs:
   sbom:
     runs-on: ubuntu-latest
-    if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'feature/base-auto-update'
     steps:
       - name: checkoutauto
         uses: actions/checkout@v5
