@@ -14,8 +14,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.version>3.8.1</maven.version>
 
-        <quarkus-plugin.version>3.26.3</quarkus-plugin.version>
-        <quarkus.platform.version>3.26.3</quarkus.platform.version>
+        <quarkus-plugin.version>3.30.3</quarkus-plugin.version>
+        <quarkus.platform.version>3.30.3</quarkus.platform.version>
 
         <ws.rt.version>4.0.3</ws.rt.version>
         <focus-shift.version>1.5.7</focus-shift.version>
@@ -173,7 +173,6 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
         </dependency>
 
         <!-- Google APIs -->
@@ -220,7 +219,6 @@
         <dependency>
             <groupId>jakarta.mail</groupId>
             <artifactId>jakarta.mail-api</artifactId>
-            <version>${jakarta.mail-api.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->
