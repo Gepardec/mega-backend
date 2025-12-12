@@ -252,6 +252,11 @@ public class ZepRestServiceImpl implements ZepService {
                 .sum();
     }
 
+    @Override
+    public void updateEmployeeHourlyRate(String userId, Double newRate, String fromDate) {
+        throw new NotImplementedException("This method is not provided in REST, use SOAP instead.");         // Currently not supported by REST - use SOAP instead
+    }
+
     private List<ProjectHoursSummary> getProjectsForMonthAndEmployeeInternal(ZepEmployee employee, YearMonth payrollMonth) {
         List<ProjectHoursSummary> resultProjectHoursSummary = new ArrayList<>();
         List<ZepProject> projectsRetrieved = projectService.getProjectsForMonthYear(payrollMonth);
