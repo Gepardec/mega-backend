@@ -25,6 +25,8 @@ public class ZepConfig {
     @ConfigProperty(name = "mega.zep.rest-token")
     String restToken;
 
+    String abc;
+
 
     public String getRestBearerToken() {
         return restToken;
