@@ -51,7 +51,7 @@ jobs:
               isLatestProjectVersion: true,
               bom: .
             }' | \
-          curl -sS -X PUT "${API_URL}/v1/bom" \
+          curl -sS -X PUT "${API_URL}/api/v1/bom" \
           -H "accept: application/json" \
           -H "X-Api-Key: ${API_KEY}" \
           -H "Content-Type: application/json" \
