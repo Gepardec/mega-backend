@@ -37,7 +37,6 @@ jobs:
         env:
           API_URL: ${{ secrets.DEPENDENCY_TRACK_API_URL }}
           API_KEY: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
-          PROJECT_UUID: ${{ secrets.DEPENDENCY_TRACK_PROJECT_UUID }}
           PROJECT_NAME: ${{ secrets.DEPENDENCY_TRACK_PROJECT_NAME }}
           PROJECT_VERSION: ${{ steps.mvn_version.outputs.version }}
         run: |
@@ -48,11 +47,9 @@ jobs:
           
           base64 < "$BOM_FILE" | tr -d '\r\n' | \
           jq -Rs \
-          --arg project "${PROJECT_UUID}" \
           --arg projectName "${PROJECT_NAME}" \
           --arg projectVersion "${PROJECT_VERSION}" \
           '{
-            project: $project,
             projectName: $projectName,
             projectVersion: $projectVersion,
             autoCreate: true,
