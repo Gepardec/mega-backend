@@ -23,6 +23,13 @@ jobs:
       - name: Build (and test) project with Maven
         run: mvn -B package --file pom.xml
 
+      - name: Read Maven project.version
+        id: mvn_version
+        run: |
+          set -euo pipefail
+          VERSION="$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Generate CycloneDX SBOM
         run: mvn cyclonedx:makeAggregateBom
 
@@ -32,6 +39,7 @@ jobs:
           API_KEY: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
           PROJECT_UUID: ${{ secrets.DEPENDENCY_TRACK_PROJECT_UUID }}
           PROJECT_NAME: ${{ secrets.DEPENDENCY_TRACK_PROJECT_NAME }}
+          PROJECT_VERSION: ${{ steps.mvn_version.outputs.version }}
         run: |
           set -euo pipefail
           
@@ -42,7 +50,7 @@ jobs:
           jq -Rs \
           --arg project "${PROJECT_UUID}" \
           --arg projectName "${PROJECT_NAME}" \
-          --arg projectVersion "1.0.0" \
+          --arg projectVersion "${PROJECT_VERSION}" \
           '{
             project: $project,
             projectName: $projectName,
