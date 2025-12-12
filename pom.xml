@@ -40,7 +40,7 @@
 
         <!-- 3rd-party version properties -->
         <google-api-client-bom.version>2.8.1</google-api-client-bom.version>
-        <google-api-services-gmail.version>v1-rev20251110-2.0.0</google-api-services-gmail.version>
+        <google-api-services-gmail.version>v1-rev20251201-2.0.0</google-api-services-gmail.version>
         <google-auth-library-oauth2-http.version>1.41.0</google-auth-library-oauth2-http.version>
         <postgresql.version>42.7.8</postgresql.version>
         <assertj-core.version>3.27.6</assertj-core.version>
