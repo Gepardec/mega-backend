@@ -43,7 +43,7 @@
         <google-api-services-gmail.version>v1-rev20250630-2.0.0</google-api-services-gmail.version>
         <google-auth-library-oauth2-http.version>1.41.0</google-auth-library-oauth2-http.version>
         <postgresql.version>42.7.8</postgresql.version>
-        <assertj-core.version>3.27.4</assertj-core.version>
+        <assertj-core.version>3.27.6</assertj-core.version>
         <liquibase-maven-plugina.version>5.0.1</liquibase-maven-plugina.version>
         <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
         <liquibase-hibernate6.version>5.0.1</liquibase-hibernate6.version>
