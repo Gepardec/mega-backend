@@ -9,6 +9,7 @@ on:
 
 jobs:
   verifyupdate:
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
       - name: checkoutauto
