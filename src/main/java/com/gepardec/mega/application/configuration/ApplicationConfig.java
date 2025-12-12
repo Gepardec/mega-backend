@@ -36,6 +36,8 @@ public class ApplicationConfig {
     @ConfigProperty(name = "quarkus.default-locale")
     Locale defaultLocale;
 
+    private String test;
+
     private LocalDateTime startAt;
 
     @PostConstruct
