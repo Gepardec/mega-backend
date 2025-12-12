@@ -46,7 +46,7 @@
         <assertj-core.version>3.27.6</assertj-core.version>
         <liquibase-maven-plugina.version>5.0.1</liquibase-maven-plugina.version>
         <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
-        <liquibase-hibernate6.version>5.0.1</liquibase-hibernate6.version>
+        <liquibase-hibernate6.version>4.33.0</liquibase-hibernate6.version>
         <spring-beans.version>6.2.11</spring-beans.version>
         <spring-data-jpa.version>4.0.0</spring-data-jpa.version>
         <snakeyaml.version>2.5</snakeyaml.version>
@@ -60,6 +60,7 @@
         <liquibase-maven-plugin.version>4.0.0</liquibase-maven-plugin.version>
         <native2ascii-maven-plugin.plugin.version>2.1.1</native2ascii-maven-plugin.plugin.version>
         <cyclonedx-maven-plugin.version>2.9.1</cyclonedx-maven-plugin.version>
+        <org-glassfish-jaxb.version>4.0.5</org-glassfish-jaxb.version>
     </properties>
 
     <dependencyManagement>
@@ -309,7 +310,7 @@
                         <artifactId>cxf-xjc-runtime</artifactId>
                         <version>${cxf-xjc-utils.version}</version>
                     </dependency>
-                    <!--FIXME: Keep track of https://github.com/highsource/jaxb2-basics/issues/162, since it is the original package-->
+
                     <dependency>
                         <groupId>org.patrodyne.jvnet</groupId>
                         <artifactId>hisrc-basicjaxb-plugins</artifactId>
@@ -319,6 +320,18 @@
                         <groupId>org.patrodyne.jvnet</groupId>
                         <artifactId>hisrc-basicjaxb-runtime</artifactId>
                         <version>${basicjaxb-plugins.version}</version>
+                    </dependency>
+
+                    <!-- needed until org.patrodyne.jvnet fixes ClassNotFound Error -->
+                    <dependency>
+                        <groupId>org.glassfish.jaxb</groupId>
+                        <artifactId>jaxb-xjc</artifactId>
+                        <version>${org-glassfish-jaxb.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.glassfish.jaxb</groupId>
+                        <artifactId>codemodel</artifactId>
+                        <version>${org-glassfish-jaxb.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
