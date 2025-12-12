@@ -38,4 +38,6 @@ public interface ZepService {
     List<ProjectHoursSummary> getAllProjectsForMonthAndEmployee(final Employee employee, YearMonth payrollMonth);
 
     double getDoctorsVisitingTimeForMonthAndEmployee(final Employee employee, YearMonth payrollMonth);
+
+    void updateEmployeeHourlyRate(String userId, Double newRate, String fromDate);
 }
