@@ -46,7 +46,7 @@
         <assertj-core.version>3.27.4</assertj-core.version>
         <liquibase-maven-plugina.version>4.33.0</liquibase-maven-plugina.version>
         <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
-        <liquibase-hibernate6.version>4.33.0</liquibase-hibernate6.version>
+        <liquibase-hibernate6.version>5.0.1</liquibase-hibernate6.version>
         <spring-beans.version>6.2.11</spring-beans.version>
         <spring-data-jpa.version>3.5.4</spring-data-jpa.version>
         <snakeyaml.version>2.5</snakeyaml.version>
