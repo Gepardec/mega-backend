@@ -11,7 +11,6 @@ import java.util.List;
 import static com.gepardec.mega.notification.mail.Mail.EMPLOYEE_CHECK_PROJECTTIME;
 import static com.gepardec.mega.notification.mail.Mail.OM_ADMINISTRATIVE;
 import static com.gepardec.mega.notification.mail.Mail.OM_CONTROL_EMPLOYEES_CONTENT;
-import static com.gepardec.mega.notification.mail.Mail.OM_CONTROL_PROJECTTIMES;
 import static com.gepardec.mega.notification.mail.Mail.OM_RELEASE;
 import static com.gepardec.mega.notification.mail.Mail.OM_SALARY;
 import static com.gepardec.mega.notification.mail.Mail.PL_PROJECT_CONTROLLING;
@@ -44,7 +43,7 @@ class BusinessDayCalculatorTest {
 
         //THEN
         assertRemindersEqual(
-                List.of(EMPLOYEE_CHECK_PROJECTTIME, OM_CONTROL_PROJECTTIMES),
+                List.of(EMPLOYEE_CHECK_PROJECTTIME),
                 actualReminders
         );
     }
@@ -72,7 +71,7 @@ class BusinessDayCalculatorTest {
 
         //THEN
         assertRemindersEqual(
-                List.of(EMPLOYEE_CHECK_PROJECTTIME, OM_CONTROL_PROJECTTIMES),
+                List.of(EMPLOYEE_CHECK_PROJECTTIME),
                 actualReminders
         );
     }
@@ -120,7 +119,7 @@ class BusinessDayCalculatorTest {
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 26))),
                 () -> assertRemindersEqual(List.of(OM_SALARY), businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 27))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 28))),
-                () -> assertRemindersEqual(List.of(EMPLOYEE_CHECK_PROJECTTIME, OM_CONTROL_PROJECTTIMES), businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 29))),
+                () -> assertRemindersEqual(List.of(EMPLOYEE_CHECK_PROJECTTIME), businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 29))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2019, 11, 30)))
         );
     }
@@ -155,7 +154,7 @@ class BusinessDayCalculatorTest {
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 25))),
                 () -> assertRemindersEqual(List.of(OM_SALARY), businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 26))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 27))),
-                () -> assertRemindersEqual(List.of(EMPLOYEE_CHECK_PROJECTTIME, OM_CONTROL_PROJECTTIMES), businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 28))),
+                () -> assertRemindersEqual(List.of(EMPLOYEE_CHECK_PROJECTTIME), businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 28))),
                 () -> assertRemindersEmpty(businessDayCalculator.getRemindersForDate(LocalDate.of(2020, 2, 29)))
         );
     }
