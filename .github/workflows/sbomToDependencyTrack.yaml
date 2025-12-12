@@ -39,20 +39,20 @@ jobs:
           test -f "$BOM_FILE"
           
           base64 < "$BOM_FILE" | tr -d '\r\n' | \
-          jq -Rn \
+          jq -Rs \
           --arg project "${PROJECT_UUID}" \
           --arg projectName "${PROJECT_NAME}" \
           --arg projectVersion "1.0.0" \
           '{
-              project: $project,
-              projectName: $projectName,
-              projectVersion: $projectVersion,
-              autoCreate: true,
-              isLatestProjectVersion: true,
-              bom: .
-            }' | \
+            project: $project,
+            projectName: $projectName,
+            projectVersion: $projectVersion,
+            autoCreate: true,
+            isLatestProjectVersion: true,
+            bom: .
+          }' | \
           curl -sS -X PUT "${API_URL}/api/v1/bom" \
           -H "accept: application/json" \
           -H "X-Api-Key: ${API_KEY}" \
           -H "Content-Type: application/json" \
-          -d @-
+          --data-binary @-
