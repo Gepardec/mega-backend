@@ -38,25 +38,21 @@ jobs:
           BOM_FILE="target/mega-backend.json"
           test -f "$BOM_FILE"
           
-          base64_bom="$(base64 < "$BOM_FILE" | tr -d '\r\n')"
-          
-          payload="$(jq -n \
-            --arg project "${PROJECT_UUID}" \
-            --arg projectName "${PROJECT_NAME}" \
-            --arg projectVersion "1.0.0" \
-            --arg bom "$base64_bom" \
-            '{
+          base64 < "$BOM_FILE" | tr -d '\r\n' | \
+          jq -Rn \
+          --arg project "${PROJECT_UUID}" \
+          --arg projectName "${PROJECT_NAME}" \
+          --arg projectVersion "1.0.0" \
+          '{
               project: $project,
               projectName: $projectName,
               projectVersion: $projectVersion,
               autoCreate: true,
               isLatestProjectVersion: true,
-              bom: $bom
-            }'
-          )"
-          
+              bom: .
+            }' | \
           curl -sS -X PUT "${API_URL}/v1/bom" \
-            -H "accept: application/json" \
-            -H "X-Api-Key: ${API_KEY}" \
-            -H "Content-Type: application/json" \
-            -d "$payload"
+          -H "accept: application/json" \
+          -H "X-Api-Key: ${API_KEY}" \
+          -H "Content-Type: application/json" \
+          -d @-
