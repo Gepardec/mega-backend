@@ -60,7 +60,7 @@
         <liquibase-maven-plugin.version>4.0.0</liquibase-maven-plugin.version>
         <native2ascii-maven-plugin.plugin.version>2.1.1</native2ascii-maven-plugin.plugin.version>
         <cyclonedx-maven-plugin.version>2.9.1</cyclonedx-maven-plugin.version>
-        <org-glassfish-jaxb.version>4.0.5</org-glassfish-jaxb.version>
+        <org-glassfish-jaxb.version>4.0.6</org-glassfish-jaxb.version>
     </properties>
 
     <dependencyManagement>
