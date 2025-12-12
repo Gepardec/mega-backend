@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 
@@ -379,5 +380,40 @@ class ZepServiceImplTest {
         assertThat(projectsForMonthYear).hasSize(1);
         assertThat(projectsForMonthYear.getFirst().getEmployees()).isEmpty();
         assertThat(projectsForMonthYear.getFirst().getLeads()).isEmpty();
+    }
+
+    @Test
+    void updateEmployeeHourlyRateTest() {
+        Mockito.when(zepSoapPortType.updateMitarbeiter(any(UpdateMitarbeiterRequestType.class)))
+                .thenReturn(null);
+
+        zepService.updateEmployeeHourlyRate("102-funger", 12.34D, "2025-01-01");
+
+        ArgumentCaptor<UpdateMitarbeiterRequestType> captor = ArgumentCaptor.forClass(UpdateMitarbeiterRequestType.class);
+
+        verify(zepSoapPortType).updateMitarbeiter(captor.capture());
+
+        MitarbeiterType employee = captor.getValue().getMitarbeiter();
+
+        assertThat(
+                employee
+                        .getUserId())
+                .isEqualTo("102-funger");
+
+        assertThat(
+                employee
+                        .getInternersatzListe()
+                        .getInternersatz()
+                        .get(0)
+                        .getSatz())
+                .isEqualTo(12.34D);
+
+        assertThat(
+                employee
+                        .getInternersatzListe()
+                        .getInternersatz()
+                        .get(0)
+                        .getStartdatum())
+                .isEqualTo("2025-01-01");
     }
 }
