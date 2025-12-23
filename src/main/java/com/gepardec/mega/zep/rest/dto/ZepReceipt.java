@@ -1,5 +1,6 @@
 package com.gepardec.mega.zep.rest.dto;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gepardec.mega.db.entity.common.PaymentMethodType;
@@ -43,6 +44,7 @@ public record ZepReceipt (
         private String employeeId;
 
         @JsonProperty("date")
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDate receiptDate;
 
         @JsonProperty("amount")
