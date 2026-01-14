@@ -21,7 +21,7 @@
         <focus-shift.version>1.5.7</focus-shift.version>
         <assertj.version>3.21.0</assertj.version>
         <basicjaxb-plugins.version>2.2.1</basicjaxb-plugins.version>
-        <jakarta.mail-api.version>2.1.4</jakarta.mail-api.version>
+        <jakarta.mail-api.version>2.1.5</jakarta.mail-api.version>
 
         <!-- application info -->
         <!-- !!! IMPORTANT !!!! -->
