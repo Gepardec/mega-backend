@@ -28,4 +28,9 @@ public interface EmployeeResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     Response uploadInternalRate(@MultipartForm BulkUpdateDto input, @Context HttpHeaders headers);
 
+    @GET
+    @Path("/csvTemplate")
+    @Produces("text/csv")
+    Response downloadCsvTemplate();
+
 }
