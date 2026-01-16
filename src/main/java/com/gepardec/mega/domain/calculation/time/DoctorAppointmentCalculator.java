@@ -18,7 +18,8 @@ public class DoctorAppointmentCalculator extends AbstractTimeWarningCalculationS
     private static final LocalTime START_HOUR_AFTERNOON = LocalTime.of(12, 30);
     private static final LocalTime END_HOUR_AFTERNOON = LocalTime.of(17, 0);
 
-    private static final String DOCTOR_APPOINTMENT = "Arztbesuch";
+    private static final String DOCTOR_APPOINTMENT = "Arztbesuch"; // Assuming "233" is the correct process ID for doctor appointments
+    private static final String DOCTOR_APPOINTMENT_ZEP_ID = "233"; // Assuming "233" is the correct process ID for doctor appointments
 
     public List<TimeWarning> calculate(List<ProjectEntry> projectEntries) {
         final List<TimeWarning> warnings = new ArrayList<>();
@@ -32,7 +33,8 @@ public class DoctorAppointmentCalculator extends AbstractTimeWarningCalculationS
         LocalTime projectEntryToTime;
 
         for (ProjectTimeEntry projectEntry : projectTimeEntries) {
-            if (projectEntry.getProcess() == null || !projectEntry.getProcess().equals(DOCTOR_APPOINTMENT)) continue;
+            if (projectEntry.getProcess() == null || !projectEntry.getProcess().equals(DOCTOR_APPOINTMENT_ZEP_ID))
+                continue;
 
             projectEntryFromTime = projectEntry.getFromTime().toLocalTime();
             projectEntryToTime = projectEntry.getToTime().toLocalTime();

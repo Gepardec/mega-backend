@@ -7,7 +7,7 @@ public enum TimeWarningType implements WarningType {
     EMPTY_ENTRY_LIST,
     HOLIDAY,
     WEEKEND,
-    WRONG_DOCTOR_APPOINTMENT, // FIXME: the process is an id now instead of the name, so it needs to be mapped in the calculator
+    WRONG_DOCTOR_APPOINTMENT,
     EXCESS_WORKING_TIME_PRESENT,
     MISSING_REST_TIME,
     MISSING_BREAK_TIME;

@@ -1,7 +1,6 @@
 package com.gepardec.mega.rest;
 
 import com.gepardec.mega.db.entity.common.AbsenceType;
-import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.MonthlyAbsences;
@@ -14,8 +13,6 @@ import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.WorkTimeBookingWarning;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyDirection;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
-import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
-import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
@@ -24,15 +21,12 @@ import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.api.WorkerResource;
-import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
 import com.gepardec.mega.rest.mapper.MonthlyBillInfoMapper;
 import com.gepardec.mega.rest.mapper.WorkTimeBookingWarningMapper;
-import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
-import com.gepardec.mega.rest.model.MonthlyReportDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import com.gepardec.mega.rest.model.WorkTimeBookingWarningDto;
 import com.gepardec.mega.rest.provider.PayrollContext;
@@ -40,7 +34,6 @@ import com.gepardec.mega.rest.provider.PayrollMonthProvider;
 import com.gepardec.mega.service.api.AbsenceService;
 import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.service.api.EmployeeService;
-import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.service.api.TimeWarningService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
@@ -50,9 +43,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.oidc.Claim;
 import io.quarkus.test.security.oidc.OidcSecurity;
-import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
-import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -64,7 +55,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.gepardec.mega.rest.provider.PayrollContext.PayrollContextType.EMPLOYEE;
-import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -76,9 +66,6 @@ import static org.mockito.Mockito.when;
         @Claim(key = "email", value = "test@gepardec.com")
 })
 class WorkerResourceTest {
-
-    @InjectMock
-    MonthlyReportService monthlyReportService;
 
     @InjectMock
     EmployeeService employeeService;
@@ -106,9 +93,6 @@ class WorkerResourceTest {
     UserContext userContext;
 
     @InjectMock
-    EmployeeMapper mapper;
-
-    @InjectMock
     MonthlyAbsencesMapper monthlyAbsencesMapper;
 
     @Inject
@@ -123,70 +107,6 @@ class WorkerResourceTest {
 
     @Inject
     WorkerResource workerResource;
-
-    @Test
-    void monthlyReport_whenPOST_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
-        given().contentType(ContentType.JSON)
-                .post("/worker/monthendreports")
-                .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Test
-    void monthlyReport_whenPUT_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
-        given().contentType(ContentType.JSON)
-                .put("/worker/monthendreports")
-                .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Test
-    void monthlyReport_whenDELETE_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
-        given().contentType(ContentType.JSON)
-                .delete("/worker/monthendreports")
-                .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Test
-    @TestSecurity
-    @OidcSecurity
-    void monthlyReport_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
-        final User user = createUserForRole();
-        when(userContext.getUser()).thenReturn(user);
-
-        given().get("/worker/monthendreports")
-                .then().assertThat().statusCode(HttpStatus.SC_UNAUTHORIZED);
-    }
-
-    @Test
-    void monthlyReport_withYearMonth_whenPOST_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
-        given().contentType(ContentType.JSON)
-                .post("/worker/monthendreports/2023-08")
-                .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Test
-    void monthlyReport_withYearMonth_whenPUT_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
-        given().contentType(ContentType.JSON)
-                .put("/worker/monthendreports/2023-08")
-                .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Test
-    void monthlyReport_withYearMonth_whenDELETE_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
-        given().contentType(ContentType.JSON)
-                .delete("/worker/monthendreports/2023-08")
-                .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Test
-    @TestSecurity
-    @OidcSecurity
-    void monthlyReport_withYearMonth_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
-        final User user = createUserForRole();
-        when(userContext.getUser()).thenReturn(user);
-
-        given().get("/worker/monthendreports/2023-08")
-                .then().assertThat().statusCode(HttpStatus.SC_UNAUTHORIZED);
-    }
 
     @Test
     void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithoutAttachmentAndCreditCard_thenReturnObjectWithAttachmentWarningsAndNoCreditCard() {
