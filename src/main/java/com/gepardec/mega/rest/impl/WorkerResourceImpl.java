@@ -10,7 +10,6 @@ import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.UserContext;
-import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.api.WorkerResource;
@@ -19,7 +18,6 @@ import com.gepardec.mega.rest.mapper.EmployeeCheckMapper;
 import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
 import com.gepardec.mega.rest.mapper.MonthlyBillInfoMapper;
 import com.gepardec.mega.rest.mapper.MonthlyOfficeDaysMapper;
-import com.gepardec.mega.rest.mapper.MonthlyReportMapper;
 import com.gepardec.mega.rest.mapper.ProjectHoursSummaryMapper;
 import com.gepardec.mega.rest.mapper.WorkTimeBookingWarningMapper;
 import com.gepardec.mega.rest.model.AttendancesDto;
@@ -43,7 +41,6 @@ import com.gepardec.mega.zep.impl.Rest;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 
 import java.time.YearMonth;
 import java.util.List;
@@ -70,9 +67,6 @@ public class WorkerResourceImpl implements WorkerResource {
 
     @Inject
     AbsenceService absenceService;
-
-    @Inject
-    MonthlyReportMapper mapper;
 
     @Inject
     EmployeeCheckMapper employeeCheckMapper;
@@ -115,18 +109,6 @@ public class WorkerResourceImpl implements WorkerResource {
     @Override
     public YearMonth payrollMonth() {
         return payrollMonthProvider.getPayrollMonth();
-    }
-
-    @Override
-    public Response monthlyReport() {
-        return monthlyReport(payrollMonthProvider.getPayrollMonth());
-    }
-
-    @Override
-    public Response monthlyReport(YearMonth payrollMonth) {
-        MonthlyReport monthlyReport = monthlyReportService.getMonthEndReportForUser(payrollMonth);
-
-        return Response.ok(mapper.mapToDto(monthlyReport)).build();
     }
 
     @Override

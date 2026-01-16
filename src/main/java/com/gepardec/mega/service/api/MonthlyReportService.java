@@ -8,8 +8,6 @@ import java.time.YearMonth;
 
 public interface MonthlyReportService {
 
-    MonthlyReport getMonthEndReportForUser(YearMonth payrollMonth);
-
     EmployeeCheck getEmployeeCheck(YearMonth payrollMonth);
 
     Attendances getAttendances(YearMonth payrollMonth);

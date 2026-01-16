@@ -37,14 +37,6 @@ public interface WorkerResource {
     YearMonth payrollMonth();
 
     @GET
-    @Path("/monthendreports")
-    Response monthlyReport();
-
-    @GET
-    @Path("/monthendreports/{payrollMonth}")
-    Response monthlyReport(@PathParam("payrollMonth") YearMonth payrollMonth);
-
-    @GET
     @Path("/employeeCheck")
     EmployeeCheckDto employeeCheck(@QueryParam("payrollMonth") YearMonth payrollMonth);
 
