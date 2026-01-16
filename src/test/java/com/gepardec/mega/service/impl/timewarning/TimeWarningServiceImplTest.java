@@ -96,6 +96,81 @@ class TimeWarningServiceImplTest {
         assertThat(actual).isEmpty();
     }
 
+    @Test
+    void getAllWarningsForEmployeeAndMonth_whenEmptyEntryListWarning_thenReturnWarningWithoutDates() {
+        User user = createUserForRole();
+        when(userContext.getUser()).thenReturn(user);
+
+        Employee employee = createEmployeeForUser(user);
+
+        when(warningCalculatorsManager.determineJourneyWarnings(any()))
+                .thenReturn(new ArrayList<>());
+
+        List<TimeWarning> timeWarnings = new ArrayList<>();
+        TimeWarning emptyEntryListWarning = new TimeWarning();
+        emptyEntryListWarning.setWarningTypes(List.of(TimeWarningType.EMPTY_ENTRY_LIST));
+        emptyEntryListWarning.setDate(null);
+        timeWarnings.add(emptyEntryListWarning);
+
+        when(warningCalculatorsManager.determineTimeWarnings(any()))
+                .thenReturn(timeWarnings);
+
+        when(warningCalculatorsManager.determineNoTimeEntries(any(Employee.class), any(), any()))
+                .thenReturn(new ArrayList<>());
+
+        List<ProjectEntry> projectEntries = new ArrayList<>();
+        List<WorkTimeBookingWarning> actual = timeWarningService.getAllTimeWarningsForEmployeeAndMonth(new ArrayList<>(), projectEntries, employee);
+
+        assertThat(actual)
+                .hasSize(1)
+                .first()
+                .satisfies(warning -> {
+                    assertThat(warning.getName()).isEqualTo(TimeWarningType.EMPTY_ENTRY_LIST.name());
+                    assertThat(warning.getWarningDates()).isEmpty();
+                });
+    }
+
+    @Test
+    void getAllWarningsForEmployeeAndMonth_whenDateSpecificWarnings_thenReturnWarningsWithDates() {
+        User user = createUserForRole();
+        when(userContext.getUser()).thenReturn(user);
+
+        Employee employee = createEmployeeForUser(user);
+
+        when(warningCalculatorsManager.determineJourneyWarnings(any()))
+                .thenReturn(new ArrayList<>());
+
+        List<TimeWarning> timeWarnings = new ArrayList<>();
+        TimeWarning dateSpecificWarning = new TimeWarning();
+        dateSpecificWarning.setWarningTypes(List.of(TimeWarningType.MISSING_BREAK_TIME));
+        dateSpecificWarning.setDate(DateUtils.parseDate("2024-05-27"));
+        dateSpecificWarning.setMissingBreakTime(0.5);
+        timeWarnings.add(dateSpecificWarning);
+
+        when(warningCalculatorsManager.determineTimeWarnings(any()))
+                .thenReturn(timeWarnings);
+
+        when(warningCalculatorsManager.determineNoTimeEntries(any(Employee.class), any(), any()))
+                .thenReturn(new ArrayList<>());
+
+        List<ProjectEntry> projectEntries = createProjectEntryListForRequest();
+        List<WorkTimeBookingWarning> actual = timeWarningService.getAllTimeWarningsForEmployeeAndMonth(new ArrayList<>(), projectEntries, employee);
+
+        assertThat(actual)
+                .hasSize(1)
+                .first()
+                .satisfies(warning -> {
+                    assertThat(warning.getName()).isEqualTo(TimeWarningType.MISSING_BREAK_TIME.name());
+                    assertThat(warning.getWarningDates())
+                            .hasSize(1)
+                            .first()
+                            .satisfies(date -> {
+                                assertThat(date.date()).isEqualTo("2024-05-27");
+                                assertThat(date.hours()).isEqualTo(0.5);
+                            });
+                });
+    }
+
     private List<AbsenceTime> createAbsenceTimeListForRequest(String userId) {
         List<AbsenceTime> absenceTimes = new ArrayList<>();
         absenceTimes.add(createAbsenceTime(userId, "2024-05-02", "2024-05-02", "KR"));

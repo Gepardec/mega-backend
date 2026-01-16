@@ -205,6 +205,133 @@ class WorkingTimeUtilTest {
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> workingTimeUtil.getDurationFromTimeString(input));
     }
 
+    @Nested
+    class GetBillablePercentage {
+
+        @Test
+        void whenBothDurationsAreValid_thenShouldReturnCorrectPercentage() {
+            Duration totalWorkingTime = Duration.ofHours(8);
+            Duration billableTime = Duration.ofHours(4);
+
+            double percentage = workingTimeUtil.getBillablePercentage(totalWorkingTime, billableTime);
+
+            assertThat(percentage).isEqualTo(50.0);
+        }
+
+        @Test
+        void whenBillableTimeIsZero_thenShouldReturnZero() {
+            Duration totalWorkingTime = Duration.ofHours(8);
+            Duration billableTime = Duration.ZERO;
+
+            double percentage = workingTimeUtil.getBillablePercentage(totalWorkingTime, billableTime);
+
+            assertThat(percentage).isZero();
+        }
+
+        @Test
+        void whenTotalWorkingTimeIsZero_thenShouldReturnZero() {
+            Duration totalWorkingTime = Duration.ZERO;
+            Duration billableTime = Duration.ofHours(4);
+
+            double percentage = workingTimeUtil.getBillablePercentage(totalWorkingTime, billableTime);
+
+            assertThat(percentage).isZero();
+        }
+
+        @Test
+        void whenBothDurationsAreZero_thenShouldReturnZero() {
+            Duration totalWorkingTime = Duration.ZERO;
+            Duration billableTime = Duration.ZERO;
+
+            double percentage = workingTimeUtil.getBillablePercentage(totalWorkingTime, billableTime);
+
+            assertThat(percentage).isZero();
+        }
+
+        @Test
+        void whenTotalWorkingTimeIsNull_thenShouldReturnZero() {
+            Duration billableTime = Duration.ofHours(4);
+
+            double percentage = workingTimeUtil.getBillablePercentage(null, billableTime);
+
+            assertThat(percentage).isZero();
+        }
+
+        @Test
+        void whenBillableTimeIsNull_thenShouldReturnZero() {
+            Duration totalWorkingTime = Duration.ofHours(8);
+
+            double percentage = workingTimeUtil.getBillablePercentage(totalWorkingTime, null);
+
+            assertThat(percentage).isZero();
+        }
+
+        @Test
+        void whenBothDurationsAreNull_thenShouldReturnZero() {
+            double percentage = workingTimeUtil.getBillablePercentage(null, null);
+
+            assertThat(percentage).isZero();
+        }
+
+        @Test
+        void whenBillableTimeEqualsTotal_thenShouldReturn100Percent() {
+            Duration totalWorkingTime = Duration.ofHours(8);
+            Duration billableTime = Duration.ofHours(8);
+
+            double percentage = workingTimeUtil.getBillablePercentage(totalWorkingTime, billableTime);
+
+            assertThat(percentage).isEqualTo(100.0);
+        }
+
+        @Test
+        void whenBillableTimeIsGreaterThanTotal_thenShouldReturnOverHundredPercent() {
+            Duration totalWorkingTime = Duration.ofHours(8);
+            Duration billableTime = Duration.ofHours(10);
+
+            double percentage = workingTimeUtil.getBillablePercentage(totalWorkingTime, billableTime);
+
+            assertThat(percentage).isEqualTo(125.0);
+        }
+
+        @Test
+        void whenWorkingWithMinutes_thenShouldCalculateCorrectly() {
+            Duration totalWorkingTime = Duration.ofMinutes(480); // 8 hours
+            Duration billableTime = Duration.ofMinutes(360); // 6 hours
+
+            double percentage = workingTimeUtil.getBillablePercentage(totalWorkingTime, billableTime);
+
+            assertThat(percentage).isEqualTo(75.0);
+        }
+
+        @Test
+        void whenWorkingWithMixedHoursAndMinutes_thenShouldCalculateCorrectly() {
+            Duration totalWorkingTime = Duration.ofHours(8).plusMinutes(30); // 8.5 hours
+            Duration billableTime = Duration.ofHours(4).plusMinutes(15); // 4.25 hours
+
+            double percentage = workingTimeUtil.getBillablePercentage(totalWorkingTime, billableTime);
+
+            assertThat(percentage).isEqualTo(50.0);
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                "8, 2, 25.0",
+                "8, 4, 50.0",
+                "8, 6, 75.0",
+                "8, 8, 100.0",
+                "10, 5, 50.0",
+                "5, 1, 20.0",
+                "40, 30, 75.0"
+        })
+        void whenVariousDurations_thenShouldReturnCorrectPercentages(long totalHours, long billableHours, double expectedPercentage) {
+            Duration totalWorkingTime = Duration.ofHours(totalHours);
+            Duration billableTime = Duration.ofHours(billableHours);
+
+            double percentage = workingTimeUtil.getBillablePercentage(totalWorkingTime, billableTime);
+
+            assertThat(percentage).isEqualTo(expectedPercentage);
+        }
+    }
 
     private List<AbsenceTime> returnFehlzeitTypeList() {
         AbsenceTime fehlzeitType = AbsenceTime.builder()

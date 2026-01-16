@@ -1,6 +1,7 @@
 package com.gepardec.mega.rest;
 
 import com.gepardec.mega.db.repository.UserRepository;
+import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
@@ -22,6 +23,8 @@ import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -303,6 +306,134 @@ class EmployeeResourceTest {
     void noMethod_whenHttpMethodIsPOST_returns405() {
         given().post("/employees")
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
+    }
+
+    @Test
+    void downloadCsvTemplate_whenUserLoggedAndInRoleOFFICE_MANAGEMENT_thenReturnsHttpStatusOK() {
+        final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
+        when(userContext.getUser()).thenReturn(user);
+
+        given().get("/employees/csvTemplate")
+                .then().assertThat().statusCode(HttpStatus.SC_OK);
+    }
+
+    @Test
+    void downloadCsvTemplate_whenUserLoggedAndInRolePROJECT_LEAD_thenReturnsHttpStatusOK() {
+        final User user = createUserForRole(Role.PROJECT_LEAD);
+        when(userContext.getUser()).thenReturn(user);
+
+        given().get("/employees/csvTemplate")
+                .then().assertThat().statusCode(HttpStatus.SC_OK);
+    }
+
+    @Test
+    void downloadCsvTemplate_whenUserLoggedAndInRoleEMPLOYEE_thenReturnsHttpStatusFORBIDDEN() {
+        final User user = createUserForRole(Role.EMPLOYEE);
+        when(userContext.getUser()).thenReturn(user);
+
+        given().get("/employees/csvTemplate")
+                .then().assertThat().statusCode(HttpStatus.SC_FORBIDDEN);
+    }
+
+    @Test
+    @TestSecurity
+    @OidcSecurity
+    void downloadCsvTemplate_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
+        given().get("/employees/csvTemplate")
+                .then().assertThat().statusCode(HttpStatus.SC_UNAUTHORIZED);
+    }
+
+    @Test
+    void downloadCsvTemplate_whenCalled_thenReturnsCorrectCsvContent() {
+        final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
+        when(userContext.getUser()).thenReturn(user);
+
+        final Employee employee1 = Employee.builder()
+                .userId("102-atest")
+                .email("atest@gepardec.com")
+                .firstname("Alpha")
+                .lastname("Test")
+                .build();
+
+        final Employee employee2 = Employee.builder()
+                .userId("005-btest")
+                .email("btest@gepardec.com")
+                .firstname("Beta")
+                .lastname("Test")
+                .build();
+
+        when(employeeService.getAllActiveEmployees()).thenReturn(List.of(employee1, employee2));
+
+        final String csvContent = given().get("/employees/csvTemplate")
+                .then().assertThat()
+                .statusCode(HttpStatus.SC_OK)
+                .header("Content-Disposition", equalTo("attachment; filename=\"hourly_rates_template.csv\""))
+                .extract().asString();
+
+        final String currentDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        assertAll(
+                () -> assertThat(csvContent).contains("#ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD"),
+                () -> assertThat(csvContent).contains("005-btest,," + currentDate),
+                () -> assertThat(csvContent).contains("102-atest,," + currentDate)
+        );
+    }
+
+    @Test
+    void downloadCsvTemplate_whenCalled_thenEmployeesSortedByUserId() {
+        final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
+        when(userContext.getUser()).thenReturn(user);
+
+        final Employee employee1 = Employee.builder()
+                .userId("102-atest")
+                .email("atest@gepardec.com")
+                .firstname("Alpha")
+                .lastname("Test")
+                .build();
+
+        final Employee employee2 = Employee.builder()
+                .userId("005-btest")
+                .email("btest@gepardec.com")
+                .firstname("Beta")
+                .lastname("Test")
+                .build();
+
+        final Employee employee3 = Employee.builder()
+                .userId("050-ctest")
+                .email("ctest@gepardec.com")
+                .firstname("Gamma")
+                .lastname("Test")
+                .build();
+
+        // Return employees in unsorted order
+        when(employeeService.getAllActiveEmployees()).thenReturn(List.of(employee1, employee3, employee2));
+
+        final String csvContent = given().get("/employees/csvTemplate")
+                .then().assertThat()
+                .statusCode(HttpStatus.SC_OK)
+                .extract().asString();
+
+        final String[] lines = csvContent.split("\n");
+        assertAll(
+                () -> assertThat(lines).hasSizeGreaterThanOrEqualTo(4), // Header + 3 employees + trailing newline
+                () -> assertThat(lines[1]).startsWith("005-btest"), // First employee by ID
+                () -> assertThat(lines[2]).startsWith("050-ctest"), // Second employee by ID
+                () -> assertThat(lines[3]).startsWith("102-atest") // Third employee by ID
+        );
+    }
+
+    @Test
+    void downloadCsvTemplate_whenNoEmployees_thenReturnsOnlyHeader() {
+        final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
+        when(userContext.getUser()).thenReturn(user);
+
+        when(employeeService.getAllActiveEmployees()).thenReturn(List.of());
+
+        final String csvContent = given().get("/employees/csvTemplate")
+                .then().assertThat()
+                .statusCode(HttpStatus.SC_OK)
+                .extract().asString();
+
+        assertThat(csvContent).isEqualTo("#ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD\n\n");
     }
 
     private EmployeeDto createEmployeeForUser(final User user) {
