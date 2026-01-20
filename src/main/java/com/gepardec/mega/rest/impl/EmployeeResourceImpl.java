@@ -21,10 +21,14 @@ import jakarta.ws.rs.core.Response;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequestScoped
 @Authenticated
@@ -105,6 +109,24 @@ public class EmployeeResourceImpl implements EmployeeResource {
             );
         }
         return Response.ok().build();
+    }
+
+    @Override
+    public Response downloadCsvTemplate() {
+        final List<Employee> allActiveEmployees = employeeService.getAllActiveEmployees();
+        final String currentDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+
+        // Create CSV content with header and employee data sorted by ZEP ID
+        final String csvContent = allActiveEmployees.stream()
+                .sorted(Comparator.comparing(Employee::getUserId))
+                .map(employee -> String.format("%s,,%s", employee.getUserId(), currentDate))
+                .collect(Collectors.joining("\n",
+                        "#ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD\n",
+                        "\n"));
+
+        return Response.ok(csvContent)
+                .header("Content-Disposition", "attachment; filename=\"hourly_rates_template.csv\"")
+                .build();
     }
 
     /**

@@ -1,10 +1,13 @@
 package com.gepardec.mega.rest.api;
 
+import com.gepardec.mega.rest.model.AttendancesDto;
+import com.gepardec.mega.rest.model.EmployeeCheckDto;
+import com.gepardec.mega.rest.model.LeadersDto;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
-import com.gepardec.mega.rest.model.MonthlyWarningDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
+import com.gepardec.mega.rest.model.WorkTimeBookingWarningDto;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -28,13 +31,14 @@ import java.util.List;
 @Tag(name = "WorkerResource")
 @Produces(MediaType.APPLICATION_JSON)
 public interface WorkerResource {
-    @GET
-    @Path("/monthendreports")
-    Response monthlyReport();
 
     @GET
-    @Path("/monthendreports/{payrollMonth}")
-    Response monthlyReport(@PathParam("payrollMonth") YearMonth payrollMonth);
+    @Path("/payrollMonth")
+    YearMonth payrollMonth();
+
+    @GET
+    @Path("/employeeCheck")
+    EmployeeCheckDto employeeCheck(@QueryParam("payrollMonth") YearMonth payrollMonth);
 
     @Operation(operationId = "getBillInformationForEmployee", description = "Get total sum of bills (and if every bill has an attachment), get sum of private and company bills and info about credit card that the user uploaded for current month.")
     @APIResponse(responseCode = "200",
@@ -44,7 +48,7 @@ public interface WorkerResource {
                             schema = @Schema(implementation = MonthlyBillInfoDto.class))
             }
     )
-    @Parameter(name = "from",
+    @Parameter(name = "payrollMonth",
             description = "If not given uses the whole current month. <br> " +
                     "If given uses the whole month of the parameter-date. <br>" +
                     "For example if 2024-03 is given it retrieves all bills from 2024-03-01 to 2024-03-31.",
@@ -52,7 +56,7 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/bills")
     @GET
-    MonthlyBillInfoDto getBillInfoForEmployee(@QueryParam("from") YearMonth payrollMonth);
+    MonthlyBillInfoDto getBillInfoForEmployee(@QueryParam("payrollMonth") YearMonth payrollMonth);
 
     @Operation(operationId = "getAllProjectsForMonthAndEmployee", description = "Get all projects for an employee and for current month.")
     @APIResponse(responseCode = "200",
@@ -62,7 +66,7 @@ public interface WorkerResource {
                             schema = @Schema(implementation = ProjectHoursSummaryDto[].class))
             }
     )
-    @Parameter(name = "from",
+    @Parameter(name = "payrollMonth",
             description = "If not given uses the whole current month. <br> " +
                     "If given uses the whole month of the parameter-date. <br>" +
                     "For example if 2024-03 is given it retrieves all projects from 2024-03-01 to 2024-03-31.",
@@ -70,7 +74,7 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/projects")
     @GET
-    List<ProjectHoursSummaryDto> getAllProjectsForMonthAndEmployee(@QueryParam("from") YearMonth payrollMonth);
+    List<ProjectHoursSummaryDto> getAllProjectsForMonthAndEmployee(@QueryParam("payrollMonth") YearMonth payrollMonth);
 
     @Operation(operationId = "getAllAbsencesForMonthAndEmployee", description = "Get absences (inclusive doctor's visiting time and available vacation days) for an employee and for current month.")
     @APIResponse(responseCode = "200",
@@ -80,7 +84,7 @@ public interface WorkerResource {
                             schema = @Schema(implementation = MonthlyAbsencesDto.class))
             }
     )
-    @Parameter(name = "from",
+    @Parameter(name = "payrollMonth",
             description = "If not given uses the whole current month. <br> " +
                     "If given uses the whole month of the parameter-date. <br>" +
                     "For example if 2024-03 is given it retrieves all absences from 2024-03-01 to 2024-03-31.",
@@ -88,7 +92,7 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/absences")
     @GET
-    MonthlyAbsencesDto getAllAbsencesForMonthAndEmployee(@QueryParam("from") YearMonth payrollMonth);
+    MonthlyAbsencesDto getAllAbsencesForMonthAndEmployee(@QueryParam("payrollMonth") YearMonth payrollMonth);
 
     @Operation(operationId = "getOfficeDaysForMonthAndEmployee", description = "Get office days, homeoffice days and fridays spent in the office for an employee and for current month.")
     @APIResponse(responseCode = "200",
@@ -98,7 +102,7 @@ public interface WorkerResource {
                             schema = @Schema(implementation = MonthlyOfficeDaysDto.class))
             }
     )
-    @Parameter(name = "from",
+    @Parameter(name = "payrollMonth",
             description = "If not given uses the whole current month. <br> " +
                     "If given uses the whole month of the parameter-date. <br>" +
                     "For example if 2024-03 is given it retrieves all office days from 2024-03-01 to 2024-03-31.",
@@ -106,17 +110,17 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/officedays")
     @GET
-    MonthlyOfficeDaysDto getOfficeDaysForMonthAndEmployee(@QueryParam("from") YearMonth payrollMonth);
+    MonthlyOfficeDaysDto getOfficeDaysForMonthAndEmployee(@QueryParam("payrollMonth") YearMonth payrollMonth);
 
     @Operation(operationId = "getAllWarningsForEmployeeAndMonth", description = "Get all warnings (no matter if time or journey warning) for an employee and for current month.")
     @APIResponse(responseCode = "200",
             description = "Successfully retrieved all warnings for employee.",
             content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = MonthlyWarningDto[].class))
+                            schema = @Schema(implementation = WorkTimeBookingWarningDto[].class))
             }
     )
-    @Parameter(name = "from",
+    @Parameter(name = "payrollMonth",
             description = "If not given uses the whole current month. <br> " +
                     "If given uses the whole month of the parameter-date. <br>" +
                     "For example if 2024-03 is given it retrieves all warnings from 2024-03-01 to 2024-03-31.",
@@ -124,6 +128,13 @@ public interface WorkerResource {
             schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
     @Path("/warnings")
     @GET
-    List<MonthlyWarningDto> getAllWarningsForEmployeeAndMonth(@QueryParam("from") YearMonth payrollMonth);
+    List<WorkTimeBookingWarningDto> getAllWarningsForEmployeeAndMonth(@QueryParam("payrollMonth") YearMonth payrollMonth);
 
+    @Path("/leaders")
+    @GET
+    LeadersDto getLeaders();
+
+    @Path("/attendances")
+    @GET
+    AttendancesDto getAttendances(@QueryParam("payrollMonth") YearMonth payrollMonth);
 }

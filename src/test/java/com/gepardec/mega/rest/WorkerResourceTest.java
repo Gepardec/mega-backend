@@ -1,21 +1,18 @@
 package com.gepardec.mega.rest;
 
 import com.gepardec.mega.db.entity.common.AbsenceType;
-import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.MonthlyAbsences;
 import com.gepardec.mega.domain.model.MonthlyBillInfo;
-import com.gepardec.mega.domain.model.MonthlyWarning;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
+import com.gepardec.mega.domain.model.WorkTimeBookingWarning;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyDirection;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
-import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
-import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
@@ -24,23 +21,19 @@ import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.api.WorkerResource;
-import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
 import com.gepardec.mega.rest.mapper.MonthlyBillInfoMapper;
-import com.gepardec.mega.rest.mapper.MonthlyWarningMapper;
-import com.gepardec.mega.rest.model.MappedTimeWarningDTO;
+import com.gepardec.mega.rest.mapper.WorkTimeBookingWarningMapper;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
-import com.gepardec.mega.rest.model.MonthlyReportDto;
-import com.gepardec.mega.rest.model.MonthlyWarningDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
+import com.gepardec.mega.rest.model.WorkTimeBookingWarningDto;
 import com.gepardec.mega.rest.provider.PayrollContext;
 import com.gepardec.mega.rest.provider.PayrollMonthProvider;
 import com.gepardec.mega.service.api.AbsenceService;
 import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.service.api.EmployeeService;
-import com.gepardec.mega.service.api.MonthlyReportService;
 import com.gepardec.mega.service.api.TimeWarningService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
@@ -50,9 +43,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.oidc.Claim;
 import io.quarkus.test.security.oidc.OidcSecurity;
-import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
-import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -64,7 +55,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.gepardec.mega.rest.provider.PayrollContext.PayrollContextType.EMPLOYEE;
-import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -76,9 +66,6 @@ import static org.mockito.Mockito.when;
         @Claim(key = "email", value = "test@gepardec.com")
 })
 class WorkerResourceTest {
-
-    @InjectMock
-    MonthlyReportService monthlyReportService;
 
     @InjectMock
     EmployeeService employeeService;
@@ -106,13 +93,10 @@ class WorkerResourceTest {
     UserContext userContext;
 
     @InjectMock
-    EmployeeMapper mapper;
-
-    @InjectMock
     MonthlyAbsencesMapper monthlyAbsencesMapper;
 
     @Inject
-    MonthlyWarningMapper monthlyWarningMapper;
+    WorkTimeBookingWarningMapper workTimeBookingWarningMapper;
 
     @InjectMock
     DateHelperService dateHelperService;
@@ -123,228 +107,6 @@ class WorkerResourceTest {
 
     @Inject
     WorkerResource workerResource;
-
-    @Test
-    void monthlyReport_whenPOST_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
-        given().contentType(ContentType.JSON)
-                .post("/worker/monthendreports")
-                .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Test
-    void monthlyReport_whenPUT_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
-        given().contentType(ContentType.JSON)
-                .put("/worker/monthendreports")
-                .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Test
-    void monthlyReport_whenDELETE_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
-        given().contentType(ContentType.JSON)
-                .delete("/worker/monthendreports")
-                .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Test
-    @TestSecurity
-    @OidcSecurity
-    void monthlyReport_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
-        final User user = createUserForRole();
-        when(userContext.getUser()).thenReturn(user);
-
-        given().get("/worker/monthendreports")
-                .then().assertThat().statusCode(HttpStatus.SC_UNAUTHORIZED);
-    }
-
-    @Test
-    void monthlyReport_whenGET_thenReturnsMonthlyReport() {
-        //GIVEN
-        User user = createUserForRole();
-        when(userContext.getUser()).thenReturn(user);
-
-        Employee employee = createEmployeeForUser(user);
-        when(employeeService.getEmployee(anyString())).thenReturn(employee);
-
-        List<MappedTimeWarningDTO> timeWarnings = List.of();
-        List<JourneyWarning> journeyWarnings = List.of();
-
-        int vacationDays = 0;
-        int homeofficeDays = 0;
-        int compensatoryDays = 0;
-        int nursingDays = 0;
-        int maternityLeaveDays = 0;
-        int externalTrainingDays = 0;
-        int conferenceDays = 0;
-        int maternityProtectionDays = 0;
-        int fatherMonthDays = 0;
-        int paidSpecialLeaveDays = 0;
-        int nonVacationDays = 0;
-        String billableTime = "00:00";
-        String totalWorkingTime = "00:00";
-        String guildLead = "guildLead";
-        String internalProjectLead = "internalProjectLead";
-
-        MonthlyReport expected = MonthlyReport.builder()
-                .employee(employee)
-                .timeWarnings(timeWarnings)
-                .journeyWarnings(journeyWarnings)
-                .comments(List.of())
-                .employeeCheckState(EmployeeState.OPEN)
-                .employeeProgresses(List.of())
-                .otherChecksDone(true)
-                .billableTime(billableTime)
-                .totalWorkingTime(totalWorkingTime)
-                .compensatoryDays(compensatoryDays)
-                .homeofficeDays(homeofficeDays)
-                .vacationDays(vacationDays)
-                .nursingDays(nursingDays)
-                .maternityLeaveDays(maternityLeaveDays)
-                .externalTrainingDays(externalTrainingDays)
-                .conferenceDays(conferenceDays)
-                .maternityProtectionDays(maternityProtectionDays)
-                .fatherMonthDays(fatherMonthDays)
-                .paidSpecialLeaveDays(paidSpecialLeaveDays)
-                .nonPaidVacationDays(nonVacationDays)
-                .guildLead(guildLead)
-                .internalProjectLead(internalProjectLead)
-                .build();
-
-        when(monthlyReportService.getMonthEndReportForUser(any())).thenReturn(expected);
-
-        //WHEN
-        MonthlyReportDto actual = given().contentType(ContentType.JSON)
-                .get("/worker/monthendreports")
-                .as(MonthlyReportDto.class);
-
-        //THEN
-        assertThat(actual.getEmployee()).isEqualTo(mapper.mapToDto(employee));
-        assertThat(timeWarnings).isEqualTo(actual.getTimeWarnings());
-        assertThat(journeyWarnings).isEqualTo(actual.getJourneyWarnings());
-        assertThat(billableTime).isEqualTo(actual.getBillableTime());
-        assertThat(totalWorkingTime).isEqualTo(actual.getTotalWorkingTime());
-        assertThat(vacationDays).isEqualTo(actual.getVacationDays());
-        assertThat(homeofficeDays).isEqualTo(actual.getHomeofficeDays());
-        assertThat(compensatoryDays).isEqualTo(actual.getCompensatoryDays());
-        assertThat(nursingDays).isEqualTo(actual.getNursingDays());
-        assertThat(maternityLeaveDays).isEqualTo(actual.getMaternityLeaveDays());
-        assertThat(externalTrainingDays).isEqualTo(actual.getExternalTrainingDays());
-        assertThat(conferenceDays).isEqualTo(actual.getConferenceDays());
-        assertThat(maternityProtectionDays).isEqualTo(actual.getMaternityProtectionDays());
-        assertThat(fatherMonthDays).isEqualTo(actual.getFatherMonthDays());
-        assertThat(paidSpecialLeaveDays).isEqualTo(actual.getPaidSpecialLeaveDays());
-        assertThat(nonVacationDays).isEqualTo(actual.getNonPaidVacationDays());
-        assertThat(guildLead).isEqualTo(actual.getGuildLead());
-        assertThat(internalProjectLead).isEqualTo(actual.getInternalProjectLead());
-    }
-
-    @Test
-    void monthlyReport_withYearMonth_whenPOST_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
-        given().contentType(ContentType.JSON)
-                .post("/worker/monthendreports/2023-08")
-                .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Test
-    void monthlyReport_withYearMonth_whenPUT_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
-        given().contentType(ContentType.JSON)
-                .put("/worker/monthendreports/2023-08")
-                .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Test
-    void monthlyReport_withYearMonth_whenDELETE_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
-        given().contentType(ContentType.JSON)
-                .delete("/worker/monthendreports/2023-08")
-                .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Test
-    @TestSecurity
-    @OidcSecurity
-    void monthlyReport_withYearMonth_whenUserNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
-        final User user = createUserForRole();
-        when(userContext.getUser()).thenReturn(user);
-
-        given().get("/worker/monthendreports/2023-08")
-                .then().assertThat().statusCode(HttpStatus.SC_UNAUTHORIZED);
-    }
-
-    @Test
-    void monthlyReport_withYearMonth_whenGET_thenReturnsMonthlyReport() {
-        //GIVEN
-        User user = createUserForRole();
-        when(userContext.getUser()).thenReturn(user);
-
-        Employee employee = createEmployeeForUser(user);
-        when(employeeService.getEmployee(anyString())).thenReturn(employee);
-
-        List<MappedTimeWarningDTO> timeWarnings = List.of();
-        List<JourneyWarning> journeyWarnings = List.of();
-
-        int vacationDays = 0;
-        int homeofficeDays = 0;
-        int compensatoryDays = 0;
-        int nursingDays = 0;
-        int maternityLeaveDays = 0;
-        int externalTrainingDays = 0;
-        int conferenceDays = 0;
-        int maternityProtectionDays = 0;
-        int fatherMonthDays = 0;
-        int paidSpecialLeaveDays = 0;
-        int nonVacationDays = 0;
-        String billableTime = "00:00";
-        String totalWorkingTime = "00:00";
-        double overtime = 0.0;
-
-        MonthlyReport expected = MonthlyReport.builder()
-                .employee(employee)
-                .timeWarnings(timeWarnings)
-                .journeyWarnings(journeyWarnings)
-                .comments(List.of())
-                .employeeCheckState(EmployeeState.OPEN)
-                .employeeProgresses(List.of())
-                .otherChecksDone(true)
-                .billableTime(billableTime)
-                .totalWorkingTime(totalWorkingTime)
-                .compensatoryDays(compensatoryDays)
-                .homeofficeDays(homeofficeDays)
-                .vacationDays(vacationDays)
-                .nursingDays(nursingDays)
-                .maternityLeaveDays(maternityLeaveDays)
-                .externalTrainingDays(externalTrainingDays)
-                .conferenceDays(conferenceDays)
-                .maternityProtectionDays(maternityProtectionDays)
-                .fatherMonthDays(fatherMonthDays)
-                .paidSpecialLeaveDays(paidSpecialLeaveDays)
-                .nonPaidVacationDays(nonVacationDays)
-                .overtime(overtime)
-                .build();
-
-        when(monthlyReportService.getMonthEndReportForUser(any())).thenReturn(expected);
-
-        //WHEN
-        MonthlyReportDto actual = given().contentType(ContentType.JSON)
-                .get("/worker/monthendreports/2023-08")
-                .as(MonthlyReportDto.class);
-
-        //THEN
-        assertThat(actual.getEmployee()).isEqualTo(mapper.mapToDto(employee));
-        assertThat(timeWarnings).isEqualTo(actual.getTimeWarnings());
-        assertThat(journeyWarnings).isEqualTo(actual.getJourneyWarnings());
-        assertThat(billableTime).isEqualTo(actual.getBillableTime());
-        assertThat(totalWorkingTime).isEqualTo(actual.getTotalWorkingTime());
-        assertThat(vacationDays).isEqualTo(actual.getVacationDays());
-        assertThat(homeofficeDays).isEqualTo(actual.getHomeofficeDays());
-        assertThat(compensatoryDays).isEqualTo(actual.getCompensatoryDays());
-        assertThat(nursingDays).isEqualTo(actual.getNursingDays());
-        assertThat(maternityLeaveDays).isEqualTo(actual.getMaternityLeaveDays());
-        assertThat(externalTrainingDays).isEqualTo(actual.getExternalTrainingDays());
-        assertThat(conferenceDays).isEqualTo(actual.getConferenceDays());
-        assertThat(maternityProtectionDays).isEqualTo(actual.getMaternityProtectionDays());
-        assertThat(fatherMonthDays).isEqualTo(actual.getFatherMonthDays());
-        assertThat(paidSpecialLeaveDays).isEqualTo(actual.getPaidSpecialLeaveDays());
-        assertThat(nonVacationDays).isEqualTo(actual.getNonPaidVacationDays());
-    }
 
     @Test
     void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithoutAttachmentAndCreditCard_thenReturnObjectWithAttachmentWarningsAndNoCreditCard() {
@@ -687,11 +449,11 @@ class WorkerResourceTest {
         when(timeWarningService.getAllTimeWarningsForEmployeeAndMonth(any(), any(), any(Employee.class)))
                 .thenReturn(createMonthlyWarningListForRequest());
 
-        List<MonthlyWarningDto> mappedWarnings = createMonthlyWarningListForRequest().stream()
-                .map(monthlyWarningMapper::mapToDto)
+        List<WorkTimeBookingWarningDto> mappedWarnings = createMonthlyWarningListForRequest().stream()
+                .map(workTimeBookingWarningMapper::mapToDto)
                 .toList();
 
-        List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
+        List<WorkTimeBookingWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
 
         assertThat(actual)
                 .isNotEmpty()
@@ -720,7 +482,7 @@ class WorkerResourceTest {
                 .thenReturn(new ArrayList<>());
 
 
-        List<MonthlyWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
+        List<WorkTimeBookingWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
 
         assertThat(actual).isEmpty();
     }
@@ -859,7 +621,7 @@ class WorkerResourceTest {
         return projectEntries;
     }
 
-    private List<MonthlyWarning> createMonthlyWarningListForRequest() {
+    private List<WorkTimeBookingWarning> createMonthlyWarningListForRequest() {
         return List.of(
                 createMonthlyWarning("Zeit-Buchung außerhalb der Kernarbeitszeit", List.of("2024-05-03", "2024-05-22", "2024-05-29")),
                 createMonthlyWarning("Keine Zeit-Buchung vorhanden",
@@ -875,10 +637,10 @@ class WorkerResourceTest {
         );
     }
 
-    private MonthlyWarning createMonthlyWarning(String name, List<String> dates) {
-        return MonthlyWarning.builder()
+    private WorkTimeBookingWarning createMonthlyWarning(String name, List<String> dates) {
+        return WorkTimeBookingWarning.builder()
                 .name(name)
-                .datesWhenWarningOccurred(new ArrayList<>(dates))
+                .warningDates(dates.stream().map(date -> new WorkTimeBookingWarning.WarningDate(date, null)).toList())
                 .build();
     }
 
