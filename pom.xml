@@ -14,14 +14,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.version>3.8.1</maven.version>
 
-        <quarkus-plugin.version>3.26.3</quarkus-plugin.version>
-        <quarkus.platform.version>3.26.3</quarkus.platform.version>
+        <quarkus-plugin.version>3.30.6</quarkus-plugin.version>
+        <quarkus.platform.version>3.30.6</quarkus.platform.version>
 
         <ws.rt.version>4.0.3</ws.rt.version>
-        <focus-shift.version>1.5.7</focus-shift.version>
+        <focus-shift.version>1.8.1</focus-shift.version>
         <assertj.version>3.21.0</assertj.version>
         <basicjaxb-plugins.version>2.2.1</basicjaxb-plugins.version>
-        <jakarta.mail-api.version>2.1.4</jakarta.mail-api.version>
+        <jakarta.mail-api.version>2.1.5</jakarta.mail-api.version>
 
         <!-- application info -->
         <!-- !!! IMPORTANT !!!! -->
@@ -40,25 +40,27 @@
 
         <!-- 3rd-party version properties -->
         <google-api-client-bom.version>2.8.1</google-api-client-bom.version>
-        <google-api-services-gmail.version>v1-rev20250630-2.0.0</google-api-services-gmail.version>
-        <google-auth-library-oauth2-http.version>1.39.0</google-auth-library-oauth2-http.version>
-        <postgresql.version>42.7.7</postgresql.version>
-        <assertj-core.version>3.27.4</assertj-core.version>
-        <liquibase-maven-plugina.version>4.33.0</liquibase-maven-plugina.version>
+        <google-api-services-gmail.version>v1-rev20251201-2.0.0</google-api-services-gmail.version>
+        <google-auth-library-oauth2-http.version>1.41.0</google-auth-library-oauth2-http.version>
+        <postgresql.version>42.7.8</postgresql.version>
+        <assertj-core.version>3.27.6</assertj-core.version>
+        <liquibase-maven-plugina.version>5.0.1</liquibase-maven-plugina.version>
         <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
-        <liquibase-hibernate6.version>4.33.0</liquibase-hibernate6.version>
-        <spring-beans.version>6.2.11</spring-beans.version>
-        <spring-data-jpa.version>3.5.4</spring-data-jpa.version>
+        <liquibase-hibernate6.version>5.0.1</liquibase-hibernate6.version>
+        <spring-beans.version>7.0.3</spring-beans.version>
+        <spring-data-jpa.version>4.0.2</spring-data-jpa.version>
         <snakeyaml.version>2.5</snakeyaml.version>
 
         <!-- Plugins -->
-        <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
+        <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
         <maven-resource-plugin.version>3.1.0</maven-resource-plugin.version>
-        <cxf-codegen-plugin.version>4.1.3</cxf-codegen-plugin.version>
-        <cxf-xjc-utils.version>4.1.0</cxf-xjc-utils.version>
+        <cxf-codegen-plugin.version>4.1.4</cxf-codegen-plugin.version>
+        <cxf-xjc-utils.version>4.1.1</cxf-xjc-utils.version>
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
         <liquibase-maven-plugin.version>4.0.0</liquibase-maven-plugin.version>
         <native2ascii-maven-plugin.plugin.version>2.1.1</native2ascii-maven-plugin.plugin.version>
+        <cyclonedx-maven-plugin.version>2.9.1</cyclonedx-maven-plugin.version>
+        <org-glassfish-jaxb.version>4.0.6</org-glassfish-jaxb.version>
     </properties>
 
     <dependencyManagement>
@@ -177,7 +179,6 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
         </dependency>
 
         <!-- Google APIs -->
@@ -224,7 +225,6 @@
         <dependency>
             <groupId>jakarta.mail</groupId>
             <artifactId>jakarta.mail-api</artifactId>
-            <version>${jakarta.mail-api.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -310,7 +310,7 @@
                         <artifactId>cxf-xjc-runtime</artifactId>
                         <version>${cxf-xjc-utils.version}</version>
                     </dependency>
-                    <!--FIXME: Keep track of https://github.com/highsource/jaxb2-basics/issues/162, since it is the original package-->
+
                     <dependency>
                         <groupId>org.patrodyne.jvnet</groupId>
                         <artifactId>hisrc-basicjaxb-plugins</artifactId>
@@ -320,6 +320,18 @@
                         <groupId>org.patrodyne.jvnet</groupId>
                         <artifactId>hisrc-basicjaxb-runtime</artifactId>
                         <version>${basicjaxb-plugins.version}</version>
+                    </dependency>
+
+                    <!-- needed until org.patrodyne.jvnet fixes ClassNotFound Error -->
+                    <dependency>
+                        <groupId>org.glassfish.jaxb</groupId>
+                        <artifactId>jaxb-xjc</artifactId>
+                        <version>${org-glassfish-jaxb.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.glassfish.jaxb</groupId>
+                        <artifactId>codemodel</artifactId>
+                        <version>${org-glassfish-jaxb.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -470,6 +482,16 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.cyclonedx</groupId>
+                <artifactId>cyclonedx-maven-plugin</artifactId>
+                <version>${cyclonedx-maven-plugin.version}</version>
+                <configuration>
+                    <projectType>application</projectType>
+                    <outputName>${artifactId}</outputName>
+                </configuration>
             </plugin>
         </plugins>
     </build>
