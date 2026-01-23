@@ -68,7 +68,7 @@ public record ZepAttendance (
         @JsonProperty("billable")
         private Boolean billable;
 
-        @JsonProperty("work_location")
+        @JsonProperty("work_location_id")
         private String workLocation;
 
         @JsonProperty("work_location_is_project_relevant")
@@ -77,7 +77,7 @@ public record ZepAttendance (
         @JsonProperty("activity_id")
         private String activity;
 
-        @JsonProperty
+        @JsonProperty("vehicle_id")
         private String vehicle;
 
         @JsonProperty("direction_of_travel")
