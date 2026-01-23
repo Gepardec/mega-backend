@@ -177,7 +177,7 @@ public class ZepRestServiceImpl implements ZepService {
         Integer projectId = projectOpt.get().id();
 
         logger.debug("Retrieving project employees of {} from ZEP", projectId);
-        List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(projectId);
+        List<ZepProjectEmployee> projectEmployees = projectService.getProjectEmployeesForId(projectId, payrollMonth);
 
         projectEmployees.forEach(projectEmployee -> {
             logger.debug("Retrieving attendance of user {} of project {} from ZEP", projectEmployee.username(), projectId);
@@ -192,7 +192,7 @@ public class ZepRestServiceImpl implements ZepService {
         List<ZepProject> zepProjects = projectService.getProjectsForMonthYear(payrollMonth);
         List<Project.Builder> projects = projectMapper.mapList(zepProjects);
         IntStream.range(0, projects.size())
-                .forEach(i -> addProjectEmployeesToBuilder(projects.get(i), zepProjects.get(i)));
+                .forEach(i -> addProjectEmployeesToBuilder(projects.get(i), zepProjects.get(i), payrollMonth));
         return projects.stream()
                 .map(Project.Builder::build)
                 .toList();
@@ -263,7 +263,7 @@ public class ZepRestServiceImpl implements ZepService {
 
         projectsRetrieved.forEach(
                 project -> {
-                    Optional<ZepProjectEmployee> projectEmployee = projectService.getProjectEmployeesForId(project.id())
+                    Optional<ZepProjectEmployee> projectEmployee = projectService.getProjectEmployeesForId(project.id(), payrollMonth)
                             .stream()
                             .filter(e -> e.username().equals(employee.username()))
                             .findFirst();
@@ -372,8 +372,8 @@ public class ZepRestServiceImpl implements ZepService {
                 .build();
     }
 
-    private void addProjectEmployeesToBuilder(Project.Builder projectBuilder, ZepProject zepProject) {
-        List<ZepProjectEmployee> zepProjectEmployees = projectService.getProjectEmployeesForId(zepProject.id());
+    private void addProjectEmployeesToBuilder(Project.Builder projectBuilder, ZepProject zepProject, YearMonth payrollMonth) {
+        List<ZepProjectEmployee> zepProjectEmployees = projectService.getProjectEmployeesForId(zepProject.id(), payrollMonth);
         MultivaluedMap<String, String> projectEmployeesMap = projectEmployeesMapper.map(zepProjectEmployees);
         Optional<ZepProjectDetail> projectDetails = projectService.getProjectById(zepProject.id());
         projectBuilder.employees(projectEmployeesMap.getOrDefault(ProjectEmployeesMapper.USER, new ArrayList<>()));

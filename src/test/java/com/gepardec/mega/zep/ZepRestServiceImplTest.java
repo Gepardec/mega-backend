@@ -197,7 +197,7 @@ class ZepRestServiceImplTest {
                         )
                 );
 
-        when(projectService.getProjectEmployeesForId(anyInt()))
+        when(projectService.getProjectEmployeesForId(anyInt(), any()))
                 .thenReturn(List.of(zepProjectEmployee));
 
         when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(YearMonth.class), anyInt()))
@@ -320,7 +320,7 @@ class ZepRestServiceImplTest {
                                 .build()
                 ));
 
-        when(projectService.getProjectEmployeesForId(anyInt()))
+        when(projectService.getProjectEmployeesForId(anyInt(), any()))
                 .thenReturn(createZepProjectEmployees());
 
         when(attendanceService.getAttendanceForUserProjectAndMonth(anyString(), any(YearMonth.class), anyInt()))
