@@ -67,7 +67,7 @@ public class ProjectService {
     }
 
 
-    public List<ZepProjectEmployee> getProjectEmployeesForId(int projectId) {
+    public List<ZepProjectEmployee> getProjectEmployeesForId(int projectId, YearMonth payrollMonth) {
         return Multi.createBy().repeating()
                 .uni(AtomicInteger::new, page ->
                         zepProjectRestClient.getProjectEmployees(projectId, page.incrementAndGet())
@@ -76,6 +76,7 @@ public class ProjectService {
                 .whilst(ZepResponse::hasNext)
                 .map(ZepResponse::data)
                 .onItem().<ZepProjectEmployee>disjoint()
+                .filter(projectEmployee -> payrollMonth == null || projectEmployee.isActive(payrollMonth))
                 .collect().asList()
                 .await().indefinitely();
     }

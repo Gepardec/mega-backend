@@ -207,7 +207,7 @@ class ProjectServiceTest {
         when(zepProjectRestClient.getProjectEmployees(eq(1), anyInt()))
                 .thenReturn(Uni.createFrom().item(new ZepResponse<>(employees, new ZepResponse.Links(null, null))));
 
-        List<ZepProjectEmployee> result = projectService.getProjectEmployeesForId(1);
+        List<ZepProjectEmployee> result = projectService.getProjectEmployeesForId(1, null);
 
         assertThat(result)
                 .isNotNull()
@@ -219,7 +219,7 @@ class ProjectServiceTest {
         when(zepProjectRestClient.getProjectEmployees(eq(100), anyInt()))
                 .thenReturn(Uni.createFrom().failure(new RuntimeException("Something went wrong")));
 
-        assertThatException().isThrownBy(() -> projectService.getProjectEmployeesForId(100));
+        assertThatException().isThrownBy(() -> projectService.getProjectEmployeesForId(100, null));
         verify(logger).warn(eq("Error retrieving project employees from ZEP"), any(Throwable.class));
 
     }
