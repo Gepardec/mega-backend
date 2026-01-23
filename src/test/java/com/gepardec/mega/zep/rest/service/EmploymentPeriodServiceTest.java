@@ -1,12 +1,15 @@
 package com.gepardec.mega.zep.rest.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gepardec.mega.helper.ResourceFileService;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.rest.dto.ZepResponse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,11 +33,20 @@ class EmploymentPeriodServiceTest {
     @Inject
     ResourceFileService resourceFileService;
 
+    @Inject
+    ObjectMapper objectMapper;
+
     @BeforeEach
     void init() {
         resourceFileService.getSingleFile("/employmentPeriods/001-duser.json").ifPresent(json -> {
-            Response response = Response.ok().entity(json).build();
-            when(zepEmployeeRestClient.getEmploymentPeriodByUserName("001-duser", 1)).thenReturn(response);
+            try {
+                ZepResponse<List<ZepEmploymentPeriod>> response = objectMapper.readValue(json, new TypeReference<>() {
+                });
+                when(zepEmployeeRestClient.getEmploymentPeriodByUserName("001-duser", 1))
+                        .thenReturn(Uni.createFrom().item(response));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -58,6 +70,4 @@ class EmploymentPeriodServiceTest {
 
         assertThat(zepEmploymentPeriodsActual).usingRecursiveComparison().isEqualTo(zepEmploymentPeriods);
     }
-
-
 }

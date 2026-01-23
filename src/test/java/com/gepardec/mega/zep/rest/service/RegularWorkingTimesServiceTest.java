@@ -1,11 +1,13 @@
 package com.gepardec.mega.zep.rest.service;
 
-import com.gepardec.mega.zep.ZepServiceException;
+import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
-import com.gepardec.mega.zep.util.ResponseParser;
+import com.gepardec.mega.zep.rest.dto.ZepResponse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
@@ -13,8 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,7 +29,8 @@ class RegularWorkingTimesServiceTest {
     RegularWorkingTimesService regularWorkingTimesService;
 
     @InjectMock
-    ResponseParser responseParser;
+    @RestClient
+    ZepEmployeeRestClient zepEmployeeRestClient;
 
     @InjectMock
     Logger logger;
@@ -48,8 +52,8 @@ class RegularWorkingTimesServiceTest {
         List<ZepRegularWorkingTimes> regularWorkingTimesList = new ArrayList<>();
         regularWorkingTimesList.add(regularWorkingTimes);
 
-        when(responseParser.retrieveAll(any(), eq(ZepRegularWorkingTimes.class)))
-                .thenReturn(regularWorkingTimesList);
+        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(eq("001-duser"), anyInt()))
+                .thenReturn(Uni.createFrom().item(new ZepResponse<>(regularWorkingTimesList, new ZepResponse.Links(null, null))));
 
         List<ZepRegularWorkingTimes> allZepRegularWorkingTimes = regularWorkingTimesService.getRegularWorkingTimesByUsername("001-duser");
         ZepRegularWorkingTimes actual = allZepRegularWorkingTimes.getLast();
@@ -60,19 +64,17 @@ class RegularWorkingTimesServiceTest {
 
     @Test
     void getRegularWorkingTimesByUsername_whenZepServiceExceptionThrown_thenLogError() {
-        when(responseParser.retrieveAll(any(), eq(ZepRegularWorkingTimes.class)))
-                .thenThrow(new ZepServiceException("Service unavailable"));
+        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(eq("007-jbond"), anyInt()))
+                .thenReturn(Uni.createFrom().failure(new RuntimeException("Service unavailable")));
 
-        List<ZepRegularWorkingTimes> result = regularWorkingTimesService.getRegularWorkingTimesByUsername("007-jbond");
-
-        assertThat(result).isEmpty();
-        verify(logger).warn(anyString(), any(ZepServiceException.class));
+        assertThatException().isThrownBy(() -> regularWorkingTimesService.getRegularWorkingTimesByUsername("007-jbond"));
+        verify(logger).warn(eq("Error retrieving regular working times from ZEP"), any(Throwable.class));
     }
 
     @Test
     void getRegularWorkingTimesByUsername_whenNoWorkingTimesPresent_thenLogError() {
-        when(responseParser.retrieveAll(any(), eq(ZepRegularWorkingTimes.class)))
-                .thenReturn(List.of());
+        when(zepEmployeeRestClient.getRegularWorkingTimesByUsername(eq("007-jbond"), anyInt()))
+                .thenReturn(Uni.createFrom().item(new ZepResponse<>(List.of(), new ZepResponse.Links(null, null))));
 
         List<ZepRegularWorkingTimes> result = regularWorkingTimesService.getRegularWorkingTimesByUsername("007-jbond");
 

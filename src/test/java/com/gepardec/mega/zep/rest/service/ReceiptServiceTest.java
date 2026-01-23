@@ -1,14 +1,12 @@
 package com.gepardec.mega.zep.rest.service;
 
-import com.gepardec.mega.zep.ZepServiceException;
-import com.gepardec.mega.zep.ZepServiceTooManyRequestsException;
 import com.gepardec.mega.zep.rest.client.ZepReceiptRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepReceipt;
-import com.gepardec.mega.zep.rest.dto.ZepReceiptAmount;
 import com.gepardec.mega.zep.rest.dto.ZepReceiptAttachment;
-import com.gepardec.mega.zep.util.ResponseParser;
+import com.gepardec.mega.zep.rest.dto.ZepResponse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
@@ -21,7 +19,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -33,9 +33,6 @@ class ReceiptServiceTest {
     @InjectMock
     @RestClient
     ZepReceiptRestClient zepReceiptRestClient;
-
-    @InjectMock
-    ResponseParser responseParser;
 
     @InjectMock
     Logger logger;
@@ -63,8 +60,8 @@ class ReceiptServiceTest {
                         .build()
         );
 
-        when(responseParser.retrieveAll(any(), eq(ZepReceipt.class)))
-                .thenReturn(receipts);
+        when(zepReceiptRestClient.getAllReceiptsForMonth(anyString(), anyString(), anyInt()))
+                .thenReturn(Uni.createFrom().item(new ZepResponse<>(receipts, new ZepResponse.Links(null, null))));
 
         // Act
         List<ZepReceipt> result = receiptService.getAllReceiptsInRange(payrollMonth);
@@ -81,30 +78,26 @@ class ReceiptServiceTest {
     void getAllReceiptsInRange_whenExceptionIsThrown_thenLogErrorAndReturnEmptyList() {
         // Arrange
         YearMonth payrollMonth = YearMonth.of(2023, 5);
-        when(responseParser.retrieveAll(any(), eq(ZepReceipt.class)))
-                .thenThrow(new ZepServiceException("Something went wrong"));
+        when(zepReceiptRestClient.getAllReceiptsForMonth(anyString(), anyString(), anyInt()))
+                .thenReturn(Uni.createFrom().failure(new RuntimeException("Something went wrong")));
 
         // Act
-        List<ZepReceipt> result = receiptService.getAllReceiptsInRange(payrollMonth);
-
         // Assert
-        assertThat(result).isEmpty();
-        verify(logger).warn(anyString());
+        assertThatException().isThrownBy(() -> receiptService.getAllReceiptsInRange(payrollMonth));
+        verify(logger).warn(eq("Error retrieving receipts from ZEP"), any(Throwable.class));
     }
 
     @Test
     void getAllReceiptsInRange_whenTooManyRequestsExceptionIsThrown_thenLogErrorAndReturnEmptyList() {
         // Arrange
         YearMonth payrollMonth = YearMonth.of(2023, 5);
-        when(responseParser.retrieveAll(any(), eq(ZepReceipt.class)))
-                .thenThrow(new ZepServiceTooManyRequestsException("Too many requests"));
+        when(zepReceiptRestClient.getAllReceiptsForMonth(anyString(), anyString(), anyInt()))
+                .thenReturn(Uni.createFrom().failure(new RuntimeException("Too many requests")));
 
         // Act
-        List<ZepReceipt> result = receiptService.getAllReceiptsInRange(payrollMonth);
-
         // Assert
-        assertThat(result).isEmpty();
-        verify(logger).warn(anyString());
+        assertThatException().isThrownBy(() -> receiptService.getAllReceiptsInRange(payrollMonth));
+        verify(logger).warn(eq("Error retrieving receipts from ZEP"), any(Throwable.class));
     }
 
     @Test
@@ -115,11 +108,11 @@ class ReceiptServiceTest {
                 .fileContent("file-content")
                 .build();
 
-        when(responseParser.retrieveSingle(any(), eq(ZepReceiptAttachment.class)))
-                .thenReturn(Optional.of(attachment));
+        when(zepReceiptRestClient.getAttachmentForReceipt(receiptId))
+                .thenReturn(Uni.createFrom().item(new ZepResponse<>(attachment, null)));
 
         // Act
-        Optional<ZepReceiptAttachment> result = receiptService.getAttachmentByReceiptId(receiptId);
+        Optional<ZepReceiptAttachment> result = receiptService.getAttachmentByReceiptId(receiptId, "foo");
 
         // Assert
         assertThat(result).isPresent();
@@ -130,11 +123,11 @@ class ReceiptServiceTest {
     void getAttachmentByReceiptId_whenNoAttachmentExists_thenReturnEmptyOptional() {
         // Arrange
         int receiptId = 1;
-        when(responseParser.retrieveSingle(any(), eq(ZepReceiptAttachment.class)))
-                .thenReturn(Optional.empty());
+        when(zepReceiptRestClient.getAttachmentForReceipt(receiptId))
+                .thenReturn(Uni.createFrom().item(new ZepResponse<>(null, null)));
 
         // Act
-        Optional<ZepReceiptAttachment> result = receiptService.getAttachmentByReceiptId(receiptId);
+        Optional<ZepReceiptAttachment> result = receiptService.getAttachmentByReceiptId(receiptId, "foo");
 
         // Assert
         assertThat(result).isEmpty();
@@ -144,68 +137,12 @@ class ReceiptServiceTest {
     void getAttachmentByReceiptId_whenExceptionIsThrown_thenLogErrorAndReturnEmptyOptional() {
         // Arrange
         int receiptId = 1;
-        when(responseParser.retrieveSingle(any(), eq(ZepReceiptAttachment.class)))
-                .thenThrow(new ZepServiceException("Something went wrong"));
+        when(zepReceiptRestClient.getAttachmentForReceipt(receiptId))
+                .thenReturn(Uni.createFrom().failure(new RuntimeException("Something went wrong")));
 
         // Act
-        Optional<ZepReceiptAttachment> result = receiptService.getAttachmentByReceiptId(receiptId);
-
         // Assert
-        assertThat(result).isEmpty();
-        verify(logger).warn(anyString());
-    }
-
-    @Test
-    void getAmountByReceiptId_whenAmountExists_thenReturnAmount() {
-        // Arrange
-        int receiptId = 1;
-        ZepReceiptAmount[] amounts = new ZepReceiptAmount[]{
-                ZepReceiptAmount.builder()
-                        .receiptId(1)
-                        .amount(100.0)
-                        .quantity(1.0)
-                        .build()
-        };
-
-        when(responseParser.retrieveSingle(any(), eq(ZepReceiptAmount[].class)))
-                .thenReturn(Optional.of(amounts));
-
-        // Act
-        Optional<ZepReceiptAmount> result = receiptService.getAmountByReceiptId(receiptId);
-
-        // Assert
-        assertThat(result).isPresent();
-        assertThat(result.get().receiptId()).isEqualTo(1);
-        assertThat(result.get().amount()).isEqualTo(100.0);
-        assertThat(result.get().quantity()).isEqualTo(1.0);
-    }
-
-    @Test
-    void getAmountByReceiptId_whenNoAmountExists_thenReturnEmptyOptional() {
-        // Arrange
-        int receiptId = 1;
-        when(responseParser.retrieveSingle(any(), eq(ZepReceiptAmount[].class)))
-                .thenReturn(Optional.empty());
-
-        // Act
-        Optional<ZepReceiptAmount> result = receiptService.getAmountByReceiptId(receiptId);
-
-        // Assert
-        assertThat(result).isEmpty();
-    }
-
-    @Test
-    void getAmountByReceiptId_whenExceptionIsThrown_thenLogErrorAndReturnEmptyOptional() {
-        // Arrange
-        int receiptId = 1;
-        when(responseParser.retrieveSingle(any(), eq(ZepReceiptAmount[].class)))
-                .thenThrow(new ZepServiceException("Something went wrong"));
-
-        // Act
-        Optional<ZepReceiptAmount> result = receiptService.getAmountByReceiptId(receiptId);
-
-        // Assert
-        assertThat(result).isEmpty();
-        verify(logger).warn(anyString());
+        assertThatException().isThrownBy(() -> receiptService.getAttachmentByReceiptId(receiptId, "foo"));
+        verify(logger).warn(eq("Error retrieving attachments for receipt"), any(Throwable.class));
     }
 }

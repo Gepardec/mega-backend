@@ -146,7 +146,7 @@ class ZepRestServiceImplTest {
         when(receiptService.getAllReceiptsInRange(any(YearMonth.class)))
                 .thenReturn(allReceipts);
 
-        when(receiptService.getAttachmentByReceiptId(anyInt()))
+        when(receiptService.getAttachmentByReceiptId(anyInt(), anyString()))
                 .thenReturn(Optional.of(receiptAttachment))
                 .thenReturn(Optional.empty());
 

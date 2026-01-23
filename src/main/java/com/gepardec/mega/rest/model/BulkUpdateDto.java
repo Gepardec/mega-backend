@@ -2,7 +2,7 @@ package com.gepardec.mega.rest.model;
 
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.core.MediaType;
-import org.jboss.resteasy.annotations.providers.multipart.PartType;
+import org.jboss.resteasy.reactive.PartType;
 
 import java.io.InputStream;
 
