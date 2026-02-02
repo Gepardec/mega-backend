@@ -1,5 +1,6 @@
 package com.gepardec.mega.notification.mail.dates;
 
+import com.gepardec.mega.domain.utils.OfficeCalendarUtil;
 import com.gepardec.mega.notification.mail.Mail;
 import com.gepardec.mega.notification.mail.MailType;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,7 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil.isWorkingDay;
+import static com.gepardec.mega.domain.utils.OfficeCalendarUtil.isWorkingDay;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 
 @ApplicationScoped

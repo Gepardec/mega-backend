@@ -1,4 +1,4 @@
-package com.gepardec.mega.db.entity.employee;
+package com.gepardec.mega.domain.model;
 
 public enum EmployeeState {
     OPEN,

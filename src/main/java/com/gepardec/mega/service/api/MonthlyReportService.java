@@ -2,7 +2,6 @@ package com.gepardec.mega.service.api;
 
 import com.gepardec.mega.domain.model.Attendances;
 import com.gepardec.mega.domain.model.EmployeeCheck;
-import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 
 import java.time.YearMonth;
 

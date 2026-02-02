@@ -1,9 +1,9 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
-import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheckState;
 import com.gepardec.mega.db.repository.PrematureEmployeeCheckRepository;
-import com.gepardec.mega.domain.mapper.PrematureEmployeeCheckMapper;
+import com.gepardec.mega.db.mapper.PrematureEmployeeCheckMapper;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.service.api.PrematureEmployeeCheckService;
 import jakarta.enterprise.context.ApplicationScoped;

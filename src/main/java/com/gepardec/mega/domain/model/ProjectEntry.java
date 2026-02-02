@@ -1,7 +1,5 @@
 package com.gepardec.mega.domain.model;
 
-import com.gepardec.mega.db.entity.project.ProjectStep;
-
 import java.time.LocalDate;
 
 public class ProjectEntry {

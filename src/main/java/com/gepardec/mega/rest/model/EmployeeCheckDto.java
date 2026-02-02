@@ -1,6 +1,6 @@
 package com.gepardec.mega.rest.model;
 
-import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.domain.model.EmployeeState;
 
 import java.util.List;
 

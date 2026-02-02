@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.impl.stepentry;
 
-import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
+import com.gepardec.mega.domain.model.EmployeeState;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheckState;
 import com.gepardec.mega.db.entity.employee.StepEntity;
 import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import com.gepardec.mega.db.entity.employee.UserEntity;

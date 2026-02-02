@@ -1,4 +1,4 @@
-package com.gepardec.mega.db.entity.employee;
+package com.gepardec.mega.domain.model;
 
 public enum PrematureEmployeeCheckState {
     //    This state is used when the employee has created a premature employee check and cancelled it

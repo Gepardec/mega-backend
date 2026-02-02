@@ -1,7 +1,7 @@
 package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.application.interceptor.MegaRolesAllowed;
-import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.domain.model.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.db.entity.project.ProjectEntity;

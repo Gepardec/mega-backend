@@ -1,6 +1,6 @@
 package com.gepardec.mega.service.api;
 
-import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheckState;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 
 import java.time.YearMonth;

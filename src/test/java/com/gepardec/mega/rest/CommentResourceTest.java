@@ -1,6 +1,6 @@
 package com.gepardec.mega.rest;
 
-import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.domain.model.EmployeeState;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.User;

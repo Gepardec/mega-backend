@@ -1,4 +1,4 @@
-package com.gepardec.mega.domain.mapper;
+package com.gepardec.mega.db.mapper;
 
 import java.util.List;
 

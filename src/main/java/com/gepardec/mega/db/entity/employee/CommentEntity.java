@@ -1,5 +1,6 @@
 package com.gepardec.mega.db.entity.employee;
 
+import com.gepardec.mega.domain.model.EmployeeState;
 import com.gepardec.mega.domain.model.SourceSystem;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;

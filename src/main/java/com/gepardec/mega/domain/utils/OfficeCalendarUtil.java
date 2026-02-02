@@ -1,4 +1,4 @@
-package com.gepardec.mega.notification.mail.dates;
+package com.gepardec.mega.domain.utils;
 
 import de.focus_shift.jollyday.core.Holiday;
 import de.focus_shift.jollyday.core.HolidayCalendar;

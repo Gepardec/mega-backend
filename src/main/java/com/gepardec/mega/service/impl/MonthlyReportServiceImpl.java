@@ -1,6 +1,6 @@
 package com.gepardec.mega.service.impl;
 
-import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.domain.model.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import com.gepardec.mega.domain.model.Attendances;
 import com.gepardec.mega.domain.model.Comment;

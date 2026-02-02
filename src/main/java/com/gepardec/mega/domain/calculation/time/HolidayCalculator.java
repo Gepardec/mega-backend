@@ -5,7 +5,7 @@ import com.gepardec.mega.domain.calculation.WarningCalculationStrategy;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
-import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
+import com.gepardec.mega.domain.utils.OfficeCalendarUtil;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

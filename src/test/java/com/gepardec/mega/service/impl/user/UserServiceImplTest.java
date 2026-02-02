@@ -3,7 +3,7 @@ package com.gepardec.mega.service.impl.user;
 import com.gepardec.mega.application.exception.ForbiddenException;
 import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.db.repository.UserRepository;
-import com.gepardec.mega.domain.mapper.UserMapper;
+import com.gepardec.mega.db.mapper.UserMapper;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.service.api.UserService;
 import io.quarkus.test.InjectMock;

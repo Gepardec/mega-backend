@@ -1,4 +1,4 @@
-package com.gepardec.mega.domain.mapper;
+package com.gepardec.mega.db.mapper;
 
 import com.gepardec.mega.db.entity.employee.CommentEntity;
 import com.gepardec.mega.domain.model.Comment;

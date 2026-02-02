@@ -1,7 +1,7 @@
 package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.employee.CommentEntity;
-import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.domain.model.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntity;
 import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import com.gepardec.mega.db.entity.employee.UserEntity;

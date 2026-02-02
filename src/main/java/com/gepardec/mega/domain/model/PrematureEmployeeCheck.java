@@ -1,7 +1,5 @@
 package com.gepardec.mega.domain.model;
 
-import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
