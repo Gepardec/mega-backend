@@ -8,6 +8,8 @@ import jakarta.persistence.Entity;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideOutsideOfPackages;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
@@ -44,6 +46,19 @@ class ArchitectureTest {
                 .that().resideInAPackage("com.gepardec.mega.rest..")
                 .should().dependOnClassesThat().areAssignableTo(PanacheRepository.class)
                 .because("REST layer classes should not directly use Repository classes. Use service layer instead.")
+                .check(allClasses);
+    }
+
+    @Test
+    void domainPackageShouldNotDependOnOtherPackages() {
+        noClasses()
+                .that().resideInAPackage("com.gepardec.mega.domain..")
+                .should().dependOnClassesThat(
+                        resideInAPackage("com.gepardec.mega..")
+                                .and(resideOutsideOfPackages("com.gepardec.mega.domain.."))
+                )
+                .because("Domain package should remain pure and independent. " +
+                        "It should only depend on other domain classes, not on other application packages. ")
                 .check(allClasses);
     }
 }
