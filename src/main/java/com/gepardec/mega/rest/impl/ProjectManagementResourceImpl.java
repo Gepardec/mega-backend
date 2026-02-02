@@ -8,27 +8,22 @@ import com.gepardec.mega.db.entity.project.ProjectEntry;
 import com.gepardec.mega.db.entity.project.ProjectStep;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.FinishedAndTotalComments;
-import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectEmployees;
-import com.gepardec.mega.domain.model.ProjectFilter;
 import com.gepardec.mega.domain.model.ProjectState;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.State;
 import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.UserContext;
-import com.gepardec.mega.rest.api.ManagementResource;
+import com.gepardec.mega.rest.api.ProjectManagementResource;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
-import com.gepardec.mega.rest.model.CustomerProjectWithoutLeadsDto;
 import com.gepardec.mega.rest.model.ManagementEntryDto;
-import com.gepardec.mega.rest.model.PmProgressDto;
 import com.gepardec.mega.rest.model.ProjectManagementEntryDto;
 import com.gepardec.mega.rest.provider.PayrollContext;
 import com.gepardec.mega.rest.provider.PayrollMonthProvider;
 import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.ProjectEntryService;
-import com.gepardec.mega.service.api.ProjectService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
@@ -59,8 +54,8 @@ import static com.gepardec.mega.rest.provider.PayrollContext.PayrollContextType.
 
 @RequestScoped
 @Authenticated
-@MegaRolesAllowed(value = {Role.PROJECT_LEAD, Role.OFFICE_MANAGEMENT})
-public class ManagementResourceImpl implements ManagementResource {
+@MegaRolesAllowed(value = {Role.PROJECT_LEAD})
+public class ProjectManagementResourceImpl implements ProjectManagementResource {
 
     private static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd";
 
@@ -83,9 +78,6 @@ public class ManagementResourceImpl implements ManagementResource {
     ZepService zepService;
 
     @Inject
-    ProjectService projectService;
-
-    @Inject
     WorkingTimeUtil workingTimeUtil;
 
     @Inject
@@ -101,51 +93,6 @@ public class ManagementResourceImpl implements ManagementResource {
 
     @Inject
     Logger logger;
-
-    @Override
-    public Response getAllOfficeManagementEntries(boolean projectStateLogicSingle) {
-        return getAllOfficeManagementEntries(payrollMonthProvider.getPayrollMonth(), projectStateLogicSingle);
-    }
-
-    @Override
-    public Response getAllOfficeManagementEntries(YearMonth payrollMonth, boolean projectStateLogicSingle) {
-        List<ManagementEntryDto> officeManagementEntries = new ArrayList<>();
-        List<Employee> employees = employeeService.getAllEmployeesConsideringExitDate(payrollMonth);
-
-        for (Employee employee : employees) {
-            List<StepEntry> stepEntries = stepEntryService.findAllStepEntriesForEmployee(employee, payrollMonth);
-
-            List<StepEntry> allOwnedStepEntriesForPMProgress = stepEntryService.findAllOwnedAndUnassignedStepEntriesForPMProgress(employee.getEmail(), payrollMonth);
-            List<PmProgressDto> pmProgressDtos = new ArrayList<>();
-
-            allOwnedStepEntriesForPMProgress
-                    .forEach(stepEntry -> pmProgressDtos.add(
-                            PmProgressDto.builder()
-                                    .project(stepEntry.getProject())
-                                    .assigneeEmail(stepEntry.getAssignee().getEmail())
-                                    .state(stepEntry.getState())
-                                    .stepId(stepEntry.getStep().getId())
-                                    .firstname(stepEntry.getAssignee().getFirstname())
-                                    .lastname(stepEntry.getAssignee().getLastname())
-                                    .build()
-                    ));
-
-            ManagementEntryDto newManagementEntryDto = createManagementEntryForEmployee(
-                    employee,
-                    stepEntries,
-                    payrollMonth,
-                    pmProgressDtos,
-                    projectStateLogicSingle
-            );
-
-            if (newManagementEntryDto != null) {
-                officeManagementEntries.add(newManagementEntryDto);
-            }
-
-        }
-
-        return Response.ok(officeManagementEntries).build();
-    }
 
     @Override
     public Response getAllProjectManagementEntries(boolean allProjects, boolean projectStateLogicSingle) {
@@ -251,28 +198,6 @@ public class ManagementResourceImpl implements ManagementResource {
         }
     }
 
-    @Override
-    public Response getProjectsWithoutLeads() {
-        validateUserContext();
-
-        YearMonth fetchDate = payrollMonthProvider.getPayrollMonth().plusMonths(1);
-        List<Project> customerProjectsWithoutLeads = projectService.getProjectsForMonthYear(
-                fetchDate,
-                List.of(ProjectFilter.IS_CUSTOMER_PROJECT, ProjectFilter.WITHOUT_LEADS)
-        );
-
-        List<CustomerProjectWithoutLeadsDto> customerProjectsWithoutLeadsDto = customerProjectsWithoutLeads.stream()
-                .map(project -> CustomerProjectWithoutLeadsDto.builder()
-                        .projectName(project.getProjectId())
-                        .fetchDate(fetchDate.atDay(1))
-                        .comment("Dieses Projekt hat keinen Projektleiter zugewiesen. Bitte in ZEP hinzufügen!")
-                        .zepId(project.getZepId())
-                        .build())
-                .toList();
-
-        return Response.ok(customerProjectsWithoutLeadsDto).build();
-    }
-
     private Duration calculateProjectDuration(List<String> entries) {
         return Duration.ofMinutes(
                 Optional.ofNullable(entries)
@@ -315,7 +240,7 @@ public class ManagementResourceImpl implements ManagementResource {
                         payrollMonth
                 );
 
-                ManagementEntryDto entry = createManagementEntryForEmployee(employee, projectEmployees.getProjectId(), stepEntries, payrollMonth, null, projectStateLogicSingle);
+                ManagementEntryDto entry = createManagementEntryForEmployee(employee, projectEmployees.getProjectId(), stepEntries, payrollMonth, projectStateLogicSingle);
 
                 if (entry != null) {
                     entries.add(entry);
@@ -326,11 +251,7 @@ public class ManagementResourceImpl implements ManagementResource {
         return entries;
     }
 
-    private ManagementEntryDto createManagementEntryForEmployee(Employee employee, List<StepEntry> stepEntries, YearMonth payrollMonth, List<PmProgressDto> pmProgressDtos, boolean projectStateLogicSingle) {
-        return createManagementEntryForEmployee(employee, null, stepEntries, payrollMonth, pmProgressDtos, projectStateLogicSingle);
-    }
-
-    private ManagementEntryDto createManagementEntryForEmployee(Employee employee, String projectId, List<StepEntry> stepEntries, YearMonth payrollMonth, List<PmProgressDto> pmProgressDtos, boolean projectStateLogicSingle) {
+    private ManagementEntryDto createManagementEntryForEmployee(Employee employee, String projectId, List<StepEntry> stepEntries, YearMonth payrollMonth, boolean projectStateLogicSingle) {
         FinishedAndTotalComments finishedAndTotalComments = commentService.countFinishedAndTotalComments(employee.getEmail(), payrollMonth);
 
         List<ProjectTime> projectTime = zepService.getProjectTimesForEmployeePerProject(projectId, payrollMonth);
@@ -376,7 +297,7 @@ public class ManagementResourceImpl implements ManagementResource {
                     .employeeCheckStateReason(employeeCheckStateReason)
                     .internalCheckState(extractInternalCheckState(stepEntries))
                     .projectCheckState(extractStateForProject(stepEntries, projectId, projectStateLogicSingle))
-                    .employeeProgresses(pmProgressDtos)
+                    .employeeProgresses(null)
                     .finishedComments(finishedAndTotalComments.getFinishedComments())
                     .totalComments(finishedAndTotalComments.getTotalComments())
                     .entryDate(stepEntries.getFirst().getDate().format(DateTimeFormatter.ofPattern(DATE_FORMAT_PATTERN)))

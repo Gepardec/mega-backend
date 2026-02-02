@@ -8,7 +8,6 @@ import com.gepardec.mega.db.entity.project.ProjectEntry;
 import com.gepardec.mega.db.entity.project.ProjectStep;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.FinishedAndTotalComments;
-import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectEmployees;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.Role;
@@ -18,14 +17,11 @@ import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
-import com.gepardec.mega.rest.api.ManagementResource;
-import com.gepardec.mega.rest.model.CustomerProjectWithoutLeadsDto;
 import com.gepardec.mega.rest.model.ManagementEntryDto;
 import com.gepardec.mega.rest.model.ProjectManagementEntryDto;
 import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.ProjectEntryService;
-import com.gepardec.mega.service.api.ProjectService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
@@ -37,8 +33,6 @@ import io.quarkus.test.security.oidc.Claim;
 import io.quarkus.test.security.oidc.OidcSecurity;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -48,7 +42,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -65,7 +58,7 @@ import static org.mockito.Mockito.when;
 @OidcSecurity(claims = {
         @Claim(key = "email", value = "test@gepardec.com")
 })
-class ManagementResourceTest {
+class ProjectManagementResourceTest {
 
     @InjectMock
     EmployeeService employeeService;
@@ -89,120 +82,11 @@ class ManagementResourceTest {
     @InjectMock
     UserContext userContext;
 
-    @InjectMock
-    ProjectService projectService;
-
-    @Inject
-    ManagementResource managementResource;
-
-    @Test
-    @TestSecurity
-    @OidcSecurity
-    void getAllOfficeManagementEntries_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
-        when(userContext.getUser()).thenReturn(createUserForRole(Role.OFFICE_MANAGEMENT));
-        given().contentType(ContentType.JSON)
-                .get("/management/officemanagemententries/2020-11")
-                .then().assertThat().statusCode(HttpStatus.SC_UNAUTHORIZED);
-    }
-
     @Test
     void getAllOfficeManagementEntries_whenPOST_thenReturnsHttpStatusMETHOD_NOT_ALLOWED() {
         given().contentType(ContentType.JSON)
-                .post("/management/officemanagemententries/2020-11")
+                .post("/projectmanagement/officemanagemententries/2020-11")
                 .then().assertThat().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
-    }
-
-    @Test
-    void getAllOfficeManagementEntries_whenValid_thenReturnsListOfEntries() {
-        final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
-        when(userContext.getUser()).thenReturn(user);
-
-        when(employeeService.getAllEmployeesConsideringExitDate(any()))
-                .thenReturn(List.of(Employee.builder().releaseDate("2020-01-01").email("no-reply@gepardec.com").build()));
-
-        List<StepEntry> entries = List.of(
-                createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
-                createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
-                createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
-        );
-
-        when(commentService.countFinishedAndTotalComments(
-                anyString(), any(YearMonth.class))
-        ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
-
-        when(stepEntryService.findAllStepEntriesForEmployee(
-                any(Employee.class), any(YearMonth.class))
-        ).thenReturn(entries);
-
-        when(zepService.getProjectTimesForEmployeePerProject(
-                anyString(), any(YearMonth.class)
-        )).thenReturn(Collections.emptyList());
-
-        List<ManagementEntryDto> result = given().contentType(ContentType.JSON)
-                .get("/management/officemanagemententries/2020-01")
-                .as(new TypeRef<>() {
-                });
-
-        assertThat(result).hasSize(1);
-        ManagementEntryDto entry = result.getFirst();
-        assertThat(entry.getInternalCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
-        assertThat(entry.getEmployeeCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.OPEN);
-        assertThat(entry.getProjectCheckState()).isEqualTo(com.gepardec.mega.domain.model.State.DONE);
-        assertThat(entry.getEmployee().getEmail()).isEqualTo("no-reply@gepardec.com");
-        assertThat(entry.getEmployee().getReleaseDate()).isEqualTo("2020-01-01");
-        assertThat(entry.getTotalComments()).isEqualTo(3L);
-        assertThat(entry.getFinishedComments()).isEqualTo(2L);
-    }
-
-    @Test
-    void getAllOfficeManagementEntries_whenNoActiveEmployeesFound_thenReturnsEmptyResultList() {
-        final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
-        when(userContext.getUser()).thenReturn(user);
-
-        when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of());
-
-        List<StepEntry> entries = List.of(
-                createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
-                createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
-                createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
-        );
-
-        when(commentService.countFinishedAndTotalComments(
-                anyString(), any(YearMonth.class))
-        ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
-
-        when(stepEntryService.findAllStepEntriesForEmployee(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(entries);
-
-        List<ManagementEntryDto> result = given().contentType(ContentType.JSON)
-                .get("/management/officemanagemententries/2020-10")
-                .as(new TypeRef<>() {
-                });
-
-        assertThat(result).isEmpty();
-    }
-
-    @Test
-    void getAllOfficeManagementEntries_whenNoStepEntriesFound_thenReturnsEmptyResultList() {
-        final User user = createUserForRole(Role.OFFICE_MANAGEMENT);
-        when(userContext.getUser()).thenReturn(user);
-
-        when(commentService.countFinishedAndTotalComments(
-                anyString(), any(YearMonth.class))
-        ).thenReturn(FinishedAndTotalComments.builder().finishedComments(2L).totalComments(3L).build());
-
-        when(stepEntryService.findAllStepEntriesForEmployee(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(List.of());
-
-        when(employeeService.getAllEmployeesConsideringExitDate(any()))
-                .thenReturn(List.of());
-
-        List<ManagementEntryDto> result = given().contentType(ContentType.JSON)
-                .get("/management/officemanagemententries/2020-11")
-                .as(new TypeRef<>() {
-                });
-
-        assertThat(result).isEmpty();
     }
 
     @Test
@@ -211,14 +95,14 @@ class ManagementResourceTest {
     void getAllProjectManagementEntries_whenNotLogged_thenReturnsHttpStatusUNAUTHORIZED() {
         when(userContext.getUser()).thenReturn(createUserForRole(Role.PROJECT_LEAD));
         given().contentType(ContentType.JSON)
-                .get("/management/projectmanagemententries/2020-11")
+                .get("/projectmanagement/projectmanagemententries/2020-11")
                 .then().assertThat().statusCode(HttpStatus.SC_UNAUTHORIZED);
     }
 
     @Test
     void getAllProjectManagementEntries_whenPOST_thenReturnsStatusMETHOD_NOT_ALLOWED() {
         given().contentType(ContentType.JSON)
-                .post("/management/projectmanagemententries/2020-11")
+                .post("/projectmanagement/projectmanagemententries/2020-11")
                 .then().statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 
@@ -269,7 +153,7 @@ class ManagementResourceTest {
         when(workingTimeUtil.getInternalTimesForEmployee(anyList(), any(Employee.class))).thenReturn("02:00");
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
-                .get("/management/projectmanagemententries/2020-10")
+                .get("/projectmanagement/projectmanagemententries/2020-10")
                 .as(new TypeRef<>() {
                 });
 
@@ -355,7 +239,7 @@ class ManagementResourceTest {
         when(workingTimeUtil.getDurationFromTimeString(("25:00"))).thenReturn(Duration.ofHours(25));
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
-                .get("/management/projectmanagemententries/2020-09")
+                .get("/projectmanagement/projectmanagemententries/2020-09")
                 .as(new TypeRef<>() {
                 });
 
@@ -442,7 +326,7 @@ class ManagementResourceTest {
         when(workingTimeUtil.getInternalTimesForEmployee(anyList(), any(Employee.class))).thenReturn("00:00");
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
-                .get("/management/projectmanagemententries/2020-09")
+                .get("/projectmanagement/projectmanagemententries/2020-09")
                 .as(new TypeRef<>() {
                 });
 
@@ -523,7 +407,7 @@ class ManagementResourceTest {
         )).thenReturn(getProjectTimeTypeList());
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
-                .get("/management/projectmanagemententries/2020-09")
+                .get("/projectmanagement/projectmanagemententries/2020-09")
                 .as(new TypeRef<>() {
                 });
 
@@ -538,7 +422,7 @@ class ManagementResourceTest {
         when(userContext.getUser()).thenReturn(user);
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
-                .get("/management/projectmanagemententries/2020-11")
+                .get("/projectmanagement/projectmanagemententries/2020-11")
                 .as(new TypeRef<>() {
                 });
 
@@ -555,7 +439,7 @@ class ManagementResourceTest {
                 .thenReturn(List.of(rgkkcc));
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
-                .get("/management/projectmanagemententries/2020-11")
+                .get("/projectmanagement/projectmanagemententries/2020-11")
                 .as(new TypeRef<>() {
                 });
 
@@ -579,53 +463,11 @@ class ManagementResourceTest {
                 .thenReturn(List.of());
 
         List<ProjectManagementEntryDto> result = given().contentType(ContentType.JSON)
-                .get("/management/projectmanagemententries/2020-11")
+                .get("/projectmanagement/projectmanagemententries/2020-11")
                 .as(new TypeRef<>() {
                 });
 
         assertThat(result).isEmpty();
-    }
-
-    @Test
-    void getProjectsWithoutLeads_whenUserIsNotNull_thenReturnDto() {
-        final User user = createUserForRole(Role.PROJECT_LEAD);
-        when(userContext.getUser())
-                .thenReturn(user);
-
-        when(projectService.getProjectsForMonthYear(any(YearMonth.class), any()))
-                .thenReturn(createProjectList());
-
-        Response actual = managementResource.getProjectsWithoutLeads();
-
-        assertThat(actual.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-        List<CustomerProjectWithoutLeadsDto> resultList = (List<CustomerProjectWithoutLeadsDto>) actual.getEntity();
-
-        assertThat(resultList).hasSize(2);
-        assertThat(resultList.getFirst().getProjectName()).isEqualTo(createProjectList().getFirst().getProjectId());
-    }
-
-    private List<Project> createProjectList() {
-        List<Project> projects = new ArrayList<>();
-        projects.add(
-                Project.builder()
-                        .projectId("ABC")
-                        .zepId(1)
-                        .leads(List.of())
-                        .categories(List.of("CUST"))
-                        .build()
-        );
-
-        projects.add(
-                Project.builder()
-                        .projectId("DEF")
-                        .zepId(2)
-                        .leads(List.of())
-                        .categories(List.of("CUST"))
-                        .build()
-        );
-
-        return projects;
     }
 
     private Step createStep(StepName stepName) {
