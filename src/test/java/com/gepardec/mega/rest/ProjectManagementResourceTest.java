@@ -73,7 +73,6 @@ class ProjectManagementResourceTest {
     ProjectEntryService projectEntryService;
 
     @InjectMock
-    @Rest
     ZepService zepService;
 
     @InjectMock

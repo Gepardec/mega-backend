@@ -27,7 +27,6 @@ import com.gepardec.mega.service.api.ProjectEntryService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.impl.Rest;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -82,10 +81,6 @@ public class ProjectManagementResourceImpl implements ProjectManagementResource 
 
     @Inject
     EmployeeMapper employeeMapper;
-
-    @Inject
-    @Rest
-    ZepService zepRestService;
 
     @Inject
     @PayrollContext(MANAGEMENT)
@@ -274,7 +269,7 @@ public class ProjectManagementResourceImpl implements ProjectManagementResource 
             }
 
             // used later on to compute the percentage of hours which were spent in this project (both billable and non-billable)
-            List<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry> projectEntriesForEmployee = zepRestService.getProjectTimes(employee, payrollMonth);
+            List<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry> projectEntriesForEmployee = zepService.getProjectTimes(employee, payrollMonth);
             long totalWorkingHoursInMinutesForMonthAndEmployee = workingTimeUtil.getDurationFromTimeString(workingTimeUtil.getTotalWorkingTimeForEmployee(projectEntriesForEmployee)).toMinutes();
 
             String billableTimeString = workingTimeUtil.getBillableTimesForEmployee(projectTime, employee);

@@ -1,11 +1,12 @@
-package com.gepardec.mega.zep;
+package com.gepardec.mega.zep.impl;
 
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.service.mapper.EmployeeMapper;
-import com.gepardec.mega.zep.impl.ZepSoapServiceImpl;
+import com.gepardec.mega.zep.ZepServiceException;
+import com.gepardec.mega.zep.ZepSoapProvider;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
 import de.provantis.zep.BeschaeftigungszeitListeType;
 import de.provantis.zep.BeschaeftigungszeitType;

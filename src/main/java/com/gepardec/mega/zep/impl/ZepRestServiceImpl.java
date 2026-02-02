@@ -56,7 +56,7 @@ import java.util.stream.IntStream;
 
 @ApplicationScoped
 @Rest
-public class ZepRestServiceImpl implements ZepService {
+class ZepRestServiceImpl implements ZepService {
 
     @Inject
     EmployeeService zepEmployeeService;

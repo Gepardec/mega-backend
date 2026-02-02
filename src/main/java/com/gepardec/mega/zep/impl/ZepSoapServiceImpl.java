@@ -67,7 +67,7 @@ import java.util.function.Supplier;
 
 @RequestScoped
 @Soap
-public class ZepSoapServiceImpl implements ZepService {
+class ZepSoapServiceImpl implements ZepService {
 
     private static final Range<Integer> PROJECT_LEAD_RANGE = Range.of(1, 2);
 
