@@ -20,7 +20,7 @@ import java.time.temporal.ChronoUnit;
 @RegisterRestClient(configKey = "zep")
 @RegisterClientHeaders(AuthHeaders.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@RateLimit(value = 1000, window = 5, windowUnit = ChronoUnit.MINUTES)
+@RateLimit(value = 1000, window = 5, windowUnit = ChronoUnit.MINUTES, type = RateLimitType.ROLLING)
 @Retry(delay = 1000, retryOn = RateLimitException.class)
 @ApplicationScoped
 public interface ZepAbsenceRestClient {

@@ -25,7 +25,7 @@ import java.util.List;
 @Path("/employees")
 @RegisterRestClient(configKey = "zep")
 @RegisterClientHeaders(AuthHeaders.class)
-@RateLimit(value = 1000, window = 5, windowUnit = ChronoUnit.MINUTES)
+@RateLimit(value = 1000, window = 5, windowUnit = ChronoUnit.MINUTES, type = RateLimitType.ROLLING)
 @Retry(delay = 1000, retryOn = RateLimitException.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApplicationScoped
