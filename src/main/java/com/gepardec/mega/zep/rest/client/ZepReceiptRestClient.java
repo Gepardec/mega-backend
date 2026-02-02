@@ -5,6 +5,7 @@ import com.gepardec.mega.zep.rest.dto.ZepReceiptAttachment;
 import com.gepardec.mega.zep.rest.dto.ZepResponse;
 import io.smallrye.faulttolerance.api.RateLimit;
 import io.smallrye.faulttolerance.api.RateLimitException;
+import io.smallrye.faulttolerance.api.RateLimitType;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.GET;
@@ -21,7 +22,7 @@ import java.util.List;
 @Path("/receipts")
 @RegisterRestClient(configKey = "zep")
 @RegisterClientHeaders(AuthHeaders.class)
-@RateLimit(value = 1000, window = 5, windowUnit = ChronoUnit.MINUTES)
+@RateLimit(value = 1000, window = 5, windowUnit = ChronoUnit.MINUTES, type = RateLimitType.ROLLING)
 @Retry(delay = 1000, retryOn = RateLimitException.class)
 @ApplicationScoped
 public interface ZepReceiptRestClient {
