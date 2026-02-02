@@ -1,7 +1,7 @@
 package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.common.State;
-import com.gepardec.mega.db.entity.enterprise.EnterpriseEntry;
+import com.gepardec.mega.db.entity.enterprise.EnterpriseEntryEntity;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -23,7 +23,7 @@ class EnterpriseEntryRepositoryTest {
 
     @Test
     void generateEnterpriseEntry() {
-        EnterpriseEntry enterpriseEntry = new EnterpriseEntry();
+        EnterpriseEntryEntity enterpriseEntry = new EnterpriseEntryEntity();
         enterpriseEntry.setDate(LocalDate.now());
         enterpriseEntry.setCreationDate(LocalDateTime.now());
         enterpriseEntry.setChargeabilityExternalEmployeesRecorded(State.OPEN);
@@ -33,7 +33,7 @@ class EnterpriseEntryRepositoryTest {
 
         enterpriseEntryRepository.persist(enterpriseEntry);
 
-        Optional<EnterpriseEntry> enterpriseEntryValue = enterpriseEntryRepository.findByDate(LocalDate.now());
+        Optional<EnterpriseEntryEntity> enterpriseEntryValue = enterpriseEntryRepository.findByDate(LocalDate.now());
 
         assertAll(
                 () -> assertThat(enterpriseEntryValue).isPresent(),

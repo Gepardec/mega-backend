@@ -24,9 +24,9 @@ import java.util.Objects;
 @Table(name = "project_comment")
 @NamedQuery(
         name = "ProjectComment.findByProjectNameAndEntryDateBetween",
-        query = "SELECT c FROM ProjectComment c WHERE c.project.name = :projectName AND (c.date BETWEEN :start AND :end)"
+        query = "SELECT c FROM ProjectCommentEntity c WHERE c.project.name = :projectName AND (c.date BETWEEN :start AND :end)"
 )
-public class ProjectComment {
+public class ProjectCommentEntity {
 
     @Id
     @Column(name = "id", insertable = false, updatable = false)
@@ -65,11 +65,11 @@ public class ProjectComment {
     /**
      * The related project of the comment
      *
-     * @see Project
+     * @see ProjectEntity
      */
-    @ManyToOne(targetEntity = Project.class, fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = ProjectEntity.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "project_id")
-    private Project project;
+    private ProjectEntity project;
 
     @PrePersist
     void onPersist() {
@@ -122,11 +122,11 @@ public class ProjectComment {
         this.updatedDate = updatedDate;
     }
 
-    public Project getProject() {
+    public ProjectEntity getProject() {
         return project;
     }
 
-    public void setProject(Project project) {
+    public void setProject(ProjectEntity project) {
         this.project = project;
     }
 
@@ -138,7 +138,7 @@ public class ProjectComment {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ProjectComment that = (ProjectComment) o;
+        ProjectCommentEntity that = (ProjectCommentEntity) o;
         return id.equals(that.id) && comment.equals(that.comment) && date.equals(that.date) && creationDate.equals(that.creationDate) && updatedDate.equals(that.updatedDate) && project.equals(that.project);
     }
 

@@ -1,9 +1,9 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.Step;
-import com.gepardec.mega.db.entity.employee.StepEntry;
-import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.entity.employee.StepEntity;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.db.repository.StepEntryRepository;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.ProjectEmployees;
@@ -45,14 +45,14 @@ public class StepEntryServiceImpl implements StepEntryService {
      */
     @Override
     public Optional<Pair<EmployeeState, String>> findEmployeeCheckState(final Employee employee, YearMonth payrollMonth) {
-        Optional<StepEntry> stepEntries =
+        Optional<StepEntryEntity> stepEntries =
                 stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(payrollMonth.atDay(1), employee.getEmail());
 
         return stepEntries.map(se -> Pair.of(se.getState(), se.getStateReason()));
     }
 
     @Override
-    public Optional<StepEntry> findControlTimesStepEntry(final String employeeEmail, LocalDate date) {
+    public Optional<StepEntryEntity> findControlTimesStepEntry(final String employeeEmail, LocalDate date) {
         return stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(date, employeeEmail);
     }
 
@@ -60,34 +60,34 @@ public class StepEntryServiceImpl implements StepEntryService {
     public Optional<EmployeeState> findEmployeeInternalCheckState(Employee employee, YearMonth payrollMonth) {
         if (employee != null) {
             return stepEntryRepository.findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes(payrollMonth.atDay(1), employee.getEmail())
-                    .map(StepEntry::getState);
+                    .map(StepEntryEntity::getState);
         }
         return Optional.empty();
     }
 
     @Override
-    public List<StepEntry> findAllOwnedAndUnassignedStepEntriesExceptControlTimes(Employee employee, YearMonth payrollMonth) {
+    public List<StepEntryEntity> findAllOwnedAndUnassignedStepEntriesExceptControlTimes(Employee employee, YearMonth payrollMonth) {
         return stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(payrollMonth.atDay(1), employee.getEmail());
     }
 
     @Override
-    public List<StepEntry> findAllOwnedAndUnassignedStepEntriesForPMProgress(final String email, final YearMonth payrollMonth) {
+    public List<StepEntryEntity> findAllOwnedAndUnassignedStepEntriesForPMProgress(final String email, final YearMonth payrollMonth) {
         return stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForPMProgress(payrollMonth.atDay(1), email);
     }
 
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
     public void addStepEntry(com.gepardec.mega.domain.model.StepEntry stepEntry) {
-        final User ownerDb = new User();
+        final UserEntity ownerDb = new UserEntity();
         ownerDb.setId(stepEntry.getOwner().getDbId());
 
-        final Step stepDb = new Step();
+        final StepEntity stepDb = new StepEntity();
         stepDb.setId(stepEntry.getStep().getDbId());
 
-        final User assigneeDb = new User();
+        final UserEntity assigneeDb = new UserEntity();
         assigneeDb.setId(stepEntry.getAssignee().getDbId());
 
-        final StepEntry stepEntryDb = new StepEntry();
+        final StepEntryEntity stepEntryDb = new StepEntryEntity();
         stepEntryDb.setDate(stepEntry.getDate());
         stepEntryDb.setProject(stepEntry.getProject() != null ? stepEntry.getProject().getProjectId() : null);
         stepEntryDb.setState(EmployeeState.OPEN);
@@ -125,27 +125,27 @@ public class StepEntryServiceImpl implements StepEntryService {
     }
 
     @Override
-    public List<StepEntry> findAllStepEntriesForEmployee(Employee employee, YearMonth payrollMonth) {
+    public List<StepEntryEntity> findAllStepEntriesForEmployee(Employee employee, YearMonth payrollMonth) {
         Objects.requireNonNull(employee, "Employee must not be null!");
         return stepEntryRepository.findAllOwnedStepEntriesInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail());
     }
 
     @Override
-    public List<StepEntry> findAllStepEntriesForEmployeeAndProject(Employee employee, String projectId, String assigneEmail,
-                                                                   YearMonth payrollMonth) {
+    public List<StepEntryEntity> findAllStepEntriesForEmployeeAndProject(Employee employee, String projectId, String assigneEmail,
+                                                                         YearMonth payrollMonth) {
         Objects.requireNonNull(employee, "Employee must not be null!");
 
-        List<StepEntry> stepEntries = new ArrayList<>();
+        List<StepEntryEntity> stepEntries = new ArrayList<>();
         stepEntries.addAll(stepEntryRepository.findAllOwnedStepEntriesInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail(), projectId, assigneEmail));
         stepEntries.addAll(stepEntryRepository.findAllOwnedStepEntriesInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail()));
         return stepEntries;
     }
 
     @Override
-    public StepEntry findStepEntryForEmployeeAtStep(final Long stepId,
-                                                    final String employeeEmail,
-                                                    final String assigneeEmail,
-                                                    final YearMonth payrollMonth) {
+    public StepEntryEntity findStepEntryForEmployeeAtStep(final Long stepId,
+                                                          final String employeeEmail,
+                                                          final String assigneeEmail,
+                                                          final YearMonth payrollMonth) {
         Objects.requireNonNull(employeeEmail, "'employeeEmail' must not be null!");
         LocalDate fromDate = payrollMonth.atDay(1);
         LocalDate toDate = payrollMonth.atEndOfMonth();
@@ -163,11 +163,11 @@ public class StepEntryServiceImpl implements StepEntryService {
     }
 
     @Override
-    public StepEntry findStepEntryForEmployeeAndProjectAtStep(final Long stepId,
-                                                              final String employeeEmail,
-                                                              final String assigneeEmail,
-                                                              final String project,
-                                                              final YearMonth payrollMonth) {
+    public StepEntryEntity findStepEntryForEmployeeAndProjectAtStep(final Long stepId,
+                                                                    final String employeeEmail,
+                                                                    final String assigneeEmail,
+                                                                    final String project,
+                                                                    final YearMonth payrollMonth) {
         Objects.requireNonNull(employeeEmail, "'employeeEmail' must not be null!");
         LocalDate fromDate = payrollMonth.atDay(1);
         LocalDate toDate = payrollMonth.atEndOfMonth();
@@ -191,7 +191,7 @@ public class StepEntryServiceImpl implements StepEntryService {
                 .stream()
                 .collect(
                         Collectors.groupingBy(
-                                StepEntry::getProject,
+                                StepEntryEntity::getProject,
                                 Collectors.mapping(s -> s.getOwner().getZepId(), Collectors.toList())
                         )
                 )
@@ -207,7 +207,7 @@ public class StepEntryServiceImpl implements StepEntryService {
                 .stream()
                 .collect(
                         Collectors.groupingBy(
-                                StepEntry::getProject,
+                                StepEntryEntity::getProject,
                                 Collectors.mapping(s -> s.getOwner().getZepId(), Collectors.toList())
                         )
                 )
@@ -218,7 +218,7 @@ public class StepEntryServiceImpl implements StepEntryService {
     }
 
     @Override
-    public List<StepEntry> findAll() {
+    public List<StepEntryEntity> findAll() {
         return stepEntryRepository.findAll().list();
     }
 }

@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.common.State;
-import com.gepardec.mega.db.entity.enterprise.EnterpriseEntry;
+import com.gepardec.mega.db.entity.enterprise.EnterpriseEntryEntity;
 import com.gepardec.mega.db.repository.EnterpriseEntryRepository;
 import com.gepardec.mega.rest.model.EnterpriseEntryDto;
 import com.gepardec.mega.service.api.EnterpriseEntryService;
@@ -30,10 +30,10 @@ public class EnterpriseEntryServiceImpl implements EnterpriseEntryService {
 
     @Override
     public boolean update(EnterpriseEntryDto updatedEntryDto, YearMonth payrollMonth) {
-        Optional<EnterpriseEntry> optionalEntry = enterpriseEntryRepository.findByDate(payrollMonth.atDay(1), payrollMonth.atEndOfMonth());
+        Optional<EnterpriseEntryEntity> optionalEntry = enterpriseEntryRepository.findByDate(payrollMonth.atDay(1), payrollMonth.atEndOfMonth());
 
         if (optionalEntry.isPresent()) {
-            EnterpriseEntry entry = optionalEntry.get();
+            EnterpriseEntryEntity entry = optionalEntry.get();
             entry.setChargeabilityExternalEmployeesRecorded(
                     State.valueOf(updatedEntryDto.getChargeabilityExternalEmployeesRecorded().name())
             );

@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.impl.projectcomment;
 
-import com.gepardec.mega.db.entity.project.Project;
-import com.gepardec.mega.db.entity.project.ProjectComment;
+import com.gepardec.mega.db.entity.project.ProjectCommentEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntity;
 import com.gepardec.mega.db.repository.ProjectCommentRepository;
 import com.gepardec.mega.db.repository.ProjectRepository;
 import com.gepardec.mega.rest.mapper.ProjectCommentMapper;
@@ -43,9 +43,9 @@ class ProjectCommentServiceImplTest {
     @Inject
     ProjectCommentService projectCommentService;
 
-    private ProjectComment projectComment;
+    private ProjectCommentEntity projectComment;
     private ProjectCommentDto projectCommentDto;
-    private Project project;
+    private ProjectEntity project;
 
     @BeforeEach
     void setUp() {
@@ -55,12 +55,12 @@ class ProjectCommentServiceImplTest {
                 .projectName("Test Project")
                 .build();
 
-        projectComment = new ProjectComment();
+        projectComment = new ProjectCommentEntity();
         projectComment.setId(1L);
         projectComment.setComment("Old comment");
         projectComment.setDate(LocalDate.of(2023, 10, 1));
 
-        project = new Project();
+        project = new ProjectEntity();
         project.setName("Test Project");
     }
 
@@ -108,13 +108,13 @@ class ProjectCommentServiceImplTest {
                 .thenReturn(project);
         when(projectCommentRepository.findByProjectNameWithDate(anyString(), any(LocalDate.class)))
                 .thenReturn(Collections.emptyList());
-        when(projectCommentMapper.mapToDto(any(ProjectComment.class)))
+        when(projectCommentMapper.mapToDto(any(ProjectCommentEntity.class)))
                 .thenReturn(projectCommentDto);
 
         ProjectCommentDto result = projectCommentService.create(projectCommentDto);
 
-        verify(projectCommentRepository, times(1)).save(any(ProjectComment.class));
-        verify(projectCommentRepository, never()).update(any(ProjectComment.class));
+        verify(projectCommentRepository, times(1)).save(any(ProjectCommentEntity.class));
+        verify(projectCommentRepository, never()).update(any(ProjectCommentEntity.class));
         assertThat(result).isEqualTo(projectCommentDto);
     }
 
@@ -124,13 +124,13 @@ class ProjectCommentServiceImplTest {
                 .thenReturn(project);
         when(projectCommentRepository.findByProjectNameWithDate(anyString(), any(LocalDate.class)))
                 .thenReturn(Collections.singletonList(projectComment));
-        when(projectCommentMapper.mapToDto(any(ProjectComment.class)))
+        when(projectCommentMapper.mapToDto(any(ProjectCommentEntity.class)))
                 .thenReturn(projectCommentDto);
 
         ProjectCommentDto result = projectCommentService.create(projectCommentDto);
 
-        verify(projectCommentRepository, never()).save(any(ProjectComment.class));
-        verify(projectCommentRepository, times(1)).update(any(ProjectComment.class));
+        verify(projectCommentRepository, never()).save(any(ProjectCommentEntity.class));
+        verify(projectCommentRepository, times(1)).update(any(ProjectCommentEntity.class));
         assertThat(result).isEqualTo(projectCommentDto);
     }
 
@@ -148,13 +148,13 @@ class ProjectCommentServiceImplTest {
         when(projectCommentRepository.findById(anyLong()))
                 .thenReturn(projectComment);
 
-        when(projectCommentRepository.update(any(ProjectComment.class)))
+        when(projectCommentRepository.update(any(ProjectCommentEntity.class)))
                 .thenReturn(true);
 
         boolean result = projectCommentService.update(1L, "Updated comment");
 
         verify(projectCommentRepository, times(1)).findById(anyLong());
-        verify(projectCommentRepository, times(1)).update(any(ProjectComment.class));
+        verify(projectCommentRepository, times(1)).update(any(ProjectCommentEntity.class));
         assertThat(result).isTrue();
         assertThat(projectComment.getComment()).isEqualTo("Updated comment");
     }

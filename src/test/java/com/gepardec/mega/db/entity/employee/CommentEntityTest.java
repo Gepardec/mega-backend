@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
-class CommentTest {
+class CommentEntityTest {
 
     @Test
     void setMessage_whenSmallMessage_thenSetsSameMessage() {
@@ -14,7 +14,7 @@ class CommentTest {
         String input = "Hello";
 
         // when
-        Comment resultComment = new Comment();
+        CommentEntity resultComment = new CommentEntity();
         resultComment.setMessage(input);
 
         // then
@@ -24,10 +24,10 @@ class CommentTest {
     @Test
     void setMessage_whenMessageSizeIsLimit_thenSetsSameMessage() {
         // given
-        String inputMessage = "a".repeat(Comment.MAX_MESSAGE_LENGTH);
+        String inputMessage = "a".repeat(CommentEntity.MAX_MESSAGE_LENGTH);
 
         // when
-        Comment resultComment = new Comment();
+        CommentEntity resultComment = new CommentEntity();
         resultComment.setMessage(inputMessage);
 
         // then
@@ -37,20 +37,20 @@ class CommentTest {
     @Test
     void setMessage_whenLargeMessage_thenSetsShortenedMessage() {
         // given
-        String inputMessage = "a".repeat(Comment.MAX_MESSAGE_LENGTH + 10);
+        String inputMessage = "a".repeat(CommentEntity.MAX_MESSAGE_LENGTH + 10);
 
         // when
-        Comment resultComment = new Comment();
+        CommentEntity resultComment = new CommentEntity();
         resultComment.setMessage(inputMessage);
 
         // then
-        String expectedMessage = "a".repeat(Comment.MAX_MESSAGE_LENGTH - 3) + "...";
+        String expectedMessage = "a".repeat(CommentEntity.MAX_MESSAGE_LENGTH - 3) + "...";
         assertThat(resultComment.getMessage()).isEqualTo(expectedMessage);
     }
 
     @Test
     void setMessage_whenNull_thenMessageNull() {
-        Comment messageComment = new Comment();
+        CommentEntity messageComment = new CommentEntity();
         messageComment.setMessage("becomes null");
 
         messageComment.setMessage(null);

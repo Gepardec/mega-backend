@@ -3,8 +3,8 @@ package com.gepardec.mega.service.impl;
 import com.gepardec.mega.application.configuration.ApplicationConfig;
 import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.StepEntry;
-import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
@@ -86,7 +86,7 @@ public class SyncServiceImpl implements SyncService {
         final List<Employee> employees = employeeService.getAllActiveEmployees();
         log.info("Loaded employees: {}", employees.size());
 
-        final List<User> users = userRepository.listAll();
+        final List<UserEntity> users = userRepository.listAll();
         log.info("Existing users: {}", users.size());
 
         createNonExistentUsers(employees, users, projects);
@@ -137,7 +137,7 @@ public class SyncServiceImpl implements SyncService {
 
         // set status from OPEN to DONE for step_id 1 -> employee doesn't need to confirm times manually
         absentEmployees.forEach(employee -> {
-            StepEntry entry = stepEntryService.findStepEntryForEmployeeAtStep(1L, employee.getEmail(), employee.getEmail(), payrollMonth);
+            StepEntryEntity entry = stepEntryService.findStepEntryForEmployeeAtStep(1L, employee.getEmail(), employee.getEmail(), payrollMonth);
             // if IN_PROGRESS OR already DONE than do not update reason
             if (entry.getState().equals(EmployeeState.OPEN)) {
                 stepEntryService.setOpenAndAssignedStepEntriesDone(employee, 1L, payrollMonth);
@@ -163,32 +163,32 @@ public class SyncServiceImpl implements SyncService {
         return false;
     }
 
-    private void createNonExistentUsers(final List<Employee> employees, final List<User> users, final List<Project> projects) {
-        final List<User> notExistentUsers = filterNotExistingEmployeesAndMapToUser(employees, users, projects);
+    private void createNonExistentUsers(final List<Employee> employees, final List<UserEntity> users, final List<Project> projects) {
+        final List<UserEntity> notExistentUsers = filterNotExistingEmployeesAndMapToUser(employees, users, projects);
 
         notExistentUsers.stream().map(this::addPersonioIdForUser).forEach(userRepository::persist);
 
         log.info("Created users: {}", notExistentUsers.size());
     }
 
-    private void updateModifiedUsers(final List<Employee> employees, final List<User> users, final List<Project> project) {
-        final List<User> modifiedUsers = filterModifiedEmployeesAndUpdateUsers(employees, users, project);
+    private void updateModifiedUsers(final List<Employee> employees, final List<UserEntity> users, final List<Project> project) {
+        final List<UserEntity> modifiedUsers = filterModifiedEmployeesAndUpdateUsers(employees, users, project);
 
         modifiedUsers.stream().map(this::addPersonioIdForUser).forEach(userRepository::update);
 
         log.info("Updated users: {}", modifiedUsers.size());
     }
 
-    private void deactivateDeletedOrInactiveUsers(final List<Employee> employees, final List<User> users) {
-        final List<User> removedUsers = filterUserNotMappedToEmployeesAndMarkUserDeactivated(employees, users);
+    private void deactivateDeletedOrInactiveUsers(final List<Employee> employees, final List<UserEntity> users) {
+        final List<UserEntity> removedUsers = filterUserNotMappedToEmployeesAndMarkUserDeactivated(employees, users);
         if (!removedUsers.isEmpty()) {
             removedUsers.forEach(userRepository::update);
         }
         log.info("Deleted users: {}", removedUsers.size());
     }
 
-    private List<User> filterNotExistingEmployeesAndMapToUser(final List<Employee> employees, final List<User> users, final List<Project> projects) {
-        final Map<String, User> zepIdToUser = mapZepIdToUser(users);
+    private List<UserEntity> filterNotExistingEmployeesAndMapToUser(final List<Employee> employees, final List<UserEntity> users, final List<Project> projects) {
+        final Map<String, UserEntity> zepIdToUser = mapZepIdToUser(users);
         final Locale defaultLocale = applicationConfig.getDefaultLocale();
         return employees.stream()
                 .filter(zepEmployee -> !zepIdToUser.containsKey(zepEmployee.getUserId()))
@@ -196,7 +196,7 @@ public class SyncServiceImpl implements SyncService {
                 .toList();
     }
 
-    private List<User> filterUserNotMappedToEmployeesAndMarkUserDeactivated(final List<Employee> employees, final List<User> users) {
+    private List<UserEntity> filterUserNotMappedToEmployeesAndMarkUserDeactivated(final List<Employee> employees, final List<UserEntity> users) {
         final Map<String, Employee> zepIdToEmployee = mapZepIdToEmployee(employees);
         return users.stream()
                 .filter(user -> !zepIdToEmployee.containsKey(user.getZepId()))
@@ -204,9 +204,9 @@ public class SyncServiceImpl implements SyncService {
                 .toList();
     }
 
-    private List<User> filterModifiedEmployeesAndUpdateUsers(final List<Employee> employees, final List<User> users, final List<Project> projects) {
-        final Map<String, User> zepIdToUser = mapZepIdToUser(users);
-        final Map<User, Employee> existingUserToEmployee = employees.stream()
+    private List<UserEntity> filterModifiedEmployeesAndUpdateUsers(final List<Employee> employees, final List<UserEntity> users, final List<Project> projects) {
+        final Map<String, UserEntity> zepIdToUser = mapZepIdToUser(users);
+        final Map<UserEntity, Employee> existingUserToEmployee = employees.stream()
                 .filter(zepEmployee -> zepIdToUser.containsKey(zepEmployee.getUserId()))
                 .collect(Collectors.toMap(employee -> zepIdToUser.get(employee.getUserId()), Function.identity()));
         final Locale defaultLocale = applicationConfig.getDefaultLocale();
@@ -215,9 +215,9 @@ public class SyncServiceImpl implements SyncService {
                 .toList();
     }
 
-    private Map<String, User> mapZepIdToUser(final List<User> users) {
+    private Map<String, UserEntity> mapZepIdToUser(final List<UserEntity> users) {
         return users.stream()
-                .collect(Collectors.toMap(User::getZepId, Function.identity()));
+                .collect(Collectors.toMap(UserEntity::getZepId, Function.identity()));
     }
 
     private Map<String, Employee> mapZepIdToEmployee(final List<Employee> employees) {
@@ -225,7 +225,7 @@ public class SyncServiceImpl implements SyncService {
                 .collect(Collectors.toMap(Employee::getUserId, Function.identity()));
     }
 
-    private User addPersonioIdForUser(final User user) {
+    private UserEntity addPersonioIdForUser(final UserEntity user) {
         if (user.getPersonioId() == null) {
             personioEmployeesService
                     .getPersonioEmployeeByEmail(user.getEmail())

@@ -1,6 +1,9 @@
 package com.gepardec.mega.service.impl.init;
 
 import com.gepardec.mega.application.configuration.NotificationConfig;
+import com.gepardec.mega.db.entity.employee.StepEntity;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.Step;
@@ -431,10 +434,10 @@ class StepEntrySyncServiceImplTest {
         verify(stepEntryService, never()).addStepEntry(Mockito.any());
     }
 
-    private List<com.gepardec.mega.db.entity.employee.StepEntry> createFromDomain(List<StepEntry> createdStepEntries) {
+    private List<StepEntryEntity> createFromDomain(List<StepEntry> createdStepEntries) {
         return createdStepEntries.stream()
                 .map(stepEntry -> {
-                    var stepEntryEntity = new com.gepardec.mega.db.entity.employee.StepEntry();
+                    var stepEntryEntity = new StepEntryEntity();
                     stepEntryEntity.setDate(stepEntry.getDate());
                     stepEntryEntity.setProject(Optional.ofNullable(stepEntry.getProject()).map(Project::getProjectId).orElse(null));
                     stepEntryEntity.setStep(createStepEntity(stepEntry.getStep().getDbId()));
@@ -446,15 +449,15 @@ class StepEntrySyncServiceImplTest {
                 .toList();
     }
 
-    private com.gepardec.mega.db.entity.employee.User createUserEntity(String email) {
-        var userEntity = new com.gepardec.mega.db.entity.employee.User();
+    private UserEntity createUserEntity(String email) {
+        var userEntity = new UserEntity();
         userEntity.setEmail(email);
 
         return userEntity;
     }
 
-    private com.gepardec.mega.db.entity.employee.Step createStepEntity(long id) {
-        var stepEntity = new com.gepardec.mega.db.entity.employee.Step();
+    private StepEntity createStepEntity(long id) {
+        var stepEntity = new StepEntity();
         stepEntity.setId(id);
 
         return stepEntity;

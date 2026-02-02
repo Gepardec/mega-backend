@@ -1,6 +1,7 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.application.exception.ForbiddenException;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.mapper.UserMapper;
 import com.gepardec.mega.domain.model.Role;
@@ -25,7 +26,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
     public User findUserForEmail(final String email) {
-        final com.gepardec.mega.db.entity.employee.User user = userRepository.findActiveByEmail(email)
+        final UserEntity user = userRepository.findActiveByEmail(email)
                 .orElseThrow(() -> new ForbiddenException("User with email '%s' is either unknown or inactive".formatted(email)));
 
         return mapper.mapToDomain(user);
@@ -64,7 +65,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(Transactional.TxType.SUPPORTS)
     public List<User> findActiveUsers() {
-        final List<com.gepardec.mega.db.entity.employee.User> activeUsers = userRepository.findActive();
+        final List<UserEntity> activeUsers = userRepository.findActive();
         return activeUsers.stream()
                 .map(mapper::mapToDomain)
                 .toList();

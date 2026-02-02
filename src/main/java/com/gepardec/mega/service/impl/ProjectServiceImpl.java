@@ -1,7 +1,8 @@
 package com.gepardec.mega.service.impl;
 
-import com.gepardec.mega.db.entity.employee.User;
-import com.gepardec.mega.db.entity.project.ProjectEntry;
+import com.gepardec.mega.db.entity.employee.UserEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntryEntity;
 import com.gepardec.mega.db.repository.ProjectRepository;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.Project;
@@ -50,24 +51,24 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void addProject(com.gepardec.mega.db.entity.project.Project project, YearMonth payrollMonth) {
+    public void addProject(ProjectEntity project, YearMonth payrollMonth) {
 
-        com.gepardec.mega.db.entity.project.Project projectEntity = projectRepository.findByName(project.getName());
+        ProjectEntity projectEntity = projectRepository.findByName(project.getName());
 
         if (projectEntity == null) {
-            projectEntity = new com.gepardec.mega.db.entity.project.Project();
+            projectEntity = new ProjectEntity();
         }
 
-        com.gepardec.mega.db.entity.project.Project finalProjectEntity = projectEntity;
+        ProjectEntity finalProjectEntity = projectEntity;
         project.getProjectLeads().forEach(lead -> {
-            User user = userRepository.findById(lead.getId());
+            UserEntity user = userRepository.findById(lead.getId());
             if (finalProjectEntity.getProjectLeads() == null) {
                 finalProjectEntity.setProjectLeads(new HashSet<>());
             }
             finalProjectEntity.getProjectLeads().add(user);
         });
 
-        com.gepardec.mega.db.entity.project.Project finalProjectEntity1 = projectEntity;
+        ProjectEntity finalProjectEntity1 = projectEntity;
 
         boolean noProjectEntriesExist = true;
         if (projectEntity.getProjectEntries() != null) {
@@ -79,10 +80,10 @@ public class ProjectServiceImpl implements ProjectService {
         if (noProjectEntriesExist && project.getProjectEntries() != null) {
             project.getProjectEntries().forEach(projectEntry -> {
 
-                User owner = userRepository.findById(projectEntry.getOwner().getId());
-                User assignee = userRepository.findById(projectEntry.getAssignee().getId());
+                UserEntity owner = userRepository.findById(projectEntry.getOwner().getId());
+                UserEntity assignee = userRepository.findById(projectEntry.getAssignee().getId());
 
-                ProjectEntry pe = new ProjectEntry();
+                ProjectEntryEntity pe = new ProjectEntryEntity();
                 pe.setPreset(projectEntry.isPreset());
                 pe.setProject(projectEntry.getProject());
                 pe.setStep(projectEntry.getStep());

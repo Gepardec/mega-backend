@@ -2,9 +2,10 @@ package com.gepardec.mega.rest;
 
 import com.gepardec.mega.db.entity.common.State;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.Step;
-import com.gepardec.mega.db.entity.employee.StepEntry;
-import com.gepardec.mega.db.entity.project.ProjectEntry;
+import com.gepardec.mega.db.entity.employee.StepEntity;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
+import com.gepardec.mega.db.entity.employee.UserEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntryEntity;
 import com.gepardec.mega.db.entity.project.ProjectStep;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.FinishedAndTotalComments;
@@ -25,7 +26,6 @@ import com.gepardec.mega.service.api.ProjectEntryService;
 import com.gepardec.mega.service.api.StepEntryService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.impl.Rest;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -121,13 +121,13 @@ class ProjectManagementResourceTest {
 
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
 
-        List<StepEntry> stepEntries = List.of(
+        List<StepEntryEntity> stepEntries = List.of(
                 createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
                 createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
         );
 
-        List<ProjectEntry> projectEntries = List.of(
+        List<ProjectEntryEntity> projectEntries = List.of(
                 createProjectEntryForStepWithStateAndPreset(ProjectStep.CONTROL_PROJECT, State.NOT_RELEVANT, true),
                 createProjectEntryForStepWithStateAndPreset(ProjectStep.CONTROL_BILLING, State.DONE, false)
         );
@@ -200,13 +200,13 @@ class ProjectManagementResourceTest {
 
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
 
-        List<StepEntry> stepEntries = List.of(
+        List<StepEntryEntity> stepEntries = List.of(
                 createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
                 createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
         );
 
-        List<ProjectEntry> projectEntries = List.of(
+        List<ProjectEntryEntity> projectEntries = List.of(
                 createProjectEntryForStepWithStateAndPreset(ProjectStep.CONTROL_PROJECT, State.NOT_RELEVANT, true),
                 createProjectEntryForStepWithStateAndPreset(ProjectStep.CONTROL_BILLING, State.DONE, false)
         );
@@ -291,13 +291,13 @@ class ProjectManagementResourceTest {
 
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
 
-        List<StepEntry> stepEntries = List.of(
+        List<StepEntryEntity> stepEntries = List.of(
                 createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
                 createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
         );
 
-        List<ProjectEntry> projectEntries = List.of(
+        List<ProjectEntryEntity> projectEntries = List.of(
                 createProjectEntryForStepWithStateAndPreset(ProjectStep.CONTROL_PROJECT, State.NOT_RELEVANT, true),
                 createProjectEntryForStepWithStateAndPreset(ProjectStep.CONTROL_BILLING, State.DONE, false)
         );
@@ -378,13 +378,13 @@ class ProjectManagementResourceTest {
 
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of(employee1, employee2));
 
-        List<StepEntry> stepEntries = List.of(
+        List<StepEntryEntity> stepEntries = List.of(
                 createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
                 createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
         );
 
-        List<ProjectEntry> projectEntries = List.of(
+        List<ProjectEntryEntity> projectEntries = List.of(
                 createProjectEntryForStepWithStateAndPreset(ProjectStep.CONTROL_PROJECT, State.NOT_RELEVANT, true),
                 createProjectEntryForStepWithStateAndPreset(ProjectStep.CONTROL_BILLING, State.DONE, false)
         );
@@ -469,14 +469,14 @@ class ProjectManagementResourceTest {
         assertThat(result).isEmpty();
     }
 
-    private Step createStep(StepName stepName) {
-        Step step = new Step();
+    private StepEntity createStep(StepName stepName) {
+        StepEntity step = new StepEntity();
         step.setName(stepName.name());
         return step;
     }
 
-    private StepEntry createStepEntryForStep(StepName stepName, EmployeeState employeeState) {
-        StepEntry stepEntry = new StepEntry();
+    private StepEntryEntity createStepEntryForStep(StepName stepName, EmployeeState employeeState) {
+        StepEntryEntity stepEntry = new StepEntryEntity();
         stepEntry.setStep(createStep(stepName));
         stepEntry.setState(employeeState);
         stepEntry.setDate(LocalDate.now());
@@ -484,8 +484,8 @@ class ProjectManagementResourceTest {
         return stepEntry;
     }
 
-    private com.gepardec.mega.db.entity.employee.User createUser() {
-        com.gepardec.mega.db.entity.employee.User user = new com.gepardec.mega.db.entity.employee.User();
+    private UserEntity createUser() {
+        UserEntity user = new UserEntity();
         user.setEmail("no-reply@gpeardec.com");
         return user;
     }
@@ -517,8 +517,8 @@ class ProjectManagementResourceTest {
                 .build();
     }
 
-    private ProjectEntry createProjectEntryForStepWithStateAndPreset(ProjectStep step, State state, boolean preset) {
-        ProjectEntry p = new ProjectEntry();
+    private ProjectEntryEntity createProjectEntryForStepWithStateAndPreset(ProjectStep step, State state, boolean preset) {
+        ProjectEntryEntity p = new ProjectEntryEntity();
         p.setStep(step);
         p.setState(state);
         p.setPreset(preset);

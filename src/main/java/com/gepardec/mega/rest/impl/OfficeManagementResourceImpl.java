@@ -2,9 +2,10 @@ package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.application.interceptor.MegaRolesAllowed;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.StepEntry;
-import com.gepardec.mega.db.entity.employee.User;
-import com.gepardec.mega.db.entity.project.ProjectEntry;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
+import com.gepardec.mega.db.entity.employee.UserEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntryEntity;
 import com.gepardec.mega.db.entity.project.ProjectStep;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.FinishedAndTotalComments;
@@ -96,9 +97,9 @@ public class OfficeManagementResourceImpl implements OfficeManagementResource {
         List<Employee> employees = employeeService.getAllEmployeesConsideringExitDate(payrollMonth);
 
         for (Employee employee : employees) {
-            List<StepEntry> stepEntries = stepEntryService.findAllStepEntriesForEmployee(employee, payrollMonth);
+            List<StepEntryEntity> stepEntries = stepEntryService.findAllStepEntriesForEmployee(employee, payrollMonth);
 
-            List<StepEntry> allOwnedStepEntriesForPMProgress = stepEntryService.findAllOwnedAndUnassignedStepEntriesForPMProgress(employee.getEmail(), payrollMonth);
+            List<StepEntryEntity> allOwnedStepEntriesForPMProgress = stepEntryService.findAllOwnedAndUnassignedStepEntriesForPMProgress(employee.getEmail(), payrollMonth);
             List<PmProgressDto> pmProgressDtos = new ArrayList<>();
 
             allOwnedStepEntriesForPMProgress
@@ -168,11 +169,11 @@ public class OfficeManagementResourceImpl implements OfficeManagementResource {
     }
 
     private ProjectOverviewDto projectOverviewDto(ProjectEmployees projectEmployees, Map<String, Employee> employees, YearMonth payrollMonth) {
-        List<ProjectEntry> projectEntries = projectEntryService.findByNameAndDate(projectEmployees.getProjectId(), payrollMonth);
+        List<ProjectEntryEntity> projectEntries = projectEntryService.findByNameAndDate(projectEmployees.getProjectId(), payrollMonth);
         return new ProjectOverviewDto(
                 Optional.ofNullable(projectEntries.getFirst())
-                        .map(ProjectEntry::getProject)
-                        .map(com.gepardec.mega.db.entity.project.Project::getZepId)
+                        .map(ProjectEntryEntity::getProject)
+                        .map(ProjectEntity::getZepId)
                         .orElse(null),
                 projectEmployees.getProjectId(),
                 extractStateForProject(
@@ -200,14 +201,14 @@ public class OfficeManagementResourceImpl implements OfficeManagementResource {
         );
     }
 
-    private ProjectEntry getProjectEntryForProjectStep(List<ProjectEntry> projectEntries, ProjectStep projectStep) {
+    private ProjectEntryEntity getProjectEntryForProjectStep(List<ProjectEntryEntity> projectEntries, ProjectStep projectStep) {
         return projectEntries.stream()
                 .filter(p -> p.getStep() == projectStep)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No project entry found for project step '%s'".formatted(projectStep)));
     }
 
-    private OfficeManagementEntryDto createManagementEntryForEmployee(Employee employee, List<StepEntry> stepEntries, YearMonth payrollMonth, List<PmProgressDto> pmProgressDtos) {
+    private OfficeManagementEntryDto createManagementEntryForEmployee(Employee employee, List<StepEntryEntity> stepEntries, YearMonth payrollMonth, List<PmProgressDto> pmProgressDtos) {
         FinishedAndTotalComments finishedAndTotalComments = commentService.countFinishedAndTotalComments(employee.getEmail(), payrollMonth);
 
         if (!stepEntries.isEmpty()) {
@@ -219,7 +220,7 @@ public class OfficeManagementResourceImpl implements OfficeManagementResource {
             if (employeeCheckStatePair == null) {
                 // Wenn aus irgendeinem Grund kein CONTROL_TIMES Step gefunden wurde, ist der Mitarbeiter auf OPEN
                 employeeCheckState = State.OPEN;
-                Long userId = stepEntries.stream().findFirst().map(StepEntry::getOwner).map(User::getId).orElse(null);
+                Long userId = stepEntries.stream().findFirst().map(StepEntryEntity::getOwner).map(UserEntity::getId).orElse(null);
 
                 logger.error("Für Mitarbeiter [ID: {}] wurde kein CONTROL_TIMES step gefunden.", userId);
             } else {
@@ -243,7 +244,7 @@ public class OfficeManagementResourceImpl implements OfficeManagementResource {
         return null;
     }
 
-    private State extractInternalCheckState(List<StepEntry> stepEntries) {
+    private State extractInternalCheckState(List<StepEntryEntity> stepEntries) {
         boolean internalCheckStateOpen = stepEntries.stream()
                 .filter(stepEntry ->
                         StepName.CONTROL_INTERNAL_TIMES.name().equalsIgnoreCase(stepEntry.getStep().getName())
@@ -256,11 +257,11 @@ public class OfficeManagementResourceImpl implements OfficeManagementResource {
         return internalCheckStateOpen ? State.OPEN : State.DONE;
     }
 
-    private State extractStateForProject(List<StepEntry> stepEntries) {
+    private State extractStateForProject(List<StepEntryEntity> stepEntries) {
         List<EmployeeState> collectedStates = stepEntries
                 .stream()
                 .filter(se -> StepName.CONTROL_TIME_EVIDENCES.name().equalsIgnoreCase(se.getStep().getName()))
-                .map(StepEntry::getState)
+                .map(StepEntryEntity::getState)
                 .toList();
 
         if (collectedStates.isEmpty()) {
@@ -274,7 +275,7 @@ public class OfficeManagementResourceImpl implements OfficeManagementResource {
     /**
      * @return Pair.left: state, pair.right: stateReason
      */
-    private Pair<State, String> extractEmployeeCheckState(List<StepEntry> stepEntries) {
+    private Pair<State, String> extractEmployeeCheckState(List<StepEntryEntity> stepEntries) {
 
         return stepEntries.stream()
                 .filter(stepEntry -> StepName.CONTROL_TIMES.name().equalsIgnoreCase(stepEntry.getStep().getName()))

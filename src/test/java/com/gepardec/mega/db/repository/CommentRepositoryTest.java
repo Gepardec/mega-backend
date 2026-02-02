@@ -1,11 +1,11 @@
 package com.gepardec.mega.db.repository;
 
-import com.gepardec.mega.db.entity.employee.Comment;
+import com.gepardec.mega.db.entity.employee.CommentEntity;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.Step;
-import com.gepardec.mega.db.entity.employee.StepEntry;
-import com.gepardec.mega.db.entity.employee.User;
-import com.gepardec.mega.db.entity.project.Project;
+import com.gepardec.mega.db.entity.employee.StepEntity;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
+import com.gepardec.mega.db.entity.employee.UserEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntity;
 import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.domain.model.SourceSystem;
 import io.quarkus.test.TestTransaction;
@@ -45,15 +45,15 @@ class CommentRepositoryTest {
     @Inject
     StepRepository stepRepository;
 
-    private Comment comment;
+    private CommentEntity comment;
 
-    private Project project;
+    private ProjectEntity project;
 
-    private StepEntry stepEntry;
+    private StepEntryEntity stepEntry;
 
-    private Step step;
+    private StepEntity step;
 
-    private User user;
+    private UserEntity user;
 
     @BeforeEach
     void init() {
@@ -66,7 +66,7 @@ class CommentRepositoryTest {
         commentRepository.deleteAll();
         assertThat(commentRepository.findAll().list()).isEmpty();
 
-        List<Comment> result = commentRepository.findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail(comment.getCreationDate().toLocalDate(), LocalDate.now(), EMAIL);
+        List<CommentEntity> result = commentRepository.findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail(comment.getCreationDate().toLocalDate(), LocalDate.now(), EMAIL);
 
         assertThat(result).isEmpty();
     }
@@ -75,7 +75,7 @@ class CommentRepositoryTest {
     void findAllComments_whenCommentExist_thenReturnsListWithCorrectComment() {
         persistEntities();
 
-        List<Comment> result = commentRepository.findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail(comment.getCreationDate().toLocalDate(), LocalDate.now(), EMAIL);
+        List<CommentEntity> result = commentRepository.findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail(comment.getCreationDate().toLocalDate(), LocalDate.now(), EMAIL);
 
         assertThat(result).hasSize(1);
     }
@@ -93,7 +93,7 @@ class CommentRepositoryTest {
     void update_whenCorrectCommentAndIsChanged_thenUpdatesComment() {
         persistEntities();
 
-        Comment result = commentRepository.update(comment);
+        CommentEntity result = commentRepository.update(comment);
 
         assertThat(result).isEqualTo(comment);
     }
@@ -107,8 +107,8 @@ class CommentRepositoryTest {
         assertThat(result).isTrue();
     }
 
-    private Project initializeProjectObject() {
-        Project initProject = new Project();
+    private ProjectEntity initializeProjectObject() {
+        ProjectEntity initProject = new ProjectEntity();
         initProject.setName("LIW-Allgemein");
         initProject.setStartDate(LocalDate.now());
         initProject.setEndDate(LocalDate.now());
@@ -116,8 +116,8 @@ class CommentRepositoryTest {
         return initProject;
     }
 
-    private User initializeUserObject() {
-        User initUser = new User();
+    private UserEntity initializeUserObject() {
+        UserEntity initUser = new UserEntity();
         initUser.setActive(true);
         initUser.setEmail(EMAIL);
         initUser.setFirstname("Max");
@@ -131,8 +131,8 @@ class CommentRepositoryTest {
         return initUser;
     }
 
-    private StepEntry initializeStepEntryObject() {
-        StepEntry initStepEntry = new StepEntry();
+    private StepEntryEntity initializeStepEntryObject() {
+        StepEntryEntity initStepEntry = new StepEntryEntity();
         initStepEntry.setCreationDate(LOCAL_DATE_TIME);
         initStepEntry.setUpdatedDate(LOCAL_DATE_TIME);
         initStepEntry.setDate(LocalDate.now());
@@ -145,8 +145,8 @@ class CommentRepositoryTest {
         return initStepEntry;
     }
 
-    private Comment initializeCommentObject() {
-        Comment initComment = new Comment();
+    private CommentEntity initializeCommentObject() {
+        CommentEntity initComment = new CommentEntity();
         initComment.setState(EmployeeState.OPEN);
         initComment.setMessage("Test Message");
         initComment.setCreationDate(LocalDateTime.of(2021, 1, 18, 10, 10));
@@ -157,8 +157,8 @@ class CommentRepositoryTest {
         return initComment;
     }
 
-    private Step initializeStepObject() {
-        Step initStep = new Step();
+    private StepEntity initializeStepObject() {
+        StepEntity initStep = new StepEntity();
         initStep.setName("TestStep");
         initStep.setRole(Role.EMPLOYEE);
         initStep.setOrdinal(1);

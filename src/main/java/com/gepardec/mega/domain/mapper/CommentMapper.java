@@ -1,14 +1,15 @@
 package com.gepardec.mega.domain.mapper;
 
+import com.gepardec.mega.db.entity.employee.CommentEntity;
 import com.gepardec.mega.domain.model.Comment;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class CommentMapper implements EntityMapper<Comment, com.gepardec.mega.db.entity.employee.Comment> {
+public class CommentMapper implements EntityMapper<Comment, CommentEntity> {
 
     @Override
-    public com.gepardec.mega.db.entity.employee.Comment mapToEntity(Comment object) {
-        com.gepardec.mega.db.entity.employee.Comment comment = new com.gepardec.mega.db.entity.employee.Comment();
+    public CommentEntity mapToEntity(Comment object) {
+        CommentEntity comment = new CommentEntity();
         comment.setId(object.getId());
         comment.setMessage(object.getMessage());
         comment.setState(object.getState());
@@ -17,7 +18,7 @@ public class CommentMapper implements EntityMapper<Comment, com.gepardec.mega.db
     }
 
     @Override
-    public Comment mapToDomain(com.gepardec.mega.db.entity.employee.Comment dbComment) {
+    public Comment mapToDomain(CommentEntity dbComment) {
         return Comment
                 .builder()
                 .id(dbComment.getId())

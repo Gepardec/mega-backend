@@ -2,9 +2,10 @@ package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.application.interceptor.MegaRolesAllowed;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.StepEntry;
-import com.gepardec.mega.db.entity.employee.User;
-import com.gepardec.mega.db.entity.project.ProjectEntry;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
+import com.gepardec.mega.db.entity.employee.UserEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntryEntity;
 import com.gepardec.mega.db.entity.project.ProjectStep;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.FinishedAndTotalComments;
@@ -137,7 +138,7 @@ public class ProjectManagementResourceImpl implements ProjectManagementResource 
             Employee> employees, YearMonth payrollMonth, boolean projectStateLogicSingle) {
 
         List<ManagementEntryDto> entries = createManagementEntriesForProject(currentProject, employees, payrollMonth, projectStateLogicSingle);
-        List<ProjectEntry> projectEntries = projectEntryService.findByNameAndDate(currentProject.getProjectId(), payrollMonth);
+        List<ProjectEntryEntity> projectEntries = projectEntryService.findByNameAndDate(currentProject.getProjectId(), payrollMonth);
 
         if (!entries.isEmpty() && !projectEntries.isEmpty()) {
 
@@ -151,8 +152,8 @@ public class ProjectManagementResourceImpl implements ProjectManagementResource 
 
             // it is guaranteed that the same Project instance is obtained for every ProjectEntry
             Integer zepId = Optional.ofNullable(projectEntries.getFirst())
-                    .map(ProjectEntry::getProject)
-                    .map(com.gepardec.mega.db.entity.project.Project::getZepId)
+                    .map(ProjectEntryEntity::getProject)
+                    .map(ProjectEntity::getZepId)
                     .orElse(null);
 
             return ProjectManagementEntryDto.builder()
@@ -208,7 +209,7 @@ public class ProjectManagementResourceImpl implements ProjectManagementResource 
         );
     }
 
-    private ProjectEntry getProjectEntryForProjectStep(List<ProjectEntry> projectEntries, ProjectStep projectStep) {
+    private ProjectEntryEntity getProjectEntryForProjectStep(List<ProjectEntryEntity> projectEntries, ProjectStep projectStep) {
         return projectEntries.stream()
                 .filter(p -> p.getStep() == projectStep)
                 .findFirst()
@@ -228,7 +229,7 @@ public class ProjectManagementResourceImpl implements ProjectManagementResource 
         for (String userId : projectEmployees.getEmployees()) {
             if (employees.containsKey(userId)) {
                 Employee employee = employees.get(userId);
-                List<StepEntry> stepEntries = stepEntryService.findAllStepEntriesForEmployeeAndProject(
+                List<StepEntryEntity> stepEntries = stepEntryService.findAllStepEntriesForEmployeeAndProject(
                         employee,
                         projectEmployees.getProjectId(),
                         Objects.requireNonNull(userContext.getUser()).getEmail(),
@@ -246,7 +247,7 @@ public class ProjectManagementResourceImpl implements ProjectManagementResource 
         return entries;
     }
 
-    private ManagementEntryDto createManagementEntryForEmployee(Employee employee, String projectId, List<StepEntry> stepEntries, YearMonth payrollMonth, boolean projectStateLogicSingle) {
+    private ManagementEntryDto createManagementEntryForEmployee(Employee employee, String projectId, List<StepEntryEntity> stepEntries, YearMonth payrollMonth, boolean projectStateLogicSingle) {
         FinishedAndTotalComments finishedAndTotalComments = commentService.countFinishedAndTotalComments(employee.getEmail(), payrollMonth);
 
         List<ProjectTime> projectTime = zepService.getProjectTimesForEmployeePerProject(projectId, payrollMonth);
@@ -260,7 +261,7 @@ public class ProjectManagementResourceImpl implements ProjectManagementResource 
             if (employeeCheckStatePair == null) {
                 // Wenn aus irgendeinem Grund kein CONTROL_TIMES Step gefunden wurde, ist der Mitarbeiter auf OPEN
                 employeeCheckState = State.OPEN;
-                Long userId = stepEntries.stream().findFirst().map(StepEntry::getOwner).map(User::getId).orElse(null);
+                Long userId = stepEntries.stream().findFirst().map(StepEntryEntity::getOwner).map(UserEntity::getId).orElse(null);
 
                 logger.error("Für Mitarbeiter [ID: {}] wurde kein CONTROL_TIMES step gefunden.", userId);
             } else {
@@ -308,7 +309,7 @@ public class ProjectManagementResourceImpl implements ProjectManagementResource 
     /**
      * @return Pair.left: state, pair.right: stateReason
      */
-    private Pair<State, String> extractEmployeeCheckState(List<StepEntry> stepEntries) {
+    private Pair<State, String> extractEmployeeCheckState(List<StepEntryEntity> stepEntries) {
 
         return stepEntries.stream()
                 .filter(stepEntry -> StepName.CONTROL_TIMES.name().equalsIgnoreCase(stepEntry.getStep().getName()))
@@ -326,7 +327,7 @@ public class ProjectManagementResourceImpl implements ProjectManagementResource 
         };
     }
 
-    private com.gepardec.mega.domain.model.State extractInternalCheckState(List<StepEntry> stepEntries) {
+    private com.gepardec.mega.domain.model.State extractInternalCheckState(List<StepEntryEntity> stepEntries) {
         if (userContext == null || userContext.getUser() == null) {
             throw new IllegalStateException("User context does not exist.");
         }
@@ -343,7 +344,7 @@ public class ProjectManagementResourceImpl implements ProjectManagementResource 
         return internalCheckStateOpen ? com.gepardec.mega.domain.model.State.OPEN : com.gepardec.mega.domain.model.State.DONE;
     }
 
-    private com.gepardec.mega.domain.model.State extractStateForProject(List<StepEntry> stepEntries, String projectId, boolean projectStateLogicSingle) {
+    private com.gepardec.mega.domain.model.State extractStateForProject(List<StepEntryEntity> stepEntries, String projectId, boolean projectStateLogicSingle) {
         validateUserContext();
 
         List<EmployeeState> collectedStates = stepEntries
@@ -356,7 +357,7 @@ public class ProjectManagementResourceImpl implements ProjectManagementResource 
                                 Strings.CS.equals(se.getProject(), projectId);
                     }
                 })
-                .map(StepEntry::getState)
+                .map(StepEntryEntity::getState)
                 .toList();
 
         if (projectStateLogicSingle) {

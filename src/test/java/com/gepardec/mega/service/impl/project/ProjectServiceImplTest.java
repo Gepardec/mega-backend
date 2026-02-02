@@ -1,7 +1,9 @@
 package com.gepardec.mega.service.impl.project;
 
 import com.gepardec.mega.db.entity.common.State;
-import com.gepardec.mega.db.entity.project.ProjectEntry;
+import com.gepardec.mega.db.entity.employee.UserEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntryEntity;
 import com.gepardec.mega.db.entity.project.ProjectStep;
 import com.gepardec.mega.db.repository.ProjectRepository;
 import com.gepardec.mega.db.repository.UserRepository;
@@ -155,7 +157,7 @@ class ProjectServiceImplTest {
     @Test
     void addProject_whenProjectDoesNotExistHasLeadsAndNoProjectEntries_createsNewProject() {
         String projectName = "ProjectA";
-        com.gepardec.mega.db.entity.project.Project project = new com.gepardec.mega.db.entity.project.Project();
+        ProjectEntity project = new ProjectEntity();
         project.setName(projectName);
         project.setStartDate(LocalDate.now());
         project.setEndDate(LocalDate.now().plusMonths(1));
@@ -164,7 +166,7 @@ class ProjectServiceImplTest {
 
         when(projectRepository.findByName(anyString()))
                 .thenReturn(null);
-        when(projectRepository.merge(any(com.gepardec.mega.db.entity.project.Project.class)))
+        when(projectRepository.merge(any(ProjectEntity.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         when(userRepository.findById(anyLong()))
@@ -174,10 +176,10 @@ class ProjectServiceImplTest {
 
         projectService.addProject(project, YearMonth.now());
 
-        ArgumentCaptor<com.gepardec.mega.db.entity.project.Project> projectEntityCaptor = ArgumentCaptor.forClass(com.gepardec.mega.db.entity.project.Project.class);
+        ArgumentCaptor<ProjectEntity> projectEntityCaptor = ArgumentCaptor.forClass(ProjectEntity.class);
         verify(projectRepository, times(1)).merge(projectEntityCaptor.capture());
 
-        com.gepardec.mega.db.entity.project.Project capturedProjectEntity = projectEntityCaptor.getValue();
+        ProjectEntity capturedProjectEntity = projectEntityCaptor.getValue();
         assertThat(capturedProjectEntity).isNotNull();
         assertThat(capturedProjectEntity.getName()).isEqualTo(project.getName());
         assertThat(capturedProjectEntity.getStartDate()).isEqualTo(project.getStartDate());
@@ -187,11 +189,11 @@ class ProjectServiceImplTest {
     @Test
     void addProject_whenProjectExistsHasLeadsAndProjectEntries_addsExistingProject() {
         String projectName = "ProjectA";
-        HashSet<ProjectEntry> projectEntries = new HashSet<>();
-        HashSet<com.gepardec.mega.db.entity.employee.User> projectLeads = new HashSet<>();
+        HashSet<ProjectEntryEntity> projectEntries = new HashSet<>();
+        HashSet<UserEntity> projectLeads = new HashSet<>();
         projectLeads.add(createUser(1L, "TestLead", "1", "testlead1@gmail.com", Set.of(Role.PROJECT_LEAD)));
         projectLeads.add(createUser(2L, "TestLead", "2", "testlead2@gmail.com", Set.of(Role.PROJECT_LEAD, Role.EMPLOYEE)));
-        com.gepardec.mega.db.entity.project.Project project = new com.gepardec.mega.db.entity.project.Project();
+        ProjectEntity project = new ProjectEntity();
         project.setName(projectName);
         project.setId(1L);
         project.setStartDate(LocalDate.now());
@@ -203,7 +205,7 @@ class ProjectServiceImplTest {
 
         when(projectRepository.findByName(anyString()))
                 .thenReturn(project);
-        when(projectRepository.merge(any(com.gepardec.mega.db.entity.project.Project.class)))
+        when(projectRepository.merge(any(ProjectEntity.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         when(userRepository.findById(anyLong()))
@@ -216,11 +218,11 @@ class ProjectServiceImplTest {
 
         projectService.addProject(project, YearMonth.now());
 
-        ArgumentCaptor<com.gepardec.mega.db.entity.project.Project> projectEntityCaptor =
-                ArgumentCaptor.forClass(com.gepardec.mega.db.entity.project.Project.class);
+        ArgumentCaptor<ProjectEntity> projectEntityCaptor =
+                ArgumentCaptor.forClass(ProjectEntity.class);
         verify(projectRepository, times(1)).merge(projectEntityCaptor.capture());
 
-        com.gepardec.mega.db.entity.project.Project capturedProjectEntity = projectEntityCaptor.getValue();
+        ProjectEntity capturedProjectEntity = projectEntityCaptor.getValue();
         assertThat(capturedProjectEntity).isNotNull();
         assertThat(capturedProjectEntity.getName()).isEqualTo(project.getName());
         assertThat(capturedProjectEntity.getStartDate()).isEqualTo(project.getStartDate());
@@ -241,8 +243,8 @@ class ProjectServiceImplTest {
 
     }
 
-    private com.gepardec.mega.db.entity.employee.User createUser(Long userId, String firstname, String lastname, String email, Set<Role> roles) {
-        com.gepardec.mega.db.entity.employee.User user = new com.gepardec.mega.db.entity.employee.User();
+    private UserEntity createUser(Long userId, String firstname, String lastname, String email, Set<Role> roles) {
+        UserEntity user = new UserEntity();
         user.setLastname(lastname);
         user.setFirstname(firstname);
         user.setId(userId);
@@ -251,8 +253,8 @@ class ProjectServiceImplTest {
         return user;
     }
 
-    private ProjectEntry createProjectEntry(com.gepardec.mega.db.entity.project.Project project, LocalDate projectDate) {
-        ProjectEntry projectEntry = new ProjectEntry();
+    private ProjectEntryEntity createProjectEntry(ProjectEntity project, LocalDate projectDate) {
+        ProjectEntryEntity projectEntry = new ProjectEntryEntity();
         projectEntry.setPreset(true);
         projectEntry.setProject(project);
         projectEntry.setStep(ProjectStep.CONTROL_PROJECT);

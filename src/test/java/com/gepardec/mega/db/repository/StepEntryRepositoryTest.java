@@ -1,10 +1,10 @@
 package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.Step;
-import com.gepardec.mega.db.entity.employee.StepEntry;
-import com.gepardec.mega.db.entity.employee.User;
-import com.gepardec.mega.db.entity.project.Project;
+import com.gepardec.mega.db.entity.employee.StepEntity;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
+import com.gepardec.mega.db.entity.employee.UserEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntity;
 import com.gepardec.mega.domain.model.Role;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
@@ -39,13 +39,13 @@ class StepEntryRepositoryTest {
     @Inject
     StepEntryRepository stepEntryRepository;
 
-    private StepEntry stepEntry;
+    private StepEntryEntity stepEntry;
 
-    private User user;
+    private UserEntity user;
 
-    private Step step;
+    private StepEntity step;
 
-    private Project project;
+    private ProjectEntity project;
 
     @BeforeEach
     void init() {
@@ -54,7 +54,7 @@ class StepEntryRepositoryTest {
 
     @Test
     void findControlTimesStepEntryByOwnerAndEntryDate_whenNoStepEntriesExist_thenReturnsEmptyObject() {
-        Optional<StepEntry> result = stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(localDateTime.toLocalDate(), EMAIL);
+        Optional<StepEntryEntity> result = stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(localDateTime.toLocalDate(), EMAIL);
 
         assertThat(result).isEmpty();
 
@@ -65,7 +65,7 @@ class StepEntryRepositoryTest {
     void findAllOwnedAndUnassignedStepEntriesExceptControlTimes_whenMethodIsCalledAndNoUnassignedStepEntriesExist_thenReturnsEmptyList() {
         persistEntities();
 
-        List<StepEntry> result = stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(localDateTime.toLocalDate(), EMAIL);
+        List<StepEntryEntity> result = stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(localDateTime.toLocalDate(), EMAIL);
 
         assertThat(result).isEmpty();
     }
@@ -74,7 +74,7 @@ class StepEntryRepositoryTest {
     void findAllOwnedAndUnassignedStepEntriesForPMProgress_whenMethodIsCalledWithCorrectParameters_thenReturnsEmptyList() {
         persistEntities();
 
-        List<StepEntry> result = stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForPMProgress(localDateTime.toLocalDate(), EMAIL);
+        List<StepEntryEntity> result = stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForPMProgress(localDateTime.toLocalDate(), EMAIL);
 
         assertThat(result).isEmpty();
     }
@@ -83,7 +83,7 @@ class StepEntryRepositoryTest {
     void findAllOwnedAndUnassignedStepEntriesForPMProgress_whenMethodIsCalledWithNullLocalDate_thenReturnsEmptyList() {
         persistEntities();
 
-        List<StepEntry> result = stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForPMProgress(null, EMAIL);
+        List<StepEntryEntity> result = stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForPMProgress(null, EMAIL);
 
         assertThat(result).isEmpty();
     }
@@ -92,7 +92,7 @@ class StepEntryRepositoryTest {
     void findAllOwnedAndUnassignedStepEntriesForPMProgress_whenMethodIsCalledWithNullEmail_thenReturnsEmptyList() {
         persistEntities();
 
-        List<StepEntry> result = stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForPMProgress(localDateTime.toLocalDate(), null);
+        List<StepEntryEntity> result = stepEntryRepository.findAllOwnedAndUnassignedStepEntriesForPMProgress(localDateTime.toLocalDate(), null);
 
         assertThat(result).isEmpty();
     }
@@ -101,7 +101,7 @@ class StepEntryRepositoryTest {
     void findAllOwnedStepEntriesInRange_whenMethodIsCalledWithCorrectParameters_thenReturnsAllEntriesInRange() {
         persistEntities();
 
-        List<StepEntry> result = stepEntryRepository.findAllOwnedStepEntriesInRange(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL);
+        List<StepEntryEntity> result = stepEntryRepository.findAllOwnedStepEntriesInRange(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL);
 
         assertAll(
                 () -> assertThat(result).hasSize(1),
@@ -158,7 +158,7 @@ class StepEntryRepositoryTest {
     void findStepEntryForEmployeeAtStepInRange_whenMethodIsCalledWithCorrectParameters_thenReturnsOptionalOfStepEntry() {
         persistEntities();
 
-        Optional<StepEntry> result = stepEntryRepository.findStepEntryForEmployeeAtStepInRange(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, stepEntry.getStep().getId(), EMAIL);
+        Optional<StepEntryEntity> result = stepEntryRepository.findStepEntryForEmployeeAtStepInRange(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, stepEntry.getStep().getId(), EMAIL);
 
         assertAll(
                 () -> assertThat(result).isPresent(),
@@ -170,7 +170,7 @@ class StepEntryRepositoryTest {
     void findStepEntryForEmployeeAndProjectAtStepInRange_whenMethodIsCalledWithCorrectParameters_thenReturnsOptionalOfStepEntry() {
         persistEntities();
 
-        Optional<StepEntry> result = stepEntryRepository.findStepEntryForEmployeeAndProjectAtStepInRange(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, stepEntry.getStep().getId(), EMAIL, project.getName());
+        Optional<StepEntryEntity> result = stepEntryRepository.findStepEntryForEmployeeAndProjectAtStepInRange(localDateTime.toLocalDate(), localDateTime.toLocalDate(), EMAIL, stepEntry.getStep().getId(), EMAIL, project.getName());
 
         assertAll(
                 () -> assertThat(result).isPresent(),
@@ -178,8 +178,8 @@ class StepEntryRepositoryTest {
         );
     }
 
-    private Project initializeProjectObject() {
-        Project initProject = new Project();
+    private ProjectEntity initializeProjectObject() {
+        ProjectEntity initProject = new ProjectEntity();
         initProject.setName("LIW-Allgemein");
         initProject.setStartDate(LocalDate.now());
         initProject.setEndDate(LocalDate.now());
@@ -187,8 +187,8 @@ class StepEntryRepositoryTest {
         return initProject;
     }
 
-    private User initializeUserObject() {
-        User initUser = new User();
+    private UserEntity initializeUserObject() {
+        UserEntity initUser = new UserEntity();
         initUser.setActive(true);
         initUser.setEmail(EMAIL);
         initUser.setFirstname("Max");
@@ -202,8 +202,8 @@ class StepEntryRepositoryTest {
         return initUser;
     }
 
-    private Step initializeStepObject() {
-        Step initStep = new Step();
+    private StepEntity initializeStepObject() {
+        StepEntity initStep = new StepEntity();
         initStep.setName("TestStep");
         initStep.setRole(Role.EMPLOYEE);
         initStep.setOrdinal(1);
@@ -211,8 +211,8 @@ class StepEntryRepositoryTest {
         return initStep;
     }
 
-    private StepEntry initializeStepEntryObject() {
-        StepEntry initStepEntry = new StepEntry();
+    private StepEntryEntity initializeStepEntryObject() {
+        StepEntryEntity initStepEntry = new StepEntryEntity();
         initStepEntry.setCreationDate(localDateTime);
         initStepEntry.setUpdatedDate(localDateTime);
         initStepEntry.setDate(LocalDate.now());

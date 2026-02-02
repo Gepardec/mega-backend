@@ -37,7 +37,7 @@ public class PrematureEmployeeCheckEntity {
      */
     @OneToOne(optional = false, orphanRemoval = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private User user;
+    private UserEntity user;
 
     /**
      * Which month has been prematurely checked
@@ -93,11 +93,11 @@ public class PrematureEmployeeCheckEntity {
         this.id = id;
     }
 
-    public User getUser() {
+    public UserEntity getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserEntity user) {
         this.user = user;
     }
 

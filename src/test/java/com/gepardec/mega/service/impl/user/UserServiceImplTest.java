@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.impl.user;
 
 import com.gepardec.mega.application.exception.ForbiddenException;
-import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.mapper.UserMapper;
 import com.gepardec.mega.domain.model.Role;
@@ -45,12 +45,12 @@ class UserServiceImplTest {
 
     @Test
     void findUserForEmail_whenUser_thenReturnUser() {
-        com.gepardec.mega.db.entity.employee.User user = User.of("001.max.mustermann@gmail.com");
+        UserEntity user = UserEntity.of("001.max.mustermann@gmail.com");
 
         when(userRepository.findActiveByEmail(anyString()))
                 .thenReturn(Optional.of(user));
 
-        when(userMapper.mapToDomain(any(User.class)))
+        when(userMapper.mapToDomain(any(UserEntity.class)))
                 .thenReturn(com.gepardec.mega.domain.model.User.builder().userId("001-mmustermann").build());
 
         com.gepardec.mega.domain.model.User actual = userService.findUserForEmail(anyString());
@@ -70,12 +70,12 @@ class UserServiceImplTest {
 
     @Test
     void findByName_whenUser_thenReturnUser() {
-        com.gepardec.mega.db.entity.employee.User user = User.of("001.max.mustermann@gmail.com");
+        UserEntity user = UserEntity.of("001.max.mustermann@gmail.com");
 
         when(userRepository.findActiveByName(anyString(), anyString()))
                 .thenReturn(Optional.of(user));
 
-        when(userMapper.mapToDomain(any(User.class)))
+        when(userMapper.mapToDomain(any(UserEntity.class)))
                 .thenReturn(com.gepardec.mega.domain.model.User.builder().userId("001-mmustermann").build());
 
         com.gepardec.mega.domain.model.User actual = userService.findByName(anyString(), anyString());
@@ -95,12 +95,12 @@ class UserServiceImplTest {
 
     @Test
     void findByZepId_whenUser_thenReturnUser() {
-        com.gepardec.mega.db.entity.employee.User user = User.of("001.max.mustermann@gmail.com");
+        UserEntity user = UserEntity.of("001.max.mustermann@gmail.com");
 
         when(userRepository.findByZepId(anyString()))
                 .thenReturn(Optional.of(user));
 
-        when(userMapper.mapToDomain(any(User.class)))
+        when(userMapper.mapToDomain(any(UserEntity.class)))
                 .thenReturn(com.gepardec.mega.domain.model.User.builder().userId("001-mmustermann").build());
 
         com.gepardec.mega.domain.model.User actual = userService.findByZepId(anyString());
@@ -110,8 +110,8 @@ class UserServiceImplTest {
 
     @Test
     void findActiveUsers_whenUser_thenReturnUser() {
-        User user = User.of("001.max.mustermann@gmail.com");
-        List<com.gepardec.mega.db.entity.employee.User> userList = List.of(
+        UserEntity user = UserEntity.of("001.max.mustermann@gmail.com");
+        List<UserEntity> userList = List.of(
                 user
         );
 
@@ -123,7 +123,7 @@ class UserServiceImplTest {
         when(userRepository.findActive())
                 .thenReturn(userList);
 
-        when(userMapper.mapToDomain(any(User.class)))
+        when(userMapper.mapToDomain(any(UserEntity.class)))
                 .thenReturn(resultUser);
 
         List<com.gepardec.mega.domain.model.User> actual = userService.findActiveUsers();
@@ -145,8 +145,8 @@ class UserServiceImplTest {
 
     @Test
     void findByRoles_whenRoles_thenReturnUserList() {
-        User user = User.of("001.max.mustermann@gmail.com");
-        List<com.gepardec.mega.db.entity.employee.User> userList = List.of(
+        UserEntity user = UserEntity.of("001.max.mustermann@gmail.com");
+        List<UserEntity> userList = List.of(
                 user
         );
 
@@ -158,7 +158,7 @@ class UserServiceImplTest {
         when(userRepository.findByRoles(List.of(Role.EMPLOYEE)))
                 .thenReturn(userList);
 
-        when(userMapper.mapToDomain(any(User.class)))
+        when(userMapper.mapToDomain(any(UserEntity.class)))
                 .thenReturn(resultUser);
 
         List<com.gepardec.mega.domain.model.User> actual = userService.findByRoles(List.of(Role.EMPLOYEE));

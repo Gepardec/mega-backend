@@ -1,6 +1,6 @@
 package com.gepardec.mega.db.entity.project;
 
-import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,7 +25,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "project")
-public class Project {
+public class ProjectEntity {
 
     @Id
     @Column(name = "id", insertable = false, updatable = false)
@@ -60,7 +60,7 @@ public class Project {
     /**
      * The project leads of the project
      *
-     * @see User
+     * @see UserEntity
      */
     // need to remove initialization due to:
     // https://stackoverflow.com/questions/66932114/jpa-hibernate-lazy-loaded-list-is-empty-after-flush
@@ -72,12 +72,12 @@ public class Project {
             uniqueConstraints = @UniqueConstraint(columnNames = {
                     "project_id", "employee_id"})
     )
-    private Set<User> projectLeads;
+    private Set<UserEntity> projectLeads;
 
     /**
      * The project entries of the project
      *
-     * @see ProjectEntry
+     * @see ProjectEntryEntity
      */
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
@@ -85,10 +85,10 @@ public class Project {
             joinColumns = {@JoinColumn(name = "project_id")},
             inverseJoinColumns = {@JoinColumn(name = "project_entry_id")}
     )
-    private Set<ProjectEntry> projectEntries;
+    private Set<ProjectEntryEntity> projectEntries;
 
     // needed to be consistent with the database
-    public void addProjectEntry(ProjectEntry projectEntry) {
+    public void addProjectEntry(ProjectEntryEntity projectEntry) {
         if (projectEntries == null) {
             projectEntries = new HashSet<>();
         }
@@ -136,19 +136,19 @@ public class Project {
         this.endDate = endDate;
     }
 
-    public Set<User> getProjectLeads() {
+    public Set<UserEntity> getProjectLeads() {
         return projectLeads;
     }
 
-    public void setProjectLeads(Set<User> projectLeads) {
+    public void setProjectLeads(Set<UserEntity> projectLeads) {
         this.projectLeads = projectLeads;
     }
 
-    public Set<ProjectEntry> getProjectEntries() {
+    public Set<ProjectEntryEntity> getProjectEntries() {
         return projectEntries;
     }
 
-    public void setProjectEntries(Set<ProjectEntry> projectEntries) {
+    public void setProjectEntries(Set<ProjectEntryEntity> projectEntries) {
         this.projectEntries = projectEntries;
     }
 
@@ -161,7 +161,7 @@ public class Project {
             return false;
         }
 
-        Project project = (Project) o;
+        ProjectEntity project = (ProjectEntity) o;
 
         if (!Objects.equals(id, project.id)) {
             return false;

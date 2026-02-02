@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.common.State;
-import com.gepardec.mega.db.entity.project.ProjectEntry;
+import com.gepardec.mega.db.entity.project.ProjectEntryEntity;
 import com.gepardec.mega.db.repository.ProjectEntryRepository;
 import com.gepardec.mega.domain.model.ProjectState;
 import com.gepardec.mega.domain.model.ProjectStep;
@@ -22,7 +22,7 @@ public class ProjectEntryServiceImpl implements ProjectEntryService {
     ProjectEntryRepository projectEntryRepository;
 
     @Override
-    public List<ProjectEntry> findByNameAndDate(String projectName, YearMonth payrollMonth) {
+    public List<ProjectEntryEntity> findByNameAndDate(String projectName, YearMonth payrollMonth) {
         return projectEntryRepository.findByNameAndDate(projectName, payrollMonth.atDay(1), payrollMonth.atEndOfMonth());
     }
 
@@ -39,7 +39,7 @@ public class ProjectEntryServiceImpl implements ProjectEntryService {
         return projectEntryRepository.updateProjectEntry(projectEntity);
     }
 
-    private ProjectEntry findByNameAndEntryDateAndStep(String projectName, LocalDate entryDate, ProjectStep projectStep) {
+    private ProjectEntryEntity findByNameAndEntryDateAndStep(String projectName, LocalDate entryDate, ProjectStep projectStep) {
         return projectEntryRepository.findByNameAndEntryDateAndStep(projectName, entryDate, mapProjectStepFromModelToDatabase(projectStep));
     }
 

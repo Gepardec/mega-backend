@@ -26,9 +26,9 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "comment")
-@NamedQuery(name = "Comment.findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail", query = "SELECT c FROM Comment c WHERE c.stepEntry.owner.email = :email AND ((c.stepEntry.date BETWEEN :start AND :end) OR (c.stepEntry.date < :start AND c.employeeState = :state))")
-@NamedQuery(name = "Comment.findAllCommentsBetweenStartAndEndDateForEmail", query = "SELECT c FROM Comment c WHERE c.stepEntry.owner.email = :email AND ((c.stepEntry.date BETWEEN :start AND :end) OR (c.stepEntry.date < :start))")
-public class Comment {
+@NamedQuery(name = "Comment.findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail", query = "SELECT c FROM CommentEntity c WHERE c.stepEntry.owner.email = :email AND ((c.stepEntry.date BETWEEN :start AND :end) OR (c.stepEntry.date < :start AND c.employeeState = :state))")
+@NamedQuery(name = "Comment.findAllCommentsBetweenStartAndEndDateForEmail", query = "SELECT c FROM CommentEntity c WHERE c.stepEntry.owner.email = :email AND ((c.stepEntry.date BETWEEN :start AND :end) OR (c.stepEntry.date < :start))")
+public class CommentEntity {
     static final int MAX_MESSAGE_LENGTH = 500;
 
     @Id
@@ -79,14 +79,14 @@ public class Comment {
     /**
      * The step entry the comment is for
      *
-     * @see StepEntry
+     * @see StepEntryEntity
      */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "step_entry_id",
             referencedColumnName = "id",
             foreignKey = @ForeignKey(name = "fk_step_entry", value = ConstraintMode.CONSTRAINT))
-    private StepEntry stepEntry;
+    private StepEntryEntity stepEntry;
 
     @PrePersist
     void onPersist() {
@@ -123,11 +123,11 @@ public class Comment {
         this.updatedDate = updatedDate;
     }
 
-    public StepEntry getStepEntry() {
+    public StepEntryEntity getStepEntry() {
         return stepEntry;
     }
 
-    public void setStepEntry(StepEntry stepEntry) {
+    public void setStepEntry(StepEntryEntity stepEntry) {
         this.stepEntry = stepEntry;
     }
 
@@ -173,7 +173,7 @@ public class Comment {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Comment comment = (Comment) o;
+        CommentEntity comment = (CommentEntity) o;
         return (id != null) ? Objects.equals(id, comment.id) : super.equals(o);
     }
 

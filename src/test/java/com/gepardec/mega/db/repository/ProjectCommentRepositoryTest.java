@@ -1,7 +1,7 @@
 package com.gepardec.mega.db.repository;
 
-import com.gepardec.mega.db.entity.project.Project;
-import com.gepardec.mega.db.entity.project.ProjectComment;
+import com.gepardec.mega.db.entity.project.ProjectCommentEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntity;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -27,7 +27,7 @@ class ProjectCommentRepositoryTest {
     @Inject
     ProjectRepository projectRepository;
 
-    private ProjectComment projectComment;
+    private ProjectCommentEntity projectComment;
 
     @BeforeEach
     void setUp() {
@@ -39,7 +39,7 @@ class ProjectCommentRepositoryTest {
         projectRepository.persist(projectComment.getProject());
         projectCommentRepository.save(projectComment);
 
-        List<ProjectComment> projectComments = projectCommentRepository.findByProjectNameAndDateBetween(
+        List<ProjectCommentEntity> projectComments = projectCommentRepository.findByProjectNameAndDateBetween(
                 projectComment.getProject().getName(),
                 projectComment.getDate().minusDays(2),
                 projectComment.getDate().plusDays(2)
@@ -47,7 +47,7 @@ class ProjectCommentRepositoryTest {
 
         assertThat(projectComments).isNotEmpty()
                 .first()
-                .extracting(ProjectComment::getDate)
+                .extracting(ProjectCommentEntity::getDate)
                 .isEqualTo(projectComment.getDate());
     }
 
@@ -56,14 +56,14 @@ class ProjectCommentRepositoryTest {
         projectRepository.persist(projectComment.getProject());
         projectCommentRepository.save(projectComment);
 
-        List<ProjectComment> projectComments = projectCommentRepository.findByProjectNameWithDate(
+        List<ProjectCommentEntity> projectComments = projectCommentRepository.findByProjectNameWithDate(
                 projectComment.getProject().getName(),
                 projectComment.getDate()
         );
 
         assertThat(projectComments).isNotEmpty()
                 .first()
-                .extracting(ProjectComment::getDate)
+                .extracting(ProjectCommentEntity::getDate)
                 .isEqualTo(projectComment.getDate());
     }
 
@@ -72,7 +72,7 @@ class ProjectCommentRepositoryTest {
         projectRepository.persist(projectComment.getProject());
         projectCommentRepository.save(projectComment);
 
-        List<ProjectComment> projectComments = projectCommentRepository.findByProjectNameAndDateBetween(
+        List<ProjectCommentEntity> projectComments = projectCommentRepository.findByProjectNameAndDateBetween(
                 projectComment.getProject().getName(),
                 LocalDate.now().minusDays(2),
                 LocalDate.now().plusDays(2)
@@ -80,7 +80,7 @@ class ProjectCommentRepositoryTest {
         projectComments.getFirst().setComment(NEW_COMMENT);
         projectCommentRepository.update(projectComments.getFirst());
 
-        List<ProjectComment> newProjectComments = projectCommentRepository.findByProjectNameAndDateBetween(
+        List<ProjectCommentEntity> newProjectComments = projectCommentRepository.findByProjectNameAndDateBetween(
                 projectComment.getProject().getName(),
                 LocalDate.now().minusDays(2),
                 LocalDate.now().plusDays(2)
@@ -88,7 +88,7 @@ class ProjectCommentRepositoryTest {
 
         assertThat(newProjectComments).isNotEmpty()
                 .first()
-                .extracting(ProjectComment::getComment)
+                .extracting(ProjectCommentEntity::getComment)
                 .isEqualTo(NEW_COMMENT);
     }
 
@@ -97,7 +97,7 @@ class ProjectCommentRepositoryTest {
         projectRepository.persist(projectComment.getProject());
         projectCommentRepository.save(projectComment);
 
-        List<ProjectComment> projectComments = projectCommentRepository.findByProjectNameAndDateBetween(
+        List<ProjectCommentEntity> projectComments = projectCommentRepository.findByProjectNameAndDateBetween(
                 projectComment.getProject().getName(),
                 LocalDate.now().minusDays(2),
                 LocalDate.now().plusDays(2)
@@ -106,8 +106,8 @@ class ProjectCommentRepositoryTest {
         assertThat(projectComments).isNotEmpty();
     }
 
-    private Project initializeProjectObject() {
-        Project initProject = new Project();
+    private ProjectEntity initializeProjectObject() {
+        ProjectEntity initProject = new ProjectEntity();
         initProject.setName("LIW-Allgemein");
         initProject.setStartDate(LocalDate.now());
         initProject.setEndDate(LocalDate.now());
@@ -115,8 +115,8 @@ class ProjectCommentRepositoryTest {
         return initProject;
     }
 
-    private ProjectComment initializeProjectCommentObject() {
-        ProjectComment newProjectComment = new ProjectComment();
+    private ProjectCommentEntity initializeProjectCommentObject() {
+        ProjectCommentEntity newProjectComment = new ProjectCommentEntity();
         newProjectComment.setComment(COMMENT);
         newProjectComment.setProject(initializeProjectObject());
         newProjectComment.setCreationDate(LocalDateTime.now());

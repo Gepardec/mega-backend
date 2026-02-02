@@ -29,14 +29,14 @@ import java.util.Objects;
                 @UniqueConstraint(name = "uidx_ordinal", columnNames = {"ordinal"})
         }
 )
-public class Step {
+public class StepEntity {
 
     /**
      * The related step entries whereby each step entry
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "step")
     @MapKey(name = "date")
-    public Map<LocalDate, StepEntry> stepEntries = HashMap.newHashMap(0);
+    public Map<LocalDate, StepEntryEntity> stepEntries = HashMap.newHashMap(0);
 
     @Id
     @Column(name = "id", insertable = false, updatable = false)
@@ -92,11 +92,11 @@ public class Step {
         this.role = role;
     }
 
-    public Map<LocalDate, StepEntry> getStepEntries() {
+    public Map<LocalDate, StepEntryEntity> getStepEntries() {
         return stepEntries;
     }
 
-    public void setStepEntries(Map<LocalDate, StepEntry> stepEntries) {
+    public void setStepEntries(Map<LocalDate, StepEntryEntity> stepEntries) {
         this.stepEntries = stepEntries;
     }
 
@@ -116,7 +116,7 @@ public class Step {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Step step = (Step) o;
+        StepEntity step = (StepEntity) o;
         return (id != null) ? Objects.equals(id, step.id) : super.equals(o);
     }
 

@@ -1,6 +1,6 @@
 package com.gepardec.mega.db.repository;
 
-import com.gepardec.mega.db.entity.project.Project;
+import com.gepardec.mega.db.entity.project.ProjectEntity;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,11 +17,11 @@ class ProjectRepositoryTest {
     @Inject
     ProjectRepository projectRepository;
 
-    private Project project;
+    private ProjectEntity project;
 
     @BeforeEach
     void setUp() {
-        project = new Project();
+        project = new ProjectEntity();
         project.setName("LIW-Allgemein");
         project.setStartDate(LocalDate.now());
         project.setEndDate(LocalDate.now());
@@ -31,7 +31,7 @@ class ProjectRepositoryTest {
 
     @Test
     void givenFindById_whenFound_thenSuccess() {
-        Project p = projectRepository.findById(project.getId());
+        ProjectEntity p = projectRepository.findById(project.getId());
 
         assertAll(
                 () -> assertThat(p).isNotNull(),

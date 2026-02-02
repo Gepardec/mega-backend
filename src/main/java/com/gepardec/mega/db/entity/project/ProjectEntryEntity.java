@@ -1,7 +1,7 @@
 package com.gepardec.mega.db.entity.project;
 
 import com.gepardec.mega.db.entity.common.State;
-import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ConstraintMode;
@@ -28,12 +28,12 @@ import java.time.LocalDateTime;
 @Table(name = "project_entry")
 @NamedQuery(
         name = "ProjectEntry.findAllProjectEntriesForProjectNameInRange",
-        query = "SELECT pe FROM ProjectEntry pe WHERE pe.project.name = :projectName AND pe.date BETWEEN :start AND :end")
+        query = "SELECT pe FROM ProjectEntryEntity pe WHERE pe.project.name = :projectName AND pe.date BETWEEN :start AND :end")
 @NamedQuery(
         name = "ProjectEntry.findProjectEntryByNameAndEntryDateAndStep",
-        query = "SELECT pe FROM ProjectEntry pe WHERE pe.project.name = :projectName AND pe.date = :entryDate AND pe.step = :projectStep"
+        query = "SELECT pe FROM ProjectEntryEntity pe WHERE pe.project.name = :projectName AND pe.date = :entryDate AND pe.step = :projectStep"
 )
-public class ProjectEntry {
+public class ProjectEntryEntity {
 
     @Id
     @Column(name = "id", insertable = false, updatable = false)
@@ -73,7 +73,7 @@ public class ProjectEntry {
     /**
      * The owner of the project entry who is the user who is responsible for the validity of the entry
      *
-     * @see User
+     * @see UserEntity
      */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
@@ -81,12 +81,12 @@ public class ProjectEntry {
             referencedColumnName = "id",
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_owner_employee_user_id_project", value = ConstraintMode.CONSTRAINT))
-    private User owner;
+    private UserEntity owner;
 
     /**
      * The assignee of the project entry who is the employee who marks the project entry done
      *
-     * @see User
+     * @see UserEntity
      */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
@@ -94,16 +94,16 @@ public class ProjectEntry {
             referencedColumnName = "id",
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_assignee_employee_user_id_project", value = ConstraintMode.CONSTRAINT))
-    private User assignee;
+    private UserEntity assignee;
 
     /**
      * The related project of the project entry
      *
-     * @see Project
+     * @see ProjectEntity
      */
-    @ManyToOne(targetEntity = Project.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = ProjectEntity.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
-    private Project project;
+    private ProjectEntity project;
 
     /**
      * The preset flag for the state
@@ -177,27 +177,27 @@ public class ProjectEntry {
         this.date = date;
     }
 
-    public User getOwner() {
+    public UserEntity getOwner() {
         return owner;
     }
 
-    public void setOwner(User owner) {
+    public void setOwner(UserEntity owner) {
         this.owner = owner;
     }
 
-    public User getAssignee() {
+    public UserEntity getAssignee() {
         return assignee;
     }
 
-    public void setAssignee(User assignee) {
+    public void setAssignee(UserEntity assignee) {
         this.assignee = assignee;
     }
 
-    public Project getProject() {
+    public ProjectEntity getProject() {
         return project;
     }
 
-    public void setProject(Project project) {
+    public void setProject(ProjectEntity project) {
         this.project = project;
     }
 
@@ -235,7 +235,7 @@ public class ProjectEntry {
             return false;
         }
 
-        ProjectEntry that = (ProjectEntry) o;
+        ProjectEntryEntity that = (ProjectEntryEntity) o;
 
         if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;

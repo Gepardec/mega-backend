@@ -27,18 +27,18 @@ import java.util.StringJoiner;
 
 @Entity
 @Table(name = "step_entry")
-@NamedQuery(name = "StepEntry.findAllOwnedAndAssignedStepEntriesForEmployee", query = "SELECT s FROM StepEntry s WHERE s.date = :entryDate AND s.owner.email = :ownerEmail AND s.assignee.email = :assigneeEmail AND s.step.id = :stepId")
-@NamedQuery(name = "StepEntry.findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes", query = "SELECT s FROM StepEntry s WHERE s.date = :entryDate AND s.owner.email = :ownerEmail AND s.assignee.email = :assigneeEmail AND s.step.id = :stepId")
-@NamedQuery(name = "StepEntry.findAllOwnedAndUnassignedStepEntriesExceptControlTimes", query = "SELECT s FROM StepEntry s WHERE s.date = :entryDate AND s.owner.email = :ownerEmail AND s.owner.email <> s.assignee.email AND s.step.id <> 1")
+@NamedQuery(name = "StepEntry.findAllOwnedAndAssignedStepEntriesForEmployee", query = "SELECT s FROM StepEntryEntity s WHERE s.date = :entryDate AND s.owner.email = :ownerEmail AND s.assignee.email = :assigneeEmail AND s.step.id = :stepId")
+@NamedQuery(name = "StepEntry.findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes", query = "SELECT s FROM StepEntryEntity s WHERE s.date = :entryDate AND s.owner.email = :ownerEmail AND s.assignee.email = :assigneeEmail AND s.step.id = :stepId")
+@NamedQuery(name = "StepEntry.findAllOwnedAndUnassignedStepEntriesExceptControlTimes", query = "SELECT s FROM StepEntryEntity s WHERE s.date = :entryDate AND s.owner.email = :ownerEmail AND s.owner.email <> s.assignee.email AND s.step.id <> 1")
 // 1 = CONTROL_TIMES
-@NamedQuery(name = "StepEntry.findAllOwnedAndUnassignedStepEntriesForPMProgress", query = "SELECT s FROM StepEntry s WHERE s.date = :entryDate AND s.owner.email = :ownerEmail AND s.step.id = :stepId")
-@NamedQuery(name = "StepEntry.findAllOwnedStepEntriesInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.owner.email = :ownerEmail")
-@NamedQuery(name = "StepEntry.findAllOwnedStepEntriesInRangeForProject", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.owner.email = :ownerEmail AND s.assignee.email like :assigneeEmail AND s.project like :projectId")
-@NamedQuery(name = "StepEntry.findStepEntryForEmployeeAtStepInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId and s.owner.email = :ownerEmail and s.assignee.email = :assigneeEmail")
-@NamedQuery(name = "StepEntry.findStepEntryForEmployeeAndProjectAtStepInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId and s.owner.email = :ownerEmail and s.assignee.email = :assigneeEmail and s.project like :project")
-@NamedQuery(name = "StepEntry.findAllStepEntriesForPMInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId and s.assignee.email = :assigneeEmail")
-@NamedQuery(name = "StepEntry.findAllStepEntriesForAllPMInRange", query = "SELECT s FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId")
-public class StepEntry {
+@NamedQuery(name = "StepEntry.findAllOwnedAndUnassignedStepEntriesForPMProgress", query = "SELECT s FROM StepEntryEntity s WHERE s.date = :entryDate AND s.owner.email = :ownerEmail AND s.step.id = :stepId")
+@NamedQuery(name = "StepEntry.findAllOwnedStepEntriesInRange", query = "SELECT s FROM StepEntryEntity s WHERE s.date BETWEEN :start AND :end AND s.owner.email = :ownerEmail")
+@NamedQuery(name = "StepEntry.findAllOwnedStepEntriesInRangeForProject", query = "SELECT s FROM StepEntryEntity s WHERE s.date BETWEEN :start AND :end AND s.owner.email = :ownerEmail AND s.assignee.email like :assigneeEmail AND s.project like :projectId")
+@NamedQuery(name = "StepEntry.findStepEntryForEmployeeAtStepInRange", query = "SELECT s FROM StepEntryEntity s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId and s.owner.email = :ownerEmail and s.assignee.email = :assigneeEmail")
+@NamedQuery(name = "StepEntry.findStepEntryForEmployeeAndProjectAtStepInRange", query = "SELECT s FROM StepEntryEntity s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId and s.owner.email = :ownerEmail and s.assignee.email = :assigneeEmail and s.project like :project")
+@NamedQuery(name = "StepEntry.findAllStepEntriesForPMInRange", query = "SELECT s FROM StepEntryEntity s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId and s.assignee.email = :assigneeEmail")
+@NamedQuery(name = "StepEntry.findAllStepEntriesForAllPMInRange", query = "SELECT s FROM StepEntryEntity s WHERE s.date BETWEEN :start AND :end AND s.step.id = :stepId")
+public class StepEntryEntity {
 
     @Id
     @Column(name = "id", insertable = false, updatable = false)
@@ -96,7 +96,7 @@ public class StepEntry {
             referencedColumnName = "id",
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_owner_employee_user_id", value = ConstraintMode.CONSTRAINT))
-    private User owner;
+    private UserEntity owner;
 
     /**
      * The assignee of the step entry who is the employee who marks the step entry done
@@ -107,12 +107,12 @@ public class StepEntry {
             referencedColumnName = "id",
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_assignee_employee_user_id", value = ConstraintMode.CONSTRAINT))
-    private User assignee;
+    private UserEntity assignee;
 
     /**
      * The related step of this step entry
      *
-     * @see Step
+     * @see StepEntity
      */
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -120,7 +120,7 @@ public class StepEntry {
             referencedColumnName = "id",
             updatable = false,
             foreignKey = @ForeignKey(name = "fk_step_id", value = ConstraintMode.CONSTRAINT))
-    private Step step;
+    private StepEntity step;
 
     @PrePersist
     void onPersist() {
@@ -157,27 +157,27 @@ public class StepEntry {
         this.updatedDate = updatedDate;
     }
 
-    public User getOwner() {
+    public UserEntity getOwner() {
         return owner;
     }
 
-    public void setOwner(User owner) {
+    public void setOwner(UserEntity owner) {
         this.owner = owner;
     }
 
-    public User getAssignee() {
+    public UserEntity getAssignee() {
         return assignee;
     }
 
-    public void setAssignee(User assignee) {
+    public void setAssignee(UserEntity assignee) {
         this.assignee = assignee;
     }
 
-    public Step getStep() {
+    public StepEntity getStep() {
         return step;
     }
 
-    public void setStep(Step step) {
+    public void setStep(StepEntity step) {
         this.step = step;
     }
 
@@ -215,7 +215,7 @@ public class StepEntry {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", StepEntry.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", StepEntryEntity.class.getSimpleName() + "[", "]")
                 .add("id=" + id)
                 .add("creationDate=" + creationDate)
                 .add("updatedDate=" + updatedDate)
@@ -234,7 +234,7 @@ public class StepEntry {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        StepEntry stepEntry = (StepEntry) o;
+        StepEntryEntity stepEntry = (StepEntryEntity) o;
         return (id != null) ? Objects.equals(id, stepEntry.id) : super.equals(o);
     }
 

@@ -1,7 +1,7 @@
 package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.StepEntry;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import com.gepardec.mega.domain.model.StepName;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
-public class StepEntryRepository implements PanacheRepository<StepEntry> {
+public class StepEntryRepository implements PanacheRepository<StepEntryEntity> {
 
     private static final String P_ASSIGNEE_EMAIL = "assigneeEmail";
     private static final String P_EMPLOYEE_STATE = "employeeState";
@@ -27,7 +27,7 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
     private static final String P_STATE_REASON = "stateReason";
     private static final String P_STEP_ID = "stepId";
 
-    public Optional<StepEntry> findControlTimesStepEntryByOwnerAndEntryDate(LocalDate entryDate, String ownerAndAssigneeEmail) {
+    public Optional<StepEntryEntity> findControlTimesStepEntryByOwnerAndEntryDate(LocalDate entryDate, String ownerAndAssigneeEmail) {
         return find("#StepEntry.findAllOwnedAndAssignedStepEntriesForEmployee",
                 Parameters
                         .with(P_ENTRY_DATE, entryDate)
@@ -37,7 +37,7 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
                 .singleResultOptional();
     }
 
-    public Optional<StepEntry> findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes(LocalDate entryDate, String ownerAndAssigneeEmail) {
+    public Optional<StepEntryEntity> findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes(LocalDate entryDate, String ownerAndAssigneeEmail) {
         return find("#StepEntry.findAllOwnedAndAssignedStepEntriesForEmployeeForControlInternalTimes",
                 Parameters
                         .with(P_ENTRY_DATE, entryDate)
@@ -47,8 +47,8 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
                 .singleResultOptional();
     }
 
-    public List<StepEntry> findAllOwnedAndUnassignedStepEntriesExceptControlTimes(LocalDate entryDate, String ownerEmail) {
-        List<StepEntry> entries = find("#StepEntry.findAllOwnedAndUnassignedStepEntriesExceptControlTimes",
+    public List<StepEntryEntity> findAllOwnedAndUnassignedStepEntriesExceptControlTimes(LocalDate entryDate, String ownerEmail) {
+        List<StepEntryEntity> entries = find("#StepEntry.findAllOwnedAndUnassignedStepEntriesExceptControlTimes",
                 Parameters
                         .with(P_ENTRY_DATE, entryDate)
                         .and(P_OWNER_EMAIL, ownerEmail))
@@ -65,7 +65,7 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
         return entries;
     }
 
-    public List<StepEntry> findAllOwnedAndUnassignedStepEntriesForPMProgress(LocalDate entryDate, String ownerEmail) {
+    public List<StepEntryEntity> findAllOwnedAndUnassignedStepEntriesForPMProgress(LocalDate entryDate, String ownerEmail) {
         return find("#StepEntry.findAllOwnedAndUnassignedStepEntriesForPMProgress",
                 Parameters
                         .with(P_ENTRY_DATE, entryDate)
@@ -74,7 +74,7 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
                 .list();
     }
 
-    public List<StepEntry> findAllOwnedStepEntriesInRange(LocalDate startDate, LocalDate endDate, String ownerEmail) {
+    public List<StepEntryEntity> findAllOwnedStepEntriesInRange(LocalDate startDate, LocalDate endDate, String ownerEmail) {
         return find("#StepEntry.findAllOwnedStepEntriesInRange",
                 Parameters
                         .with(P_START, startDate)
@@ -83,7 +83,7 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
         ).list();
     }
 
-    public List<StepEntry> findAllOwnedStepEntriesInRange(LocalDate startDate, LocalDate endDate, String ownerEmail, String projectId, String assigneeEmail) {
+    public List<StepEntryEntity> findAllOwnedStepEntriesInRange(LocalDate startDate, LocalDate endDate, String ownerEmail, String projectId, String assigneeEmail) {
         return find("#StepEntry.findAllOwnedStepEntriesInRangeForProject",
                 Parameters
                         .with(P_START, startDate)
@@ -101,9 +101,9 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
 
     @Transactional
     public int updateStateAssignedWithReason(LocalDate startDate, LocalDate endDate, String ownerEmail, Long stepId, EmployeeState newState, String stateReason) {
-        return update("UPDATE StepEntry s SET s.employeeState = :employeeState, s.stateReason = :stateReason" +
+        return update("UPDATE StepEntryEntity s SET s.employeeState = :employeeState, s.stateReason = :stateReason" +
                         " WHERE s.id IN" +
-                        " (SELECT s.id FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.owner.email = :ownerEmail AND s.step.id = :stepId)",
+                        " (SELECT s.id FROM StepEntryEntity s WHERE s.date BETWEEN :start AND :end AND s.owner.email = :ownerEmail AND s.step.id = :stepId)",
                 Parameters
                         .with(P_EMPLOYEE_STATE, newState)
                         .and(P_STATE_REASON, stateReason)
@@ -131,7 +131,7 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
 
     @Transactional
     public int updateStateAssigned(LocalDate startDate, LocalDate endDate, String ownerEmail, Long stepId, String project, EmployeeState newState) {
-        return update("UPDATE StepEntry s SET s.employeeState = :employeeState WHERE s.id IN (SELECT s.id FROM StepEntry s WHERE s.date BETWEEN :start AND :end AND s.owner.email = :ownerEmail AND s.step.id = :stepId AND s.project like :project)",
+        return update("UPDATE StepEntryEntity s SET s.employeeState = :employeeState WHERE s.id IN (SELECT s.id FROM StepEntryEntity s WHERE s.date BETWEEN :start AND :end AND s.owner.email = :ownerEmail AND s.step.id = :stepId AND s.project like :project)",
                 Parameters
                         .with(P_EMPLOYEE_STATE, newState)
                         .and(P_START, startDate)
@@ -141,7 +141,7 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
                         .and(P_STEP_ID, stepId));
     }
 
-    public Optional<StepEntry> findStepEntryForEmployeeAtStepInRange(LocalDate startDate, LocalDate endDate, String ownerEmail, Long stepId, String assigneeEmail) {
+    public Optional<StepEntryEntity> findStepEntryForEmployeeAtStepInRange(LocalDate startDate, LocalDate endDate, String ownerEmail, Long stepId, String assigneeEmail) {
         return find("#StepEntry.findStepEntryForEmployeeAtStepInRange",
                 Parameters
                         .with(P_START, startDate)
@@ -152,7 +152,7 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
                 .singleResultOptional();
     }
 
-    public Optional<StepEntry> findStepEntryForEmployeeAndProjectAtStepInRange(LocalDate startDate, LocalDate endDate, String ownerEmail, Long stepId, String assigneeEmail, String project) {
+    public Optional<StepEntryEntity> findStepEntryForEmployeeAndProjectAtStepInRange(LocalDate startDate, LocalDate endDate, String ownerEmail, Long stepId, String assigneeEmail, String project) {
         return find("#StepEntry.findStepEntryForEmployeeAndProjectAtStepInRange",
                 Parameters
                         .with(P_START, startDate)
@@ -164,7 +164,7 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
                 .singleResultOptional();
     }
 
-    public List<StepEntry> findAllStepEntriesForPMInRange(LocalDate startDate, LocalDate endDate, String assigneeEmail) {
+    public List<StepEntryEntity> findAllStepEntriesForPMInRange(LocalDate startDate, LocalDate endDate, String assigneeEmail) {
         return find("#StepEntry.findAllStepEntriesForPMInRange",
                 Parameters
                         .with(P_START, startDate)
@@ -174,7 +174,7 @@ public class StepEntryRepository implements PanacheRepository<StepEntry> {
         ).list();
     }
 
-    public List<StepEntry> findAllStepEntriesForAllPMInRange(LocalDate startDate, LocalDate endDate) {
+    public List<StepEntryEntity> findAllStepEntriesForAllPMInRange(LocalDate startDate, LocalDate endDate) {
         return find("#StepEntry.findAllStepEntriesForAllPMInRange",
                 Parameters
                         .with(P_START, startDate)

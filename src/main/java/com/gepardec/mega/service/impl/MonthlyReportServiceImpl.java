@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.StepEntry;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import com.gepardec.mega.domain.model.Attendances;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
@@ -113,11 +113,11 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
     }
 
     private boolean isMonthCompletedForEmployee(Employee employee, YearMonth payrollMonth) {
-        List<StepEntry> allOwnedAndUnassignedStepEntriesForOtherChecks = stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(employee, payrollMonth);
+        List<StepEntryEntity> allOwnedAndUnassignedStepEntriesForOtherChecks = stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(employee, payrollMonth);
 
-        Map<String, List<StepEntry>> controlTimeEvidencesStepsByProjects = allOwnedAndUnassignedStepEntriesForOtherChecks.stream()
+        Map<String, List<StepEntryEntity>> controlTimeEvidencesStepsByProjects = allOwnedAndUnassignedStepEntriesForOtherChecks.stream()
                 .filter(se -> StepName.CONTROL_TIME_EVIDENCES.name().equals(se.getStep().getName()))
-                .collect(Collectors.groupingBy(StepEntry::getProject));
+                .collect(Collectors.groupingBy(StepEntryEntity::getProject));
 
         // mind. 1 Projektleiter muss Employee auf Done gesetzt haben, bei Step 4 (Control Time Evidences)
         boolean controlTimeEvidencesDone = controlTimeEvidencesStepsByProjects.entrySet().stream()
@@ -129,11 +129,11 @@ public class MonthlyReportServiceImpl implements MonthlyReportService {
                         .allMatch(this::isStepEntryDone);
     }
 
-    private boolean isAnyStepEntryDone(Map.Entry<String, List<StepEntry>> entry) {
+    private boolean isAnyStepEntryDone(Map.Entry<String, List<StepEntryEntity>> entry) {
         return entry.getValue().stream().anyMatch(this::isStepEntryDone);
     }
 
-    private boolean isStepEntryDone(StepEntry stepEntry) {
+    private boolean isStepEntryDone(StepEntryEntity stepEntry) {
         return stepEntry.getState() == EmployeeState.DONE;
     }
 }

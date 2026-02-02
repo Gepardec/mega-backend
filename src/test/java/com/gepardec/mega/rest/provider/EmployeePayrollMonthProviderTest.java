@@ -1,7 +1,7 @@
 package com.gepardec.mega.rest.provider;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.StepEntry;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.service.api.StepEntryService;
@@ -57,7 +57,7 @@ class EmployeePayrollMonthProviderTest {
                 LocalDate firstOfPreviousMonth = now.minusMonths(1).withDayOfMonth(1);
 
                 // Mock step entry with IN_PROGRESS state
-                StepEntry stepEntry = Mockito.mock(StepEntry.class);
+                StepEntryEntity stepEntry = Mockito.mock(StepEntryEntity.class);
                 when(stepEntry.getState()).thenReturn(EmployeeState.IN_PROGRESS);
                 when(stepEntryService.findControlTimesStepEntry(TEST_EMAIL, firstOfPreviousMonth))
                         .thenReturn(Optional.of(stepEntry));
@@ -78,7 +78,7 @@ class EmployeePayrollMonthProviderTest {
                 LocalDate firstOfPreviousMonth = now.minusMonths(1).withDayOfMonth(1);
 
                 // Mock step entry with DONE state
-                StepEntry stepEntry = Mockito.mock(StepEntry.class);
+                StepEntryEntity stepEntry = Mockito.mock(StepEntryEntity.class);
                 when(stepEntry.getState()).thenReturn(EmployeeState.DONE);
                 when(stepEntryService.findControlTimesStepEntry(TEST_EMAIL, firstOfPreviousMonth))
                         .thenReturn(Optional.of(stepEntry));
@@ -103,7 +103,7 @@ class EmployeePayrollMonthProviderTest {
                 LocalDate firstOfCurrentMonth = now.withDayOfMonth(1);
 
                 // Mock step entry with DONE state
-                StepEntry stepEntry = Mockito.mock(StepEntry.class);
+                StepEntryEntity stepEntry = Mockito.mock(StepEntryEntity.class);
                 when(stepEntry.getState()).thenReturn(EmployeeState.DONE);
                 when(stepEntryService.findControlTimesStepEntry(TEST_EMAIL, firstOfPreviousMonth))
                         .thenReturn(Optional.of(stepEntry));

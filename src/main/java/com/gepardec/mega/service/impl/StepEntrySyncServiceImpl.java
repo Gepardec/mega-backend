@@ -1,6 +1,7 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.application.configuration.NotificationConfig;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectFilter;
 import com.gepardec.mega.domain.model.State;
@@ -107,11 +108,11 @@ public class StepEntrySyncServiceImpl implements StepEntrySyncService {
         };
     }
 
-    private Predicate<StepEntry> filterNonExistentStepEntries(List<com.gepardec.mega.db.entity.employee.StepEntry> dbStepEntries) {
+    private Predicate<StepEntry> filterNonExistentStepEntries(List<StepEntryEntity> dbStepEntries) {
         return stepEntry -> dbStepEntries.stream().noneMatch(dbStepEntry -> isStepEntryPersisted(stepEntry, dbStepEntry));
     }
 
-    private boolean isStepEntryPersisted(StepEntry domain, com.gepardec.mega.db.entity.employee.StepEntry entity) {
+    private boolean isStepEntryPersisted(StepEntry domain, StepEntryEntity entity) {
         return entity.getDate().equals(domain.getDate()) &&
                 entity.getAssignee().getEmail().equals(domain.getAssignee().getEmail()) &&
                 entity.getOwner().getEmail().equals(domain.getOwner().getEmail()) &&

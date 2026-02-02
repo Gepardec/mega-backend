@@ -1,7 +1,9 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.common.State;
-import com.gepardec.mega.db.entity.project.ProjectEntry;
+import com.gepardec.mega.db.entity.employee.UserEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntryEntity;
 import com.gepardec.mega.db.entity.project.ProjectStep;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectFilter;
@@ -72,15 +74,15 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         return !projects.isEmpty();
     }
 
-    private List<com.gepardec.mega.db.entity.project.Project> createProjects(List<User> activeUsers, List<Project> projects, YearMonth payrollMonth) {
+    private List<ProjectEntity> createProjects(List<User> activeUsers, List<Project> projects, YearMonth payrollMonth) {
         return projects.stream()
                 .map(project -> createProjectEntityFromProject(activeUsers, project, payrollMonth))
                 .flatMap(Optional::stream)
                 .toList();
     }
 
-    private Optional<com.gepardec.mega.db.entity.project.Project> createProjectEntityFromProject(List<User> activeUsers, Project project, YearMonth payrollMonth) {
-        com.gepardec.mega.db.entity.project.Project projectEntity = new com.gepardec.mega.db.entity.project.Project();
+    private Optional<ProjectEntity> createProjectEntityFromProject(List<User> activeUsers, Project project, YearMonth payrollMonth) {
+        ProjectEntity projectEntity = new ProjectEntity();
 
         List<User> leads = project.getLeads()
                 .stream()
@@ -94,7 +96,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
             return Optional.empty();
         }
 
-        Set<com.gepardec.mega.db.entity.employee.User> mappedLeads = leads.stream()
+        Set<UserEntity> mappedLeads = leads.stream()
                 .map(this::mapDomainUserToEntity)
                 .collect(Collectors.toSet());
 
@@ -115,16 +117,16 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         return users.stream().filter(user -> user.getUserId().equals(userId)).findFirst();
     }
 
-    private com.gepardec.mega.db.entity.employee.User mapDomainUserToEntity(User user) {
-        com.gepardec.mega.db.entity.employee.User u = new com.gepardec.mega.db.entity.employee.User();
+    private UserEntity mapDomainUserToEntity(User user) {
+        UserEntity u = new UserEntity();
         u.setId(user.getDbId());
         return u;
     }
 
-    private ProjectEntry createProjectEntry(com.gepardec.mega.db.entity.project.Project project,
-                                            Set<com.gepardec.mega.db.entity.employee.User> leads,
-                                            YearMonth payrollMonth, ProjectStep step) {
-        ProjectEntry projectEntry = new ProjectEntry();
+    private ProjectEntryEntity createProjectEntry(ProjectEntity project,
+                                                  Set<UserEntity> leads,
+                                                  YearMonth payrollMonth, ProjectStep step) {
+        ProjectEntryEntity projectEntry = new ProjectEntryEntity();
         projectEntry.setProject(project);
         projectEntry.setName(project.getName());
         projectEntry.setOwner(
@@ -144,7 +146,7 @@ public class ProjectSyncServiceImpl implements ProjectSyncService {
         projectEntry.setState(State.OPEN);
         projectEntry.setStep(step);
 
-        Optional<ProjectEntry> projectEntryValue = projectEntryService.findByNameAndDate(project.getName(), payrollMonth.minusMonths(1))
+        Optional<ProjectEntryEntity> projectEntryValue = projectEntryService.findByNameAndDate(project.getName(), payrollMonth.minusMonths(1))
                 .stream()
                 .filter(Objects::nonNull)
                 .filter(pe -> pe.getStep().getId() == step.getId())

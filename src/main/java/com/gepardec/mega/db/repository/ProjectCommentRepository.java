@@ -1,6 +1,6 @@
 package com.gepardec.mega.db.repository;
 
-import com.gepardec.mega.db.entity.project.ProjectComment;
+import com.gepardec.mega.db.entity.project.ProjectCommentEntity;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @ApplicationScoped
 @Transactional
-public class ProjectCommentRepository implements PanacheRepository<ProjectComment> {
+public class ProjectCommentRepository implements PanacheRepository<ProjectCommentEntity> {
 
     @Inject
     EntityManager em;
@@ -23,7 +23,7 @@ public class ProjectCommentRepository implements PanacheRepository<ProjectCommen
     @Inject
     Logger logger;
 
-    public List<ProjectComment> findByProjectNameAndDateBetween(String projectName, LocalDate from, LocalDate to) {
+    public List<ProjectCommentEntity> findByProjectNameAndDateBetween(String projectName, LocalDate from, LocalDate to) {
         return find("#ProjectComment.findByProjectNameAndEntryDateBetween",
                 Parameters
                         .with("projectName", projectName)
@@ -32,7 +32,7 @@ public class ProjectCommentRepository implements PanacheRepository<ProjectCommen
                 .list();
     }
 
-    public List<ProjectComment> findByProjectNameWithDate(String projectName, LocalDate entryDate) {
+    public List<ProjectCommentEntity> findByProjectNameWithDate(String projectName, LocalDate entryDate) {
         return findByProjectNameAndDateBetween(
                 projectName,
                 entryDate.with(TemporalAdjusters.firstDayOfMonth()),
@@ -40,7 +40,7 @@ public class ProjectCommentRepository implements PanacheRepository<ProjectCommen
         );
     }
 
-    public boolean update(ProjectComment comment) {
+    public boolean update(ProjectCommentEntity comment) {
         try {
             em.merge(comment);
             return true;
@@ -50,7 +50,7 @@ public class ProjectCommentRepository implements PanacheRepository<ProjectCommen
         }
     }
 
-    public ProjectComment save(ProjectComment projectComment) {
+    public ProjectCommentEntity save(ProjectCommentEntity projectComment) {
         this.persist(projectComment);
         return projectComment;
     }

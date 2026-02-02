@@ -1,6 +1,6 @@
 package com.gepardec.mega.db.repository;
 
-import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.domain.model.Role;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
@@ -15,16 +15,16 @@ import java.util.Set;
 
 @ApplicationScoped
 @Transactional
-public class UserRepository implements PanacheRepository<User> {
+public class UserRepository implements PanacheRepository<UserEntity> {
 
     @Inject
     EntityManager em;
 
-    public Optional<User> findActiveByEmail(final String email) {
+    public Optional<UserEntity> findActiveByEmail(final String email) {
         return find("#User.findActiveByEmail", Parameters.with("email", email)).firstResultOptional();
     }
 
-    public Optional<User> findActiveByName(final String firstname, final String lastname) {
+    public Optional<UserEntity> findActiveByName(final String firstname, final String lastname) {
         return find(
                 "#User.findActiveByName",
                 Parameters.with("firstname", firstname)
@@ -33,7 +33,7 @@ public class UserRepository implements PanacheRepository<User> {
                 .firstResultOptional();
     }
 
-    public Optional<User> findByZepId(final String zepId) {
+    public Optional<UserEntity> findByZepId(final String zepId) {
         return find(
                 "#User.findActiveByZepId",
                 Parameters.with("zepId", zepId)
@@ -41,7 +41,7 @@ public class UserRepository implements PanacheRepository<User> {
                 .firstResultOptional();
     }
 
-    public List<User> findByZepIds(final Set<String> zepIds) {
+    public List<UserEntity> findByZepIds(final Set<String> zepIds) {
         if (zepIds == null || zepIds.isEmpty()) {
             return List.of();
         }
@@ -51,15 +51,15 @@ public class UserRepository implements PanacheRepository<User> {
         ).list();
     }
 
-    public List<User> findActive() {
+    public List<UserEntity> findActive() {
         return find("#User.findActive").list();
     }
 
-    public List<User> findByRoles(final List<Role> roles) {
+    public List<UserEntity> findByRoles(final List<Role> roles) {
         return find("#User.findByRoles", Parameters.with("roles", roles)).list();
     }
 
-    public User persistOrUpdate(final User user) {
+    public UserEntity persistOrUpdate(final UserEntity user) {
         if (user.getId() == null) {
             persist(user);
             return user;
@@ -68,7 +68,7 @@ public class UserRepository implements PanacheRepository<User> {
         }
     }
 
-    public User update(final User user) {
+    public UserEntity update(final UserEntity user) {
         return em.merge(user);
     }
 }

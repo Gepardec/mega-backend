@@ -38,12 +38,12 @@ import java.util.StringJoiner;
         uniqueConstraints = {
                 @UniqueConstraint(name = "uidx_email_zep_id", columnNames = {"email", "zep_id"})
         })
-@NamedQuery(name = "User.findActiveByEmail", query = "select u from User u where u.email = :email and u.active = true")
-@NamedQuery(name = "User.findActiveByName", query = "select u from User u where u.firstname = :firstname and u.lastname = :lastname and u.active = true")
-@NamedQuery(name = "User.findActiveByZepId", query = "select u from User u where u.zepId = :zepId and u.active = true")
-@NamedQuery(name = "User.findActive", query = "select u from User u where u.active = true")
-@NamedQuery(name = "User.findByRoles", query = "select distinct u from User u inner join u.roles role where u.active = true and role in (:roles)")
-public class User {
+@NamedQuery(name = "User.findActiveByEmail", query = "select u from UserEntity u where u.email = :email and u.active = true")
+@NamedQuery(name = "User.findActiveByName", query = "select u from UserEntity u where u.firstname = :firstname and u.lastname = :lastname and u.active = true")
+@NamedQuery(name = "User.findActiveByZepId", query = "select u from UserEntity u where u.zepId = :zepId and u.active = true")
+@NamedQuery(name = "User.findActive", query = "select u from UserEntity u where u.active = true")
+@NamedQuery(name = "User.findByRoles", query = "select distinct u from UserEntity u inner join u.roles role where u.active = true and role in (:roles)")
+public class UserEntity {
 
     @Id
     @Column(name = "id", insertable = false, updatable = false)
@@ -135,23 +135,23 @@ public class User {
      * The step entries the user is assigned to
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "assignee")
-    private Set<StepEntry> assignedStepEntries = HashSet.newHashSet(0);
+    private Set<StepEntryEntity> assignedStepEntries = HashSet.newHashSet(0);
 
     /**
      * The step entries the user owns
      */
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
-    private Set<StepEntry> ownedStepEntries = HashSet.newHashSet(0);
+    private Set<StepEntryEntity> ownedStepEntries = HashSet.newHashSet(0);
 
-    public User() {
+    public UserEntity() {
     }
 
-    private User(final String email) {
+    private UserEntity(final String email) {
         this.email = email;
     }
 
-    public static User of(final String email) {
-        return new User(email);
+    public static UserEntity of(final String email) {
+        return new UserEntity(email);
     }
 
     @PrePersist
@@ -252,11 +252,11 @@ public class User {
         this.releaseDate = releaseDate;
     }
 
-    public Set<StepEntry> getAssignedStepEntries() {
+    public Set<StepEntryEntity> getAssignedStepEntries() {
         return assignedStepEntries;
     }
 
-    public void setAssignedStepEntries(Set<StepEntry> assignedStepEntries) {
+    public void setAssignedStepEntries(Set<StepEntryEntity> assignedStepEntries) {
         this.assignedStepEntries = assignedStepEntries;
     }
 
@@ -268,17 +268,17 @@ public class User {
         this.roles = roles;
     }
 
-    public Set<StepEntry> getOwnedStepEntries() {
+    public Set<StepEntryEntity> getOwnedStepEntries() {
         return ownedStepEntries;
     }
 
-    public void setOwnedStepEntries(Set<StepEntry> ownedStepEntries) {
+    public void setOwnedStepEntries(Set<StepEntryEntity> ownedStepEntries) {
         this.ownedStepEntries = ownedStepEntries;
     }
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", User.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", UserEntity.class.getSimpleName() + "[", "]")
                 .add("id=" + id)
                 .add("creationDate=" + creationDate)
                 .add("updatedDate=" + updatedDate)
@@ -301,7 +301,7 @@ public class User {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        User user = (User) o;
+        UserEntity user = (UserEntity) o;
         return (id != null) ? Objects.equals(id, user.id) : super.equals(o);
     }
 

@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.impl.enterpriseentry;
 
 import com.gepardec.mega.db.entity.common.State;
-import com.gepardec.mega.db.entity.enterprise.EnterpriseEntry;
+import com.gepardec.mega.db.entity.enterprise.EnterpriseEntryEntity;
 import com.gepardec.mega.db.repository.EnterpriseEntryRepository;
 import com.gepardec.mega.service.api.EnterpriseSyncService;
 import io.quarkus.test.InjectMock;
@@ -41,13 +41,13 @@ class EnterpriseEntrySyncServiceImplTest {
     Logger logger;
 
 
-    private EnterpriseEntry enterpriseEntry;
+    private EnterpriseEntryEntity enterpriseEntry;
     private YearMonth payrollMonth;
 
     @BeforeEach
     void setUp() {
         payrollMonth = YearMonth.of(2023, 10);
-        enterpriseEntry = new EnterpriseEntry();
+        enterpriseEntry = new EnterpriseEntryEntity();
         enterpriseEntry.setDate(payrollMonth.atDay(1));
         enterpriseEntry.setCreationDate(LocalDateTime.now());
         enterpriseEntry.setChargeabilityExternalEmployeesRecorded(State.OPEN);
@@ -66,9 +66,9 @@ class EnterpriseEntrySyncServiceImplTest {
 
         boolean result = enterpriseSyncService.generateEnterpriseEntries(payrollMonth);
 
-        ArgumentCaptor<EnterpriseEntry> captor = ArgumentCaptor.forClass(EnterpriseEntry.class);
+        ArgumentCaptor<EnterpriseEntryEntity> captor = ArgumentCaptor.forClass(EnterpriseEntryEntity.class);
         verify(enterpriseEntryRepository).persist(captor.capture());
-        EnterpriseEntry persistedEntry = captor.getValue();
+        EnterpriseEntryEntity persistedEntry = captor.getValue();
 
         assertThat(persistedEntry.getDate()).isEqualTo(payrollMonth.atDay(1));
         assertThat(persistedEntry.getChargeabilityExternalEmployeesRecorded()).isEqualTo(State.OPEN);
@@ -89,7 +89,7 @@ class EnterpriseEntrySyncServiceImplTest {
 
         boolean result = enterpriseSyncService.generateEnterpriseEntries(payrollMonth);
 
-        verify(enterpriseEntryRepository, never()).persist(any(EnterpriseEntry.class));
+        verify(enterpriseEntryRepository, never()).persist(any(EnterpriseEntryEntity.class));
         verify(logger, times(1)).debug("Enterprise entry for month {} already exists.", payrollMonth.getMonth());
         verify(logger, times(1)).info(eq("Started enterprise entry generation: {}"), any(Instant.class));
         verify(logger, times(1)).info(eq("Finished enterprise entry generation: {}"), any(Instant.class));

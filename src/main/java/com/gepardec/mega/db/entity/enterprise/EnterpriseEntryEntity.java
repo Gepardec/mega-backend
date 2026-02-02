@@ -19,9 +19,9 @@ import java.time.LocalDateTime;
 @Table(name = "enterprise_entry")
 @NamedQuery(
         name = "EnterpriseEntry.findByDate",
-        query = "SELECT e FROM EnterpriseEntry e WHERE e.date BETWEEN :start AND :end"
+        query = "SELECT e FROM EnterpriseEntryEntity e WHERE e.date BETWEEN :start AND :end"
 )
-public class EnterpriseEntry {
+public class EnterpriseEntryEntity {
 
     @Id
     @Column(name = "id", insertable = false, updatable = false)
@@ -129,7 +129,7 @@ public class EnterpriseEntry {
             return false;
         }
 
-        EnterpriseEntry that = (EnterpriseEntry) o;
+        EnterpriseEntryEntity that = (EnterpriseEntryEntity) o;
 
         if (!id.equals(that.id)) {
             return false;

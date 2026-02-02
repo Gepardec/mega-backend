@@ -1,6 +1,6 @@
 package com.gepardec.mega.db.repository;
 
-import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.domain.model.Role;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -26,9 +26,9 @@ class UserRepositoryTest {
     @Inject
     UserRepository userRepository;
 
-    private User user;
+    private UserEntity user;
 
-    private User persistedUser;
+    private UserEntity persistedUser;
 
     @BeforeEach
     void init() {
@@ -43,7 +43,7 @@ class UserRepositoryTest {
 
     @Test
     void findActiveByEmail() {
-        Optional<User> userByEmail = userRepository.findActiveByEmail(persistedUser.getEmail());
+        Optional<UserEntity> userByEmail = userRepository.findActiveByEmail(persistedUser.getEmail());
 
         assertAll(
                 () -> assertThat(userByEmail).isPresent(),
@@ -53,7 +53,7 @@ class UserRepositoryTest {
 
     @Test
     void findActive() {
-        List<User> activeUsers = userRepository.findActive();
+        List<UserEntity> activeUsers = userRepository.findActive();
 
         assertAll(
                 () -> assertThat(activeUsers.getFirst()).isNotNull(),
@@ -70,7 +70,7 @@ class UserRepositoryTest {
         roles.add(Role.PROJECT_LEAD);
         roles.add(Role.OFFICE_MANAGEMENT);
 
-        List<User> usersByRoles = userRepository.findByRoles(roles);
+        List<UserEntity> usersByRoles = userRepository.findByRoles(roles);
 
         assertAll(
                 () -> assertThat(usersByRoles.getFirst()).isNotNull(),
@@ -98,8 +98,8 @@ class UserRepositoryTest {
         );
     }
 
-    private User initializeUserObject() {
-        User initUser = new User();
+    private UserEntity initializeUserObject() {
+        UserEntity initUser = new UserEntity();
         initUser.setActive(true);
         initUser.setEmail(EMAIL);
         initUser.setFirstname("Max");

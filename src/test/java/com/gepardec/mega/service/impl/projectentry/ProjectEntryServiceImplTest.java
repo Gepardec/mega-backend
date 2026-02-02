@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.impl.projectentry;
 
 import com.gepardec.mega.db.entity.common.State;
-import com.gepardec.mega.db.entity.project.ProjectEntry;
+import com.gepardec.mega.db.entity.project.ProjectEntryEntity;
 import com.gepardec.mega.db.entity.project.ProjectStep;
 import com.gepardec.mega.db.repository.ProjectEntryRepository;
 import com.gepardec.mega.domain.model.ProjectState;
@@ -36,7 +36,7 @@ class ProjectEntryServiceImplTest {
         when(projectEntryRepository.findByNameAndDate(anyString(), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(createProjectEntryList());
 
-        List<ProjectEntry> actual = projectEntryService.findByNameAndDate("ABC", YearMonth.of(2024, 6));
+        List<ProjectEntryEntity> actual = projectEntryService.findByNameAndDate("ABC", YearMonth.of(2024, 6));
 
         assertThat(actual.size()).isOne();
         assertThat(actual.getFirst().getName()).isEqualTo("ABC");
@@ -47,7 +47,7 @@ class ProjectEntryServiceImplTest {
         when(projectEntryRepository.findByNameAndEntryDateAndStep(anyString(), any(LocalDate.class), any(ProjectStep.class)))
                 .thenReturn(createProjectEntry());
 
-        when(projectEntryRepository.updateProjectEntry(any(ProjectEntry.class)))
+        when(projectEntryRepository.updateProjectEntry(any(ProjectEntryEntity.class)))
                 .thenReturn(true);
 
         boolean actual = projectEntryService.update(createProjectEntryDto());
@@ -55,17 +55,17 @@ class ProjectEntryServiceImplTest {
         assertThat(actual).isTrue();
     }
 
-    private List<ProjectEntry> createProjectEntryList() {
-        List<ProjectEntry> projectEntryList = new ArrayList<>();
-        ProjectEntry projectEntry = new ProjectEntry();
+    private List<ProjectEntryEntity> createProjectEntryList() {
+        List<ProjectEntryEntity> projectEntryList = new ArrayList<>();
+        ProjectEntryEntity projectEntry = new ProjectEntryEntity();
         projectEntry.setName("ABC");
         projectEntry.setDate(LocalDate.now());
         projectEntryList.add(projectEntry);
         return projectEntryList;
     }
 
-    private ProjectEntry createProjectEntry() {
-        ProjectEntry projectEntry = new ProjectEntry();
+    private ProjectEntryEntity createProjectEntry() {
+        ProjectEntryEntity projectEntry = new ProjectEntryEntity();
         projectEntry.setName("ABC");
         projectEntry.setDate(LocalDate.now());
         projectEntry.setState(State.OPEN);

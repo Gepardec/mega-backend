@@ -2,7 +2,7 @@ package com.gepardec.mega.rest;
 
 import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.StepEntry;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.EmploymentPeriod;
@@ -298,8 +298,8 @@ class SyncResourceTest {
         );
     }
 
-    private static StepEntry createStepEntry() {
-        StepEntry entry = new StepEntry();
+    private static StepEntryEntity createStepEntry() {
+        StepEntryEntity entry = new StepEntryEntity();
         entry.setState(EmployeeState.OPEN);
         return entry;
     }

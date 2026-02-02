@@ -2,9 +2,9 @@ package com.gepardec.mega.service.impl.stepentry;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
-import com.gepardec.mega.db.entity.employee.Step;
-import com.gepardec.mega.db.entity.employee.StepEntry;
-import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.entity.employee.StepEntity;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.db.repository.StepEntryRepository;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.service.api.PrematureEmployeeCheckService;
@@ -43,7 +43,7 @@ class PrematureEmployeeCheckSyncServiceTest {
     void syncPrematureEmployeeChecksWithStepEntries_matchingStepEntryAndPrematureEmployeeCheck_invokeUpdateStepEntries1Time() {
 //        Given
         List<PrematureEmployeeCheck> prematureEmployeeCheckEntities = List.of(createPrematureEmployeeCheck(1, "test@test.com"));
-        Optional<StepEntry> optionalStepEntry = Optional.of(createStepEntry());
+        Optional<StepEntryEntity> optionalStepEntry = Optional.of(createStepEntry());
 
         when(stepEntryRepository.updateStateAssigned(any(), any(), eq("test@test.com"), any(), any())).thenReturn(1);
         when(prematureEmployeeCheckService.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
@@ -66,7 +66,7 @@ class PrematureEmployeeCheckSyncServiceTest {
                 createPrematureEmployeeCheck(1, "test@test.com"),
                 createPrematureEmployeeCheck(1, "test@test.com")
         );
-        Optional<StepEntry> optionalStepEntry = Optional.of(createStepEntry());
+        Optional<StepEntryEntity> optionalStepEntry = Optional.of(createStepEntry());
 
         when(prematureEmployeeCheckService.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
         when(stepEntryRepository.updateStateAssigned(any(), any(), eq("test@test.com"), any(), any())).thenReturn(1);
@@ -107,7 +107,7 @@ class PrematureEmployeeCheckSyncServiceTest {
                 createPrematureEmployeeCheck(1, "test@test.com"),
                 createPrematureEmployeeCheck(1, "test@test.com")
         );
-        Optional<StepEntry> optionalStepEntry = Optional.of(createStepEntry());
+        Optional<StepEntryEntity> optionalStepEntry = Optional.of(createStepEntry());
 
         when(prematureEmployeeCheckService.findAllForMonth(any())).thenReturn(prematureEmployeeCheckEntities);
         when(stepEntryRepository.updateStateAssigned(any(), any(), eq("test@test.com"), any(), any())).thenReturn(1);
@@ -125,16 +125,16 @@ class PrematureEmployeeCheckSyncServiceTest {
     }
 
 
-    private StepEntry createStepEntry() {
-        StepEntry stepEntry = new StepEntry();
+    private StepEntryEntity createStepEntry() {
+        StepEntryEntity stepEntry = new StepEntryEntity();
         stepEntry.setCreationDate(payrollMonth.atDay(1).atStartOfDay());
         stepEntry.setDate(payrollMonth.atDay(1));
         stepEntry.setProject("Liwest-EMS");
         stepEntry.setState(EmployeeState.OPEN);
         stepEntry.setUpdatedDate(payrollMonth.atDay(1).atStartOfDay());
-        stepEntry.setOwner(new User());
-        stepEntry.setAssignee(new User());
-        stepEntry.setStep(new Step());
+        stepEntry.setOwner(new UserEntity());
+        stepEntry.setAssignee(new UserEntity());
+        stepEntry.setStep(new StepEntity());
 
         return stepEntry;
     }

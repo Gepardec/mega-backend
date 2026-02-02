@@ -1,5 +1,6 @@
 package com.gepardec.mega.service.impl;
 
+import com.gepardec.mega.db.entity.employee.CommentEntity;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import com.gepardec.mega.db.repository.CommentRepository;
 import com.gepardec.mega.domain.mapper.CommentMapper;
@@ -92,7 +93,7 @@ public class CommentServiceImpl implements CommentService {
                 ? stepEntryService.findStepEntryForEmployeeAtStep(stepId, employeeEmail, assigneeEmail, payrollMonth)
                 : stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, payrollMonth);
 
-        var comment = new com.gepardec.mega.db.entity.employee.Comment();
+        var comment = new CommentEntity();
         comment.setMessage(message);
         comment.setStepEntry(stepEntry);
         comment.setSourceSystem(sourceSystem);
@@ -135,7 +136,7 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.mapToDomain(comment);
     }
 
-    private void sendMail(Mail mail, com.gepardec.mega.db.entity.employee.Comment comment) {
+    private void sendMail(Mail mail, CommentEntity comment) {
         var stepEntry = comment.getStepEntry();
         var creator = comment.getStepEntry().getAssignee().getFirstname();
         var recipient = Mail.COMMENT_CLOSED.equals(mail)

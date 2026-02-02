@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.impl;
 
-import com.gepardec.mega.db.entity.project.Project;
-import com.gepardec.mega.db.entity.project.ProjectComment;
+import com.gepardec.mega.db.entity.project.ProjectCommentEntity;
+import com.gepardec.mega.db.entity.project.ProjectEntity;
 import com.gepardec.mega.db.repository.ProjectCommentRepository;
 import com.gepardec.mega.db.repository.ProjectRepository;
 import com.gepardec.mega.domain.utils.DateUtils;
@@ -30,7 +30,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
 
     @Override
     public List<ProjectCommentDto> findForProjectNameInRange(String projectName, LocalDate from, LocalDate to) {
-        List<ProjectComment> entities = projectCommentRepository.findByProjectNameAndDateBetween(projectName, from, to);
+        List<ProjectCommentEntity> entities = projectCommentRepository.findByProjectNameAndDateBetween(projectName, from, to);
         return entities.stream().map(e -> projectCommentMapper.mapToDto(e)).toList();
     }
 
@@ -46,13 +46,13 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
     public ProjectCommentDto create(ProjectCommentDto dto) {
         Objects.requireNonNull(dto);
 
-        Project project = projectRepository.findByName(dto.getProjectName());
+        ProjectEntity project = projectRepository.findByName(dto.getProjectName());
         Objects.requireNonNull(project);
 
-        List<ProjectComment> existingProjectComments = projectCommentRepository.findByProjectNameWithDate(project.getName(), dto.getDate());
+        List<ProjectCommentEntity> existingProjectComments = projectCommentRepository.findByProjectNameWithDate(project.getName(), dto.getDate());
 
         if (existingProjectComments.isEmpty()) {
-            ProjectComment newProjectComment = new ProjectComment();
+            ProjectCommentEntity newProjectComment = new ProjectCommentEntity();
             newProjectComment.setComment(dto.getComment());
             newProjectComment.setProject(project);
             newProjectComment.setDate(dto.getDate());
@@ -62,7 +62,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
             return projectCommentMapper.mapToDto(newProjectComment);
         } else {
             // update comment of existing project comment
-            ProjectComment projectCommentToUpdate = existingProjectComments.getFirst();
+            ProjectCommentEntity projectCommentToUpdate = existingProjectComments.getFirst();
             projectCommentToUpdate.setComment(dto.getComment());
             projectCommentRepository.update(projectCommentToUpdate);
 
@@ -73,7 +73,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
 
     @Override
     public boolean update(Long id, String comment) {
-        ProjectComment entity = projectCommentRepository.findById(id);
+        ProjectCommentEntity entity = projectCommentRepository.findById(id);
         if (entity == null) {
             throw new EntityNotFoundException("No entity found for id = %d".formatted(id));
         }

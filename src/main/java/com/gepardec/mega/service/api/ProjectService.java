@@ -1,5 +1,6 @@
 package com.gepardec.mega.service.api;
 
+import com.gepardec.mega.db.entity.project.ProjectEntity;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectFilter;
 
@@ -15,5 +16,5 @@ public interface ProjectService {
 
     Optional<Project> getProjectByName(final String projectName, final YearMonth payrollMonth);
 
-    void addProject(final com.gepardec.mega.db.entity.project.Project project, YearMonth payrollMonth);
+    void addProject(final ProjectEntity project, YearMonth payrollMonth);
 }

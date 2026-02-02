@@ -2,6 +2,7 @@ package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.domain.model.Role;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
@@ -29,7 +30,7 @@ class PrematureEmployeeCheckRepositoryTest {
 
     private static final String EMAIL = "max.muster@gepardec.com";
     private static final LocalDate DATE = LocalDate.of(2023, 10, 1);
-    private com.gepardec.mega.db.entity.employee.User user;
+    private UserEntity user;
 
     @BeforeEach
     void initDependentEntities() {
@@ -111,8 +112,8 @@ class PrematureEmployeeCheckRepositoryTest {
         return prematureEmployeeCheckEntity;
     }
 
-    private com.gepardec.mega.db.entity.employee.User initializeUserObject() {
-        com.gepardec.mega.db.entity.employee.User initUser = new com.gepardec.mega.db.entity.employee.User();
+    private UserEntity initializeUserObject() {
+        UserEntity initUser = new UserEntity();
         initUser.setActive(true);
         initUser.setEmail(EMAIL);
         initUser.setFirstname("Max");

@@ -2,6 +2,7 @@ package com.gepardec.mega.service.impl.mapper;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.domain.mapper.PrematureEmployeeCheckMapper;
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
 import com.gepardec.mega.domain.model.User;
@@ -92,8 +93,8 @@ class PrematureEmployeeCheckMapperTest {
     }
 
 
-    private com.gepardec.mega.db.entity.employee.User createDBUserForRole() {
-        com.gepardec.mega.db.entity.employee.User user = new com.gepardec.mega.db.entity.employee.User();
+    private UserEntity createDBUserForRole() {
+        UserEntity user = new UserEntity();
         user.setId(1L);
         user.setActive(true);
         user.setEmail("max@mustermann.com");

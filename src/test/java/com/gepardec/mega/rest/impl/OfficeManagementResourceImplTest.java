@@ -1,8 +1,9 @@
 package com.gepardec.mega.rest.impl;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.Step;
-import com.gepardec.mega.db.entity.employee.StepEntry;
+import com.gepardec.mega.db.entity.employee.StepEntity;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.FinishedAndTotalComments;
 import com.gepardec.mega.domain.model.Project;
@@ -79,7 +80,7 @@ class OfficeManagementResourceImplTest {
         when(employeeService.getAllEmployeesConsideringExitDate(any()))
                 .thenReturn(List.of(Employee.builder().releaseDate("2020-01-01").email("no-reply@gepardec.com").build()));
 
-        List<StepEntry> entries = List.of(
+        List<StepEntryEntity> entries = List.of(
                 createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
                 createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
@@ -120,7 +121,7 @@ class OfficeManagementResourceImplTest {
 
         when(employeeService.getAllEmployeesConsideringExitDate(any())).thenReturn(List.of());
 
-        List<StepEntry> entries = List.of(
+        List<StepEntryEntity> entries = List.of(
                 createStepEntryForStep(StepName.CONTROL_INTERNAL_TIMES, EmployeeState.OPEN),
                 createStepEntryForStep(StepName.CONTROL_TIME_EVIDENCES, EmployeeState.DONE),
                 createStepEntryForStep(StepName.CONTROL_TIMES, EmployeeState.OPEN)
@@ -203,8 +204,8 @@ class OfficeManagementResourceImplTest {
                 .build();
     }
 
-    private StepEntry createStepEntryForStep(StepName stepName, EmployeeState employeeState) {
-        StepEntry stepEntry = new StepEntry();
+    private StepEntryEntity createStepEntryForStep(StepName stepName, EmployeeState employeeState) {
+        StepEntryEntity stepEntry = new StepEntryEntity();
         stepEntry.setStep(createStep(stepName));
         stepEntry.setState(employeeState);
         stepEntry.setDate(LocalDate.now());
@@ -212,14 +213,14 @@ class OfficeManagementResourceImplTest {
         return stepEntry;
     }
 
-    private com.gepardec.mega.db.entity.employee.User createUser() {
-        com.gepardec.mega.db.entity.employee.User user = new com.gepardec.mega.db.entity.employee.User();
+    private UserEntity createUser() {
+        UserEntity user = new UserEntity();
         user.setEmail("no-reply@gpeardec.com");
         return user;
     }
 
-    private Step createStep(StepName stepName) {
-        Step step = new Step();
+    private StepEntity createStep(StepName stepName) {
+        StepEntity step = new StepEntity();
         step.setName(stepName.name());
         return step;
     }

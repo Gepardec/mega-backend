@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.StepEntry;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import jakarta.annotation.Nullable;
 
 import java.util.Objects;
@@ -77,7 +77,7 @@ public class PmProgressDto {
         return Objects.hash(getProject(), getAssigneeEmail(), getFirstname(), getLastname(), getState(), getStepId());
     }
 
-    public static PmProgressDto ofStepEntry(StepEntry stepEntry) {
+    public static PmProgressDto ofStepEntry(StepEntryEntity stepEntry) {
         return PmProgressDto.builder()
                 .project(stepEntry.getProject())
                 .assigneeEmail(stepEntry.getAssignee().getEmail())

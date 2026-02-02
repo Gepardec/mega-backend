@@ -1,6 +1,6 @@
 package com.gepardec.mega.service.impl.sync;
 
-import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
@@ -60,8 +60,8 @@ class SyncServiceImplTest {
         when(employeeService.getAllActiveEmployees())
                 .thenReturn(employees);
 
-        List<User> existingUsers = new ArrayList<>();
-        existingUsers.add(User.of("test@gmail.com"));
+        List<UserEntity> existingUsers = new ArrayList<>();
+        existingUsers.add(UserEntity.of("test@gmail.com"));
         when(userRepository.listAll())
                 .thenReturn(existingUsers);
 

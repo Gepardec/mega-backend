@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.mapper;
 
 import com.gepardec.mega.application.configuration.NotificationConfig;
-import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.Role;
@@ -31,18 +31,18 @@ public class SyncServiceMapper {
     @Inject
     NotificationConfig notificationConfig;
 
-    public User mapToDeactivatedUser(User user) {
+    public UserEntity mapToDeactivatedUser(UserEntity user) {
         user.setActive(false);
         return user;
     }
 
-    public User mapEmployeeToNewUser(final Employee employee, List<Project> projects, Locale defaultLocale) {
-        final User user = new User();
+    public UserEntity mapEmployeeToNewUser(final Employee employee, List<Project> projects, Locale defaultLocale) {
+        final UserEntity user = new UserEntity();
         user.setZepId(employee.getUserId());
         return mapEmployeeToUser(user, employee, projects, defaultLocale);
     }
 
-    public User mapEmployeeToUser(User user, Employee employee, List<Project> projects, Locale defaultLocale) {
+    public UserEntity mapEmployeeToUser(UserEntity user, Employee employee, List<Project> projects, Locale defaultLocale) {
         user.setEmail(employee.getEmail());
         user.setFirstname(employee.getFirstname());
         user.setLastname(employee.getLastname());
@@ -85,7 +85,7 @@ public class SyncServiceMapper {
         return roles;
     }
 
-    private void setUserLocaleFromEmployeeLanguage(final User user, final Employee employee, final Locale defaultLocale) {
+    private void setUserLocaleFromEmployeeLanguage(final UserEntity user, final Employee employee, final Locale defaultLocale) {
         if (employee.getLanguage() == null) {
             user.setLocale(defaultLocale);
         } else {

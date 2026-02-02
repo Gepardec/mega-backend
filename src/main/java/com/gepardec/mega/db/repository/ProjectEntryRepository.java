@@ -1,6 +1,6 @@
 package com.gepardec.mega.db.repository;
 
-import com.gepardec.mega.db.entity.project.ProjectEntry;
+import com.gepardec.mega.db.entity.project.ProjectEntryEntity;
 import com.gepardec.mega.db.entity.project.ProjectStep;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @ApplicationScoped
-public class ProjectEntryRepository implements PanacheRepository<ProjectEntry> {
+public class ProjectEntryRepository implements PanacheRepository<ProjectEntryEntity> {
 
     @Inject
     EntityManager em;
@@ -25,7 +25,7 @@ public class ProjectEntryRepository implements PanacheRepository<ProjectEntry> {
     @Inject
     Logger logger;
 
-    public List<ProjectEntry> findByNameAndDate(String projectName, LocalDate from, LocalDate to) {
+    public List<ProjectEntryEntity> findByNameAndDate(String projectName, LocalDate from, LocalDate to) {
         return find("#ProjectEntry.findAllProjectEntriesForProjectNameInRange",
                 Parameters
                         .with("projectName", projectName)
@@ -34,7 +34,7 @@ public class ProjectEntryRepository implements PanacheRepository<ProjectEntry> {
                 .list();
     }
 
-    public boolean updateProjectEntry(ProjectEntry projectEntity) {
+    public boolean updateProjectEntry(ProjectEntryEntity projectEntity) {
         try {
             tx.begin();
             em.merge(projectEntity);
@@ -46,7 +46,7 @@ public class ProjectEntryRepository implements PanacheRepository<ProjectEntry> {
         }
     }
 
-    public ProjectEntry findByNameAndEntryDateAndStep(String projectName, LocalDate entryDate, ProjectStep projectStep) {
+    public ProjectEntryEntity findByNameAndEntryDateAndStep(String projectName, LocalDate entryDate, ProjectStep projectStep) {
         return find("#ProjectEntry.findProjectEntryByNameAndEntryDateAndStep",
                 Parameters
                         .with("projectName", projectName)

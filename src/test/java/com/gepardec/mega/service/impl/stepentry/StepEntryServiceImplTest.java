@@ -1,8 +1,9 @@
 package com.gepardec.mega.service.impl.stepentry;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.StepEntry;
-import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.entity.employee.StepEntity;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.db.repository.StepEntryRepository;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
@@ -53,9 +54,9 @@ class StepEntryServiceImplTest {
 
     @Test
     void findEmployeeCheckState_whenValidStepEntries_thenValidState() {
-        StepEntry stepEntry = createStepEntry(1L);
+        StepEntryEntity stepEntry = createStepEntry(1L);
 
-        Optional<StepEntry> stepEntries = Optional.of(stepEntry);
+        Optional<StepEntryEntity> stepEntries = Optional.of(stepEntry);
         when(stepEntryRepository.findControlTimesStepEntryByOwnerAndEntryDate(ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.anyString())).thenReturn(stepEntries);
 
@@ -98,10 +99,10 @@ class StepEntryServiceImplTest {
 
     @Test
     void areOtherChecksDone_whenAllInProgress_thenFalse() {
-        StepEntry stepEntry1 = createStepEntry(1L);
-        StepEntry stepEntry2 = createStepEntry(2L);
+        StepEntryEntity stepEntry1 = createStepEntry(1L);
+        StepEntryEntity stepEntry2 = createStepEntry(2L);
 
-        List<StepEntry> stepEntries = List.of(stepEntry1, stepEntry2);
+        List<StepEntryEntity> stepEntries = List.of(stepEntry1, stepEntry2);
         when(stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.anyString())).thenReturn(stepEntries);
 
@@ -123,13 +124,13 @@ class StepEntryServiceImplTest {
 
     @Test
     void areOtherChecksDone_whenAllDone_thenTrue() {
-        StepEntry stepEntry1 = createStepEntry(1L);
-        StepEntry stepEntry2 = createStepEntry(2L);
+        StepEntryEntity stepEntry1 = createStepEntry(1L);
+        StepEntryEntity stepEntry2 = createStepEntry(2L);
 
         stepEntry1.setState(EmployeeState.DONE);
         stepEntry2.setState(EmployeeState.DONE);
 
-        List<StepEntry> stepEntries = List.of(stepEntry1, stepEntry2);
+        List<StepEntryEntity> stepEntries = List.of(stepEntry1, stepEntry2);
         when(stepEntryRepository.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(ArgumentMatchers.any(LocalDate.class),
                 ArgumentMatchers.anyString())).thenReturn(stepEntries);
 
@@ -214,7 +215,7 @@ class StepEntryServiceImplTest {
 
         Employee empl = createEmployee();
         YearMonth payrollMonth = YearMonth.from(DateUtils.getFirstDayOfFollowingMonth(empl.getReleaseDate()));
-        List<StepEntry> result = stepEntryService.findAllStepEntriesForEmployee(empl, payrollMonth);
+        List<StepEntryEntity> result = stepEntryService.findAllStepEntriesForEmployee(empl, payrollMonth);
         verify(stepEntryRepository, times(1)).findAllOwnedStepEntriesInRange(
                 DateUtils.getFirstDayOfFollowingMonth(empl.getReleaseDate()),
                 DateUtils.getLastDayOfFollowingMonth(empl.getReleaseDate()),
@@ -261,7 +262,7 @@ class StepEntryServiceImplTest {
         )).thenReturn(Optional.of(createStepEntry(1L)));
 
         Employee employee = createEmployee();
-        StepEntry stepEntry = stepEntryService.findStepEntryForEmployeeAtStep(2L, employee.getEmail(), "", YearMonth.now());
+        StepEntryEntity stepEntry = stepEntryService.findStepEntryForEmployeeAtStep(2L, employee.getEmail(), "", YearMonth.now());
         assertThat(stepEntry).isNotNull();
         assertThat(stepEntry.getId()).isEqualTo(1L);
         assertThat(stepEntry.getProject()).isEqualTo("Liwest-EMS");
@@ -293,17 +294,17 @@ class StepEntryServiceImplTest {
                 .project(Project.builder().projectId("ABC").build())
                 .build();
 
-        User ownerDb = new User();
+        UserEntity ownerDb = new UserEntity();
         ownerDb.setId(stepEntry.getOwner().getDbId());
 
-        User assigneeDb = new User();
+        UserEntity assigneeDb = new UserEntity();
         assigneeDb.setId(stepEntry.getAssignee().getDbId());
 
-        com.gepardec.mega.db.entity.employee.Step step = new com.gepardec.mega.db.entity.employee.Step();
+        StepEntity step = new StepEntity();
         step.setId(stepEntry.getStep().getDbId());
 
 
-        StepEntry expectedStepEntry = new StepEntry();
+        StepEntryEntity expectedStepEntry = new StepEntryEntity();
         expectedStepEntry.setDate(stepEntry.getDate());
         expectedStepEntry.setProject(stepEntry.getProject().getProjectId());
         expectedStepEntry.setState(EmployeeState.OPEN);
@@ -316,7 +317,7 @@ class StepEntryServiceImplTest {
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
         verify(logger).debug(eq("inserting step entry {}"), argumentCaptor.capture());
 
-        StepEntry capturedStepEntry = (StepEntry) argumentCaptor.getValue();
+        StepEntryEntity capturedStepEntry = (StepEntryEntity) argumentCaptor.getValue();
         assertThat(capturedStepEntry.getProject()).isEqualTo(expectedStepEntry.getProject());
     }
 
@@ -330,17 +331,17 @@ class StepEntryServiceImplTest {
                 .project(null)
                 .build();
 
-        User ownerDb = new User();
+        UserEntity ownerDb = new UserEntity();
         ownerDb.setId(stepEntry.getOwner().getDbId());
 
-        User assigneeDb = new User();
+        UserEntity assigneeDb = new UserEntity();
         assigneeDb.setId(stepEntry.getAssignee().getDbId());
 
-        com.gepardec.mega.db.entity.employee.Step step = new com.gepardec.mega.db.entity.employee.Step();
+        StepEntity step = new StepEntity();
         step.setId(stepEntry.getStep().getDbId());
 
 
-        StepEntry expectedStepEntry = new StepEntry();
+        StepEntryEntity expectedStepEntry = new StepEntryEntity();
         expectedStepEntry.setDate(stepEntry.getDate());
         expectedStepEntry.setProject(null);
         expectedStepEntry.setState(EmployeeState.OPEN);
@@ -353,7 +354,7 @@ class StepEntryServiceImplTest {
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
         verify(logger).debug(eq("inserting step entry {}"), argumentCaptor.capture());
 
-        StepEntry capturedStepEntry = (StepEntry) argumentCaptor.getValue();
+        StepEntryEntity capturedStepEntry = (StepEntryEntity) argumentCaptor.getValue();
         assertThat(capturedStepEntry.getProject()).isEqualTo(expectedStepEntry.getProject());
     }
 
@@ -417,7 +418,7 @@ class StepEntryServiceImplTest {
     void getAllProjectEmployeesForPM_whenValidRange_thenReturnProjectEmployees() {
         YearMonth payrollMonth = YearMonth.of(2024, 1);
 
-        List<StepEntry> stepEntries = List.of(
+        List<StepEntryEntity> stepEntries = List.of(
                 createStepEntryWithProjectAndOwner("Project1", "employee1"),
                 createStepEntryWithProjectAndOwner("Project1", "employee2"),
                 createStepEntryWithProjectAndOwner("Project2", "employee3")
@@ -454,12 +455,12 @@ class StepEntryServiceImplTest {
         String assigneeEmail = "assignee@example.com";
         YearMonth payrollMonth = YearMonth.of(2024, 1);
 
-        List<StepEntry> stepEntriesProjectSpecific = List.of(
+        List<StepEntryEntity> stepEntriesProjectSpecific = List.of(
                 createStepEntryWithDetails(1L, projectId, employee.getEmail(), assigneeEmail),
                 createStepEntryWithDetails(2L, projectId, employee.getEmail(), assigneeEmail)
         );
 
-        List<StepEntry> stepEntriesGeneral = List.of(
+        List<StepEntryEntity> stepEntriesGeneral = List.of(
                 createStepEntryWithDetails(1L, "Project2", employee.getEmail(), assigneeEmail),
                 createStepEntryWithDetails(2L, "Project3", employee.getEmail(), assigneeEmail)
         );
@@ -469,7 +470,7 @@ class StepEntryServiceImplTest {
         when(stepEntryRepository.findAllOwnedStepEntriesInRange(payrollMonth.atDay(1), payrollMonth.atEndOfMonth(), employee.getEmail()))
                 .thenReturn(stepEntriesGeneral);
 
-        List<StepEntry> result = stepEntryService.findAllStepEntriesForEmployeeAndProject(employee, projectId, assigneeEmail, payrollMonth);
+        List<StepEntryEntity> result = stepEntryService.findAllStepEntriesForEmployeeAndProject(employee, projectId, assigneeEmail, payrollMonth);
 
         assertThat(result).hasSize(4)
                 .containsAll(stepEntriesProjectSpecific)
@@ -492,7 +493,7 @@ class StepEntryServiceImplTest {
         LocalDate fromDate = LocalDate.of(2024, 1, 1);
         LocalDate toDate = LocalDate.of(2024, 1, 31);
 
-        StepEntry expectedStepEntry = createStepEntryWithDetails(stepId, project, employeeEmail, assigneeEmail);
+        StepEntryEntity expectedStepEntry = createStepEntryWithDetails(stepId, project, employeeEmail, assigneeEmail);
 
         try (MockedStatic<DateUtils> dateUtilsMockedStatic = mockStatic(DateUtils.class)) {
             dateUtilsMockedStatic.when(() -> DateUtils.getFirstDayOfCurrentMonth(anyString()))
@@ -504,7 +505,7 @@ class StepEntryServiceImplTest {
                     any(LocalDate.class), any(LocalDate.class), anyString(), anyLong(), anyString(), anyString()))
                     .thenReturn(Optional.of(expectedStepEntry));
 
-            StepEntry result = stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, payrollMonth);
+            StepEntryEntity result = stepEntryService.findStepEntryForEmployeeAndProjectAtStep(stepId, employeeEmail, assigneeEmail, project, payrollMonth);
 
             assertThat(result).isNotNull();
             assertThat(result).isEqualTo(expectedStepEntry);
@@ -561,16 +562,16 @@ class StepEntryServiceImplTest {
         verify(stepEntryRepository, times(1)).updateStateAssignedWithReason(from, to, employee.getEmail(), stepId, newState, reason);
     }
 
-    private StepEntry createStepEntryWithDetails(Long id, String project, String ownerEmail, String assigneeEmail) {
-        StepEntry stepEntry = new StepEntry();
+    private StepEntryEntity createStepEntryWithDetails(Long id, String project, String ownerEmail, String assigneeEmail) {
+        StepEntryEntity stepEntry = new StepEntryEntity();
         stepEntry.setProject(project);
         stepEntry.setId(id);
 
-        User owner = new User();
+        UserEntity owner = new UserEntity();
         owner.setEmail(ownerEmail);
         stepEntry.setOwner(owner);
 
-        User assignee = new User();
+        UserEntity assignee = new UserEntity();
         assignee.setEmail(assigneeEmail);
         stepEntry.setAssignee(assignee);
 
@@ -578,11 +579,11 @@ class StepEntryServiceImplTest {
     }
 
 
-    private StepEntry createStepEntryWithProjectAndOwner(String project, String ownerZepId) {
-        StepEntry stepEntry = new StepEntry();
+    private StepEntryEntity createStepEntryWithProjectAndOwner(String project, String ownerZepId) {
+        StepEntryEntity stepEntry = new StepEntryEntity();
         stepEntry.setProject(project);
 
-        User owner = new User();
+        UserEntity owner = new UserEntity();
         owner.setZepId(ownerZepId);
         stepEntry.setOwner(owner);
 
@@ -590,7 +591,7 @@ class StepEntryServiceImplTest {
     }
 
 
-    private List<StepEntry> createStepEntriesForPM() {
+    private List<StepEntryEntity> createStepEntriesForPM() {
         return List.of(
                 createStepEntry(1L, "008"),
                 createStepEntry(2L, "010"),
@@ -599,17 +600,17 @@ class StepEntryServiceImplTest {
         );
     }
 
-    private StepEntry createStepEntry(Long id, String ownerZepId) {
-        StepEntry entry = createStepEntry(id);
-        User owner = new User();
+    private StepEntryEntity createStepEntry(Long id, String ownerZepId) {
+        StepEntryEntity entry = createStepEntry(id);
+        UserEntity owner = new UserEntity();
         owner.setEmail("no-reply@gepardec.com");
         owner.setZepId(ownerZepId);
         entry.setOwner(owner);
         return entry;
     }
 
-    private StepEntry createStepEntry(Long id) {
-        StepEntry stepEntry = new StepEntry();
+    private StepEntryEntity createStepEntry(Long id) {
+        StepEntryEntity stepEntry = new StepEntryEntity();
         stepEntry.setId(id);
         stepEntry.setCreationDate(LocalDateTime.now());
         stepEntry.setDate(LocalDate.now());

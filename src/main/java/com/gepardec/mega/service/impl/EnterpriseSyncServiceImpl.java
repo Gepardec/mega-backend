@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.common.State;
-import com.gepardec.mega.db.entity.enterprise.EnterpriseEntry;
+import com.gepardec.mega.db.entity.enterprise.EnterpriseEntryEntity;
 import com.gepardec.mega.db.repository.EnterpriseEntryRepository;
 import com.gepardec.mega.service.api.EnterpriseSyncService;
 import jakarta.enterprise.context.Dependent;
@@ -31,10 +31,10 @@ public class EnterpriseSyncServiceImpl implements EnterpriseSyncService {
         logger.info("Started enterprise entry generation: {}", stopWatch.getStartInstant());
         logger.info("Processing date: {}", payrollMonth);
 
-        Optional<EnterpriseEntry> savedEnterpriseEntry = enterpriseEntryRepository.findByDate(payrollMonth.atDay(1));
+        Optional<EnterpriseEntryEntity> savedEnterpriseEntry = enterpriseEntryRepository.findByDate(payrollMonth.atDay(1));
 
         if (savedEnterpriseEntry.isEmpty()) {
-            EnterpriseEntry enterpriseEntry = new EnterpriseEntry();
+            EnterpriseEntryEntity enterpriseEntry = new EnterpriseEntryEntity();
             enterpriseEntry.setDate(payrollMonth.atDay(1));
             enterpriseEntry.setCreationDate(LocalDateTime.now());
             enterpriseEntry.setChargeabilityExternalEmployeesRecorded(State.OPEN);

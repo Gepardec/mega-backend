@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.impl.enterpriseentry;
 
 import com.gepardec.mega.db.entity.common.State;
-import com.gepardec.mega.db.entity.enterprise.EnterpriseEntry;
+import com.gepardec.mega.db.entity.enterprise.EnterpriseEntryEntity;
 import com.gepardec.mega.db.repository.EnterpriseEntryRepository;
 import com.gepardec.mega.domain.model.ProjectState;
 import com.gepardec.mega.rest.model.EnterpriseEntryDto;
@@ -48,7 +48,7 @@ class EnterpriseEntryServiceImplTest {
 
     @Test
     void findByDate() {
-        EnterpriseEntry entry = new EnterpriseEntry();
+        EnterpriseEntryEntity entry = new EnterpriseEntryEntity();
         EnterpriseEntryDto entryDto = EnterpriseEntryDto.builder().build();
 
         when(enterpriseEntryRepository.findByDate(fromDate, toDate))
@@ -66,7 +66,7 @@ class EnterpriseEntryServiceImplTest {
 
     @Test
     void update_whenEntryExists_thenResultIsTrue() {
-        EnterpriseEntry entry = new EnterpriseEntry();
+        EnterpriseEntryEntity entry = new EnterpriseEntryEntity();
         EnterpriseEntryDto entryDto = EnterpriseEntryDto.builder()
                 .zepTimesReleased(ProjectState.DONE)
                 .chargeabilityExternalEmployeesRecorded(ProjectState.WORK_IN_PROGRESS)
@@ -74,7 +74,7 @@ class EnterpriseEntryServiceImplTest {
                 .build();
 
         when(enterpriseEntryRepository.findByDate(fromDate, toDate)).thenReturn(Optional.of(entry));
-        when(enterpriseEntryRepository.updateEntry(any(EnterpriseEntry.class))).thenReturn(true);
+        when(enterpriseEntryRepository.updateEntry(any(EnterpriseEntryEntity.class))).thenReturn(true);
 
         boolean result = enterpriseEntryService.update(entryDto, payrollMonth);
 
@@ -96,6 +96,6 @@ class EnterpriseEntryServiceImplTest {
 
         assertThat(result).isFalse();
         verify(enterpriseEntryRepository).findByDate(fromDate, toDate);
-        verify(enterpriseEntryRepository, never()).updateEntry(any(EnterpriseEntry.class));
+        verify(enterpriseEntryRepository, never()).updateEntry(any(EnterpriseEntryEntity.class));
     }
 }

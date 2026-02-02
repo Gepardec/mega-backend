@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.mapper;
 
 import com.gepardec.mega.db.entity.common.State;
-import com.gepardec.mega.db.entity.enterprise.EnterpriseEntry;
+import com.gepardec.mega.db.entity.enterprise.EnterpriseEntryEntity;
 import com.gepardec.mega.rest.model.EnterpriseEntryDto;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -27,7 +27,7 @@ class EnterpriseEntryMapperTest {
 
     @Test
     void map_whenEntryIsNotEmpty_thenReturnDto() {
-        EnterpriseEntry entry = new EnterpriseEntry();
+        EnterpriseEntryEntity entry = new EnterpriseEntryEntity();
         entry.setId(1L);
         entry.setZepTimesReleased(State.OPEN);
         entry.setChargeabilityExternalEmployeesRecorded(State.OPEN);

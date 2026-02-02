@@ -1,13 +1,14 @@
 package com.gepardec.mega.domain.mapper;
 
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class UserMapper implements EntityMapper<User, com.gepardec.mega.db.entity.employee.User> {
+public class UserMapper implements EntityMapper<User, UserEntity> {
     @Override
-    public com.gepardec.mega.db.entity.employee.User mapToEntity(User object) {
-        com.gepardec.mega.db.entity.employee.User user = new com.gepardec.mega.db.entity.employee.User();
+    public UserEntity mapToEntity(User object) {
+        UserEntity user = new UserEntity();
         user.setId(object.getDbId());
         user.setZepId(object.getUserId());
         user.setFirstname(object.getFirstname());
@@ -20,7 +21,7 @@ public class UserMapper implements EntityMapper<User, com.gepardec.mega.db.entit
     }
 
     @Override
-    public User mapToDomain(com.gepardec.mega.db.entity.employee.User object) {
+    public User mapToDomain(UserEntity object) {
         if (object == null) {
             return null;
         }

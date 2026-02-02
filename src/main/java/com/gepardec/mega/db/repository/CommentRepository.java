@@ -1,6 +1,6 @@
 package com.gepardec.mega.db.repository;
 
-import com.gepardec.mega.db.entity.employee.Comment;
+import com.gepardec.mega.db.entity.employee.CommentEntity;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
@@ -13,12 +13,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 @ApplicationScoped
-public class CommentRepository implements PanacheRepository<Comment> {
+public class CommentRepository implements PanacheRepository<CommentEntity> {
 
     @Inject
     EntityManager em;
 
-    public List<Comment> findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail(LocalDate startDate, LocalDate endDate, String email) {
+    public List<CommentEntity> findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail(LocalDate startDate, LocalDate endDate, String email) {
         return find("#Comment.findAllCommentsBetweenStartDateAndEndDateAndAllOpenCommentsBeforeStartDateForEmail",
                 Parameters
                         .with("start", startDate)
@@ -30,20 +30,20 @@ public class CommentRepository implements PanacheRepository<Comment> {
 
     @Transactional
     public int setStatusDone(Long id) {
-        return update("UPDATE Comment c SET c.employeeState = :state WHERE id = :id",
+        return update("UPDATE CommentEntity c SET c.employeeState = :state WHERE id = :id",
                 Parameters
                         .with("id", id)
                         .and("state", EmployeeState.DONE));
     }
 
     @Transactional
-    public Comment save(final Comment comment) {
+    public CommentEntity save(final CommentEntity comment) {
         this.persist(comment);
         return comment;
     }
 
     @Transactional
-    public Comment update(final Comment comment) {
+    public CommentEntity update(final CommentEntity comment) {
         return em.merge(comment);
     }
 

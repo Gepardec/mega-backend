@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.impl.init;
 
 import com.gepardec.mega.application.configuration.NotificationConfig;
-import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.EmploymentPeriod;
 import com.gepardec.mega.domain.model.EmploymentPeriods;
@@ -78,10 +78,10 @@ class SyncServiceMapperTest {
 
     @Test
     void whenCalled_thenActiveSetToFalse() {
-        final User user = new User();
+        final UserEntity user = new UserEntity();
         user.setActive(true);
 
-        final User actual = mapper.mapToDeactivatedUser(user);
+        final UserEntity actual = mapper.mapToDeactivatedUser(user);
 
         assertThat(actual.getActive()).isFalse();
     }
@@ -89,11 +89,11 @@ class SyncServiceMapperTest {
     @Test
     void whenZepIdIsDifferent_thenZepIsNotUpdated() {
         when(notificationConfig.getOmMailAddresses()).thenReturn(List.of());
-        final User user = new User();
+        final UserEntity user = new UserEntity();
         user.setZepId("2");
         final Employee employee = employeeForUserId();
 
-        final User actual = mapper.mapEmployeeToUser(user, employee, List.of(), DEFAULT_FRENCH_LOCALE);
+        final UserEntity actual = mapper.mapEmployeeToUser(user, employee, List.of(), DEFAULT_FRENCH_LOCALE);
 
         assertThat(actual.getZepId()).isEqualTo("2");
     }
@@ -101,7 +101,7 @@ class SyncServiceMapperTest {
     @Test
     void whenEmployeeDataDiffers_thenUserIsUpdated() {
         when(notificationConfig.getOmMailAddresses()).thenReturn(List.of());
-        final User user = new User();
+        final UserEntity user = new UserEntity();
         user.setZepId("2");
         user.setRoles(Set.of(Role.EMPLOYEE, Role.OFFICE_MANAGEMENT, Role.PROJECT_LEAD));
         user.setFirstname("Max");
@@ -118,7 +118,7 @@ class SyncServiceMapperTest {
                 .build();
         final Project project = projectForLeadUserId("2");
 
-        final User actual = mapper.mapEmployeeToUser(user, employee, List.of(project), DEFAULT_FRENCH_LOCALE);
+        final UserEntity actual = mapper.mapEmployeeToUser(user, employee, List.of(project), DEFAULT_FRENCH_LOCALE);
 
         assertAll(
                 () -> assertThat(actual.getZepId()).isEqualTo("2"),
@@ -138,7 +138,7 @@ class SyncServiceMapperTest {
         when(notificationConfig.getOmMailAddresses()).thenReturn(List.of());
         final Employee employee = employeeForUserId();
 
-        final User actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
+        final UserEntity actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
 
         assertThat(actual.getRoles()).contains(Role.EMPLOYEE);
     }
@@ -157,7 +157,7 @@ class SyncServiceMapperTest {
                 .build();
         final Project project = projectForLeadUserId("1");
 
-        final User actual = mapper.mapEmployeeToNewUser(employee, List.of(project), DEFAULT_FRENCH_LOCALE);
+        final UserEntity actual = mapper.mapEmployeeToNewUser(employee, List.of(project), DEFAULT_FRENCH_LOCALE);
 
         assertAll(
                 () -> assertThat(actual.getZepId()).isEqualTo("1"),
@@ -178,7 +178,7 @@ class SyncServiceMapperTest {
 
         final Employee employee = employeeForUserId();
 
-        final User actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
+        final UserEntity actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
 
         assertThat(actual.getRoles()).isNotEmpty();
         assertThat(actual.getRoles()).doesNotContain(Role.PROJECT_LEAD);
@@ -191,7 +191,7 @@ class SyncServiceMapperTest {
         final Employee employee = employeeForUserId();
         final Project project = projectForLeadUserId("2");
 
-        final User actual = mapper.mapEmployeeToNewUser(employee, List.of(project), DEFAULT_FRENCH_LOCALE);
+        final UserEntity actual = mapper.mapEmployeeToNewUser(employee, List.of(project), DEFAULT_FRENCH_LOCALE);
 
         assertThat(actual.getRoles()).isNotEmpty();
         assertThat(actual.getRoles()).doesNotContain(Role.PROJECT_LEAD);
@@ -204,7 +204,7 @@ class SyncServiceMapperTest {
         final Employee employee = employeeForUserId();
         final Project project = projectForLeadUserId("1");
 
-        final User actual = mapper.mapEmployeeToNewUser(employee, List.of(project), DEFAULT_FRENCH_LOCALE);
+        final UserEntity actual = mapper.mapEmployeeToNewUser(employee, List.of(project), DEFAULT_FRENCH_LOCALE);
 
         assertThat(actual.getRoles()).contains(Role.PROJECT_LEAD);
     }
@@ -214,7 +214,7 @@ class SyncServiceMapperTest {
         when(notificationConfig.getOmMailAddresses()).thenReturn(List.of());
         final Employee employee = employeeForEmail();
 
-        final User actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
+        final UserEntity actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
 
         assertThat(actual.getRoles()).isNotEmpty();
         assertThat(actual.getRoles()).doesNotContain(Role.OFFICE_MANAGEMENT);
@@ -225,7 +225,7 @@ class SyncServiceMapperTest {
         when(notificationConfig.getOmMailAddresses()).thenReturn(List.of("max.mustermann81@gmail.com"));
         final Employee employee = employeeForEmail();
 
-        final User actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
+        final UserEntity actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
 
         assertThat(actual.getRoles()).isNotEmpty();
         assertThat(actual.getRoles()).doesNotContain(Role.OFFICE_MANAGEMENT);
@@ -236,7 +236,7 @@ class SyncServiceMapperTest {
         when(notificationConfig.getOmMailAddresses()).thenReturn(List.of("no-reply@gepardec.com"));
         final Employee employee = employeeForEmail();
 
-        final User actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
+        final UserEntity actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
 
         assertThat(actual.getRoles()).contains(Role.OFFICE_MANAGEMENT);
     }
@@ -246,7 +246,7 @@ class SyncServiceMapperTest {
         when(notificationConfig.getOmMailAddresses()).thenReturn(List.of());
         final Employee employee = employeeForLanguage(null);
 
-        final User actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
+        final UserEntity actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
 
         assertThat(actual.getLocale()).isEqualTo(DEFAULT_FRENCH_LOCALE);
     }
@@ -256,7 +256,7 @@ class SyncServiceMapperTest {
         when(notificationConfig.getOmMailAddresses()).thenReturn(List.of());
         final Employee employee = employeeForLanguage("xx");
 
-        final User actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
+        final UserEntity actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
 
         assertThat(actual.getLocale()).isEqualTo(DEFAULT_FRENCH_LOCALE);
     }
@@ -276,7 +276,7 @@ class SyncServiceMapperTest {
         when(notificationConfig.getOmMailAddresses()).thenReturn(List.of());
         final Employee employee = employeeForLanguage("de");
 
-        final User actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
+        final UserEntity actual = mapper.mapEmployeeToNewUser(employee, List.of(), DEFAULT_FRENCH_LOCALE);
 
         assertThat(actual.getLocale()).isEqualTo(Locale.GERMAN);
     }

@@ -1,8 +1,8 @@
 package com.gepardec.mega.service.impl.monthlyreport;
 
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.Step;
-import com.gepardec.mega.db.entity.employee.StepEntry;
+import com.gepardec.mega.db.entity.employee.StepEntity;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Attendances;
 import com.gepardec.mega.domain.model.Comment;
@@ -241,7 +241,7 @@ class MonthlyReportServiceImplTest {
         @Test
         void getEmployeeCheck_WhenStepEntryReasonExists_ShouldUseStepEntryReason() {
             // Arrange
-            StepEntry stepEntry = mock(StepEntry.class);
+            StepEntryEntity stepEntry = mock(StepEntryEntity.class);
             when(stepEntry.getStateReason()).thenReturn("Step entry reason");
 
             when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
@@ -295,8 +295,8 @@ class MonthlyReportServiceImplTest {
             @Test
             void getEmployeeCheck_WhenAllStepsCompleted_ShouldReturnTrueForOtherChecksDone() {
                 // Arrange
-                StepEntry controlTimeEntry = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project1", EmployeeState.DONE);
-                StepEntry otherEntry = createStepEntry("OTHER_STEP", "Project1", EmployeeState.DONE);
+                StepEntryEntity controlTimeEntry = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project1", EmployeeState.DONE);
+                StepEntryEntity otherEntry = createStepEntry("OTHER_STEP", "Project1", EmployeeState.DONE);
 
                 when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
                         .thenReturn(Optional.empty());
@@ -320,7 +320,7 @@ class MonthlyReportServiceImplTest {
             @Test
             void getEmployeeCheck_WhenControlTimeEvidencesNotDone_ShouldReturnFalseForOtherChecksDone() {
                 // Arrange
-                StepEntry controlTimeEntry = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project1", EmployeeState.IN_PROGRESS);
+                StepEntryEntity controlTimeEntry = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project1", EmployeeState.IN_PROGRESS);
 
                 when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
                         .thenReturn(Optional.empty());
@@ -344,8 +344,8 @@ class MonthlyReportServiceImplTest {
             @Test
             void getEmployeeCheck_WhenOtherStepsNotDone_ShouldReturnFalseForOtherChecksDone() {
                 // Arrange
-                StepEntry controlTimeEntry = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project1", EmployeeState.DONE);
-                StepEntry otherEntry = createStepEntry("OTHER_STEP", "Project1", EmployeeState.IN_PROGRESS);
+                StepEntryEntity controlTimeEntry = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project1", EmployeeState.DONE);
+                StepEntryEntity otherEntry = createStepEntry("OTHER_STEP", "Project1", EmployeeState.IN_PROGRESS);
 
                 when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
                         .thenReturn(Optional.empty());
@@ -369,8 +369,8 @@ class MonthlyReportServiceImplTest {
             @Test
             void getEmployeeCheck_WhenMultipleProjectsAndOneControlTimeDone_ShouldReturnTrue() {
                 // Arrange
-                StepEntry controlTimeEntry1 = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project1", EmployeeState.DONE);
-                StepEntry controlTimeEntry2 = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project2", EmployeeState.IN_PROGRESS);
+                StepEntryEntity controlTimeEntry1 = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project1", EmployeeState.DONE);
+                StepEntryEntity controlTimeEntry2 = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project2", EmployeeState.IN_PROGRESS);
 
                 when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
                         .thenReturn(Optional.empty());
@@ -593,9 +593,9 @@ class MonthlyReportServiceImplTest {
         }
     }
 
-    private StepEntry createStepEntry(String stepName, String project, EmployeeState state) {
-        StepEntry stepEntry = mock(StepEntry.class);
-        Step step = mock(Step.class);
+    private StepEntryEntity createStepEntry(String stepName, String project, EmployeeState state) {
+        StepEntryEntity stepEntry = mock(StepEntryEntity.class);
+        StepEntity step = mock(StepEntity.class);
         when(step.getName()).thenReturn(stepName);
         when(stepEntry.getStep()).thenReturn(step);
         when(stepEntry.getProject()).thenReturn(project);

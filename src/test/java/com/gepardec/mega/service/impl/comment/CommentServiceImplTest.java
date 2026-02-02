@@ -1,8 +1,9 @@
 package com.gepardec.mega.service.impl.comment;
 
+import com.gepardec.mega.db.entity.employee.CommentEntity;
 import com.gepardec.mega.db.entity.employee.EmployeeState;
-import com.gepardec.mega.db.entity.employee.StepEntry;
-import com.gepardec.mega.db.entity.employee.User;
+import com.gepardec.mega.db.entity.employee.StepEntryEntity;
+import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.db.repository.CommentRepository;
 import com.gepardec.mega.domain.mapper.CommentMapper;
 import com.gepardec.mega.domain.model.Comment;
@@ -155,7 +156,7 @@ class CommentServiceImplTest {
     @Test
     void createNewCommentForEmployee_whenValid_thenReturnCreatedComment() {
         //GIVEN
-        StepEntry stepEntry = createStepEntry();
+        StepEntryEntity stepEntry = createStepEntry();
         when(stepEntryService.findStepEntryForEmployeeAtStep(
                 ArgumentMatchers.anyLong(),
                 ArgumentMatchers.any(String.class),
@@ -165,10 +166,10 @@ class CommentServiceImplTest {
 
         doAnswer(invocation -> {
             Object[] args = invocation.getArguments();
-            ((com.gepardec.mega.db.entity.employee.Comment) args[0]).setUpdatedDate(LocalDateTime.now());
-            ((com.gepardec.mega.db.entity.employee.Comment) args[0]).setState(EmployeeState.OPEN);
+            ((CommentEntity) args[0]).setUpdatedDate(LocalDateTime.now());
+            ((CommentEntity) args[0]).setState(EmployeeState.OPEN);
             return args[0];
-        }).when(commentRepository).save(ArgumentMatchers.any(com.gepardec.mega.db.entity.employee.Comment.class));
+        }).when(commentRepository).save(ArgumentMatchers.any(CommentEntity.class));
 
         doNothing().when(mailSender).send(
                 ArgumentMatchers.any(Mail.class),
@@ -216,9 +217,9 @@ class CommentServiceImplTest {
 
     @Test
     void updateComment_whenValid_thenReturnUpdatedComment() {
-        com.gepardec.mega.db.entity.employee.Comment originalComment = createComment(1L, EmployeeState.DONE);
+        CommentEntity originalComment = createComment(1L, EmployeeState.DONE);
         when(commentRepository.findById(ArgumentMatchers.anyLong())).thenReturn(originalComment);
-        when(commentRepository.update(ArgumentMatchers.any(com.gepardec.mega.db.entity.employee.Comment.class))).thenReturn(null);
+        when(commentRepository.update(ArgumentMatchers.any(CommentEntity.class))).thenReturn(null);
 
         Comment updatedComment = commentService.update(1L, "Updated message");
         assertThat(updatedComment).isNotNull();
@@ -228,7 +229,7 @@ class CommentServiceImplTest {
     @Test
     void deleteComment_whenSuccess_thenDeleteAndSendMail() {
         Long commentId = 1L;
-        com.gepardec.mega.db.entity.employee.Comment commentEntity = createComment(commentId, EmployeeState.IN_PROGRESS);
+        CommentEntity commentEntity = createComment(commentId, EmployeeState.IN_PROGRESS);
         when(commentRepository.findById(commentId)).thenReturn(commentEntity);
         when(commentRepository.deleteComment(commentId)).thenReturn(true);
 
@@ -251,7 +252,7 @@ class CommentServiceImplTest {
     @Test
     void deleteComment_whenNoSuccess_thenReturnFalse() {
         Long commentId = 1L;
-        com.gepardec.mega.db.entity.employee.Comment commentEntity = createComment(commentId, EmployeeState.IN_PROGRESS);
+        CommentEntity commentEntity = createComment(commentId, EmployeeState.IN_PROGRESS);
         when(commentRepository.findById(commentId)).thenReturn(commentEntity);
         when(commentRepository.deleteComment(commentId)).thenReturn(false);
 
@@ -262,8 +263,8 @@ class CommentServiceImplTest {
         verify(commentRepository, times(1)).deleteComment(commentId);
     }
 
-    private com.gepardec.mega.db.entity.employee.Comment createComment(Long id, EmployeeState employeeState) {
-        com.gepardec.mega.db.entity.employee.Comment comment = new com.gepardec.mega.db.entity.employee.Comment();
+    private CommentEntity createComment(Long id, EmployeeState employeeState) {
+        CommentEntity comment = new CommentEntity();
         comment.setId(id);
         comment.setCreationDate(LocalDateTime.now());
         comment.setMessage("Reisezeiten eintragen!");
@@ -273,8 +274,8 @@ class CommentServiceImplTest {
         return comment;
     }
 
-    private StepEntry createStepEntry() {
-        StepEntry stepEntry = new StepEntry();
+    private StepEntryEntity createStepEntry() {
+        StepEntryEntity stepEntry = new StepEntryEntity();
         stepEntry.setId(1L);
         stepEntry.setCreationDate(LocalDateTime.now());
         stepEntry.setDate(LocalDate.now());
@@ -286,8 +287,8 @@ class CommentServiceImplTest {
         return stepEntry;
     }
 
-    private User createUser() {
-        User user = new User();
+    private UserEntity createUser() {
+        UserEntity user = new UserEntity();
         user.setEmail("max.mustermann@gpeardec.com");
         user.setFirstname("Max");
         return user;
