@@ -7,7 +7,7 @@ import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
 import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
-import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
+import com.gepardec.mega.domain.utils.OfficeCalendarUtil;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;

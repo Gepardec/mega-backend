@@ -1,6 +1,6 @@
 package com.gepardec.mega.rest.provider;
 
-import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.domain.model.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;

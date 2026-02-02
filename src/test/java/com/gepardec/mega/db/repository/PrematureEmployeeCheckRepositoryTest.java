@@ -1,7 +1,7 @@
 package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckEntity;
-import com.gepardec.mega.db.entity.employee.PrematureEmployeeCheckState;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheckState;
 import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.domain.model.Role;
 import io.quarkus.test.TestTransaction;

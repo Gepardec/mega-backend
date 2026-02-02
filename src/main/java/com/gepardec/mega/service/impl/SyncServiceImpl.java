@@ -2,14 +2,14 @@ package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.application.configuration.ApplicationConfig;
 import com.gepardec.mega.db.entity.common.AbsenceType;
-import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.domain.model.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import com.gepardec.mega.db.entity.employee.UserEntity;
 import com.gepardec.mega.db.repository.UserRepository;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
-import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
+import com.gepardec.mega.domain.utils.OfficeCalendarUtil;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.mapper.EmployeeMapper;
 import com.gepardec.mega.rest.model.EmployeeDto;

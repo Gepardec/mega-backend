@@ -1,5 +1,6 @@
 package com.gepardec.mega.db.entity.employee;
 
+import com.gepardec.mega.domain.model.PrematureEmployeeCheckState;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

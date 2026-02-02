@@ -1,7 +1,5 @@
 package com.gepardec.mega.domain.model;
 
-import com.gepardec.mega.db.entity.employee.EmployeeState;
-
 public class Comment {
 
     private final Long id;

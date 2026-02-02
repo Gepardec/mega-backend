@@ -1,7 +1,7 @@
 package com.gepardec.mega.db.repository;
 
 import com.gepardec.mega.db.entity.employee.CommentEntity;
-import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.domain.model.EmployeeState;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;

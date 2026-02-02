@@ -1,9 +1,9 @@
 package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.db.entity.employee.CommentEntity;
-import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.domain.model.EmployeeState;
 import com.gepardec.mega.db.repository.CommentRepository;
-import com.gepardec.mega.domain.mapper.CommentMapper;
+import com.gepardec.mega.db.mapper.CommentMapper;
 import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.FinishedAndTotalComments;
 import com.gepardec.mega.domain.model.SourceSystem;
