@@ -48,7 +48,7 @@
         <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
         <liquibase-hibernate6.version>5.0.1</liquibase-hibernate6.version>
         <spring-beans.version>7.0.3</spring-beans.version>
-        <spring-data-jpa.version>4.0.2</spring-data-jpa.version>
+        <spring-data-jpa.version>4.0.3</spring-data-jpa.version>
         <snakeyaml.version>2.5</snakeyaml.version>
 
         <!-- Plugins -->
