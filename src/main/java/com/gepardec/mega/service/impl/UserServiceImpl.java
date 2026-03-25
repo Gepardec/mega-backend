@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @ApplicationScoped
 public class UserServiceImpl implements UserService {
@@ -51,6 +52,13 @@ public class UserServiceImpl implements UserService {
                 );
 
         return mapper.mapToDomain(user);
+    }
+
+    @Override
+    @Transactional(Transactional.TxType.SUPPORTS)
+    public List<User> findByZepIds(Set<String> zepIds) {
+        var users = userRepository.findByZepIds(zepIds);
+        return mapper.mapListToDomain(users);
     }
 
     @Override

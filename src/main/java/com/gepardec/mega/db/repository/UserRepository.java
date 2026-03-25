@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ApplicationScoped
 @Transactional
@@ -38,6 +39,16 @@ public class UserRepository implements PanacheRepository<User> {
                 Parameters.with("zepId", zepId)
         )
                 .firstResultOptional();
+    }
+
+    public List<User> findByZepIds(final Set<String> zepIds) {
+        if (zepIds == null || zepIds.isEmpty()) {
+            return List.of();
+        }
+        return find(
+                "active = true AND zepId IN :zepIds",
+                Parameters.with("zepIds", zepIds)
+        ).list();
     }
 
     public List<User> findActive() {
