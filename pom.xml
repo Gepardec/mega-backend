@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.version>3.8.1</maven.version>
 
-        <quarkus-plugin.version>3.30.6</quarkus-plugin.version>
+        <quarkus-plugin.version>3.30.8</quarkus-plugin.version>
         <quarkus.platform.version>3.30.6</quarkus.platform.version>
 
         <ws.rt.version>4.0.3</ws.rt.version>
@@ -41,9 +41,9 @@
         <!-- 3rd-party version properties -->
         <google-api-client-bom.version>2.9.0</google-api-client-bom.version>
         <google-api-services-gmail.version>v1-rev20260112-2.0.0</google-api-services-gmail.version>
-        <google-auth-library-oauth2-http.version>1.41.0</google-auth-library-oauth2-http.version>
+        <google-auth-library-oauth2-http.version>1.43.0</google-auth-library-oauth2-http.version>
         <postgresql.version>42.7.8</postgresql.version>
-        <assertj-core.version>3.27.6</assertj-core.version>
+        <assertj-core.version>3.27.7</assertj-core.version>
         <liquibase-maven-plugina.version>5.0.1</liquibase-maven-plugina.version>
         <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
         <liquibase-hibernate6.version>5.0.1</liquibase-hibernate6.version>
@@ -55,7 +55,7 @@
         <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
         <maven-resource-plugin.version>3.1.0</maven-resource-plugin.version>
         <cxf-codegen-plugin.version>4.1.4</cxf-codegen-plugin.version>
-        <cxf-xjc-utils.version>4.1.1</cxf-xjc-utils.version>
+        <cxf-xjc-utils.version>4.1.2</cxf-xjc-utils.version>
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
         <liquibase-maven-plugin.version>4.0.0</liquibase-maven-plugin.version>
         <native2ascii-maven-plugin.plugin.version>2.1.1</native2ascii-maven-plugin.plugin.version>
