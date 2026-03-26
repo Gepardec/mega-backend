@@ -56,7 +56,7 @@
         <maven-resource-plugin.version>3.1.0</maven-resource-plugin.version>
         <cxf-codegen-plugin.version>4.2.0</cxf-codegen-plugin.version>
         <cxf-xjc-utils.version>4.1.2</cxf-xjc-utils.version>
-        <surefire-plugin.version>3.5.4</surefire-plugin.version>
+        <surefire-plugin.version>3.5.5</surefire-plugin.version>
         <liquibase-maven-plugin.version>4.0.0</liquibase-maven-plugin.version>
         <native2ascii-maven-plugin.plugin.version>2.1.1</native2ascii-maven-plugin.plugin.version>
         <cyclonedx-maven-plugin.version>2.9.1</cyclonedx-maven-plugin.version>
