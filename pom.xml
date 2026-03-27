@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.version>3.8.1</maven.version>
 
-        <quarkus.version>3.30.8</quarkus.version>
+        <quarkus.version>3.34.1</quarkus.version>
 
         <ws.rt.version>4.0.4</ws.rt.version>
         <focus-shift.version>2.3.0</focus-shift.version>
@@ -238,7 +238,7 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5-mockito</artifactId>
+            <artifactId>quarkus-junit-mockito</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -344,6 +344,7 @@
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
                 <version>${quarkus.version}</version>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <goals>
@@ -361,6 +362,7 @@
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <quarkus.mailer.mock>true</quarkus.mailer.mock>
                     </systemPropertyVariables>
+                    <argLine>@{argLine}</argLine>
                 </configuration>
             </plugin>
 
