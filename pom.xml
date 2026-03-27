@@ -463,15 +463,6 @@
             </plugin>
 
             <plugin>
-                <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-smallrye-metrics</artifactId>
-                <version>${quarkus.version}</version>
-                <configuration>
-                    <quarkus.smallrye-metrics.path>/metrics</quarkus.smallrye-metrics.path>
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <executions>
