@@ -13,10 +13,6 @@ quarkus:
     auth:
       proactive: false
 
-  smallrye-metrics:
-    jaxrs:
-      enabled: true
-
   liquibase:
     change-log: "db/changelog-master.xml"
 
@@ -98,6 +94,10 @@ quarkus:
       application-type: "service"
       token:
         verify-access-token-with-user-info: false
+
+  fault-tolerance:
+    metrics:
+      enabled: false
 
 mp:
   openapi:
