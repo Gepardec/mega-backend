@@ -25,7 +25,7 @@ jobs:
         run: mvn -B package --file pom.xml
 
   postupgradetask:
-    if: ${{ startsWith(github.head_ref, 'renovate/quarkus') }}
+    # if: ${{ startsWith(github.head_ref, 'renovate/quarkus') }}
     runs-on: ubuntu-latest
     steps:
       - name: Echo github.head_ref
