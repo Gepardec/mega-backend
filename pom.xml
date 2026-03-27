@@ -14,8 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.version>3.8.1</maven.version>
 
-        <quarkus-plugin.version>3.30.8</quarkus-plugin.version>
-        <quarkus.platform.version>3.30.6</quarkus.platform.version>
+        <quarkus.version>3.30.8</quarkus.version>
 
         <ws.rt.version>4.0.4</ws.rt.version>
         <focus-shift.version>2.3.0</focus-shift.version>
@@ -68,7 +67,7 @@
             <dependency>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-bom</artifactId>
-                <version>${quarkus.platform.version}</version>
+                <version>${quarkus.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -460,7 +459,7 @@
             <plugin>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-smallrye-metrics</artifactId>
-                <version>${quarkus-plugin.version}</version>
+                <version>${quarkus.version}</version>
                 <configuration>
                     <quarkus.smallrye-metrics.path>/metrics</quarkus.smallrye-metrics.path>
                 </configuration>
