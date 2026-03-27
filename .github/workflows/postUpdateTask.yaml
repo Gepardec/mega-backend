@@ -1,9 +1,9 @@
-name: PostUpdateTask
+name: PostUpgradeTask
 
 on:
   workflow_dispatch:
   pull_request:
-    types: [ opened, reopened ]
+    types: [opened, synchronize, reopened]
     branches:
       - 'feature/base-auto-update'
 
@@ -11,7 +11,7 @@ jobs:
   verifyupdate:
     runs-on: ubuntu-latest
     steps:
-      - name: checkoutauto
+      - name: Checkout PR branch
         uses: actions/checkout@v6
 
       - name: Set up JDK 21
@@ -21,80 +21,79 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build (and test) project with Maven
+      - name: Build and test project with Maven
         run: mvn -B package --file pom.xml
 
   postupgradetask:
-    # if: ${{ startsWith(github.head_ref, 'renovate/quarkus') }}
+    name: Create Quarkus autoupdate PR
+    if: ${{ github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/quarkus_') }}
     runs-on: ubuntu-latest
-    steps:
-      - name: Echo github.head_ref
-        run: echo ${{ github.head_ref }}
 
-      - name: Parse branch name
+    steps:
+      - name: Echo refs
+        run: |
+          echo "head_ref=${{ github.head_ref }}"
+          echo "base_ref=${{ github.base_ref }}"
+
+      - name: Parse Renovate branch name
         id: parse
         env:
           BRANCH: ${{ github.head_ref }}
         run: |
-          GROUPID=$(echo $BRANCH | cut -d'/' -f2 | cut -d'-' -f1)
-          NEW_BRANCH=$(echo $BRANCH | cut -d'/' -f2 )
-          GROUPID=$(echo "${GROUPID^}")
-          echo "GROUPID=$GROUPID" >> "$GITHUB_OUTPUT"
-          echo "NEW_BRANCH=$NEW_BRANCH" >> "$GITHUB_OUTPUT"
-          
-          echo "DEPNAME=$(echo $BRANCH | cut -d'/' -f2 | cut -d'_' -f1)" >> "$GITHUB_OUTPUT"
-          echo "CURR_VERSION=$(echo $BRANCH | cut -d'/' -f2 | cut -d'_' -f2)" >> "$GITHUB_OUTPUT"
-          echo "NEW_VERSION=$(echo $BRANCH | cut -d'/' -f2 | cut -d'_' -f3)" >> "$GITHUB_OUTPUT"
+          SUFFIX="${BRANCH#renovate/}"
+          DEPNAME="$(echo "$SUFFIX" | cut -d'_' -f1)"
+          CURR_VERSION="$(echo "$SUFFIX" | cut -d'_' -f2)"
+          NEW_VERSION="$(echo "$SUFFIX" | cut -d'_' -f3)"
 
-      - name: echo parsed values
-        env:
-          GROUPID: ${{ steps.parse.outputs.GROUPID }}
-          DEPNAME: ${{ steps.parse.outputs.DEPNAME }}
-          CURR_VERSION: ${{ steps.parse.outputs.CURR_VERSION }}
-          NEW_VERSION: ${{ steps.parse.outputs.NEW_VERSION }}
-        run: echo "groupId=${GROUPID}, depname=${DEPNAME}, currVersion=${CURR_VERSION}, newVersion=${NEW_VERSION}"
+          echo "SUFFIX=$SUFFIX" >> "$GITHUB_OUTPUT"
+          echo "DEPNAME=$DEPNAME" >> "$GITHUB_OUTPUT"
+          echo "CURR_VERSION=$CURR_VERSION" >> "$GITHUB_OUTPUT"
+          echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@v6
-        name: checkout
+      - name: Echo parsed values
+        run: |
+          echo "depname=${{ steps.parse.outputs.DEPNAME }}"
+          echo "currVersion=${{ steps.parse.outputs.CURR_VERSION }}"
+          echo "newVersion=${{ steps.parse.outputs.NEW_VERSION }}"
+          echo "suffix=${{ steps.parse.outputs.SUFFIX }}"
+
+      - name: Checkout base branch
+        uses: actions/checkout@v6
         with:
           ref: feature/base-auto-update
+          fetch-depth: 0
 
-      - uses: actions/setup-java@v5
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: maven
 
-      - name: Upgrade
-        env:
-          GITHUB_USER: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GROUPID: ${{ steps.parse.outputs.GROUPID }}
-        if: "!startsWith(github.head_ref, 'renovate/quarkus')"
-        run: |
-          ls -al
-          java --version
-          mvn --version
-          echo "TODO: call openrewrite recipe"
-          mvn rewrite:run -Drecipe=com.gepardec.update.${GROUPID} -Popenrewrite -s .m2/settings.xml
-
-      - name: Upgrade Quarkus
+      - name: Run Quarkus update
         env:
           NEW_VERSION: ${{ steps.parse.outputs.NEW_VERSION }}
-        if: "startsWith(github.head_ref, 'renovate/quarkus')"
         run: |
-          ls -al
-          mvn --version
           java --version
+          mvn --version
           yes | mvn io.quarkus.platform:quarkus-maven-plugin:${NEW_VERSION}:update
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.RENOVATE_TOKEN }}
-          title: Autoupdate ${{ steps.parse.outputs.GROUPID }}
-          branch: autoupdate/${{ steps.parse.outputs.NEW_BRANCH }}
+          commit-message: "chore: autoupdate quarkus to ${{ steps.parse.outputs.NEW_VERSION }}"
+          title: "Autoupdate Quarkus ${{ steps.parse.outputs.CURR_VERSION }} -> ${{ steps.parse.outputs.NEW_VERSION }}"
+          branch: autoupdate/${{ steps.parse.outputs.SUFFIX }}
           base: feature/base-auto-update
+          delete-branch: true
           committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           body: |
-            Upgrade from ${{ steps.parse.outputs.NEW_BRANCH }}
+            This PR was created automatically from Renovate PR `${{ github.head_ref }}`.
+
+            Dependency: `${{ steps.parse.outputs.DEPNAME }}`
+            Current version: `${{ steps.parse.outputs.CURR_VERSION }}`
+            New version: `${{ steps.parse.outputs.NEW_VERSION }}`
+
+            It applies the Quarkus update directly on top of `feature/base-auto-update`.
