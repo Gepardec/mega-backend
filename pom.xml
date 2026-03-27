@@ -14,13 +14,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.version>3.8.1</maven.version>
 
-        <quarkus-plugin.version>3.30.6</quarkus-plugin.version>
-        <quarkus.platform.version>3.30.6</quarkus.platform.version>
+        <quarkus.version>3.34.1</quarkus.version>
 
-        <ws.rt.version>4.0.3</ws.rt.version>
-        <focus-shift.version>1.8.1</focus-shift.version>
+        <ws.rt.version>4.0.4</ws.rt.version>
+        <focus-shift.version>2.3.0</focus-shift.version>
         <assertj.version>3.21.0</assertj.version>
-        <basicjaxb-plugins.version>2.2.1</basicjaxb-plugins.version>
+        <basicjaxb-plugins.version>3.0.0</basicjaxb-plugins.version>
         <jakarta.mail-api.version>2.1.5</jakarta.mail-api.version>
 
         <!-- application info -->
@@ -39,28 +38,28 @@
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss</maven.build.timestamp.format>
 
         <!-- 3rd-party version properties -->
-        <google-api-client-bom.version>2.8.1</google-api-client-bom.version>
-        <google-api-services-gmail.version>v1-rev20251201-2.0.0</google-api-services-gmail.version>
-        <google-auth-library-oauth2-http.version>1.41.0</google-auth-library-oauth2-http.version>
+        <google-api-client-bom.version>2.9.0</google-api-client-bom.version>
+        <google-api-services-gmail.version>v1-rev20260112-2.0.0</google-api-services-gmail.version>
+        <google-auth-library-oauth2-http.version>1.43.0</google-auth-library-oauth2-http.version>
         <postgresql.version>42.7.8</postgresql.version>
-        <assertj-core.version>3.27.6</assertj-core.version>
-        <liquibase-maven-plugina.version>5.0.1</liquibase-maven-plugina.version>
+        <assertj-core.version>3.27.7</assertj-core.version>
+        <liquibase-maven-plugina.version>5.0.2</liquibase-maven-plugina.version>
         <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
-        <liquibase-hibernate6.version>5.0.1</liquibase-hibernate6.version>
-        <spring-beans.version>7.0.3</spring-beans.version>
-        <spring-data-jpa.version>4.0.2</spring-data-jpa.version>
-        <snakeyaml.version>2.5</snakeyaml.version>
+        <liquibase-hibernate6.version>5.0.2</liquibase-hibernate6.version>
+        <spring-beans.version>7.0.6</spring-beans.version>
+        <spring-data-jpa.version>4.0.4</spring-data-jpa.version>
+        <snakeyaml.version>2.6</snakeyaml.version>
 
         <!-- Plugins -->
         <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
         <maven-resource-plugin.version>3.1.0</maven-resource-plugin.version>
-        <cxf-codegen-plugin.version>4.1.4</cxf-codegen-plugin.version>
-        <cxf-xjc-utils.version>4.1.1</cxf-xjc-utils.version>
-        <surefire-plugin.version>3.5.4</surefire-plugin.version>
+        <cxf-codegen-plugin.version>4.2.0</cxf-codegen-plugin.version>
+        <cxf-xjc-utils.version>4.1.2</cxf-xjc-utils.version>
+        <surefire-plugin.version>3.5.5</surefire-plugin.version>
         <liquibase-maven-plugin.version>4.0.0</liquibase-maven-plugin.version>
         <native2ascii-maven-plugin.plugin.version>2.1.1</native2ascii-maven-plugin.plugin.version>
         <cyclonedx-maven-plugin.version>2.9.1</cyclonedx-maven-plugin.version>
-        <org-glassfish-jaxb.version>4.0.6</org-glassfish-jaxb.version>
+        <org-glassfish-jaxb.version>4.0.7</org-glassfish-jaxb.version>
     </properties>
 
     <dependencyManagement>
@@ -68,7 +67,7 @@
             <dependency>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-bom</artifactId>
-                <version>${quarkus.platform.version}</version>
+                <version>${quarkus.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -124,7 +123,11 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-smallrye-metrics</artifactId>
+            <artifactId>quarkus-micrometer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
@@ -235,7 +238,7 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5-mockito</artifactId>
+            <artifactId>quarkus-junit-mockito</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -340,7 +343,8 @@
             <plugin>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
-                <version>${quarkus-plugin.version}</version>
+                <version>${quarkus.version}</version>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <goals>
@@ -358,6 +362,7 @@
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <quarkus.mailer.mock>true</quarkus.mailer.mock>
                     </systemPropertyVariables>
+                    <argLine>@{argLine}</argLine>
                 </configuration>
             </plugin>
 
@@ -455,15 +460,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-smallrye-metrics</artifactId>
-                <version>${quarkus-plugin.version}</version>
-                <configuration>
-                    <quarkus.smallrye-metrics.path>/metrics</quarkus.smallrye-metrics.path>
-                </configuration>
             </plugin>
 
             <plugin>
