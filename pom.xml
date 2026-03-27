@@ -15,7 +15,7 @@
         <maven.version>3.8.1</maven.version>
 
         <quarkus-plugin.version>3.30.8</quarkus-plugin.version>
-        <quarkus.platform.version>3.30.6</quarkus.platform.version>
+        <quarkus.platform.version>3.34.1</quarkus.platform.version>
 
         <ws.rt.version>4.0.4</ws.rt.version>
         <focus-shift.version>2.3.0</focus-shift.version>
