@@ -5,6 +5,11 @@
       "source": "ccheney/robust-skills",
       "sourceType": "github",
       "computedHash": "b9a54e257685086d0034bd8277964452b7208e2f18bf68d158996936ce667b6a"
+    },
+    "java-junit": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "fbf3cb0d47ffb44bdb6e1ebcc4d89dd7083208efdfc5b88f316c8bc2b58250b5"
     }
   }
 }
