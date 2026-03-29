@@ -45,6 +45,17 @@ The system SHALL persist all created and updated projects via `ProjectRepository
 - **WHEN** all ZEP projects have been mapped to domain objects
 - **THEN** all created and updated Projects are persisted via `ProjectRepository.saveAll()`
 
+### Requirement: Sync returns a result with operation counts
+`SyncProjectsUseCase.sync()` SHALL return a `ProjectSyncResult` record instead of `void`. `ProjectSyncResult` SHALL contain integer fields: `created` (new Projects persisted) and `updated` (existing Projects whose mutable fields were changed). The `SyncScheduler` SHALL use these counts when composing its log output.
+
+#### Scenario: Result reflects projects created during sync
+- **WHEN** `SyncProjectsUseCase.sync()` creates N new Projects
+- **THEN** the returned `ProjectSyncResult.created()` equals N
+
+#### Scenario: Result reflects projects updated during sync
+- **WHEN** `SyncProjectsUseCase.sync()` updates M existing Projects
+- **THEN** the returned `ProjectSyncResult.updated()` equals M
+
 ### Requirement: SyncProjectsUseCase is decoupled from Quarkus infrastructure
 The `SyncProjectsUseCase` interface and its `SyncProjectsService` implementation SHALL NOT import or depend on any Quarkus, CDI, or JPA annotations. The Quarkus scheduler SHALL call the use case through the inbound port interface only.
 

@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.project.application;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
+import com.gepardec.mega.hexagon.project.domain.port.inbound.ProjectSyncResult;
 import com.gepardec.mega.hexagon.project.domain.port.inbound.SyncProjectsUseCase;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
@@ -25,13 +26,15 @@ public class SyncProjectsService implements SyncProjectsUseCase {
     }
 
     @Override
-    public void sync() {
+    public ProjectSyncResult sync() {
         List<ZepProjectProfile> zepProfiles = zepProjectPort.fetchAll();
 
         Map<Integer, Project> existingByZepId = projectRepository.findAll().stream()
                 .collect(Collectors.toMap(Project::zepId, Function.identity()));
 
         List<Project> toSave = new ArrayList<>();
+        int created = 0;
+        int updated = 0;
 
         for (ZepProjectProfile profile : zepProfiles) {
             Project project;
@@ -39,12 +42,15 @@ public class SyncProjectsService implements SyncProjectsUseCase {
             if (existing.isPresent()) {
                 project = existing.get();
                 project.syncFromZep(profile);
+                updated++;
             } else {
                 project = Project.create(ProjectId.generate(), profile);
+                created++;
             }
             toSave.add(project);
         }
 
         projectRepository.saveAll(toSave);
+        return new ProjectSyncResult(created, updated);
     }
 }
