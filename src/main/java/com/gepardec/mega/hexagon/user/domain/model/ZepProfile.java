@@ -1,7 +1,6 @@
 package com.gepardec.mega.hexagon.user.domain.model;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public record ZepProfile(
         String username,
@@ -13,7 +12,7 @@ public record ZepProfile(
         String workDescription,
         String language,
         LocalDate releaseDate,
-        List<EmploymentPeriod> employmentPeriods,
-        List<RegularWorkingTime> regularWorkingTimes
+        EmploymentPeriods employmentPeriods,
+        RegularWorkingTimes regularWorkingTimes
 ) {
 }

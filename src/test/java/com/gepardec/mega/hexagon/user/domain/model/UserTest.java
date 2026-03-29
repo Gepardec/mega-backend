@@ -2,7 +2,6 @@ package com.gepardec.mega.hexagon.user.domain.model;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class UserTest {
 
     private static ZepProfile zepProfile(String username, String email) {
-        return new ZepProfile(username, email, "John", "Doe", null, null, null, null, null, List.of(), List.of());
+        return new ZepProfile(username, email, "John", "Doe", null, null, null, null, null, EmploymentPeriods.empty(), RegularWorkingTimes.empty());
     }
 
     private static ZepProfile zepProfile(String username) {
@@ -37,7 +36,7 @@ class UserTest {
     @Test
     void syncFromZep_updatesZepProfileAndName() {
         User user = User.create(UserId.generate(), zepProfile("jdoe"), Set.of(Role.EMPLOYEE));
-        ZepProfile updated = new ZepProfile("jdoe", "new@example.com", "Jane", "Smith", null, null, null, null, null, List.of(), List.of());
+        ZepProfile updated = new ZepProfile("jdoe", "new@example.com", "Jane", "Smith", null, null, null, null, null, EmploymentPeriods.empty(), RegularWorkingTimes.empty());
 
         user.syncFromZep(updated);
 

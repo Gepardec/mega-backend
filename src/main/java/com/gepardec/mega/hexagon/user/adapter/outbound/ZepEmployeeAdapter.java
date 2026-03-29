@@ -1,7 +1,9 @@
 package com.gepardec.mega.hexagon.user.adapter.outbound;
 
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
+import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.RegularWorkingTime;
+import com.gepardec.mega.hexagon.user.domain.model.RegularWorkingTimes;
 import com.gepardec.mega.hexagon.user.domain.model.ZepProfile;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.ZepEmployeePort;
 import com.gepardec.mega.zep.rest.dto.ZepEmployee;
@@ -40,18 +42,20 @@ public class ZepEmployeeAdapter implements ZepEmployeePort {
     private ZepProfile toZepProfile(ZepEmployee zepEmployee) {
         String username = zepEmployee.username();
 
-        List<EmploymentPeriod> employmentPeriods = employmentPeriodService
-                .getZepEmploymentPeriodsByUsername(username).stream()
-                .map(period -> new EmploymentPeriod(
-                        period.startDate() != null ? period.startDate().toLocalDate() : null,
-                        period.endDate() != null ? period.endDate().toLocalDate() : null
-                ))
-                .toList();
+        EmploymentPeriods employmentPeriods = new EmploymentPeriods(
+                employmentPeriodService.getZepEmploymentPeriodsByUsername(username).stream()
+                        .map(period -> new EmploymentPeriod(
+                                period.startDate() != null ? period.startDate().toLocalDate() : null,
+                                period.endDate() != null ? period.endDate().toLocalDate() : null
+                        ))
+                        .toList()
+        );
 
-        List<RegularWorkingTime> regularWorkingTimes = regularWorkingTimesService
-                .getRegularWorkingTimesByUsername(username).stream()
-                .map(this::toRegularWorkingTime)
-                .toList();
+        RegularWorkingTimes regularWorkingTimes = new RegularWorkingTimes(
+                regularWorkingTimesService.getRegularWorkingTimesByUsername(username).stream()
+                        .map(this::toRegularWorkingTime)
+                        .toList()
+        );
 
         return new ZepProfile(
                 username,

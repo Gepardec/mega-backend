@@ -1,8 +1,10 @@
 package com.gepardec.mega.hexagon.user.application;
 
 import com.gepardec.mega.hexagon.user.domain.model.Email;
+import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.FullName;
 import com.gepardec.mega.hexagon.user.domain.model.PersonioProfile;
+import com.gepardec.mega.hexagon.user.domain.model.RegularWorkingTimes;
 import com.gepardec.mega.hexagon.user.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
@@ -45,7 +47,7 @@ class SyncUsersServiceTest {
     }
 
     private ZepProfile profile(String username) {
-        return new ZepProfile(username, username + "@example.com", "John", "Doe", null, null, null, null, null, List.of(), List.of());
+        return new ZepProfile(username, username + "@example.com", "John", "Doe", null, null, null, null, null, EmploymentPeriods.empty(), RegularWorkingTimes.empty());
     }
 
     @Test
@@ -69,7 +71,7 @@ class SyncUsersServiceTest {
     void sync_updatesExistingUserFromZep() {
         ZepProfile oldProfile = profile("jdoe");
         User existing = User.create(UserId.generate(), oldProfile, Set.of(Role.EMPLOYEE));
-        ZepProfile newProfile = new ZepProfile("jdoe", "jdoe@example.com", "Jane", "Updated", null, null, null, null, null, List.of(), List.of());
+        ZepProfile newProfile = new ZepProfile("jdoe", "jdoe@example.com", "Jane", "Updated", null, null, null, null, null, EmploymentPeriods.empty(), RegularWorkingTimes.empty());
 
         when(zepEmployeePort.fetchAll()).thenReturn(List.of(newProfile));
         when(userRepository.findAll()).thenReturn(List.of(existing));

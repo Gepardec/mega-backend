@@ -10,6 +10,9 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
+import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
+import com.gepardec.mega.hexagon.user.domain.model.RegularWorkingTimes;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -25,7 +28,7 @@ class UserRepositoryAdapterTest {
 
     private ZepProfile profile(String username) {
         return new ZepProfile(username, username + "@example.com", "John", "Doe",
-                null, null, null, null, null, List.of(), List.of());
+                null, null, null, null, null, EmploymentPeriods.empty(), RegularWorkingTimes.empty());
     }
 
     @Test
