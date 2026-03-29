@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-user-foundation-001
+      author: mega
+      changes:
+        - createTable:
+            tableName: hexagon_users
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+              - column:
+                  name: firstname
+                  type: varchar(255)
+              - column:
+                  name: lastname
+                  type: varchar(255)
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: roles
+                  type: jsonb
+              - column:
+                  name: zep_username
+                  type: varchar(255)
+              - column:
+                  name: zep_profile
+                  type: jsonb
+              - column:
+                  name: personio_profile
+                  type: jsonb
+        - createIndex:
+            indexName: idx_hexagon_users_zep_username
+            tableName: hexagon_users
+            columns:
+              - column:
+                  name: zep_username

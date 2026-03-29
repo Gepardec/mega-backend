@@ -16,6 +16,11 @@ quarkus:
   liquibase:
     change-log: "db/changelog-master.xml"
 
+  hibernate-orm:
+    mapping:
+      format:
+        global: ignore
+
   cache:
     caffeine:
       "employee":
