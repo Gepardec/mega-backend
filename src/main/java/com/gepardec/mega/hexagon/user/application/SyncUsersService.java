@@ -9,6 +9,7 @@ import com.gepardec.mega.hexagon.user.domain.port.outbound.PersonioEmployeePort;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.ZepEmployeePort;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -34,7 +35,10 @@ public class SyncUsersService implements SyncUsersUseCase {
 
     @Override
     public void sync() {
-        List<ZepProfile> zepProfiles = zepEmployeePort.fetchAll();
+        LocalDate today = LocalDate.now();
+        List<ZepProfile> zepProfiles = zepEmployeePort.fetchAll().stream()
+                .filter(p -> p.email() != null && p.employmentPeriods().active(today).isPresent())
+                .toList();
         Set<String> zepUsernames = zepProfiles.stream()
                 .map(ZepProfile::username)
                 .collect(Collectors.toSet());

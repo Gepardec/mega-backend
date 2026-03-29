@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.user.application;
 
 import com.gepardec.mega.hexagon.user.domain.model.Email;
+import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.FullName;
 import com.gepardec.mega.hexagon.user.domain.model.PersonioProfile;
@@ -16,6 +17,7 @@ import com.gepardec.mega.hexagon.user.domain.port.outbound.ZepEmployeePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -47,7 +49,9 @@ class SyncUsersServiceTest {
     }
 
     private ZepProfile profile(String username) {
-        return new ZepProfile(username, username + "@example.com", "John", "Doe", null, null, null, null, null, EmploymentPeriods.empty(), RegularWorkingTimes.empty());
+        EmploymentPeriods activeEmployment = new EmploymentPeriods(
+                new EmploymentPeriod(LocalDate.now().minusYears(1), null));
+        return new ZepProfile(username, username + "@example.com", "John", "Doe", null, null, null, null, null, activeEmployment, RegularWorkingTimes.empty());
     }
 
     @Test
@@ -71,7 +75,8 @@ class SyncUsersServiceTest {
     void sync_updatesExistingUserFromZep() {
         ZepProfile oldProfile = profile("jdoe");
         User existing = User.create(UserId.generate(), oldProfile, Set.of(Role.EMPLOYEE));
-        ZepProfile newProfile = new ZepProfile("jdoe", "jdoe@example.com", "Jane", "Updated", null, null, null, null, null, EmploymentPeriods.empty(), RegularWorkingTimes.empty());
+        ZepProfile newProfile = new ZepProfile("jdoe", "jdoe@example.com", "Jane", "Updated", null, null, null, null, null,
+                new EmploymentPeriods(new EmploymentPeriod(LocalDate.now().minusYears(1), null)), RegularWorkingTimes.empty());
 
         when(zepEmployeePort.fetchAll()).thenReturn(List.of(newProfile));
         when(userRepository.findAll()).thenReturn(List.of(existing));
@@ -161,6 +166,46 @@ class SyncUsersServiceTest {
 
         verify(userRepository).saveAll(argThat(users -> {
             assertThat(users.getFirst().personioProfile()).isEqualTo(existing);
+            return true;
+        }));
+    }
+
+    @Test
+    void sync_deactivatesUserWithNullEmail() {
+        EmploymentPeriods activePeriods = new EmploymentPeriods(
+                new EmploymentPeriod(LocalDate.now().minusYears(1), null));
+        ZepProfile noEmailProfile = new ZepProfile("jdoe", null, "John", "Doe",
+                null, null, null, null, null, activePeriods, RegularWorkingTimes.empty());
+        User existing = User.create(UserId.generate(), profile("jdoe"), Set.of(Role.EMPLOYEE));
+
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of(noEmailProfile));
+        when(userRepository.findAll()).thenReturn(List.of(existing));
+
+        service(List.of()).sync();
+
+        verify(userRepository).saveAll(argThat(users -> {
+            assertThat(users.stream().filter(u -> u.zepProfile().username().equals("jdoe")).findFirst())
+                    .hasValueSatisfying(u -> assertThat(u.status()).isEqualTo(UserStatus.INACTIVE));
+            return true;
+        }));
+    }
+
+    @Test
+    void sync_deactivatesUserWithInactiveEmploymentPeriod() {
+        EmploymentPeriods inactivePeriods = new EmploymentPeriods(
+                new EmploymentPeriod(LocalDate.now().minusYears(2), LocalDate.now().minusYears(1)));
+        ZepProfile inactiveProfile = new ZepProfile("jdoe", "jdoe@example.com", "John", "Doe",
+                null, null, null, null, null, inactivePeriods, RegularWorkingTimes.empty());
+        User existing = User.create(UserId.generate(), inactiveProfile, Set.of(Role.EMPLOYEE));
+
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of(inactiveProfile));
+        when(userRepository.findAll()).thenReturn(List.of(existing));
+
+        service(List.of()).sync();
+
+        verify(userRepository).saveAll(argThat(users -> {
+            assertThat(users.stream().filter(u -> u.zepProfile().username().equals("jdoe")).findFirst())
+                    .hasValueSatisfying(u -> assertThat(u.status()).isEqualTo(UserStatus.INACTIVE));
             return true;
         }));
     }

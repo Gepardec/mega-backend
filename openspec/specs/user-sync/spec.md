@@ -14,11 +14,15 @@ The system SHALL trigger the user sync use case automatically on a 30-minute int
 - **THEN** `SyncUsersUseCase.sync()` is called exactly once
 
 ### Requirement: Sync fetches all active employees from ZEP
-The system SHALL fetch the complete list of employees from ZEP via `ZepEmployeePort.fetchAll()` at the start of each sync. This list is the authoritative source for which Users should be active. The ZEP adapter SHALL wrap raw period and working-time lists into `EmploymentPeriods` and `RegularWorkingTimes` aggregates when constructing the `ZepProfile`.
+The system SHALL fetch the complete list of employees from ZEP via `ZepEmployeePort.fetchAll()` at the start of each sync. The service SHALL then filter the result to only those profiles that have a non-null email AND an active `EmploymentPeriod` as of today (`EmploymentPeriods.active(LocalDate.now()).isPresent()`). This filtered list is the authoritative source for which Users should be active. The ZEP adapter SHALL wrap raw period and working-time lists into `EmploymentPeriods` and `RegularWorkingTimes` aggregates when constructing the `ZepProfile`.
 
 #### Scenario: ZEP employees fetched at sync start
 - **WHEN** `SyncUsersUseCase.sync()` is called
 - **THEN** `ZepEmployeePort.fetchAll()` is called and returns a list of ZepProfile data
+
+#### Scenario: Only profiles with active employment period and non-null email are processed
+- **WHEN** `ZepEmployeePort.fetchAll()` returns profiles with mixed employment period states or null emails
+- **THEN** only profiles where email is non-null AND `EmploymentPeriods.active(today).isPresent()` is true are included in the sync
 
 #### Scenario: ZepProfile returned by adapter contains aggregate types
 - **WHEN** `ZepEmployeeAdapter` maps a ZEP response to a `ZepProfile`
@@ -51,11 +55,19 @@ The system SHALL attempt to fetch a `PersonioProfile` for each User by calling `
 - **THEN** the User's existing `personioProfile` is preserved
 - **THEN** no exception is thrown and sync continues for remaining users
 
-### Requirement: Sync deactivates Users absent from ZEP
-The system SHALL set the status of any existing `ACTIVE` User to `INACTIVE` if their ZEP username is not present in the current ZEP sync response.
+### Requirement: Sync deactivates Users absent from ZEP or without an active employment period
+The system SHALL set the status of any existing `ACTIVE` User to `INACTIVE` if their ZEP username is not present in the filtered (active employment period) sync response. This covers both complete removal from ZEP and employees whose employment period has ended.
 
 #### Scenario: User deactivated when removed from ZEP
 - **WHEN** a User with `ACTIVE` status has a ZEP username not present in the current ZEP response
+- **THEN** the User's status is updated to `INACTIVE` and saved
+
+#### Scenario: User deactivated when employment period has ended
+- **WHEN** a User's ZEP profile has no active employment period as of today
+- **THEN** the User's status is updated to `INACTIVE` and saved
+
+#### Scenario: User deactivated when ZEP profile has no email
+- **WHEN** a User's ZEP profile has a null email
 - **THEN** the User's status is updated to `INACTIVE` and saved
 
 ### Requirement: Sync persists all changes atomically
