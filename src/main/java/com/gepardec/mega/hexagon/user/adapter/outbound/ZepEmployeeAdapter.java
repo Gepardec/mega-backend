@@ -16,7 +16,7 @@ import jakarta.inject.Inject;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
-import java.util.LinkedHashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,24 +73,22 @@ public class ZepEmployeeAdapter implements ZepEmployeePort {
     }
 
     private RegularWorkingTime toRegularWorkingTime(ZepRegularWorkingTimes zrwt) {
-        Map<DayOfWeek, Duration> workingHours = new LinkedHashMap<>();
-        putIfNonNull(workingHours, DayOfWeek.MONDAY, zrwt.monday());
-        putIfNonNull(workingHours, DayOfWeek.TUESDAY, zrwt.tuesday());
-        putIfNonNull(workingHours, DayOfWeek.WEDNESDAY, zrwt.wednesday());
-        putIfNonNull(workingHours, DayOfWeek.THURSDAY, zrwt.thursday());
-        putIfNonNull(workingHours, DayOfWeek.FRIDAY, zrwt.friday());
-        putIfNonNull(workingHours, DayOfWeek.SATURDAY, zrwt.saturday());
-        putIfNonNull(workingHours, DayOfWeek.SUNDAY, zrwt.sunday());
+        Map<DayOfWeek, Duration> regularWorkingHours = new EnumMap<>(DayOfWeek.class);
+        regularWorkingHours.put(DayOfWeek.MONDAY, toDuration(zrwt.monday()));
+        regularWorkingHours.put(DayOfWeek.TUESDAY, toDuration(zrwt.tuesday()));
+        regularWorkingHours.put(DayOfWeek.WEDNESDAY, toDuration(zrwt.wednesday()));
+        regularWorkingHours.put(DayOfWeek.THURSDAY, toDuration(zrwt.thursday()));
+        regularWorkingHours.put(DayOfWeek.FRIDAY, toDuration(zrwt.friday()));
+        regularWorkingHours.put(DayOfWeek.SATURDAY, toDuration(zrwt.saturday()));
+        regularWorkingHours.put(DayOfWeek.SUNDAY, toDuration(zrwt.sunday()));
 
         return new RegularWorkingTime(
                 zrwt.startDate() != null ? zrwt.startDate().toLocalDate() : null,
-                workingHours
+                regularWorkingHours
         );
     }
 
-    private void putIfNonNull(Map<DayOfWeek, Duration> map, DayOfWeek day, Double hours) {
-        if (hours != null) {
-            map.put(day, Duration.ofMinutes(Math.round(hours * 60)));
-        }
+    private Duration toDuration(Double hours) {
+        return Duration.ofHours(hours == null ? 0 : hours.longValue());
     }
 }
