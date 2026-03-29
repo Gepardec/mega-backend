@@ -5,6 +5,7 @@ import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.ZepProfile;
 import com.gepardec.mega.hexagon.user.domain.port.inbound.SyncUsersUseCase;
+import com.gepardec.mega.hexagon.user.domain.port.inbound.UserSyncResult;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.PersonioEmployeePort;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.ZepEmployeePort;
@@ -34,7 +35,7 @@ public class SyncUsersService implements SyncUsersUseCase {
     }
 
     @Override
-    public void sync() {
+    public UserSyncResult sync() {
         LocalDate today = LocalDate.now();
         List<ZepProfile> zepProfiles = zepEmployeePort.fetchAll().stream()
                 .filter(p -> p.email() != null && p.employmentPeriods().active(today).isPresent())
@@ -48,6 +49,8 @@ public class SyncUsersService implements SyncUsersUseCase {
                 .collect(Collectors.toMap(u -> u.zepProfile().username(), Function.identity()));
 
         List<User> toSave = new ArrayList<>();
+        int added = 0;
+        int updated = 0;
 
         // Create or update users from ZEP
         for (ZepProfile zepProfile : zepProfiles) {
@@ -55,9 +58,11 @@ public class SyncUsersService implements SyncUsersUseCase {
             if (existingByUsername.containsKey(zepProfile.username())) {
                 user = existingByUsername.get(zepProfile.username());
                 user.syncFromZep(zepProfile);
+                updated++;
             } else {
                 Set<Role> roles = EnumSet.of(Role.EMPLOYEE);
                 user = User.create(UserId.generate(), zepProfile, roles);
+                added++;
             }
 
             user.activate();
@@ -74,14 +79,17 @@ public class SyncUsersService implements SyncUsersUseCase {
         }
 
         // Deactivate users absent from ZEP
+        int disabled = 0;
         for (User existing : existingByUsername.values()) {
             if (!zepUsernames.contains(existing.zepProfile().username())) {
                 existing.deactivate();
                 toSave.add(existing);
+                disabled++;
             }
         }
 
         userRepository.saveAll(toSave);
+        return new UserSyncResult(added, updated, disabled);
     }
 
     private Set<Role> buildRoles(String username) {
