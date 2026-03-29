@@ -21,7 +21,13 @@ mvn test -Dtest=ArchitectureTest
 mvn test -Dtest=ArchitectureTest#entitiesInDbPackageShouldHaveEntitySuffix
 ```
 
-## Architecture
+## New Hexagonal Backend
+
+The active development goal is to implement a **new backend** in the `com.gepardec.mega.hexagon` package that strictly follows DDD + Hexagonal (Ports & Adapters) design principles — separate from the legacy `com.gepardec.mega` code.
+
+When working on anything in `com.gepardec.mega.hexagon`, always invoke the **`clean-ddd-hexagonal`** skill first for design guidance, pattern references, and layer conventions.
+
+## Architecture (Legacy)
 
 This is a **Quarkus 3** microservice (JDK 21) following a **layered architecture** with DDD-inspired domain isolation. The main package is `com.gepardec.mega`.
 
