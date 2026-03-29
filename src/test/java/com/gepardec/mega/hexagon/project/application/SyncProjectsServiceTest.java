@@ -46,9 +46,9 @@ class SyncProjectsServiceTest {
 
         verify(projectRepository).saveAll(argThat(projects -> {
             assertThat(projects).hasSize(1);
-            assertThat(projects.getFirst().zepId()).isEqualTo(42);
-            assertThat(projects.getFirst().name()).isEqualTo("Alpha");
-            assertThat(projects.getFirst().id()).isNotNull();
+            assertThat(projects.getFirst().getZepId()).isEqualTo(42);
+            assertThat(projects.getFirst().getName()).isEqualTo("Alpha");
+            assertThat(projects.getFirst().getId()).isNotNull();
             return true;
         }));
     }
@@ -66,9 +66,9 @@ class SyncProjectsServiceTest {
 
         verify(projectRepository).saveAll(argThat(projects -> {
             assertThat(projects).hasSize(1);
-            assertThat(projects.getFirst().id()).isEqualTo(existingId);
-            assertThat(projects.getFirst().name()).isEqualTo("New Name");
-            assertThat(projects.getFirst().startDate()).isEqualTo(LocalDate.of(2024, 1, 1));
+            assertThat(projects.getFirst().getId()).isEqualTo(existingId);
+            assertThat(projects.getFirst().getName()).isEqualTo("New Name");
+            assertThat(projects.getFirst().getStartDate()).isEqualTo(LocalDate.of(2024, 1, 1));
             return true;
         }));
     }
@@ -84,7 +84,7 @@ class SyncProjectsServiceTest {
         service.sync();
 
         verify(projectRepository).saveAll(argThat(projects -> {
-            assertThat(projects.getFirst().id()).isEqualTo(existingId);
+            assertThat(projects.getFirst().getId()).isEqualTo(existingId);
             return true;
         }));
     }
@@ -101,7 +101,7 @@ class SyncProjectsServiceTest {
         service.sync();
 
         verify(projectRepository).saveAll(argThat(projects -> {
-            assertThat(projects.getFirst().leads()).containsExactly(leadId);
+            assertThat(projects.getFirst().getLeads()).containsExactly(leadId);
             return true;
         }));
     }
