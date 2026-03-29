@@ -7,11 +7,17 @@ Defines the `SyncUsersUseCase` and its `SyncUsersService` implementation within 
 ## Requirements
 
 ### Requirement: Sync runs automatically every 30 minutes
-The system SHALL trigger the user sync use case automatically on a 30-minute interval via a Quarkus `@Scheduled` adapter. The scheduler SHALL be the only trigger for the sync — no manual or API-triggered sync is provided in this change.
+The system SHALL trigger the user sync use case automatically on a 30-minute interval via a unified `SyncScheduler` Quarkus `@Scheduled` adapter. The `SyncScheduler` SHALL sequence `SyncUsersUseCase`, `SyncProjectsUseCase`, and `ReconcileLeadsUseCase` in that order within the same scheduled invocation. The standalone `UserSyncScheduler` is removed. The `SyncScheduler` SHALL be the only trigger for all three sync steps — no manual or API-triggered sync is provided.
 
-#### Scenario: Scheduler triggers sync on interval
+#### Scenario: Scheduler triggers all sync steps on interval
 - **WHEN** 30 minutes have elapsed since the last sync
-- **THEN** `SyncUsersUseCase.sync()` is called exactly once
+- **THEN** `SyncUsersUseCase.sync()` is called first
+- **THEN** `SyncProjectsUseCase.sync()` is called second
+- **THEN** `ReconcileLeadsUseCase.reconcile()` is called third
+
+#### Scenario: ReconcileLeads is skipped if SyncProjects fails
+- **WHEN** `SyncProjectsUseCase.sync()` throws an exception
+- **THEN** `ReconcileLeadsUseCase.reconcile()` is NOT called in that cycle
 
 ### Requirement: Sync fetches all active employees from ZEP
 The system SHALL fetch the complete list of employees from ZEP via `ZepEmployeePort.fetchAll()` at the start of each sync. The service SHALL then filter the result to only those profiles that have a non-null email AND an active `EmploymentPeriod` as of today (`EmploymentPeriods.active(LocalDate.now()).isPresent()`). This filtered list is the authoritative source for which Users should be active. The ZEP adapter SHALL wrap raw period and working-time lists into `EmploymentPeriods` and `RegularWorkingTimes` aggregates when constructing the `ZepProfile`.
