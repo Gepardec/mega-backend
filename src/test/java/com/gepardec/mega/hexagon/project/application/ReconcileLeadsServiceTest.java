@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.project.application;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
+import com.gepardec.mega.hexagon.project.domain.port.inbound.ReconcileLeadsResult;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.UserLookupPort;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
@@ -185,5 +186,56 @@ class ReconcileLeadsServiceTest {
             assertThat(projects.getFirst().leads()).containsExactly(knownId);
             return true;
         }));
+    }
+
+    @Test
+    void reconcile_result_countsResolvedAndSkippedLeads() {
+        UUID knownId = UUID.randomUUID();
+        Project project = projectWithZepId(8);
+
+        when(projectRepository.findAll()).thenReturn(List.of(project));
+        when(zepProjectPort.fetchLeadUsernames(8)).thenReturn(List.of("known", "unknown1", "unknown2"));
+        when(userLookupPort.findUserIdByZepUsername("known")).thenReturn(Optional.of(knownId));
+        when(userLookupPort.findUserIdByZepUsername("unknown1")).thenReturn(Optional.empty());
+        when(userLookupPort.findUserIdByZepUsername("unknown2")).thenReturn(Optional.empty());
+        when(userRepository.findAll()).thenReturn(List.of());
+
+        ReconcileLeadsResult result = service.reconcile();
+
+        assertThat(result.resolved()).isEqualTo(1);
+        assertThat(result.skipped()).isEqualTo(2);
+    }
+
+    @Test
+    void reconcile_result_countsRolesAdded() {
+        UUID leadId = UUID.randomUUID();
+        Project project = projectWithZepId(9);
+        User user = userWithId(leadId, "newlead", EnumSet.of(Role.EMPLOYEE));
+
+        when(projectRepository.findAll()).thenReturn(List.of(project));
+        when(zepProjectPort.fetchLeadUsernames(9)).thenReturn(List.of("newlead"));
+        when(userLookupPort.findUserIdByZepUsername("newlead")).thenReturn(Optional.of(leadId));
+        when(userRepository.findAll()).thenReturn(List.of(user));
+
+        ReconcileLeadsResult result = service.reconcile();
+
+        assertThat(result.rolesAdded()).isEqualTo(1);
+        assertThat(result.rolesRevoked()).isEqualTo(0);
+    }
+
+    @Test
+    void reconcile_result_countsRolesRevoked() {
+        UUID userId = UUID.randomUUID();
+        Project project = projectWithZepId(10);
+        User user = userWithId(userId, "exlead", EnumSet.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+
+        when(projectRepository.findAll()).thenReturn(List.of(project));
+        when(zepProjectPort.fetchLeadUsernames(10)).thenReturn(List.of());
+        when(userRepository.findAll()).thenReturn(List.of(user));
+
+        ReconcileLeadsResult result = service.reconcile();
+
+        assertThat(result.rolesAdded()).isEqualTo(0);
+        assertThat(result.rolesRevoked()).isEqualTo(1);
     }
 }

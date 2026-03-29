@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.project.application;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
+import com.gepardec.mega.hexagon.project.domain.port.inbound.ProjectSyncResult;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -129,5 +130,43 @@ class SyncProjectsServiceTest {
             assertThat(projects).isEmpty();
             return true;
         }));
+    }
+
+    @Test
+    void sync_result_countsCreatedProjects() {
+        when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(1, "A"), profile(2, "B")));
+        when(projectRepository.findAll()).thenReturn(List.of());
+
+        ProjectSyncResult result = service.sync();
+
+        assertThat(result.created()).isEqualTo(2);
+        assertThat(result.updated()).isEqualTo(0);
+    }
+
+    @Test
+    void sync_result_countsUpdatedProjects() {
+        Project existing1 = Project.reconstitute(ProjectId.generate(), 1, "A", LocalDate.now(), null, Set.of());
+        Project existing2 = Project.reconstitute(ProjectId.generate(), 2, "B", LocalDate.now(), null, Set.of());
+
+        when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(1, "A Updated"), profile(2, "B Updated")));
+        when(projectRepository.findAll()).thenReturn(List.of(existing1, existing2));
+
+        ProjectSyncResult result = service.sync();
+
+        assertThat(result.created()).isEqualTo(0);
+        assertThat(result.updated()).isEqualTo(2);
+    }
+
+    @Test
+    void sync_result_countsMixedOperations() {
+        Project existing = Project.reconstitute(ProjectId.generate(), 1, "A", LocalDate.now(), null, Set.of());
+
+        when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(1, "A Updated"), profile(2, "New")));
+        when(projectRepository.findAll()).thenReturn(List.of(existing));
+
+        ProjectSyncResult result = service.sync();
+
+        assertThat(result.created()).isEqualTo(1);
+        assertThat(result.updated()).isEqualTo(1);
     }
 }

@@ -11,6 +11,7 @@ import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.UserStatus;
 import com.gepardec.mega.hexagon.user.domain.model.ZepProfile;
+import com.gepardec.mega.hexagon.user.domain.port.inbound.UserSyncResult;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.PersonioEmployeePort;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.ZepEmployeePort;
@@ -224,5 +225,65 @@ class SyncUsersServiceTest {
             assertThat(users).hasSize(2);
             return true;
         }));
+    }
+
+    @Test
+    void sync_result_countsAddedUsers() {
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of(profile("a"), profile("b"), profile("c")));
+        when(userRepository.findAll()).thenReturn(List.of());
+        when(personioEmployeePort.findByEmail(any())).thenReturn(Optional.empty());
+
+        UserSyncResult result = service(List.of()).sync();
+
+        assertThat(result.added()).isEqualTo(3);
+        assertThat(result.updated()).isEqualTo(0);
+        assertThat(result.disabled()).isEqualTo(0);
+    }
+
+    @Test
+    void sync_result_countsUpdatedUsers() {
+        User existingA = User.create(UserId.generate(), profile("a"), Set.of(Role.EMPLOYEE));
+        User existingB = User.create(UserId.generate(), profile("b"), Set.of(Role.EMPLOYEE));
+
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of(profile("a"), profile("b")));
+        when(userRepository.findAll()).thenReturn(List.of(existingA, existingB));
+        when(personioEmployeePort.findByEmail(any())).thenReturn(Optional.empty());
+
+        UserSyncResult result = service(List.of()).sync();
+
+        assertThat(result.added()).isEqualTo(0);
+        assertThat(result.updated()).isEqualTo(2);
+        assertThat(result.disabled()).isEqualTo(0);
+    }
+
+    @Test
+    void sync_result_countsDisabledUsers() {
+        User existingA = User.create(UserId.generate(), profile("a"), Set.of(Role.EMPLOYEE));
+        User existingB = User.create(UserId.generate(), profile("b"), Set.of(Role.EMPLOYEE));
+
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of()); // all gone
+        when(userRepository.findAll()).thenReturn(List.of(existingA, existingB));
+
+        UserSyncResult result = service(List.of()).sync();
+
+        assertThat(result.added()).isEqualTo(0);
+        assertThat(result.updated()).isEqualTo(0);
+        assertThat(result.disabled()).isEqualTo(2);
+    }
+
+    @Test
+    void sync_result_countsMixedOperations() {
+        User existing = User.create(UserId.generate(), profile("existing"), Set.of(Role.EMPLOYEE));
+        User toDisable = User.create(UserId.generate(), profile("leaving"), Set.of(Role.EMPLOYEE));
+
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of(profile("existing"), profile("newuser")));
+        when(userRepository.findAll()).thenReturn(List.of(existing, toDisable));
+        when(personioEmployeePort.findByEmail(any())).thenReturn(Optional.empty());
+
+        UserSyncResult result = service(List.of()).sync();
+
+        assertThat(result.added()).isEqualTo(1);
+        assertThat(result.updated()).isEqualTo(1);
+        assertThat(result.disabled()).isEqualTo(1);
     }
 }
