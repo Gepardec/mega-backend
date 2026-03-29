@@ -18,5 +18,6 @@
     <include file="changelog-fix-diff.yaml" relativeToChangelogFile="true"/>
     <include file="changelog-3.8.yaml" relativeToChangelogFile="true"/>
     <include file="changelog/hexagon/001-user-foundation.yaml" relativeToChangelogFile="true"/>
+    <include file="changelog/hexagon/002-project-foundation.yaml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

@@ -25,6 +25,19 @@ public class ProjectService {
     @Inject
     Logger logger;
 
+    public List<ZepProject> getAllProjects() {
+        return Multi.createBy().repeating()
+                .uni(AtomicInteger::new, page ->
+                        zepProjectRestClient.getProjectByStartEnd(null, null, page.incrementAndGet())
+                                .onFailure().invoke(ex -> logger.warn("Error retrieving projects from ZEP", ex))
+                )
+                .whilst(ZepResponse::hasNext)
+                .map(ZepResponse::data)
+                .onItem().<ZepProject>disjoint()
+                .collect().asList()
+                .await().indefinitely();
+    }
+
     public List<ZepProject> getProjectsForMonthYear(YearMonth payrollMonth) {
         String startDate = payrollMonth.atDay(1).toString();
         String endDate = payrollMonth.atEndOfMonth().toString();
