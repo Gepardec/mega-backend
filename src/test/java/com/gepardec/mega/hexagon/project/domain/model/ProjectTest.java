@@ -21,18 +21,18 @@ class ProjectTest {
 
         Project project = Project.create(id, profile);
 
-        assertThat(project.id()).isEqualTo(id);
-        assertThat(project.zepId()).isEqualTo(42);
-        assertThat(project.name()).isEqualTo("Alpha");
-        assertThat(project.startDate()).isEqualTo(LocalDate.of(2024, 1, 1));
-        assertThat(project.endDate()).isEqualTo(LocalDate.of(2024, 12, 31));
+        assertThat(project.getId()).isEqualTo(id);
+        assertThat(project.getZepId()).isEqualTo(42);
+        assertThat(project.getName()).isEqualTo("Alpha");
+        assertThat(project.getStartDate()).isEqualTo(LocalDate.of(2024, 1, 1));
+        assertThat(project.getEndDate()).isEqualTo(LocalDate.of(2024, 12, 31));
     }
 
     @Test
     void create_leadsSetIsEmpty() {
         Project project = Project.create(ProjectId.generate(), profile(1, "Alpha"));
 
-        assertThat(project.leads()).isEmpty();
+        assertThat(project.getLeads()).isEmpty();
     }
 
     @Test
@@ -44,12 +44,12 @@ class ProjectTest {
 
         Project project = Project.reconstitute(id, 99, "Beta", start, end, Set.of(leadId));
 
-        assertThat(project.id()).isEqualTo(id);
-        assertThat(project.zepId()).isEqualTo(99);
-        assertThat(project.name()).isEqualTo("Beta");
-        assertThat(project.startDate()).isEqualTo(start);
-        assertThat(project.endDate()).isEqualTo(end);
-        assertThat(project.leads()).containsExactly(leadId);
+        assertThat(project.getId()).isEqualTo(id);
+        assertThat(project.getZepId()).isEqualTo(99);
+        assertThat(project.getName()).isEqualTo("Beta");
+        assertThat(project.getStartDate()).isEqualTo(start);
+        assertThat(project.getEndDate()).isEqualTo(end);
+        assertThat(project.getLeads()).containsExactly(leadId);
     }
 
     @Test
@@ -59,9 +59,9 @@ class ProjectTest {
 
         project.syncFromZep(updated);
 
-        assertThat(project.name()).isEqualTo("New Name");
-        assertThat(project.startDate()).isEqualTo(LocalDate.of(2025, 1, 1));
-        assertThat(project.endDate()).isNull();
+        assertThat(project.getName()).isEqualTo("New Name");
+        assertThat(project.getStartDate()).isEqualTo(LocalDate.of(2025, 1, 1));
+        assertThat(project.getEndDate()).isNull();
     }
 
     @Test
@@ -71,8 +71,8 @@ class ProjectTest {
 
         project.syncFromZep(new ZepProjectProfile(10, "Y", LocalDate.now(), null));
 
-        assertThat(project.id()).isEqualTo(id);
-        assertThat(project.zepId()).isEqualTo(10);
+        assertThat(project.getId()).isEqualTo(id);
+        assertThat(project.getZepId()).isEqualTo(10);
     }
 
     @Test
@@ -83,7 +83,7 @@ class ProjectTest {
 
         project.setLeads(Set.of(leadA, leadB));
 
-        assertThat(project.leads()).containsExactlyInAnyOrder(leadA, leadB);
+        assertThat(project.getLeads()).containsExactlyInAnyOrder(leadA, leadB);
     }
 
     @Test
@@ -95,8 +95,8 @@ class ProjectTest {
 
         project.setLeads(Set.of(newLead));
 
-        assertThat(project.leads()).containsExactly(newLead);
-        assertThat(project.leads()).doesNotContain(oldLead);
+        assertThat(project.getLeads()).containsExactly(newLead);
+        assertThat(project.getLeads()).doesNotContain(oldLead);
     }
 
     @Test
@@ -104,7 +104,7 @@ class ProjectTest {
         Project project = Project.create(ProjectId.generate(), profile(1, "X"));
         project.setLeads(Set.of(UUID.randomUUID()));
 
-        Set<UUID> leads = project.leads();
+        Set<UUID> leads = project.getLeads();
         assertThat(leads).isUnmodifiable();
     }
 }

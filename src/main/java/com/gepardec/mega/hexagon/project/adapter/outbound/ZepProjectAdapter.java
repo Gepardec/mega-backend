@@ -2,7 +2,6 @@ package com.gepardec.mega.hexagon.project.adapter.outbound;
 
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
-import com.gepardec.mega.zep.rest.dto.ZepProject;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.rest.service.ProjectService;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,10 +15,13 @@ public class ZepProjectAdapter implements ZepProjectPort {
     @Inject
     ProjectService projectService;
 
+    @Inject
+    ZepProjectMapper mapper;
+
     @Override
     public List<ZepProjectProfile> fetchAll() {
         return projectService.getAllProjects().stream()
-                .map(this::toProfile)
+                .map(mapper::toProfile)
                 .toList();
     }
 
@@ -35,14 +37,5 @@ public class ZepProjectAdapter implements ZepProjectPort {
     private boolean isLead(ZepProjectEmployee employee) {
         // Based on ProjectEmployeesMapper: type.id() != 0 indicates a lead
         return employee.type() != null && employee.type().id() != 0;
-    }
-
-    private ZepProjectProfile toProfile(ZepProject project) {
-        return new ZepProjectProfile(
-                project.id(),
-                project.name(),
-                project.startDate() != null ? project.startDate().toLocalDate() : null,
-                project.endDate() != null ? project.endDate().toLocalDate() : null
-        );
     }
 }

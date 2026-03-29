@@ -39,9 +39,9 @@ class UserRepositoryAdapterTest {
 
         Optional<User> found = userRepositoryAdapter.findByZepUsername("jdoe");
         assertThat(found).isPresent();
-        assertThat(found.get().zepProfile().username()).isEqualTo("jdoe");
-        assertThat(found.get().status()).isEqualTo(UserStatus.ACTIVE);
-        assertThat(found.get().roles()).contains(Role.EMPLOYEE);
+        assertThat(found.get().getZepProfile().username()).isEqualTo("jdoe");
+        assertThat(found.get().getStatus()).isEqualTo(UserStatus.ACTIVE);
+        assertThat(found.get().getRoles()).contains(Role.EMPLOYEE);
     }
 
     @Test
@@ -60,7 +60,7 @@ class UserRepositoryAdapterTest {
 
         List<User> all = userRepositoryAdapter.findAll();
         assertThat(all).hasSize(2);
-        assertThat(all.stream().map(u -> u.zepProfile().username()))
+        assertThat(all.stream().map(u -> u.getZepProfile().username()))
                 .containsExactlyInAnyOrder("user1", "user2");
     }
 
@@ -74,6 +74,6 @@ class UserRepositoryAdapterTest {
 
         Optional<User> found = userRepositoryAdapter.findByZepUsername("jdoe");
         assertThat(found).isPresent();
-        assertThat(found.get().status()).isEqualTo(UserStatus.INACTIVE);
+        assertThat(found.get().getStatus()).isEqualTo(UserStatus.INACTIVE);
     }
 }

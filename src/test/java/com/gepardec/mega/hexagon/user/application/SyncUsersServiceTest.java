@@ -65,9 +65,9 @@ class SyncUsersServiceTest {
 
         verify(userRepository).saveAll(argThat(users -> {
             assertThat(users).hasSize(1);
-            assertThat(users.getFirst().zepProfile().username()).isEqualTo("jdoe");
-            assertThat(users.getFirst().status()).isEqualTo(UserStatus.ACTIVE);
-            assertThat(users.getFirst().roles()).contains(Role.EMPLOYEE);
+            assertThat(users.getFirst().getZepProfile().username()).isEqualTo("jdoe");
+            assertThat(users.getFirst().getStatus()).isEqualTo(UserStatus.ACTIVE);
+            assertThat(users.getFirst().getRoles()).contains(Role.EMPLOYEE);
             return true;
         }));
     }
@@ -87,8 +87,8 @@ class SyncUsersServiceTest {
 
         verify(userRepository).saveAll(argThat(users -> {
             assertThat(users).hasSize(1);
-            assertThat(users.getFirst().name().firstname()).isEqualTo("Jane");
-            assertThat(users.getFirst().name().lastname()).isEqualTo("Updated");
+            assertThat(users.getFirst().getName().firstname()).isEqualTo("Jane");
+            assertThat(users.getFirst().getName().lastname()).isEqualTo("Updated");
             return true;
         }));
     }
@@ -103,8 +103,8 @@ class SyncUsersServiceTest {
         service(List.of()).sync();
 
         verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.stream().filter(u -> u.zepProfile().username().equals("jdoe")).findFirst())
-                    .hasValueSatisfying(u -> assertThat(u.status()).isEqualTo(UserStatus.INACTIVE));
+            assertThat(users.stream().filter(u -> u.getZepProfile().username().equals("jdoe")).findFirst())
+                    .hasValueSatisfying(u -> assertThat(u.getStatus()).isEqualTo(UserStatus.INACTIVE));
             return true;
         }));
     }
@@ -118,7 +118,7 @@ class SyncUsersServiceTest {
         service(List.of("om_user")).sync();
 
         verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.getFirst().roles()).contains(Role.OFFICE_MANAGEMENT, Role.EMPLOYEE);
+            assertThat(users.getFirst().getRoles()).contains(Role.OFFICE_MANAGEMENT, Role.EMPLOYEE);
             return true;
         }));
     }
@@ -132,7 +132,7 @@ class SyncUsersServiceTest {
         service(List.of("om_user")).sync();
 
         verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.getFirst().roles()).doesNotContain(Role.OFFICE_MANAGEMENT);
+            assertThat(users.getFirst().getRoles()).doesNotContain(Role.OFFICE_MANAGEMENT);
             return true;
         }));
     }
@@ -148,7 +148,7 @@ class SyncUsersServiceTest {
         service(List.of()).sync();
 
         verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.getFirst().personioProfile()).isEqualTo(personioProfile);
+            assertThat(users.getFirst().getPersonioProfile()).isEqualTo(personioProfile);
             return true;
         }));
     }
@@ -166,7 +166,7 @@ class SyncUsersServiceTest {
         service(List.of()).sync();
 
         verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.getFirst().personioProfile()).isEqualTo(existing);
+            assertThat(users.getFirst().getPersonioProfile()).isEqualTo(existing);
             return true;
         }));
     }
@@ -185,8 +185,8 @@ class SyncUsersServiceTest {
         service(List.of()).sync();
 
         verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.stream().filter(u -> u.zepProfile().username().equals("jdoe")).findFirst())
-                    .hasValueSatisfying(u -> assertThat(u.status()).isEqualTo(UserStatus.INACTIVE));
+            assertThat(users.stream().filter(u -> u.getZepProfile().username().equals("jdoe")).findFirst())
+                    .hasValueSatisfying(u -> assertThat(u.getStatus()).isEqualTo(UserStatus.INACTIVE));
             return true;
         }));
     }
@@ -205,8 +205,8 @@ class SyncUsersServiceTest {
         service(List.of()).sync();
 
         verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.stream().filter(u -> u.zepProfile().username().equals("jdoe")).findFirst())
-                    .hasValueSatisfying(u -> assertThat(u.status()).isEqualTo(UserStatus.INACTIVE));
+            assertThat(users.stream().filter(u -> u.getZepProfile().username().equals("jdoe")).findFirst())
+                    .hasValueSatisfying(u -> assertThat(u.getStatus()).isEqualTo(UserStatus.INACTIVE));
             return true;
         }));
     }

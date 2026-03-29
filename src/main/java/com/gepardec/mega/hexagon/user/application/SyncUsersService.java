@@ -45,8 +45,8 @@ public class SyncUsersService implements SyncUsersUseCase {
                 .collect(Collectors.toSet());
 
         Map<String, User> existingByUsername = userRepository.findAll().stream()
-                .filter(u -> u.zepProfile() != null)
-                .collect(Collectors.toMap(u -> u.zepProfile().username(), Function.identity()));
+                .filter(u -> u.getZepProfile() != null)
+                .collect(Collectors.toMap(u -> u.getZepProfile().username(), Function.identity()));
 
         List<User> toSave = new ArrayList<>();
         int added = 0;
@@ -72,8 +72,8 @@ public class SyncUsersService implements SyncUsersUseCase {
 
         // Best-effort Personio enrichment
         for (User user : toSave) {
-            if (user.email() != null && user.email().value() != null) {
-                personioEmployeePort.findByEmail(user.email())
+            if (user.getEmail() != null && user.getEmail().value() != null) {
+                personioEmployeePort.findByEmail(user.getEmail())
                         .ifPresent(user::syncFromPersonio);
             }
         }
@@ -81,7 +81,7 @@ public class SyncUsersService implements SyncUsersUseCase {
         // Deactivate users absent from ZEP
         int disabled = 0;
         for (User existing : existingByUsername.values()) {
-            if (!zepUsernames.contains(existing.zepProfile().username())) {
+            if (!zepUsernames.contains(existing.getZepProfile().username())) {
                 existing.deactivate();
                 toSave.add(existing);
                 disabled++;

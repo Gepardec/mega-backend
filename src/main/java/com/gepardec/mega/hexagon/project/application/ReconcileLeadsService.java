@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class ReconcileLeadsService implements ReconcileLeadsUseCase {
 
@@ -41,7 +40,7 @@ public class ReconcileLeadsService implements ReconcileLeadsUseCase {
         int skipped = 0;
 
         for (Project project : projects) {
-            List<String> leadUsernames = zepProjectPort.fetchLeadUsernames(project.zepId());
+            List<String> leadUsernames = zepProjectPort.fetchLeadUsernames(project.getZepId());
             Set<UUID> resolvedLeads = new HashSet<>();
             for (String username : leadUsernames) {
                 Optional<UUID> userId = userLookupPort.findUserIdByZepUsername(username);
@@ -61,8 +60,8 @@ public class ReconcileLeadsService implements ReconcileLeadsUseCase {
         List<User> allUsers = userRepository.findAll();
         List<User> usersToUpdate = allUsers.stream()
                 .filter(user -> {
-                    boolean isLead = allLeadUserIds.contains(user.id().value());
-                    boolean hasLeadRole = user.roles().contains(Role.PROJECT_LEAD);
+                    boolean isLead = allLeadUserIds.contains(user.getId().value());
+                    boolean hasLeadRole = user.getRoles().contains(Role.PROJECT_LEAD);
                     return isLead != hasLeadRole;
                 })
                 .toList();
@@ -71,8 +70,8 @@ public class ReconcileLeadsService implements ReconcileLeadsUseCase {
         int rolesRevoked = 0;
 
         for (User user : usersToUpdate) {
-            boolean shouldBeLead = allLeadUserIds.contains(user.id().value());
-            Set<Role> updatedRoles = new HashSet<>(user.roles());
+            boolean shouldBeLead = allLeadUserIds.contains(user.getId().value());
+            Set<Role> updatedRoles = new HashSet<>(user.getRoles());
             if (shouldBeLead) {
                 updatedRoles.add(Role.PROJECT_LEAD);
                 rolesAdded++;
