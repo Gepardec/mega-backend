@@ -14,11 +14,16 @@ The system SHALL trigger the user sync use case automatically on a 30-minute int
 - **THEN** `SyncUsersUseCase.sync()` is called exactly once
 
 ### Requirement: Sync fetches all active employees from ZEP
-The system SHALL fetch the complete list of employees from ZEP via `ZepEmployeePort.fetchAll()` at the start of each sync. This list is the authoritative source for which Users should be active.
+The system SHALL fetch the complete list of employees from ZEP via `ZepEmployeePort.fetchAll()` at the start of each sync. This list is the authoritative source for which Users should be active. The ZEP adapter SHALL wrap raw period and working-time lists into `EmploymentPeriods` and `RegularWorkingTimes` aggregates when constructing the `ZepProfile`.
 
 #### Scenario: ZEP employees fetched at sync start
 - **WHEN** `SyncUsersUseCase.sync()` is called
 - **THEN** `ZepEmployeePort.fetchAll()` is called and returns a list of ZepProfile data
+
+#### Scenario: ZepProfile returned by adapter contains aggregate types
+- **WHEN** `ZepEmployeeAdapter` maps a ZEP response to a `ZepProfile`
+- **THEN** the `employmentPeriods` field is an `EmploymentPeriods` instance
+- **THEN** the `regularWorkingTimes` field is a `RegularWorkingTimes` instance
 
 ### Requirement: Sync creates new Users for unknown ZEP employees
 The system SHALL create a new `User` aggregate with a generated `UserId` for any ZEP employee whose username does not match an existing User in the repository.
