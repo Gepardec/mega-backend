@@ -35,9 +35,9 @@ ZEP exposes two separate REST endpoints relevant here:
 
 ### D2: Project sync fetches all active projects, not scoped by YearMonth
 
-**Decision:** `ZepProjectPort.fetchAll()` fetches all projects with no month filter.
+**Decision:** `ZepProjectPort.fetchAll()` fetches all projects with no date filter.
 
-**Rationale:** The legacy sync queries ZEP with `YearMonth.now()`, which means past projects are never updated once the month rolls over. The hexagonal DB is a cache of ZEP truth; it should reflect all active projects, not just the current month's. The `ZepProjectRestClient` supports date-range filtering — omitting it or using a wide range gives us all active projects.
+**Rationale:** The legacy sync queries ZEP with `YearMonth.now()`, which means past projects are never updated once the month rolls over. The hexagonal DB is a cache of ZEP truth; it should reflect all active projects, not just the current month's. The ZEP API `start_date`/`end_date` query parameters are optional — omitting them returns all projects.
 
 **Alternative considered:** Keep the `YearMonth.now()` scoping. Rejected because it creates a hole: a project that spans multiple months would only be upserted in the month it's first seen, then never updated.
 

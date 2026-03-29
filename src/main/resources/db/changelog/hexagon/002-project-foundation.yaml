@@ -1,0 +1,60 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-project-foundation-001
+      author: mega
+      changes:
+        - createTable:
+            tableName: hexagon_projects
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: zep_id
+                  type: integer
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: start_date
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_date
+                  type: date
+
+  - changeSet:
+      id: hexagon-project-foundation-002
+      author: mega
+      changes:
+        - createTable:
+            tableName: hexagon_project_leads
+            columns:
+              - column:
+                  name: project_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_project_leads_project
+                    references: hexagon_projects(id)
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_project_leads_user
+                    references: hexagon_users(id)
+        - addPrimaryKey:
+            tableName: hexagon_project_leads
+            columnNames: project_id, user_id
+            constraintName: pk_hexagon_project_leads
