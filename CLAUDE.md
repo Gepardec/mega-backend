@@ -69,3 +69,28 @@ This is a **Quarkus 3** microservice (JDK 21) following a **layered architecture
 
 ### Caching
 Caffeine cache configured for employees, projects, and project entries (see `application.yaml`).
+
+## Logging
+
+Use `org.jboss.logging.Logger` (Quarkus standard). Log at appropriate levels:
+- `INFO` — significant lifecycle events (service startup, scheduled job execution, external system calls)
+- `WARN` — recoverable issues, unexpected-but-handled states
+- `ERROR` — failures that impact functionality (always include the exception)
+- `DEBUG` — internal flow details useful for troubleshooting (not logged in production by default)
+
+Guidelines:
+- Log at service boundaries: incoming REST requests are handled by Quarkus automatically; log outgoing calls to ZEP, Personio, Gmail, etc.
+- Log when scheduled jobs start and finish (with outcome summary)
+- Log cache misses/loads only at `DEBUG`
+- Do not log sensitive data (tokens, passwords, personal data)
+- Prefer structured messages over string concatenation: `log.debugf("Loading employee %s", id)` etc.
+
+## Testing
+
+When writing tests, always invoke the **`java-junit`** skill for conventions and patterns.
+
+Project-specific additions:
+- **Unit tests** — plain JUnit 5 + Mockito, no CDI container
+- **Integration tests** — `@QuarkusTest` with H2 (PostgreSQL mode), real CDI, real DB
+- **REST tests** — `@QuarkusTest` + REST-Assured for HTTP endpoint assertions
+- Use `@InjectMock` (Quarkus CDI mock) in `@QuarkusTest`; use plain `@Mock` + `@InjectMocks` in unit tests
