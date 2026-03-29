@@ -41,27 +41,27 @@ public class Project {
         this.leads = new HashSet<>(leads);
     }
 
-    public ProjectId id() {
+    public ProjectId getId() {
         return id;
     }
 
-    public int zepId() {
+    public int getZepId() {
         return zepId;
     }
 
-    public String name() {
+    public String getName() {
         return name;
     }
 
-    public LocalDate startDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public LocalDate endDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public Set<UUID> leads() {
+    public Set<UUID> getLeads() {
         return Set.copyOf(leads);
     }
 }

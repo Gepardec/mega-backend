@@ -23,14 +23,14 @@ class UserTest {
 
         User user = User.create(id, profile, Set.of(Role.EMPLOYEE));
 
-        assertThat(user.id()).isEqualTo(id);
-        assertThat(user.zepProfile()).isEqualTo(profile);
-        assertThat(user.roles()).containsExactly(Role.EMPLOYEE);
-        assertThat(user.status()).isEqualTo(UserStatus.ACTIVE);
-        assertThat(user.name().firstname()).isEqualTo("John");
-        assertThat(user.name().lastname()).isEqualTo("Doe");
-        assertThat(user.email().value()).isEqualTo("john@example.com");
-        assertThat(user.personioProfile()).isNull();
+        assertThat(user.getId()).isEqualTo(id);
+        assertThat(user.getZepProfile()).isEqualTo(profile);
+        assertThat(user.getRoles()).containsExactly(Role.EMPLOYEE);
+        assertThat(user.getStatus()).isEqualTo(UserStatus.ACTIVE);
+        assertThat(user.getName().firstname()).isEqualTo("John");
+        assertThat(user.getName().lastname()).isEqualTo("Doe");
+        assertThat(user.getEmail().value()).isEqualTo("john@example.com");
+        assertThat(user.getPersonioProfile()).isNull();
     }
 
     @Test
@@ -40,10 +40,10 @@ class UserTest {
 
         user.syncFromZep(updated);
 
-        assertThat(user.zepProfile()).isEqualTo(updated);
-        assertThat(user.name().firstname()).isEqualTo("Jane");
-        assertThat(user.name().lastname()).isEqualTo("Smith");
-        assertThat(user.email().value()).isEqualTo("new@example.com");
+        assertThat(user.getZepProfile()).isEqualTo(updated);
+        assertThat(user.getName().firstname()).isEqualTo("Jane");
+        assertThat(user.getName().lastname()).isEqualTo("Smith");
+        assertThat(user.getEmail().value()).isEqualTo("new@example.com");
     }
 
     @Test
@@ -54,7 +54,7 @@ class UserTest {
 
         user.syncFromZep(zepProfile("jdoe"));
 
-        assertThat(user.personioProfile()).isEqualTo(personioProfile);
+        assertThat(user.getPersonioProfile()).isEqualTo(personioProfile);
     }
 
     @Test
@@ -64,7 +64,7 @@ class UserTest {
 
         user.syncFromPersonio(profile);
 
-        assertThat(user.personioProfile()).isEqualTo(profile);
+        assertThat(user.getPersonioProfile()).isEqualTo(profile);
     }
 
     @Test
@@ -75,7 +75,7 @@ class UserTest {
 
         user.syncFromPersonio(null);
 
-        assertThat(user.personioProfile()).isEqualTo(existing);
+        assertThat(user.getPersonioProfile()).isEqualTo(existing);
     }
 
     @Test
@@ -84,7 +84,7 @@ class UserTest {
 
         user.deactivate();
 
-        assertThat(user.status()).isEqualTo(UserStatus.INACTIVE);
+        assertThat(user.getStatus()).isEqualTo(UserStatus.INACTIVE);
     }
 
     @Test
@@ -94,6 +94,6 @@ class UserTest {
 
         user.activate();
 
-        assertThat(user.status()).isEqualTo(UserStatus.ACTIVE);
+        assertThat(user.getStatus()).isEqualTo(UserStatus.ACTIVE);
     }
 }

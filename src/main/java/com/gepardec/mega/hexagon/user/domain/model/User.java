@@ -59,31 +59,31 @@ public class User {
         this.roles = new HashSet<>(roles);
     }
 
-    public UserId id() {
+    public UserId getId() {
         return id;
     }
 
-    public Email email() {
+    public Email getEmail() {
         return email;
     }
 
-    public FullName name() {
+    public FullName getName() {
         return name;
     }
 
-    public UserStatus status() {
+    public UserStatus getStatus() {
         return status;
     }
 
-    public Set<Role> roles() {
+    public Set<Role> getRoles() {
         return Set.copyOf(roles);
     }
 
-    public ZepProfile zepProfile() {
+    public ZepProfile getZepProfile() {
         return zepProfile;
     }
 
-    public PersonioProfile personioProfile() {
+    public PersonioProfile getPersonioProfile() {
         return personioProfile;
     }
 }

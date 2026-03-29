@@ -32,6 +32,9 @@ public class ZepEmployeeAdapter implements ZepEmployeePort {
     @Inject
     RegularWorkingTimesService regularWorkingTimesService;
 
+    @Inject
+    ZepEmployeeMapper mapper;
+
     @Override
     public List<ZepProfile> fetchAll() {
         return employeeService.getZepEmployees().stream()
@@ -57,19 +60,7 @@ public class ZepEmployeeAdapter implements ZepEmployeePort {
                         .toList()
         );
 
-        return new ZepProfile(
-                username,
-                zepEmployee.email(),
-                zepEmployee.firstname(),
-                zepEmployee.lastname(),
-                zepEmployee.title(),
-                zepEmployee.salutation() != null ? zepEmployee.salutation().name() : null,
-                null, // workDescription not available in ZepEmployee
-                zepEmployee.language() != null ? zepEmployee.language().id() : null,
-                zepEmployee.releaseDate(),
-                employmentPeriods,
-                regularWorkingTimes
-        );
+        return mapper.toZepProfile(zepEmployee, employmentPeriods, regularWorkingTimes);
     }
 
     private RegularWorkingTime toRegularWorkingTime(ZepRegularWorkingTimes zrwt) {

@@ -6,8 +6,10 @@ import com.gepardec.mega.zep.rest.dto.ZepProjectEmployeeType;
 import com.gepardec.mega.zep.rest.service.ProjectService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
@@ -21,6 +23,9 @@ class ZepProjectAdapterTest {
 
     @Mock
     ProjectService projectService;
+
+    @Spy
+    ZepProjectMapper mapper = Mappers.getMapper(ZepProjectMapper.class);
 
     @InjectMocks
     ZepProjectAdapter adapter;

@@ -74,7 +74,7 @@ class ReconcileLeadsServiceTest {
         service.reconcile();
 
         verify(projectRepository).saveAll(argThat(projects -> {
-            assertThat(projects.getFirst().leads()).containsExactly(leadId);
+            assertThat(projects.getFirst().getLeads()).containsExactly(leadId);
             return true;
         }));
     }
@@ -91,7 +91,7 @@ class ReconcileLeadsServiceTest {
         service.reconcile();
 
         verify(projectRepository).saveAll(argThat(projects -> {
-            assertThat(projects.getFirst().leads()).isEmpty();
+            assertThat(projects.getFirst().getLeads()).isEmpty();
             return true;
         }));
     }
@@ -110,8 +110,8 @@ class ReconcileLeadsServiceTest {
         service.reconcile();
 
         verify(projectRepository).saveAll(argThat(projects -> {
-            assertThat(projects.getFirst().leads()).containsExactly(newLead);
-            assertThat(projects.getFirst().leads()).doesNotContain(oldLead);
+            assertThat(projects.getFirst().getLeads()).containsExactly(newLead);
+            assertThat(projects.getFirst().getLeads()).doesNotContain(oldLead);
             return true;
         }));
     }
@@ -130,7 +130,7 @@ class ReconcileLeadsServiceTest {
         service.reconcile();
 
         verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.getFirst().roles()).contains(Role.PROJECT_LEAD);
+            assertThat(users.getFirst().getRoles()).contains(Role.PROJECT_LEAD);
             return true;
         }));
     }
@@ -148,7 +148,7 @@ class ReconcileLeadsServiceTest {
         service.reconcile();
 
         verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.getFirst().roles()).doesNotContain(Role.PROJECT_LEAD);
+            assertThat(users.getFirst().getRoles()).doesNotContain(Role.PROJECT_LEAD);
             return true;
         }));
     }
@@ -183,7 +183,7 @@ class ReconcileLeadsServiceTest {
         service.reconcile();
 
         verify(projectRepository).saveAll(argThat(projects -> {
-            assertThat(projects.getFirst().leads()).containsExactly(knownId);
+            assertThat(projects.getFirst().getLeads()).containsExactly(knownId);
             return true;
         }));
     }

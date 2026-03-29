@@ -30,7 +30,7 @@ public class SyncProjectsService implements SyncProjectsUseCase {
         List<ZepProjectProfile> zepProfiles = zepProjectPort.fetchAll();
 
         Map<Integer, Project> existingByZepId = projectRepository.findAll().stream()
-                .collect(Collectors.toMap(Project::zepId, Function.identity()));
+                .collect(Collectors.toMap(Project::getZepId, Function.identity()));
 
         List<Project> toSave = new ArrayList<>();
         int created = 0;
