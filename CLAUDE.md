@@ -70,9 +70,18 @@ This is a **Quarkus 3** microservice (JDK 21) following a **layered architecture
 ### Caching
 Caffeine cache configured for employees, projects, and project entries (see `application.yaml`).
 
+## Mapping
+
+Always use **MapStruct** for object mapping (entity↔domain, domain↔DTO, etc.). Never write manual mapping code.
+- Declare mappers as `@Mapper(componentModel = MappingConstants.ComponentModel.JAKARTA)` so they are Jakarta CDI beans
+- Mappers are **infrastructure adapters** — place them co-located with the adapter they serve:
+  - Domain ↔ JPA entity: inside `infrastructure/persistence/` (next to the repository implementation)
+  - Domain ↔ REST DTO: inside `infrastructure/http/` or `presentation/` (next to the REST resource/controller)
+- Prefer `@Mapping` annotations over custom `default` methods; only add `default` methods when the transformation cannot be expressed declaratively
+
 ## Logging
 
-Use `org.jboss.logging.Logger` (Quarkus standard). Log at appropriate levels:
+Use `io.quarkus.logging.Log` (static logger, no field declaration needed). Log at appropriate levels:
 - `INFO` — significant lifecycle events (service startup, scheduled job execution, external system calls)
 - `WARN` — recoverable issues, unexpected-but-handled states
 - `ERROR` — failures that impact functionality (always include the exception)
@@ -83,7 +92,7 @@ Guidelines:
 - Log when scheduled jobs start and finish (with outcome summary)
 - Log cache misses/loads only at `DEBUG`
 - Do not log sensitive data (tokens, passwords, personal data)
-- Prefer structured messages over string concatenation: `log.debugf("Loading employee %s", id)` etc.
+- Prefer structured messages over string concatenation: `Log.debugf("Loading employee %s", id)` etc.
 
 ## Testing
 
@@ -94,3 +103,4 @@ Project-specific additions:
 - **Integration tests** — `@QuarkusTest` with H2 (PostgreSQL mode), real CDI, real DB
 - **REST tests** — `@QuarkusTest` + REST-Assured for HTTP endpoint assertions
 - Use `@InjectMock` (Quarkus CDI mock) in `@QuarkusTest`; use plain `@Mock` + `@InjectMocks` in unit tests
+- Use **Instancio** to create test object instances — prefer `Instancio.create(Foo.class)` over manual construction; use `Instancio.of(Foo.class).set(...)` to customise specific fields
