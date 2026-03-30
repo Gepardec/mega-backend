@@ -34,7 +34,7 @@ class SyncProjectsServiceTest {
     }
 
     private ZepProjectProfile profile(int zepId, String name) {
-        return new ZepProjectProfile(zepId, name, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31));
+        return new ZepProjectProfile(zepId, name, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31), false);
     }
 
     @Test
@@ -57,7 +57,7 @@ class SyncProjectsServiceTest {
     void sync_updatesExistingProjectByZepId() {
         ProjectId existingId = ProjectId.generate();
         Project existing = Project.reconstitute(existingId, 42, "Old Name",
-                LocalDate.of(2023, 1, 1), null, Set.of());
+                LocalDate.of(2023, 1, 1), null, false, Set.of());
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(42, "New Name")));
         when(projectRepository.findAll()).thenReturn(List.of(existing));
@@ -76,7 +76,7 @@ class SyncProjectsServiceTest {
     @Test
     void sync_preservesProjectIdOnUpdate() {
         ProjectId existingId = ProjectId.of(UUID.fromString("00000000-0000-0000-0000-000000000001"));
-        Project existing = Project.reconstitute(existingId, 7, "X", LocalDate.now(), null, Set.of());
+        Project existing = Project.reconstitute(existingId, 7, "X", LocalDate.now(), null, false, Set.of());
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(7, "X Updated")));
         when(projectRepository.findAll()).thenReturn(List.of(existing));
@@ -93,7 +93,7 @@ class SyncProjectsServiceTest {
     void sync_doesNotModifyLeads() {
         UUID leadId = UUID.randomUUID();
         Project existing = Project.reconstitute(ProjectId.generate(), 5, "Y",
-                LocalDate.now(), null, Set.of(leadId));
+                LocalDate.now(), null, false, Set.of(leadId));
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(5, "Y Updated")));
         when(projectRepository.findAll()).thenReturn(List.of(existing));
@@ -145,8 +145,8 @@ class SyncProjectsServiceTest {
 
     @Test
     void sync_result_countsUpdatedProjects() {
-        Project existing1 = Project.reconstitute(ProjectId.generate(), 1, "A", LocalDate.now(), null, Set.of());
-        Project existing2 = Project.reconstitute(ProjectId.generate(), 2, "B", LocalDate.now(), null, Set.of());
+        Project existing1 = Project.reconstitute(ProjectId.generate(), 1, "A", LocalDate.now(), null, false, Set.of());
+        Project existing2 = Project.reconstitute(ProjectId.generate(), 2, "B", LocalDate.now(), null, false, Set.of());
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(1, "A Updated"), profile(2, "B Updated")));
         when(projectRepository.findAll()).thenReturn(List.of(existing1, existing2));
@@ -159,7 +159,7 @@ class SyncProjectsServiceTest {
 
     @Test
     void sync_result_countsMixedOperations() {
-        Project existing = Project.reconstitute(ProjectId.generate(), 1, "A", LocalDate.now(), null, Set.of());
+        Project existing = Project.reconstitute(ProjectId.generate(), 1, "A", LocalDate.now(), null, false, Set.of());
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(1, "A Updated"), profile(2, "New")));
         when(projectRepository.findAll()).thenReturn(List.of(existing));

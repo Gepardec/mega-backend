@@ -50,7 +50,7 @@ class ReconcileLeadsServiceTest {
     }
 
     private Project projectWithZepId(int zepId) {
-        return Project.create(ProjectId.generate(), new ZepProjectProfile(zepId, "P" + zepId, LocalDate.now(), null));
+        return Project.create(ProjectId.generate(), new ZepProjectProfile(zepId, "P" + zepId, LocalDate.now(), null, false));
     }
 
     private User userWithId(UUID id, String username, Set<Role> roles) {
@@ -100,7 +100,7 @@ class ReconcileLeadsServiceTest {
     void reconcile_replacesFullLeadsSet() {
         UUID oldLead = UUID.randomUUID();
         UUID newLead = UUID.randomUUID();
-        Project project = Project.reconstitute(ProjectId.generate(), 3, "P3", LocalDate.now(), null, Set.of(oldLead));
+        Project project = Project.reconstitute(ProjectId.generate(), 3, "P3", LocalDate.now(), null, false, Set.of(oldLead));
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(3)).thenReturn(List.of("newguy"));

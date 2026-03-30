@@ -34,6 +34,9 @@ public class ProjectEntity {
     @Column(name = "end_date")
     private LocalDate endDate;
 
+    @Column(name = "billable", nullable = false)
+    private boolean billable;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "hexagon_project_leads",
@@ -80,6 +83,14 @@ public class ProjectEntity {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public boolean isBillable() {
+        return billable;
+    }
+
+    public void setBillable(boolean billable) {
+        this.billable = billable;
     }
 
     public Set<UUID> getLeads() {
