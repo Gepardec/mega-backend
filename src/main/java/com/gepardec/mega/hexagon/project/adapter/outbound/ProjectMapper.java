@@ -22,6 +22,7 @@ public interface ProjectMapper {
                 entity.getName(),
                 entity.getStartDate(),
                 entity.getEndDate(),
+                entity.isBillable(),
                 entity.getLeads() != null ? entity.getLeads() : Set.of()
         );
     }

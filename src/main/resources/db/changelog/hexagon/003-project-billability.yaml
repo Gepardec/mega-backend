@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-project-billability-001
+      author: mega
+      changes:
+        - addColumn:
+            tableName: hexagon_projects
+            columns:
+              - column:
+                  name: billable
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValueBoolean: false
