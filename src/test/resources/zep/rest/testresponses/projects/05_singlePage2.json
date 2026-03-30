@@ -43,7 +43,7 @@
     "customer_shipping_address_id": null,
     "has_multiple_customers": null,
     "department_id": 0,
-    "billing_type": null,
+    "default_billability": null,
     "billing_tasks": null,
     "plan_hours": null,
     "plan_hours_children": "96.0000000000",

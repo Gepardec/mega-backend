@@ -34,7 +34,7 @@
       "customer_shipping_address_id": null,
       "has_multiple_customers": null,
       "department_id": 1,
-      "billing_type": {
+      "default_billability": {
         "id": 1
       },
       "billing_tasks": 0,
