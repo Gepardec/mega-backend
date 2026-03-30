@@ -1,6 +1,8 @@
 package com.gepardec.mega.hexagon.project.adapter.outbound;
 
+import com.gepardec.mega.domain.model.BillabilityPreset;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
+import com.gepardec.mega.zep.rest.dto.ZepBillingType;
 import com.gepardec.mega.zep.rest.dto.ZepProject;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,10 +18,21 @@ public interface ZepProjectMapper {
     @Mapping(target = "zepId", source = "id")
     @Mapping(target = "startDate", source = "startDate", qualifiedByName = "toLocalDate")
     @Mapping(target = "endDate", source = "endDate", qualifiedByName = "toLocalDate")
+    @Mapping(target = "billable", source = "billingType", qualifiedByName = "isBillable")
     ZepProjectProfile toProfile(ZepProject project);
 
     @Named("toLocalDate")
     default LocalDate toLocalDate(LocalDateTime dateTime) {
         return dateTime != null ? dateTime.toLocalDate() : null;
+    }
+
+    @Named("isBillable")
+    default boolean isBillable(ZepBillingType billingType) {
+        if (billingType == null || billingType.id() == null) {
+            return false;
+        }
+        return BillabilityPreset.byZepId(billingType.id())
+                .map(BillabilityPreset::isBillable)
+                .orElse(false);
     }
 }
