@@ -1,9 +1,13 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -25,8 +29,9 @@ public class MonthEndTaskEntity {
     @Column(name = "month_value", nullable = false)
     private LocalDate monthValue;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private String type;
+    private MonthEndTaskType type;
 
     @Column(name = "project_id", nullable = false)
     private UUID projectId;
@@ -42,8 +47,9 @@ public class MonthEndTaskEntity {
     @Column(name = "actor_id")
     private Set<UUID> eligibleActorIds = new HashSet<>();
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status;
+    private MonthEndTaskStatus status;
 
     @Column(name = "completed_by")
     private UUID completedBy;
@@ -64,11 +70,11 @@ public class MonthEndTaskEntity {
         this.monthValue = monthValue;
     }
 
-    public String getType() {
+    public MonthEndTaskType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(MonthEndTaskType type) {
         this.type = type;
     }
 
@@ -96,11 +102,11 @@ public class MonthEndTaskEntity {
         this.eligibleActorIds = eligibleActorIds == null ? new HashSet<>() : new HashSet<>(eligibleActorIds);
     }
 
-    public String getStatus() {
+    public MonthEndTaskStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(MonthEndTaskStatus status) {
         this.status = status;
     }
 

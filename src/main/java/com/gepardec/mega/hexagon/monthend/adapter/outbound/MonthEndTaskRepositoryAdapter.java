@@ -70,7 +70,7 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
                                 "join task.eligibleActorIds actor " +
                                 "where task.monthValue = ?1 and task.status = ?2 and actor = ?3 and task.type in ?4",
                         toMonthValue(month),
-                        MonthEndTaskStatus.OPEN.name(),
+                        MonthEndTaskStatus.OPEN,
                         actorId.value(),
                         taskTypesFor(policy)
                 )
@@ -79,10 +79,9 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
                 .toList();
     }
 
-    private List<String> taskTypesFor(MonthEndCompletionPolicy policy) {
+    private List<MonthEndTaskType> taskTypesFor(MonthEndCompletionPolicy policy) {
         return Stream.of(MonthEndTaskType.values())
                 .filter(type -> type.completionPolicy() == policy)
-                .map(Enum::name)
                 .toList();
     }
 
