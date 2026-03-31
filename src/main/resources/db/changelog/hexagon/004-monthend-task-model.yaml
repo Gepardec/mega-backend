@@ -37,11 +37,6 @@ databaseChangeLog:
                     foreignKeyName: fk_monthend_task_subject_employee
                     references: hexagon_users(id)
               - column:
-                  name: completion_policy
-                  type: varchar(100)
-                  constraints:
-                    nullable: false
-              - column:
                   name: status
                   type: varchar(50)
                   constraints:

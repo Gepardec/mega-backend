@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndCompletionPolicy;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
@@ -57,8 +56,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                 project.getId(),
                 null,
-                Set.of(employee.getId()),
-                MonthEndCompletionPolicy.INDIVIDUAL_ACTOR
+                Set.of(employee.getId())
         );
         MonthEndTask doneEmployeeTask = MonthEndTask.create(
                 MonthEndTaskId.generate(),
@@ -66,8 +64,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 MonthEndTaskType.LEISTUNGSNACHWEIS,
                 project.getId(),
                 null,
-                Set.of(employee.getId()),
-                MonthEndCompletionPolicy.INDIVIDUAL_ACTOR
+                Set.of(employee.getId())
         ).complete(employee.getId());
         MonthEndTask openLeadTask = MonthEndTask.create(
                 MonthEndTaskId.generate(),
@@ -75,8 +72,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
                 project.getId(),
                 employee.getId(),
-                Set.of(lead.getId()),
-                MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR
+                Set.of(lead.getId())
         );
         monthEndTaskRepositoryAdapter.saveAll(List.of(openEmployeeTask, doneEmployeeTask, openLeadTask));
 
@@ -102,8 +98,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
                 project.getId(),
                 employee.getId(),
-                Set.of(leadA.getId(), leadB.getId()),
-                MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR
+                Set.of(leadA.getId(), leadB.getId())
         );
         monthEndTaskRepositoryAdapter.save(sharedTask);
 

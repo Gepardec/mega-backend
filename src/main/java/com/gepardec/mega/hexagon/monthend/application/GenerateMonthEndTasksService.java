@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndCompletionPolicy;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
@@ -102,8 +101,7 @@ public class GenerateMonthEndTasksService implements GenerateMonthEndTasksUseCas
                                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                                 project.id(),
                                 null,
-                                Set.of(assignedUser.id()),
-                                MonthEndCompletionPolicy.INDIVIDUAL_ACTOR
+                                Set.of(assignedUser.id())
                         )
                 );
 
@@ -117,8 +115,7 @@ public class GenerateMonthEndTasksService implements GenerateMonthEndTasksUseCas
                                     MonthEndTaskType.LEISTUNGSNACHWEIS,
                                     project.id(),
                                     null,
-                                    Set.of(assignedUser.id()),
-                                    MonthEndCompletionPolicy.INDIVIDUAL_ACTOR
+                                    Set.of(assignedUser.id())
                             )
                     );
                 }
@@ -133,8 +130,7 @@ public class GenerateMonthEndTasksService implements GenerateMonthEndTasksUseCas
                                     MonthEndTaskType.PROJECT_LEAD_REVIEW,
                                     project.id(),
                                     assignedUser.id(),
-                                    activeLeadIds,
-                                    MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR
+                                    activeLeadIds
                             )
                     );
                 }
@@ -150,8 +146,7 @@ public class GenerateMonthEndTasksService implements GenerateMonthEndTasksUseCas
                                 MonthEndTaskType.ABRECHNUNG,
                                 project.id(),
                                 null,
-                                activeLeadIds,
-                                MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR
+                                activeLeadIds
                         )
                 );
             }

@@ -4,6 +4,7 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndCompletionPolicy;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 @Transactional
@@ -66,14 +68,21 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
         return panache.find(
                         "select distinct task from MonthEndTaskEntity task " +
                                 "join task.eligibleActorIds actor " +
-                                "where task.monthValue = ?1 and task.status = ?2 and task.completionPolicy = ?3 and actor = ?4",
+                                "where task.monthValue = ?1 and task.status = ?2 and actor = ?3 and task.type in ?4",
                         toMonthValue(month),
                         MonthEndTaskStatus.OPEN.name(),
-                        policy.name(),
-                        actorId.value()
+                        actorId.value(),
+                        taskTypesFor(policy)
                 )
                 .list().stream()
                 .map(mapper::toDomain)
+                .toList();
+    }
+
+    private List<String> taskTypesFor(MonthEndCompletionPolicy policy) {
+        return Stream.of(MonthEndTaskType.values())
+                .filter(type -> type.completionPolicy() == policy)
+                .map(Enum::name)
                 .toList();
     }
 

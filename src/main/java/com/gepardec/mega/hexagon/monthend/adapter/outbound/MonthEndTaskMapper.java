@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndCompletionPolicy;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
@@ -28,7 +27,6 @@ public interface MonthEndTaskMapper {
     @Mapping(target = "projectId", source = "projectId", qualifiedByName = "projectIdToUuid")
     @Mapping(target = "subjectEmployeeId", source = "subjectEmployeeId", qualifiedByName = "userIdToUuid")
     @Mapping(target = "eligibleActorIds", source = "eligibleActorIds", qualifiedByName = "userIdsToUuids")
-    @Mapping(target = "completionPolicy", source = "completionPolicy", qualifiedByName = "completionPolicyToString")
     @Mapping(target = "status", source = "status", qualifiedByName = "taskStatusToString")
     @Mapping(target = "completedBy", source = "completedBy", qualifiedByName = "userIdToUuid")
     void updateEntity(MonthEndTask task, @MappingTarget MonthEndTaskEntity entity);
@@ -39,7 +37,6 @@ public interface MonthEndTaskMapper {
     @Mapping(target = "projectId", source = "projectId", qualifiedByName = "uuidToProjectId")
     @Mapping(target = "subjectEmployeeId", source = "subjectEmployeeId", qualifiedByName = "uuidToUserId")
     @Mapping(target = "eligibleActorIds", source = "eligibleActorIds", qualifiedByName = "uuidsToUserIds")
-    @Mapping(target = "completionPolicy", source = "completionPolicy", qualifiedByName = "stringToCompletionPolicy")
     @Mapping(target = "status", source = "status", qualifiedByName = "stringToTaskStatus")
     @Mapping(target = "completedBy", source = "completedBy", qualifiedByName = "uuidToUserId")
     MonthEndTask toDomain(MonthEndTaskEntity entity);
@@ -92,16 +89,6 @@ public interface MonthEndTaskMapper {
     @Named("stringToTaskType")
     default MonthEndTaskType stringToTaskType(String type) {
         return type == null ? null : MonthEndTaskType.valueOf(type);
-    }
-
-    @Named("completionPolicyToString")
-    default String completionPolicyToString(MonthEndCompletionPolicy policy) {
-        return policy == null ? null : policy.name();
-    }
-
-    @Named("stringToCompletionPolicy")
-    default MonthEndCompletionPolicy stringToCompletionPolicy(String policy) {
-        return policy == null ? null : MonthEndCompletionPolicy.valueOf(policy);
     }
 
     @Named("taskStatusToString")

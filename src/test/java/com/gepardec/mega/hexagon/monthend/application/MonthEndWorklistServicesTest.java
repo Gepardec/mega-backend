@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndCompletionPolicy;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
@@ -49,8 +48,7 @@ class MonthEndWorklistServicesTest {
                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                 projectId,
                 null,
-                Set.of(employeeId),
-                MonthEndCompletionPolicy.INDIVIDUAL_ACTOR
+                Set.of(employeeId)
         );
         when(monthEndTaskRepository.findOpenEmployeeTasks(employeeId, month)).thenReturn(List.of(task));
 
@@ -73,8 +71,7 @@ class MonthEndWorklistServicesTest {
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
                 projectId,
                 employeeId,
-                Set.of(leadId),
-                MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR
+                Set.of(leadId)
         );
         when(monthEndTaskRepository.findOpenProjectLeadTasks(leadId, month)).thenReturn(List.of(task));
 

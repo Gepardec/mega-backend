@@ -34,7 +34,7 @@ Proposed business shape:
 - `projectId`
 - `subjectEmployeeId?`
 - `eligibleActorIds`
-- `completionPolicy`
+- `completion policy` (derived from `type`)
 - `status`
 - `completedBy?`
 
@@ -44,19 +44,19 @@ Alternative considered:
 - Use multiple write-model aggregate types for different actor groups.
 - Rejected because the core business concept is still one month-end obligation, and splitting the write model would fragment that language.
 
-### 2. Model completion semantics explicitly with a policy/value object
+### 2. Model completion semantics explicitly on `MonthEndTaskType`
 
-The aggregate will not infer completion rules indirectly from task type. Instead, it will use an explicit policy such as:
+The model will keep completion semantics explicit, but attach them to `MonthEndTaskType` instead of storing them separately on every task instance. Each task type carries its completion policy such as:
 
 - `INDIVIDUAL_ACTOR`
 - `ANY_ELIGIBLE_ACTOR`
 
-For employee tasks, `eligibleActorIds` contains exactly one employee and the policy is `INDIVIDUAL_ACTOR`.
-For project-lead tasks, `eligibleActorIds` contains the fixed set of leads captured at generation time and the policy is `ANY_ELIGIBLE_ACTOR`.
+For employee tasks, `eligibleActorIds` contains exactly one employee and the type implies `INDIVIDUAL_ACTOR`.
+For project-lead tasks, `eligibleActorIds` contains the fixed set of leads captured at generation time and the type implies `ANY_ELIGIBLE_ACTOR`.
 
 Alternative considered:
-- Encode all completion rules directly in `MonthEndTaskType`.
-- Rejected because the completion rule is a distinct domain concern and making it explicit keeps the aggregate behavior simpler and easier to test.
+- Persist completion policy as separate task state.
+- Rejected because the policy is currently fully determined by task type, so storing it independently would duplicate information and create avoidable invalid states.
 
 ### 3. Treat `MonthEndProcess` as a business concept, not the transactional aggregate
 

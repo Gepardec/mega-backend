@@ -42,9 +42,6 @@ public class MonthEndTaskEntity {
     @Column(name = "actor_id")
     private Set<UUID> eligibleActorIds = new HashSet<>();
 
-    @Column(name = "completion_policy", nullable = false)
-    private String completionPolicy;
-
     @Column(name = "status", nullable = false)
     private String status;
 
@@ -97,14 +94,6 @@ public class MonthEndTaskEntity {
 
     public void setEligibleActorIds(Set<UUID> eligibleActorIds) {
         this.eligibleActorIds = eligibleActorIds == null ? new HashSet<>() : new HashSet<>(eligibleActorIds);
-    }
-
-    public String getCompletionPolicy() {
-        return completionPolicy;
-    }
-
-    public void setCompletionPolicy(String completionPolicy) {
-        this.completionPolicy = completionPolicy;
     }
 
     public String getStatus() {

@@ -117,13 +117,13 @@ class GenerateMonthEndTasksServiceTest {
         when(monthEndProjectAssignmentPort.findAssignedUsernames(88, month)).thenReturn(Set.of("employee"));
         when(monthEndTaskRepository.findByMonth(month)).thenReturn(List.of(
                 MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        project.id(), null, Set.of(employee.id()), MonthEndCompletionPolicy.INDIVIDUAL_ACTOR),
+                        project.id(), null, Set.of(employee.id())),
                 MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.LEISTUNGSNACHWEIS,
-                        project.id(), null, Set.of(employee.id()), MonthEndCompletionPolicy.INDIVIDUAL_ACTOR),
+                        project.id(), null, Set.of(employee.id())),
                 MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                        project.id(), employee.id(), Set.of(lead.id()), MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR),
+                        project.id(), employee.id(), Set.of(lead.id())),
                 MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.ABRECHNUNG,
-                        project.id(), null, Set.of(lead.id()), MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR)
+                        project.id(), null, Set.of(lead.id()))
         ));
 
         MonthEndTaskGenerationResult result = service.generate(month);

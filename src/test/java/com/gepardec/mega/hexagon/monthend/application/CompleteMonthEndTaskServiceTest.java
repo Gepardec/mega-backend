@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndCompletionPolicy;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
@@ -81,8 +80,7 @@ class CompleteMonthEndTaskServiceTest {
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
                 projectId,
                 employeeId,
-                Set.of(leadA, leadB),
-                MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR
+                Set.of(leadA, leadB)
         );
     }
 }

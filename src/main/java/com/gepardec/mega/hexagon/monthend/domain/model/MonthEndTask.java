@@ -14,7 +14,6 @@ public record MonthEndTask(
         ProjectId projectId,
         UserId subjectEmployeeId,
         Set<UserId> eligibleActorIds,
-        MonthEndCompletionPolicy completionPolicy,
         MonthEndTaskStatus status,
         UserId completedBy
 ) {
@@ -25,13 +24,12 @@ public record MonthEndTask(
         Objects.requireNonNull(type, "type must not be null");
         Objects.requireNonNull(projectId, "projectId must not be null");
         Objects.requireNonNull(eligibleActorIds, "eligibleActorIds must not be null");
-        Objects.requireNonNull(completionPolicy, "completionPolicy must not be null");
         Objects.requireNonNull(status, "status must not be null");
 
         eligibleActorIds = Set.copyOf(eligibleActorIds);
 
-        validateCompletionPolicy(eligibleActorIds, completionPolicy);
-        validateTypeSpecificInvariants(type, subjectEmployeeId, completionPolicy);
+        validateCompletionPolicy(eligibleActorIds, type);
+        validateTypeSpecificInvariants(type, subjectEmployeeId);
         validateCompletionState(status, completedBy, eligibleActorIds);
     }
 
@@ -41,8 +39,7 @@ public record MonthEndTask(
             MonthEndTaskType type,
             ProjectId projectId,
             UserId subjectEmployeeId,
-            Set<UserId> eligibleActorIds,
-            MonthEndCompletionPolicy completionPolicy
+            Set<UserId> eligibleActorIds
     ) {
         return new MonthEndTask(
                 id,
@@ -51,7 +48,6 @@ public record MonthEndTask(
                 projectId,
                 subjectEmployeeId,
                 eligibleActorIds,
-                completionPolicy,
                 MonthEndTaskStatus.OPEN,
                 null
         );
@@ -64,7 +60,6 @@ public record MonthEndTask(
             ProjectId projectId,
             UserId subjectEmployeeId,
             Set<UserId> eligibleActorIds,
-            MonthEndCompletionPolicy completionPolicy,
             MonthEndTaskStatus status,
             UserId completedBy
     ) {
@@ -75,7 +70,6 @@ public record MonthEndTask(
                 projectId,
                 subjectEmployeeId,
                 eligibleActorIds,
-                completionPolicy,
                 status,
                 completedBy
         );
@@ -99,10 +93,13 @@ public record MonthEndTask(
                 projectId,
                 subjectEmployeeId,
                 eligibleActorIds,
-                completionPolicy,
                 MonthEndTaskStatus.DONE,
                 actorId
         );
+    }
+
+    public MonthEndCompletionPolicy completionPolicy() {
+        return type.completionPolicy();
     }
 
     public boolean isOpen() {
@@ -113,47 +110,31 @@ public record MonthEndTask(
         return new MonthEndTaskKey(month, projectId, type, subjectEmployeeId);
     }
 
-    private static void validateCompletionPolicy(
-            Set<UserId> eligibleActorIds,
-            MonthEndCompletionPolicy completionPolicy
-    ) {
+    private static void validateCompletionPolicy(Set<UserId> eligibleActorIds, MonthEndTaskType type) {
         if (eligibleActorIds.isEmpty()) {
             throw new IllegalArgumentException("eligibleActorIds must not be empty");
         }
 
-        if (completionPolicy == MonthEndCompletionPolicy.INDIVIDUAL_ACTOR && eligibleActorIds.size() != 1) {
+        if (type.completionPolicy() == MonthEndCompletionPolicy.INDIVIDUAL_ACTOR && eligibleActorIds.size() != 1) {
             throw new IllegalArgumentException("individual-actor tasks must have exactly one eligible actor");
         }
     }
 
-    private static void validateTypeSpecificInvariants(
-            MonthEndTaskType type,
-            UserId subjectEmployeeId,
-            MonthEndCompletionPolicy completionPolicy
-    ) {
+    private static void validateTypeSpecificInvariants(MonthEndTaskType type, UserId subjectEmployeeId) {
         switch (type) {
             case EMPLOYEE_TIME_CHECK, LEISTUNGSNACHWEIS -> {
                 if (subjectEmployeeId != null) {
                     throw new IllegalArgumentException("employee-owned tasks must not reference a subject employee");
-                }
-                if (completionPolicy != MonthEndCompletionPolicy.INDIVIDUAL_ACTOR) {
-                    throw new IllegalArgumentException("employee-owned tasks must use the individual-actor policy");
                 }
             }
             case PROJECT_LEAD_REVIEW -> {
                 if (subjectEmployeeId == null) {
                     throw new IllegalArgumentException("project lead review tasks require a subject employee");
                 }
-                if (completionPolicy != MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR) {
-                    throw new IllegalArgumentException("project lead review tasks must use the shared-actor policy");
-                }
             }
             case ABRECHNUNG -> {
                 if (subjectEmployeeId != null) {
                     throw new IllegalArgumentException("abrechnung tasks must not reference a subject employee");
-                }
-                if (completionPolicy != MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR) {
-                    throw new IllegalArgumentException("abrechnung tasks must use the shared-actor policy");
                 }
             }
             default -> throw new IllegalArgumentException("unsupported task type: " + type);

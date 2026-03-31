@@ -30,8 +30,7 @@ class MonthEndTaskTest {
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
                 projectId,
                 null,
-                Set.of(leadA),
-                MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR
+                Set.of(leadA)
         );
 
         assertThatThrownBy(throwingCallable).isInstanceOf(IllegalArgumentException.class)
@@ -46,8 +45,7 @@ class MonthEndTaskTest {
                 MonthEndTaskType.ABRECHNUNG,
                 projectId,
                 employeeId,
-                Set.of(leadA),
-                MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR
+                Set.of(leadA)
         );
 
         assertThatThrownBy(throwingCallable).isInstanceOf(IllegalArgumentException.class)
@@ -55,19 +53,17 @@ class MonthEndTaskTest {
     }
 
     @Test
-    void create_shouldRejectEmployeeOwnedTaskWithSharedPolicy() {
-        ThrowableAssert.ThrowingCallable throwingCallable = () -> MonthEndTask.create(
+    void create_shouldDeriveCompletionPolicyFromTaskType() {
+        MonthEndTask task = MonthEndTask.create(
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                 projectId,
                 null,
-                Set.of(employeeId),
-                MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR
+                Set.of(employeeId)
         );
 
-        assertThatThrownBy(throwingCallable).isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("individual-actor policy");
+        assertThat(task.completionPolicy()).isEqualTo(MonthEndCompletionPolicy.INDIVIDUAL_ACTOR);
     }
 
     @Test
@@ -78,8 +74,7 @@ class MonthEndTaskTest {
                 MonthEndTaskType.LEISTUNGSNACHWEIS,
                 projectId,
                 null,
-                Set.of(employeeId, leadA),
-                MonthEndCompletionPolicy.INDIVIDUAL_ACTOR
+                Set.of(employeeId, leadA)
         );
 
         assertThatThrownBy(throwingCallable).isInstanceOf(IllegalArgumentException.class)
@@ -94,8 +89,7 @@ class MonthEndTaskTest {
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
                 projectId,
                 employeeId,
-                Set.of(leadA, leadB),
-                MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR
+                Set.of(leadA, leadB)
         );
 
         MonthEndTask completedTask = task.complete(leadA);
@@ -112,8 +106,7 @@ class MonthEndTaskTest {
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
                 projectId,
                 employeeId,
-                Set.of(leadA, leadB),
-                MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR
+                Set.of(leadA, leadB)
         );
 
         MonthEndTask firstCompletion = task.complete(leadA);
@@ -131,8 +124,7 @@ class MonthEndTaskTest {
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
                 projectId,
                 employeeId,
-                Set.of(leadA, leadB),
-                MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR
+                Set.of(leadA, leadB)
         );
 
         assertThatThrownBy(() -> task.complete(outsider))
