@@ -1,12 +1,14 @@
 package com.gepardec.mega.rest;
 
 import com.gepardec.mega.db.entity.common.AbsenceType;
-import com.gepardec.mega.domain.model.EmployeeState;
 import com.gepardec.mega.db.entity.employee.StepEntryEntity;
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
+import com.gepardec.mega.domain.model.EmployeeState;
 import com.gepardec.mega.domain.model.EmploymentPeriod;
 import com.gepardec.mega.domain.model.EmploymentPeriods;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
+import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GenerateMonthEndTasksUseCase;
 import com.gepardec.mega.rest.api.SyncResource;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EmployeeService;
@@ -14,7 +16,6 @@ import com.gepardec.mega.service.api.EnterpriseSyncService;
 import com.gepardec.mega.service.api.PrematureEmployeeCheckSyncService;
 import com.gepardec.mega.service.api.ProjectSyncService;
 import com.gepardec.mega.service.api.StepEntryService;
-import com.gepardec.mega.service.api.StepEntrySyncService;
 import com.gepardec.mega.zep.ZepService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -60,6 +61,9 @@ class SyncResourceTest {
 
     @InjectMock
     StepEntryService stepEntryService;
+
+    @InjectMock
+    GenerateMonthEndTasksUseCase generateMonthEndTasksUseCase;
 
     @Inject
     SyncResource syncResource;
@@ -257,9 +261,8 @@ class SyncResourceTest {
     @ParameterizedTest
     @MethodSource("parameters")
     void generateStepEntries(YearMonth from, YearMonth to) {
-        StepEntrySyncService stepEntrySyncService = mock(StepEntrySyncService.class);
-        when(stepEntrySyncService.generateStepEntries(any()))
-                .thenReturn(true);
+        when(generateMonthEndTasksUseCase.generate(any()))
+                .thenReturn(new MonthEndTaskGenerationResult(YearMonth.of(2026, 3), 1, 0));
 
         try (Response response = syncResource.generateStepEntries(from, to)) {
             assertThat(Response.Status.OK.getStatusCode()).isEqualTo(response.getStatus());

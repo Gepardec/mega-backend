@@ -1,0 +1,99 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-monthend-task-model-001
+      author: mega
+      changes:
+        - createTable:
+            tableName: monthend_task
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: month_value
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: project_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_monthend_task_project
+                    references: hexagon_projects(id)
+              - column:
+                  name: subject_employee_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_monthend_task_subject_employee
+                    references: hexagon_users(id)
+              - column:
+                  name: completion_policy
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: completed_by
+                  type: uuid
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_monthend_task_completed_by
+                    references: hexagon_users(id)
+        - createIndex:
+            indexName: idx_monthend_task_month
+            tableName: monthend_task
+            columns:
+              - column:
+                  name: month_value
+        - createIndex:
+            indexName: idx_monthend_task_project
+            tableName: monthend_task
+            columns:
+              - column:
+                  name: project_id
+
+  - changeSet:
+      id: hexagon-monthend-task-model-002
+      author: mega
+      changes:
+        - createTable:
+            tableName: monthend_task_eligible_actor
+            columns:
+              - column:
+                  name: task_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_monthend_task_eligible_actor_task
+                    references: monthend_task(id)
+              - column:
+                  name: actor_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_monthend_task_eligible_actor_user
+                    references: hexagon_users(id)
+        - addPrimaryKey:
+            tableName: monthend_task_eligible_actor
+            columnNames: task_id, actor_id
+            constraintName: pk_monthend_task_eligible_actor
+        - createIndex:
+            indexName: idx_monthend_task_eligible_actor_actor
+            tableName: monthend_task_eligible_actor
+            columns:
+              - column:
+                  name: actor_id
