@@ -15,6 +15,7 @@
 - [x] 3.1 Implement month-end generation so it creates unified tasks for employee-owned and project-owned obligations
 - [x] 3.2 Implement a unified month-end task completion use case that delegates completion rules to the aggregate
 - [x] 3.3 Introduce month-end worklist query use cases for employee and project-lead views over open tasks
+- [x] 3.4 Add a scheduled inbound adapter that triggers month-end task generation on the last day of the month
 
 ## 4. Update tests and verification
 
@@ -22,3 +23,4 @@
 - [x] 4.2 Rewrite application tests for generation, completion, and worklist queries using the new model
 - [x] 4.3 Align test names, fixtures, and assertions with the month-end task language
 - [x] 4.4 Run focused month-end compile and test verification for the refactored model
+- [x] 4.5 Add focused unit coverage for the month-end generation scheduler

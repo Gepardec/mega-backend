@@ -14,6 +14,7 @@ This work happens in active development, so the schema can be replaced directly 
 - Support both employee-owned and lead-eligible tasks without duplicating the business fact across multiple aggregates.
 - Make actor-specific checklists query concerns derived from the same task set.
 - Keep generation and completion use cases aligned with the new model.
+- Make scheduled month-end generation on the last day of the month the primary driver of task creation.
 
 **Non-Goals:**
 - Introducing a large `MonthEndProcess` aggregate that owns every task for a month or project.
@@ -108,6 +109,7 @@ This is preferred over multiple check tables because the aggregate is unified an
 
 - Introduce the unified task schema and adapters directly.
 - Implement generation, completion, and query services against the month-end task model.
+- Add a scheduled inbound adapter that triggers generation on the last day of the month.
 - Build month-end tests against the unified task language.
 
 Because this work is not yet production-facing, no backward-compatible migration path is required.

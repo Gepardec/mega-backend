@@ -29,3 +29,9 @@ The system SHALL avoid duplicate month-end tasks when generation is rerun for th
 - **WHEN** month-end generation runs again for a month where the same project obligation already exists
 - **THEN** the system does not create a duplicate `MonthEndTask` for that obligation
 
+### Requirement: Scheduled generation is the primary driver of month-end task creation
+The system SHALL trigger month-end task generation through a scheduled method on the last day of the month for the current month.
+
+#### Scenario: Scheduled trigger runs on month end
+- **WHEN** the calendar reaches the last day of a month
+- **THEN** the scheduler invokes month-end task generation for that current `YearMonth`
