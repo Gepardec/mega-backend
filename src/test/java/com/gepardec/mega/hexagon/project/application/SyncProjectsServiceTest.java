@@ -6,6 +6,7 @@ import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
 import com.gepardec.mega.hexagon.project.domain.port.inbound.ProjectSyncResult;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -75,7 +76,7 @@ class SyncProjectsServiceTest {
 
     @Test
     void sync_preservesProjectIdOnUpdate() {
-        ProjectId existingId = ProjectId.of(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        ProjectId existingId = ProjectId.of(UUID.fromString(Instancio.gen().text().uuid().get()));
         Project existing = Project.reconstitute(existingId, 7, "X", LocalDate.now(), null, false, Set.of());
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(7, "X Updated")));
@@ -140,7 +141,7 @@ class SyncProjectsServiceTest {
         ProjectSyncResult result = service.sync();
 
         assertThat(result.created()).isEqualTo(2);
-        assertThat(result.updated()).isEqualTo(0);
+        assertThat(result.updated()).isZero();
     }
 
     @Test
@@ -153,7 +154,7 @@ class SyncProjectsServiceTest {
 
         ProjectSyncResult result = service.sync();
 
-        assertThat(result.created()).isEqualTo(0);
+        assertThat(result.created()).isZero();
         assertThat(result.updated()).isEqualTo(2);
     }
 

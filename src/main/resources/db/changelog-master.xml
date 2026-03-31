@@ -20,5 +20,6 @@
     <include file="changelog/hexagon/001-user-foundation.yaml" relativeToChangelogFile="true"/>
     <include file="changelog/hexagon/002-project-foundation.yaml" relativeToChangelogFile="true"/>
     <include file="changelog/hexagon/003-project-billability.yaml" relativeToChangelogFile="true"/>
+    <include file="changelog/hexagon/004-monthend-task-model.yaml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
