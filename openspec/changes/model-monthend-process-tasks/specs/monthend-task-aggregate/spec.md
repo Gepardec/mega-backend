@@ -5,14 +5,14 @@ The system SHALL represent each month-end obligation as a `MonthEndTask` that be
 
 #### Scenario: Employee-owned task is modeled as a month-end task
 - **WHEN** the system creates an employee time-booking task for an assigned employee
-- **THEN** it creates one `MonthEndTask` with that employee as the only eligible actor
+- **THEN** it creates one `MonthEndTask` with that employee as both subject employee and only eligible actor
 
 #### Scenario: Lead-eligible task is modeled as a month-end task
 - **WHEN** the system creates a project lead review task for an employee on a project
 - **THEN** it creates one `MonthEndTask` with the fixed set of assigned project leads as eligible actors
 
 ### Requirement: Month-end tasks enforce type-specific invariants
-The system SHALL enforce task-type-specific invariants inside the `MonthEndTask` aggregate. `PROJECT_LEAD_REVIEW` tasks MUST reference a subject employee, `ABRECHNUNG` tasks MUST NOT reference a subject employee, and employee-owned tasks MUST use a single eligible employee actor.
+The system SHALL enforce task-type-specific invariants inside the `MonthEndTask` aggregate. `PROJECT_LEAD_REVIEW` tasks MUST reference a subject employee, `ABRECHNUNG` tasks MUST NOT reference a subject employee, and employee-owned tasks MUST reference the employee they are about while using that same single employee as their eligible actor.
 
 #### Scenario: Project lead review requires a subject employee
 - **WHEN** the system attempts to create a `PROJECT_LEAD_REVIEW` task without a subject employee
@@ -20,6 +20,10 @@ The system SHALL enforce task-type-specific invariants inside the `MonthEndTask`
 
 #### Scenario: Abrechnung excludes a subject employee
 - **WHEN** the system attempts to create an `ABRECHNUNG` task with a subject employee
+- **THEN** the aggregate rejects the task as invalid
+
+#### Scenario: Employee-owned task requires its subject employee
+- **WHEN** the system attempts to create an employee-owned task without a subject employee
 - **THEN** the aggregate rejects the task as invalid
 
 ### Requirement: Month-end tasks preserve generation-time actor eligibility

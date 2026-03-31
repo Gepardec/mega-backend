@@ -55,7 +55,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 month,
                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                 project.getId(),
-                null,
+                employee.getId(),
                 Set.of(employee.getId())
         );
         MonthEndTask doneEmployeeTask = MonthEndTask.create(
@@ -63,7 +63,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 month,
                 MonthEndTaskType.LEISTUNGSNACHWEIS,
                 project.getId(),
-                null,
+                employee.getId(),
                 Set.of(employee.getId())
         ).complete(employee.getId());
         MonthEndTask openLeadTask = MonthEndTask.create(

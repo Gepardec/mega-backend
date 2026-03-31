@@ -100,7 +100,7 @@ public class GenerateMonthEndTasksService implements GenerateMonthEndTasksUseCas
                                 month,
                                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                                 project.id(),
-                                null,
+                                assignedUser.id(),
                                 Set.of(assignedUser.id())
                         )
                 );
@@ -114,7 +114,7 @@ public class GenerateMonthEndTasksService implements GenerateMonthEndTasksUseCas
                                     month,
                                     MonthEndTaskType.LEISTUNGSNACHWEIS,
                                     project.id(),
-                                    null,
+                                    assignedUser.id(),
                                     Set.of(assignedUser.id())
                             )
                     );

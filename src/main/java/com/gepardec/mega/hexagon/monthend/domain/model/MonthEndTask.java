@@ -29,7 +29,7 @@ public record MonthEndTask(
         eligibleActorIds = Set.copyOf(eligibleActorIds);
 
         validateCompletionPolicy(eligibleActorIds, type);
-        validateTypeSpecificInvariants(type, subjectEmployeeId);
+        validateTypeSpecificInvariants(type, subjectEmployeeId, eligibleActorIds);
         validateCompletionState(status, completedBy, eligibleActorIds);
     }
 
@@ -120,11 +120,20 @@ public record MonthEndTask(
         }
     }
 
-    private static void validateTypeSpecificInvariants(MonthEndTaskType type, UserId subjectEmployeeId) {
+    private static void validateTypeSpecificInvariants(
+            MonthEndTaskType type,
+            UserId subjectEmployeeId,
+            Set<UserId> eligibleActorIds
+    ) {
         switch (type) {
             case EMPLOYEE_TIME_CHECK, LEISTUNGSNACHWEIS -> {
-                if (subjectEmployeeId != null) {
-                    throw new IllegalArgumentException("employee-owned tasks must not reference a subject employee");
+                if (subjectEmployeeId == null) {
+                    throw new IllegalArgumentException("employee-owned tasks require a subject employee");
+                }
+                if (!eligibleActorIds.contains(subjectEmployeeId)) {
+                    throw new IllegalArgumentException(
+                            "employee-owned tasks must reference their eligible employee actor"
+                    );
                 }
             }
             case PROJECT_LEAD_REVIEW -> {

@@ -41,6 +41,8 @@ Proposed business shape:
 
 This keeps completion consistency where it belongs: on one obligation at a time.
 
+`subjectEmployeeId` means "the employee this task is about". That means it is present for employee self-checks and project-lead reviews, while `ABRECHNUNG` remains the only task type without a subject employee.
+
 Alternative considered:
 - Use multiple write-model aggregate types for different actor groups.
 - Rejected because the core business concept is still one month-end obligation, and splitting the write model would fragment that language.
@@ -52,7 +54,7 @@ The model will keep completion semantics explicit, but attach them to `MonthEndT
 - `INDIVIDUAL_ACTOR`
 - `ANY_ELIGIBLE_ACTOR`
 
-For employee tasks, `eligibleActorIds` contains exactly one employee and the type implies `INDIVIDUAL_ACTOR`.
+For employee tasks, `subjectEmployeeId` identifies the employee the task is about, `eligibleActorIds` contains exactly that same employee, and the type implies `INDIVIDUAL_ACTOR`.
 For project-lead tasks, `eligibleActorIds` contains the fixed set of leads captured at generation time and the type implies `ANY_ELIGIBLE_ACTOR`.
 
 Alternative considered:

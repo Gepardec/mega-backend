@@ -59,7 +59,7 @@ class MonthEndTaskTest {
                 month,
                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                 projectId,
-                null,
+                employeeId,
                 Set.of(employeeId)
         );
 
@@ -73,12 +73,42 @@ class MonthEndTaskTest {
                 month,
                 MonthEndTaskType.LEISTUNGSNACHWEIS,
                 projectId,
-                null,
+                employeeId,
                 Set.of(employeeId, leadA)
         );
 
         assertThatThrownBy(throwingCallable).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("exactly one eligible actor");
+    }
+
+    @Test
+    void create_shouldRejectEmployeeOwnedTaskWithoutSubjectEmployee() {
+        ThrowableAssert.ThrowingCallable throwingCallable = () -> MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectId,
+                null,
+                Set.of(employeeId)
+        );
+
+        assertThatThrownBy(throwingCallable).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("require a subject employee");
+    }
+
+    @Test
+    void create_shouldRejectEmployeeOwnedTaskWhenSubjectDoesNotMatchEligibleActor() {
+        ThrowableAssert.ThrowingCallable throwingCallable = () -> MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectId,
+                employeeId,
+                Set.of(leadA)
+        );
+
+        assertThatThrownBy(throwingCallable).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("eligible employee actor");
     }
 
     @Test
@@ -130,5 +160,27 @@ class MonthEndTaskTest {
         assertThatThrownBy(() -> task.complete(outsider))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("not eligible");
+    }
+
+    @Test
+    void businessKey_shouldDifferentiateEmployeeOwnedTasksByEligibleActor() {
+        MonthEndTask firstTask = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectId,
+                employeeId,
+                Set.of(employeeId)
+        );
+        MonthEndTask secondTask = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectId,
+                leadA,
+                Set.of(leadA)
+        );
+
+        assertThat(firstTask.businessKey()).isNotEqualTo(secondTask.businessKey());
     }
 }

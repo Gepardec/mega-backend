@@ -47,7 +47,7 @@ class MonthEndWorklistServicesTest {
                 month,
                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                 projectId,
-                null,
+                employeeId,
                 Set.of(employeeId)
         );
         when(monthEndTaskRepository.findOpenEmployeeTasks(employeeId, month)).thenReturn(List.of(task));
@@ -59,7 +59,7 @@ class MonthEndWorklistServicesTest {
         assertThat(worklist.tasks()).singleElement().satisfies(item -> {
             assertThat(item.taskId()).isEqualTo(task.id());
             assertThat(item.projectId()).isEqualTo(projectId);
-            assertThat(item.subjectEmployeeId()).isNull();
+            assertThat(item.subjectEmployeeId()).isEqualTo(employeeId);
         });
     }
 
