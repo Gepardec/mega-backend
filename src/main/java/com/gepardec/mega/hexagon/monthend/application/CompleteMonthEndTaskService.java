@@ -29,7 +29,7 @@ public class CompleteMonthEndTaskService implements CompleteMonthEndTaskUseCase 
         MonthEndTask completedTask = task.complete(actorId);
         if (!completedTask.equals(task)) {
             monthEndTaskRepository.save(completedTask);
-            Log.infof("[MonthEnd] Task %s completed by actor %s", taskId.value(), actorId.value());
+            Log.infof("Task %s completed by actor %s", taskId.value(), actorId.value());
         }
 
         return completedTask;

@@ -25,10 +25,10 @@ public class MonthEndTaskGenerationScheduler {
     )
     void generateMonthEndTasks() {
         YearMonth month = YearMonth.now();
-        Log.infof("[MonthEndScheduler] Starting scheduled month-end task generation for %s", month);
+        Log.infof("Starting scheduled month-end task generation for %s", month);
 
         MonthEndTaskGenerationResult result = generateMonthEndTasksUseCase.generate(month);
-        Log.infof("[MonthEndScheduler] Scheduled month-end task generation finished for %s: created=%d skipped=%d",
+        Log.infof("Scheduled month-end task generation finished for %s: created=%d skipped=%d",
                 result.month(), result.created(), result.skipped());
     }
 }

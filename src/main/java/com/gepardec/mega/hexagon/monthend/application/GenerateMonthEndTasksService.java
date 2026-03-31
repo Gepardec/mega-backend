@@ -55,7 +55,7 @@ public class GenerateMonthEndTasksService implements GenerateMonthEndTasksUseCas
     @Override
     public MonthEndTaskGenerationResult generate(YearMonth month) {
         Objects.requireNonNull(month, "month must not be null");
-        Log.infof("[MonthEnd] Generating month-end tasks for %s", month);
+        Log.infof("Generating month-end tasks for %s", month);
 
         Set<MonthEndTaskKey> existingKeys = monthEndTaskRepository.findByMonth(month).stream()
                 .map(MonthEndTask::businessKey)
@@ -154,7 +154,7 @@ public class GenerateMonthEndTasksService implements GenerateMonthEndTasksUseCas
 
         monthEndTaskRepository.saveAll(tasksToCreate);
 
-        Log.infof("[MonthEnd] Generation finished for %s: created=%d skipped=%d",
+        Log.infof("Generation finished for %s: created=%d skipped=%d",
                 month, tasksToCreate.size(), skipped);
         return new MonthEndTaskGenerationResult(month, tasksToCreate.size(), skipped);
     }
