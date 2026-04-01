@@ -1,14 +1,18 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.adapter.outbound.MonthEndTaskRepositoryAdapter;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistItem;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.CompleteMonthEndTaskUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GenerateMonthEndTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetEmployeeMonthEndWorklistUseCase;
+import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.project.adapter.outbound.ProjectRepositoryAdapter;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
@@ -40,6 +44,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -60,6 +65,9 @@ class MonthEndIT {
 
     @Inject
     GetProjectLeadMonthEndWorklistUseCase getProjectLeadMonthEndWorklistUseCase;
+
+    @Inject
+    GetMonthEndStatusOverviewUseCase getMonthEndStatusOverviewUseCase;
 
     @Inject
     UserRepositoryAdapter userRepositoryAdapter;
@@ -169,6 +177,86 @@ class MonthEndIT {
                     assertThat(task.projectId()).isEqualTo(project.getId());
                     assertThat(task.subjectEmployeeId()).isNull();
                 });
+    }
+
+    @Test
+    void monthEndFlow_shouldKeepCompletedEmployeeTaskVisibleInStatusOverviewWhileWorklistStaysOpenOnly() {
+        User employee = user("employee-overview", Set.of(Role.EMPLOYEE));
+        User lead = user("lead-overview", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        Project project = project(712, Set.of(lead.getId()));
+        persistFixture(List.of(employee, lead), project, Set.of(employee.getZepProfile().username()));
+
+        generateMonthEndTasksUseCase.generate(MONTH);
+
+        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+        MonthEndWorklistItem employeeTimeCheck = employeeWorklist.tasks().stream()
+                .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
+                .findFirst()
+                .orElseThrow();
+
+        completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.getId());
+
+        MonthEndStatusOverview statusOverview = getMonthEndStatusOverviewUseCase.getOverview(employee.getId(), MONTH);
+        MonthEndWorklist updatedWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+
+        assertThat(statusOverview.entries())
+                .extracting(MonthEndStatusOverviewItem::type, MonthEndStatusOverviewItem::status)
+                .containsExactlyInAnyOrder(
+                        tuple(MonthEndTaskType.EMPLOYEE_TIME_CHECK, MonthEndTaskStatus.DONE),
+                        tuple(MonthEndTaskType.LEISTUNGSNACHWEIS, MonthEndTaskStatus.OPEN)
+                );
+        assertThat(statusOverview.entries())
+                .filteredOn(item -> item.taskId().equals(employeeTimeCheck.taskId()))
+                .singleElement()
+                .satisfies(item -> assertThat(item.completedBy()).isEqualTo(employee.getId()));
+        assertThat(updatedWorklist.tasks())
+                .extracting(MonthEndWorklistItem::type)
+                .containsExactly(MonthEndTaskType.LEISTUNGSNACHWEIS);
+    }
+
+    @Test
+    void monthEndFlow_shouldKeepCompletedSharedLeadTaskVisibleInStatusOverviewForEligibleLeads() {
+        User employee = user("employee-shared", Set.of(Role.EMPLOYEE));
+        User leadA = user("lead-shared-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        User leadB = user("lead-shared-b", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        Project project = project(713, Set.of(leadA.getId(), leadB.getId()));
+        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.getZepProfile().username()));
+
+        generateMonthEndTasksUseCase.generate(MONTH);
+
+        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH);
+        MonthEndWorklistItem leadReviewTask = leadAWorklist.tasks().stream()
+                .filter(task -> task.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
+                .findFirst()
+                .orElseThrow();
+
+        completeMonthEndTaskUseCase.complete(leadReviewTask.taskId(), leadA.getId());
+
+        MonthEndStatusOverview leadAOverview = getMonthEndStatusOverviewUseCase.getOverview(leadA.getId(), MONTH);
+        MonthEndStatusOverview leadBOverview = getMonthEndStatusOverviewUseCase.getOverview(leadB.getId(), MONTH);
+        MonthEndWorklist updatedLeadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH);
+        MonthEndWorklist updatedLeadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.getId(), MONTH);
+
+        assertThat(leadAOverview.entries())
+                .filteredOn(item -> item.taskId().equals(leadReviewTask.taskId()))
+                .singleElement()
+                .satisfies(item -> {
+                    assertThat(item.status()).isEqualTo(MonthEndTaskStatus.DONE);
+                    assertThat(item.completedBy()).isEqualTo(leadA.getId());
+                });
+        assertThat(leadBOverview.entries())
+                .filteredOn(item -> item.taskId().equals(leadReviewTask.taskId()))
+                .singleElement()
+                .satisfies(item -> {
+                    assertThat(item.status()).isEqualTo(MonthEndTaskStatus.DONE);
+                    assertThat(item.completedBy()).isEqualTo(leadA.getId());
+                });
+        assertThat(updatedLeadAWorklist.tasks())
+                .extracting(MonthEndWorklistItem::type)
+                .containsExactly(MonthEndTaskType.ABRECHNUNG);
+        assertThat(updatedLeadBWorklist.tasks())
+                .extracting(MonthEndWorklistItem::type)
+                .containsExactly(MonthEndTaskType.ABRECHNUNG);
     }
 
     @Test

@@ -14,6 +14,8 @@ public interface MonthEndTaskRepository {
 
     List<MonthEndTask> findByMonth(YearMonth month);
 
+    List<MonthEndTask> findTasksForActor(UserId actorId, YearMonth month);
+
     List<MonthEndTask> findOpenEmployeeTasks(UserId employeeId, YearMonth month);
 
     List<MonthEndTask> findOpenProjectLeadTasks(UserId projectLeadId, YearMonth month);
