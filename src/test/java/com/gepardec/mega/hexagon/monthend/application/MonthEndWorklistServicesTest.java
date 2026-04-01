@@ -10,7 +10,10 @@ import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.YearMonth;
 import java.util.List;
@@ -18,9 +21,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class MonthEndWorklistServicesTest {
 
     private final YearMonth month = YearMonth.of(2026, 3);
@@ -28,13 +31,14 @@ class MonthEndWorklistServicesTest {
     private final UserId employeeId = UserId.of(UUID.fromString(Instancio.gen().text().uuid().get()));
     private final UserId leadId = UserId.of(UUID.fromString(Instancio.gen().text().uuid().get()));
 
+    @Mock
     private MonthEndTaskRepository monthEndTaskRepository;
+
     private GetEmployeeMonthEndWorklistService getEmployeeMonthEndWorklistService;
     private GetProjectLeadMonthEndWorklistService getProjectLeadMonthEndWorklistService;
 
     @BeforeEach
     void setUp() {
-        monthEndTaskRepository = mock(MonthEndTaskRepository.class);
         MonthEndWorklistMapper mapper = Mappers.getMapper(MonthEndWorklistMapper.class);
         getEmployeeMonthEndWorklistService = new GetEmployeeMonthEndWorklistService(monthEndTaskRepository, mapper);
         getProjectLeadMonthEndWorklistService = new GetProjectLeadMonthEndWorklistService(monthEndTaskRepository, mapper);
