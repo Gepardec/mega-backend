@@ -21,7 +21,6 @@ import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetMonthEndStatusO
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.UpdateMonthEndClarificationUseCase;
-import com.gepardec.mega.hexagon.monthend.domain.port.outbound.AuthenticatedActorEmailPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.project.adapter.outbound.ProjectRepositoryAdapter;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
@@ -104,9 +103,6 @@ class MonthEndIT {
 
     @InjectMock
     ProjectService projectService;
-
-    @InjectMock
-    AuthenticatedActorEmailPort authenticatedActorEmailPort;
 
     @Test
     void monthEndFlow_shouldGenerateAndCompleteEmployeeChecklistItems() {
@@ -212,9 +208,13 @@ class MonthEndIT {
         User lead = user("lead-self-service", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
         Project project = project(714, Set.of(lead.getId()));
         persistFixture(List.of(employee, lead), project, Set.of(employee.getZepProfile().username()));
-        when(authenticatedActorEmailPort.currentEmail()).thenReturn(employee.getEmail().value());
 
-        MonthEndPreparationResult preparation = prematureMonthEndPreparationUseCase.prepare(MONTH, project.getId(), null);
+        MonthEndPreparationResult preparation = prematureMonthEndPreparationUseCase.prepare(
+                MONTH,
+                project.getId(),
+                employee.getId(),
+                null
+        );
 
         assertThat(preparation.ensuredTasks())
                 .extracting(MonthEndTask::type)
@@ -330,11 +330,11 @@ class MonthEndIT {
         User leadB = user("lead-prepared-b", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
         Project project = project(715, Set.of(leadA.getId(), leadB.getId()));
         persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.getZepProfile().username()));
-        when(authenticatedActorEmailPort.currentEmail()).thenReturn(employee.getEmail().value());
 
         MonthEndPreparationResult preparation = prematureMonthEndPreparationUseCase.prepare(
                 MONTH,
                 project.getId(),
+                employee.getId(),
                 "I am leaving before the scheduled run."
         );
 

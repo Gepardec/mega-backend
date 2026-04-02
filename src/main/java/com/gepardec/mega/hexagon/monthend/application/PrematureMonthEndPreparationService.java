@@ -24,7 +24,6 @@ public class PrematureMonthEndPreparationService implements PrematureMonthEndPre
 
     private final MonthEndTaskRepository monthEndTaskRepository;
     private final MonthEndTaskPlanningService monthEndTaskPlanningService;
-    private final CurrentMonthEndActorResolver currentMonthEndActorResolver;
     private final ResolveMonthEndEmployeeProjectContextService contextResolver;
     private final CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
 
@@ -32,23 +31,26 @@ public class PrematureMonthEndPreparationService implements PrematureMonthEndPre
     public PrematureMonthEndPreparationService(
             MonthEndTaskRepository monthEndTaskRepository,
             MonthEndTaskPlanningService monthEndTaskPlanningService,
-            CurrentMonthEndActorResolver currentMonthEndActorResolver,
             ResolveMonthEndEmployeeProjectContextService contextResolver,
             CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase
     ) {
         this.monthEndTaskRepository = monthEndTaskRepository;
         this.monthEndTaskPlanningService = monthEndTaskPlanningService;
-        this.currentMonthEndActorResolver = currentMonthEndActorResolver;
         this.contextResolver = contextResolver;
         this.createMonthEndClarificationUseCase = createMonthEndClarificationUseCase;
     }
 
     @Override
-    public MonthEndPreparationResult prepare(YearMonth month, ProjectId projectId, String clarificationText) {
+    public MonthEndPreparationResult prepare(
+            YearMonth month,
+            ProjectId projectId,
+            UserId actorId,
+            String clarificationText
+    ) {
         Objects.requireNonNull(month, "month must not be null");
         Objects.requireNonNull(projectId, "projectId must not be null");
+        Objects.requireNonNull(actorId, "actorId must not be null");
 
-        UserId actorId = currentMonthEndActorResolver.resolveCurrentActorId();
         MonthEndEmployeeProjectContext context = contextResolver.resolve(month, projectId, actorId);
 
         List<MonthEndTask> ensuredTasks = monthEndTaskPlanningService.planEmployeeOwnedTasks(

@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndTaskNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
@@ -69,7 +70,7 @@ class CompleteMonthEndTaskServiceTest {
         when(monthEndTaskRepository.findById(taskId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.complete(taskId, leadA))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(MonthEndTaskNotFoundException.class)
                 .hasMessageContaining("not found");
     }
 

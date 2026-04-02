@@ -1,5 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.domain.model;
 
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import org.assertj.core.api.ThrowableAssert;
@@ -84,7 +86,7 @@ class MonthEndClarificationTest {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> clarification.editText(leadA, "Trying to edit", createdAt.plusSeconds(1));
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
                 .hasMessageContaining("not allowed");
     }
 
@@ -119,7 +121,7 @@ class MonthEndClarificationTest {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> clarification.resolve(leadA, null, createdAt.plusSeconds(1));
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
                 .hasMessageContaining("not allowed");
     }
 
@@ -131,7 +133,7 @@ class MonthEndClarificationTest {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> clarification.editText(employeeId, "No longer editable", createdAt.plusSeconds(20));
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(MonthEndClarificationClosedException.class)
                 .hasMessageContaining("cannot be edited");
     }
 

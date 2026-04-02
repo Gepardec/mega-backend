@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.CompleteMonthEndClarificationUseCase;
@@ -31,7 +32,9 @@ public class CompleteMonthEndClarificationService implements CompleteMonthEndCla
     @Override
     public MonthEndClarification complete(MonthEndClarificationId clarificationId, UserId actorId, String resolutionNote) {
         MonthEndClarification clarification = monthEndClarificationRepository.findById(clarificationId)
-                .orElseThrow(() -> new IllegalArgumentException("month-end clarification not found: " + clarificationId.value()));
+                .orElseThrow(() -> new MonthEndClarificationNotFoundException(
+                        "month-end clarification not found: " + clarificationId.value()
+                ));
 
         MonthEndClarification completedClarification = clarification.resolve(actorId, resolutionNote, clock.instant());
         if (!completedClarification.equals(clarification)) {

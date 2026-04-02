@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
@@ -76,7 +77,7 @@ class CompleteMonthEndClarificationServiceTest {
         when(clarificationRepository.findById(clarificationId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.complete(clarificationId, leadA, "Handled"))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(MonthEndClarificationNotFoundException.class)
                 .hasMessageContaining("not found");
     }
 
