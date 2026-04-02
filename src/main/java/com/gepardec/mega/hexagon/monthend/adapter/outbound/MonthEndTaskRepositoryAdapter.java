@@ -6,6 +6,7 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
+import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -40,6 +41,19 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
                 .list().stream()
                 .map(mapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public Optional<MonthEndTask> findProjectLeadReviewTask(YearMonth month, ProjectId projectId, UserId subjectEmployeeId) {
+        return panache.find(
+                        "monthValue = ?1 and projectId = ?2 and subjectEmployeeId = ?3 and type = ?4",
+                        toMonthValue(month),
+                        projectId.value(),
+                        subjectEmployeeId.value(),
+                        MonthEndTaskType.PROJECT_LEAD_REVIEW
+                )
+                .firstResultOptional()
+                .map(mapper::toDomain);
     }
 
     @Override

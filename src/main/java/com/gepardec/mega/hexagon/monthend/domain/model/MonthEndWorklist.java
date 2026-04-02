@@ -9,13 +9,16 @@ import java.util.Objects;
 public record MonthEndWorklist(
         UserId actorId,
         YearMonth month,
-        List<MonthEndWorklistItem> tasks
+        List<MonthEndWorklistItem> tasks,
+        List<MonthEndWorklistClarificationItem> clarifications
 ) {
 
     public MonthEndWorklist {
         Objects.requireNonNull(actorId, "actorId must not be null");
         Objects.requireNonNull(month, "month must not be null");
         Objects.requireNonNull(tasks, "tasks must not be null");
+        Objects.requireNonNull(clarifications, "clarifications must not be null");
         tasks = List.copyOf(tasks);
+        clarifications = List.copyOf(clarifications);
     }
 }
