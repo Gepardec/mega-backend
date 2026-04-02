@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
@@ -48,7 +49,6 @@ class PrematureMonthEndPreparationServiceTest {
     private final Map<MonthEndTaskKey, MonthEndTask> storedTasks = new LinkedHashMap<>();
 
     private MonthEndTaskRepository monthEndTaskRepository;
-    private CurrentMonthEndActorResolver currentMonthEndActorResolver;
     private ResolveMonthEndEmployeeProjectContextService contextResolver;
     private CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
     private PrematureMonthEndPreparationService service;
@@ -57,18 +57,15 @@ class PrematureMonthEndPreparationServiceTest {
     void setUp() {
         storedTasks.clear();
         monthEndTaskRepository = mock(MonthEndTaskRepository.class);
-        currentMonthEndActorResolver = mock(CurrentMonthEndActorResolver.class);
         contextResolver = mock(ResolveMonthEndEmployeeProjectContextService.class);
         createMonthEndClarificationUseCase = mock(CreateMonthEndClarificationUseCase.class);
         service = new PrematureMonthEndPreparationService(
                 monthEndTaskRepository,
                 new MonthEndTaskPlanningService(),
-                currentMonthEndActorResolver,
                 contextResolver,
                 createMonthEndClarificationUseCase
         );
 
-        when(currentMonthEndActorResolver.resolveCurrentActorId()).thenReturn(employeeId);
         when(monthEndTaskRepository.findByBusinessKey(any()))
                 .thenAnswer(invocation -> Optional.ofNullable(storedTasks.get(invocation.getArgument(0))));
         doAnswer(invocation -> {
@@ -82,7 +79,7 @@ class PrematureMonthEndPreparationServiceTest {
     void prepare_shouldEnsureOnlyEmployeeTimeCheck_whenProjectIsNonBillable() {
         when(contextResolver.resolve(month, projectId, employeeId)).thenReturn(context(false));
 
-        MonthEndPreparationResult result = service.prepare(month, projectId, null);
+        MonthEndPreparationResult result = service.prepare(month, projectId, employeeId, null);
 
         assertThat(result.ensuredTasks())
                 .singleElement()
@@ -119,7 +116,12 @@ class PrematureMonthEndPreparationServiceTest {
                 "Please review before my absence."
         )).thenReturn(clarification);
 
-        MonthEndPreparationResult result = service.prepare(month, projectId, "Please review before my absence.");
+        MonthEndPreparationResult result = service.prepare(
+                month,
+                projectId,
+                employeeId,
+                "Please review before my absence."
+        );
 
         assertThat(result.ensuredTasks())
                 .extracting(MonthEndTask::type)
@@ -140,8 +142,8 @@ class PrematureMonthEndPreparationServiceTest {
     void prepare_shouldBeIdempotent_whenRepeatedForSameProjectContext() {
         when(contextResolver.resolve(month, projectId, employeeId)).thenReturn(context(true));
 
-        MonthEndPreparationResult first = service.prepare(month, projectId, null);
-        MonthEndPreparationResult second = service.prepare(month, projectId, null);
+        MonthEndPreparationResult first = service.prepare(month, projectId, employeeId, null);
+        MonthEndPreparationResult second = service.prepare(month, projectId, employeeId, null);
 
         assertThat(storedTasks).hasSize(2);
         assertThat(second.ensuredTasks())
@@ -154,10 +156,10 @@ class PrematureMonthEndPreparationServiceTest {
     @Test
     void prepare_shouldReject_whenActorCannotPrepareProjectContext() {
         when(contextResolver.resolve(month, projectId, employeeId))
-                .thenThrow(new IllegalArgumentException("employee is not assigned to project"));
+                .thenThrow(new MonthEndEmployeeNotAssignedToProjectException("employee is not assigned to project"));
 
-        assertThatThrownBy(() -> service.prepare(month, projectId, null))
-                .isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> service.prepare(month, projectId, employeeId, null))
+                .isInstanceOf(MonthEndEmployeeNotAssignedToProjectException.class)
                 .hasMessageContaining("not assigned");
 
         verify(monthEndTaskRepository, never()).save(any(MonthEndTask.class));

@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.UpdateMonthEndClarificationUseCase;
@@ -31,7 +32,9 @@ public class UpdateMonthEndClarificationService implements UpdateMonthEndClarifi
     @Override
     public MonthEndClarification updateText(MonthEndClarificationId clarificationId, UserId actorId, String text) {
         MonthEndClarification clarification = monthEndClarificationRepository.findById(clarificationId)
-                .orElseThrow(() -> new IllegalArgumentException("month-end clarification not found: " + clarificationId.value()));
+                .orElseThrow(() -> new MonthEndClarificationNotFoundException(
+                        "month-end clarification not found: " + clarificationId.value()
+                ));
 
         MonthEndClarification updatedClarification = clarification.editText(actorId, text, clock.instant());
         monthEndClarificationRepository.save(updatedClarification);

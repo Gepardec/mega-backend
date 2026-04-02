@@ -1,5 +1,8 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndProjectContextNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectAssignmentPort;
@@ -82,7 +85,7 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
         when(monthEndProjectSnapshotPort.findAll()).thenReturn(List.of(inactiveProject));
 
         assertThatThrownBy(() -> service.resolve(month, projectId, employeeId))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(MonthEndProjectContextNotFoundException.class)
                 .hasMessageContaining("project context not found");
     }
 
@@ -95,7 +98,7 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
         when(monthEndUserSnapshotPort.findAll()).thenReturn(List.of(inactiveEmployee));
 
         assertThatThrownBy(() -> service.resolve(month, projectId, employeeId))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(MonthEndEmployeeContextNotFoundException.class)
                 .hasMessageContaining("employee context not found");
     }
 
@@ -111,7 +114,7 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
                 .thenReturn(Set.of("someone-else"));
 
         assertThatThrownBy(() -> service.resolve(month, projectId, employeeId))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(MonthEndEmployeeNotAssignedToProjectException.class)
                 .hasMessageContaining("not assigned");
     }
 
