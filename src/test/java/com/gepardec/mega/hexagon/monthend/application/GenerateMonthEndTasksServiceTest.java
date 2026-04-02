@@ -52,7 +52,8 @@ class GenerateMonthEndTasksServiceTest {
                 monthEndTaskRepository,
                 monthEndProjectSnapshotPort,
                 monthEndUserSnapshotPort,
-                monthEndProjectAssignmentPort
+                monthEndProjectAssignmentPort,
+                new MonthEndTaskPlanningService()
         );
     }
 

@@ -2,6 +2,7 @@ package com.gepardec.mega.hexagon.monthend.domain.port.outbound;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskKey;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 
@@ -12,6 +13,8 @@ import java.util.Optional;
 public interface MonthEndTaskRepository {
 
     Optional<MonthEndTask> findById(MonthEndTaskId id);
+
+    Optional<MonthEndTask> findByBusinessKey(MonthEndTaskKey businessKey);
 
     List<MonthEndTask> findByMonth(YearMonth month);
 

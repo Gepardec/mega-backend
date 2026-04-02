@@ -3,9 +3,7 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskKey;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GenerateMonthEndTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectAssignmentPort;
@@ -38,18 +36,21 @@ public class GenerateMonthEndTasksService implements GenerateMonthEndTasksUseCas
     private final MonthEndProjectSnapshotPort monthEndProjectSnapshotPort;
     private final MonthEndUserSnapshotPort monthEndUserSnapshotPort;
     private final MonthEndProjectAssignmentPort monthEndProjectAssignmentPort;
+    private final MonthEndTaskPlanningService monthEndTaskPlanningService;
 
     @Inject
     public GenerateMonthEndTasksService(
             MonthEndTaskRepository monthEndTaskRepository,
             MonthEndProjectSnapshotPort monthEndProjectSnapshotPort,
             MonthEndUserSnapshotPort monthEndUserSnapshotPort,
-            MonthEndProjectAssignmentPort monthEndProjectAssignmentPort
+            MonthEndProjectAssignmentPort monthEndProjectAssignmentPort,
+            MonthEndTaskPlanningService monthEndTaskPlanningService
     ) {
         this.monthEndTaskRepository = monthEndTaskRepository;
         this.monthEndProjectSnapshotPort = monthEndProjectSnapshotPort;
         this.monthEndUserSnapshotPort = monthEndUserSnapshotPort;
         this.monthEndProjectAssignmentPort = monthEndProjectAssignmentPort;
+        this.monthEndTaskPlanningService = monthEndTaskPlanningService;
     }
 
     @Override
@@ -91,64 +92,8 @@ public class GenerateMonthEndTasksService implements GenerateMonthEndTasksUseCas
                     .filter(Objects::nonNull)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
-            for (MonthEndUserSnapshot assignedUser : assignedUsers) {
-                skipped += addTaskIfMissing(
-                        existingKeys,
-                        tasksToCreate,
-                        MonthEndTask.create(
-                                MonthEndTaskId.generate(),
-                                month,
-                                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                                project.id(),
-                                assignedUser.id(),
-                                Set.of(assignedUser.id())
-                        )
-                );
-
-                if (project.billable()) {
-                    skipped += addTaskIfMissing(
-                            existingKeys,
-                            tasksToCreate,
-                            MonthEndTask.create(
-                                    MonthEndTaskId.generate(),
-                                    month,
-                                    MonthEndTaskType.LEISTUNGSNACHWEIS,
-                                    project.id(),
-                                    assignedUser.id(),
-                                    Set.of(assignedUser.id())
-                            )
-                    );
-                }
-
-                if (!activeLeadIds.isEmpty()) {
-                    skipped += addTaskIfMissing(
-                            existingKeys,
-                            tasksToCreate,
-                            MonthEndTask.create(
-                                    MonthEndTaskId.generate(),
-                                    month,
-                                    MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                                    project.id(),
-                                    assignedUser.id(),
-                                    activeLeadIds
-                            )
-                    );
-                }
-            }
-
-            if (project.billable() && !activeLeadIds.isEmpty()) {
-                skipped += addTaskIfMissing(
-                        existingKeys,
-                        tasksToCreate,
-                        MonthEndTask.create(
-                                MonthEndTaskId.generate(),
-                                month,
-                                MonthEndTaskType.ABRECHNUNG,
-                                project.id(),
-                                null,
-                                activeLeadIds
-                        )
-                );
+            for (MonthEndTask candidate : monthEndTaskPlanningService.planProjectTasks(month, project, activeLeadIds, assignedUsers)) {
+                skipped += addTaskIfMissing(existingKeys, tasksToCreate, candidate);
             }
         }
 

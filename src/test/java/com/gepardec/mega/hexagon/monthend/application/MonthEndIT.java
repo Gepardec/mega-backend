@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.adapter.outbound.MonthEndTaskRepositoryAdapter;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -18,7 +19,9 @@ import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GenerateMonthEndTa
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetEmployeeMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
+import com.gepardec.mega.hexagon.monthend.domain.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.UpdateMonthEndClarificationUseCase;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.AuthenticatedActorEmailPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.project.adapter.outbound.ProjectRepositoryAdapter;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
@@ -64,6 +67,9 @@ class MonthEndIT {
     GenerateMonthEndTasksUseCase generateMonthEndTasksUseCase;
 
     @Inject
+    PrematureMonthEndPreparationUseCase prematureMonthEndPreparationUseCase;
+
+    @Inject
     CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase;
 
     @Inject
@@ -98,6 +104,9 @@ class MonthEndIT {
 
     @InjectMock
     ProjectService projectService;
+
+    @InjectMock
+    AuthenticatedActorEmailPort authenticatedActorEmailPort;
 
     @Test
     void monthEndFlow_shouldGenerateAndCompleteEmployeeChecklistItems() {
@@ -198,6 +207,43 @@ class MonthEndIT {
     }
 
     @Test
+    void monthEndFlow_shouldPrepareOwnProjectBeforeScheduledGenerationWithoutDuplicates() {
+        User employee = user("employee-self-service", Set.of(Role.EMPLOYEE));
+        User lead = user("lead-self-service", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        Project project = project(714, Set.of(lead.getId()));
+        persistFixture(List.of(employee, lead), project, Set.of(employee.getZepProfile().username()));
+        when(authenticatedActorEmailPort.currentEmail()).thenReturn(employee.getEmail().value());
+
+        MonthEndPreparationResult preparation = prematureMonthEndPreparationUseCase.prepare(MONTH, project.getId(), null);
+
+        assertThat(preparation.ensuredTasks())
+                .extracting(MonthEndTask::type)
+                .containsExactly(MonthEndTaskType.EMPLOYEE_TIME_CHECK, MonthEndTaskType.LEISTUNGSNACHWEIS);
+
+        MonthEndTaskGenerationResult generationResult = generateMonthEndTasksUseCase.generate(MONTH);
+        List<MonthEndTask> allTasks = monthEndTaskRepositoryAdapter.findByMonth(MONTH);
+
+        assertThat(generationResult.created()).isEqualTo(2);
+        assertThat(generationResult.skipped()).isEqualTo(2);
+        assertThat(allTasks)
+                .extracting(MonthEndTask::type)
+                .containsExactlyInAnyOrder(
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        MonthEndTaskType.LEISTUNGSNACHWEIS,
+                        MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        MonthEndTaskType.ABRECHNUNG
+                );
+        assertThat(allTasks.stream()
+                .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK
+                        || task.type() == MonthEndTaskType.LEISTUNGSNACHWEIS)
+                .map(MonthEndTask::id)
+                .toList())
+                .containsExactlyInAnyOrderElementsOf(
+                        preparation.ensuredTasks().stream().map(MonthEndTask::id).toList()
+                );
+    }
+
+    @Test
     void monthEndFlow_shouldKeepCompletedEmployeeTaskVisibleInStatusOverviewWhileWorklistStaysOpenOnly() {
         User employee = user("employee-overview", Set.of(Role.EMPLOYEE));
         User lead = user("lead-overview", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
@@ -275,6 +321,58 @@ class MonthEndIT {
         assertThat(updatedLeadBWorklist.tasks())
                 .extracting(MonthEndWorklistItem::type)
                 .containsExactly(MonthEndTaskType.ABRECHNUNG);
+    }
+
+    @Test
+    void monthEndFlow_shouldExposeClarificationAndAllowPreparedTasksToCompleteBeforeScheduledGeneration() {
+        User employee = user("employee-prepared", Set.of(Role.EMPLOYEE));
+        User leadA = user("lead-prepared-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        User leadB = user("lead-prepared-b", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        Project project = project(715, Set.of(leadA.getId(), leadB.getId()));
+        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.getZepProfile().username()));
+        when(authenticatedActorEmailPort.currentEmail()).thenReturn(employee.getEmail().value());
+
+        MonthEndPreparationResult preparation = prematureMonthEndPreparationUseCase.prepare(
+                MONTH,
+                project.getId(),
+                "I am leaving before the scheduled run."
+        );
+
+        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH);
+        MonthEndWorklist leadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.getId(), MONTH);
+
+        assertThat(preparation.hasClarification()).isTrue();
+        assertThat(employeeWorklist.tasks())
+                .extracting(MonthEndWorklistItem::type)
+                .containsExactlyInAnyOrder(
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        MonthEndTaskType.LEISTUNGSNACHWEIS
+                );
+        assertThat(employeeWorklist.clarifications()).singleElement()
+                .satisfies(item -> {
+                    assertThat(item.clarificationId()).isEqualTo(preparation.clarification().id());
+                    assertThat(item.text()).isEqualTo("I am leaving before the scheduled run.");
+                });
+        assertThat(leadAWorklist.tasks()).isEmpty();
+        assertThat(leadAWorklist.clarifications()).singleElement()
+                .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(preparation.clarification().id()));
+        assertThat(leadBWorklist.tasks()).isEmpty();
+        assertThat(leadBWorklist.clarifications()).singleElement()
+                .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(preparation.clarification().id()));
+
+        MonthEndWorklistItem preparedEmployeeTimeCheck = employeeWorklist.tasks().stream()
+                .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
+                .findFirst()
+                .orElseThrow();
+        completeMonthEndTaskUseCase.complete(preparedEmployeeTimeCheck.taskId(), employee.getId());
+
+        MonthEndWorklist updatedEmployeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+        assertThat(updatedEmployeeWorklist.tasks())
+                .singleElement()
+                .satisfies(task -> assertThat(task.type()).isEqualTo(MonthEndTaskType.LEISTUNGSNACHWEIS));
+        assertThat(updatedEmployeeWorklist.clarifications()).singleElement()
+                .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(preparation.clarification().id()));
     }
 
     @Test

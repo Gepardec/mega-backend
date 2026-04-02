@@ -2,22 +2,23 @@ package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
-import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
+import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
+import com.gepardec.mega.hexagon.user.domain.model.UserStatus;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,20 +39,20 @@ class CreateMonthEndClarificationServiceTest {
     private final Clock clock = Clock.fixed(Instant.parse("2026-03-31T08:00:00Z"), ZoneOffset.UTC);
 
     private MonthEndClarificationRepository clarificationRepository;
-    private MonthEndTaskRepository monthEndTaskRepository;
+    private ResolveMonthEndEmployeeProjectContextService contextResolver;
     private CreateMonthEndClarificationService service;
 
     @BeforeEach
     void setUp() {
         clarificationRepository = mock(MonthEndClarificationRepository.class);
-        monthEndTaskRepository = mock(MonthEndTaskRepository.class);
-        service = new CreateMonthEndClarificationService(clarificationRepository, monthEndTaskRepository, clock);
+        contextResolver = mock(ResolveMonthEndEmployeeProjectContextService.class);
+        service = new CreateMonthEndClarificationService(clarificationRepository, contextResolver, clock);
     }
 
     @Test
     void create_shouldPersistClarification_whenEmployeeCreatesInValidContext() {
-        when(monthEndTaskRepository.findProjectLeadReviewTask(month, projectId, employeeId))
-                .thenReturn(Optional.of(openLeadReviewTask()));
+        when(contextResolver.resolve(month, projectId, employeeId))
+                .thenReturn(employeeContext(Set.of(leadA, leadB)));
 
         MonthEndClarification result = service.create(
                 month,
@@ -70,16 +71,8 @@ class CreateMonthEndClarificationServiceTest {
 
     @Test
     void create_shouldAllowLeadSideForDualRoleUser_whenRequestedExplicitly() {
-        MonthEndTask contextTask = MonthEndTask.create(
-                MonthEndTaskId.generate(),
-                month,
-                MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                projectId,
-                employeeId,
-                Set.of(employeeId, leadB)
-        );
-        when(monthEndTaskRepository.findProjectLeadReviewTask(month, projectId, employeeId))
-                .thenReturn(Optional.of(contextTask));
+        when(contextResolver.resolve(month, projectId, employeeId))
+                .thenReturn(employeeContext(Set.of(employeeId, leadB)));
 
         MonthEndClarification result = service.create(
                 month,
@@ -95,9 +88,9 @@ class CreateMonthEndClarificationServiceTest {
     }
 
     @Test
-    void create_shouldThrow_whenLeadReviewContextIsMissing() {
-        when(monthEndTaskRepository.findProjectLeadReviewTask(month, projectId, employeeId))
-                .thenReturn(Optional.empty());
+    void create_shouldThrow_whenProjectContextIsMissing() {
+        when(contextResolver.resolve(month, projectId, employeeId))
+                .thenThrow(new IllegalArgumentException("month-end project context not found"));
 
         assertThatThrownBy(() -> service.create(
                 month,
@@ -111,14 +104,24 @@ class CreateMonthEndClarificationServiceTest {
                 .hasMessageContaining("context not found");
     }
 
-    private MonthEndTask openLeadReviewTask() {
-        return MonthEndTask.create(
-                MonthEndTaskId.generate(),
+    private MonthEndEmployeeProjectContext employeeContext(Set<UserId> eligibleLeadIds) {
+        return new MonthEndEmployeeProjectContext(
                 month,
-                MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                projectId,
-                employeeId,
-                Set.of(leadA, leadB)
+                new MonthEndProjectSnapshot(
+                        projectId,
+                        77,
+                        LocalDate.of(2025, 1, 1),
+                        null,
+                        true,
+                        eligibleLeadIds
+                ),
+                new MonthEndUserSnapshot(
+                        employeeId,
+                        "employee",
+                        UserStatus.ACTIVE,
+                        new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))
+                ),
+                eligibleLeadIds
         );
     }
 }

@@ -3,10 +3,8 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.CreateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
-import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import io.quarkus.logging.Log;
@@ -23,17 +21,17 @@ import java.util.Objects;
 public class CreateMonthEndClarificationService implements CreateMonthEndClarificationUseCase {
 
     private final MonthEndClarificationRepository monthEndClarificationRepository;
-    private final MonthEndTaskRepository monthEndTaskRepository;
+    private final ResolveMonthEndEmployeeProjectContextService contextResolver;
     private final Clock clock;
 
     @Inject
     public CreateMonthEndClarificationService(
             MonthEndClarificationRepository monthEndClarificationRepository,
-            MonthEndTaskRepository monthEndTaskRepository,
+            ResolveMonthEndEmployeeProjectContextService contextResolver,
             Clock clock
     ) {
         this.monthEndClarificationRepository = monthEndClarificationRepository;
-        this.monthEndTaskRepository = monthEndTaskRepository;
+        this.contextResolver = contextResolver;
         this.clock = clock;
     }
 
@@ -52,8 +50,7 @@ public class CreateMonthEndClarificationService implements CreateMonthEndClarifi
         Objects.requireNonNull(actorId, "actorId must not be null");
         Objects.requireNonNull(creatorSide, "creatorSide must not be null");
 
-        MonthEndTask leadReviewTask = monthEndTaskRepository.findProjectLeadReviewTask(month, projectId, subjectEmployeeId)
-                .orElseThrow(() -> new IllegalArgumentException("month-end lead review context not found"));
+        MonthEndEmployeeProjectContext context = contextResolver.resolve(month, projectId, subjectEmployeeId);
 
         MonthEndClarification clarification = MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
@@ -62,7 +59,7 @@ public class CreateMonthEndClarificationService implements CreateMonthEndClarifi
                 subjectEmployeeId,
                 actorId,
                 creatorSide,
-                leadReviewTask.eligibleActorIds(),
+                context.eligibleProjectLeadIds(),
                 text,
                 clock.instant()
         );
