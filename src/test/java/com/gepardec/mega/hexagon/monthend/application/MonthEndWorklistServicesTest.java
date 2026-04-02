@@ -1,9 +1,13 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
@@ -15,6 +19,7 @@ import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Set;
@@ -34,14 +39,25 @@ class MonthEndWorklistServicesTest {
     @Mock
     private MonthEndTaskRepository monthEndTaskRepository;
 
+    @Mock
+    private MonthEndClarificationRepository monthEndClarificationRepository;
+
     private GetEmployeeMonthEndWorklistService getEmployeeMonthEndWorklistService;
     private GetProjectLeadMonthEndWorklistService getProjectLeadMonthEndWorklistService;
 
     @BeforeEach
     void setUp() {
         MonthEndWorklistMapper mapper = Mappers.getMapper(MonthEndWorklistMapper.class);
-        getEmployeeMonthEndWorklistService = new GetEmployeeMonthEndWorklistService(monthEndTaskRepository, mapper);
-        getProjectLeadMonthEndWorklistService = new GetProjectLeadMonthEndWorklistService(monthEndTaskRepository, mapper);
+        getEmployeeMonthEndWorklistService = new GetEmployeeMonthEndWorklistService(
+                monthEndTaskRepository,
+                monthEndClarificationRepository,
+                mapper
+        );
+        getProjectLeadMonthEndWorklistService = new GetProjectLeadMonthEndWorklistService(
+                monthEndTaskRepository,
+                monthEndClarificationRepository,
+                mapper
+        );
     }
 
     @Test
@@ -60,6 +76,7 @@ class MonthEndWorklistServicesTest {
 
         assertThat(worklist.actorId()).isEqualTo(employeeId);
         assertThat(worklist.month()).isEqualTo(month);
+        assertThat(worklist.clarifications()).isEmpty();
         assertThat(worklist.tasks()).singleElement().satisfies(item -> {
             assertThat(item.taskId()).isEqualTo(task.id());
             assertThat(item.projectId()).isEqualTo(projectId);
@@ -83,10 +100,39 @@ class MonthEndWorklistServicesTest {
 
         assertThat(worklist.actorId()).isEqualTo(leadId);
         assertThat(worklist.month()).isEqualTo(month);
+        assertThat(worklist.clarifications()).isEmpty();
         assertThat(worklist.tasks()).singleElement().satisfies(item -> {
             assertThat(item.taskId()).isEqualTo(task.id());
             assertThat(item.projectId()).isEqualTo(projectId);
             assertThat(item.subjectEmployeeId()).isEqualTo(employeeId);
+        });
+    }
+
+    @Test
+    void getWorklist_shouldReturnVisibleClarificationsAlongsideTasks() {
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                employeeId,
+                employeeId,
+                MonthEndClarificationSide.EMPLOYEE,
+                Set.of(leadId),
+                "Please review this clarification.",
+                Instant.parse("2026-03-31T08:00:00Z")
+        );
+        when(monthEndTaskRepository.findOpenEmployeeTasks(employeeId, month)).thenReturn(List.of());
+        when(monthEndClarificationRepository.findOpenEmployeeClarifications(employeeId, month))
+                .thenReturn(List.of(clarification));
+
+        MonthEndWorklist worklist = getEmployeeMonthEndWorklistService.getWorklist(employeeId, month);
+
+        assertThat(worklist.tasks()).isEmpty();
+        assertThat(worklist.clarifications()).singleElement().satisfies(item -> {
+            assertThat(item.clarificationId()).isEqualTo(clarification.id());
+            assertThat(item.projectId()).isEqualTo(projectId);
+            assertThat(item.subjectEmployeeId()).isEqualTo(employeeId);
+            assertThat(item.text()).isEqualTo("Please review this clarification.");
         });
     }
 }
