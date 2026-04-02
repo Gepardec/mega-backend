@@ -1,6 +1,8 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.adapter.outbound.MonthEndTaskRepositoryAdapter;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -9,11 +11,15 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistItem;
+import com.gepardec.mega.hexagon.monthend.domain.port.inbound.CompleteMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.CompleteMonthEndTaskUseCase;
+import com.gepardec.mega.hexagon.monthend.domain.port.inbound.CreateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GenerateMonthEndTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetEmployeeMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
+import com.gepardec.mega.hexagon.monthend.domain.port.inbound.UpdateMonthEndClarificationUseCase;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.project.adapter.outbound.ProjectRepositoryAdapter;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
@@ -61,6 +67,15 @@ class MonthEndIT {
     CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase;
 
     @Inject
+    CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
+
+    @Inject
+    UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase;
+
+    @Inject
+    CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase;
+
+    @Inject
     GetEmployeeMonthEndWorklistUseCase getEmployeeMonthEndWorklistUseCase;
 
     @Inject
@@ -77,6 +92,9 @@ class MonthEndIT {
 
     @Inject
     MonthEndTaskRepositoryAdapter monthEndTaskRepositoryAdapter;
+
+    @Inject
+    MonthEndClarificationRepository monthEndClarificationRepository;
 
     @InjectMock
     ProjectService projectService;
@@ -368,6 +386,97 @@ class MonthEndIT {
 
         assertThat(user1LeadWorklist.tasks()).hasSize(5);
         assertThat(user2LeadWorklist.tasks()).hasSize(2);
+        assertThat(user1EmployeeWorklist.clarifications()).isEmpty();
+        assertThat(user1LeadWorklist.clarifications()).isEmpty();
+    }
+
+    @Test
+    void monthEndFlow_shouldShowEmployeeCreatedClarificationUntilResolvedByLead() {
+        User employee = user("employee-clarification", Set.of(Role.EMPLOYEE));
+        User leadA = user("lead-clarification-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        User leadB = user("lead-clarification-b", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        Project project = project(731, Set.of(leadA.getId(), leadB.getId()));
+        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.getZepProfile().username()));
+
+        generateMonthEndTasksUseCase.generate(MONTH);
+
+        MonthEndClarification clarification = createMonthEndClarificationUseCase.create(
+                MONTH,
+                project.getId(),
+                employee.getId(),
+                employee.getId(),
+                MonthEndClarificationSide.EMPLOYEE,
+                "Please verify the remaining booking."
+        );
+
+        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH);
+        MonthEndWorklist leadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.getId(), MONTH);
+
+        assertThat(employeeWorklist.clarifications()).singleElement()
+                .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(clarification.id()));
+        assertThat(leadAWorklist.clarifications()).singleElement()
+                .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(clarification.id()));
+        assertThat(leadBWorklist.clarifications()).singleElement()
+                .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(clarification.id()));
+
+        completeMonthEndClarificationUseCase.complete(clarification.id(), leadA.getId(), "Handled by lead.");
+
+        assertThat(getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH).clarifications()).isEmpty();
+        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH).clarifications()).isEmpty();
+        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.getId(), MONTH).clarifications()).isEmpty();
+        assertThat(monthEndClarificationRepository.findById(clarification.id()))
+                .hasValueSatisfying(saved -> {
+                    assertThat(saved.resolvedBy()).isEqualTo(leadA.getId());
+                    assertThat(saved.resolutionNote()).isEqualTo("Handled by lead.");
+                });
+    }
+
+    @Test
+    void monthEndFlow_shouldAllowLeadSideEditAndEmployeeResolutionWithoutBlockingTaskCompletion() {
+        User employee = user("employee-resolution", Set.of(Role.EMPLOYEE));
+        User leadA = user("lead-resolution-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        User leadB = user("lead-resolution-b", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        Project project = project(732, Set.of(leadA.getId(), leadB.getId()));
+        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.getZepProfile().username()));
+
+        generateMonthEndTasksUseCase.generate(MONTH);
+
+        MonthEndClarification clarification = createMonthEndClarificationUseCase.create(
+                MONTH,
+                project.getId(),
+                employee.getId(),
+                leadA.getId(),
+                MonthEndClarificationSide.PROJECT_LEAD,
+                "Please update the supporting note."
+        );
+
+        MonthEndClarification updatedClarification = updateMonthEndClarificationUseCase.updateText(
+                clarification.id(),
+                leadB.getId(),
+                "Please update the supporting note before close."
+        );
+
+        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+        MonthEndWorklistItem employeeTimeCheck = employeeWorklist.tasks().stream()
+                .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
+                .findFirst()
+                .orElseThrow();
+
+        completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.getId());
+
+        MonthEndWorklist stillOpenClarificationWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+        assertThat(stillOpenClarificationWorklist.clarifications()).singleElement()
+                .satisfies(item -> {
+                    assertThat(item.clarificationId()).isEqualTo(clarification.id());
+                    assertThat(item.text()).isEqualTo("Please update the supporting note before close.");
+                });
+
+        completeMonthEndClarificationUseCase.complete(updatedClarification.id(), employee.getId(), "Updated and resolved.");
+
+        assertThat(getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH).clarifications()).isEmpty();
+        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH).clarifications()).isEmpty();
+        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.getId(), MONTH).clarifications()).isEmpty();
     }
 
     private void persistFixture(List<User> users, Project project, Set<String> assignedUsernames) {

@@ -1,0 +1,128 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-monthend-clarification-model-001
+      author: mega
+      changes:
+        - createTable:
+            tableName: monthend_clarification
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: month_value
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: project_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_monthend_clarification_project
+                    references: hexagon_projects(id)
+              - column:
+                  name: subject_employee_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_monthend_clarification_subject_employee
+                    references: hexagon_users(id)
+              - column:
+                  name: created_by
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_monthend_clarification_created_by
+                    references: hexagon_users(id)
+              - column:
+                  name: creator_side
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: text
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: resolution_note
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: resolved_by
+                  type: uuid
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_monthend_clarification_resolved_by
+                    references: hexagon_users(id)
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: resolved_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_modified_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - createIndex:
+            indexName: idx_monthend_clarification_month_subject
+            tableName: monthend_clarification
+            columns:
+              - column:
+                  name: month_value
+              - column:
+                  name: subject_employee_id
+        - createIndex:
+            indexName: idx_monthend_clarification_project
+            tableName: monthend_clarification
+            columns:
+              - column:
+                  name: project_id
+
+  - changeSet:
+      id: hexagon-monthend-clarification-model-002
+      author: mega
+      changes:
+        - createTable:
+            tableName: monthend_clarification_eligible_lead
+            columns:
+              - column:
+                  name: clarification_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_monthend_clarification_eligible_lead_clarification
+                    references: monthend_clarification(id)
+              - column:
+                  name: lead_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_monthend_clarification_eligible_lead_user
+                    references: hexagon_users(id)
+        - addPrimaryKey:
+            tableName: monthend_clarification_eligible_lead
+            columnNames: clarification_id, lead_id
+            constraintName: pk_monthend_clarification_eligible_lead
+        - createIndex:
+            indexName: idx_monthend_clarification_eligible_lead_actor
+            tableName: monthend_clarification_eligible_lead
+            columns:
+              - column:
+                  name: lead_id
