@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.user.adapter.outbound;
 
+import com.gepardec.mega.hexagon.user.domain.model.Email;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,6 +19,13 @@ public class UserRepositoryAdapter implements UserRepository {
 
     @Inject
     UserMapper mapper;
+
+    @Override
+    public Optional<User> findByEmail(Email email) {
+        return panache.find("email", email.value())
+                .firstResultOptional()
+                .map(mapper::toDomain);
+    }
 
     @Override
     public Optional<User> findByZepUsername(String username) {

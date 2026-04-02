@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-monthend-task-model-003
+      author: mega
+      changes:
+        - createIndex:
+            indexName: uidx_monthend_task_business_key_subject
+            tableName: monthend_task
+            unique: true
+            where: subject_employee_id IS NOT NULL
+            columns:
+              - column:
+                  name: month_value
+              - column:
+                  name: project_id
+              - column:
+                  name: type
+              - column:
+                  name: subject_employee_id
+        - createIndex:
+            indexName: uidx_monthend_task_business_key_subjectless
+            tableName: monthend_task
+            unique: true
+            where: subject_employee_id IS NULL
+            columns:
+              - column:
+                  name: month_value
+              - column:
+                  name: project_id
+              - column:
+                  name: type

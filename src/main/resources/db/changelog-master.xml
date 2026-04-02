@@ -22,5 +22,6 @@
     <include file="changelog/hexagon/003-project-billability.yaml" relativeToChangelogFile="true"/>
     <include file="changelog/hexagon/004-monthend-task-model.yaml" relativeToChangelogFile="true"/>
     <include file="changelog/hexagon/005-monthend-clarification-model.yaml" relativeToChangelogFile="true"/>
+    <include file="changelog/hexagon/006-monthend-task-business-key-uniqueness.yaml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
