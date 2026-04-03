@@ -1,5 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.domain.model;
 
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import org.assertj.core.api.ThrowableAssert;
@@ -33,7 +35,7 @@ class MonthEndTaskTest {
                 Set.of(leadA)
         );
 
-        assertThatThrownBy(throwingCallable).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class)
                 .hasMessageContaining("subject employee");
     }
 
@@ -48,7 +50,7 @@ class MonthEndTaskTest {
                 Set.of(leadA)
         );
 
-        assertThatThrownBy(throwingCallable).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class)
                 .hasMessageContaining("must not reference a subject employee");
     }
 
@@ -77,7 +79,7 @@ class MonthEndTaskTest {
                 Set.of(employeeId, leadA)
         );
 
-        assertThatThrownBy(throwingCallable).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class)
                 .hasMessageContaining("exactly one eligible actor");
     }
 
@@ -92,7 +94,7 @@ class MonthEndTaskTest {
                 Set.of(employeeId)
         );
 
-        assertThatThrownBy(throwingCallable).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class)
                 .hasMessageContaining("require a subject employee");
     }
 
@@ -107,7 +109,7 @@ class MonthEndTaskTest {
                 Set.of(leadA)
         );
 
-        assertThatThrownBy(throwingCallable).isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class)
                 .hasMessageContaining("eligible employee actor");
     }
 
@@ -158,7 +160,7 @@ class MonthEndTaskTest {
         );
 
         assertThatThrownBy(() -> task.complete(outsider))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
                 .hasMessageContaining("not eligible");
     }
 

@@ -1,5 +1,8 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndProjectContextNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectAssignmentPort;
@@ -38,7 +41,7 @@ public class ResolveMonthEndEmployeeProjectContextService {
                 .filter(candidate -> candidate.id().equals(projectId))
                 .filter(candidate -> candidate.isActiveIn(month))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new MonthEndProjectContextNotFoundException(
                         "month-end project context not found for project %s in %s".formatted(projectId.value(), month)
                 ));
 
@@ -52,13 +55,13 @@ public class ResolveMonthEndEmployeeProjectContextService {
 
         MonthEndUserSnapshot subjectEmployee = activeUsersById.get(subjectEmployeeId);
         if (subjectEmployee == null) {
-            throw new IllegalArgumentException(
+            throw new MonthEndEmployeeContextNotFoundException(
                     "month-end employee context not found for employee %s in %s".formatted(subjectEmployeeId.value(), month)
             );
         }
 
         if (!monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month).contains(subjectEmployee.zepUsername())) {
-            throw new IllegalArgumentException(
+            throw new MonthEndEmployeeNotAssignedToProjectException(
                     "employee %s is not assigned to project %s in %s"
                             .formatted(subjectEmployeeId.value(), projectId.value(), month)
             );
