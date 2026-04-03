@@ -280,10 +280,17 @@ paths:
 components:
   securitySchemes:
     bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: Authenticated employee or project-lead bearer token.
+      type: oauth2
+      description: Authenticated employee or project-lead token obtained from the connected OIDC server.
+      flows:
+        authorizationCode:
+          authorizationUrl: PLACEHOLDER_AUTHORIZATION_URL
+          tokenUrl: PLACEHOLDER_TOKEN_URL
+          scopes:
+            openid: OpenID Connect scope
+            profile: Access to the authenticated user's profile claims
+            email: Access to the authenticated user's email claim
+            microprofile-jwt: Access token scope used by the application
     mega-cron:
       type: oauth2
       description: Internal operational OAuth2 client-credentials token for month-end generation.
