@@ -1,6 +1,5 @@
 package com.gepardec.mega.rest.impl;
 
-import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GenerateMonthEndTasksUseCase;
 import com.gepardec.mega.rest.api.SyncResource;
 import com.gepardec.mega.rest.model.EmployeeDto;
 import com.gepardec.mega.service.api.EnterpriseSyncService;
@@ -39,9 +38,6 @@ public class SyncResourceImpl implements SyncResource {
     @Inject
     PrematureEmployeeCheckSyncService prematureEmployeeCheckSyncService;
 
-    @Inject
-    GenerateMonthEndTasksUseCase generateMonthEndTasksUseCase;
-
     @Override
     public Response syncEmployees() {
         syncService.syncEmployees();
@@ -60,8 +56,7 @@ public class SyncResourceImpl implements SyncResource {
 
     @Override
     public Response generateStepEntries(YearMonth from, YearMonth to) {
-        return Response.ok(generateMonthEndTasksUseCase.generate(from == null ? YearMonth.now() : from)).build();
-//        return syncFromTo(stepEntrySyncService::generateStepEntries, from, to);
+        return syncFromTo(stepEntrySyncService::generateStepEntries, from, to);
     }
 
     @Override
