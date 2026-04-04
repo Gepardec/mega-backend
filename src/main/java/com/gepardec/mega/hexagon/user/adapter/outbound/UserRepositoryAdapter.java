@@ -2,6 +2,7 @@ package com.gepardec.mega.hexagon.user.adapter.outbound;
 
 import com.gepardec.mega.hexagon.user.domain.model.Email;
 import com.gepardec.mega.hexagon.user.domain.model.User;
+import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -9,6 +10,9 @@ import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 @Transactional
@@ -37,6 +41,20 @@ public class UserRepositoryAdapter implements UserRepository {
     @Override
     public List<User> findAll() {
         return panache.listAll().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<User> findByIds(Set<UserId> userIds) {
+        if (userIds.isEmpty()) {
+            return List.of();
+        }
+
+        Set<UUID> ids = userIds.stream()
+                .map(UserId::value)
+                .collect(Collectors.toSet());
+        return panache.list("id in ?1", ids).stream()
                 .map(mapper::toDomain)
                 .toList();
     }

@@ -77,6 +77,7 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
         MonthEndProjectSnapshot inactiveProject = new MonthEndProjectSnapshot(
                 projectId,
                 77,
+                "Project-77",
                 LocalDate.of(2025, 1, 1),
                 LocalDate.of(2026, 2, 28),
                 true,
@@ -122,6 +123,7 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
         return new MonthEndProjectSnapshot(
                 projectId,
                 77,
+                "Project-77",
                 LocalDate.of(2025, 1, 1),
                 null,
                 true,
@@ -132,6 +134,7 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
     private MonthEndUserSnapshot activeUser(UserId userId, String username) {
         return new MonthEndUserSnapshot(
                 userId,
+                username + " User",
                 username,
                 UserStatus.ACTIVE,
                 new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))
@@ -141,6 +144,7 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
     private MonthEndUserSnapshot inactiveUser(UserId userId, String username) {
         return new MonthEndUserSnapshot(
                 userId,
+                username + " User",
                 username,
                 UserStatus.INACTIVE,
                 new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))

@@ -12,6 +12,8 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewProject;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewSubjectEmployee;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
@@ -55,7 +57,9 @@ class MonthEndSharedResourceTest {
 
     private static final YearMonth MONTH = YearMonth.of(2026, 3);
     private static final ProjectId PROJECT_ID = ProjectId.of(Instancio.create(UUID.class));
+    private static final String PROJECT_NAME = "Project Shared";
     private static final UserId EMPLOYEE_ID = UserId.of(Instancio.create(UUID.class));
+    private static final String EMPLOYEE_NAME = "Shared Employee";
     private static final UserId PROJECT_LEAD_ID = UserId.of(Instancio.create(UUID.class));
     private static final MonthEndTaskId TASK_ID = MonthEndTaskId.of(Instancio.create(UUID.class));
     private static final MonthEndClarificationId CLARIFICATION_ID = MonthEndClarificationId.of(Instancio.create(UUID.class));
@@ -94,8 +98,8 @@ class MonthEndSharedResourceTest {
                         TASK_ID,
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                         MonthEndTaskStatus.DONE,
-                        PROJECT_ID,
-                        EMPLOYEE_ID,
+                        new MonthEndStatusOverviewProject(PROJECT_ID, PROJECT_NAME),
+                        new MonthEndStatusOverviewSubjectEmployee(EMPLOYEE_ID, EMPLOYEE_NAME),
                         EMPLOYEE_ID
                 ))
         );
@@ -113,10 +117,46 @@ class MonthEndSharedResourceTest {
         assertThat(response.getMonth()).isEqualTo(MONTH.toString());
         assertThat(response.getEntries()).singleElement().satisfies(entry -> {
             assertThat(entry.getTaskId()).isEqualTo(TASK_ID.value());
-            assertThat(entry.getProjectId()).isEqualTo(PROJECT_ID.value());
+            assertThat(entry.getProject().getId()).isEqualTo(PROJECT_ID.value());
+            assertThat(entry.getProject().getName()).isEqualTo(PROJECT_NAME);
+            assertThat(entry.getSubjectEmployee()).isNotNull();
+            assertThat(entry.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
+            assertThat(entry.getSubjectEmployee().getFullName()).isEqualTo(EMPLOYEE_NAME);
             assertThat(entry.getCompletedBy()).isEqualTo(EMPLOYEE_ID.value());
         });
         verify(getMonthEndStatusOverviewUseCase).getOverview(EMPLOYEE_ID, MONTH);
+    }
+
+    @Test
+    void getMonthEndStatusOverview_shouldOmitSubjectEmployeeForAbrechnungEntry() {
+        allowLegacyRoles(Role.PROJECT_LEAD);
+        when(currentMonthEndRestActorResolver.resolveCurrentActorId()).thenReturn(PROJECT_LEAD_ID);
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                PROJECT_LEAD_ID,
+                MONTH,
+                List.of(new MonthEndStatusOverviewItem(
+                        TASK_ID,
+                        MonthEndTaskType.ABRECHNUNG,
+                        MonthEndTaskStatus.OPEN,
+                        new MonthEndStatusOverviewProject(PROJECT_ID, PROJECT_NAME),
+                        null,
+                        null
+                ))
+        );
+        when(getMonthEndStatusOverviewUseCase.getOverview(PROJECT_LEAD_ID, MONTH)).thenReturn(overview);
+
+        MonthEndStatusOverviewResponse response = given()
+                .accept(ContentType.JSON)
+                .queryParam("month", MONTH.toString())
+                .get("/monthend/status-overview")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(MonthEndStatusOverviewResponse.class);
+
+        assertThat(response.getEntries()).singleElement()
+                .satisfies(entry -> assertThat(entry.getSubjectEmployee()).isNull());
+        verify(getMonthEndStatusOverviewUseCase).getOverview(PROJECT_LEAD_ID, MONTH);
     }
 
     @Test

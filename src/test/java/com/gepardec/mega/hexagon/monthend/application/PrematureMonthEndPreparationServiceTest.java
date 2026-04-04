@@ -172,6 +172,7 @@ class PrematureMonthEndPreparationServiceTest {
                 new MonthEndProjectSnapshot(
                         projectId,
                         91,
+                        "Project-91",
                         LocalDate.of(2025, 1, 1),
                         null,
                         billable,
@@ -179,6 +180,7 @@ class PrematureMonthEndPreparationServiceTest {
                 ),
                 new MonthEndUserSnapshot(
                         employeeId,
+                        "Employee User",
                         "employee",
                         UserStatus.ACTIVE,
                         new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))

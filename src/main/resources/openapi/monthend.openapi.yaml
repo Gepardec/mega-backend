@@ -20,7 +20,7 @@ paths:
       operationId: getEmployeeMonthEndWorklist
       summary: Get the authenticated employee's month-end worklist
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/MonthQueryParameter'
       responses:
@@ -43,7 +43,7 @@ paths:
       operationId: prepareEmployeeMonthEndProject
       summary: Prepare the authenticated employee's month-end project context
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -70,7 +70,7 @@ paths:
       operationId: createEmployeeMonthEndClarification
       summary: Create an employee-side month-end clarification
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -97,7 +97,7 @@ paths:
       operationId: getProjectLeadMonthEndWorklist
       summary: Get the authenticated project lead's month-end worklist
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/MonthQueryParameter'
       responses:
@@ -120,7 +120,7 @@ paths:
       operationId: createProjectLeadMonthEndClarification
       summary: Create a project-lead-side month-end clarification
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -147,7 +147,7 @@ paths:
       operationId: getMonthEndStatusOverview
       summary: Get the authenticated actor's month-end status overview
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/MonthQueryParameter'
       responses:
@@ -170,7 +170,7 @@ paths:
       operationId: completeMonthEndTask
       summary: Complete a month-end task for the authenticated actor
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/TaskIdPathParameter'
       responses:
@@ -195,7 +195,7 @@ paths:
       operationId: updateMonthEndClarificationText
       summary: Update month-end clarification text for the authenticated actor
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/ClarificationIdPathParameter'
       requestBody:
@@ -226,7 +226,7 @@ paths:
       operationId: resolveMonthEndClarification
       summary: Resolve a month-end clarification for the authenticated actor
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/ClarificationIdPathParameter'
       requestBody:
@@ -257,7 +257,7 @@ paths:
       operationId: generateMonthEndTasks
       summary: Generate month-end tasks for a month
       security:
-        - mega-cron: []
+        - mega-cron: [ ]
       requestBody:
         required: true
         content:
@@ -297,7 +297,7 @@ components:
       flows:
         clientCredentials:
           tokenUrl: PLACEHOLDER_TOKEN_URL
-          scopes: {}
+          scopes: { }
   parameters:
     MonthQueryParameter:
       name: month
@@ -464,7 +464,7 @@ components:
         - taskId
         - type
         - status
-        - projectId
+        - project
       properties:
         taskId:
           type: string
@@ -473,17 +473,39 @@ components:
           $ref: '#/components/schemas/MonthEndTaskType'
         status:
           $ref: '#/components/schemas/MonthEndTaskStatus'
-        projectId:
-          type: string
-          format: uuid
-        subjectEmployeeId:
-          type: string
-          format: uuid
+        project:
+          $ref: '#/components/schemas/MonthEndProjectReference'
+        subjectEmployee:
+          $ref: '#/components/schemas/MonthEndSubjectEmployeeReference'
           nullable: true
         completedBy:
           type: string
           format: uuid
           nullable: true
+    MonthEndProjectReference:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    MonthEndSubjectEmployeeReference:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - fullName
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
+          type: string
     MonthEndStatusOverviewResponse:
       type: object
       additionalProperties: false
