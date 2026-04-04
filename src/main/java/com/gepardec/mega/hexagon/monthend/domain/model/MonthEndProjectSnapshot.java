@@ -11,6 +11,7 @@ import java.util.Set;
 public record MonthEndProjectSnapshot(
         ProjectId id,
         int zepId,
+        String name,
         LocalDate startDate,
         LocalDate endDate,
         boolean billable,
@@ -19,6 +20,7 @@ public record MonthEndProjectSnapshot(
 
     public MonthEndProjectSnapshot {
         Objects.requireNonNull(id, "id must not be null");
+        Objects.requireNonNull(name, "name must not be null");
         Objects.requireNonNull(startDate, "startDate must not be null");
         Objects.requireNonNull(leadIds, "leadIds must not be null");
         leadIds = Set.copyOf(leadIds);

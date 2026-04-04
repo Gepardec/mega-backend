@@ -110,6 +110,7 @@ class CreateMonthEndClarificationServiceTest {
                 new MonthEndProjectSnapshot(
                         projectId,
                         77,
+                        "Project-77",
                         LocalDate.of(2025, 1, 1),
                         null,
                         true,
@@ -117,6 +118,7 @@ class CreateMonthEndClarificationServiceTest {
                 ),
                 new MonthEndUserSnapshot(
                         employeeId,
+                        "Employee User",
                         "employee",
                         UserStatus.ACTIVE,
                         new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))

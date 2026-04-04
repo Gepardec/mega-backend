@@ -1,12 +1,18 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndClarificationResponse;
+import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndStatusOverviewResponse;
 import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndWorklistResponse;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewProject;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewSubjectEmployee;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistClarificationItem;
@@ -33,7 +39,9 @@ class MonthEndRestMapperTest {
 
     private final YearMonth month = YearMonth.of(2026, 3);
     private final ProjectId projectId = ProjectId.of(Instancio.create(UUID.class));
+    private final String projectName = "Project Mapper";
     private final UserId employeeId = UserId.of(Instancio.create(UUID.class));
+    private final String employeeName = "Mapper Employee";
     private final UserId leadId = UserId.of(Instancio.create(UUID.class));
 
     @Test
@@ -100,5 +108,53 @@ class MonthEndRestMapperTest {
         assertThat(response.getCreatedAt()).isEqualTo(OffsetDateTime.ofInstant(createdAt, ZoneOffset.UTC));
         assertThat(response.getResolvedAt()).isEqualTo(OffsetDateTime.ofInstant(resolvedAt, ZoneOffset.UTC));
         assertThat(response.getLastModifiedAt()).isEqualTo(OffsetDateTime.ofInstant(resolvedAt, ZoneOffset.UTC));
+    }
+
+    @Test
+    void toResponse_shouldMapStatusOverviewProjectAndSubjectEmployee() {
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                employeeId,
+                month,
+                List.of(new MonthEndStatusOverviewItem(
+                        MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        MonthEndTaskStatus.OPEN,
+                        new MonthEndStatusOverviewProject(projectId, projectName),
+                        new MonthEndStatusOverviewSubjectEmployee(employeeId, employeeName),
+                        null
+                ))
+        );
+
+        MonthEndStatusOverviewResponse response = mapper.toResponse(overview);
+
+        assertThat(response.getMonth()).isEqualTo("2026-03");
+        assertThat(response.getEntries()).singleElement().satisfies(entry -> {
+            assertThat(entry.getProject().getId()).isEqualTo(projectId.value());
+            assertThat(entry.getProject().getName()).isEqualTo(projectName);
+            assertThat(entry.getSubjectEmployee()).isNotNull();
+            assertThat(entry.getSubjectEmployee().getId()).isEqualTo(employeeId.value());
+            assertThat(entry.getSubjectEmployee().getFullName()).isEqualTo(employeeName);
+        });
+    }
+
+    @Test
+    void toResponse_shouldOmitStatusOverviewSubjectEmployeeForAbrechnung() {
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                employeeId,
+                month,
+                List.of(new MonthEndStatusOverviewItem(
+                        MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        MonthEndTaskType.ABRECHNUNG,
+                        MonthEndTaskStatus.OPEN,
+                        new MonthEndStatusOverviewProject(projectId, projectName),
+                        null,
+                        null
+                ))
+        );
+
+        MonthEndStatusOverviewResponse response = mapper.toResponse(overview);
+
+        assertThat(response.getEntries()).singleElement()
+                .satisfies(entry -> assertThat(entry.getSubjectEmployee()).isNull());
     }
 }
