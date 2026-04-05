@@ -275,6 +275,10 @@ class MonthEndIT {
                 .satisfies(item -> {
                     assertThat(item.project().name()).isEqualTo(project.getName());
                     assertThat(item.project().id()).isEqualTo(project.getId());
+                    assertThat(item.subjectEmployee()).isNotNull();
+                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.getId());
+                    assertThat(item.subjectEmployee().fullName())
+                            .isEqualTo("%s %s".formatted(employee.getName().firstname(), employee.getName().lastname()));
                     assertThat(item.completedBy()).isEqualTo(employee.getId());
                 });
         assertThat(updatedWorklist.tasks())
@@ -312,6 +316,10 @@ class MonthEndIT {
                     assertThat(item.status()).isEqualTo(MonthEndTaskStatus.DONE);
                     assertThat(item.project().name()).isEqualTo(project.getName());
                     assertThat(item.project().id()).isEqualTo(project.getId());
+                    assertThat(item.subjectEmployee()).isNotNull();
+                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.getId());
+                    assertThat(item.subjectEmployee().fullName())
+                            .isEqualTo("%s %s".formatted(employee.getName().firstname(), employee.getName().lastname()));
                     assertThat(item.completedBy()).isEqualTo(leadA.getId());
                 });
         assertThat(leadBOverview.entries())
@@ -321,8 +329,20 @@ class MonthEndIT {
                     assertThat(item.status()).isEqualTo(MonthEndTaskStatus.DONE);
                     assertThat(item.project().name()).isEqualTo(project.getName());
                     assertThat(item.project().id()).isEqualTo(project.getId());
+                    assertThat(item.subjectEmployee()).isNotNull();
+                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.getId());
+                    assertThat(item.subjectEmployee().fullName())
+                            .isEqualTo("%s %s".formatted(employee.getName().firstname(), employee.getName().lastname()));
                     assertThat(item.completedBy()).isEqualTo(leadA.getId());
                 });
+        assertThat(leadAOverview.entries())
+                .filteredOn(item -> item.type() == MonthEndTaskType.ABRECHNUNG)
+                .singleElement()
+                .satisfies(item -> assertThat(item.subjectEmployee()).isNull());
+        assertThat(leadBOverview.entries())
+                .filteredOn(item -> item.type() == MonthEndTaskType.ABRECHNUNG)
+                .singleElement()
+                .satisfies(item -> assertThat(item.subjectEmployee()).isNull());
         assertThat(updatedLeadAWorklist.tasks())
                 .extracting(MonthEndWorklistItem::type)
                 .containsExactly(MonthEndTaskType.ABRECHNUNG);

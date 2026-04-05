@@ -475,9 +475,8 @@ components:
           $ref: '#/components/schemas/MonthEndTaskStatus'
         project:
           $ref: '#/components/schemas/MonthEndProjectReference'
-        subjectEmployeeId:
-          type: string
-          format: uuid
+        subjectEmployee:
+          $ref: '#/components/schemas/MonthEndSubjectEmployeeReference'
           nullable: true
         completedBy:
           type: string
@@ -494,6 +493,18 @@ components:
           type: string
           format: uuid
         name:
+          type: string
+    MonthEndSubjectEmployeeReference:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - fullName
+      properties:
+        id:
+          type: string
+          format: uuid
+        fullName:
           type: string
     MonthEndStatusOverviewResponse:
       type: object

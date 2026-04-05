@@ -113,6 +113,7 @@ class MonthEndTaskPlanningServiceTest {
     private MonthEndUserSnapshot activeUser(String username) {
         return new MonthEndUserSnapshot(
                 UserId.of(Instancio.create(UUID.class)),
+                username + " User",
                 username,
                 UserStatus.ACTIVE,
                 new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))

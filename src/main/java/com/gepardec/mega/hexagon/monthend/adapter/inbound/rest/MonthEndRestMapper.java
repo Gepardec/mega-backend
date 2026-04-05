@@ -5,6 +5,7 @@ import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.M
 import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndProjectReference;
 import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndStatusOverviewEntry;
 import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndStatusOverviewResponse;
+import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndSubjectEmployeeReference;
 import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndTaskGenerationResponse;
 import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndTaskResponse;
 import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndWorklistClarification;
@@ -16,6 +17,7 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewProject;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewSubjectEmployee;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
@@ -58,6 +60,8 @@ public interface MonthEndRestMapper {
     MonthEndStatusOverviewEntry toResponse(MonthEndStatusOverviewItem item);
 
     MonthEndProjectReference toResponse(MonthEndStatusOverviewProject project);
+
+    MonthEndSubjectEmployeeReference toResponse(MonthEndStatusOverviewSubjectEmployee subjectEmployee);
 
     default String map(YearMonth month) {
         return month == null ? null : month.toString();

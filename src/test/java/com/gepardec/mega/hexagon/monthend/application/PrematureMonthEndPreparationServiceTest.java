@@ -180,6 +180,7 @@ class PrematureMonthEndPreparationServiceTest {
                 ),
                 new MonthEndUserSnapshot(
                         employeeId,
+                        "Employee User",
                         "employee",
                         UserStatus.ACTIVE,
                         new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))

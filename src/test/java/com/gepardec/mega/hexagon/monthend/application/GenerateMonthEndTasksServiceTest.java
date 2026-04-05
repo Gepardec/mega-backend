@@ -211,6 +211,7 @@ class GenerateMonthEndTasksServiceTest {
     private MonthEndUserSnapshot activeUser(String username, String userId) {
         return new MonthEndUserSnapshot(
                 UserId.of(UUID.fromString(userId)),
+                username + " User",
                 username,
                 UserStatus.ACTIVE,
                 new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))

@@ -134,6 +134,7 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
     private MonthEndUserSnapshot activeUser(UserId userId, String username) {
         return new MonthEndUserSnapshot(
                 userId,
+                username + " User",
                 username,
                 UserStatus.ACTIVE,
                 new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))
@@ -143,6 +144,7 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
     private MonthEndUserSnapshot inactiveUser(UserId userId, String username) {
         return new MonthEndUserSnapshot(
                 userId,
+                username + " User",
                 username,
                 UserStatus.INACTIVE,
                 new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))

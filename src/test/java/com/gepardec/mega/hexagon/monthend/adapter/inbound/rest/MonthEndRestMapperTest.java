@@ -10,6 +10,7 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStat
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewProject;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewSubjectEmployee;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
@@ -40,6 +41,7 @@ class MonthEndRestMapperTest {
     private final ProjectId projectId = ProjectId.of(Instancio.create(UUID.class));
     private final String projectName = "Project Mapper";
     private final UserId employeeId = UserId.of(Instancio.create(UUID.class));
+    private final String employeeName = "Mapper Employee";
     private final UserId leadId = UserId.of(Instancio.create(UUID.class));
 
     @Test
@@ -109,7 +111,7 @@ class MonthEndRestMapperTest {
     }
 
     @Test
-    void toResponse_shouldMapStatusOverviewProjectName() {
+    void toResponse_shouldMapStatusOverviewProjectAndSubjectEmployee() {
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 employeeId,
                 month,
@@ -118,7 +120,7 @@ class MonthEndRestMapperTest {
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                         MonthEndTaskStatus.OPEN,
                         new MonthEndStatusOverviewProject(projectId, projectName),
-                        employeeId,
+                        new MonthEndStatusOverviewSubjectEmployee(employeeId, employeeName),
                         null
                 ))
         );
@@ -129,7 +131,30 @@ class MonthEndRestMapperTest {
         assertThat(response.getEntries()).singleElement().satisfies(entry -> {
             assertThat(entry.getProject().getId()).isEqualTo(projectId.value());
             assertThat(entry.getProject().getName()).isEqualTo(projectName);
-            assertThat(entry.getSubjectEmployeeId()).isEqualTo(employeeId.value());
+            assertThat(entry.getSubjectEmployee()).isNotNull();
+            assertThat(entry.getSubjectEmployee().getId()).isEqualTo(employeeId.value());
+            assertThat(entry.getSubjectEmployee().getFullName()).isEqualTo(employeeName);
         });
+    }
+
+    @Test
+    void toResponse_shouldOmitStatusOverviewSubjectEmployeeForAbrechnung() {
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                employeeId,
+                month,
+                List.of(new MonthEndStatusOverviewItem(
+                        MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        MonthEndTaskType.ABRECHNUNG,
+                        MonthEndTaskStatus.OPEN,
+                        new MonthEndStatusOverviewProject(projectId, projectName),
+                        null,
+                        null
+                ))
+        );
+
+        MonthEndStatusOverviewResponse response = mapper.toResponse(overview);
+
+        assertThat(response.getEntries()).singleElement()
+                .satisfies(entry -> assertThat(entry.getSubjectEmployee()).isNull());
     }
 }

@@ -3,7 +3,9 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewProject;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewSubjectEmployee;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -12,8 +14,14 @@ import org.mapstruct.MappingConstants;
 public interface MonthEndStatusOverviewMapper {
 
     @Mapping(target = "taskId", source = "task.id")
+    @Mapping(target = "type", source = "task.type")
+    @Mapping(target = "status", source = "task.status")
     @Mapping(target = "project", source = "project")
-    MonthEndStatusOverviewItem toItem(MonthEndTask task, MonthEndProjectSnapshot project);
+    @Mapping(target = "subjectEmployee", source = "subjectEmployee")
+    @Mapping(target = "completedBy", source = "task.completedBy")
+    MonthEndStatusOverviewItem toItem(MonthEndTask task, MonthEndProjectSnapshot project, MonthEndUserSnapshot subjectEmployee);
 
     MonthEndStatusOverviewProject toProject(MonthEndProjectSnapshot project);
+
+    MonthEndStatusOverviewSubjectEmployee toSubjectEmployee(MonthEndUserSnapshot subjectEmployee);
 }
