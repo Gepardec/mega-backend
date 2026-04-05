@@ -18,17 +18,18 @@ The system SHALL provide a month-end status overview for a requesting actor and 
 - **THEN** the system still returns that completed shared task in the lead's overview
 
 ### Requirement: Status overview entries expose the context needed for matrix or dashboard rendering
-The system SHALL include the month-end task identity, task type, task status, a project reference object containing the project identifier and project name, and the subject employee reference when present in each overview entry.
+The system SHALL include the month-end task identity, task type, task status, a project reference object containing the project identifier and project name, and a nullable subject employee reference object containing the employee identifier and full name when present in each overview entry.
 
 #### Scenario: Review task entry identifies the employee and named project
 - **WHEN** the overview contains a `PROJECT_LEAD_REVIEW` task
-- **THEN** that overview entry includes both the reviewed employee reference and a project reference object
+- **THEN** that overview entry includes both a subject employee reference object and a project reference object
+- **THEN** the subject employee reference object includes the associated employee identifier and full name
 - **THEN** the project reference object includes the associated project identifier and project name
 
 #### Scenario: Abrechnung entry identifies the named project without a subject employee
 - **WHEN** the overview contains an `ABRECHNUNG` task
 - **THEN** that overview entry includes a project reference object with the associated project identifier and project name
-- **THEN** that overview entry includes no subject employee reference
+- **THEN** that overview entry includes no subject employee reference object
 
 ### Requirement: Completed overview entries retain completion details
 The system SHALL expose the completing actor for `DONE` month-end tasks in the status overview.
