@@ -123,6 +123,7 @@ class MonthEndTaskPlanningServiceTest {
         return new MonthEndProjectSnapshot(
                 ProjectId.of(Instancio.create(UUID.class)),
                 91,
+                "Project-91",
                 LocalDate.of(2025, 1, 1),
                 null,
                 billable,

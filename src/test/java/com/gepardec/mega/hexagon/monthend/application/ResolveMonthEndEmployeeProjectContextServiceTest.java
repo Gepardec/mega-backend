@@ -77,6 +77,7 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
         MonthEndProjectSnapshot inactiveProject = new MonthEndProjectSnapshot(
                 projectId,
                 77,
+                "Project-77",
                 LocalDate.of(2025, 1, 1),
                 LocalDate.of(2026, 2, 28),
                 true,
@@ -122,6 +123,7 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
         return new MonthEndProjectSnapshot(
                 projectId,
                 77,
+                "Project-77",
                 LocalDate.of(2025, 1, 1),
                 null,
                 true,

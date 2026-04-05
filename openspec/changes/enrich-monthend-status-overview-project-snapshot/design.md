@@ -55,16 +55,17 @@ Alternatives considered:
 
 - Add JPA project relationships on month-end entities and join-fetch the project name: rejected because it increases ORM coupling in infrastructure, complicates entity mapping and update flows, and solves a read-model problem by reshaping aggregate persistence.
 
-### Decision: Extend the overview read model and REST contract additively with project display fields
+### Decision: Extend the overview read model and REST contract with a nested project reference object
 
-The month-end status overview entry returned by the application layer will keep the project identifier and add the project name. The shared REST status overview response will expose the same additive field so the UI can render labels without an extra lookup.
+The month-end status overview entry returned by the application layer will expose a small project reference value object that contains the project identifier and project name. The shared REST status overview response will expose the same nested structure so the UI can render labels without an extra lookup while keeping project display data grouped together.
 
-This keeps the change narrowly focused on the client-visible need while preserving compatibility for callers that already use `projectId`.
+This keeps the change narrowly focused on the client-visible need while producing a cleaner contract than two flat project-related fields on the overview entry.
 
 Alternatives considered:
 
 - Replace `projectId` with a nested project object: rejected for now because it broadens the contract more than the current requirement needs.
 - Return only `projectName` without `projectId`: rejected because callers still need the stable project reference.
+- Keep `projectId` and `projectName` as separate flat fields: rejected because the nested project object is clearer and scales better if more project display fields are added later.
 
 ## Risks / Trade-offs
 
@@ -78,8 +79,8 @@ Alternatives considered:
 This is an additive change with no schema migration.
 
 1. Extend the month-end project snapshot read model and port to support bulk lookup and expose `name`.
-2. Enrich status overview entries in the application service using bulk project snapshot reads.
-3. Extend the shared overview entry model in the canonical OpenAPI document and regenerate the REST models.
+2. Enrich status overview entries in the application service using bulk project snapshot reads and a nested project reference value object.
+3. Extend the shared overview entry model in the canonical OpenAPI document with a nested project reference schema and regenerate the REST models.
 4. Update application tests and REST mapper/resource tests for the enriched overview fields.
 
 Rollback strategy:

@@ -110,6 +110,7 @@ class CreateMonthEndClarificationServiceTest {
                 new MonthEndProjectSnapshot(
                         projectId,
                         77,
+                        "Project-77",
                         LocalDate.of(2025, 1, 1),
                         null,
                         true,

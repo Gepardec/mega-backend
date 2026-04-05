@@ -1,19 +1,19 @@
 ## MODIFIED Requirements
 
 ### Requirement: Shared monthend endpoints expose status overview and monthend actions
-The system SHALL provide shared monthend REST endpoints that allow authenticated employee or project-lead actors to retrieve a unified actor-centric status overview, complete monthend tasks, edit open clarification text when they are on the creator side, and resolve clarifications when they are on the resolver side. The shared status overview response SHALL expose project display data needed by the UI, including the project name for each overview entry.
+The system SHALL provide shared monthend REST endpoints that allow authenticated employee or project-lead actors to retrieve a unified actor-centric status overview, complete monthend tasks, edit open clarification text when they are on the creator side, and resolve clarifications when they are on the resolver side. The shared status overview response SHALL expose project display data needed by the UI through a nested project object for each overview entry.
 
 #### Scenario: Employee retrieves unified status overview
 - **WHEN** an authenticated employee requests the shared monthend status overview for a month
 - **THEN** the API returns the actor-centric overview for that employee
 - **THEN** the overview contains both open and completed monthend tasks relevant to that actor
-- **THEN** each overview entry includes the project identifier and project name
+- **THEN** each overview entry includes a nested project object containing the project identifier and project name
 
 #### Scenario: Project lead retrieves unified status overview
 - **WHEN** an authenticated project lead requests the shared monthend status overview for a month
 - **THEN** the API returns the actor-centric overview for that lead
 - **THEN** the overview contains both open and completed monthend tasks relevant to that actor
-- **THEN** each overview entry includes the project identifier and project name
+- **THEN** each overview entry includes a nested project object containing the project identifier and project name
 
 #### Scenario: Eligible actor completes a monthend task
 - **WHEN** an authenticated eligible actor submits a task completion request

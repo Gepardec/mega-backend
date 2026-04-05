@@ -172,6 +172,7 @@ class PrematureMonthEndPreparationServiceTest {
                 new MonthEndProjectSnapshot(
                         projectId,
                         91,
+                        "Project-91",
                         LocalDate.of(2025, 1, 1),
                         null,
                         billable,

@@ -221,6 +221,7 @@ class GenerateMonthEndTasksServiceTest {
         return new MonthEndProjectSnapshot(
                 ProjectId.generate(),
                 zepId,
+                "Project-" + zepId,
                 LocalDate.of(2025, 1, 1),
                 null,
                 billable,
