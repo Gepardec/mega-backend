@@ -1,16 +1,16 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndClarificationResponse;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndEmployeeReference;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndPreparationResponse;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndProjectReference;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndStatusOverviewEntry;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndStatusOverviewResponse;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndTaskGenerationResponse;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndTaskResponse;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndWorklistClarification;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndWorklistResponse;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndWorklistTask;
+import com.gepardec.mega.hexagon.generated.model.MonthEndClarificationResponse;
+import com.gepardec.mega.hexagon.generated.model.MonthEndEmployeeReference;
+import com.gepardec.mega.hexagon.generated.model.MonthEndPreparationResponse;
+import com.gepardec.mega.hexagon.generated.model.MonthEndProjectReference;
+import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewEntry;
+import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
+import com.gepardec.mega.hexagon.generated.model.MonthEndTaskGenerationResponse;
+import com.gepardec.mega.hexagon.generated.model.MonthEndTaskResponse;
+import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistClarification;
+import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistResponse;
+import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployee;

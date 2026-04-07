@@ -1,11 +1,11 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.ApiError;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndClarificationResponse;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndStatusOverviewResponse;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.ResolveClarificationRequest;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.UpdateClarificationTextRequest;
+import com.gepardec.mega.hexagon.generated.model.ApiError;
+import com.gepardec.mega.hexagon.generated.model.MonthEndClarificationResponse;
+import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
+import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequest;
+import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequest;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndTaskNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;

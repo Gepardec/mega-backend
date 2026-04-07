@@ -25,6 +25,13 @@ public class UserRepositoryAdapter implements UserRepository {
     UserMapper mapper;
 
     @Override
+    public Optional<User> findById(UserId userId) {
+        return panache.find("id", userId.value())
+                .firstResultOptional()
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public Optional<User> findByEmail(Email email) {
         return panache.find("email", email.value())
                 .firstResultOptional()
@@ -36,6 +43,17 @@ public class UserRepositoryAdapter implements UserRepository {
         return panache.find("zepUsername", username)
                 .firstResultOptional()
                 .map(mapper::toDomain);
+    }
+
+    @Override
+    public List<User> findByZepUsernames(Set<String> usernames) {
+        if (usernames == null || usernames.isEmpty()) {
+            return List.of();
+        }
+
+        return panache.list("zepUsername in ?1", usernames).stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override

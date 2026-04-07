@@ -2,8 +2,8 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.application.interceptor.MegaRolesAllowed;
 import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.api.MonthEndProjectLeadApi;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.CreateProjectLeadClarificationRequest;
+import com.gepardec.mega.hexagon.generated.api.MonthEndProjectLeadApi;
+import com.gepardec.mega.hexagon.generated.model.CreateProjectLeadClarificationRequest;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
