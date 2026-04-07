@@ -32,7 +32,7 @@ public class GetMonthEndStatusOverviewService implements GetMonthEndStatusOvervi
 
     @Override
     public MonthEndStatusOverview getOverview(UserId actorId, YearMonth month) {
-        List<MonthEndTask> tasks = monthEndTaskRepository.findTasksForActor(actorId, month);
+        List<MonthEndTask> tasks = monthEndTaskRepository.findVisibleTasksForActor(actorId, month);
         if (tasks.isEmpty()) {
             return new MonthEndStatusOverview(actorId, month, List.of());
         }
@@ -43,7 +43,8 @@ public class GetMonthEndStatusOverviewService implements GetMonthEndStatusOvervi
                 .map(task -> monthEndStatusOverviewMapper.toItem(
                         task,
                         snapshotLookup.projectFor(task.projectId()),
-                        snapshotLookup.subjectEmployeeFor(task.subjectEmployeeId())
+                        snapshotLookup.subjectEmployeeFor(task.subjectEmployeeId()),
+                        task.eligibleActorIds().contains(actorId)
                 ))
                 .toList();
         return new MonthEndStatusOverview(actorId, month, entries);

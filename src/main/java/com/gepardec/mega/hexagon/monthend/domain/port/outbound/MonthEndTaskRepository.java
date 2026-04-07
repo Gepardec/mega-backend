@@ -20,7 +20,7 @@ public interface MonthEndTaskRepository {
 
     Optional<MonthEndTask> findProjectLeadReviewTask(YearMonth month, ProjectId projectId, UserId subjectEmployeeId);
 
-    List<MonthEndTask> findTasksForActor(UserId actorId, YearMonth month);
+    List<MonthEndTask> findVisibleTasksForActor(UserId actorId, YearMonth month);
 
     List<MonthEndTask> findOpenEmployeeTasks(UserId employeeId, YearMonth month);
 
