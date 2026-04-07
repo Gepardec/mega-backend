@@ -3,14 +3,21 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
+import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
+import com.gepardec.mega.hexagon.user.domain.model.UserStatus;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +33,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +41,9 @@ class MonthEndWorklistServicesTest {
 
     private final YearMonth month = YearMonth.of(2026, 3);
     private final ProjectId projectId = ProjectId.of(UUID.fromString(Instancio.gen().text().uuid().get()));
+    private final String projectName = "Test Project";
     private final UserId employeeId = UserId.of(UUID.fromString(Instancio.gen().text().uuid().get()));
+    private final String employeeName = "Test Employee";
     private final UserId leadId = UserId.of(UUID.fromString(Instancio.gen().text().uuid().get()));
 
     @Mock
@@ -41,6 +51,12 @@ class MonthEndWorklistServicesTest {
 
     @Mock
     private MonthEndClarificationRepository monthEndClarificationRepository;
+
+    @Mock
+    private MonthEndProjectSnapshotPort monthEndProjectSnapshotPort;
+
+    @Mock
+    private MonthEndUserSnapshotPort monthEndUserSnapshotPort;
 
     private GetEmployeeMonthEndWorklistService getEmployeeMonthEndWorklistService;
     private GetProjectLeadMonthEndWorklistService getProjectLeadMonthEndWorklistService;
@@ -51,11 +67,15 @@ class MonthEndWorklistServicesTest {
         getEmployeeMonthEndWorklistService = new GetEmployeeMonthEndWorklistService(
                 monthEndTaskRepository,
                 monthEndClarificationRepository,
+                monthEndProjectSnapshotPort,
+                monthEndUserSnapshotPort,
                 mapper
         );
         getProjectLeadMonthEndWorklistService = new GetProjectLeadMonthEndWorklistService(
                 monthEndTaskRepository,
                 monthEndClarificationRepository,
+                monthEndProjectSnapshotPort,
+                monthEndUserSnapshotPort,
                 mapper
         );
     }
@@ -71,6 +91,8 @@ class MonthEndWorklistServicesTest {
                 Set.of(employeeId)
         );
         when(monthEndTaskRepository.findOpenEmployeeTasks(employeeId, month)).thenReturn(List.of(task));
+        when(monthEndProjectSnapshotPort.findByIds(any())).thenReturn(List.of(projectSnapshot()));
+        when(monthEndUserSnapshotPort.findByIds(any())).thenReturn(List.of(userSnapshot(employeeId, employeeName)));
 
         MonthEndWorklist worklist = getEmployeeMonthEndWorklistService.getWorklist(employeeId, month);
 
@@ -79,8 +101,10 @@ class MonthEndWorklistServicesTest {
         assertThat(worklist.clarifications()).isEmpty();
         assertThat(worklist.tasks()).singleElement().satisfies(item -> {
             assertThat(item.taskId()).isEqualTo(task.id());
-            assertThat(item.projectId()).isEqualTo(projectId);
-            assertThat(item.subjectEmployeeId()).isEqualTo(employeeId);
+            assertThat(item.project().id()).isEqualTo(projectId);
+            assertThat(item.project().name()).isEqualTo(projectName);
+            assertThat(item.subjectEmployee().id()).isEqualTo(employeeId);
+            assertThat(item.subjectEmployee().fullName()).isEqualTo(employeeName);
         });
     }
 
@@ -95,6 +119,8 @@ class MonthEndWorklistServicesTest {
                 Set.of(leadId)
         );
         when(monthEndTaskRepository.findOpenProjectLeadTasks(leadId, month)).thenReturn(List.of(task));
+        when(monthEndProjectSnapshotPort.findByIds(any())).thenReturn(List.of(projectSnapshot()));
+        when(monthEndUserSnapshotPort.findByIds(any())).thenReturn(List.of(userSnapshot(employeeId, employeeName)));
 
         MonthEndWorklist worklist = getProjectLeadMonthEndWorklistService.getWorklist(leadId, month);
 
@@ -103,8 +129,10 @@ class MonthEndWorklistServicesTest {
         assertThat(worklist.clarifications()).isEmpty();
         assertThat(worklist.tasks()).singleElement().satisfies(item -> {
             assertThat(item.taskId()).isEqualTo(task.id());
-            assertThat(item.projectId()).isEqualTo(projectId);
-            assertThat(item.subjectEmployeeId()).isEqualTo(employeeId);
+            assertThat(item.project().id()).isEqualTo(projectId);
+            assertThat(item.project().name()).isEqualTo(projectName);
+            assertThat(item.subjectEmployee().id()).isEqualTo(employeeId);
+            assertThat(item.subjectEmployee().fullName()).isEqualTo(employeeName);
         });
     }
 
@@ -134,5 +162,27 @@ class MonthEndWorklistServicesTest {
             assertThat(item.subjectEmployeeId()).isEqualTo(employeeId);
             assertThat(item.text()).isEqualTo("Please review this clarification.");
         });
+    }
+
+    private MonthEndProjectSnapshot projectSnapshot() {
+        return new MonthEndProjectSnapshot(
+                projectId,
+                77,
+                projectName,
+                month.atDay(1),
+                null,
+                true,
+                Set.of(leadId)
+        );
+    }
+
+    private MonthEndUserSnapshot userSnapshot(UserId id, String fullName) {
+        return new MonthEndUserSnapshot(
+                id,
+                fullName,
+                "test.user",
+                UserStatus.ACTIVE,
+                new EmploymentPeriods(new EmploymentPeriod(month.atDay(1).minusYears(1), null))
+        );
     }
 }
