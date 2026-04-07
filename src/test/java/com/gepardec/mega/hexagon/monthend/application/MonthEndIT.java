@@ -126,8 +126,8 @@ class MonthEndIT {
                 );
         assertThat(employeeWorklist.tasks())
                 .allSatisfy(task -> {
-                    assertThat(task.projectId()).isEqualTo(project.getId());
-                    assertThat(task.subjectEmployeeId()).isEqualTo(employee.getId());
+                    assertThat(task.project().id()).isEqualTo(project.getId());
+                    assertThat(task.subjectEmployee().id()).isEqualTo(employee.getId());
                 });
 
         MonthEndWorklistItem employeeTimeCheck = employeeWorklist.tasks().stream()
@@ -142,8 +142,8 @@ class MonthEndIT {
                 .singleElement()
                 .satisfies(task -> {
                     assertThat(task.type()).isEqualTo(MonthEndTaskType.LEISTUNGSNACHWEIS);
-                    assertThat(task.projectId()).isEqualTo(project.getId());
-                    assertThat(task.subjectEmployeeId()).isEqualTo(employee.getId());
+                    assertThat(task.project().id()).isEqualTo(project.getId());
+                    assertThat(task.subjectEmployee().id()).isEqualTo(employee.getId());
                 });
     }
 
@@ -190,15 +190,15 @@ class MonthEndIT {
                 .singleElement()
                 .satisfies(task -> {
                     assertThat(task.type()).isEqualTo(MonthEndTaskType.ABRECHNUNG);
-                    assertThat(task.projectId()).isEqualTo(project.getId());
-                    assertThat(task.subjectEmployeeId()).isNull();
+                    assertThat(task.project().id()).isEqualTo(project.getId());
+                    assertThat(task.subjectEmployee()).isNull();
                 });
         assertThat(updatedLeadBWorklist.tasks())
                 .singleElement()
                 .satisfies(task -> {
                     assertThat(task.type()).isEqualTo(MonthEndTaskType.ABRECHNUNG);
-                    assertThat(task.projectId()).isEqualTo(project.getId());
-                    assertThat(task.subjectEmployeeId()).isNull();
+                    assertThat(task.project().id()).isEqualTo(project.getId());
+                    assertThat(task.subjectEmployee()).isNull();
                 });
     }
 
@@ -499,16 +499,16 @@ class MonthEndIT {
         assertThat(user1EmployeeWorklist.tasks()).hasSize(2);
         assertThat(user1EmployeeWorklist.tasks())
                 .allSatisfy(task -> {
-                    assertThat(task.projectId()).isEqualTo(project1.getId());
-                    assertThat(task.subjectEmployeeId()).isEqualTo(user1.getId());
+                    assertThat(task.project().id()).isEqualTo(project1.getId());
+                    assertThat(task.subjectEmployee().id()).isEqualTo(user1.getId());
                 });
 
         assertThat(user2EmployeeWorklist.tasks()).hasSize(4);
         assertThat(user2EmployeeWorklist.tasks())
-                .extracting(MonthEndWorklistItem::projectId)
+                .extracting(task -> task.project().id())
                 .containsExactlyInAnyOrder(project1.getId(), project1.getId(), project2.getId(), project2.getId());
         assertThat(user2EmployeeWorklist.tasks())
-                .allSatisfy(task -> assertThat(task.subjectEmployeeId()).isEqualTo(user2.getId()));
+                .allSatisfy(task -> assertThat(task.subjectEmployee().id()).isEqualTo(user2.getId()));
 
         assertThat(user1LeadWorklist.tasks()).hasSize(5);
         assertThat(user2LeadWorklist.tasks()).hasSize(2);

@@ -8,8 +8,8 @@ public record MonthEndStatusOverviewItem(
         MonthEndTaskId taskId,
         MonthEndTaskType type,
         MonthEndTaskStatus status,
-        MonthEndStatusOverviewProject project,
-        MonthEndStatusOverviewSubjectEmployee subjectEmployee,
+        MonthEndProject project,
+        MonthEndEmployee subjectEmployee,
         UserId completedBy
 ) {
 

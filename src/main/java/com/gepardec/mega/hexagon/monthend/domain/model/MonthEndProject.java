@@ -4,12 +4,12 @@ import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 
 import java.util.Objects;
 
-public record MonthEndStatusOverviewProject(
+public record MonthEndProject(
         ProjectId id,
         String name
 ) {
 
-    public MonthEndStatusOverviewProject {
+    public MonthEndProject {
         Objects.requireNonNull(id, "id must not be null");
         Objects.requireNonNull(name, "name must not be null");
     }

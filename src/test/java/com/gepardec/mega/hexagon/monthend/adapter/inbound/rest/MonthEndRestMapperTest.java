@@ -7,10 +7,10 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployee;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProject;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewProject;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewSubjectEmployee;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
@@ -53,7 +53,7 @@ class MonthEndRestMapperTest {
         MonthEndWorklist worklist = new MonthEndWorklist(
                 employeeId,
                 month,
-                List.of(new MonthEndWorklistItem(taskId, MonthEndTaskType.EMPLOYEE_TIME_CHECK, projectId, employeeId)),
+                List.of(new MonthEndWorklistItem(taskId, MonthEndTaskType.EMPLOYEE_TIME_CHECK, new MonthEndProject(projectId, projectName), new MonthEndEmployee(employeeId, employeeName))),
                 List.of(new MonthEndWorklistClarificationItem(
                         clarificationId,
                         projectId,
@@ -72,8 +72,8 @@ class MonthEndRestMapperTest {
         assertThat(response.getMonth()).isEqualTo("2026-03");
         assertThat(response.getTasks()).singleElement().satisfies(task -> {
             assertThat(task.getTaskId()).isEqualTo(taskId.value());
-            assertThat(task.getProjectId()).isEqualTo(projectId.value());
-            assertThat(task.getSubjectEmployeeId()).isEqualTo(employeeId.value());
+            assertThat(task.getProject().getId()).isEqualTo(projectId.value());
+            assertThat(task.getSubjectEmployee().getId()).isEqualTo(employeeId.value());
         });
         assertThat(response.getClarifications()).singleElement().satisfies(clarification -> {
             assertThat(clarification.getClarificationId()).isEqualTo(clarificationId.value());
@@ -119,8 +119,8 @@ class MonthEndRestMapperTest {
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                         MonthEndTaskStatus.OPEN,
-                        new MonthEndStatusOverviewProject(projectId, projectName),
-                        new MonthEndStatusOverviewSubjectEmployee(employeeId, employeeName),
+                        new MonthEndProject(projectId, projectName),
+                        new MonthEndEmployee(employeeId, employeeName),
                         null
                 ))
         );
@@ -146,7 +146,7 @@ class MonthEndRestMapperTest {
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
                         MonthEndTaskType.ABRECHNUNG,
                         MonthEndTaskStatus.OPEN,
-                        new MonthEndStatusOverviewProject(projectId, projectName),
+                        new MonthEndProject(projectId, projectName),
                         null,
                         null
                 ))

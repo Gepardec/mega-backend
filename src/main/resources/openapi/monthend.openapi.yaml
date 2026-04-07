@@ -387,19 +387,17 @@ components:
       required:
         - taskId
         - type
-        - projectId
+        - project
       properties:
         taskId:
           type: string
           format: uuid
         type:
           $ref: '#/components/schemas/MonthEndTaskType'
-        projectId:
-          type: string
-          format: uuid
-        subjectEmployeeId:
-          type: string
-          format: uuid
+        project:
+          $ref: '#/components/schemas/MonthEndProjectReference'
+        subjectEmployee:
+          $ref: '#/components/schemas/MonthEndEmployeeReference'
           nullable: true
     MonthEndWorklistClarification:
       type: object
@@ -476,7 +474,7 @@ components:
         project:
           $ref: '#/components/schemas/MonthEndProjectReference'
         subjectEmployee:
-          $ref: '#/components/schemas/MonthEndSubjectEmployeeReference'
+          $ref: '#/components/schemas/MonthEndEmployeeReference'
           nullable: true
         completedBy:
           type: string
@@ -494,7 +492,7 @@ components:
           format: uuid
         name:
           type: string
-    MonthEndSubjectEmployeeReference:
+    MonthEndEmployeeReference:
       type: object
       additionalProperties: false
       required:

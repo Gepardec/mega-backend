@@ -10,7 +10,9 @@ import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.P
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployee;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProject;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
@@ -57,7 +59,9 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
 
     private static final YearMonth MONTH = YearMonth.of(2026, 3);
     private static final ProjectId PROJECT_ID = ProjectId.of(Instancio.create(UUID.class));
+    private static final String PROJECT_NAME = "Test Project";
     private static final UserId EMPLOYEE_ID = UserId.of(Instancio.create(UUID.class));
+    private static final String EMPLOYEE_NAME = "Test Employee";
     private static final UserId PROJECT_LEAD_ID = UserId.of(Instancio.create(UUID.class));
     private static final Instant CREATED_AT = Instant.parse("2026-03-20T08:15:00Z");
 
@@ -93,8 +97,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 List.of(new MonthEndWorklistItem(
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        PROJECT_ID,
-                        EMPLOYEE_ID
+                        new MonthEndProject(PROJECT_ID, PROJECT_NAME),
+                        new MonthEndEmployee(EMPLOYEE_ID, EMPLOYEE_NAME)
                 )),
                 List.of(toWorklistItem(employeeClarification("Please review the booking.")))
         );
@@ -111,8 +115,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
 
         assertThat(response.getMonth()).isEqualTo(MONTH.toString());
         assertThat(response.getTasks()).singleElement().satisfies(task -> {
-            assertThat(task.getProjectId()).isEqualTo(PROJECT_ID.value());
-            assertThat(task.getSubjectEmployeeId()).isEqualTo(EMPLOYEE_ID.value());
+            assertThat(task.getProject().getId()).isEqualTo(PROJECT_ID.value());
+            assertThat(task.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
         });
         assertThat(response.getClarifications()).singleElement().satisfies(clarification -> {
             assertThat(clarification.getProjectId()).isEqualTo(PROJECT_ID.value());
@@ -198,8 +202,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 List.of(new MonthEndWorklistItem(
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
                         MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                        PROJECT_ID,
-                        EMPLOYEE_ID
+                        new MonthEndProject(PROJECT_ID, PROJECT_NAME),
+                        new MonthEndEmployee(EMPLOYEE_ID, EMPLOYEE_NAME)
                 )),
                 List.of()
         );
@@ -216,8 +220,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
 
         assertThat(response.getMonth()).isEqualTo(MONTH.toString());
         assertThat(response.getTasks()).singleElement().satisfies(task -> {
-            assertThat(task.getProjectId()).isEqualTo(PROJECT_ID.value());
-            assertThat(task.getSubjectEmployeeId()).isEqualTo(EMPLOYEE_ID.value());
+            assertThat(task.getProject().getId()).isEqualTo(PROJECT_ID.value());
+            assertThat(task.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
         });
         verify(getProjectLeadMonthEndWorklistUseCase).getWorklist(PROJECT_LEAD_ID, MONTH);
     }
