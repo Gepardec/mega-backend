@@ -116,6 +116,14 @@ The system SHALL provide shared monthend REST endpoints that allow authenticated
 - **THEN** the API resolves the clarification through the existing clarification completion flow
 - **THEN** the API returns the resolved clarification state
 
+### Requirement: Work time data is not embedded in the monthend status overview response
+The monthend status overview endpoint SHALL NOT include work time aggregations in its response. Work time per payroll month SHALL be fetched via the dedicated `/worktime` endpoints. The frontend SHALL call the work time endpoints independently to obtain billable/non-billable hour breakdowns alongside the monthend overview.
+
+#### Scenario: Monthend overview response contains no work time fields
+- **WHEN** an authenticated actor requests the monthend status overview
+- **THEN** the response does NOT contain billable hours, non-billable hours, or work time entries
+- **THEN** work time data is available exclusively through the `/worktime/employee/{month}` and `/worktime/projects/{month}` endpoints
+
 ### Requirement: Monthend endpoint access follows employee, project-lead, and ops roles
 The system SHALL secure monthend REST endpoints by endpoint group. Employee-scoped endpoints MUST require the employee role, project-lead-scoped endpoints MUST require the project-lead role, shared actor-scoped endpoints MUST require either employee or project-lead role, and internal generation endpoints MUST require the internal sync or cron role defined for operational endpoints.
 

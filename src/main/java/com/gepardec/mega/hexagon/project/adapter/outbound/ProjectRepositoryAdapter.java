@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.project.adapter.outbound;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
+import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -31,6 +32,16 @@ public class ProjectRepositoryAdapter implements ProjectRepository {
     @Override
     public List<Project> findAll() {
         return panache.listAll().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Project> findAllByLead(UserId leadId) {
+        return panache.find(
+                        "select distinct p from HexagonProjectEntity p join p.leads lead where lead = ?1",
+                        leadId.value()
+                ).list().stream()
                 .map(mapper::toDomain)
                 .toList();
     }

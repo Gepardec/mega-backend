@@ -371,17 +371,34 @@
                 <version>${openapi-generator-maven-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>generate-monthend-rest-api</id>
+                        <id>bundle-root-openapi</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/openapi/monthend.openapi.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/openapi.yaml</inputSpec>
+                            <generatorName>openapi-yaml</generatorName>
+                            <output>${project.build.directory}/generated-sources/openapi-bundle</output>
+                            <generateModelTests>false</generateModelTests>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <addCompileSourceRoot>false</addCompileSourceRoot>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-rest-api</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.build.directory}/generated-sources/openapi-bundle/openapi/openapi.yaml</inputSpec>
                             <generatorName>jaxrs-spec</generatorName>
                             <output>${project.build.directory}/generated-sources/openapi</output>
-                            <apiPackage>com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.api</apiPackage>
-                            <modelPackage>com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model</modelPackage>
+                            <apiPackage>com.gepardec.mega.hexagon.generated.api</apiPackage>
+                            <modelPackage>com.gepardec.mega.hexagon.generated.model</modelPackage>
                             <generateSupportingFiles>false</generateSupportingFiles>
                             <generateModelTests>false</generateModelTests>
                             <generateApiTests>false</generateApiTests>

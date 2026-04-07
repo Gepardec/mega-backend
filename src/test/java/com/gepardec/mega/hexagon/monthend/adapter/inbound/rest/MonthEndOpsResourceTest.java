@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.GenerateMonthEndTasksRequest;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndTaskGenerationResponse;
+import com.gepardec.mega.hexagon.generated.model.GenerateMonthEndTasksRequest;
+import com.gepardec.mega.hexagon.generated.model.MonthEndTaskGenerationResponse;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GenerateMonthEndTasksUseCase;
 import io.quarkus.test.InjectMock;

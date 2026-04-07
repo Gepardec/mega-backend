@@ -1,0 +1,64 @@
+openapi: 3.0.3
+info:
+  title: MEGA Backend API
+  version: 1.0.0
+  description: Spec-first REST API for month-end and worktime flows.
+tags:
+  - name: MonthEndEmployee
+    description: Employee-scoped month-end endpoints
+  - name: MonthEndProjectLead
+    description: Project-lead-scoped month-end endpoints
+  - name: MonthEndShared
+    description: Shared actor-scoped month-end endpoints
+  - name: MonthEndOps
+    description: Internal operational month-end endpoints
+  - name: WorkTimeEmployee
+    description: Employee-scoped work time endpoints
+  - name: WorkTimeProjectLead
+    description: Project-lead-scoped work time endpoints
+paths:
+  /monthend/employee/worklist:
+    $ref: './paths/monthend.yaml#/~1monthend~1employee~1worklist'
+  /monthend/employee/preparations:
+    $ref: './paths/monthend.yaml#/~1monthend~1employee~1preparations'
+  /monthend/employee/clarifications:
+    $ref: './paths/monthend.yaml#/~1monthend~1employee~1clarifications'
+  /monthend/project-lead/worklist:
+    $ref: './paths/monthend.yaml#/~1monthend~1project-lead~1worklist'
+  /monthend/project-lead/clarifications:
+    $ref: './paths/monthend.yaml#/~1monthend~1project-lead~1clarifications'
+  /monthend/status-overview:
+    $ref: './paths/monthend.yaml#/~1monthend~1status-overview'
+  /monthend/tasks/{taskId}/complete:
+    $ref: './paths/monthend.yaml#/~1monthend~1tasks~1{taskId}~1complete'
+  /monthend/clarifications/{clarificationId}/text:
+    $ref: './paths/monthend.yaml#/~1monthend~1clarifications~1{clarificationId}~1text'
+  /monthend/clarifications/{clarificationId}/resolve:
+    $ref: './paths/monthend.yaml#/~1monthend~1clarifications~1{clarificationId}~1resolve'
+  /monthend/ops/generation:
+    $ref: './paths/monthend.yaml#/~1monthend~1ops~1generation'
+  /worktime/employee/{payrollMonth}:
+    $ref: './paths/worktime.yaml#/~1worktime~1employee~1{payrollMonth}'
+  /worktime/projects/{payrollMonth}:
+    $ref: './paths/worktime.yaml#/~1worktime~1projects~1{payrollMonth}'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: oauth2
+      description: Authenticated employee or project-lead token obtained from the connected OIDC server.
+      flows:
+        authorizationCode:
+          authorizationUrl: PLACEHOLDER_AUTHORIZATION_URL
+          tokenUrl: PLACEHOLDER_TOKEN_URL
+          scopes:
+            openid: OpenID Connect scope
+            profile: Access to the authenticated user's profile claims
+            email: Access to the authenticated user's email claim
+            microprofile-jwt: Access token scope used by the application
+    mega-cron:
+      type: oauth2
+      description: Internal operational OAuth2 client-credentials token for month-end generation.
+      flows:
+        clientCredentials:
+          tokenUrl: PLACEHOLDER_TOKEN_URL
+          scopes: { }

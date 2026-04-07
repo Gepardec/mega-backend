@@ -1,0 +1,60 @@
+WorkTimeEmployeeReference:
+  type: object
+  additionalProperties: false
+  required:
+    - id
+    - name
+  properties:
+    id:
+      type: string
+      format: uuid
+    name:
+      type: string
+WorkTimeProjectReference:
+  type: object
+  additionalProperties: false
+  required:
+    - id
+    - name
+  properties:
+    id:
+      type: string
+      format: uuid
+    name:
+      type: string
+WorkTimeEntryResponse:
+  type: object
+  additionalProperties: false
+  required:
+    - employee
+    - project
+    - billableHours
+    - nonBillableHours
+    - employeeMonthTotalHours
+  properties:
+    employee:
+      $ref: '#/WorkTimeEmployeeReference'
+    project:
+      $ref: '#/WorkTimeProjectReference'
+    billableHours:
+      type: number
+      format: double
+    nonBillableHours:
+      type: number
+      format: double
+    employeeMonthTotalHours:
+      type: number
+      format: double
+WorkTimeReportResponse:
+  type: object
+  additionalProperties: false
+  required:
+    - payrollMonth
+    - entries
+  properties:
+    payrollMonth:
+      $ref: './shared.yaml#/MonthValue'
+    entries:
+      type: array
+      items:
+        $ref: '#/WorkTimeEntryResponse'

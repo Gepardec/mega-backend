@@ -1,0 +1,30 @@
+MonthQueryParameter:
+  name: month
+  in: query
+  required: true
+  description: Month-end context in yyyy-MM format.
+  schema:
+    $ref: '../schemas/shared.yaml#/MonthValue'
+TaskIdPathParameter:
+  name: taskId
+  in: path
+  required: true
+  description: Month-end task identifier.
+  schema:
+    type: string
+    format: uuid
+ClarificationIdPathParameter:
+  name: clarificationId
+  in: path
+  required: true
+  description: Month-end clarification identifier.
+  schema:
+    type: string
+    format: uuid
+PayrollMonthPathParameter:
+  name: payrollMonth
+  in: path
+  required: true
+  description: Payroll month in yyyy-MM format.
+  schema:
+    $ref: '../schemas/shared.yaml#/MonthValue'

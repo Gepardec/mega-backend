@@ -43,4 +43,12 @@ public interface ZepAttendanceRestClient {
             @QueryParam("project_id") Integer projectId,
             @QueryParam("page") int page
     );
+
+    @GET
+    Uni<ZepResponse<List<ZepAttendance>>> getAttendanceForProject(
+            @QueryParam("start_date") String startDate,
+            @QueryParam("end_date") String endDate,
+            @QueryParam("project_id") Integer projectId,
+            @QueryParam("page") int page
+    );
 }

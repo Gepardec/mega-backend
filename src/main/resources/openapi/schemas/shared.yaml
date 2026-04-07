@@ -1,0 +1,11 @@
+MonthValue:
+  type: string
+  pattern: '^\d{4}-(0[1-9]|1[0-2])$'
+  example: '2026-03'
+ApiError:
+  type: object
+  additionalProperties: false
+  properties:
+    message:
+      type: string
+      description: Human-readable error message when available.

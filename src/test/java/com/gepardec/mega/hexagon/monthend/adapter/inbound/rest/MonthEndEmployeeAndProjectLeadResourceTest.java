@@ -1,12 +1,12 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.CreateEmployeeClarificationRequest;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.CreateProjectLeadClarificationRequest;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndClarificationResponse;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndPreparationResponse;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.MonthEndWorklistResponse;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.PrepareMonthEndProjectRequest;
+import com.gepardec.mega.hexagon.generated.model.CreateEmployeeClarificationRequest;
+import com.gepardec.mega.hexagon.generated.model.CreateProjectLeadClarificationRequest;
+import com.gepardec.mega.hexagon.generated.model.MonthEndClarificationResponse;
+import com.gepardec.mega.hexagon.generated.model.MonthEndPreparationResponse;
+import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistResponse;
+import com.gepardec.mega.hexagon.generated.model.PrepareMonthEndProjectRequest;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
