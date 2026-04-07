@@ -10,10 +10,10 @@ import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndTaskNotFoundExcep
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployee;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProject;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewProject;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewSubjectEmployee;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
@@ -98,8 +98,8 @@ class MonthEndSharedResourceTest {
                         TASK_ID,
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                         MonthEndTaskStatus.DONE,
-                        new MonthEndStatusOverviewProject(PROJECT_ID, PROJECT_NAME),
-                        new MonthEndStatusOverviewSubjectEmployee(EMPLOYEE_ID, EMPLOYEE_NAME),
+                        new MonthEndProject(PROJECT_ID, PROJECT_NAME),
+                        new MonthEndEmployee(EMPLOYEE_ID, EMPLOYEE_NAME),
                         EMPLOYEE_ID
                 ))
         );
@@ -138,7 +138,7 @@ class MonthEndSharedResourceTest {
                         TASK_ID,
                         MonthEndTaskType.ABRECHNUNG,
                         MonthEndTaskStatus.OPEN,
-                        new MonthEndStatusOverviewProject(PROJECT_ID, PROJECT_NAME),
+                        new MonthEndProject(PROJECT_ID, PROJECT_NAME),
                         null,
                         null
                 ))

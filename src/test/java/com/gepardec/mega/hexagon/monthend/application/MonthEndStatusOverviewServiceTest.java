@@ -1,10 +1,10 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployee;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProject;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewProject;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewSubjectEmployee;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
@@ -13,9 +13,9 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
+import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
-import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.UserStatus;
 import org.instancio.Instancio;
@@ -112,8 +112,8 @@ class MonthEndStatusOverviewServiceTest {
                 .satisfies(item -> {
                     assertThat(item.type()).isEqualTo(MonthEndTaskType.EMPLOYEE_TIME_CHECK);
                     assertThat(item.status()).isEqualTo(MonthEndTaskStatus.OPEN);
-                    assertThat(item.project()).isEqualTo(new MonthEndStatusOverviewProject(projectId, projectName));
-                    assertThat(item.subjectEmployee()).isEqualTo(new MonthEndStatusOverviewSubjectEmployee(actorId, actorName));
+                    assertThat(item.project()).isEqualTo(new MonthEndProject(projectId, projectName));
+                    assertThat(item.subjectEmployee()).isEqualTo(new MonthEndEmployee(actorId, actorName));
                     assertThat(item.completedBy()).isNull();
                 });
         assertThat(overview.entries())
@@ -122,8 +122,8 @@ class MonthEndStatusOverviewServiceTest {
                 .satisfies(item -> {
                     assertThat(item.type()).isEqualTo(MonthEndTaskType.PROJECT_LEAD_REVIEW);
                     assertThat(item.status()).isEqualTo(MonthEndTaskStatus.DONE);
-                    assertThat(item.project()).isEqualTo(new MonthEndStatusOverviewProject(projectId, projectName));
-                    assertThat(item.subjectEmployee()).isEqualTo(new MonthEndStatusOverviewSubjectEmployee(subjectEmployeeId, subjectEmployeeName));
+                    assertThat(item.project()).isEqualTo(new MonthEndProject(projectId, projectName));
+                    assertThat(item.subjectEmployee()).isEqualTo(new MonthEndEmployee(subjectEmployeeId, subjectEmployeeName));
                     assertThat(item.completedBy()).isEqualTo(leadAId);
                 });
     }
@@ -159,7 +159,7 @@ class MonthEndStatusOverviewServiceTest {
         assertThat(overview.entries()).singleElement()
                 .satisfies(item -> {
                     assertThat(item.type()).isEqualTo(MonthEndTaskType.ABRECHNUNG);
-                    assertThat(item.project()).isEqualTo(new MonthEndStatusOverviewProject(projectId, projectName));
+                    assertThat(item.project()).isEqualTo(new MonthEndProject(projectId, projectName));
                     assertThat(item.subjectEmployee()).isNull();
                     assertThat(item.completedBy()).isNull();
                 });

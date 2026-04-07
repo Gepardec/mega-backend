@@ -4,12 +4,12 @@ import com.gepardec.mega.hexagon.user.domain.model.UserId;
 
 import java.util.Objects;
 
-public record MonthEndStatusOverviewSubjectEmployee(
+public record MonthEndEmployee(
         UserId id,
         String fullName
 ) {
 
-    public MonthEndStatusOverviewSubjectEmployee {
+    public MonthEndEmployee {
         Objects.requireNonNull(id, "id must not be null");
         Objects.requireNonNull(fullName, "fullName must not be null");
     }
