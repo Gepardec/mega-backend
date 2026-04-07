@@ -82,11 +82,11 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
-    public List<MonthEndTask> findTasksForActor(UserId actorId, YearMonth month) {
+    public List<MonthEndTask> findVisibleTasksForActor(UserId actorId, YearMonth month) {
         return panache.find(
                         "select distinct task from MonthEndTaskEntity task " +
-                                "join task.eligibleActorIds actor " +
-                                "where task.monthValue = ?1 and actor = ?2",
+                                "left join task.eligibleActorIds actor " +
+                                "where task.monthValue = ?1 and (actor = ?2 or task.subjectEmployeeId = ?2)",
                         toMonthValue(month),
                         actorId.value()
                 )
