@@ -71,7 +71,7 @@ class MonthEndStatusOverviewServiceTest {
     }
 
     @Test
-    void getOverview_shouldReturnMixedOpenAndDoneTasksForActor() {
+    void getOverview_shouldReturnMixedOpenAndDoneVisibleTasksWithCanCompleteFlags() {
         MonthEndTask openEmployeeTask = MonthEndTask.create(
                 MonthEndTaskId.generate(),
                 month,
@@ -90,7 +90,8 @@ class MonthEndStatusOverviewServiceTest {
                 MonthEndTaskStatus.DONE,
                 leadAId
         );
-        when(monthEndTaskRepository.findTasksForActor(actorId, month)).thenReturn(List.of(openEmployeeTask, completedLeadTask));
+        when(monthEndTaskRepository.findVisibleTasksForActor(actorId, month))
+                .thenReturn(List.of(openEmployeeTask, completedLeadTask));
         when(monthEndProjectSnapshotPort.findByIds(Set.of(projectId)))
                 .thenReturn(List.of(snapshot(projectName)));
         when(monthEndUserSnapshotPort.findByIds(Set.of(actorId, subjectEmployeeId)))
@@ -115,6 +116,7 @@ class MonthEndStatusOverviewServiceTest {
                     assertThat(item.status()).isEqualTo(MonthEndTaskStatus.OPEN);
                     assertThat(item.project()).isEqualTo(new MonthEndProject(projectId, projectName));
                     assertThat(item.subjectEmployee()).isEqualTo(new MonthEndEmployee(actorId, actorName));
+                    assertThat(item.canComplete()).isTrue();
                     assertThat(item.completedBy()).isNull();
                 });
         assertThat(overview.entries())
@@ -125,13 +127,14 @@ class MonthEndStatusOverviewServiceTest {
                     assertThat(item.status()).isEqualTo(MonthEndTaskStatus.DONE);
                     assertThat(item.project()).isEqualTo(new MonthEndProject(projectId, projectName));
                     assertThat(item.subjectEmployee()).isEqualTo(new MonthEndEmployee(subjectEmployeeId, subjectEmployeeName));
+                    assertThat(item.canComplete()).isTrue();
                     assertThat(item.completedBy()).isEqualTo(leadAId);
                 });
     }
 
     @Test
     void getOverview_shouldReturnEmptyEntriesWhenActorHasNoRelevantTasks() {
-        when(monthEndTaskRepository.findTasksForActor(actorId, month)).thenReturn(List.of());
+        when(monthEndTaskRepository.findVisibleTasksForActor(actorId, month)).thenReturn(List.of());
 
         MonthEndStatusOverview overview = getMonthEndStatusOverviewService.getOverview(actorId, month);
 
@@ -151,7 +154,7 @@ class MonthEndStatusOverviewServiceTest {
                 null,
                 Set.of(actorId)
         );
-        when(monthEndTaskRepository.findTasksForActor(actorId, month)).thenReturn(List.of(abrechnungTask));
+        when(monthEndTaskRepository.findVisibleTasksForActor(actorId, month)).thenReturn(List.of(abrechnungTask));
         when(monthEndProjectSnapshotPort.findByIds(Set.of(projectId)))
                 .thenReturn(List.of(snapshot(projectName)));
 
@@ -162,9 +165,40 @@ class MonthEndStatusOverviewServiceTest {
                     assertThat(item.type()).isEqualTo(MonthEndTaskType.ABRECHNUNG);
                     assertThat(item.project()).isEqualTo(new MonthEndProject(projectId, projectName));
                     assertThat(item.subjectEmployee()).isNull();
+                    assertThat(item.canComplete()).isTrue();
                     assertThat(item.completedBy()).isNull();
                 });
         verifyNoInteractions(monthEndUserSnapshotPort);
+    }
+
+    @Test
+    void getOverview_shouldIncludeSubjectOnlyTasksWithCanCompleteFalse() {
+        MonthEndTask subjectOnlyTask = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                projectId,
+                actorId,
+                Set.of(leadAId)
+        );
+        when(monthEndTaskRepository.findVisibleTasksForActor(actorId, month)).thenReturn(List.of(subjectOnlyTask));
+        when(monthEndProjectSnapshotPort.findByIds(Set.of(projectId)))
+                .thenReturn(List.of(snapshot(projectName)));
+        when(monthEndUserSnapshotPort.findByIds(Set.of(actorId)))
+                .thenReturn(List.of(userSnapshot(actorId, actorName, "actor")));
+
+        MonthEndStatusOverview overview = getMonthEndStatusOverviewService.getOverview(actorId, month);
+
+        assertThat(overview.entries()).singleElement()
+                .satisfies(item -> {
+                    assertThat(item.taskId()).isEqualTo(subjectOnlyTask.id());
+                    assertThat(item.type()).isEqualTo(MonthEndTaskType.PROJECT_LEAD_REVIEW);
+                    assertThat(item.status()).isEqualTo(MonthEndTaskStatus.OPEN);
+                    assertThat(item.project()).isEqualTo(new MonthEndProject(projectId, projectName));
+                    assertThat(item.subjectEmployee()).isEqualTo(new MonthEndEmployee(actorId, actorName));
+                    assertThat(item.canComplete()).isFalse();
+                    assertThat(item.completedBy()).isNull();
+                });
     }
 
     private MonthEndProjectSnapshot snapshot(String name) {

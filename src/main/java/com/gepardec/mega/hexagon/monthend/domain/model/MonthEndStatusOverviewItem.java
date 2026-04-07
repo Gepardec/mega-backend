@@ -10,6 +10,7 @@ public record MonthEndStatusOverviewItem(
         MonthEndTaskStatus status,
         MonthEndProject project,
         MonthEndEmployee subjectEmployee,
+        boolean canComplete,
         UserId completedBy
 ) {
 

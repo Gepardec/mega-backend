@@ -100,6 +100,7 @@ class MonthEndSharedResourceTest {
                         MonthEndTaskStatus.DONE,
                         new MonthEndProject(PROJECT_ID, PROJECT_NAME),
                         new MonthEndEmployee(EMPLOYEE_ID, EMPLOYEE_NAME),
+                        true,
                         EMPLOYEE_ID
                 ))
         );
@@ -122,7 +123,42 @@ class MonthEndSharedResourceTest {
             assertThat(entry.getSubjectEmployee()).isNotNull();
             assertThat(entry.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
             assertThat(entry.getSubjectEmployee().getFullName()).isEqualTo(EMPLOYEE_NAME);
+            assertThat(entry.getCanComplete()).isTrue();
             assertThat(entry.getCompletedBy()).isEqualTo(EMPLOYEE_ID.value());
+        });
+        verify(getMonthEndStatusOverviewUseCase).getOverview(EMPLOYEE_ID, MONTH);
+    }
+
+    @Test
+    void getMonthEndStatusOverview_shouldReturnCanCompleteFalseForSubjectOnlyEntry() {
+        allowLegacyRoles(Role.EMPLOYEE);
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                EMPLOYEE_ID,
+                MONTH,
+                List.of(new MonthEndStatusOverviewItem(
+                        TASK_ID,
+                        MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        MonthEndTaskStatus.OPEN,
+                        new MonthEndProject(PROJECT_ID, PROJECT_NAME),
+                        new MonthEndEmployee(EMPLOYEE_ID, EMPLOYEE_NAME),
+                        false,
+                        null
+                ))
+        );
+        when(getMonthEndStatusOverviewUseCase.getOverview(EMPLOYEE_ID, MONTH)).thenReturn(overview);
+
+        MonthEndStatusOverviewResponse response = given()
+                .accept(ContentType.JSON)
+                .queryParam("month", MONTH.toString())
+                .get("/monthend/status-overview")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(MonthEndStatusOverviewResponse.class);
+
+        assertThat(response.getEntries()).singleElement().satisfies(entry -> {
+            assertThat(entry.getTaskId()).isEqualTo(TASK_ID.value());
+            assertThat(entry.getCanComplete()).isFalse();
         });
         verify(getMonthEndStatusOverviewUseCase).getOverview(EMPLOYEE_ID, MONTH);
     }
@@ -140,6 +176,7 @@ class MonthEndSharedResourceTest {
                         MonthEndTaskStatus.OPEN,
                         new MonthEndProject(PROJECT_ID, PROJECT_NAME),
                         null,
+                        true,
                         null
                 ))
         );
@@ -155,7 +192,10 @@ class MonthEndSharedResourceTest {
                 .as(MonthEndStatusOverviewResponse.class);
 
         assertThat(response.getEntries()).singleElement()
-                .satisfies(entry -> assertThat(entry.getSubjectEmployee()).isNull());
+                .satisfies(entry -> {
+                    assertThat(entry.getSubjectEmployee()).isNull();
+                    assertThat(entry.getCanComplete()).isTrue();
+                });
         verify(getMonthEndStatusOverviewUseCase).getOverview(PROJECT_LEAD_ID, MONTH);
     }
 

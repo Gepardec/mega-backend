@@ -121,6 +121,7 @@ class MonthEndRestMapperTest {
                         MonthEndTaskStatus.OPEN,
                         new MonthEndProject(projectId, projectName),
                         new MonthEndEmployee(employeeId, employeeName),
+                        true,
                         null
                 ))
         );
@@ -134,7 +135,30 @@ class MonthEndRestMapperTest {
             assertThat(entry.getSubjectEmployee()).isNotNull();
             assertThat(entry.getSubjectEmployee().getId()).isEqualTo(employeeId.value());
             assertThat(entry.getSubjectEmployee().getFullName()).isEqualTo(employeeName);
+            assertThat(entry.getCanComplete()).isTrue();
         });
+    }
+
+    @Test
+    void toResponse_shouldMapStatusOverviewCanCompleteFalseForSubjectOnlyEntry() {
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                employeeId,
+                month,
+                List.of(new MonthEndStatusOverviewItem(
+                        MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        MonthEndTaskStatus.OPEN,
+                        new MonthEndProject(projectId, projectName),
+                        new MonthEndEmployee(employeeId, employeeName),
+                        false,
+                        null
+                ))
+        );
+
+        MonthEndStatusOverviewResponse response = mapper.toResponse(overview);
+
+        assertThat(response.getEntries()).singleElement()
+                .satisfies(entry -> assertThat(entry.getCanComplete()).isFalse());
     }
 
     @Test
@@ -148,6 +172,7 @@ class MonthEndRestMapperTest {
                         MonthEndTaskStatus.OPEN,
                         new MonthEndProject(projectId, projectName),
                         null,
+                        true,
                         null
                 ))
         );
@@ -155,6 +180,9 @@ class MonthEndRestMapperTest {
         MonthEndStatusOverviewResponse response = mapper.toResponse(overview);
 
         assertThat(response.getEntries()).singleElement()
-                .satisfies(entry -> assertThat(entry.getSubjectEmployee()).isNull());
+                .satisfies(entry -> {
+                    assertThat(entry.getSubjectEmployee()).isNull();
+                    assertThat(entry.getCanComplete()).isTrue();
+                });
     }
 }

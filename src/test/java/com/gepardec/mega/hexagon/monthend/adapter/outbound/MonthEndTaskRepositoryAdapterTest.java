@@ -116,6 +116,48 @@ class MonthEndTaskRepositoryAdapterTest {
                 .contains(completedTask);
     }
 
+    @Test
+    void findVisibleTasksForActor_shouldReturnEligibleAndSubjectTasksWithoutDuplicates() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User employee = user("employee-visible", Set.of(Role.EMPLOYEE));
+        User leadA = user("lead-visible-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        User leadB = user("lead-visible-b", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        userRepositoryAdapter.saveAll(List.of(employee, leadA, leadB));
+
+        Project project = project(123, true);
+        projectRepositoryAdapter.saveAll(List.of(project));
+
+        MonthEndTask subjectOnlyTask = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                project.getId(),
+                employee.getId(),
+                Set.of(leadA.getId(), leadB.getId())
+        );
+        MonthEndTask subjectAndEligibleTask = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.getId(),
+                employee.getId(),
+                Set.of(employee.getId())
+        );
+        MonthEndTask unrelatedTask = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.ABRECHNUNG,
+                project.getId(),
+                null,
+                Set.of(leadA.getId())
+        );
+        monthEndTaskRepositoryAdapter.saveAll(List.of(subjectOnlyTask, subjectAndEligibleTask, unrelatedTask));
+
+        List<MonthEndTask> tasks = monthEndTaskRepositoryAdapter.findVisibleTasksForActor(employee.getId(), month);
+
+        assertThat(tasks).containsExactlyInAnyOrder(subjectOnlyTask, subjectAndEligibleTask);
+    }
+
     private User user(String username, Set<Role> roles) {
         return User.create(UserId.generate(), profile(username), roles);
     }

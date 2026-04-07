@@ -463,6 +463,7 @@ components:
         - type
         - status
         - project
+        - canComplete
       properties:
         taskId:
           type: string
@@ -473,6 +474,8 @@ components:
           $ref: '#/components/schemas/MonthEndTaskStatus'
         project:
           $ref: '#/components/schemas/MonthEndProjectReference'
+        canComplete:
+          type: boolean
         subjectEmployee:
           $ref: '#/components/schemas/MonthEndEmployeeReference'
           nullable: true

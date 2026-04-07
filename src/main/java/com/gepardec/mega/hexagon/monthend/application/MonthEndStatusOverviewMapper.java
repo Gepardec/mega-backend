@@ -18,8 +18,14 @@ public interface MonthEndStatusOverviewMapper {
     @Mapping(target = "status", source = "task.status")
     @Mapping(target = "project", source = "project")
     @Mapping(target = "subjectEmployee", source = "subjectEmployee")
+    @Mapping(target = "canComplete", source = "canComplete")
     @Mapping(target = "completedBy", source = "task.completedBy")
-    MonthEndStatusOverviewItem toItem(MonthEndTask task, MonthEndProjectSnapshot project, MonthEndUserSnapshot subjectEmployee);
+    MonthEndStatusOverviewItem toItem(
+            MonthEndTask task,
+            MonthEndProjectSnapshot project,
+            MonthEndUserSnapshot subjectEmployee,
+            boolean canComplete
+    );
 
     MonthEndProject toProject(MonthEndProjectSnapshot project);
 
