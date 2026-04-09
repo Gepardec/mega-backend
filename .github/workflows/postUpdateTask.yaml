@@ -24,7 +24,7 @@ jobs:
       - name: Build and test project with Maven
         run: mvn -B package --file pom.xml
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 2
