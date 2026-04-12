@@ -1,7 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.application.interceptor.MegaRolesAllowed;
-import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.hexagon.generated.api.MonthEndSharedApi;
 import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequest;
 import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequest;
@@ -12,6 +10,9 @@ import com.gepardec.mega.hexagon.monthend.domain.port.inbound.CompleteMonthEndCl
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.CompleteMonthEndTaskUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.UpdateMonthEndClarificationUseCase;
+import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
+import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
+import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
@@ -29,7 +30,7 @@ public class MonthEndSharedResource implements MonthEndSharedApi {
     private final CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase;
     private final UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase;
     private final CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase;
-    private final CurrentMonthEndRestActorResolver currentMonthEndRestActorResolver;
+    private final AuthenticatedActorContext authenticatedActorContext;
     private final MonthEndRestTransportHelper transportHelper;
     private final MonthEndRestMapper monthEndRestMapper;
 
@@ -39,7 +40,7 @@ public class MonthEndSharedResource implements MonthEndSharedApi {
             CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase,
             UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase,
             CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase,
-            CurrentMonthEndRestActorResolver currentMonthEndRestActorResolver,
+            AuthenticatedActorContext authenticatedActorContext,
             MonthEndRestTransportHelper transportHelper,
             MonthEndRestMapper monthEndRestMapper
     ) {
@@ -47,14 +48,14 @@ public class MonthEndSharedResource implements MonthEndSharedApi {
         this.completeMonthEndTaskUseCase = completeMonthEndTaskUseCase;
         this.updateMonthEndClarificationUseCase = updateMonthEndClarificationUseCase;
         this.completeMonthEndClarificationUseCase = completeMonthEndClarificationUseCase;
-        this.currentMonthEndRestActorResolver = currentMonthEndRestActorResolver;
+        this.authenticatedActorContext = authenticatedActorContext;
         this.transportHelper = transportHelper;
         this.monthEndRestMapper = monthEndRestMapper;
     }
 
     @Override
     public Response completeMonthEndTask(UUID taskId) {
-        UserId actorId = currentMonthEndRestActorResolver.resolveCurrentActorId();
+        UserId actorId = authenticatedActorContext.userId();
         MonthEndTask task = completeMonthEndTaskUseCase.complete(
                 transportHelper.toTaskId(taskId),
                 actorId
@@ -64,7 +65,7 @@ public class MonthEndSharedResource implements MonthEndSharedApi {
 
     @Override
     public Response getMonthEndStatusOverview(String month) {
-        UserId actorId = currentMonthEndRestActorResolver.resolveCurrentActorId();
+        UserId actorId = authenticatedActorContext.userId();
         MonthEndStatusOverview overview = getMonthEndStatusOverviewUseCase.getOverview(
                 actorId,
                 transportHelper.parseMonth(month)
@@ -74,7 +75,7 @@ public class MonthEndSharedResource implements MonthEndSharedApi {
 
     @Override
     public Response resolveMonthEndClarification(UUID clarificationId, ResolveClarificationRequest request) {
-        UserId actorId = currentMonthEndRestActorResolver.resolveCurrentActorId();
+        UserId actorId = authenticatedActorContext.userId();
         MonthEndClarification clarification = completeMonthEndClarificationUseCase.complete(
                 transportHelper.toClarificationId(clarificationId),
                 actorId,
@@ -85,7 +86,7 @@ public class MonthEndSharedResource implements MonthEndSharedApi {
 
     @Override
     public Response updateMonthEndClarificationText(UUID clarificationId, UpdateClarificationTextRequest request) {
-        UserId actorId = currentMonthEndRestActorResolver.resolveCurrentActorId();
+        UserId actorId = authenticatedActorContext.userId();
         MonthEndClarification clarification = updateMonthEndClarificationUseCase.updateText(
                 transportHelper.toClarificationId(clarificationId),
                 actorId,

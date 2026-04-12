@@ -1,8 +1,9 @@
 package com.gepardec.mega.hexagon.worktime.adapter.inbound.rest;
 
-import com.gepardec.mega.application.interceptor.MegaRolesAllowed;
-import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.hexagon.generated.api.WorkTimeProjectLeadApi;
+import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
+import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
+import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
 import com.gepardec.mega.hexagon.worktime.domain.port.inbound.GetProjectLeadWorkTimeUseCase;
@@ -17,26 +18,26 @@ import jakarta.ws.rs.core.Response;
 public class WorkTimeProjectLeadResource implements WorkTimeProjectLeadApi {
 
     private final GetProjectLeadWorkTimeUseCase getProjectLeadWorkTimeUseCase;
-    private final CurrentWorkTimeRestActorResolver currentWorkTimeRestActorResolver;
+    private final AuthenticatedActorContext authenticatedActorContext;
     private final WorkTimeRestTransportHelper workTimeRestTransportHelper;
     private final WorkTimeRestMapper workTimeRestMapper;
 
     @Inject
     public WorkTimeProjectLeadResource(
             GetProjectLeadWorkTimeUseCase getProjectLeadWorkTimeUseCase,
-            CurrentWorkTimeRestActorResolver currentWorkTimeRestActorResolver,
+            AuthenticatedActorContext authenticatedActorContext,
             WorkTimeRestTransportHelper workTimeRestTransportHelper,
             WorkTimeRestMapper workTimeRestMapper
     ) {
         this.getProjectLeadWorkTimeUseCase = getProjectLeadWorkTimeUseCase;
-        this.currentWorkTimeRestActorResolver = currentWorkTimeRestActorResolver;
+        this.authenticatedActorContext = authenticatedActorContext;
         this.workTimeRestTransportHelper = workTimeRestTransportHelper;
         this.workTimeRestMapper = workTimeRestMapper;
     }
 
     @Override
     public Response getProjectLeadWorkTimeReport(String payrollMonth) {
-        UserId actorId = currentWorkTimeRestActorResolver.resolveCurrentActorId();
+        UserId actorId = authenticatedActorContext.userId();
         WorkTimeReport report = getProjectLeadWorkTimeUseCase.getWorkTime(
                 actorId,
                 workTimeRestTransportHelper.parsePayrollMonth(payrollMonth)

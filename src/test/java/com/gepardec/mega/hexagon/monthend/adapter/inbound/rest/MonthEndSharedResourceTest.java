@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.hexagon.generated.model.ApiError;
 import com.gepardec.mega.hexagon.generated.model.MonthEndClarificationResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
@@ -22,13 +21,12 @@ import com.gepardec.mega.hexagon.monthend.domain.port.inbound.CompleteMonthEndTa
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.UpdateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
+import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.service.api.UserService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.oidc.Claim;
-import io.quarkus.test.security.oidc.OidcSecurity;
 import io.restassured.http.ContentType;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,12 +46,7 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestSecurity(user = "test")
-@OidcSecurity(claims = {
-        @Claim(key = "email", value = MonthEndSharedResourceTest.TEST_EMAIL)
-})
 class MonthEndSharedResourceTest {
-
-    static final String TEST_EMAIL = "test@gepardec.com";
 
     private static final YearMonth MONTH = YearMonth.of(2026, 3);
     private static final ProjectId PROJECT_ID = ProjectId.of(Instancio.create(UUID.class));
@@ -66,10 +59,7 @@ class MonthEndSharedResourceTest {
     private static final Instant CREATED_AT = Instant.parse("2026-03-20T08:15:00Z");
 
     @InjectMock
-    UserService userService;
-
-    @InjectMock
-    CurrentMonthEndRestActorResolver currentMonthEndRestActorResolver;
+    AuthenticatedActorContext authenticatedActorContext;
 
     @InjectMock
     GetMonthEndStatusOverviewUseCase getMonthEndStatusOverviewUseCase;
@@ -85,12 +75,12 @@ class MonthEndSharedResourceTest {
 
     @BeforeEach
     void setUp() {
-        when(currentMonthEndRestActorResolver.resolveCurrentActorId()).thenReturn(EMPLOYEE_ID);
+        when(authenticatedActorContext.userId()).thenReturn(EMPLOYEE_ID);
     }
 
     @Test
     void getMonthEndStatusOverview_shouldReturnMappedOverviewForEmployeeRole() {
-        allowLegacyRoles(Role.EMPLOYEE);
+        allowRoles(Role.EMPLOYEE);
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 EMPLOYEE_ID,
                 MONTH,
@@ -131,7 +121,7 @@ class MonthEndSharedResourceTest {
 
     @Test
     void getMonthEndStatusOverview_shouldReturnCanCompleteFalseForSubjectOnlyEntry() {
-        allowLegacyRoles(Role.EMPLOYEE);
+        allowRoles(Role.EMPLOYEE);
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 EMPLOYEE_ID,
                 MONTH,
@@ -165,8 +155,8 @@ class MonthEndSharedResourceTest {
 
     @Test
     void getMonthEndStatusOverview_shouldOmitSubjectEmployeeForAbrechnungEntry() {
-        allowLegacyRoles(Role.PROJECT_LEAD);
-        when(currentMonthEndRestActorResolver.resolveCurrentActorId()).thenReturn(PROJECT_LEAD_ID);
+        allowRoles(Role.PROJECT_LEAD);
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 PROJECT_LEAD_ID,
                 MONTH,
@@ -201,7 +191,7 @@ class MonthEndSharedResourceTest {
 
     @Test
     void completeMonthEndTask_shouldReturnNotFoundErrorBodyWhenUseCaseSignalsMissingTask() {
-        allowLegacyRoles(Role.EMPLOYEE);
+        allowRoles(Role.EMPLOYEE);
         when(completeMonthEndTaskUseCase.complete(TASK_ID, EMPLOYEE_ID))
                 .thenThrow(new MonthEndTaskNotFoundException("month-end task not found"));
 
@@ -218,8 +208,8 @@ class MonthEndSharedResourceTest {
 
     @Test
     void updateMonthEndClarificationText_shouldReturnUpdatedClarification() {
-        allowLegacyRoles(Role.PROJECT_LEAD);
-        when(currentMonthEndRestActorResolver.resolveCurrentActorId()).thenReturn(PROJECT_LEAD_ID);
+        allowRoles(Role.PROJECT_LEAD);
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         MonthEndClarification clarification = leadCreatedClarification("Updated by lead.");
         when(updateMonthEndClarificationUseCase.updateText(CLARIFICATION_ID, PROJECT_LEAD_ID, "Updated by lead."))
                 .thenReturn(clarification);
@@ -242,8 +232,8 @@ class MonthEndSharedResourceTest {
 
     @Test
     void resolveMonthEndClarification_shouldReturnResolvedClarificationForLeadRole() {
-        allowLegacyRoles(Role.PROJECT_LEAD);
-        when(currentMonthEndRestActorResolver.resolveCurrentActorId()).thenReturn(PROJECT_LEAD_ID);
+        allowRoles(Role.PROJECT_LEAD);
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         MonthEndClarification clarification = employeeCreatedClarification("Need help.")
                 .resolve(PROJECT_LEAD_ID, "Handled.", Instant.parse("2026-03-21T10:30:00Z"));
         when(completeMonthEndClarificationUseCase.complete(CLARIFICATION_ID, PROJECT_LEAD_ID, "Handled."))
@@ -267,7 +257,7 @@ class MonthEndSharedResourceTest {
 
     @Test
     void getMonthEndStatusOverview_shouldRejectOfficeManagementRole() {
-        allowLegacyRoles(Role.OFFICE_MANAGEMENT);
+        allowRoles(Role.OFFICE_MANAGEMENT);
 
         given()
                 .accept(ContentType.JSON)
@@ -279,15 +269,8 @@ class MonthEndSharedResourceTest {
         verifyNoInteractions(getMonthEndStatusOverviewUseCase);
     }
 
-    private void allowLegacyRoles(Role... roles) {
-        when(userService.findUserForEmail(TEST_EMAIL)).thenReturn(com.gepardec.mega.domain.model.User.builder()
-                .dbId(1L)
-                .userId("legacy-user")
-                .email(TEST_EMAIL)
-                .firstname("Test")
-                .lastname("User")
-                .roles(Set.of(roles))
-                .build());
+    private void allowRoles(Role... roles) {
+        when(authenticatedActorContext.roles()).thenReturn(Set.of(roles));
     }
 
     private MonthEndClarification employeeCreatedClarification(String text) {

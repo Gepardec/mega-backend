@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.project.adapter.outbound;
 
-import com.gepardec.mega.domain.model.BillabilityPreset;
+import com.gepardec.mega.hexagon.project.domain.model.BillabilityPreset;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
 import com.gepardec.mega.zep.rest.dto.ZepBillingType;
 import com.gepardec.mega.zep.rest.dto.ZepProject;

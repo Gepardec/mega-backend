@@ -1,21 +1,15 @@
 package com.gepardec.mega.hexagon.worktime.application;
 
-import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
-import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
-import com.gepardec.mega.hexagon.user.domain.model.Email;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
-import com.gepardec.mega.hexagon.user.domain.model.FullName;
-import com.gepardec.mega.hexagon.user.domain.model.Role;
-import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
-import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeValidationException;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeProjectSnapshot;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeUserSnapshot;
+import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeProjectSnapshotPort;
+import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeZepPort;
 import io.smallrye.mutiny.Uni;
 import org.assertj.core.api.ThrowableAssert;
@@ -26,11 +20,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,10 +33,10 @@ import static org.mockito.Mockito.when;
 class GetEmployeeWorkTimeServiceTest {
 
     @Mock
-    private UserRepository userRepository;
+    private WorkTimeUserSnapshotPort workTimeUserSnapshotPort;
 
     @Mock
-    private ProjectRepository projectRepository;
+    private WorkTimeProjectSnapshotPort workTimeProjectSnapshotPort;
 
     @Mock
     private WorkTimeZepPort workTimeZepPort;
@@ -57,15 +49,15 @@ class GetEmployeeWorkTimeServiceTest {
         UserId employeeId = UserId.of(Instancio.create(UUID.class));
         ProjectId projectId = ProjectId.of(Instancio.create(UUID.class));
         ProjectId secondProjectId = ProjectId.of(Instancio.create(UUID.class));
-        User user = user(employeeId, "ada", "Ada", "Lovelace");
-        when(userRepository.findById(employeeId)).thenReturn(Optional.of(user));
+        WorkTimeUserSnapshot user = user(employeeId, "ada", "Ada Lovelace");
+        when(workTimeUserSnapshotPort.findById(employeeId)).thenReturn(Optional.of(user));
         when(workTimeZepPort.fetchAttendancesForEmployee("ada", YearMonth.of(2026, 3))).thenReturn(Uni.createFrom().item(List.of(
                 new WorkTimeAttendance("ada", 11, 2.5d, 0.0d),
                 new WorkTimeAttendance("ada", 11, 0.0d, 1.5d),
                 new WorkTimeAttendance("ada", 22, 3.0d, 0.0d)
         )));
-        when(projectRepository.findByZepId(11)).thenReturn(Optional.of(project(projectId, 11, "Alpha")));
-        when(projectRepository.findByZepId(22)).thenReturn(Optional.of(project(secondProjectId, 22, "Beta")));
+        when(workTimeProjectSnapshotPort.findByZepId(11)).thenReturn(Optional.of(project(projectId, 11, "Alpha")));
+        when(workTimeProjectSnapshotPort.findByZepId(22)).thenReturn(Optional.of(project(secondProjectId, 22, "Beta")));
 
         WorkTimeReport report = service.getWorkTime(employeeId, YearMonth.of(2026, 3));
 
@@ -88,7 +80,7 @@ class GetEmployeeWorkTimeServiceTest {
     @Test
     void getWorkTime_shouldReturnEmptyReportWhenNoAttendancesExist() {
         UserId employeeId = UserId.of(Instancio.create(UUID.class));
-        when(userRepository.findById(employeeId)).thenReturn(Optional.of(user(employeeId, "ada", "Ada", "Lovelace")));
+        when(workTimeUserSnapshotPort.findById(employeeId)).thenReturn(Optional.of(user(employeeId, "ada", "Ada Lovelace")));
         when(workTimeZepPort.fetchAttendancesForEmployee("ada", YearMonth.of(2026, 3))).thenReturn(Uni.createFrom().item(List.of()));
 
         WorkTimeReport report = service.getWorkTime(employeeId, YearMonth.of(2026, 3));
@@ -100,7 +92,7 @@ class GetEmployeeWorkTimeServiceTest {
     @Test
     void getWorkTime_shouldThrowWorkTimeUserNotFoundExceptionWhenUserIsMissing() {
         UserId employeeId = UserId.of(Instancio.create(UUID.class));
-        when(userRepository.findById(employeeId)).thenReturn(Optional.empty());
+        when(workTimeUserSnapshotPort.findById(employeeId)).thenReturn(Optional.empty());
 
         ThrowableAssert.ThrowingCallable throwingCallable = () -> service.getWorkTime(employeeId, YearMonth.of(2026, 3));
 
@@ -112,7 +104,7 @@ class GetEmployeeWorkTimeServiceTest {
     @Test
     void getWorkTime_shouldThrowWorkTimeValidationExceptionWhenZepUsernameIsMissing() {
         UserId employeeId = UserId.of(Instancio.create(UUID.class));
-        when(userRepository.findById(employeeId)).thenReturn(Optional.of(userWithoutZepUsername(employeeId)));
+        when(workTimeUserSnapshotPort.findById(employeeId)).thenReturn(Optional.of(userWithoutZepUsername(employeeId)));
 
         ThrowableAssert.ThrowingCallable throwingCallable = () -> service.getWorkTime(employeeId, YearMonth.of(2026, 3));
 
@@ -121,39 +113,15 @@ class GetEmployeeWorkTimeServiceTest {
                 .hasMessage("zep username missing for user: " + employeeId.value());
     }
 
-    private User user(UserId userId, String username, String firstname, String lastname) {
-        return new User(
-                userId,
-                Email.of(username + "@example.com"),
-                FullName.of(firstname, lastname),
-                ZepUsername.of(username),
-                null,
-                new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2024, 1, 1), null)),
-                Set.of(Role.EMPLOYEE)
-        );
+    private WorkTimeUserSnapshot user(UserId userId, String username, String fullName) {
+        return new WorkTimeUserSnapshot(userId, fullName, username);
     }
 
-    private Project project(ProjectId projectId, int zepId, String name) {
-        return new Project(
-                projectId,
-                zepId,
-                name,
-                LocalDate.of(2024, 1, 1),
-                null,
-                true,
-                Set.of()
-        );
+    private WorkTimeProjectSnapshot project(ProjectId projectId, int zepId, String name) {
+        return new WorkTimeProjectSnapshot(projectId, zepId, name);
     }
 
-    private User userWithoutZepUsername(UserId userId) {
-        return new User(
-                userId,
-                Email.of("missing@example.com"),
-                FullName.of("Ada", "Lovelace"),
-                ZepUsername.of(""),
-                null,
-                EmploymentPeriods.empty(),
-                Set.of(Role.EMPLOYEE)
-        );
+    private WorkTimeUserSnapshot userWithoutZepUsername(UserId userId) {
+        return new WorkTimeUserSnapshot(userId, "Ada Lovelace", "");
     }
 }

@@ -5,13 +5,13 @@ import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
 import com.gepardec.mega.hexagon.project.domain.port.inbound.ProjectLeadSyncResult;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
-import com.gepardec.mega.hexagon.project.domain.port.outbound.UserLookupPort;
+import com.gepardec.mega.hexagon.project.domain.port.outbound.UserIdentityLookupPort;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
+import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.Email;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.FullName;
-import com.gepardec.mega.hexagon.user.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
@@ -38,7 +38,7 @@ class SyncProjectLeadsServiceTest {
 
     private ZepProjectPort zepProjectPort;
     private ProjectRepository projectRepository;
-    private UserLookupPort userLookupPort;
+    private UserIdentityLookupPort userIdentityLookupPort;
     private UserRepository userRepository;
     private SyncProjectLeadsService service;
 
@@ -46,9 +46,9 @@ class SyncProjectLeadsServiceTest {
     void setUp() {
         zepProjectPort = mock(ZepProjectPort.class);
         projectRepository = mock(ProjectRepository.class);
-        userLookupPort = mock(UserLookupPort.class);
+        userIdentityLookupPort = mock(UserIdentityLookupPort.class);
         userRepository = mock(UserRepository.class);
-        service = new SyncProjectLeadsService(zepProjectPort, projectRepository, userLookupPort, userRepository);
+        service = new SyncProjectLeadsService(zepProjectPort, projectRepository, userIdentityLookupPort, userRepository);
     }
 
     private Project projectWithZepId(int zepId) {
@@ -74,7 +74,7 @@ class SyncProjectLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(1)).thenReturn(List.of("jdoe"));
-        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("jdoe"))).thenReturn(Optional.of(leadId));
+        when(userIdentityLookupPort.findUserIdByZepUsername(ZepUsername.of("jdoe"))).thenReturn(Optional.of(leadId));
         when(userRepository.findAll()).thenReturn(List.of());
 
         service.sync();
@@ -91,7 +91,7 @@ class SyncProjectLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(2)).thenReturn(List.of("unknown"));
-        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("unknown"))).thenReturn(Optional.empty());
+        when(userIdentityLookupPort.findUserIdByZepUsername(ZepUsername.of("unknown"))).thenReturn(Optional.empty());
         when(userRepository.findAll()).thenReturn(List.of());
 
         ProjectLeadSyncResult result = service.sync();
@@ -109,7 +109,7 @@ class SyncProjectLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(3)).thenReturn(List.of("newguy"));
-        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("newguy"))).thenReturn(Optional.of(newLead));
+        when(userIdentityLookupPort.findUserIdByZepUsername(ZepUsername.of("newguy"))).thenReturn(Optional.of(newLead));
         when(userRepository.findAll()).thenReturn(List.of());
 
         service.sync();
@@ -129,7 +129,7 @@ class SyncProjectLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(4)).thenReturn(List.of("leaduser"));
-        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("leaduser"))).thenReturn(Optional.of(leadId));
+        when(userIdentityLookupPort.findUserIdByZepUsername(ZepUsername.of("leaduser"))).thenReturn(Optional.of(leadId));
         when(userRepository.findAll()).thenReturn(List.of(user));
 
         service.sync();
@@ -166,7 +166,7 @@ class SyncProjectLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(6)).thenReturn(List.of("stable"));
-        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("stable"))).thenReturn(Optional.of(leadId));
+        when(userIdentityLookupPort.findUserIdByZepUsername(ZepUsername.of("stable"))).thenReturn(Optional.of(leadId));
         when(userRepository.findAll()).thenReturn(List.of(user));
 
         service.sync();
@@ -182,8 +182,8 @@ class SyncProjectLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(7)).thenReturn(List.of("unknown", "known"));
-        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("unknown"))).thenReturn(Optional.empty());
-        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("known"))).thenReturn(Optional.of(knownId));
+        when(userIdentityLookupPort.findUserIdByZepUsername(ZepUsername.of("unknown"))).thenReturn(Optional.empty());
+        when(userIdentityLookupPort.findUserIdByZepUsername(ZepUsername.of("known"))).thenReturn(Optional.of(knownId));
         when(userRepository.findAll()).thenReturn(List.of());
 
         service.sync();
@@ -201,9 +201,9 @@ class SyncProjectLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(8)).thenReturn(List.of("known", "unknown1", "unknown2"));
-        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("known"))).thenReturn(Optional.of(knownId));
-        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("unknown1"))).thenReturn(Optional.empty());
-        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("unknown2"))).thenReturn(Optional.empty());
+        when(userIdentityLookupPort.findUserIdByZepUsername(ZepUsername.of("known"))).thenReturn(Optional.of(knownId));
+        when(userIdentityLookupPort.findUserIdByZepUsername(ZepUsername.of("unknown1"))).thenReturn(Optional.empty());
+        when(userIdentityLookupPort.findUserIdByZepUsername(ZepUsername.of("unknown2"))).thenReturn(Optional.empty());
         when(userRepository.findAll()).thenReturn(List.of());
 
         ProjectLeadSyncResult result = service.sync();
@@ -220,7 +220,7 @@ class SyncProjectLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(9)).thenReturn(List.of("newlead"));
-        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("newlead"))).thenReturn(Optional.of(leadId));
+        when(userIdentityLookupPort.findUserIdByZepUsername(ZepUsername.of("newlead"))).thenReturn(Optional.of(leadId));
         when(userRepository.findAll()).thenReturn(List.of(user));
 
         ProjectLeadSyncResult result = service.sync();
