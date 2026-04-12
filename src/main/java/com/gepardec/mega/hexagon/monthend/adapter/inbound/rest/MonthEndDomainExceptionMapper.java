@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.generated.model.ApiError;
+import com.gepardec.mega.hexagon.generated.model.ApiError;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;

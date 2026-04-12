@@ -1,0 +1,46 @@
+'/worktime/employee/{payrollMonth}':
+  get:
+    tags:
+      - WorkTimeEmployee
+    operationId: getEmployeeWorkTimeReport
+    summary: Get the authenticated employee's work time report for a payroll month
+    security:
+      - bearerAuth: [ ]
+    parameters:
+      - $ref: '../parameters/common.yaml#/PayrollMonthPathParameter'
+    responses:
+      '200':
+        description: Employee work time report
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/worktime.yaml#/WorkTimeReportResponse'
+      '400':
+        $ref: '../responses/common.yaml#/BadRequest'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'
+'/worktime/projects/{payrollMonth}':
+  get:
+    tags:
+      - WorkTimeProjectLead
+    operationId: getProjectLeadWorkTimeReport
+    summary: Get work time across all projects led by the authenticated project lead for a payroll month
+    security:
+      - bearerAuth: [ ]
+    parameters:
+      - $ref: '../parameters/common.yaml#/PayrollMonthPathParameter'
+    responses:
+      '200':
+        description: Project-lead work time report
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/worktime.yaml#/WorkTimeReportResponse'
+      '400':
+        $ref: '../responses/common.yaml#/BadRequest'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'
