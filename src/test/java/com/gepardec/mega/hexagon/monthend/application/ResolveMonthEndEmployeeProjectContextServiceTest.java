@@ -12,7 +12,6 @@ import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.UserStatus;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -136,7 +135,6 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
                 userId,
                 username + " User",
                 username,
-                UserStatus.ACTIVE,
                 new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))
         );
     }
@@ -146,8 +144,7 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
                 userId,
                 username + " User",
                 username,
-                UserStatus.INACTIVE,
-                new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))
+                new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), month.atDay(1).minusDays(1)))
         );
     }
 }

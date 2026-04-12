@@ -33,7 +33,7 @@ public class CurrentMonthEndRestActorResolver {
         }
 
         return userRepository.findByEmail(Email.of(value))
-                .map(User::getId)
+                .map(User::id)
                 .orElseThrow(() -> new MonthEndAuthenticatedActorResolutionException(
                         "authenticated month-end actor not found for email: " + value
                 ));

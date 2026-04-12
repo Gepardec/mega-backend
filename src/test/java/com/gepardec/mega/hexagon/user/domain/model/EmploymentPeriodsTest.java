@@ -15,6 +15,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class EmploymentPeriodsTest {
 
+    @Test
+    void constructor_WhenPeriodsHaveDifferentOrder_ThenCanonicalizesForStableEquality() {
+        EmploymentPeriod early = new EmploymentPeriod(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 6, 30));
+        EmploymentPeriod late = new EmploymentPeriod(LocalDate.of(2023, 7, 1), null);
+
+        EmploymentPeriods fromSource = new EmploymentPeriods(List.of(late, early));
+        EmploymentPeriods fromPersistence = new EmploymentPeriods(List.of(early, late));
+
+        assertThat(fromSource).isEqualTo(fromPersistence);
+        assertThat(fromSource.employmentPeriods()).containsExactly(early, late);
+    }
+
     @Nested
     @DisplayName("Tests for latest() method")
     class Latest {

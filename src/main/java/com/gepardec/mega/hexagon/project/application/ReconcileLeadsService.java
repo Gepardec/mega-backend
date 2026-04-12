@@ -8,6 +8,7 @@ import com.gepardec.mega.hexagon.project.domain.port.outbound.UserLookupPort;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
 import com.gepardec.mega.hexagon.user.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.User;
+import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 
 import java.util.HashSet;
@@ -43,7 +44,7 @@ public class ReconcileLeadsService implements ReconcileLeadsUseCase {
             List<String> leadUsernames = zepProjectPort.fetchLeadUsernames(project.getZepId());
             Set<UUID> resolvedLeads = new HashSet<>();
             for (String username : leadUsernames) {
-                Optional<UUID> userId = userLookupPort.findUserIdByZepUsername(username);
+                Optional<UUID> userId = userLookupPort.findUserIdByZepUsername(ZepUsername.of(username));
                 if (userId.isPresent()) {
                     resolvedLeads.add(userId.get());
                     resolved++;
@@ -60,26 +61,22 @@ public class ReconcileLeadsService implements ReconcileLeadsUseCase {
         List<User> allUsers = userRepository.findAll();
         List<User> usersToUpdate = allUsers.stream()
                 .filter(user -> {
-                    boolean isLead = allLeadUserIds.contains(user.getId().value());
-                    boolean hasLeadRole = user.getRoles().contains(Role.PROJECT_LEAD);
+                    boolean isLead = allLeadUserIds.contains(user.id().value());
+                    boolean hasLeadRole = user.roles().contains(Role.PROJECT_LEAD);
                     return isLead != hasLeadRole;
                 })
+                .map(user -> updateLeadRole(user, allLeadUserIds.contains(user.id().value())))
                 .toList();
 
         int rolesAdded = 0;
         int rolesRevoked = 0;
 
         for (User user : usersToUpdate) {
-            boolean shouldBeLead = allLeadUserIds.contains(user.getId().value());
-            Set<Role> updatedRoles = new HashSet<>(user.getRoles());
-            if (shouldBeLead) {
-                updatedRoles.add(Role.PROJECT_LEAD);
+            if (user.roles().contains(Role.PROJECT_LEAD)) {
                 rolesAdded++;
             } else {
-                updatedRoles.remove(Role.PROJECT_LEAD);
                 rolesRevoked++;
             }
-            user.setRoles(updatedRoles);
         }
 
         if (!usersToUpdate.isEmpty()) {
@@ -87,5 +84,15 @@ public class ReconcileLeadsService implements ReconcileLeadsUseCase {
         }
 
         return new ReconcileLeadsResult(resolved, skipped, rolesAdded, rolesRevoked);
+    }
+
+    private User updateLeadRole(User user, boolean shouldBeLead) {
+        Set<Role> updatedRoles = new HashSet<>(user.roles());
+        if (shouldBeLead) {
+            updatedRoles.add(Role.PROJECT_LEAD);
+        } else {
+            updatedRoles.remove(Role.PROJECT_LEAD);
+        }
+        return user.withRoles(updatedRoles);
     }
 }
