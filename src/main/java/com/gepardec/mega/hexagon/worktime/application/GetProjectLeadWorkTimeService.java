@@ -54,7 +54,7 @@ public class GetProjectLeadWorkTimeService implements GetProjectLeadWorkTimeUseC
         }
 
         Map<Integer, Project> projectsByZepId = leadProjects.stream()
-                .collect(Collectors.toMap(Project::getZepId, Function.identity()));
+                .collect(Collectors.toMap(Project::zepId, Function.identity()));
 
         Set<String> employeeZepUsernames = fetchEmployeeZepIds(projectsByZepId.keySet(), month)
                 .await().indefinitely();
@@ -131,7 +131,7 @@ public class GetProjectLeadWorkTimeService implements GetProjectLeadWorkTimeUseC
         Project project = projectsByZepId.get(zepProjectId);
         return new WorkTimeEntry(
                 employeeRef,
-                new WorkTimeProject(project.getId(), project.getName()),
+                new WorkTimeProject(project.id(), project.name()),
                 sumBillableHours(attendances),
                 sumNonBillableHours(attendances),
                 employeeMonthTotalHours

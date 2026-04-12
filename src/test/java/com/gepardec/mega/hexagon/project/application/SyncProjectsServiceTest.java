@@ -6,6 +6,7 @@ import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
 import com.gepardec.mega.hexagon.project.domain.port.inbound.ProjectSyncResult;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
+import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,8 +17,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,9 +50,9 @@ class SyncProjectsServiceTest {
 
         verify(projectRepository).saveAll(argThat(projects -> {
             assertThat(projects).hasSize(1);
-            assertThat(projects.getFirst().getZepId()).isEqualTo(42);
-            assertThat(projects.getFirst().getName()).isEqualTo("Alpha");
-            assertThat(projects.getFirst().getId()).isNotNull();
+            assertThat(projects.getFirst().zepId()).isEqualTo(42);
+            assertThat(projects.getFirst().name()).isEqualTo("Alpha");
+            assertThat(projects.getFirst().id()).isNotNull();
             return true;
         }));
     }
@@ -57,7 +60,7 @@ class SyncProjectsServiceTest {
     @Test
     void sync_updatesExistingProjectByZepId() {
         ProjectId existingId = ProjectId.generate();
-        Project existing = Project.reconstitute(existingId, 42, "Old Name",
+        Project existing = new Project(existingId, 42, "Old Name",
                 LocalDate.of(2023, 1, 1), null, false, Set.of());
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(42, "New Name")));
@@ -67,9 +70,9 @@ class SyncProjectsServiceTest {
 
         verify(projectRepository).saveAll(argThat(projects -> {
             assertThat(projects).hasSize(1);
-            assertThat(projects.getFirst().getId()).isEqualTo(existingId);
-            assertThat(projects.getFirst().getName()).isEqualTo("New Name");
-            assertThat(projects.getFirst().getStartDate()).isEqualTo(LocalDate.of(2024, 1, 1));
+            assertThat(projects.getFirst().id()).isEqualTo(existingId);
+            assertThat(projects.getFirst().name()).isEqualTo("New Name");
+            assertThat(projects.getFirst().startDate()).isEqualTo(LocalDate.of(2024, 1, 1));
             return true;
         }));
     }
@@ -77,7 +80,7 @@ class SyncProjectsServiceTest {
     @Test
     void sync_preservesProjectIdOnUpdate() {
         ProjectId existingId = ProjectId.of(UUID.fromString(Instancio.gen().text().uuid().get()));
-        Project existing = Project.reconstitute(existingId, 7, "X", LocalDate.now(), null, false, Set.of());
+        Project existing = new Project(existingId, 7, "X", LocalDate.now(), null, false, Set.of());
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(7, "X Updated")));
         when(projectRepository.findAll()).thenReturn(List.of(existing));
@@ -85,15 +88,15 @@ class SyncProjectsServiceTest {
         service.sync();
 
         verify(projectRepository).saveAll(argThat(projects -> {
-            assertThat(projects.getFirst().getId()).isEqualTo(existingId);
+            assertThat(projects.getFirst().id()).isEqualTo(existingId);
             return true;
         }));
     }
 
     @Test
     void sync_doesNotModifyLeads() {
-        UUID leadId = UUID.randomUUID();
-        Project existing = Project.reconstitute(ProjectId.generate(), 5, "Y",
+        UserId leadId = UserId.of(UUID.randomUUID());
+        Project existing = new Project(ProjectId.generate(), 5, "Y",
                 LocalDate.now(), null, false, Set.of(leadId));
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(5, "Y Updated")));
@@ -102,7 +105,7 @@ class SyncProjectsServiceTest {
         service.sync();
 
         verify(projectRepository).saveAll(argThat(projects -> {
-            assertThat(projects.getFirst().getLeads()).containsExactly(leadId);
+            assertThat(projects.getFirst().leads()).containsExactly(leadId);
             return true;
         }));
     }
@@ -127,10 +130,7 @@ class SyncProjectsServiceTest {
 
         service.sync();
 
-        verify(projectRepository).saveAll(argThat(projects -> {
-            assertThat(projects).isEmpty();
-            return true;
-        }));
+        verify(projectRepository, never()).saveAll(anyList());
     }
 
     @Test
@@ -142,12 +142,13 @@ class SyncProjectsServiceTest {
 
         assertThat(result.created()).isEqualTo(2);
         assertThat(result.updated()).isZero();
+        assertThat(result.unchanged()).isZero();
     }
 
     @Test
     void sync_result_countsUpdatedProjects() {
-        Project existing1 = Project.reconstitute(ProjectId.generate(), 1, "A", LocalDate.now(), null, false, Set.of());
-        Project existing2 = Project.reconstitute(ProjectId.generate(), 2, "B", LocalDate.now(), null, false, Set.of());
+        Project existing1 = new Project(ProjectId.generate(), 1, "A", LocalDate.now(), null, false, Set.of());
+        Project existing2 = new Project(ProjectId.generate(), 2, "B", LocalDate.now(), null, false, Set.of());
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(1, "A Updated"), profile(2, "B Updated")));
         when(projectRepository.findAll()).thenReturn(List.of(existing1, existing2));
@@ -156,11 +157,12 @@ class SyncProjectsServiceTest {
 
         assertThat(result.created()).isZero();
         assertThat(result.updated()).isEqualTo(2);
+        assertThat(result.unchanged()).isZero();
     }
 
     @Test
     void sync_result_countsMixedOperations() {
-        Project existing = Project.reconstitute(ProjectId.generate(), 1, "A", LocalDate.now(), null, false, Set.of());
+        Project existing = new Project(ProjectId.generate(), 1, "A", LocalDate.now(), null, false, Set.of());
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(1, "A Updated"), profile(2, "New")));
         when(projectRepository.findAll()).thenReturn(List.of(existing));
@@ -169,5 +171,29 @@ class SyncProjectsServiceTest {
 
         assertThat(result.created()).isEqualTo(1);
         assertThat(result.updated()).isEqualTo(1);
+        assertThat(result.unchanged()).isZero();
+    }
+
+    @Test
+    void sync_doesNotCountOrPersistUnchangedProjects() {
+        Project existing = new Project(
+                ProjectId.generate(),
+                1,
+                "A",
+                LocalDate.of(2024, 1, 1),
+                LocalDate.of(2024, 12, 31),
+                false,
+                Set.of()
+        );
+
+        when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(1, "A")));
+        when(projectRepository.findAll()).thenReturn(List.of(existing));
+
+        ProjectSyncResult result = service.sync();
+
+        assertThat(result.created()).isZero();
+        assertThat(result.updated()).isZero();
+        assertThat(result.unchanged()).isEqualTo(1);
+        verify(projectRepository, never()).saveAll(anyList());
     }
 }

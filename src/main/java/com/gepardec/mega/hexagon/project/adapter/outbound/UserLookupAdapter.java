@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.project.adapter.outbound;
 
 import com.gepardec.mega.hexagon.project.domain.port.outbound.UserLookupPort;
+import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -20,11 +21,11 @@ public class UserLookupAdapter implements UserLookupPort {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<UUID> findUserIdByZepUsername(ZepUsername username) {
+    public Optional<UserId> findUserIdByZepUsername(ZepUsername username) {
         List<UUID> result = entityManager
                 .createNativeQuery("SELECT id FROM hexagon_users WHERE zep_username = :username", UUID.class)
                 .setParameter("username", username.value())
                 .getResultList();
-        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+        return result.isEmpty() ? Optional.empty() : Optional.of(UserId.of(result.get(0)));
     }
 }

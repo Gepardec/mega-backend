@@ -7,7 +7,7 @@ Defines the `SyncUsersUseCase` and its `SyncUsersService` implementation within 
 ## Requirements
 
 ### Requirement: Sync runs automatically every 30 minutes
-The system SHALL trigger the user sync use case automatically on a 30-minute interval via a unified `SyncScheduler` Quarkus `@Scheduled` adapter. The `SyncScheduler` SHALL sequence `SyncUsersUseCase`, `SyncProjectsUseCase`, and `ReconcileLeadsUseCase` in that order within the same scheduled invocation. The standalone `UserSyncScheduler` is removed. The `SyncScheduler` SHALL be the only trigger for all three sync steps and no manual or API-triggered sync is provided.
+The system SHALL trigger the user sync use case automatically on a 30-minute interval via a unified `SyncScheduler` Quarkus `@Scheduled` adapter. The `SyncScheduler` SHALL sequence `SyncUsersUseCase`, `SyncProjectsUseCase`, and `SyncProjectLeadsUseCase` in that order within the same scheduled invocation. The standalone `UserSyncScheduler` is removed. The `SyncScheduler` SHALL be the only trigger for all three sync steps and no manual or API-triggered sync is provided.
 
 For each use case invocation, `SyncScheduler` SHALL record the wall-clock time before and after the call using `Instant.now()` and compute the elapsed duration. After each step and after the full cycle, `SyncScheduler` SHALL emit structured `INFO` log lines reporting per-step operation counts and elapsed time.
 
@@ -15,11 +15,11 @@ For each use case invocation, `SyncScheduler` SHALL record the wall-clock time b
 - **WHEN** 30 minutes have elapsed since the last sync
 - **THEN** `SyncUsersUseCase.sync()` is called first
 - **THEN** `SyncProjectsUseCase.sync()` is called second
-- **THEN** `ReconcileLeadsUseCase.reconcile()` is called third
+- **THEN** `SyncProjectLeadsUseCase.sync()` is called third
 
 #### Scenario: ReconcileLeads is skipped if SyncProjects fails
 - **WHEN** `SyncProjectsUseCase.sync()` throws an exception
-- **THEN** `ReconcileLeadsUseCase.reconcile()` is NOT called in that cycle
+- **THEN** `SyncProjectLeadsUseCase.sync()` is NOT called in that cycle
 
 #### Scenario: Scheduler logs per-step summary after each step
 - **WHEN** a sync step completes successfully

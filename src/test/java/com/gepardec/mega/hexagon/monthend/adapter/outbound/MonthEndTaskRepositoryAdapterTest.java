@@ -55,7 +55,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                project.getId(),
+                project.id(),
                 employee.id(),
                 Set.of(employee.id())
         );
@@ -63,7 +63,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.LEISTUNGSNACHWEIS,
-                project.getId(),
+                project.id(),
                 employee.id(),
                 Set.of(employee.id())
         ).complete(employee.id());
@@ -71,7 +71,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                project.getId(),
+                project.id(),
                 employee.id(),
                 Set.of(lead.id())
         );
@@ -97,7 +97,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                project.getId(),
+                project.id(),
                 employee.id(),
                 Set.of(leadA.id(), leadB.id())
         );
@@ -132,7 +132,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                project.getId(),
+                project.id(),
                 employee.id(),
                 Set.of(leadA.id(), leadB.id())
         );
@@ -140,7 +140,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                project.getId(),
+                project.id(),
                 employee.id(),
                 Set.of(employee.id())
         );
@@ -148,7 +148,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.ABRECHNUNG,
-                project.getId(),
+                project.id(),
                 null,
                 Set.of(leadA.id())
         );

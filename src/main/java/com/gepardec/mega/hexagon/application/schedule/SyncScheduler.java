@@ -1,17 +1,11 @@
 package com.gepardec.mega.hexagon.application.schedule;
 
-import com.gepardec.mega.hexagon.project.application.ReconcileLeadsService;
-import com.gepardec.mega.hexagon.project.application.SyncProjectsService;
+import com.gepardec.mega.hexagon.project.domain.port.inbound.ProjectLeadSyncResult;
 import com.gepardec.mega.hexagon.project.domain.port.inbound.ProjectSyncResult;
-import com.gepardec.mega.hexagon.project.domain.port.inbound.ReconcileLeadsResult;
-import com.gepardec.mega.hexagon.project.domain.port.inbound.ReconcileLeadsUseCase;
+import com.gepardec.mega.hexagon.project.domain.port.inbound.SyncProjectLeadsUseCase;
 import com.gepardec.mega.hexagon.project.domain.port.inbound.SyncProjectsUseCase;
-import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
-import com.gepardec.mega.hexagon.project.domain.port.outbound.UserLookupPort;
-import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
 import com.gepardec.mega.hexagon.user.domain.port.inbound.SyncUsersUseCase;
 import com.gepardec.mega.hexagon.user.domain.port.inbound.UserSyncResult;
-import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import io.quarkus.logging.Log;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -26,19 +20,17 @@ public class SyncScheduler {
 
     private final SyncUsersUseCase syncUsersUseCase;
     private final SyncProjectsUseCase syncProjectsUseCase;
-    private final ReconcileLeadsUseCase reconcileLeadsUseCase;
+    private final SyncProjectLeadsUseCase syncProjectLeadsUseCase;
 
     @Inject
     public SyncScheduler(
             SyncUsersUseCase syncUsersUseCase,
-            UserRepository userRepository,
-            ZepProjectPort zepProjectPort,
-            ProjectRepository projectRepository,
-            UserLookupPort userLookupPort
+            SyncProjectsUseCase syncProjectsUseCase,
+            SyncProjectLeadsUseCase syncProjectLeadsUseCase
     ) {
         this.syncUsersUseCase = syncUsersUseCase;
-        this.syncProjectsUseCase = new SyncProjectsService(zepProjectPort, projectRepository);
-        this.reconcileLeadsUseCase = new ReconcileLeadsService(zepProjectPort, projectRepository, userLookupPort, userRepository);
+        this.syncProjectsUseCase = syncProjectsUseCase;
+        this.syncProjectLeadsUseCase = syncProjectLeadsUseCase;
     }
 
     @Scheduled(
@@ -59,15 +51,15 @@ public class SyncScheduler {
         Instant t1 = Instant.now();
         ProjectSyncResult projectResult = syncProjectsUseCase.sync();
         long projectMs = Duration.between(t1, Instant.now()).toMillis();
-        Log.infof("project-sync: created=%d updated=%d (duration=%dms)",
-                projectResult.created(), projectResult.updated(), projectMs);
+        Log.infof("project-sync: created=%d updated=%d unchanged=%d (duration=%dms)",
+                projectResult.created(), projectResult.updated(), projectResult.unchanged(), projectMs);
 
         Instant t2 = Instant.now();
-        ReconcileLeadsResult reconcileResult = reconcileLeadsUseCase.reconcile();
-        long reconcileMs = Duration.between(t2, Instant.now()).toMillis();
-        Log.infof("reconcile-leads: resolved=%d skipped=%d rolesAdded=%d rolesRevoked=%d (duration=%dms)",
-                reconcileResult.resolved(), reconcileResult.skipped(),
-                reconcileResult.rolesAdded(), reconcileResult.rolesRevoked(), reconcileMs);
+        ProjectLeadSyncResult projectLeadSyncResult = syncProjectLeadsUseCase.sync();
+        long projectLeadSyncMs = Duration.between(t2, Instant.now()).toMillis();
+        Log.infof("project-lead-sync: resolved=%d skipped=%d rolesAdded=%d rolesRevoked=%d (duration=%dms)",
+                projectLeadSyncResult.resolved(), projectLeadSyncResult.skipped(),
+                projectLeadSyncResult.rolesAdded(), projectLeadSyncResult.rolesRevoked(), projectLeadSyncMs);
 
         Log.infof("sync cycle complete: total duration=%dms",
                 Duration.between(cycleStart, Instant.now()).toMillis());
