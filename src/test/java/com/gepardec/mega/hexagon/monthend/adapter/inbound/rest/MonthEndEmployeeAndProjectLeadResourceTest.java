@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.hexagon.generated.model.CreateEmployeeClarificationRequest;
 import com.gepardec.mega.hexagon.generated.model.CreateProjectLeadClarificationRequest;
 import com.gepardec.mega.hexagon.generated.model.MonthEndClarificationResponse;
@@ -24,13 +23,12 @@ import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetEmployeeMonthEn
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
+import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.service.api.UserService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.oidc.Claim;
-import io.quarkus.test.security.oidc.OidcSecurity;
 import io.restassured.http.ContentType;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,12 +48,7 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestSecurity(user = "test")
-@OidcSecurity(claims = {
-        @Claim(key = "email", value = MonthEndEmployeeAndProjectLeadResourceTest.TEST_EMAIL)
-})
 class MonthEndEmployeeAndProjectLeadResourceTest {
-
-    static final String TEST_EMAIL = "test@gepardec.com";
 
     private static final YearMonth MONTH = YearMonth.of(2026, 3);
     private static final ProjectId PROJECT_ID = ProjectId.of(Instancio.create(UUID.class));
@@ -66,10 +59,7 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
     private static final Instant CREATED_AT = Instant.parse("2026-03-20T08:15:00Z");
 
     @InjectMock
-    UserService userService;
-
-    @InjectMock
-    CurrentMonthEndRestActorResolver currentMonthEndRestActorResolver;
+    AuthenticatedActorContext authenticatedActorContext;
 
     @InjectMock
     GetEmployeeMonthEndWorklistUseCase getEmployeeMonthEndWorklistUseCase;
@@ -85,12 +75,12 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
 
     @BeforeEach
     void setUp() {
-        when(currentMonthEndRestActorResolver.resolveCurrentActorId()).thenReturn(EMPLOYEE_ID);
+        when(authenticatedActorContext.userId()).thenReturn(EMPLOYEE_ID);
     }
 
     @Test
     void getEmployeeMonthEndWorklist_shouldReturnMappedWorklistForEmployeeRole() {
-        allowLegacyRoles(Role.EMPLOYEE);
+        allowRoles(Role.EMPLOYEE);
         MonthEndWorklist worklist = new MonthEndWorklist(
                 EMPLOYEE_ID,
                 MONTH,
@@ -128,7 +118,7 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
 
     @Test
     void prepareEmployeeMonthEndProject_shouldReturnPreparedTasksAndClarification() {
-        allowLegacyRoles(Role.EMPLOYEE);
+        allowRoles(Role.EMPLOYEE);
         PrepareMonthEndProjectRequest request = new PrepareMonthEndProjectRequest()
                 .month(MONTH.toString())
                 .projectId(PROJECT_ID.value())
@@ -161,7 +151,7 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
 
     @Test
     void createEmployeeMonthEndClarification_shouldReturnCreatedClarification() {
-        allowLegacyRoles(Role.EMPLOYEE);
+        allowRoles(Role.EMPLOYEE);
         CreateEmployeeClarificationRequest request = new CreateEmployeeClarificationRequest()
                 .month(MONTH.toString())
                 .projectId(PROJECT_ID.value())
@@ -194,8 +184,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
 
     @Test
     void getProjectLeadMonthEndWorklist_shouldReturnMappedWorklistForLeadRole() {
-        allowLegacyRoles(Role.PROJECT_LEAD);
-        when(currentMonthEndRestActorResolver.resolveCurrentActorId()).thenReturn(PROJECT_LEAD_ID);
+        allowRoles(Role.PROJECT_LEAD);
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         MonthEndWorklist worklist = new MonthEndWorklist(
                 PROJECT_LEAD_ID,
                 MONTH,
@@ -228,8 +218,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
 
     @Test
     void createProjectLeadMonthEndClarification_shouldReturnCreatedClarification() {
-        allowLegacyRoles(Role.PROJECT_LEAD);
-        when(currentMonthEndRestActorResolver.resolveCurrentActorId()).thenReturn(PROJECT_LEAD_ID);
+        allowRoles(Role.PROJECT_LEAD);
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         CreateProjectLeadClarificationRequest request = new CreateProjectLeadClarificationRequest()
                 .month(MONTH.toString())
                 .projectId(PROJECT_ID.value())
@@ -263,7 +253,7 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
 
     @Test
     void getProjectLeadMonthEndWorklist_shouldRejectEmployeeRole() {
-        allowLegacyRoles(Role.EMPLOYEE);
+        allowRoles(Role.EMPLOYEE);
 
         given()
                 .accept(ContentType.JSON)
@@ -275,15 +265,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
         verifyNoInteractions(getProjectLeadMonthEndWorklistUseCase);
     }
 
-    private void allowLegacyRoles(Role... roles) {
-        when(userService.findUserForEmail(TEST_EMAIL)).thenReturn(com.gepardec.mega.domain.model.User.builder()
-                .dbId(1L)
-                .userId("legacy-user")
-                .email(TEST_EMAIL)
-                .firstname("Test")
-                .lastname("User")
-                .roles(Set.of(roles))
-                .build());
+    private void allowRoles(Role... roles) {
+        when(authenticatedActorContext.roles()).thenReturn(Set.of(roles));
     }
 
     private MonthEndTask employeeTask(MonthEndTaskType type) {

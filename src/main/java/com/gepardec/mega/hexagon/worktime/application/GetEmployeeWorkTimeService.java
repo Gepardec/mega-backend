@@ -1,10 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.application;
 
-import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
-import com.gepardec.mega.hexagon.user.domain.model.FullName;
-import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeValidationException;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
@@ -12,7 +8,10 @@ import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEmployee;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEntry;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeProject;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeUserSnapshot;
 import com.gepardec.mega.hexagon.worktime.domain.port.inbound.GetEmployeeWorkTimeUseCase;
+import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeProjectSnapshotPort;
+import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeZepPort;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -27,24 +26,24 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
 
-    private final UserRepository userRepository;
-    private final ProjectRepository projectRepository;
+    private final WorkTimeUserSnapshotPort workTimeUserSnapshotPort;
+    private final WorkTimeProjectSnapshotPort workTimeProjectSnapshotPort;
     private final WorkTimeZepPort workTimeZepPort;
 
     @Inject
     public GetEmployeeWorkTimeService(
-            UserRepository userRepository,
-            ProjectRepository projectRepository,
+            WorkTimeUserSnapshotPort workTimeUserSnapshotPort,
+            WorkTimeProjectSnapshotPort workTimeProjectSnapshotPort,
             WorkTimeZepPort workTimeZepPort
     ) {
-        this.userRepository = userRepository;
-        this.projectRepository = projectRepository;
+        this.workTimeUserSnapshotPort = workTimeUserSnapshotPort;
+        this.workTimeProjectSnapshotPort = workTimeProjectSnapshotPort;
         this.workTimeZepPort = workTimeZepPort;
     }
 
     @Override
     public WorkTimeReport getWorkTime(UserId employeeId, YearMonth month) {
-        User employee = userRepository.findById(employeeId)
+        WorkTimeUserSnapshot employee = workTimeUserSnapshotPort.findById(employeeId)
                 .orElseThrow(() -> new WorkTimeUserNotFoundException("user not found: " + employeeId.value()));
 
         return workTimeZepPort.fetchAttendancesForEmployee(requireZepUsername(employee), month)
@@ -52,13 +51,13 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
                 .await().indefinitely();
     }
 
-    private WorkTimeReport toReport(User employee, YearMonth month, List<WorkTimeAttendance> attendances) {
+    private WorkTimeReport toReport(WorkTimeUserSnapshot employee, YearMonth month, List<WorkTimeAttendance> attendances) {
         if (attendances.isEmpty()) {
             return new WorkTimeReport(month, List.of());
         }
 
         double employeeMonthTotalHours = totalHours(attendances);
-        WorkTimeEmployee employeeRef = new WorkTimeEmployee(employee.id(), fullName(employee.name()));
+        WorkTimeEmployee employeeRef = new WorkTimeEmployee(employee.id(), employee.fullName());
 
         List<WorkTimeEntry> entries = attendances.stream()
                 .collect(Collectors.groupingBy(WorkTimeAttendance::projectZepId))
@@ -77,7 +76,7 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
             List<WorkTimeAttendance> attendances,
             double employeeMonthTotalHours
     ) {
-        return projectRepository.findByZepId(zepProjectId)
+        return workTimeProjectSnapshotPort.findByZepId(zepProjectId)
                 .map(project -> new WorkTimeEntry(
                         employeeRef,
                         new WorkTimeProject(project.id(), project.name()),
@@ -91,11 +90,11 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
                 });
     }
 
-    private String requireZepUsername(User user) {
-        if (user.zepUsername() == null || user.zepUsername().value().isBlank()) {
+    private String requireZepUsername(WorkTimeUserSnapshot user) {
+        if (user.zepUsername() == null || user.zepUsername().isBlank()) {
             throw new WorkTimeValidationException("zep username missing for user: " + user.id().value());
         }
-        return user.zepUsername().value();
+        return user.zepUsername();
     }
 
     private double totalHours(List<WorkTimeAttendance> attendances) {
@@ -116,7 +115,4 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
                 .sum();
     }
 
-    private String fullName(FullName fullName) {
-        return (fullName.firstname() + " " + fullName.lastname()).trim();
-    }
 }

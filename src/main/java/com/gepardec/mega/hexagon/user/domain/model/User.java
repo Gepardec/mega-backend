@@ -1,5 +1,7 @@
 package com.gepardec.mega.hexagon.user.domain.model;
 
+import com.gepardec.mega.hexagon.shared.domain.model.Role;
+
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Objects;
