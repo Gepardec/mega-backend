@@ -11,7 +11,6 @@ import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.UserStatus;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -153,7 +152,6 @@ class ResolveMonthEndTaskSnapshotLookupServiceTest {
                 id,
                 fullName,
                 "employee",
-                UserStatus.ACTIVE,
                 new EmploymentPeriods(new EmploymentPeriod(month.atDay(1).minusYears(1), null))
         );
     }

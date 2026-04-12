@@ -1,89 +1,73 @@
 package com.gepardec.mega.hexagon.user.domain.model;
 
-import java.util.HashSet;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.Objects;
 import java.util.Set;
 
-public class User {
+public record User(
+        UserId id,
+        Email email,
+        FullName name,
+        ZepUsername zepUsername,
+        PersonioId personioId,
+        EmploymentPeriods employmentPeriods,
+        Set<Role> roles
+) {
 
-    private final UserId id;
-    private Email email;
-    private FullName name;
-    private UserStatus status;
-    private Set<Role> roles;
-    private ZepProfile zepProfile;
-    private PersonioProfile personioProfile;
-
-    private User(UserId id, Email email, FullName name, UserStatus status, Set<Role> roles,
-                 ZepProfile zepProfile, PersonioProfile personioProfile) {
-        this.id = id;
-        this.email = email;
-        this.name = name;
-        this.status = status;
-        this.roles = roles;
-        this.zepProfile = zepProfile;
-        this.personioProfile = personioProfile;
+    public User {
+        Objects.requireNonNull(id, "id must not be null");
+        Objects.requireNonNull(email, "email must not be null");
+        Objects.requireNonNull(name, "name must not be null");
+        Objects.requireNonNull(zepUsername, "zepUsername must not be null");
+        Objects.requireNonNull(employmentPeriods, "employmentPeriods must not be null");
+        roles = Set.copyOf(Objects.requireNonNull(roles, "roles must not be null"));
     }
 
-    public static User create(UserId id, ZepProfile zepProfile, Set<Role> roles) {
-        Email email = Email.of(zepProfile.email());
-        FullName name = FullName.of(zepProfile.firstname(), zepProfile.lastname());
-        return new User(id, email, name, UserStatus.ACTIVE, new HashSet<>(roles), zepProfile, null);
+    public static User create(UserId id, ZepEmployeeSyncData syncData, Set<Role> roles) {
+        return new User(
+                id,
+                Email.of(syncData.email()),
+                FullName.of(syncData.firstname(), syncData.lastname()),
+                syncData.zepUsername(),
+                null,
+                syncData.employmentPeriods(),
+                roles
+        );
     }
 
-    public static User reconstitute(UserId id, Email email, FullName name, UserStatus status,
-                                    Set<Role> roles, ZepProfile zepProfile, PersonioProfile personioProfile) {
-        return new User(id, email, name, status, new HashSet<>(roles), zepProfile, personioProfile);
+    public User withSyncedZepData(ZepEmployeeSyncData syncData, Set<Role> roles) {
+        return new User(
+                id,
+                Email.of(syncData.email()),
+                FullName.of(syncData.firstname(), syncData.lastname()),
+                syncData.zepUsername(),
+                personioId,
+                syncData.employmentPeriods(),
+                roles
+        );
     }
 
-    public void syncFromZep(ZepProfile zepProfile) {
-        this.zepProfile = zepProfile;
-        this.email = Email.of(zepProfile.email());
-        this.name = FullName.of(zepProfile.firstname(), zepProfile.lastname());
-    }
-
-    public void syncFromPersonio(PersonioProfile personioProfile) {
-        if (personioProfile != null) {
-            this.personioProfile = personioProfile;
+    public User withPersonioId(PersonioId newPersonioId) {
+        if (newPersonioId == null || Objects.equals(personioId, newPersonioId)) {
+            return this;
         }
+        return new User(id, email, name, zepUsername, newPersonioId, employmentPeriods, roles);
     }
 
-    public void activate() {
-        this.status = UserStatus.ACTIVE;
+    public User withRoles(Set<Role> updatedRoles) {
+        return new User(id, email, name, zepUsername, personioId, employmentPeriods, updatedRoles);
     }
 
-    public void deactivate() {
-        this.status = UserStatus.INACTIVE;
+    public boolean isActiveOn(LocalDate referenceDate) {
+        return employmentPeriods.isActive(referenceDate);
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = new HashSet<>(roles);
+    public boolean isActiveIn(YearMonth payrollMonth) {
+        return employmentPeriods.isActive(payrollMonth);
     }
 
-    public UserId getId() {
-        return id;
-    }
-
-    public Email getEmail() {
-        return email;
-    }
-
-    public FullName getName() {
-        return name;
-    }
-
-    public UserStatus getStatus() {
-        return status;
-    }
-
-    public Set<Role> getRoles() {
-        return Set.copyOf(roles);
-    }
-
-    public ZepProfile getZepProfile() {
-        return zepProfile;
-    }
-
-    public PersonioProfile getPersonioProfile() {
-        return personioProfile;
+    public boolean hasPersonioId() {
+        return personioId != null;
     }
 }

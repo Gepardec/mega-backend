@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.user.adapter.outbound;
 import com.gepardec.mega.hexagon.user.domain.model.Email;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
+import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -39,19 +40,23 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByZepUsername(String username) {
-        return panache.find("zepUsername", username)
+    public Optional<User> findByZepUsername(ZepUsername username) {
+        return panache.find("zepUsername", username.value())
                 .firstResultOptional()
                 .map(mapper::toDomain);
     }
 
     @Override
-    public List<User> findByZepUsernames(Set<String> usernames) {
+    public List<User> findByZepUsernames(Set<ZepUsername> usernames) {
         if (usernames == null || usernames.isEmpty()) {
             return List.of();
         }
 
-        return panache.list("zepUsername in ?1", usernames).stream()
+        Set<String> values = usernames.stream()
+                .map(ZepUsername::value)
+                .collect(Collectors.toSet());
+
+        return panache.list("zepUsername in ?1", values).stream()
                 .map(mapper::toDomain)
                 .toList();
     }
@@ -80,15 +85,13 @@ public class UserRepositoryAdapter implements UserRepository {
     @Override
     public void saveAll(List<User> users) {
         for (User user : users) {
-            UserEntity entity = panache.find("id", user.getId().value())
+            UserEntity entity = panache.find("id", user.id().value())
                     .firstResultOptional()
                     .orElseGet(UserEntity::new);
             boolean isNew = entity.getId() == null;
             mapper.updateEntity(user, entity);
             if (isNew) {
                 panache.persist(entity);
-            } else {
-                panache.getEntityManager().merge(entity);
             }
         }
     }

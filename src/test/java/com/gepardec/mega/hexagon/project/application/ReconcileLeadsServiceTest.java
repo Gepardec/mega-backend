@@ -8,12 +8,13 @@ import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.UserLookupPort;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
 import com.gepardec.mega.hexagon.user.domain.model.Email;
+import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
+import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.FullName;
 import com.gepardec.mega.hexagon.user.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.UserStatus;
-import com.gepardec.mega.hexagon.user.domain.model.ZepProfile;
+import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,11 +55,15 @@ class ReconcileLeadsServiceTest {
     }
 
     private User userWithId(UUID id, String username, Set<Role> roles) {
-        UserId userId = UserId.of(id);
-        ZepProfile zepProfile = mock(ZepProfile.class);
-        when(zepProfile.username()).thenReturn(username);
-        return User.reconstitute(userId, Email.of(username + "@test.com"), FullName.of("F", "L"),
-                UserStatus.ACTIVE, roles, zepProfile, null);
+        return new User(
+                UserId.of(id),
+                Email.of(username + "@test.com"),
+                FullName.of("F", "L"),
+                ZepUsername.of(username),
+                null,
+                new EmploymentPeriods(new EmploymentPeriod(LocalDate.now().minusYears(1), null)),
+                roles
+        );
     }
 
     @Test
@@ -68,7 +73,7 @@ class ReconcileLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(1)).thenReturn(List.of("jdoe"));
-        when(userLookupPort.findUserIdByZepUsername("jdoe")).thenReturn(Optional.of(leadId));
+        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("jdoe"))).thenReturn(Optional.of(leadId));
         when(userRepository.findAll()).thenReturn(List.of());
 
         service.reconcile();
@@ -85,7 +90,7 @@ class ReconcileLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(2)).thenReturn(List.of("unknown"));
-        when(userLookupPort.findUserIdByZepUsername("unknown")).thenReturn(Optional.empty());
+        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("unknown"))).thenReturn(Optional.empty());
         when(userRepository.findAll()).thenReturn(List.of());
 
         service.reconcile();
@@ -104,7 +109,7 @@ class ReconcileLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(3)).thenReturn(List.of("newguy"));
-        when(userLookupPort.findUserIdByZepUsername("newguy")).thenReturn(Optional.of(newLead));
+        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("newguy"))).thenReturn(Optional.of(newLead));
         when(userRepository.findAll()).thenReturn(List.of());
 
         service.reconcile();
@@ -124,13 +129,13 @@ class ReconcileLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(4)).thenReturn(List.of("leaduser"));
-        when(userLookupPort.findUserIdByZepUsername("leaduser")).thenReturn(Optional.of(leadId));
+        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("leaduser"))).thenReturn(Optional.of(leadId));
         when(userRepository.findAll()).thenReturn(List.of(user));
 
         service.reconcile();
 
         verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.getFirst().getRoles()).contains(Role.PROJECT_LEAD);
+            assertThat(users.getFirst().roles()).contains(Role.PROJECT_LEAD);
             return true;
         }));
     }
@@ -148,7 +153,7 @@ class ReconcileLeadsServiceTest {
         service.reconcile();
 
         verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.getFirst().getRoles()).doesNotContain(Role.PROJECT_LEAD);
+            assertThat(users.getFirst().roles()).doesNotContain(Role.PROJECT_LEAD);
             return true;
         }));
     }
@@ -161,7 +166,7 @@ class ReconcileLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(6)).thenReturn(List.of("stable"));
-        when(userLookupPort.findUserIdByZepUsername("stable")).thenReturn(Optional.of(leadId));
+        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("stable"))).thenReturn(Optional.of(leadId));
         when(userRepository.findAll()).thenReturn(List.of(user));
 
         service.reconcile();
@@ -176,8 +181,8 @@ class ReconcileLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(7)).thenReturn(List.of("unknown", "known"));
-        when(userLookupPort.findUserIdByZepUsername("unknown")).thenReturn(Optional.empty());
-        when(userLookupPort.findUserIdByZepUsername("known")).thenReturn(Optional.of(knownId));
+        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("unknown"))).thenReturn(Optional.empty());
+        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("known"))).thenReturn(Optional.of(knownId));
         when(userRepository.findAll()).thenReturn(List.of());
 
         service.reconcile();
@@ -195,9 +200,9 @@ class ReconcileLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(8)).thenReturn(List.of("known", "unknown1", "unknown2"));
-        when(userLookupPort.findUserIdByZepUsername("known")).thenReturn(Optional.of(knownId));
-        when(userLookupPort.findUserIdByZepUsername("unknown1")).thenReturn(Optional.empty());
-        when(userLookupPort.findUserIdByZepUsername("unknown2")).thenReturn(Optional.empty());
+        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("known"))).thenReturn(Optional.of(knownId));
+        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("unknown1"))).thenReturn(Optional.empty());
+        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("unknown2"))).thenReturn(Optional.empty());
         when(userRepository.findAll()).thenReturn(List.of());
 
         ReconcileLeadsResult result = service.reconcile();
@@ -214,13 +219,13 @@ class ReconcileLeadsServiceTest {
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(9)).thenReturn(List.of("newlead"));
-        when(userLookupPort.findUserIdByZepUsername("newlead")).thenReturn(Optional.of(leadId));
+        when(userLookupPort.findUserIdByZepUsername(ZepUsername.of("newlead"))).thenReturn(Optional.of(leadId));
         when(userRepository.findAll()).thenReturn(List.of(user));
 
         ReconcileLeadsResult result = service.reconcile();
 
         assertThat(result.rolesAdded()).isEqualTo(1);
-        assertThat(result.rolesRevoked()).isEqualTo(0);
+        assertThat(result.rolesRevoked()).isZero();
     }
 
     @Test
@@ -235,7 +240,7 @@ class ReconcileLeadsServiceTest {
 
         ReconcileLeadsResult result = service.reconcile();
 
-        assertThat(result.rolesAdded()).isEqualTo(0);
+        assertThat(result.rolesAdded()).isZero();
         assertThat(result.rolesRevoked()).isEqualTo(1);
     }
 }

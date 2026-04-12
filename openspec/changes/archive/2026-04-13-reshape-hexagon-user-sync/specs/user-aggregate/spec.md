@@ -1,10 +1,4 @@
-# User Aggregate
-
-## Purpose
-
-Defines the `User` aggregate root within the hexagonal domain. A User represents an employee with a stable internal identity, locally owned user data, stable references to external providers, employment-period-based activity, and sync-derived roles.
-
-## Requirements
+## ADDED Requirements
 
 ### Requirement: User aggregate stores locally owned user data and stable provider references
 The system SHALL model the hexagon `User` aggregate around locally owned data: internal `UserId`, `Email`, `FullName`, `ZepUsername`, nullable `PersonioId`, `EmploymentPeriods`, and a set of roles. `ZepUsername` and `PersonioId` SHALL be modeled as dedicated value objects. The aggregate SHALL NOT embed full ZEP or Personio profile snapshots as persisted state.
@@ -18,6 +12,19 @@ The system SHALL model the hexagon `User` aggregate around locally owned data: i
 - **WHEN** a User is reconstituted from the repository
 - **THEN** the aggregate is restored from local identity fields, employment periods, roles, and stable provider references
 - **THEN** no full ZEP or Personio profile snapshot is required to rebuild the User
+
+### Requirement: User activity is derived from employment periods
+The system SHALL derive whether a User is active for a given date or payroll month from the User's persisted `EmploymentPeriods`. The system SHALL NOT require a separately persisted active/inactive status on the User aggregate.
+
+#### Scenario: User is active when an employment period covers the reference date
+- **WHEN** a User has an employment period active on the queried date
+- **THEN** the User is treated as active for that date
+
+#### Scenario: User is inactive when no employment period covers the reference month
+- **WHEN** a User has no employment period active during the queried payroll month
+- **THEN** the User is treated as inactive for that payroll month
+
+## MODIFIED Requirements
 
 ### Requirement: User has a stable domain identity
 The system SHALL assign each User a UUID generated internally (`UserId`) that is independent of any external system identifier. ZEP username and nullable Personio ID SHALL be stored as `ZepUsername` and `PersonioId` value objects on the User aggregate and SHALL NOT replace the User's internal identity.
@@ -37,17 +44,6 @@ The system SHALL assign each User a UUID generated internally (`UserId`) that is
 - **THEN** the User stores that identifier as a `PersonioId` value object
 - **THEN** the User's `UserId` remains unchanged
 
-### Requirement: User activity is derived from employment periods
-The system SHALL derive whether a User is active for a given date or payroll month from the User's persisted `EmploymentPeriods`. The system SHALL NOT require a separately persisted active/inactive status on the User aggregate.
-
-#### Scenario: User is active when an employment period covers the reference date
-- **WHEN** a User has an employment period active on the queried date
-- **THEN** the User is treated as active for that date
-
-#### Scenario: User is inactive when no employment period covers the reference month
-- **WHEN** a User has no employment period active during the queried payroll month
-- **THEN** the User is treated as inactive for that payroll month
-
 ### Requirement: User has a set of roles derived during sync
 The system SHALL assign roles to each User during sync. Every synced User SHALL have the `EMPLOYEE` role. The `OFFICE_MANAGEMENT` role SHALL be assigned if the User's email address appears in the configured office-management email list. The `PROJECT_LEAD` role MAY be managed by a separate lead-reconciliation capability.
 
@@ -62,3 +58,17 @@ The system SHALL assign roles to each User during sync. Every synced User SHALL 
 #### Scenario: Username-only config match does not assign office management
 - **WHEN** a configured office-management entry does not match the User's email address
 - **THEN** the User does not receive `OFFICE_MANAGEMENT` from that config entry
+
+## REMOVED Requirements
+
+### Requirement: User aggregate contains ZepProfile value object
+**Reason**: The local user aggregate should persist only locally owned user data and stable provider references, not a full ZEP snapshot.
+**Migration**: Move required ZEP-owned fields into direct local aggregate fields or dedicated on-demand provider-detail lookups.
+
+### Requirement: User aggregate contains nullable PersonioProfile value object
+**Reason**: Routine sync should retain only a stable Personio reference, while Personio-owned detail is fetched on demand when a use case needs it.
+**Migration**: Replace persisted `PersonioProfile` access with stored `personioId` plus provider-detail lookup ports.
+
+### Requirement: User has an active/inactive status
+**Reason**: Activity is temporal and can be derived from persisted employment periods without a separate status flag.
+**Migration**: Replace stored status checks with date-based or month-based activity evaluation from `EmploymentPeriods`.
