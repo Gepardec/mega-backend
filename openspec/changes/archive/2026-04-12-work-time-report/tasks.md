@@ -1,8 +1,8 @@
 ## 1. Domain Model
 
-- [x] 1.1 Create `WorkTimeEntry` record with `EmployeeRef`, `ProjectRef`, `billableHours` (double), `nonBillableHours` (double), `employeeMonthTotalHours` (double)
-- [x] 1.2 Create `EmployeeRef` value object with `UserId id` and `String name`
-- [x] 1.3 Create `ProjectRef` value object with `ProjectId id` and `String name`
+- [x] 1.1 Create `WorkTimeEntry` record with `WorkTimeEmployee`, `WorkTimeProject`, `billableHours` (double), `nonBillableHours` (double), `employeeMonthTotalHours` (double)
+- [x] 1.2 Create `WorkTimeEmployee` value object with `UserId id` and `String name`
+- [x] 1.3 Create `WorkTimeProject` value object with `ProjectId id` and `String name`
 - [x] 1.4 Create `WorkTimeReport` record with `YearMonth payrollMonth` and `List<WorkTimeEntry> entries`
 
 ## 2. Outbound ZEP Port and Adapter
