@@ -3,12 +3,14 @@ package com.gepardec.mega.hexagon.worktime.application;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
+import com.gepardec.mega.hexagon.user.domain.model.Email;
+import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
-import com.gepardec.mega.hexagon.user.domain.model.RegularWorkingTimes;
+import com.gepardec.mega.hexagon.user.domain.model.FullName;
 import com.gepardec.mega.hexagon.user.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.ZepProfile;
+import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
@@ -64,7 +66,7 @@ class GetProjectLeadWorkTimeServiceTest {
         when(workTimeZepPort.fetchAttendancesForEmployee("grace", YearMonth.of(2026, 3))).thenReturn(Uni.createFrom().item(List.of(
                 new WorkTimeAttendance("grace", 11, 0.0d, 3.5d)
         )));
-        when(userRepository.findByZepUsernames(Set.of("ada", "grace"))).thenReturn(List.of(
+        when(userRepository.findByZepUsernames(Set.of(ZepUsername.of("ada"), ZepUsername.of("grace")))).thenReturn(List.of(
                 user(employeeId, "ada", "Ada", "Lovelace"),
                 user(secondEmployeeId, "grace", "Grace", "Hopper")
         ));
@@ -123,21 +125,13 @@ class GetProjectLeadWorkTimeServiceTest {
     }
 
     private User user(UserId userId, String username, String firstname, String lastname) {
-        return User.create(
+        return new User(
                 userId,
-                new ZepProfile(
-                        username,
-                        username + "@example.com",
-                        firstname,
-                        lastname,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        EmploymentPeriods.empty(),
-                        RegularWorkingTimes.empty()
-                ),
+                Email.of(username + "@example.com"),
+                FullName.of(firstname, lastname),
+                ZepUsername.of(username),
+                null,
+                new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2024, 1, 1), null)),
                 Set.of(Role.EMPLOYEE)
         );
     }

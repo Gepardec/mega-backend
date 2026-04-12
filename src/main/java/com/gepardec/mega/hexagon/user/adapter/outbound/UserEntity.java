@@ -1,14 +1,17 @@
 package com.gepardec.mega.hexagon.user.adapter.outbound;
 
-import com.gepardec.mega.hexagon.user.domain.model.PersonioProfile;
-import com.gepardec.mega.hexagon.user.domain.model.ZepProfile;
+import com.gepardec.mega.hexagon.user.domain.model.Role;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,23 +32,21 @@ public class UserEntity {
     @Column(name = "lastname")
     private String lastname;
 
-    @Column(name = "status", nullable = false)
-    private String status;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "roles")
-    private Set<String> roles;
+    @ElementCollection
+    @CollectionTable(name = "hexagon_user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles = new HashSet<>();
 
     @Column(name = "zep_username")
     private String zepUsername;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "zep_profile")
-    private ZepProfile zepProfile;
+    @Column(name = "personio_id")
+    private Integer personioId;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "personio_profile")
-    private PersonioProfile personioProfile;
+    @ElementCollection
+    @CollectionTable(name = "hexagon_user_employment_periods", joinColumns = @JoinColumn(name = "user_id"))
+    private Set<UserEmploymentPeriodEmbeddable> employmentPeriods = new HashSet<>();
 
     public UUID getId() {
         return id;
@@ -79,19 +80,11 @@ public class UserEntity {
         this.lastname = lastname;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Set<String> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<String> roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 
@@ -103,19 +96,19 @@ public class UserEntity {
         this.zepUsername = zepUsername;
     }
 
-    public ZepProfile getZepProfile() {
-        return zepProfile;
+    public Integer getPersonioId() {
+        return personioId;
     }
 
-    public void setZepProfile(ZepProfile zepProfile) {
-        this.zepProfile = zepProfile;
+    public void setPersonioId(Integer personioId) {
+        this.personioId = personioId;
     }
 
-    public PersonioProfile getPersonioProfile() {
-        return personioProfile;
+    public Set<UserEmploymentPeriodEmbeddable> getEmploymentPeriods() {
+        return employmentPeriods;
     }
 
-    public void setPersonioProfile(PersonioProfile personioProfile) {
-        this.personioProfile = personioProfile;
+    public void setEmploymentPeriods(Set<UserEmploymentPeriodEmbeddable> employmentPeriods) {
+        this.employmentPeriods = employmentPeriods;
     }
 }

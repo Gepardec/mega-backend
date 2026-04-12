@@ -2,11 +2,12 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.error.MonthEndAuthenticatedActorResolutionException;
 import com.gepardec.mega.hexagon.user.domain.model.Email;
+import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.FullName;
 import com.gepardec.mega.hexagon.user.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.UserStatus;
+import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import org.eclipse.microprofile.jwt.ClaimValue;
 import org.instancio.Instancio;
@@ -73,14 +74,14 @@ class CurrentMonthEndRestActorResolverTest {
     }
 
     private User user(UserId actorId, String email) {
-        return User.reconstitute(
+        return new User(
                 actorId,
                 Email.of(email),
                 FullName.of("Ada", "Lovelace"),
-                UserStatus.ACTIVE,
-                Set.of(Role.EMPLOYEE),
+                ZepUsername.of("ada"),
                 null,
-                null
+                EmploymentPeriods.empty(),
+                Set.of(Role.EMPLOYEE)
         );
     }
 }

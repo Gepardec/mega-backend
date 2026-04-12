@@ -4,10 +4,22 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
 public record EmploymentPeriods(List<EmploymentPeriod> employmentPeriods) {
+
+    private static final Comparator<EmploymentPeriod> EMPLOYMENT_PERIOD_COMPARATOR =
+            Comparator.comparing(EmploymentPeriod::start, Comparator.nullsFirst(Comparator.naturalOrder()))
+                    .thenComparing(EmploymentPeriod::end, Comparator.nullsFirst(Comparator.naturalOrder()));
+
+    public EmploymentPeriods {
+        employmentPeriods = Objects.requireNonNull(employmentPeriods, "employmentPeriods must not be null").stream()
+                .distinct()
+                .sorted(EMPLOYMENT_PERIOD_COMPARATOR)
+                .toList();
+    }
 
     public static EmploymentPeriods empty() {
         return new EmploymentPeriods(List.of());
@@ -53,6 +65,14 @@ public record EmploymentPeriods(List<EmploymentPeriod> employmentPeriods) {
      */
     public Optional<EmploymentPeriod> active(YearMonth payrollMonth) {
         return active(payrollMonth.atDay(1)).or(() -> active(payrollMonth.atEndOfMonth()));
+    }
+
+    public boolean isActive(LocalDate referenceDate) {
+        return active(referenceDate).isPresent();
+    }
+
+    public boolean isActive(YearMonth payrollMonth) {
+        return active(payrollMonth).isPresent();
     }
 
     private Predicate<EmploymentPeriod> isStartInPast(LocalDate referenceDate) {

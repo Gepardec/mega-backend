@@ -11,8 +11,7 @@ import org.mapstruct.MappingConstants;
 public interface MonthEndUserSnapshotMapper {
 
     @Mapping(target = "fullName", source = "name")
-    @Mapping(target = "zepUsername", source = "zepProfile.username")
-    @Mapping(target = "employmentPeriods", source = "zepProfile.employmentPeriods")
+    @Mapping(target = "zepUsername", source = "zepUsername.value")
     MonthEndUserSnapshot toSnapshot(User user);
 
     default String map(FullName fullName) {

@@ -4,13 +4,12 @@ import com.gepardec.mega.hexagon.user.domain.model.Email;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.FullName;
-import com.gepardec.mega.hexagon.user.domain.model.PersonioProfile;
-import com.gepardec.mega.hexagon.user.domain.model.RegularWorkingTimes;
+import com.gepardec.mega.hexagon.user.domain.model.PersonioId;
 import com.gepardec.mega.hexagon.user.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.UserStatus;
-import com.gepardec.mega.hexagon.user.domain.model.ZepProfile;
+import com.gepardec.mega.hexagon.user.domain.model.ZepEmployeeSyncData;
+import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.port.inbound.UserSyncResult;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.PersonioEmployeePort;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
@@ -25,8 +24,10 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,7 +36,6 @@ class SyncUsersServiceTest {
     private ZepEmployeePort zepEmployeePort;
     private PersonioEmployeePort personioEmployeePort;
     private UserRepository userRepository;
-    private SyncUsersService syncUsersService;
 
     @BeforeEach
     void setUp() {
@@ -44,246 +44,162 @@ class SyncUsersServiceTest {
         userRepository = mock(UserRepository.class);
     }
 
-    private SyncUsersService service(List<String> omUsernames) {
-        return new SyncUsersService(zepEmployeePort, personioEmployeePort, userRepository,
-                new UserSyncConfig(omUsernames));
-    }
-
-    private ZepProfile profile(String username) {
-        EmploymentPeriods activeEmployment = new EmploymentPeriods(
-                new EmploymentPeriod(LocalDate.now().minusYears(1), null));
-        return new ZepProfile(username, username + "@example.com", "John", "Doe", null, null, null, null, null, activeEmployment, RegularWorkingTimes.empty());
-    }
-
     @Test
     void sync_createsNewUserForUnknownZepEmployee() {
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of(profile("jdoe")));
-        when(userRepository.findAll()).thenReturn(List.of());
-        when(personioEmployeePort.findByEmail(any())).thenReturn(Optional.empty());
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of(syncData("jdoe")));
+        when(userRepository.findByZepUsernames(anySet())).thenReturn(List.of());
+        when(personioEmployeePort.findPersonioIdByEmail(any())).thenReturn(Optional.empty());
 
         service(List.of()).sync();
 
         verify(userRepository).saveAll(argThat(users -> {
             assertThat(users).hasSize(1);
-            assertThat(users.getFirst().getZepProfile().username()).isEqualTo("jdoe");
-            assertThat(users.getFirst().getStatus()).isEqualTo(UserStatus.ACTIVE);
-            assertThat(users.getFirst().getRoles()).contains(Role.EMPLOYEE);
+            assertThat(users.getFirst().zepUsername()).isEqualTo(ZepUsername.of("jdoe"));
+            assertThat(users.getFirst().roles()).containsExactly(Role.EMPLOYEE);
+            assertThat(users.getFirst().employmentPeriods().employmentPeriods()).hasSize(1);
             return true;
         }));
     }
 
     @Test
-    void sync_updatesExistingUserFromZep() {
-        ZepProfile oldProfile = profile("jdoe");
-        User existing = User.create(UserId.generate(), oldProfile, Set.of(Role.EMPLOYEE));
-        ZepProfile newProfile = new ZepProfile("jdoe", "jdoe@example.com", "Jane", "Updated", null, null, null, null, null,
-                new EmploymentPeriods(new EmploymentPeriod(LocalDate.now().minusYears(1), null)), RegularWorkingTimes.empty());
+    void sync_updatesExistingUserAndPreservesProjectLeadRole() {
+        User existing = user("jdoe", "old@example.com", "John", "Old", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD), null);
+        ZepEmployeeSyncData updatedSyncData = syncData("jdoe", "jdoe@example.com", "Jane", "Updated", activeEmployment());
 
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of(newProfile));
-        when(userRepository.findAll()).thenReturn(List.of(existing));
-        when(personioEmployeePort.findByEmail(any())).thenReturn(Optional.empty());
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of(updatedSyncData));
+        when(userRepository.findByZepUsernames(Set.of(ZepUsername.of("jdoe")))).thenReturn(List.of(existing));
+        when(personioEmployeePort.findPersonioIdByEmail(any())).thenReturn(Optional.empty());
 
         service(List.of()).sync();
 
         verify(userRepository).saveAll(argThat(users -> {
             assertThat(users).hasSize(1);
-            assertThat(users.getFirst().getName().firstname()).isEqualTo("Jane");
-            assertThat(users.getFirst().getName().lastname()).isEqualTo("Updated");
+            assertThat(users.getFirst().name()).isEqualTo(FullName.of("Jane", "Updated"));
+            assertThat(users.getFirst().roles()).containsExactlyInAnyOrder(Role.EMPLOYEE, Role.PROJECT_LEAD);
             return true;
         }));
     }
 
     @Test
-    void sync_deactivatesUserAbsentFromZep() {
-        User existing = User.create(UserId.generate(), profile("jdoe"), Set.of(Role.EMPLOYEE));
+    void sync_assignsOfficeManagementRoleByConfiguredEmail() {
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of(syncData("om", "om@example.com", "Om", "User", activeEmployment())));
+        when(userRepository.findByZepUsernames(anySet())).thenReturn(List.of());
+        when(personioEmployeePort.findPersonioIdByEmail(any())).thenReturn(Optional.empty());
 
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of()); // jdoe is gone
-        when(userRepository.findAll()).thenReturn(List.of(existing));
-
-        service(List.of()).sync();
+        service(List.of("om@example.com")).sync();
 
         verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.stream().filter(u -> u.getZepProfile().username().equals("jdoe")).findFirst())
-                    .hasValueSatisfying(u -> assertThat(u.getStatus()).isEqualTo(UserStatus.INACTIVE));
+            assertThat(users.getFirst().roles()).containsExactlyInAnyOrder(Role.EMPLOYEE, Role.OFFICE_MANAGEMENT);
             return true;
         }));
     }
 
     @Test
-    void sync_assignsOfficeManagementRoleFromConfig() {
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of(profile("om_user")));
-        when(userRepository.findAll()).thenReturn(List.of());
-        when(personioEmployeePort.findByEmail(any())).thenReturn(Optional.empty());
+    void sync_retainsHistoricalEmployeesAndCountsSkippedUsersWithoutEmail() {
+        ZepEmployeeSyncData endedEmployment = syncData(
+                "former",
+                "former@example.com",
+                "Former",
+                "Employee",
+                new EmploymentPeriods(new EmploymentPeriod(LocalDate.now().minusYears(2), LocalDate.now().minusYears(1)))
+        );
+        ZepEmployeeSyncData missingEmail = syncData("missing", null, "Missing", "Mail", activeEmployment());
 
-        service(List.of("om_user")).sync();
-
-        verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.getFirst().getRoles()).contains(Role.OFFICE_MANAGEMENT, Role.EMPLOYEE);
-            return true;
-        }));
-    }
-
-    @Test
-    void sync_doesNotAssignOfficeManagementRoleForRegularEmployee() {
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of(profile("jdoe")));
-        when(userRepository.findAll()).thenReturn(List.of());
-        when(personioEmployeePort.findByEmail(any())).thenReturn(Optional.empty());
-
-        service(List.of("om_user")).sync();
-
-        verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.getFirst().getRoles()).doesNotContain(Role.OFFICE_MANAGEMENT);
-            return true;
-        }));
-    }
-
-    @Test
-    void sync_enrichesUserWithPersonioDataWhenAvailable() {
-        PersonioProfile personioProfile = new PersonioProfile(99, 15.0, "guild", "project", false);
-
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of(profile("jdoe")));
-        when(userRepository.findAll()).thenReturn(List.of());
-        when(personioEmployeePort.findByEmail(Email.of("jdoe@example.com"))).thenReturn(Optional.of(personioProfile));
-
-        service(List.of()).sync();
-
-        verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.getFirst().getPersonioProfile()).isEqualTo(personioProfile);
-            return true;
-        }));
-    }
-
-    @Test
-    void sync_preservesExistingPersonioProfileWhenPersonioUnavailable() {
-        PersonioProfile existing = new PersonioProfile(99, 15.0, "guild", "project", false);
-        User user = User.reconstitute(UserId.generate(), Email.of("jdoe@example.com"),
-                FullName.of("John", "Doe"), UserStatus.ACTIVE, Set.of(Role.EMPLOYEE), profile("jdoe"), existing);
-
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of(profile("jdoe")));
-        when(userRepository.findAll()).thenReturn(List.of(user));
-        when(personioEmployeePort.findByEmail(any())).thenReturn(Optional.empty());
-
-        service(List.of()).sync();
-
-        verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.getFirst().getPersonioProfile()).isEqualTo(existing);
-            return true;
-        }));
-    }
-
-    @Test
-    void sync_deactivatesUserWithNullEmail() {
-        EmploymentPeriods activePeriods = new EmploymentPeriods(
-                new EmploymentPeriod(LocalDate.now().minusYears(1), null));
-        ZepProfile noEmailProfile = new ZepProfile("jdoe", null, "John", "Doe",
-                null, null, null, null, null, activePeriods, RegularWorkingTimes.empty());
-        User existing = User.create(UserId.generate(), profile("jdoe"), Set.of(Role.EMPLOYEE));
-
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of(noEmailProfile));
-        when(userRepository.findAll()).thenReturn(List.of(existing));
-
-        service(List.of()).sync();
-
-        verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.stream().filter(u -> u.getZepProfile().username().equals("jdoe")).findFirst())
-                    .hasValueSatisfying(u -> assertThat(u.getStatus()).isEqualTo(UserStatus.INACTIVE));
-            return true;
-        }));
-    }
-
-    @Test
-    void sync_deactivatesUserWithInactiveEmploymentPeriod() {
-        EmploymentPeriods inactivePeriods = new EmploymentPeriods(
-                new EmploymentPeriod(LocalDate.now().minusYears(2), LocalDate.now().minusYears(1)));
-        ZepProfile inactiveProfile = new ZepProfile("jdoe", "jdoe@example.com", "John", "Doe",
-                null, null, null, null, null, inactivePeriods, RegularWorkingTimes.empty());
-        User existing = User.create(UserId.generate(), inactiveProfile, Set.of(Role.EMPLOYEE));
-
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of(inactiveProfile));
-        when(userRepository.findAll()).thenReturn(List.of(existing));
-
-        service(List.of()).sync();
-
-        verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users.stream().filter(u -> u.getZepProfile().username().equals("jdoe")).findFirst())
-                    .hasValueSatisfying(u -> assertThat(u.getStatus()).isEqualTo(UserStatus.INACTIVE));
-            return true;
-        }));
-    }
-
-    @Test
-    void sync_continuesWhenPersonioUnavailableForOneUser() {
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of(profile("user1"), profile("user2")));
-        when(userRepository.findAll()).thenReturn(List.of());
-        when(personioEmployeePort.findByEmail(Email.of("user1@example.com"))).thenReturn(Optional.empty());
-        when(personioEmployeePort.findByEmail(Email.of("user2@example.com")))
-                .thenReturn(Optional.of(new PersonioProfile(42, 5.0, null, null, false)));
-
-        service(List.of()).sync();
-
-        verify(userRepository).saveAll(argThat(users -> {
-            assertThat(users).hasSize(2);
-            return true;
-        }));
-    }
-
-    @Test
-    void sync_result_countsAddedUsers() {
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of(profile("a"), profile("b"), profile("c")));
-        when(userRepository.findAll()).thenReturn(List.of());
-        when(personioEmployeePort.findByEmail(any())).thenReturn(Optional.empty());
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of(endedEmployment, missingEmail));
+        when(userRepository.findByZepUsernames(Set.of(ZepUsername.of("former")))).thenReturn(List.of());
+        when(personioEmployeePort.findPersonioIdByEmail(any())).thenReturn(Optional.empty());
 
         UserSyncResult result = service(List.of()).sync();
 
-        assertThat(result.added()).isEqualTo(3);
-        assertThat(result.updated()).isEqualTo(0);
-        assertThat(result.disabled()).isEqualTo(0);
+        verify(userRepository).saveAll(argThat(users -> users.size() == 1
+                && users.getFirst().zepUsername().equals(ZepUsername.of("former"))));
+        assertThat(result.added()).isEqualTo(1);
+        assertThat(result.skippedNoEmail()).isEqualTo(1);
     }
 
     @Test
-    void sync_result_countsUpdatedUsers() {
-        User existingA = User.create(UserId.generate(), profile("a"), Set.of(Role.EMPLOYEE));
-        User existingB = User.create(UserId.generate(), profile("b"), Set.of(Role.EMPLOYEE));
-
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of(profile("a"), profile("b")));
-        when(userRepository.findAll()).thenReturn(List.of(existingA, existingB));
-        when(personioEmployeePort.findByEmail(any())).thenReturn(Optional.empty());
+    void sync_linksMissingPersonioIdAndCountsSupplementalMetric() {
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of(syncData("jdoe")));
+        when(userRepository.findByZepUsernames(anySet())).thenReturn(List.of());
+        when(personioEmployeePort.findPersonioIdByEmail(Email.of("jdoe@example.com"))).thenReturn(Optional.of(PersonioId.of(99)));
 
         UserSyncResult result = service(List.of()).sync();
 
-        assertThat(result.added()).isEqualTo(0);
-        assertThat(result.updated()).isEqualTo(2);
-        assertThat(result.disabled()).isEqualTo(0);
+        verify(userRepository).saveAll(argThat(users -> {
+            assertThat(users.getFirst().personioId()).isEqualTo(PersonioId.of(99));
+            return true;
+        }));
+        assertThat(result.personioLinked()).isEqualTo(1);
+        assertThat(result.added()).isEqualTo(1);
     }
 
     @Test
-    void sync_result_countsDisabledUsers() {
-        User existingA = User.create(UserId.generate(), profile("a"), Set.of(Role.EMPLOYEE));
-        User existingB = User.create(UserId.generate(), profile("b"), Set.of(Role.EMPLOYEE));
+    void sync_skipsPersonioLookupWhenUserIsAlreadyLinked() {
+        User existing = user("jdoe", "jdoe@example.com", "John", "Doe", Set.of(Role.EMPLOYEE), PersonioId.of(42));
 
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of()); // all gone
-        when(userRepository.findAll()).thenReturn(List.of(existingA, existingB));
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of(syncData("jdoe")));
+        when(userRepository.findByZepUsernames(Set.of(ZepUsername.of("jdoe")))).thenReturn(List.of(existing));
 
         UserSyncResult result = service(List.of()).sync();
 
-        assertThat(result.added()).isEqualTo(0);
-        assertThat(result.updated()).isEqualTo(0);
-        assertThat(result.disabled()).isEqualTo(2);
+        verify(personioEmployeePort, never()).findPersonioIdByEmail(any());
+        assertThat(result.updated()).isZero();
+        assertThat(result.unchanged()).isEqualTo(1);
     }
 
     @Test
-    void sync_result_countsMixedOperations() {
-        User existing = User.create(UserId.generate(), profile("existing"), Set.of(Role.EMPLOYEE));
-        User toDisable = User.create(UserId.generate(), profile("leaving"), Set.of(Role.EMPLOYEE));
+    void sync_result_countsAddedUpdatedUnchangedSkippedAndPersonioLinked() {
+        User unchanged = user("unchanged", "unchanged@example.com", "Stable", "User", Set.of(Role.EMPLOYEE), PersonioId.of(7));
+        User updated = user("updated", "updated@example.com", "Old", "Name", Set.of(Role.EMPLOYEE), null);
 
-        when(zepEmployeePort.fetchAll()).thenReturn(List.of(profile("existing"), profile("newuser")));
-        when(userRepository.findAll()).thenReturn(List.of(existing, toDisable));
-        when(personioEmployeePort.findByEmail(any())).thenReturn(Optional.empty());
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of(
+                syncData("new"),
+                syncData("updated", "updated@example.com", "New", "Name", activeEmployment()),
+                syncData("unchanged", "unchanged@example.com", "Stable", "User", activeEmployment()),
+                syncData("missing", null, "No", "Email", activeEmployment())
+        ));
+        when(userRepository.findByZepUsernames(Set.of(
+                ZepUsername.of("new"),
+                ZepUsername.of("updated"),
+                ZepUsername.of("unchanged")
+        ))).thenReturn(List.of(updated, unchanged));
+        when(personioEmployeePort.findPersonioIdByEmail(Email.of("new@example.com"))).thenReturn(Optional.of(PersonioId.of(99)));
+        when(personioEmployeePort.findPersonioIdByEmail(Email.of("updated@example.com"))).thenReturn(Optional.empty());
 
         UserSyncResult result = service(List.of()).sync();
 
         assertThat(result.added()).isEqualTo(1);
         assertThat(result.updated()).isEqualTo(1);
-        assertThat(result.disabled()).isEqualTo(1);
+        assertThat(result.unchanged()).isEqualTo(1);
+        assertThat(result.skippedNoEmail()).isEqualTo(1);
+        assertThat(result.personioLinked()).isEqualTo(1);
+    }
+
+    private SyncUsersService service(List<String> omEmails) {
+        return new SyncUsersService(zepEmployeePort, personioEmployeePort, userRepository, omEmails);
+    }
+
+    private ZepEmployeeSyncData syncData(String username) {
+        return syncData(username, username + "@example.com", "John", "Doe", activeEmployment());
+    }
+
+    private ZepEmployeeSyncData syncData(String username, String email, String firstname, String lastname, EmploymentPeriods employmentPeriods) {
+        return new ZepEmployeeSyncData(ZepUsername.of(username), email, firstname, lastname, employmentPeriods);
+    }
+
+    private EmploymentPeriods activeEmployment() {
+        return new EmploymentPeriods(new EmploymentPeriod(LocalDate.now().minusYears(1), null));
+    }
+
+    private User user(String username, String email, String firstname, String lastname, Set<Role> roles, PersonioId personioId) {
+        return new User(
+                UserId.generate(),
+                Email.of(email),
+                FullName.of(firstname, lastname),
+                ZepUsername.of(username),
+                personioId,
+                activeEmployment(),
+                roles
+        );
     }
 }

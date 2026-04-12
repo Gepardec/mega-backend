@@ -8,13 +8,14 @@ import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
 import com.gepardec.mega.hexagon.user.adapter.outbound.UserRepositoryAdapter;
+import com.gepardec.mega.hexagon.user.domain.model.Email;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
-import com.gepardec.mega.hexagon.user.domain.model.RegularWorkingTimes;
+import com.gepardec.mega.hexagon.user.domain.model.FullName;
 import com.gepardec.mega.hexagon.user.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.ZepProfile;
+import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -55,28 +56,28 @@ class MonthEndTaskRepositoryAdapterTest {
                 month,
                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                 project.getId(),
-                employee.getId(),
-                Set.of(employee.getId())
+                employee.id(),
+                Set.of(employee.id())
         );
         MonthEndTask doneEmployeeTask = MonthEndTask.create(
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.LEISTUNGSNACHWEIS,
                 project.getId(),
-                employee.getId(),
-                Set.of(employee.getId())
-        ).complete(employee.getId());
+                employee.id(),
+                Set.of(employee.id())
+        ).complete(employee.id());
         MonthEndTask openLeadTask = MonthEndTask.create(
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
                 project.getId(),
-                employee.getId(),
-                Set.of(lead.getId())
+                employee.id(),
+                Set.of(lead.id())
         );
         monthEndTaskRepositoryAdapter.saveAll(List.of(openEmployeeTask, doneEmployeeTask, openLeadTask));
 
-        List<MonthEndTask> tasks = monthEndTaskRepositoryAdapter.findOpenEmployeeTasks(employee.getId(), month);
+        List<MonthEndTask> tasks = monthEndTaskRepositoryAdapter.findOpenEmployeeTasks(employee.id(), month);
 
         assertThat(tasks).containsExactly(openEmployeeTask);
     }
@@ -97,21 +98,21 @@ class MonthEndTaskRepositoryAdapterTest {
                 month,
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
                 project.getId(),
-                employee.getId(),
-                Set.of(leadA.getId(), leadB.getId())
+                employee.id(),
+                Set.of(leadA.id(), leadB.id())
         );
         monthEndTaskRepositoryAdapter.save(sharedTask);
 
-        assertThat(monthEndTaskRepositoryAdapter.findOpenProjectLeadTasks(leadA.getId(), month))
+        assertThat(monthEndTaskRepositoryAdapter.findOpenProjectLeadTasks(leadA.id(), month))
                 .containsExactly(sharedTask);
-        assertThat(monthEndTaskRepositoryAdapter.findOpenProjectLeadTasks(leadB.getId(), month))
+        assertThat(monthEndTaskRepositoryAdapter.findOpenProjectLeadTasks(leadB.id(), month))
                 .containsExactly(sharedTask);
 
-        MonthEndTask completedTask = sharedTask.complete(leadA.getId());
+        MonthEndTask completedTask = sharedTask.complete(leadA.id());
         monthEndTaskRepositoryAdapter.save(completedTask);
 
-        assertThat(monthEndTaskRepositoryAdapter.findOpenProjectLeadTasks(leadA.getId(), month)).isEmpty();
-        assertThat(monthEndTaskRepositoryAdapter.findOpenProjectLeadTasks(leadB.getId(), month)).isEmpty();
+        assertThat(monthEndTaskRepositoryAdapter.findOpenProjectLeadTasks(leadA.id(), month)).isEmpty();
+        assertThat(monthEndTaskRepositoryAdapter.findOpenProjectLeadTasks(leadB.id(), month)).isEmpty();
         assertThat(monthEndTaskRepositoryAdapter.findById(sharedTask.id()))
                 .contains(completedTask);
     }
@@ -132,16 +133,16 @@ class MonthEndTaskRepositoryAdapterTest {
                 month,
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
                 project.getId(),
-                employee.getId(),
-                Set.of(leadA.getId(), leadB.getId())
+                employee.id(),
+                Set.of(leadA.id(), leadB.id())
         );
         MonthEndTask subjectAndEligibleTask = MonthEndTask.create(
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                 project.getId(),
-                employee.getId(),
-                Set.of(employee.getId())
+                employee.id(),
+                Set.of(employee.id())
         );
         MonthEndTask unrelatedTask = MonthEndTask.create(
                 MonthEndTaskId.generate(),
@@ -149,32 +150,24 @@ class MonthEndTaskRepositoryAdapterTest {
                 MonthEndTaskType.ABRECHNUNG,
                 project.getId(),
                 null,
-                Set.of(leadA.getId())
+                Set.of(leadA.id())
         );
         monthEndTaskRepositoryAdapter.saveAll(List.of(subjectOnlyTask, subjectAndEligibleTask, unrelatedTask));
 
-        List<MonthEndTask> tasks = monthEndTaskRepositoryAdapter.findVisibleTasksForActor(employee.getId(), month);
+        List<MonthEndTask> tasks = monthEndTaskRepositoryAdapter.findVisibleTasksForActor(employee.id(), month);
 
         assertThat(tasks).containsExactlyInAnyOrder(subjectOnlyTask, subjectAndEligibleTask);
     }
 
     private User user(String username, Set<Role> roles) {
-        return User.create(UserId.generate(), profile(username), roles);
-    }
-
-    private ZepProfile profile(String username) {
-        return new ZepProfile(
-                username,
-                username + "@example.com",
-                "Test",
-                "User",
-                null,
-                null,
-                null,
-                null,
+        return new User(
+                UserId.generate(),
+                Email.of(username + "@example.com"),
+                FullName.of("Test", "User"),
+                ZepUsername.of(username),
                 null,
                 new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)),
-                RegularWorkingTimes.empty()
+                roles
         );
     }
 

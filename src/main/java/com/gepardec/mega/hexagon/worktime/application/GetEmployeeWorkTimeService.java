@@ -4,7 +4,6 @@ import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.user.domain.model.FullName;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.ZepProfile;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeValidationException;
@@ -59,7 +58,7 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
         }
 
         double employeeMonthTotalHours = totalHours(attendances);
-        WorkTimeEmployee employeeRef = new WorkTimeEmployee(employee.getId(), fullName(employee.getName()));
+        WorkTimeEmployee employeeRef = new WorkTimeEmployee(employee.id(), fullName(employee.name()));
 
         List<WorkTimeEntry> entries = attendances.stream()
                 .collect(Collectors.groupingBy(WorkTimeAttendance::projectZepId))
@@ -93,11 +92,10 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
     }
 
     private String requireZepUsername(User user) {
-        ZepProfile zepProfile = user.getZepProfile();
-        if (zepProfile == null || zepProfile.username() == null || zepProfile.username().isBlank()) {
-            throw new WorkTimeValidationException("zep username missing for user: " + user.getId().value());
+        if (user.zepUsername() == null || user.zepUsername().value().isBlank()) {
+            throw new WorkTimeValidationException("zep username missing for user: " + user.id().value());
         }
-        return zepProfile.username();
+        return user.zepUsername().value();
     }
 
     private double totalHours(List<WorkTimeAttendance> attendances) {

@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.user.domain.port.outbound;
 import com.gepardec.mega.hexagon.user.domain.model.Email;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
+import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,9 +15,9 @@ public interface UserRepository {
 
     Optional<User> findByEmail(Email email);
 
-    Optional<User> findByZepUsername(String username);
+    Optional<User> findByZepUsername(ZepUsername username);
 
-    List<User> findByZepUsernames(Set<String> usernames);
+    List<User> findByZepUsernames(Set<ZepUsername> usernames);
 
     List<User> findAll();
 

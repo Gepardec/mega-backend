@@ -33,7 +33,7 @@ public class CurrentWorkTimeRestActorResolver {
         }
 
         return userRepository.findByEmail(Email.of(value))
-                .map(User::getId)
+                .map(User::id)
                 .orElseThrow(() -> new WorkTimeAuthenticatedActorResolutionException(
                         "authenticated worktime actor not found for email: " + value
                 ));

@@ -3,100 +3,214 @@ package com.gepardec.mega.hexagon.user.application;
 import com.gepardec.mega.hexagon.user.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.ZepProfile;
+import com.gepardec.mega.hexagon.user.domain.model.ZepEmployeeSyncData;
+import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.port.inbound.SyncUsersUseCase;
 import com.gepardec.mega.hexagon.user.domain.port.inbound.UserSyncResult;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.PersonioEmployeePort;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.ZepEmployeePort;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@ApplicationScoped
+@Transactional
 public class SyncUsersService implements SyncUsersUseCase {
 
     private final ZepEmployeePort zepEmployeePort;
     private final PersonioEmployeePort personioEmployeePort;
     private final UserRepository userRepository;
-    private final UserSyncConfig userSyncConfig;
+    private final Set<String> officeManagementEmails;
 
+    @Inject
     public SyncUsersService(ZepEmployeePort zepEmployeePort, PersonioEmployeePort personioEmployeePort,
-                            UserRepository userRepository, UserSyncConfig userSyncConfig) {
+                            UserRepository userRepository,
+                            @ConfigProperty(name = "mega.mail.reminder.om") List<String> officeManagementEmails) {
         this.zepEmployeePort = zepEmployeePort;
         this.personioEmployeePort = personioEmployeePort;
         this.userRepository = userRepository;
-        this.userSyncConfig = userSyncConfig;
+        this.officeManagementEmails = officeManagementEmails.stream()
+                .map(this::normalizeEmail)
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
     public UserSyncResult sync() {
-        LocalDate today = LocalDate.now();
-        List<ZepProfile> zepProfiles = zepEmployeePort.fetchAll().stream()
-                .filter(p -> p.email() != null && p.employmentPeriods().active(today).isPresent())
-                .toList();
-        Set<String> zepUsernames = zepProfiles.stream()
-                .map(ZepProfile::username)
-                .collect(Collectors.toSet());
+        SyncInput syncInput = fetchSyncInput();
+        Map<ZepUsername, User> existingByUsername = findExistingUsers(syncInput.users());
+        SyncAccumulator syncAccumulator = synchronizeUsers(syncInput.users(), existingByUsername);
 
-        Map<String, User> existingByUsername = userRepository.findAll().stream()
-                .filter(u -> u.getZepProfile() != null)
-                .collect(Collectors.toMap(u -> u.getZepProfile().username(), Function.identity()));
+        persistChanges(syncAccumulator.usersToSave());
 
-        List<User> toSave = new ArrayList<>();
-        int added = 0;
-        int updated = 0;
-
-        // Create or update users from ZEP
-        for (ZepProfile zepProfile : zepProfiles) {
-            User user;
-            if (existingByUsername.containsKey(zepProfile.username())) {
-                user = existingByUsername.get(zepProfile.username());
-                user.syncFromZep(zepProfile);
-                updated++;
-            } else {
-                Set<Role> roles = EnumSet.of(Role.EMPLOYEE);
-                user = User.create(UserId.generate(), zepProfile, roles);
-                added++;
-            }
-
-            user.activate();
-            user.setRoles(buildRoles(zepProfile.username()));
-            toSave.add(user);
-        }
-
-        // Best-effort Personio enrichment
-        for (User user : toSave) {
-            if (user.getEmail() != null && user.getEmail().value() != null) {
-                personioEmployeePort.findByEmail(user.getEmail())
-                        .ifPresent(user::syncFromPersonio);
-            }
-        }
-
-        // Deactivate users absent from ZEP
-        int disabled = 0;
-        for (User existing : existingByUsername.values()) {
-            if (!zepUsernames.contains(existing.getZepProfile().username())) {
-                existing.deactivate();
-                toSave.add(existing);
-                disabled++;
-            }
-        }
-
-        userRepository.saveAll(toSave);
-        return new UserSyncResult(added, updated, disabled);
+        return new UserSyncResult(
+                syncAccumulator.added(),
+                syncAccumulator.updated(),
+                syncAccumulator.unchanged(),
+                syncInput.skippedNoEmail(),
+                syncAccumulator.personioLinked()
+        );
     }
 
-    private Set<Role> buildRoles(String username) {
+    private SyncInput fetchSyncInput() {
+        List<ZepEmployeeSyncData> zepEmployees = zepEmployeePort.fetchAll();
+        int skippedNoEmail = (int) zepEmployees.stream()
+                .filter(this::hasNoEmail)
+                .count();
+
+        List<ZepEmployeeSyncData> usersWithEmail = zepEmployees.stream()
+                .filter(user -> !hasNoEmail(user))
+                .toList();
+
+        return new SyncInput(usersWithEmail, skippedNoEmail);
+    }
+
+    private Map<ZepUsername, User> findExistingUsers(List<ZepEmployeeSyncData> syncInput) {
+        Set<ZepUsername> zepUsernames = syncInput.stream()
+                .map(ZepEmployeeSyncData::zepUsername)
+                .collect(Collectors.toSet());
+
+        return userRepository.findByZepUsernames(zepUsernames).stream()
+                .collect(Collectors.toMap(User::zepUsername, Function.identity()));
+    }
+
+    private SyncAccumulator synchronizeUsers(List<ZepEmployeeSyncData> zepEmployees, Map<ZepUsername, User> existingByUsername) {
+        SyncAccumulator syncAccumulator = new SyncAccumulator();
+        for (ZepEmployeeSyncData zepEmployee : zepEmployees) {
+            syncAccumulator.recordUser(processUser(zepEmployee, existingByUsername.get(zepEmployee.zepUsername())));
+        }
+        return syncAccumulator;
+    }
+
+    private ProcessedUser processUser(ZepEmployeeSyncData zepEmployee, User existingUser) {
+        User synchronizedUser = synchronizeUser(zepEmployee, existingUser);
+        User enrichedUser = enrichWithPersonioId(synchronizedUser);
+
+        boolean personioLinked = !synchronizedUser.hasPersonioId() && enrichedUser.hasPersonioId();
+        ChangeType changeType = determineChangeType(existingUser, enrichedUser);
+
+        return new ProcessedUser(enrichedUser, changeType, personioLinked);
+    }
+
+    private User synchronizeUser(ZepEmployeeSyncData zepEmployee, User existingUser) {
+        Set<Role> roles = buildRoles(zepEmployee.email(), existingUser);
+        if (existingUser != null) {
+            return existingUser.withSyncedZepData(zepEmployee, roles);
+        }
+        return User.create(UserId.generate(), zepEmployee, roles);
+    }
+
+    private User enrichWithPersonioId(User user) {
+        if (user.hasPersonioId()) {
+            return user;
+        }
+
+        return personioEmployeePort.findPersonioIdByEmail(user.email())
+                .map(user::withPersonioId)
+                .orElse(user);
+    }
+
+    private ChangeType determineChangeType(User existingUser, User updatedUser) {
+        if (existingUser == null) {
+            return ChangeType.ADDED;
+        }
+        if (!Objects.equals(existingUser, updatedUser)) {
+            return ChangeType.UPDATED;
+        }
+        return ChangeType.UNCHANGED;
+    }
+
+    private void persistChanges(List<User> usersToSave) {
+        if (!usersToSave.isEmpty()) {
+            userRepository.saveAll(usersToSave);
+        }
+    }
+
+    private Set<Role> buildRoles(String email, User existingUser) {
         Set<Role> roles = EnumSet.of(Role.EMPLOYEE);
-        if (userSyncConfig.officeManagementUsernames().contains(username)) {
+        if (officeManagementEmails.contains(normalizeEmail(email))) {
             roles.add(Role.OFFICE_MANAGEMENT);
         }
+        if (existingUser != null && existingUser.roles().contains(Role.PROJECT_LEAD)) {
+            roles.add(Role.PROJECT_LEAD);
+        }
         return roles;
+    }
+
+    private String normalizeEmail(String email) {
+        return email == null ? "" : email.trim().toLowerCase();
+    }
+
+    private boolean hasNoEmail(ZepEmployeeSyncData profile) {
+        return profile.email() == null || profile.email().isBlank();
+    }
+
+    private record SyncInput(List<ZepEmployeeSyncData> users, int skippedNoEmail) {
+    }
+
+    private record ProcessedUser(User user, ChangeType changeType, boolean personioLinked) {
+    }
+
+    private enum ChangeType {
+        ADDED,
+        UPDATED,
+        UNCHANGED
+    }
+
+    private static final class SyncAccumulator {
+
+        private final List<User> usersToSave = new ArrayList<>();
+        private int added;
+        private int updated;
+        private int unchanged;
+        private int personioLinked;
+
+        void recordUser(ProcessedUser processedUser) {
+            if (processedUser.personioLinked()) {
+                personioLinked++;
+            }
+
+            switch (processedUser.changeType()) {
+                case ADDED -> {
+                    added++;
+                    usersToSave.add(processedUser.user());
+                }
+                case UPDATED -> {
+                    updated++;
+                    usersToSave.add(processedUser.user());
+                }
+                case UNCHANGED -> unchanged++;
+            }
+        }
+
+        List<User> usersToSave() {
+            return usersToSave;
+        }
+
+        int added() {
+            return added;
+        }
+
+        int updated() {
+            return updated;
+        }
+
+        int unchanged() {
+            return unchanged;
+        }
+
+        int personioLinked() {
+            return personioLinked;
+        }
     }
 }

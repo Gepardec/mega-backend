@@ -56,17 +56,20 @@ public class GetProjectLeadWorkTimeService implements GetProjectLeadWorkTimeUseC
         Map<Integer, Project> projectsByZepId = leadProjects.stream()
                 .collect(Collectors.toMap(Project::getZepId, Function.identity()));
 
-        Set<String> employeeZepIds = fetchEmployeeZepIds(projectsByZepId.keySet(), month)
+        Set<String> employeeZepUsernames = fetchEmployeeZepIds(projectsByZepId.keySet(), month)
                 .await().indefinitely();
-        if (employeeZepIds.isEmpty()) {
+        if (employeeZepUsernames.isEmpty()) {
             return new WorkTimeReport(month, List.of());
         }
 
-        Map<String, List<WorkTimeAttendance>> attendancesByEmployee = fetchAttendancesByEmployee(employeeZepIds, month)
+        Map<String, List<WorkTimeAttendance>> attendancesByEmployee = fetchAttendancesByEmployee(employeeZepUsernames, month)
                 .await().indefinitely();
 
-        Map<String, User> usersByZepUsername = userRepository.findByZepUsernames(employeeZepIds).stream()
-                .collect(Collectors.toMap(user -> user.getZepProfile().username(), Function.identity()));
+        Map<String, User> usersByZepUsername = userRepository.findByZepUsernames(employeeZepUsernames.stream()
+                        .map(com.gepardec.mega.hexagon.user.domain.model.ZepUsername::of)
+                        .collect(Collectors.toSet()))
+                .stream()
+                .collect(Collectors.toMap(user -> user.zepUsername().value(), Function.identity()));
 
         List<WorkTimeEntry> entries = attendancesByEmployee.entrySet().stream()
                 .flatMap(entry -> toEntries(entry.getKey(), entry.getValue(), usersByZepUsername, projectsByZepId).stream())
@@ -108,7 +111,7 @@ public class GetProjectLeadWorkTimeService implements GetProjectLeadWorkTimeUseC
         }
 
         double employeeMonthTotalHours = totalHours(attendances);
-        WorkTimeEmployee employeeRef = new WorkTimeEmployee(user.getId(), fullName(user.getName()));
+        WorkTimeEmployee employeeRef = new WorkTimeEmployee(user.id(), fullName(user.name()));
 
         return attendances.stream()
                 .filter(attendance -> projectsByZepId.containsKey(attendance.projectZepId()))

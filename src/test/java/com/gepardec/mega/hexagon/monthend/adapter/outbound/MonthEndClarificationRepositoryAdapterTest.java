@@ -8,13 +8,14 @@ import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
 import com.gepardec.mega.hexagon.user.adapter.outbound.UserRepositoryAdapter;
+import com.gepardec.mega.hexagon.user.domain.model.Email;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
-import com.gepardec.mega.hexagon.user.domain.model.RegularWorkingTimes;
+import com.gepardec.mega.hexagon.user.domain.model.FullName;
 import com.gepardec.mega.hexagon.user.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.ZepProfile;
+import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -56,10 +57,10 @@ class MonthEndClarificationRepositoryAdapterTest {
                 MonthEndClarificationId.generate(),
                 month,
                 project.getId(),
-                employee.getId(),
-                employee.getId(),
+                employee.id(),
+                employee.id(),
                 MonthEndClarificationSide.EMPLOYEE,
-                Set.of(lead.getId()),
+                Set.of(lead.id()),
                 "Please review this.",
                 Instant.parse("2026-03-31T08:00:00Z")
         );
@@ -67,21 +68,21 @@ class MonthEndClarificationRepositoryAdapterTest {
                 MonthEndClarificationId.generate(),
                 month,
                 project.getId(),
-                employee.getId(),
-                employee.getId(),
+                employee.id(),
+                employee.id(),
                 MonthEndClarificationSide.EMPLOYEE,
-                Set.of(lead.getId()),
+                Set.of(lead.id()),
                 "Already resolved",
                 Instant.parse("2026-03-31T08:05:00Z")
-        ).resolve(lead.getId(), "Done", Instant.parse("2026-03-31T08:10:00Z"));
+        ).resolve(lead.id(), "Done", Instant.parse("2026-03-31T08:10:00Z"));
         MonthEndClarification otherEmployeeClarification = MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
                 month,
                 project.getId(),
-                otherEmployee.getId(),
-                otherEmployee.getId(),
+                otherEmployee.id(),
+                otherEmployee.id(),
                 MonthEndClarificationSide.EMPLOYEE,
-                Set.of(lead.getId()),
+                Set.of(lead.id()),
                 "Other employee clarification",
                 Instant.parse("2026-03-31T08:15:00Z")
         );
@@ -90,7 +91,7 @@ class MonthEndClarificationRepositoryAdapterTest {
         clarificationRepositoryAdapter.save(otherEmployeeClarification);
 
         List<MonthEndClarification> clarifications = clarificationRepositoryAdapter.findOpenEmployeeClarifications(
-                employee.getId(),
+                employee.id(),
                 month
         );
 
@@ -113,10 +114,10 @@ class MonthEndClarificationRepositoryAdapterTest {
                 MonthEndClarificationId.generate(),
                 month,
                 project.getId(),
-                employee.getId(),
-                leadA.getId(),
+                employee.id(),
+                leadA.id(),
                 MonthEndClarificationSide.PROJECT_LEAD,
-                Set.of(leadA.getId(), leadB.getId()),
+                Set.of(leadA.id(), leadB.id()),
                 "Need employee follow-up",
                 Instant.parse("2026-03-31T08:00:00Z")
         );
@@ -124,41 +125,33 @@ class MonthEndClarificationRepositoryAdapterTest {
                 MonthEndClarificationId.generate(),
                 month,
                 project.getId(),
-                employee.getId(),
-                employee.getId(),
+                employee.id(),
+                employee.id(),
                 MonthEndClarificationSide.EMPLOYEE,
-                Set.of(leadA.getId(), leadB.getId()),
+                Set.of(leadA.id(), leadB.id()),
                 "Resolved issue",
                 Instant.parse("2026-03-31T08:05:00Z")
-        ).resolve(leadA.getId(), "Done", Instant.parse("2026-03-31T08:06:00Z"));
+        ).resolve(leadA.id(), "Done", Instant.parse("2026-03-31T08:06:00Z"));
         clarificationRepositoryAdapter.save(sharedClarification);
         clarificationRepositoryAdapter.save(doneClarification);
 
-        assertThat(clarificationRepositoryAdapter.findOpenProjectLeadClarifications(leadA.getId(), month))
+        assertThat(clarificationRepositoryAdapter.findOpenProjectLeadClarifications(leadA.id(), month))
                 .containsExactly(sharedClarification);
-        assertThat(clarificationRepositoryAdapter.findOpenProjectLeadClarifications(leadB.getId(), month))
+        assertThat(clarificationRepositoryAdapter.findOpenProjectLeadClarifications(leadB.id(), month))
                 .containsExactly(sharedClarification);
-        assertThat(clarificationRepositoryAdapter.findOpenProjectLeadClarifications(leadC.getId(), month))
+        assertThat(clarificationRepositoryAdapter.findOpenProjectLeadClarifications(leadC.id(), month))
                 .isEmpty();
     }
 
     private User user(String username, Set<Role> roles) {
-        return User.create(UserId.generate(), profile(username), roles);
-    }
-
-    private ZepProfile profile(String username) {
-        return new ZepProfile(
-                username,
-                username + "@example.com",
-                "Test",
-                "User",
-                null,
-                null,
-                null,
-                null,
+        return new User(
+                UserId.generate(),
+                Email.of(username + "@example.com"),
+                FullName.of("Test", "User"),
+                ZepUsername.of(username),
                 null,
                 new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)),
-                RegularWorkingTimes.empty()
+                roles
         );
     }
 

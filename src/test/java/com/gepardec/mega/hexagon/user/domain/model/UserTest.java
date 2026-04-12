@@ -2,98 +2,92 @@ package com.gepardec.mega.hexagon.user.domain.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UserTest {
 
-    private static ZepProfile zepProfile(String username, String email) {
-        return new ZepProfile(username, email, "John", "Doe", null, null, null, null, null, EmploymentPeriods.empty(), RegularWorkingTimes.empty());
-    }
-
-    private static ZepProfile zepProfile(String username) {
-        return zepProfile(username, username + "@example.com");
-    }
-
     @Test
-    void create_setsFieldsFromZepProfile() {
+    void create_setsFieldsFromSyncData() {
         UserId id = UserId.generate();
-        ZepProfile profile = zepProfile("jdoe", "john@example.com");
+        EmploymentPeriods employmentPeriods = new EmploymentPeriods(
+                new EmploymentPeriod(LocalDate.of(2024, 1, 1), null)
+        );
 
-        User user = User.create(id, profile, Set.of(Role.EMPLOYEE));
+        User user = User.create(
+                id,
+                new ZepEmployeeSyncData(ZepUsername.of("jdoe"), "john@example.com", "John", "Doe", employmentPeriods),
+                Set.of(Role.EMPLOYEE)
+        );
 
-        assertThat(user.getId()).isEqualTo(id);
-        assertThat(user.getZepProfile()).isEqualTo(profile);
-        assertThat(user.getRoles()).containsExactly(Role.EMPLOYEE);
-        assertThat(user.getStatus()).isEqualTo(UserStatus.ACTIVE);
-        assertThat(user.getName().firstname()).isEqualTo("John");
-        assertThat(user.getName().lastname()).isEqualTo("Doe");
-        assertThat(user.getEmail().value()).isEqualTo("john@example.com");
-        assertThat(user.getPersonioProfile()).isNull();
+        assertThat(user.id()).isEqualTo(id);
+        assertThat(user.zepUsername()).isEqualTo(ZepUsername.of("jdoe"));
+        assertThat(user.roles()).containsExactly(Role.EMPLOYEE);
+        assertThat(user.name().firstname()).isEqualTo("John");
+        assertThat(user.name().lastname()).isEqualTo("Doe");
+        assertThat(user.email().value()).isEqualTo("john@example.com");
+        assertThat(user.personioId()).isNull();
+        assertThat(user.employmentPeriods()).isEqualTo(employmentPeriods);
     }
 
     @Test
-    void syncFromZep_updatesZepProfileAndName() {
-        User user = User.create(UserId.generate(), zepProfile("jdoe"), Set.of(Role.EMPLOYEE));
-        ZepProfile updated = new ZepProfile("jdoe", "new@example.com", "Jane", "Smith", null, null, null, null, null, EmploymentPeriods.empty(), RegularWorkingTimes.empty());
+    void withSyncedZepData_updatesIdentityFieldsAndEmploymentHistory() {
+        User user = User.create(
+                UserId.generate(),
+                new ZepEmployeeSyncData(ZepUsername.of("jdoe"), "john@example.com", "John", "Doe", EmploymentPeriods.empty()),
+                Set.of(Role.EMPLOYEE)
+        );
 
-        user.syncFromZep(updated);
+        EmploymentPeriods updatedPeriods = new EmploymentPeriods(
+                new EmploymentPeriod(LocalDate.of(2024, 1, 1), null)
+        );
 
-        assertThat(user.getZepProfile()).isEqualTo(updated);
-        assertThat(user.getName().firstname()).isEqualTo("Jane");
-        assertThat(user.getName().lastname()).isEqualTo("Smith");
-        assertThat(user.getEmail().value()).isEqualTo("new@example.com");
+        User updated = user.withSyncedZepData(
+                new ZepEmployeeSyncData(ZepUsername.of("jdoe"), "new@example.com", "Jane", "Smith", updatedPeriods),
+                Set.of(Role.EMPLOYEE, Role.OFFICE_MANAGEMENT)
+        );
+
+        assertThat(updated.id()).isEqualTo(user.id());
+        assertThat(updated.name()).isEqualTo(FullName.of("Jane", "Smith"));
+        assertThat(updated.email()).isEqualTo(Email.of("new@example.com"));
+        assertThat(updated.employmentPeriods()).isEqualTo(updatedPeriods);
+        assertThat(updated.roles()).containsExactlyInAnyOrder(Role.EMPLOYEE, Role.OFFICE_MANAGEMENT);
     }
 
     @Test
-    void syncFromZep_doesNotAffectPersonioProfile() {
-        User user = User.create(UserId.generate(), zepProfile("jdoe"), Set.of(Role.EMPLOYEE));
-        PersonioProfile personioProfile = new PersonioProfile(42, 10.0, "guild", "project", false);
-        user.syncFromPersonio(personioProfile);
+    void withPersonioId_setsStableReference() {
+        User user = User.create(
+                UserId.generate(),
+                new ZepEmployeeSyncData(ZepUsername.of("jdoe"), "john@example.com", "John", "Doe", EmploymentPeriods.empty()),
+                Set.of(Role.EMPLOYEE)
+        );
 
-        user.syncFromZep(zepProfile("jdoe"));
+        User updated = user.withPersonioId(PersonioId.of(42));
 
-        assertThat(user.getPersonioProfile()).isEqualTo(personioProfile);
+        assertThat(updated.personioId()).isEqualTo(PersonioId.of(42));
+        assertThat(user.personioId()).isNull();
     }
 
     @Test
-    void syncFromPersonio_setsProfile() {
-        User user = User.create(UserId.generate(), zepProfile("jdoe"), Set.of(Role.EMPLOYEE));
-        PersonioProfile profile = new PersonioProfile(42, 10.0, "guild", "project", true);
+    void isActiveOn_andIsActiveIn_deriveStateFromEmploymentPeriods() {
+        User user = User.create(
+                UserId.generate(),
+                new ZepEmployeeSyncData(
+                        ZepUsername.of("jdoe"),
+                        "john@example.com",
+                        "John",
+                        "Doe",
+                        new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 6, 30)))
+                ),
+                Set.of(Role.EMPLOYEE)
+        );
 
-        user.syncFromPersonio(profile);
-
-        assertThat(user.getPersonioProfile()).isEqualTo(profile);
-    }
-
-    @Test
-    void syncFromPersonio_doesNotClearExistingProfileWhenNull() {
-        User user = User.create(UserId.generate(), zepProfile("jdoe"), Set.of(Role.EMPLOYEE));
-        PersonioProfile existing = new PersonioProfile(42, 10.0, "guild", "project", false);
-        user.syncFromPersonio(existing);
-
-        user.syncFromPersonio(null);
-
-        assertThat(user.getPersonioProfile()).isEqualTo(existing);
-    }
-
-    @Test
-    void deactivate_setsStatusInactive() {
-        User user = User.create(UserId.generate(), zepProfile("jdoe"), Set.of(Role.EMPLOYEE));
-
-        user.deactivate();
-
-        assertThat(user.getStatus()).isEqualTo(UserStatus.INACTIVE);
-    }
-
-    @Test
-    void activate_setsStatusActive() {
-        User user = User.create(UserId.generate(), zepProfile("jdoe"), Set.of(Role.EMPLOYEE));
-        user.deactivate();
-
-        user.activate();
-
-        assertThat(user.getStatus()).isEqualTo(UserStatus.ACTIVE);
+        assertThat(user.isActiveOn(LocalDate.of(2024, 3, 15))).isTrue();
+        assertThat(user.isActiveOn(LocalDate.of(2024, 7, 1))).isFalse();
+        assertThat(user.isActiveIn(YearMonth.of(2024, 6))).isTrue();
+        assertThat(user.isActiveIn(YearMonth.of(2024, 7))).isFalse();
     }
 }

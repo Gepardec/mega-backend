@@ -27,13 +27,14 @@ import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
 import com.gepardec.mega.hexagon.user.adapter.outbound.UserRepositoryAdapter;
+import com.gepardec.mega.hexagon.user.domain.model.Email;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
-import com.gepardec.mega.hexagon.user.domain.model.RegularWorkingTimes;
+import com.gepardec.mega.hexagon.user.domain.model.FullName;
 import com.gepardec.mega.hexagon.user.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.ZepProfile;
+import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.rest.service.ProjectService;
 import io.quarkus.test.InjectMock;
@@ -108,8 +109,8 @@ class MonthEndIT {
     void monthEndFlow_shouldGenerateAndCompleteEmployeeChecklistItems() {
         User employee = user("employee", Set.of(Role.EMPLOYEE));
         User lead = user("lead", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
-        Project project = project(701, Set.of(lead.getId()));
-        persistFixture(List.of(employee, lead), project, Set.of(employee.getZepProfile().username()));
+        Project project = project(701, Set.of(lead.id()));
+        persistFixture(List.of(employee, lead), project, Set.of(employee.zepUsername().value()));
 
         MonthEndTaskGenerationResult result = generateMonthEndTasksUseCase.generate(MONTH);
 
@@ -117,7 +118,7 @@ class MonthEndIT {
         assertThat(result.created()).isEqualTo(4);
         assertThat(result.skipped()).isZero();
 
-        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
         assertThat(employeeWorklist.tasks())
                 .extracting(MonthEndWorklistItem::type)
                 .containsExactlyInAnyOrder(
@@ -127,7 +128,7 @@ class MonthEndIT {
         assertThat(employeeWorklist.tasks())
                 .allSatisfy(task -> {
                     assertThat(task.project().id()).isEqualTo(project.getId());
-                    assertThat(task.subjectEmployee().id()).isEqualTo(employee.getId());
+                    assertThat(task.subjectEmployee().id()).isEqualTo(employee.id());
                 });
 
         MonthEndWorklistItem employeeTimeCheck = employeeWorklist.tasks().stream()
@@ -135,15 +136,15 @@ class MonthEndIT {
                 .findFirst()
                 .orElseThrow();
 
-        completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.getId());
+        completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.id());
 
-        MonthEndWorklist updatedEmployeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+        MonthEndWorklist updatedEmployeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
         assertThat(updatedEmployeeWorklist.tasks())
                 .singleElement()
                 .satisfies(task -> {
                     assertThat(task.type()).isEqualTo(MonthEndTaskType.LEISTUNGSNACHWEIS);
                     assertThat(task.project().id()).isEqualTo(project.getId());
-                    assertThat(task.subjectEmployee().id()).isEqualTo(employee.getId());
+                    assertThat(task.subjectEmployee().id()).isEqualTo(employee.id());
                 });
     }
 
@@ -152,16 +153,16 @@ class MonthEndIT {
         User employee = user("employee", Set.of(Role.EMPLOYEE));
         User leadA = user("leadA", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
         User leadB = user("leadB", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
-        Project project = project(711, Set.of(leadA.getId(), leadB.getId()));
-        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.getZepProfile().username()));
+        Project project = project(711, Set.of(leadA.id(), leadB.id()));
+        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.zepUsername().value()));
 
         MonthEndTaskGenerationResult result = generateMonthEndTasksUseCase.generate(MONTH);
 
         assertThat(result.created()).isEqualTo(4);
         assertThat(result.skipped()).isZero();
 
-        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH);
-        MonthEndWorklist leadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.getId(), MONTH);
+        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH);
+        MonthEndWorklist leadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH);
 
         assertThat(leadAWorklist.tasks())
                 .extracting(MonthEndWorklistItem::type)
@@ -181,10 +182,10 @@ class MonthEndIT {
                 .findFirst()
                 .orElseThrow();
 
-        completeMonthEndTaskUseCase.complete(leadReviewTask.taskId(), leadA.getId());
+        completeMonthEndTaskUseCase.complete(leadReviewTask.taskId(), leadA.id());
 
-        MonthEndWorklist updatedLeadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH);
-        MonthEndWorklist updatedLeadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.getId(), MONTH);
+        MonthEndWorklist updatedLeadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH);
+        MonthEndWorklist updatedLeadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH);
 
         assertThat(updatedLeadAWorklist.tasks())
                 .singleElement()
@@ -206,13 +207,13 @@ class MonthEndIT {
     void monthEndFlow_shouldPrepareOwnProjectBeforeScheduledGenerationWithoutDuplicates() {
         User employee = user("employee-self-service", Set.of(Role.EMPLOYEE));
         User lead = user("lead-self-service", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
-        Project project = project(714, Set.of(lead.getId()));
-        persistFixture(List.of(employee, lead), project, Set.of(employee.getZepProfile().username()));
+        Project project = project(714, Set.of(lead.id()));
+        persistFixture(List.of(employee, lead), project, Set.of(employee.zepUsername().value()));
 
         MonthEndPreparationResult preparation = prematureMonthEndPreparationUseCase.prepare(
                 MONTH,
                 project.getId(),
-                employee.getId(),
+                employee.id(),
                 null
         );
 
@@ -247,21 +248,21 @@ class MonthEndIT {
     void monthEndFlow_shouldKeepCompletedEmployeeTaskVisibleInStatusOverviewWhileWorklistStaysOpenOnly() {
         User employee = user("employee-overview", Set.of(Role.EMPLOYEE));
         User lead = user("lead-overview", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
-        Project project = project(712, Set.of(lead.getId()));
-        persistFixture(List.of(employee, lead), project, Set.of(employee.getZepProfile().username()));
+        Project project = project(712, Set.of(lead.id()));
+        persistFixture(List.of(employee, lead), project, Set.of(employee.zepUsername().value()));
 
         generateMonthEndTasksUseCase.generate(MONTH);
 
-        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
         MonthEndWorklistItem employeeTimeCheck = employeeWorklist.tasks().stream()
                 .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .findFirst()
                 .orElseThrow();
 
-        completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.getId());
+        completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.id());
 
-        MonthEndStatusOverview statusOverview = getMonthEndStatusOverviewUseCase.getOverview(employee.getId(), MONTH);
-        MonthEndWorklist updatedWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+        MonthEndStatusOverview statusOverview = getMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        MonthEndWorklist updatedWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
 
         assertThat(statusOverview.entries())
                 .extracting(MonthEndStatusOverviewItem::type, MonthEndStatusOverviewItem::status)
@@ -277,18 +278,18 @@ class MonthEndIT {
                     assertThat(item.project().name()).isEqualTo(project.getName());
                     assertThat(item.project().id()).isEqualTo(project.getId());
                     assertThat(item.subjectEmployee()).isNotNull();
-                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.getId());
+                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
                     assertThat(item.subjectEmployee().fullName())
-                            .isEqualTo("%s %s".formatted(employee.getName().firstname(), employee.getName().lastname()));
+                            .isEqualTo("%s %s".formatted(employee.name().firstname(), employee.name().lastname()));
                     assertThat(item.canComplete()).isTrue();
-                    assertThat(item.completedBy()).isEqualTo(employee.getId());
+                    assertThat(item.completedBy()).isEqualTo(employee.id());
                 });
         assertThat(statusOverview.entries())
                 .filteredOn(item -> item.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
                 .singleElement()
                 .satisfies(item -> {
                     assertThat(item.subjectEmployee()).isNotNull();
-                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.getId());
+                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
                     assertThat(item.canComplete()).isFalse();
                     assertThat(item.completedBy()).isNull();
                 });
@@ -302,23 +303,23 @@ class MonthEndIT {
         User employee = user("employee-shared", Set.of(Role.EMPLOYEE));
         User leadA = user("lead-shared-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
         User leadB = user("lead-shared-b", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
-        Project project = project(713, Set.of(leadA.getId(), leadB.getId()));
-        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.getZepProfile().username()));
+        Project project = project(713, Set.of(leadA.id(), leadB.id()));
+        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.zepUsername().value()));
 
         generateMonthEndTasksUseCase.generate(MONTH);
 
-        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH);
+        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH);
         MonthEndWorklistItem leadReviewTask = leadAWorklist.tasks().stream()
                 .filter(task -> task.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
                 .findFirst()
                 .orElseThrow();
 
-        completeMonthEndTaskUseCase.complete(leadReviewTask.taskId(), leadA.getId());
+        completeMonthEndTaskUseCase.complete(leadReviewTask.taskId(), leadA.id());
 
-        MonthEndStatusOverview leadAOverview = getMonthEndStatusOverviewUseCase.getOverview(leadA.getId(), MONTH);
-        MonthEndStatusOverview leadBOverview = getMonthEndStatusOverviewUseCase.getOverview(leadB.getId(), MONTH);
-        MonthEndWorklist updatedLeadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH);
-        MonthEndWorklist updatedLeadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.getId(), MONTH);
+        MonthEndStatusOverview leadAOverview = getMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
+        MonthEndStatusOverview leadBOverview = getMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
+        MonthEndWorklist updatedLeadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH);
+        MonthEndWorklist updatedLeadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH);
 
         assertThat(leadAOverview.entries())
                 .filteredOn(item -> item.taskId().equals(leadReviewTask.taskId()))
@@ -328,11 +329,11 @@ class MonthEndIT {
                     assertThat(item.project().name()).isEqualTo(project.getName());
                     assertThat(item.project().id()).isEqualTo(project.getId());
                     assertThat(item.subjectEmployee()).isNotNull();
-                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.getId());
+                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
                     assertThat(item.subjectEmployee().fullName())
-                            .isEqualTo("%s %s".formatted(employee.getName().firstname(), employee.getName().lastname()));
+                            .isEqualTo("%s %s".formatted(employee.name().firstname(), employee.name().lastname()));
                     assertThat(item.canComplete()).isTrue();
-                    assertThat(item.completedBy()).isEqualTo(leadA.getId());
+                    assertThat(item.completedBy()).isEqualTo(leadA.id());
                 });
         assertThat(leadBOverview.entries())
                 .filteredOn(item -> item.taskId().equals(leadReviewTask.taskId()))
@@ -342,11 +343,11 @@ class MonthEndIT {
                     assertThat(item.project().name()).isEqualTo(project.getName());
                     assertThat(item.project().id()).isEqualTo(project.getId());
                     assertThat(item.subjectEmployee()).isNotNull();
-                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.getId());
+                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
                     assertThat(item.subjectEmployee().fullName())
-                            .isEqualTo("%s %s".formatted(employee.getName().firstname(), employee.getName().lastname()));
+                            .isEqualTo("%s %s".formatted(employee.name().firstname(), employee.name().lastname()));
                     assertThat(item.canComplete()).isTrue();
-                    assertThat(item.completedBy()).isEqualTo(leadA.getId());
+                    assertThat(item.completedBy()).isEqualTo(leadA.id());
                 });
         assertThat(leadAOverview.entries())
                 .filteredOn(item -> item.type() == MonthEndTaskType.ABRECHNUNG)
@@ -369,19 +370,19 @@ class MonthEndIT {
         User employee = user("employee-prepared", Set.of(Role.EMPLOYEE));
         User leadA = user("lead-prepared-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
         User leadB = user("lead-prepared-b", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
-        Project project = project(715, Set.of(leadA.getId(), leadB.getId()));
-        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.getZepProfile().username()));
+        Project project = project(715, Set.of(leadA.id(), leadB.id()));
+        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.zepUsername().value()));
 
         MonthEndPreparationResult preparation = prematureMonthEndPreparationUseCase.prepare(
                 MONTH,
                 project.getId(),
-                employee.getId(),
+                employee.id(),
                 "I am leaving before the scheduled run."
         );
 
-        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
-        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH);
-        MonthEndWorklist leadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.getId(), MONTH);
+        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
+        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH);
+        MonthEndWorklist leadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH);
 
         assertThat(preparation.hasClarification()).isTrue();
         assertThat(employeeWorklist.tasks())
@@ -406,9 +407,9 @@ class MonthEndIT {
                 .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .findFirst()
                 .orElseThrow();
-        completeMonthEndTaskUseCase.complete(preparedEmployeeTimeCheck.taskId(), employee.getId());
+        completeMonthEndTaskUseCase.complete(preparedEmployeeTimeCheck.taskId(), employee.id());
 
-        MonthEndWorklist updatedEmployeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+        MonthEndWorklist updatedEmployeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
         assertThat(updatedEmployeeWorklist.tasks())
                 .singleElement()
                 .satisfies(task -> assertThat(task.type()).isEqualTo(MonthEndTaskType.LEISTUNGSNACHWEIS));
@@ -420,14 +421,14 @@ class MonthEndIT {
     void monthEndFlow_shouldGenerateExpectedTaskCardinalityAcrossOverlappingAssignmentsAndLeadRoles() {
         User user1 = user("user1", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
         User user2 = user("user2", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
-        Project project1 = project(721, Set.of(user1.getId()));
-        Project project2 = project(722, Set.of(user1.getId(), user2.getId()));
+        Project project1 = project(721, Set.of(user1.id()));
+        Project project2 = project(722, Set.of(user1.id(), user2.id()));
         persistFixture(
                 List.of(user1, user2),
                 List.of(project1, project2),
                 Map.of(
-                        project1.getZepId(), Set.of(user1.getZepProfile().username(), user2.getZepProfile().username()),
-                        project2.getZepId(), Set.of(user2.getZepProfile().username())
+                        project1.getZepId(), Set.of(user1.zepUsername().value(), user2.zepUsername().value()),
+                        project2.getZepId(), Set.of(user2.zepUsername().value())
                 )
         );
 
@@ -467,13 +468,13 @@ class MonthEndIT {
 
         assertThat(employeeTimeChecks)
                 .extracting(MonthEndTask::subjectEmployeeId)
-                .containsExactlyInAnyOrder(user1.getId(), user2.getId(), user2.getId());
+                .containsExactlyInAnyOrder(user1.id(), user2.id(), user2.id());
         assertThat(leistungsnachweise)
                 .extracting(MonthEndTask::subjectEmployeeId)
-                .containsExactlyInAnyOrder(user1.getId(), user2.getId(), user2.getId());
+                .containsExactlyInAnyOrder(user1.id(), user2.id(), user2.id());
         assertThat(leadReviews)
                 .extracting(MonthEndTask::subjectEmployeeId)
-                .containsExactlyInAnyOrder(user1.getId(), user2.getId(), user2.getId());
+                .containsExactlyInAnyOrder(user1.id(), user2.id(), user2.id());
         assertThat(abrechnungen)
                 .extracting(MonthEndTask::subjectEmployeeId)
                 .containsOnlyNulls();
@@ -481,39 +482,39 @@ class MonthEndIT {
         assertThat(leadReviews.stream()
                 .filter(task -> task.projectId().equals(project1.getId()))
                 .toList())
-                .allSatisfy(task -> assertThat(task.eligibleActorIds()).containsExactly(user1.getId()));
+                .allSatisfy(task -> assertThat(task.eligibleActorIds()).containsExactly(user1.id()));
         assertThat(leadReviews.stream()
                 .filter(task -> task.projectId().equals(project2.getId()))
                 .toList())
                 .singleElement()
                 .satisfies(task -> assertThat(task.eligibleActorIds()).containsExactlyInAnyOrder(
-                        user1.getId(),
-                        user2.getId()
+                        user1.id(),
+                        user2.id()
                 ));
         assertThat(abrechnungen.stream()
                 .filter(task -> task.projectId().equals(project1.getId()))
                 .toList())
                 .singleElement()
-                .satisfies(task -> assertThat(task.eligibleActorIds()).containsExactly(user1.getId()));
+                .satisfies(task -> assertThat(task.eligibleActorIds()).containsExactly(user1.id()));
         assertThat(abrechnungen.stream()
                 .filter(task -> task.projectId().equals(project2.getId()))
                 .toList())
                 .singleElement()
                 .satisfies(task -> assertThat(task.eligibleActorIds()).containsExactlyInAnyOrder(
-                        user1.getId(),
-                        user2.getId()
+                        user1.id(),
+                        user2.id()
                 ));
 
-        MonthEndWorklist user1EmployeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(user1.getId(), MONTH);
-        MonthEndWorklist user2EmployeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(user2.getId(), MONTH);
-        MonthEndWorklist user1LeadWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(user1.getId(), MONTH);
-        MonthEndWorklist user2LeadWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(user2.getId(), MONTH);
+        MonthEndWorklist user1EmployeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(user1.id(), MONTH);
+        MonthEndWorklist user2EmployeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(user2.id(), MONTH);
+        MonthEndWorklist user1LeadWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(user1.id(), MONTH);
+        MonthEndWorklist user2LeadWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(user2.id(), MONTH);
 
         assertThat(user1EmployeeWorklist.tasks()).hasSize(2);
         assertThat(user1EmployeeWorklist.tasks())
                 .allSatisfy(task -> {
                     assertThat(task.project().id()).isEqualTo(project1.getId());
-                    assertThat(task.subjectEmployee().id()).isEqualTo(user1.getId());
+                    assertThat(task.subjectEmployee().id()).isEqualTo(user1.id());
                 });
 
         assertThat(user2EmployeeWorklist.tasks()).hasSize(4);
@@ -521,7 +522,7 @@ class MonthEndIT {
                 .extracting(task -> task.project().id())
                 .containsExactlyInAnyOrder(project1.getId(), project1.getId(), project2.getId(), project2.getId());
         assertThat(user2EmployeeWorklist.tasks())
-                .allSatisfy(task -> assertThat(task.subjectEmployee().id()).isEqualTo(user2.getId()));
+                .allSatisfy(task -> assertThat(task.subjectEmployee().id()).isEqualTo(user2.id()));
 
         assertThat(user1LeadWorklist.tasks()).hasSize(5);
         assertThat(user2LeadWorklist.tasks()).hasSize(2);
@@ -534,23 +535,23 @@ class MonthEndIT {
         User employee = user("employee-clarification", Set.of(Role.EMPLOYEE));
         User leadA = user("lead-clarification-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
         User leadB = user("lead-clarification-b", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
-        Project project = project(731, Set.of(leadA.getId(), leadB.getId()));
-        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.getZepProfile().username()));
+        Project project = project(731, Set.of(leadA.id(), leadB.id()));
+        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.zepUsername().value()));
 
         generateMonthEndTasksUseCase.generate(MONTH);
 
         MonthEndClarification clarification = createMonthEndClarificationUseCase.create(
                 MONTH,
                 project.getId(),
-                employee.getId(),
-                employee.getId(),
+                employee.id(),
+                employee.id(),
                 MonthEndClarificationSide.EMPLOYEE,
                 "Please verify the remaining booking."
         );
 
-        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
-        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH);
-        MonthEndWorklist leadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.getId(), MONTH);
+        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
+        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH);
+        MonthEndWorklist leadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH);
 
         assertThat(employeeWorklist.clarifications()).singleElement()
                 .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(clarification.id()));
@@ -559,14 +560,14 @@ class MonthEndIT {
         assertThat(leadBWorklist.clarifications()).singleElement()
                 .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(clarification.id()));
 
-        completeMonthEndClarificationUseCase.complete(clarification.id(), leadA.getId(), "Handled by lead.");
+        completeMonthEndClarificationUseCase.complete(clarification.id(), leadA.id(), "Handled by lead.");
 
-        assertThat(getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH).clarifications()).isEmpty();
-        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH).clarifications()).isEmpty();
-        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.getId(), MONTH).clarifications()).isEmpty();
+        assertThat(getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH).clarifications()).isEmpty();
+        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH).clarifications()).isEmpty();
+        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH).clarifications()).isEmpty();
         assertThat(monthEndClarificationRepository.findById(clarification.id()))
                 .hasValueSatisfying(saved -> {
-                    assertThat(saved.resolvedBy()).isEqualTo(leadA.getId());
+                    assertThat(saved.resolvedBy()).isEqualTo(leadA.id());
                     assertThat(saved.resolutionNote()).isEqualTo("Handled by lead.");
                 });
     }
@@ -576,46 +577,46 @@ class MonthEndIT {
         User employee = user("employee-resolution", Set.of(Role.EMPLOYEE));
         User leadA = user("lead-resolution-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
         User leadB = user("lead-resolution-b", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
-        Project project = project(732, Set.of(leadA.getId(), leadB.getId()));
-        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.getZepProfile().username()));
+        Project project = project(732, Set.of(leadA.id(), leadB.id()));
+        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.zepUsername().value()));
 
         generateMonthEndTasksUseCase.generate(MONTH);
 
         MonthEndClarification clarification = createMonthEndClarificationUseCase.create(
                 MONTH,
                 project.getId(),
-                employee.getId(),
-                leadA.getId(),
+                employee.id(),
+                leadA.id(),
                 MonthEndClarificationSide.PROJECT_LEAD,
                 "Please update the supporting note."
         );
 
         MonthEndClarification updatedClarification = updateMonthEndClarificationUseCase.updateText(
                 clarification.id(),
-                leadB.getId(),
+                leadB.id(),
                 "Please update the supporting note before close."
         );
 
-        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
         MonthEndWorklistItem employeeTimeCheck = employeeWorklist.tasks().stream()
                 .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .findFirst()
                 .orElseThrow();
 
-        completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.getId());
+        completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.id());
 
-        MonthEndWorklist stillOpenClarificationWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH);
+        MonthEndWorklist stillOpenClarificationWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
         assertThat(stillOpenClarificationWorklist.clarifications()).singleElement()
                 .satisfies(item -> {
                     assertThat(item.clarificationId()).isEqualTo(clarification.id());
                     assertThat(item.text()).isEqualTo("Please update the supporting note before close.");
                 });
 
-        completeMonthEndClarificationUseCase.complete(updatedClarification.id(), employee.getId(), "Updated and resolved.");
+        completeMonthEndClarificationUseCase.complete(updatedClarification.id(), employee.id(), "Updated and resolved.");
 
-        assertThat(getEmployeeMonthEndWorklistUseCase.getWorklist(employee.getId(), MONTH).clarifications()).isEmpty();
-        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.getId(), MONTH).clarifications()).isEmpty();
-        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.getId(), MONTH).clarifications()).isEmpty();
+        assertThat(getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH).clarifications()).isEmpty();
+        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH).clarifications()).isEmpty();
+        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH).clarifications()).isEmpty();
     }
 
     private void persistFixture(List<User> users, Project project, Set<String> assignedUsernames) {
@@ -632,22 +633,14 @@ class MonthEndIT {
     }
 
     private User user(String username, Set<Role> roles) {
-        return User.create(UserId.of(Instancio.create(UUID.class)), zepProfile(username), roles);
-    }
-
-    private ZepProfile zepProfile(String username) {
-        return new ZepProfile(
-                username,
-                username + "@example.com",
-                "Test",
-                "User",
-                null,
-                null,
-                null,
-                null,
+        return new User(
+                UserId.of(Instancio.create(UUID.class)),
+                Email.of(username + "@example.com"),
+                FullName.of("Test", "User"),
+                ZepUsername.of(username),
                 null,
                 new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)),
-                RegularWorkingTimes.empty()
+                roles
         );
     }
 
