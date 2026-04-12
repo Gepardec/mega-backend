@@ -134,7 +134,7 @@ class GetEmployeeWorkTimeServiceTest {
     }
 
     private Project project(ProjectId projectId, int zepId, String name) {
-        return Project.reconstitute(
+        return new Project(
                 projectId,
                 zepId,
                 name,

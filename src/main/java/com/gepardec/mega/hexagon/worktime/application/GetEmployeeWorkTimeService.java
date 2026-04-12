@@ -80,7 +80,7 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
         return projectRepository.findByZepId(zepProjectId)
                 .map(project -> new WorkTimeEntry(
                         employeeRef,
-                        new WorkTimeProject(project.getId(), project.getName()),
+                        new WorkTimeProject(project.id(), project.name()),
                         sumBillableHours(attendances),
                         sumNonBillableHours(attendances),
                         employeeMonthTotalHours

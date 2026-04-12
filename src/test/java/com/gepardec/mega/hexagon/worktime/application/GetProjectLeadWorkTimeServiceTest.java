@@ -77,21 +77,21 @@ class GetProjectLeadWorkTimeServiceTest {
         assertThat(report.entries()).hasSize(3);
         assertThat(report.entries()).anySatisfy(entry -> {
             assertThat(entry.employee().id()).isEqualTo(employeeId);
-            assertThat(entry.project().id()).isEqualTo(alpha.getId());
+            assertThat(entry.project().id()).isEqualTo(alpha.id());
             assertThat(entry.billableHours()).isEqualTo(5.0d);
             assertThat(entry.nonBillableHours()).isEqualTo(0.0d);
             assertThat(entry.employeeMonthTotalHours()).isEqualTo(9.0d);
         });
         assertThat(report.entries()).anySatisfy(entry -> {
             assertThat(entry.employee().id()).isEqualTo(employeeId);
-            assertThat(entry.project().id()).isEqualTo(beta.getId());
+            assertThat(entry.project().id()).isEqualTo(beta.id());
             assertThat(entry.billableHours()).isEqualTo(1.5d);
             assertThat(entry.nonBillableHours()).isEqualTo(0.5d);
             assertThat(entry.employeeMonthTotalHours()).isEqualTo(9.0d);
         });
         assertThat(report.entries()).anySatisfy(entry -> {
             assertThat(entry.employee().id()).isEqualTo(secondEmployeeId);
-            assertThat(entry.project().id()).isEqualTo(alpha.getId());
+            assertThat(entry.project().id()).isEqualTo(alpha.id());
             assertThat(entry.billableHours()).isEqualTo(0.0d);
             assertThat(entry.nonBillableHours()).isEqualTo(3.5d);
             assertThat(entry.employeeMonthTotalHours()).isEqualTo(3.5d);
@@ -137,14 +137,14 @@ class GetProjectLeadWorkTimeServiceTest {
     }
 
     private Project project(ProjectId projectId, int zepId, String name, UserId leadId) {
-        return Project.reconstitute(
+        return new Project(
                 projectId,
                 zepId,
                 name,
                 LocalDate.of(2024, 1, 1),
                 null,
                 true,
-                Set.of(leadId.value())
+                Set.of(leadId)
         );
     }
 }

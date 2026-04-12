@@ -62,15 +62,13 @@ public class ProjectRepositoryAdapter implements ProjectRepository {
     @Override
     public void saveAll(List<Project> projects) {
         for (Project project : projects) {
-            ProjectEntity entity = panache.find("id", project.getId().value())
+            ProjectEntity entity = panache.find("id", project.id().value())
                     .firstResultOptional()
                     .orElseGet(ProjectEntity::new);
             boolean isNew = entity.getId() == null;
             mapper.updateEntity(project, entity);
             if (isNew) {
                 panache.persist(entity);
-            } else {
-                panache.getEntityManager().merge(entity);
             }
         }
     }
