@@ -55,28 +55,6 @@ public record MonthEndTask(
         );
     }
 
-    public static MonthEndTask reconstitute(
-            MonthEndTaskId id,
-            YearMonth month,
-            MonthEndTaskType type,
-            ProjectId projectId,
-            UserId subjectEmployeeId,
-            Set<UserId> eligibleActorIds,
-            MonthEndTaskStatus status,
-            UserId completedBy
-    ) {
-        return new MonthEndTask(
-                id,
-                month,
-                type,
-                projectId,
-                subjectEmployeeId,
-                eligibleActorIds,
-                status,
-                completedBy
-        );
-    }
-
     public MonthEndTask complete(UserId actorId) {
         Objects.requireNonNull(actorId, "actorId must not be null");
 
