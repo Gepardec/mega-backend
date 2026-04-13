@@ -19,7 +19,7 @@ The system SHALL fetch all projects from ZEP via `ZepProjectPort.fetchAll()`. Th
 - **THEN** `ZepProjectPort.fetchAll()` returns a single flat list of all projects
 
 ### Requirement: Sync upserts project master data by zepId
-The system SHALL upsert each project using `zepId` as the stable lookup key. If no project with the given `zepId` exists, a new `Project` aggregate is created with a generated `ProjectId`. If a project with the given `zepId` already exists, its mutable fields (name, startDate, endDate, billable) SHALL be updated.
+The system SHALL upsert each project using `zepId` as the stable lookup key. If no project with the given `zepId` exists, a new `Project` aggregate is created with a generated `ProjectId`. If a project with the given `zepId` already exists, sync SHALL derive a new immutable `Project` aggregate from the latest `ZepProjectProfile` while preserving the existing `ProjectId` and leads set.
 
 #### Scenario: New project is created on first sync
 - **WHEN** ZEP returns a project whose `zepId` is not in the repository
@@ -28,11 +28,11 @@ The system SHALL upsert each project using `zepId` as the stable lookup key. If 
 
 #### Scenario: Existing project is updated on subsequent sync
 - **WHEN** ZEP returns a project whose `zepId` already exists in the repository
-- **THEN** the existing Project's name, startDate, endDate, and billable are updated
-- **THEN** the existing ProjectId (UUID) is preserved
+- **THEN** sync derives a new Project instance with updated name, startDate, endDate, and billable
+- **THEN** the existing `ProjectId` and leads set are preserved
 
 ### Requirement: Sync does not assign leads
-The `SyncProjectsUseCase` SHALL NOT fetch or assign project leads. Lead assignment is the sole responsibility of `ReconcileLeadsUseCase`. After `SyncProjectsUseCase` completes, all projects in the repository have an empty or unchanged leads set.
+The `SyncProjectsUseCase` SHALL NOT fetch or assign project leads. Lead assignment is the sole responsibility of `SyncProjectLeadsUseCase`. After `SyncProjectsUseCase` completes, all projects in the repository have an empty or unchanged leads set.
 
 #### Scenario: Project leads are not touched during sync
 - **WHEN** `SyncProjectsUseCase.sync()` completes
@@ -40,14 +40,18 @@ The `SyncProjectsUseCase` SHALL NOT fetch or assign project leads. Lead assignme
 - **THEN** the leads set of each project is not modified
 
 ### Requirement: Sync persists all changes in one batch
-The system SHALL persist all created and updated projects via `ProjectRepository.saveAll()` after processing the full ZEP response.
+The system SHALL process the full ZEP response, determine which Projects are newly created or changed, and persist those Projects via `ProjectRepository.saveAll()` within one transactional sync invocation.
 
 #### Scenario: All project changes saved at end of sync
 - **WHEN** all ZEP projects have been mapped to domain objects
-- **THEN** all created and updated Projects are persisted via `ProjectRepository.saveAll()`
+- **THEN** all created and changed Projects are persisted via `ProjectRepository.saveAll()`
+
+#### Scenario: Unchanged project is not counted as an update
+- **WHEN** a ZEP project maps to the same Project state that is already persisted
+- **THEN** it is not counted in `ProjectSyncResult.updated()`
 
 ### Requirement: Sync returns a result with operation counts
-`SyncProjectsUseCase.sync()` SHALL return a `ProjectSyncResult` record instead of `void`. `ProjectSyncResult` SHALL contain integer fields: `created` (new Projects persisted) and `updated` (existing Projects whose mutable fields were changed). The `SyncScheduler` SHALL use these counts when composing its log output.
+`SyncProjectsUseCase.sync()` SHALL return a `ProjectSyncResult` record containing integer fields `created`, `updated`, and `unchanged`. `unchanged` counts ZEP projects whose synchronized aggregate state equals the already persisted state and that therefore do not require persistence. The scheduler SHALL use these counts when composing its log output.
 
 #### Scenario: Result reflects projects created during sync
 - **WHEN** `SyncProjectsUseCase.sync()` creates N new Projects
@@ -57,9 +61,18 @@ The system SHALL persist all created and updated projects via `ProjectRepository
 - **WHEN** `SyncProjectsUseCase.sync()` updates M existing Projects
 - **THEN** the returned `ProjectSyncResult.updated()` equals M
 
-### Requirement: SyncProjectsUseCase is decoupled from Quarkus infrastructure
-The `SyncProjectsUseCase` interface and its `SyncProjectsService` implementation SHALL NOT import or depend on any Quarkus, CDI, or JPA annotations. The Quarkus scheduler SHALL call the use case through the inbound port interface only.
+#### Scenario: Result reflects unchanged projects
+- **WHEN** `SyncProjectsUseCase.sync()` encounters U projects whose synchronized state equals the persisted state
+- **THEN** the returned `ProjectSyncResult.unchanged()` equals U
 
-#### Scenario: SyncProjectsService has no Quarkus imports
-- **WHEN** `SyncProjectsService` is compiled
-- **THEN** it imports only from `com.gepardec.mega.hexagon`, `java.*`, and standard libraries
+### Requirement: SyncProjectsService is a CDI-managed application-service boundary
+The system SHALL implement `SyncProjectsUseCase` with a CDI-managed application service that owns the transaction boundary for a sync invocation. `SyncScheduler` SHALL inject the use case via the inbound port instead of manually constructing the service implementation.
+
+#### Scenario: Scheduler injects the sync use case
+- **WHEN** the unified `SyncScheduler` starts
+- **THEN** it receives `SyncProjectsUseCase` via CDI injection
+- **THEN** it does not construct `SyncProjectsService` manually
+
+#### Scenario: Project sync runs in one application-service transaction
+- **WHEN** `SyncProjectsUseCase.sync()` is invoked
+- **THEN** project creation and update persistence occurs within the service-owned transaction boundary
