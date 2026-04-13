@@ -79,7 +79,7 @@ class MonthEndStatusOverviewServiceTest {
                 actorId,
                 Set.of(actorId)
         );
-        MonthEndTask completedLeadTask = MonthEndTask.reconstitute(
+        MonthEndTask completedLeadTask = new MonthEndTask(
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
