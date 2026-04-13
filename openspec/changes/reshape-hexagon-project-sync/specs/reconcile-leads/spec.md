@@ -15,18 +15,26 @@ The system SHALL replace the full leads set on each project with the freshly res
 - **WHEN** the resolved lead set for a project matches the currently persisted leads set
 - **THEN** reconciliation keeps the project's master data unchanged
 
+### Requirement: Project lead sync boundary uses sync-oriented names
+The system SHALL expose project lead synchronization through `SyncProjectLeadsUseCase` and `SyncProjectLeadsService`. The boundary SHALL use a `sync()` entrypoint and SHALL return `ProjectLeadSyncResult`.
+
+#### Scenario: Project lead sync returns a named sync result
+- **WHEN** `SyncProjectLeadsUseCase.sync()` completes
+- **THEN** it returns `ProjectLeadSyncResult`
+- **THEN** the result exposes `resolved`, `skipped`, `rolesAdded`, and `rolesRevoked`
+
 ## ADDED Requirements
 
-### Requirement: ReconcileLeadsService is a CDI-managed application-service boundary
-The system SHALL implement `ReconcileLeadsUseCase` with a CDI-managed application service that owns the transaction boundary for lead reconciliation and role derivation. `SyncScheduler` SHALL inject the use case via the inbound port instead of manually constructing the service implementation.
+### Requirement: SyncProjectLeadsService is a CDI-managed application-service boundary
+The system SHALL implement `SyncProjectLeadsUseCase` with a CDI-managed application service that owns the transaction boundary for project lead sync and role derivation. `SyncScheduler` SHALL inject the use case via the inbound port instead of manually constructing the service implementation.
 
-#### Scenario: Scheduler injects the reconciliation use case
+#### Scenario: Scheduler injects the project lead sync use case
 - **WHEN** the unified `SyncScheduler` starts
-- **THEN** it receives `ReconcileLeadsUseCase` via CDI injection
-- **THEN** it does not construct `ReconcileLeadsService` manually
+- **THEN** it receives `SyncProjectLeadsUseCase` via CDI injection
+- **THEN** it does not construct `SyncProjectLeadsService` manually
 
-#### Scenario: Lead reconciliation runs in one application-service transaction
-- **WHEN** `ReconcileLeadsUseCase.reconcile()` is invoked
+#### Scenario: Project lead sync runs in one application-service transaction
+- **WHEN** `SyncProjectLeadsUseCase.sync()` is invoked
 - **THEN** project lead replacement and user role reconciliation occur within the service-owned transaction boundary
 
 ## REMOVED Requirements
@@ -35,6 +43,6 @@ The system SHALL implement `ReconcileLeadsUseCase` with a CDI-managed applicatio
 **Reason**: The reshape no longer imposes a project-local anti-import rule for stable user identity value objects while the wider shared-boundary work is still in progress.
 **Migration**: Continue exposing a lead-lookup capability for reconciliation, but allow the implementation to use the stable `UserId` and `ZepUsername` types that back the wider hexagon until the shared-boundary refactor finalizes their long-term home.
 
-### Requirement: ReconcileLeadsUseCase is decoupled from Quarkus infrastructure
-**Reason**: Lead reconciliation now follows the same CDI-managed application-service pattern as project sync and the reshaped user domain.
-**Migration**: Keep Quarkus annotations and transaction management on the service implementation, while leaving the `Project` aggregate, `ReconcileLeadsUseCase`, and result records framework-free.
+### Requirement: SyncProjectLeadsUseCase is decoupled from Quarkus infrastructure
+**Reason**: Project lead sync now follows the same CDI-managed application-service pattern as project sync and the reshaped user domain.
+**Migration**: Keep Quarkus annotations and transaction management on the service implementation, while leaving the `Project` aggregate, `SyncProjectLeadsUseCase`, and result records framework-free.

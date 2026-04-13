@@ -56,7 +56,7 @@ class MonthEndClarificationRepositoryAdapterTest {
         MonthEndClarification openClarification = MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
                 month,
-                project.getId(),
+                project.id(),
                 employee.id(),
                 employee.id(),
                 MonthEndClarificationSide.EMPLOYEE,
@@ -67,7 +67,7 @@ class MonthEndClarificationRepositoryAdapterTest {
         MonthEndClarification doneClarification = MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
                 month,
-                project.getId(),
+                project.id(),
                 employee.id(),
                 employee.id(),
                 MonthEndClarificationSide.EMPLOYEE,
@@ -78,7 +78,7 @@ class MonthEndClarificationRepositoryAdapterTest {
         MonthEndClarification otherEmployeeClarification = MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
                 month,
-                project.getId(),
+                project.id(),
                 otherEmployee.id(),
                 otherEmployee.id(),
                 MonthEndClarificationSide.EMPLOYEE,
@@ -113,7 +113,7 @@ class MonthEndClarificationRepositoryAdapterTest {
         MonthEndClarification sharedClarification = MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
                 month,
-                project.getId(),
+                project.id(),
                 employee.id(),
                 leadA.id(),
                 MonthEndClarificationSide.PROJECT_LEAD,
@@ -124,7 +124,7 @@ class MonthEndClarificationRepositoryAdapterTest {
         MonthEndClarification doneClarification = MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
                 month,
-                project.getId(),
+                project.id(),
                 employee.id(),
                 employee.id(),
                 MonthEndClarificationSide.EMPLOYEE,

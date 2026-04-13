@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.project.domain.model;
 
+import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -25,82 +26,84 @@ class ProjectTest {
 
         Project project = Project.create(id, profile);
 
-        assertThat(project.getId()).isEqualTo(id);
-        assertThat(project.getZepId()).isEqualTo(42);
-        assertThat(project.getName()).isEqualTo("Alpha");
-        assertThat(project.getStartDate()).isEqualTo(LocalDate.of(2024, 1, 1));
-        assertThat(project.getEndDate()).isEqualTo(LocalDate.of(2024, 12, 31));
+        assertThat(project.id()).isEqualTo(id);
+        assertThat(project.zepId()).isEqualTo(42);
+        assertThat(project.name()).isEqualTo("Alpha");
+        assertThat(project.startDate()).isEqualTo(LocalDate.of(2024, 1, 1));
+        assertThat(project.endDate()).isEqualTo(LocalDate.of(2024, 12, 31));
     }
 
     @Test
     void create_leadsSetIsEmpty() {
         Project project = Project.create(ProjectId.generate(), profile(1, "Alpha"));
 
-        assertThat(project.getLeads()).isEmpty();
+        assertThat(project.leads()).isEmpty();
     }
 
     @Test
-    void reconstitute_setsAllFields() {
+    void constructor_setsAllFields() {
         ProjectId id = ProjectId.generate();
-        UUID leadId = UUID.randomUUID();
+        UserId leadId = UserId.of(UUID.randomUUID());
         LocalDate start = LocalDate.of(2023, 6, 1);
         LocalDate end = LocalDate.of(2024, 6, 1);
 
-        Project project = Project.reconstitute(id, 99, "Beta", start, end, false, Set.of(leadId));
+        Project project = new Project(id, 99, "Beta", start, end, false, Set.of(leadId));
 
-        assertThat(project.getId()).isEqualTo(id);
-        assertThat(project.getZepId()).isEqualTo(99);
-        assertThat(project.getName()).isEqualTo("Beta");
-        assertThat(project.getStartDate()).isEqualTo(start);
-        assertThat(project.getEndDate()).isEqualTo(end);
-        assertThat(project.getLeads()).containsExactly(leadId);
+        assertThat(project.id()).isEqualTo(id);
+        assertThat(project.zepId()).isEqualTo(99);
+        assertThat(project.name()).isEqualTo("Beta");
+        assertThat(project.startDate()).isEqualTo(start);
+        assertThat(project.endDate()).isEqualTo(end);
+        assertThat(project.leads()).containsExactly(leadId);
     }
 
     @Test
-    void syncFromZep_updatesMutableFields() {
+    void withSyncedZepData_returnsUpdatedProjectWithoutMutatingOriginal() {
         Project project = Project.create(ProjectId.generate(), profile(10, "Old Name"));
         ZepProjectProfile updated = new ZepProjectProfile(10, "New Name", LocalDate.of(2025, 1, 1), null, false);
 
-        project.syncFromZep(updated);
+        Project synchronizedProject = project.withSyncedZepData(updated);
 
-        assertThat(project.getName()).isEqualTo("New Name");
-        assertThat(project.getStartDate()).isEqualTo(LocalDate.of(2025, 1, 1));
-        assertThat(project.getEndDate()).isNull();
+        assertThat(synchronizedProject.name()).isEqualTo("New Name");
+        assertThat(synchronizedProject.startDate()).isEqualTo(LocalDate.of(2025, 1, 1));
+        assertThat(synchronizedProject.endDate()).isNull();
+        assertThat(project.name()).isEqualTo("Old Name");
     }
 
     @Test
-    void syncFromZep_doesNotChangeId() {
+    void withSyncedZepData_doesNotChangeId() {
         ProjectId id = ProjectId.generate();
         Project project = Project.create(id, profile(10, "X"));
 
-        project.syncFromZep(new ZepProjectProfile(10, "Y", LocalDate.now(), null, false));
+        Project synchronizedProject = project.withSyncedZepData(new ZepProjectProfile(10, "Y", LocalDate.now(), null, false));
 
-        assertThat(project.getId()).isEqualTo(id);
-        assertThat(project.getZepId()).isEqualTo(10);
+        assertThat(synchronizedProject.id()).isEqualTo(id);
+        assertThat(synchronizedProject.zepId()).isEqualTo(10);
     }
 
     @Test
-    void setLeads_replacesLeadsSet() {
+    void withLeads_replacesLeadsSet() {
         Project project = Project.create(ProjectId.generate(), profile(5, "Gamma"));
-        UUID leadA = UUID.randomUUID();
-        UUID leadB = UUID.randomUUID();
+        UserId leadA = UserId.of(UUID.randomUUID());
+        UserId leadB = UserId.of(UUID.randomUUID());
 
-        project.setLeads(Set.of(leadA, leadB));
+        Project updatedProject = project.withLeads(Set.of(leadA, leadB));
 
-        assertThat(project.getLeads()).containsExactlyInAnyOrder(leadA, leadB);
+        assertThat(updatedProject.leads()).containsExactlyInAnyOrder(leadA, leadB);
+        assertThat(project.leads()).isEmpty();
     }
 
     @Test
-    void setLeads_replacesExistingLeads() {
-        UUID oldLead = UUID.randomUUID();
-        Project project = Project.reconstitute(ProjectId.generate(), 5, "Delta",
+    void withLeads_replacesExistingLeads() {
+        UserId oldLead = UserId.of(UUID.randomUUID());
+        Project project = new Project(ProjectId.generate(), 5, "Delta",
                 LocalDate.now(), null, false, Set.of(oldLead));
-        UUID newLead = UUID.randomUUID();
+        UserId newLead = UserId.of(UUID.randomUUID());
 
-        project.setLeads(Set.of(newLead));
+        Project updatedProject = project.withLeads(Set.of(newLead));
 
-        assertThat(project.getLeads()).containsExactly(newLead);
-        assertThat(project.getLeads()).doesNotContain(oldLead);
+        assertThat(updatedProject.leads()).containsExactly(newLead);
+        assertThat(updatedProject.leads()).doesNotContain(oldLead);
     }
 
     @Test
@@ -108,37 +111,37 @@ class ProjectTest {
         Project billable = Project.create(ProjectId.generate(), billableProfile(1, "Billable"));
         Project notBillable = Project.create(ProjectId.generate(), profile(2, "Internal"));
 
-        assertThat(billable.isBillable()).isTrue();
-        assertThat(notBillable.isBillable()).isFalse();
+        assertThat(billable.billable()).isTrue();
+        assertThat(notBillable.billable()).isFalse();
     }
 
     @Test
-    void reconstitute_setBillableFromParameter() {
-        Project billable = Project.reconstitute(ProjectId.generate(), 1, "Billable",
+    void constructor_setBillableFromParameter() {
+        Project billable = new Project(ProjectId.generate(), 1, "Billable",
                 LocalDate.now(), null, true, Set.of());
-        Project notBillable = Project.reconstitute(ProjectId.generate(), 2, "Internal",
+        Project notBillable = new Project(ProjectId.generate(), 2, "Internal",
                 LocalDate.now(), null, false, Set.of());
 
-        assertThat(billable.isBillable()).isTrue();
-        assertThat(notBillable.isBillable()).isFalse();
+        assertThat(billable.billable()).isTrue();
+        assertThat(notBillable.billable()).isFalse();
     }
 
     @Test
-    void syncFromZep_updatesBillable() {
+    void withSyncedZepData_updatesBillable() {
         Project project = Project.create(ProjectId.generate(), profile(10, "Project"));
-        assertThat(project.isBillable()).isFalse();
+        assertThat(project.billable()).isFalse();
 
-        project.syncFromZep(billableProfile(10, "Project"));
+        Project synchronizedProject = project.withSyncedZepData(billableProfile(10, "Project"));
 
-        assertThat(project.isBillable()).isTrue();
+        assertThat(synchronizedProject.billable()).isTrue();
     }
 
     @Test
     void leads_returnsDefensiveCopy() {
         Project project = Project.create(ProjectId.generate(), profile(1, "X"));
-        project.setLeads(Set.of(UUID.randomUUID()));
+        project = project.withLeads(Set.of(UserId.of(UUID.randomUUID())));
 
-        Set<UUID> leads = project.getLeads();
+        Set<UserId> leads = project.leads();
         assertThat(leads).isUnmodifiable();
     }
 }

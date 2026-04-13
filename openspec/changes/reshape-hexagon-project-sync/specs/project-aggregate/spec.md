@@ -1,7 +1,7 @@
 ## MODIFIED Requirements
 
 ### Requirement: Project aggregate encapsulates identity and master data
-The `Project` aggregate SHALL be modeled as an immutable, record-oriented type holding a stable internal `ProjectId` (UUID), a ZEP numeric id (`zepId`), a unique `name`, a `startDate`, an optional `endDate`, a `billable` boolean flag, and a set of `UserId` references representing project leads. State transitions such as ZEP resync and lead reconciliation SHALL return new Project instances instead of mutating existing state. The aggregate SHALL NOT hold any workflow state.
+The `Project` aggregate SHALL be modeled as an immutable, record-oriented type holding a stable internal `ProjectId` (UUID), a ZEP numeric id (`zepId`), a unique `name`, a `startDate`, an optional `endDate`, a `billable` boolean flag, and a set of `UserId` references representing project leads. State transitions such as ZEP resync and project lead sync SHALL return new Project instances instead of mutating existing state. The aggregate SHALL NOT hold any workflow state.
 
 #### Scenario: Project created from ZEP profile data
 - **WHEN** `Project.create(ProjectId, ZepProjectProfile)` is called
@@ -9,7 +9,7 @@ The `Project` aggregate SHALL be modeled as an immutable, record-oriented type h
 - **THEN** the leads set is empty
 
 #### Scenario: Project reconstituted from persisted state
-- **WHEN** `Project.reconstitute(id, zepId, name, startDate, endDate, billable, leads)` is called
+- **WHEN** `new Project(id, zepId, name, startDate, endDate, billable, leads)` is called
 - **THEN** a new immutable Project instance is returned with all fields set as provided
 
 #### Scenario: Existing project resynced from ZEP
@@ -24,6 +24,6 @@ The `leads` field SHALL be a `Set<UserId>` carried directly on the `Project` agg
 - **WHEN** a project is first created via `SyncProjectsUseCase`
 - **THEN** its leads set is empty
 
-#### Scenario: Leads are set by reconciliation
-- **WHEN** `ReconcileLeadsUseCase` resolves lead usernames for a project
+#### Scenario: Leads are set by project lead sync
+- **WHEN** `SyncProjectLeadsUseCase` resolves lead usernames for a project
 - **THEN** the project's leads set is replaced with the resolved `UserId` values on a new Project instance

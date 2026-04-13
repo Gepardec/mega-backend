@@ -2,7 +2,7 @@
 
 The archived change `2026-04-13-reshape-hexagon-user-sync` established a new baseline for hexagon slices: immutable record-oriented domain models, CDI-managed application services, and sync flows that derive new aggregate instances instead of mutating them in place. The project slice still diverges from that baseline.
 
-Today, `Project` is a mutable class, project leads are handled as raw `UUID` collections in the implementation, and `SyncScheduler` manually constructs `SyncProjectsService` and `ReconcileLeadsService` instead of injecting them as application services. That divergence is visible in the domain model, mapper/repository code, scheduler wiring, and tests.
+Today, `Project` is a mutable class, project leads are handled as raw `UUID` collections in the implementation, and `SyncScheduler` manually constructs `SyncProjectsService` and `SyncProjectLeadsService` instead of injecting them as application services. That divergence is visible in the domain model, mapper/repository code, scheduler wiring, and tests.
 
 This change also needs to coexist with the active `standardize-hexagon-shared-boundaries` work. That change is already exploring renames and longer-term shared identity ownership, so this proposal should focus on the project reshape itself and avoid consuming the naming refactor prematurely.
 
@@ -17,7 +17,7 @@ This change also needs to coexist with the active `standardize-hexagon-shared-bo
 **Non-Goals:**
 - Rename ports or adapters as part of the active shared-boundary standardization work.
 - Introduce new project capabilities, REST endpoints, or persistence tables.
-- Change the scheduler cadence or the ordering of user sync, project sync, and lead reconciliation.
+- Change the scheduler cadence or the ordering of user sync, project sync, and project lead sync.
 - Redesign monthend or worktime domain models beyond the call-site adjustments needed for the new `Project` shape.
 
 ## Decisions
@@ -28,7 +28,7 @@ This change also needs to coexist with the active `standardize-hexagon-shared-bo
 
 Why this decision:
 - It directly mirrors the reshape rule the user wants applied from the user domain.
-- It removes in-place mutation from project sync and lead reconciliation.
+- It removes in-place mutation from project sync and project lead sync.
 - It makes equality and change detection straightforward when comparing existing and synchronized project state.
 
 Alternatives considered:
@@ -50,7 +50,7 @@ Alternatives considered:
 
 ### 3. Put CDI and transaction boundaries on project application services
 
-`SyncProjectsService` and `ReconcileLeadsService` will become CDI-managed application services that own their transaction boundaries. `SyncScheduler` will inject `SyncProjectsUseCase` and `ReconcileLeadsUseCase` instead of constructing service implementations manually.
+`SyncProjectsService` and `SyncProjectLeadsService` will become CDI-managed application services that own their transaction boundaries. `SyncScheduler` will inject `SyncProjectsUseCase` and `SyncProjectLeadsUseCase` instead of constructing service implementations manually.
 
 Why this decision:
 - It matches the reshaped user sync and the existing monthend application-service style.
@@ -63,12 +63,13 @@ Alternatives considered:
 
 ### 4. Align sync and reconciliation flow with the user-domain update style
 
-Project sync and lead reconciliation will derive new aggregate instances from current state plus incoming ZEP data, compare existing and derived state, and persist only created or changed aggregates. `ProjectSyncResult` will expose `created`, `updated`, and `unchanged` counts so the scheduler can report skipped writes explicitly, while `ReconcileLeadsResult` keeps its existing shape.
+Project sync and project lead sync will derive new aggregate instances from current state plus incoming ZEP data, compare existing and derived state, and persist only created or changed aggregates. `ProjectSyncResult` will expose `created`, `updated`, and `unchanged` counts so the scheduler can report skipped writes explicitly, while `ProjectLeadSyncResult` keeps the existing lead sync counters.
 
 Why this decision:
 - It matches the control-flow style introduced in the user sync reshape and makes no-op sync outcomes visible.
 - It prevents records from being treated like mutable containers.
 - It avoids unnecessary writes when project state or lead assignments are unchanged.
+- It gives the project-lead boundary a name that reflects ZEP-as-authoritative synchronization rather than symmetric reconciliation.
 
 Alternatives considered:
 - Persist every project on every sync/reconcile pass: rejected because it works against the new immutable/equality-driven style.
@@ -96,10 +97,10 @@ Alternatives considered:
 ## Migration Plan
 
 1. Convert `Project` and its mapper/repository usage to the new record-oriented shape with `UserId` lead references.
-2. Refactor `SyncProjectsService` and `ReconcileLeadsService` to use immutable project derivation and CDI-managed transaction boundaries.
+2. Refactor `SyncProjectsService` and `SyncProjectLeadsService` to use immutable project derivation and CDI-managed transaction boundaries.
 3. Update `SyncScheduler` to inject the project use cases.
 4. Update downstream project consumers and tests to use record component accessors.
-5. Run targeted project, monthend, and worktime tests to verify that project sync and lead reconciliation behavior stays stable.
+5. Run targeted project, monthend, and worktime tests to verify that project sync and project lead sync behavior stays stable.
 
 Rollback strategy:
 - This is a code-only refactor with no schema migration, so rollback is a straightforward revert of the affected source and test files.
