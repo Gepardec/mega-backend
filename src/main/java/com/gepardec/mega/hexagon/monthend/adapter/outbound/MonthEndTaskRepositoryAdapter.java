@@ -11,7 +11,6 @@ import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -20,7 +19,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @ApplicationScoped
-@Transactional
 public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
 
     @Inject

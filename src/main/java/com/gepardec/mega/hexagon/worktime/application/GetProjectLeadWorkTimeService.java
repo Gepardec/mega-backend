@@ -18,6 +18,7 @@ import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.time.YearMonth;
 import java.util.Collection;
@@ -29,6 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
+@Transactional
 public class GetProjectLeadWorkTimeService implements GetProjectLeadWorkTimeUseCase {
 
     private final WorkTimeProjectSnapshotPort workTimeProjectSnapshotPort;

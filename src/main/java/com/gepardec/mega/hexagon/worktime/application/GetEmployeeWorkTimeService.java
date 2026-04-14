@@ -16,6 +16,7 @@ import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeZepPort;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.time.YearMonth;
 import java.util.Comparator;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
+@Transactional
 public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
 
     private final WorkTimeUserSnapshotPort workTimeUserSnapshotPort;

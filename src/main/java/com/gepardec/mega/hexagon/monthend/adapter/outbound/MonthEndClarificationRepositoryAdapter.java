@@ -7,7 +7,6 @@ import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarifica
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -15,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
-@Transactional
 public class MonthEndClarificationRepositoryAdapter implements MonthEndClarificationRepository {
 
     @Inject
