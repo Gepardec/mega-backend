@@ -3,8 +3,8 @@ package com.gepardec.mega.hexagon.monthend.domain.model;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
-import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
-import com.gepardec.mega.hexagon.user.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
 import java.time.Instant;
 import java.time.YearMonth;

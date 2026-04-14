@@ -1,12 +1,12 @@
 package com.gepardec.mega.hexagon.project.application;
 
+import com.gepardec.mega.hexagon.project.application.port.inbound.ProjectSyncResult;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
-import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
-import com.gepardec.mega.hexagon.project.domain.port.inbound.ProjectSyncResult;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
-import com.gepardec.mega.hexagon.user.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

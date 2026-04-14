@@ -2,8 +2,8 @@ package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
-import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
-import com.gepardec.mega.hexagon.user.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;

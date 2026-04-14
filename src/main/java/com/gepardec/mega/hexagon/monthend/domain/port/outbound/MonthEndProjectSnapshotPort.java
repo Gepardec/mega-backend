@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.domain.port.outbound;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
-import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 
 import java.util.List;
 import java.util.Set;

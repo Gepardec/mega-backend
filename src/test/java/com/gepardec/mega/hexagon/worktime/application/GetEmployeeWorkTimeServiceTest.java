@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.worktime.application;
 
-import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
-import com.gepardec.mega.hexagon.user.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeValidationException;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
