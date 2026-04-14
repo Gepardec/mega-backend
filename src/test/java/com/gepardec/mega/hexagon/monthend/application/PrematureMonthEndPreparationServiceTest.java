@@ -10,19 +10,18 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskKey;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndTaskPlanningService;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -173,16 +172,13 @@ class PrematureMonthEndPreparationServiceTest {
                         projectId,
                         91,
                         "Project-91",
-                        LocalDate.of(2025, 1, 1),
-                        null,
                         billable,
                         Set.of(leadId)
                 ),
-                new MonthEndUserSnapshot(
+                new UserRef(
                         employeeId,
-                        "Employee User",
-                        "employee",
-                        new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))
+                        FullName.of("Employee", "User"),
+                        ZepUsername.of("employee")
                 ),
                 Set.of(leadId)
         );

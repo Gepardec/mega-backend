@@ -1,11 +1,13 @@
 package com.gepardec.mega.hexagon.worktime.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.model.WorkTimeReportResponse;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEmployee;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEntry;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeProject;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
@@ -28,8 +30,8 @@ class WorkTimeRestMapperTest {
         WorkTimeReport report = new WorkTimeReport(
                 YearMonth.of(2026, 3),
                 List.of(new WorkTimeEntry(
-                        new WorkTimeEmployee(employeeId, "Ada Lovelace"),
-                        new WorkTimeProject(projectId, "Spec First"),
+                        new UserRef(employeeId, FullName.of("Ada", "Lovelace"), ZepUsername.of("ada")),
+                        new ProjectRef(projectId, 77, "Spec First"),
                         12.5d,
                         1.5d,
                         20.0d

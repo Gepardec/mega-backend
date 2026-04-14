@@ -39,7 +39,7 @@ public class GetMonthEndStatusOverviewService implements GetMonthEndStatusOvervi
             return new MonthEndStatusOverview(actorId, month, List.of());
         }
 
-        MonthEndTaskSnapshotLookup snapshotLookup = resolveMonthEndTaskSnapshotLookupService.resolve(tasks);
+        MonthEndTaskSnapshotLookup snapshotLookup = resolveMonthEndTaskSnapshotLookupService.resolve(tasks, month);
 
         List<MonthEndStatusOverviewItem> entries = tasks.stream()
                 .map(task -> monthEndStatusOverviewMapper.toItem(

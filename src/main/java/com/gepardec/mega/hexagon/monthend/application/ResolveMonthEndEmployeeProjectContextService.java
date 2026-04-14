@@ -4,12 +4,12 @@ import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNo
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndProjectContextNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectAssignmentPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -37,30 +37,29 @@ public class ResolveMonthEndEmployeeProjectContextService {
     }
 
     public MonthEndEmployeeProjectContext resolve(YearMonth month, ProjectId projectId, UserId subjectEmployeeId) {
-        MonthEndProjectSnapshot project = monthEndProjectSnapshotPort.findAll().stream()
+        MonthEndProjectSnapshot project = monthEndProjectSnapshotPort.findActiveIn(month).stream()
                 .filter(candidate -> candidate.id().equals(projectId))
-                .filter(candidate -> candidate.isActiveIn(month))
                 .findFirst()
                 .orElseThrow(() -> new MonthEndProjectContextNotFoundException(
                         "month-end project context not found for project %s in %s".formatted(projectId.value(), month)
                 ));
 
-        Map<UserId, MonthEndUserSnapshot> activeUsersById = monthEndUserSnapshotPort.findAll().stream()
-                .filter(user -> user.isActiveIn(month))
+        Map<UserId, UserRef> activeUsersById = monthEndUserSnapshotPort.findActiveIn(month).stream()
                 .collect(Collectors.toMap(
-                        MonthEndUserSnapshot::id,
+                        UserRef::id,
                         Function.identity(),
                         (left, right) -> left
                 ));
 
-        MonthEndUserSnapshot subjectEmployee = activeUsersById.get(subjectEmployeeId);
+        UserRef subjectEmployee = activeUsersById.get(subjectEmployeeId);
         if (subjectEmployee == null) {
             throw new MonthEndEmployeeContextNotFoundException(
                     "month-end employee context not found for employee %s in %s".formatted(subjectEmployeeId.value(), month)
             );
         }
 
-        if (!monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month).contains(subjectEmployee.zepUsername())) {
+        if (!monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month)
+                .contains(subjectEmployee.zepUsername().value())) {
             throw new MonthEndEmployeeNotAssignedToProjectException(
                     "employee %s is not assigned to project %s in %s"
                             .formatted(subjectEmployeeId.value(), projectId.value(), month)

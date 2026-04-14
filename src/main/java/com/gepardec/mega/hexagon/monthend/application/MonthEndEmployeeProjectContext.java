@@ -1,8 +1,8 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 
 import java.time.YearMonth;
 import java.util.Objects;
@@ -11,7 +11,7 @@ import java.util.Set;
 public record MonthEndEmployeeProjectContext(
         YearMonth month,
         MonthEndProjectSnapshot project,
-        MonthEndUserSnapshot subjectEmployee,
+        UserRef subjectEmployee,
         Set<UserId> eligibleProjectLeadIds
 ) {
 

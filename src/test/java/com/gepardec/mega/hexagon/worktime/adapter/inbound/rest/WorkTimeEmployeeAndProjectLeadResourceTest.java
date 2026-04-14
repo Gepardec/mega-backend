@@ -3,15 +3,17 @@ package com.gepardec.mega.hexagon.worktime.adapter.inbound.rest;
 import com.gepardec.mega.hexagon.generated.model.ApiError;
 import com.gepardec.mega.hexagon.generated.model.WorkTimeReportResponse;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWorkTimeUseCase;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetProjectLeadWorkTimeUseCase;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEmployee;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEntry;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeProject;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -62,8 +64,8 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
         WorkTimeReport report = new WorkTimeReport(
                 MONTH,
                 List.of(new WorkTimeEntry(
-                        new WorkTimeEmployee(EMPLOYEE_ID, "Ada Lovelace"),
-                        new WorkTimeProject(PROJECT_ID, "Spec First"),
+                        employeeRef(),
+                        projectRef(),
                         12.5d,
                         1.5d,
                         20.0d
@@ -95,8 +97,8 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
         WorkTimeReport report = new WorkTimeReport(
                 MONTH,
                 List.of(new WorkTimeEntry(
-                        new WorkTimeEmployee(EMPLOYEE_ID, "Ada Lovelace"),
-                        new WorkTimeProject(PROJECT_ID, "Spec First"),
+                        employeeRef(),
+                        projectRef(),
                         8.0d,
                         2.0d,
                         20.0d
@@ -167,5 +169,13 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
 
     private void allowRoles(Role... roles) {
         when(authenticatedActorContext.roles()).thenReturn(Set.of(roles));
+    }
+
+    private UserRef employeeRef() {
+        return new UserRef(EMPLOYEE_ID, FullName.of("Ada", "Lovelace"), ZepUsername.of("ada"));
+    }
+
+    private ProjectRef projectRef() {
+        return new ProjectRef(PROJECT_ID, 77, "Spec First");
     }
 }
