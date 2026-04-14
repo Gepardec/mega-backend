@@ -1,4 +1,4 @@
-package com.gepardec.mega.hexagon.user.domain.model;
+package com.gepardec.mega.hexagon.shared.domain.model;
 
 public record Email(String value) {
 

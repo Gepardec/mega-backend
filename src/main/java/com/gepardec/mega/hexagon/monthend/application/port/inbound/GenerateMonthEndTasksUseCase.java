@@ -1,4 +1,4 @@
-package com.gepardec.mega.hexagon.monthend.domain.port.inbound;
+package com.gepardec.mega.hexagon.monthend.application.port.inbound;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
 

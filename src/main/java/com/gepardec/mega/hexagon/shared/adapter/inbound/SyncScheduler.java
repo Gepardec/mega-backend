@@ -1,11 +1,11 @@
-package com.gepardec.mega.hexagon.application.schedule;
+package com.gepardec.mega.hexagon.shared.adapter.inbound;
 
-import com.gepardec.mega.hexagon.project.domain.port.inbound.ProjectLeadSyncResult;
-import com.gepardec.mega.hexagon.project.domain.port.inbound.ProjectSyncResult;
-import com.gepardec.mega.hexagon.project.domain.port.inbound.SyncProjectLeadsUseCase;
-import com.gepardec.mega.hexagon.project.domain.port.inbound.SyncProjectsUseCase;
-import com.gepardec.mega.hexagon.user.domain.port.inbound.SyncUsersUseCase;
-import com.gepardec.mega.hexagon.user.domain.port.inbound.UserSyncResult;
+import com.gepardec.mega.hexagon.project.application.port.inbound.ProjectLeadSyncResult;
+import com.gepardec.mega.hexagon.project.application.port.inbound.ProjectSyncResult;
+import com.gepardec.mega.hexagon.project.application.port.inbound.SyncProjectLeadsUseCase;
+import com.gepardec.mega.hexagon.project.application.port.inbound.SyncProjectsUseCase;
+import com.gepardec.mega.hexagon.user.application.port.inbound.SyncUsersUseCase;
+import com.gepardec.mega.hexagon.user.application.port.inbound.UserSyncResult;
 import io.quarkus.logging.Log;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;

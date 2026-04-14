@@ -1,4 +1,4 @@
-package com.gepardec.mega.hexagon.user.domain.port.inbound;
+package com.gepardec.mega.hexagon.user.application.port.inbound;
 
 public record UserSyncResult(
         int added,

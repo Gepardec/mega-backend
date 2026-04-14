@@ -26,11 +26,15 @@ The hexagon SHALL define a small shared kernel for concepts that are reused acro
 ## ADDED Requirements
 
 ### Requirement: Inbound ports belong in the application layer
-Driver port interfaces (`*UseCase`) define how the outside world drives the application. They are application boundary contracts and MUST be placed in the module's `application` package (`<module>.application`), co-located with their implementations. No `*UseCase` interface SHALL reside in a `domain.port.inbound` package.
+Driver port interfaces (`*UseCase`) define how the outside world drives the application. They are application boundary contracts and MUST be placed in the module's `application.port.inbound` package (`<module>.application.port.inbound`). Supporting boundary-specific contract types that exist only for that inbound API, such as sync result records, SHOULD live there as well. Implementations remain in the module's `application` package. No `*UseCase` interface SHALL reside in a `domain.port.inbound` package.
 
-#### Scenario: Use case interface lives in the application package
+#### Scenario: Use case interface lives in the inbound application port package
 - **WHEN** a new use case interface is defined for a hexagon module
-- **THEN** it is placed in `<module>.application` alongside its implementation
+- **THEN** it is placed in `<module>.application.port.inbound`
+
+#### Scenario: Supporting inbound contract record lives next to the use case interface
+- **WHEN** a module defines a boundary-specific record that exists only to support an inbound use case contract
+- **THEN** it is placed in `<module>.application.port.inbound`
 
 #### Scenario: No use case interface in domain.port.inbound
 - **WHEN** the source tree is examined

@@ -1,12 +1,12 @@
 package com.gepardec.mega.hexagon.user.adapter.outbound;
 
-import com.gepardec.mega.hexagon.user.domain.model.Email;
+import com.gepardec.mega.hexagon.shared.domain.model.Email;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.FullName;
 import com.gepardec.mega.hexagon.user.domain.model.PersonioId;
 import com.gepardec.mega.hexagon.user.domain.model.User;
-import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

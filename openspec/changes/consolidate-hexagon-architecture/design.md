@@ -2,7 +2,7 @@
 
 The hexagonal backend (`com.gepardec.mega.hexagon`) follows a BC-first (module-first) package structure with modules `monthend`, `project`, `user`, `worktime`, and `shared`. An architectural review identified four structural misplacements:
 
-1. **14 inbound port interfaces** (`*UseCase`) live in `*.domain.port.inbound` across all four modules — domain packages that should not own application boundary contracts.
+1. **14 inbound port interfaces and 3 supporting sync result records** live in `*.domain.port.inbound` across all four modules — domain packages that should not own application boundary contracts.
 2. **`MonthEndTaskPlanningService`** lives in `monthend/application/` but contains only pure task-planning business rules with no I/O or port dependencies.
 3. **`SyncScheduler`** lives in `application/schedule/` but is a Quarkus `@Scheduled` component that drives use cases — an inbound adapter.
 4. **`UserId`, `Email`, and `ProjectId`** live in module-specific domain packages (`user/domain/model/`, `project/domain/model/`) despite being consumed by every module in the single bounded context.
@@ -12,7 +12,7 @@ All four are package-placement issues only. No logic, signatures, or behaviour c
 ## Goals / Non-Goals
 
 **Goals:**
-- Move inbound port interfaces to `*.application/` so the application layer owns its driver port contracts.
+- Move inbound port contracts to `*.application.port.inbound/` so the application layer owns its driver port contracts without cluttering the application root.
 - Move `MonthEndTaskPlanningService` to `monthend/domain/services/` to reflect its domain service nature.
 - Move `SyncScheduler` to `shared/adapter/inbound/` to reflect its inbound adapter nature.
 - Move `UserId`, `Email`, and `ProjectId` to `shared/domain/model/` to establish a proper shared kernel.
@@ -27,13 +27,13 @@ All four are package-placement issues only. No logic, signatures, or behaviour c
 
 ## Decisions
 
-### 1. Inbound ports in `application/`, outbound ports in `domain/`
+### 1. Inbound ports in `application/port/inbound`, outbound ports in `domain/`
 
-Driver ports (inbound `*UseCase` interfaces) define how the outside world drives the application. They are application boundary contracts, not domain concepts. Co-locating them in `*.application/` alongside their implementations keeps the application layer self-contained and makes the boundary visible without descending into the domain.
+Driver ports (inbound `*UseCase` interfaces) and their small boundary-specific contract records define how the outside world drives the application. They are application boundary contracts, not domain concepts. Placing them in `*.application.port.inbound/` keeps the application boundary explicit while leaving the `application/` root focused on orchestration implementations.
 
 Driven ports (outbound `*Port` interfaces such as `UserRepository`) stay in `domain/` because the domain owns the contract — it defines what it needs from infrastructure. Moving them to `application/` would invert the dependency rule.
 
-**Alternative considered:** Keep all ports in `domain/` for a single `port/` sub-tree. Rejected: inbound ports are not domain concepts and their placement in `domain/` obscures the hexagonal boundary.
+**Alternative considered:** Place inbound contracts directly in the `application/` root. Rejected: it works technically, but it clutters the application package and blurs the distinction between contracts and implementations.
 
 ### 2. `MonthEndTaskPlanningService` is a domain service
 
@@ -65,10 +65,10 @@ Perform moves using IDE refactoring to ensure all references are updated automat
 
 1. Move `UserId`, `Email` from `hexagon.user.domain.model` → `hexagon.shared.domain.model`
 2. Move `ProjectId` from `hexagon.project.domain.model` → `hexagon.shared.domain.model`
-3. Move each `*UseCase` interface from `<module>.domain.port.inbound` → `<module>.application` (14 interfaces across `monthend`, `worktime`, `project`, `user`)
+3. Move each `*UseCase` interface from `<module>.domain.port.inbound` → `<module>.application.port.inbound` and move supporting sync result records there as well
 4. Move `MonthEndTaskPlanningService` from `hexagon.monthend.application` → `hexagon.monthend.domain.services`
 5. Move `SyncScheduler` from `hexagon.application.schedule` → `hexagon.shared.adapter.inbound`
-6. Update `ArchitectureTest.java` — replace package path strings referencing `domain.port.inbound` with `application`
+6. Update `ArchitectureTest.java` — replace package path strings referencing `domain.port.inbound` with `application.port.inbound`
 7. Verify full build passes (`mvn clean package`)
 
 Rollback: all changes are reversible by reversing the package moves and import updates. No schema or API changes to undo.

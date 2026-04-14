@@ -1,14 +1,14 @@
 package com.gepardec.mega.hexagon.project.application;
 
+import com.gepardec.mega.hexagon.project.application.port.inbound.ProjectLeadSyncResult;
+import com.gepardec.mega.hexagon.project.application.port.inbound.SyncProjectLeadsUseCase;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
-import com.gepardec.mega.hexagon.project.domain.port.inbound.ProjectLeadSyncResult;
-import com.gepardec.mega.hexagon.project.domain.port.inbound.SyncProjectLeadsUseCase;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.UserIdentityLookupPort;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.User;
-import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;

@@ -1,8 +1,8 @@
-package com.gepardec.mega.hexagon.monthend.domain.port.inbound;
+package com.gepardec.mega.hexagon.monthend.application.port.inbound;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
-import com.gepardec.mega.hexagon.user.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
 public interface CompleteMonthEndTaskUseCase {
 

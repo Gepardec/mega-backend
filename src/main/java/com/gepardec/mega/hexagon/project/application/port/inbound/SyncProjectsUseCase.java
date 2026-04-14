@@ -1,4 +1,4 @@
-package com.gepardec.mega.hexagon.project.domain.port.inbound;
+package com.gepardec.mega.hexagon.project.application.port.inbound;
 
 public interface SyncProjectsUseCase {
 
