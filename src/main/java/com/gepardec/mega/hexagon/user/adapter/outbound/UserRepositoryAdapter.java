@@ -7,7 +7,6 @@ import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +15,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-@Transactional
 public class UserRepositoryAdapter implements UserRepository {
 
     @Inject
