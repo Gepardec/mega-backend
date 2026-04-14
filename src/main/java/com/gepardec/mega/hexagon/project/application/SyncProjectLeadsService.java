@@ -4,9 +4,9 @@ import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.port.inbound.ProjectLeadSyncResult;
 import com.gepardec.mega.hexagon.project.domain.port.inbound.SyncProjectLeadsUseCase;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
-import com.gepardec.mega.hexagon.project.domain.port.outbound.UserLookupPort;
+import com.gepardec.mega.hexagon.project.domain.port.outbound.UserIdentityLookupPort;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
-import com.gepardec.mega.hexagon.user.domain.model.Role;
+import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
@@ -27,15 +27,15 @@ public class SyncProjectLeadsService implements SyncProjectLeadsUseCase {
 
     private final ZepProjectPort zepProjectPort;
     private final ProjectRepository projectRepository;
-    private final UserLookupPort userLookupPort;
+    private final UserIdentityLookupPort userIdentityLookupPort;
     private final UserRepository userRepository;
 
     @Inject
     public SyncProjectLeadsService(ZepProjectPort zepProjectPort, ProjectRepository projectRepository,
-                                   UserLookupPort userLookupPort, UserRepository userRepository) {
+                                   UserIdentityLookupPort userIdentityLookupPort, UserRepository userRepository) {
         this.zepProjectPort = zepProjectPort;
         this.projectRepository = projectRepository;
-        this.userLookupPort = userLookupPort;
+        this.userIdentityLookupPort = userIdentityLookupPort;
         this.userRepository = userRepository;
     }
 
@@ -67,7 +67,7 @@ public class SyncProjectLeadsService implements SyncProjectLeadsUseCase {
         int skipped = 0;
 
         for (String username : zepProjectPort.fetchLeadUsernames(project.zepId())) {
-            Optional<UserId> userId = userLookupPort.findUserIdByZepUsername(ZepUsername.of(username));
+            Optional<UserId> userId = userIdentityLookupPort.findUserIdByZepUsername(ZepUsername.of(username));
             if (userId.isPresent()) {
                 resolvedLeads.add(userId.get());
                 resolved++;

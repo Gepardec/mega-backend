@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.user.adapter.outbound;
 
-import com.gepardec.mega.hexagon.user.domain.model.Role;
+import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;

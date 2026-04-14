@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideOutsideOfPackages;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
@@ -59,6 +60,23 @@ class ArchitectureTest {
                 )
                 .because("Domain package should remain pure and independent. " +
                         "It should only depend on other domain classes, not on other application packages. ")
+                .check(allClasses);
+    }
+
+    @Test
+    void hexagonPackageShouldNotDependOnLegacyPackages() {
+        noClasses()
+                .that().resideInAPackage("com.gepardec.mega.hexagon..")
+                .should().dependOnClassesThat(
+                        resideInAnyPackage(
+                                "com.gepardec.mega.application..",
+                                "com.gepardec.mega.domain..",
+                                "com.gepardec.mega.service..",
+                                "com.gepardec.mega.rest..",
+                                "com.gepardec.mega.db.."
+                        )
+                )
+                .because("Hexagon code should own its boundaries instead of depending on legacy layered packages.")
                 .check(allClasses);
     }
 }

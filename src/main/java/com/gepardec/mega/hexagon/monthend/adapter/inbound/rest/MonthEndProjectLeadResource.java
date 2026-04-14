@@ -1,7 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.application.interceptor.MegaRolesAllowed;
-import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.hexagon.generated.api.MonthEndProjectLeadApi;
 import com.gepardec.mega.hexagon.generated.model.CreateProjectLeadClarificationRequest;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
@@ -9,6 +7,9 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.CreateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
+import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
+import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
+import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
@@ -22,7 +23,7 @@ public class MonthEndProjectLeadResource implements MonthEndProjectLeadApi {
 
     private final GetProjectLeadMonthEndWorklistUseCase getProjectLeadMonthEndWorklistUseCase;
     private final CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
-    private final CurrentMonthEndRestActorResolver currentMonthEndRestActorResolver;
+    private final AuthenticatedActorContext authenticatedActorContext;
     private final MonthEndRestTransportHelper transportHelper;
     private final MonthEndRestMapper monthEndRestMapper;
 
@@ -30,20 +31,20 @@ public class MonthEndProjectLeadResource implements MonthEndProjectLeadApi {
     public MonthEndProjectLeadResource(
             GetProjectLeadMonthEndWorklistUseCase getProjectLeadMonthEndWorklistUseCase,
             CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase,
-            CurrentMonthEndRestActorResolver currentMonthEndRestActorResolver,
+            AuthenticatedActorContext authenticatedActorContext,
             MonthEndRestTransportHelper transportHelper,
             MonthEndRestMapper monthEndRestMapper
     ) {
         this.getProjectLeadMonthEndWorklistUseCase = getProjectLeadMonthEndWorklistUseCase;
         this.createMonthEndClarificationUseCase = createMonthEndClarificationUseCase;
-        this.currentMonthEndRestActorResolver = currentMonthEndRestActorResolver;
+        this.authenticatedActorContext = authenticatedActorContext;
         this.transportHelper = transportHelper;
         this.monthEndRestMapper = monthEndRestMapper;
     }
 
     @Override
     public Response createProjectLeadMonthEndClarification(CreateProjectLeadClarificationRequest request) {
-        UserId actorId = currentMonthEndRestActorResolver.resolveCurrentActorId();
+        UserId actorId = authenticatedActorContext.userId();
         MonthEndClarification clarification = createMonthEndClarificationUseCase.create(
                 transportHelper.parseMonth(request.getMonth()),
                 transportHelper.toProjectId(request.getProjectId()),
@@ -59,7 +60,7 @@ public class MonthEndProjectLeadResource implements MonthEndProjectLeadApi {
 
     @Override
     public Response getProjectLeadMonthEndWorklist(String month) {
-        UserId actorId = currentMonthEndRestActorResolver.resolveCurrentActorId();
+        UserId actorId = authenticatedActorContext.userId();
         MonthEndWorklist worklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(
                 actorId,
                 transportHelper.parseMonth(month)

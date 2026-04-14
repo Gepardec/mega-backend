@@ -1,19 +1,13 @@
 package com.gepardec.mega.hexagon.worktime.application;
 
-import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
-import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
-import com.gepardec.mega.hexagon.user.domain.model.Email;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
-import com.gepardec.mega.hexagon.user.domain.model.FullName;
-import com.gepardec.mega.hexagon.user.domain.model.Role;
-import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
-import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeProjectSnapshot;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeUserSnapshot;
+import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeProjectSnapshotPort;
+import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeZepPort;
 import io.smallrye.mutiny.Uni;
 import org.instancio.Instancio;
@@ -23,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Set;
@@ -37,10 +30,10 @@ import static org.mockito.Mockito.when;
 class GetProjectLeadWorkTimeServiceTest {
 
     @Mock
-    private ProjectRepository projectRepository;
+    private WorkTimeProjectSnapshotPort workTimeProjectSnapshotPort;
 
     @Mock
-    private UserRepository userRepository;
+    private WorkTimeUserSnapshotPort workTimeUserSnapshotPort;
 
     @Mock
     private WorkTimeZepPort workTimeZepPort;
@@ -53,9 +46,9 @@ class GetProjectLeadWorkTimeServiceTest {
         UserId projectLeadId = UserId.of(Instancio.create(UUID.class));
         UserId employeeId = UserId.of(Instancio.create(UUID.class));
         UserId secondEmployeeId = UserId.of(Instancio.create(UUID.class));
-        Project alpha = project(ProjectId.of(Instancio.create(UUID.class)), 11, "Alpha", projectLeadId);
-        Project beta = project(ProjectId.of(Instancio.create(UUID.class)), 22, "Beta", projectLeadId);
-        when(projectRepository.findAllByLead(projectLeadId)).thenReturn(List.of(alpha, beta));
+        WorkTimeProjectSnapshot alpha = project(ProjectId.of(Instancio.create(UUID.class)), 11, "Alpha");
+        WorkTimeProjectSnapshot beta = project(ProjectId.of(Instancio.create(UUID.class)), 22, "Beta");
+        when(workTimeProjectSnapshotPort.findAllByLead(projectLeadId)).thenReturn(List.of(alpha, beta));
         when(workTimeZepPort.fetchProjectMembershipForMonth(11, YearMonth.of(2026, 3))).thenReturn(Uni.createFrom().item(List.of("ada", "grace")));
         when(workTimeZepPort.fetchProjectMembershipForMonth(22, YearMonth.of(2026, 3))).thenReturn(Uni.createFrom().item(List.of("ada")));
         when(workTimeZepPort.fetchAttendancesForEmployee("ada", YearMonth.of(2026, 3))).thenReturn(Uni.createFrom().item(List.of(
@@ -66,9 +59,9 @@ class GetProjectLeadWorkTimeServiceTest {
         when(workTimeZepPort.fetchAttendancesForEmployee("grace", YearMonth.of(2026, 3))).thenReturn(Uni.createFrom().item(List.of(
                 new WorkTimeAttendance("grace", 11, 0.0d, 3.5d)
         )));
-        when(userRepository.findByZepUsernames(Set.of(ZepUsername.of("ada"), ZepUsername.of("grace")))).thenReturn(List.of(
-                user(employeeId, "ada", "Ada", "Lovelace"),
-                user(secondEmployeeId, "grace", "Grace", "Hopper")
+        when(workTimeUserSnapshotPort.findByZepUsernames(Set.of(com.gepardec.mega.hexagon.user.domain.model.ZepUsername.of("ada"), com.gepardec.mega.hexagon.user.domain.model.ZepUsername.of("grace")))).thenReturn(List.of(
+                user(employeeId, "ada", "Ada Lovelace"),
+                user(secondEmployeeId, "grace", "Grace Hopper")
         ));
 
         WorkTimeReport report = service.getWorkTime(projectLeadId, YearMonth.of(2026, 3));
@@ -103,7 +96,7 @@ class GetProjectLeadWorkTimeServiceTest {
     @Test
     void getWorkTime_shouldReturnEmptyReportWhenCallerLeadsNoProjects() {
         UserId projectLeadId = UserId.of(Instancio.create(UUID.class));
-        when(projectRepository.findAllByLead(projectLeadId)).thenReturn(List.of());
+        when(workTimeProjectSnapshotPort.findAllByLead(projectLeadId)).thenReturn(List.of());
 
         WorkTimeReport report = service.getWorkTime(projectLeadId, YearMonth.of(2026, 3));
 
@@ -114,8 +107,8 @@ class GetProjectLeadWorkTimeServiceTest {
     @Test
     void getWorkTime_shouldReturnEmptyReportWhenNoEmployeesBookedTime() {
         UserId projectLeadId = UserId.of(Instancio.create(UUID.class));
-        Project alpha = project(ProjectId.of(Instancio.create(UUID.class)), 11, "Alpha", projectLeadId);
-        when(projectRepository.findAllByLead(projectLeadId)).thenReturn(List.of(alpha));
+        WorkTimeProjectSnapshot alpha = project(ProjectId.of(Instancio.create(UUID.class)), 11, "Alpha");
+        when(workTimeProjectSnapshotPort.findAllByLead(projectLeadId)).thenReturn(List.of(alpha));
         when(workTimeZepPort.fetchProjectMembershipForMonth(11, YearMonth.of(2026, 3))).thenReturn(Uni.createFrom().item(List.of()));
 
         WorkTimeReport report = service.getWorkTime(projectLeadId, YearMonth.of(2026, 3));
@@ -124,27 +117,11 @@ class GetProjectLeadWorkTimeServiceTest {
         assertThat(report.entries()).isEmpty();
     }
 
-    private User user(UserId userId, String username, String firstname, String lastname) {
-        return new User(
-                userId,
-                Email.of(username + "@example.com"),
-                FullName.of(firstname, lastname),
-                ZepUsername.of(username),
-                null,
-                new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2024, 1, 1), null)),
-                Set.of(Role.EMPLOYEE)
-        );
+    private WorkTimeUserSnapshot user(UserId userId, String username, String fullName) {
+        return new WorkTimeUserSnapshot(userId, fullName, username);
     }
 
-    private Project project(ProjectId projectId, int zepId, String name, UserId leadId) {
-        return new Project(
-                projectId,
-                zepId,
-                name,
-                LocalDate.of(2024, 1, 1),
-                null,
-                true,
-                Set.of(leadId)
-        );
+    private WorkTimeProjectSnapshot project(ProjectId projectId, int zepId, String name) {
+        return new WorkTimeProjectSnapshot(projectId, zepId, name);
     }
 }

@@ -5,7 +5,7 @@ import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 
 import java.util.Optional;
 
-public interface UserLookupPort {
+public interface UserIdentityLookupPort {
 
     Optional<UserId> findUserIdByZepUsername(ZepUsername username);
 }

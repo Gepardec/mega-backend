@@ -1,23 +1,21 @@
 package com.gepardec.mega.hexagon.worktime.adapter.inbound.rest;
 
-import com.gepardec.mega.domain.model.Role;
 import com.gepardec.mega.hexagon.generated.model.ApiError;
 import com.gepardec.mega.hexagon.generated.model.WorkTimeReportResponse;
 import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
+import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEntry;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEmployee;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEntry;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeProject;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
 import com.gepardec.mega.hexagon.worktime.domain.port.inbound.GetEmployeeWorkTimeUseCase;
 import com.gepardec.mega.hexagon.worktime.domain.port.inbound.GetProjectLeadWorkTimeUseCase;
-import com.gepardec.mega.service.api.UserService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.oidc.Claim;
-import io.quarkus.test.security.oidc.OidcSecurity;
 import io.restassured.http.ContentType;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,12 +35,7 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestSecurity(user = "test")
-@OidcSecurity(claims = {
-        @Claim(key = "email", value = WorkTimeEmployeeAndProjectLeadResourceTest.TEST_EMAIL)
-})
 class WorkTimeEmployeeAndProjectLeadResourceTest {
-
-    static final String TEST_EMAIL = "test@gepardec.com";
 
     private static final YearMonth MONTH = YearMonth.of(2026, 3);
     private static final UserId EMPLOYEE_ID = UserId.of(Instancio.create(UUID.class));
@@ -50,10 +43,7 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
     private static final ProjectId PROJECT_ID = ProjectId.of(Instancio.create(UUID.class));
 
     @InjectMock
-    UserService userService;
-
-    @InjectMock
-    CurrentWorkTimeRestActorResolver currentWorkTimeRestActorResolver;
+    AuthenticatedActorContext authenticatedActorContext;
 
     @InjectMock
     GetEmployeeWorkTimeUseCase getEmployeeWorkTimeUseCase;
@@ -63,12 +53,12 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
 
     @BeforeEach
     void setUp() {
-        when(currentWorkTimeRestActorResolver.resolveCurrentActorId()).thenReturn(EMPLOYEE_ID);
+        when(authenticatedActorContext.userId()).thenReturn(EMPLOYEE_ID);
     }
 
     @Test
     void getEmployeeWorkTimeReport_shouldReturnMappedReportForEmployeeRole() {
-        allowLegacyRoles(Role.EMPLOYEE);
+        allowRoles(Role.EMPLOYEE);
         WorkTimeReport report = new WorkTimeReport(
                 MONTH,
                 List.of(new WorkTimeEntry(
@@ -100,8 +90,8 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
 
     @Test
     void getProjectLeadWorkTimeReport_shouldReturnMappedReportForLeadRole() {
-        allowLegacyRoles(Role.PROJECT_LEAD);
-        when(currentWorkTimeRestActorResolver.resolveCurrentActorId()).thenReturn(PROJECT_LEAD_ID);
+        allowRoles(Role.PROJECT_LEAD);
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         WorkTimeReport report = new WorkTimeReport(
                 MONTH,
                 List.of(new WorkTimeEntry(
@@ -134,7 +124,7 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
 
     @Test
     void getEmployeeWorkTimeReport_shouldRejectProjectLeadRole() {
-        allowLegacyRoles(Role.PROJECT_LEAD);
+        allowRoles(Role.PROJECT_LEAD);
 
         given()
                 .accept(ContentType.JSON)
@@ -147,7 +137,7 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
 
     @Test
     void getProjectLeadWorkTimeReport_shouldRejectEmployeeRole() {
-        allowLegacyRoles(Role.EMPLOYEE);
+        allowRoles(Role.EMPLOYEE);
 
         given()
                 .accept(ContentType.JSON)
@@ -160,7 +150,7 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
 
     @Test
     void getEmployeeWorkTimeReport_shouldMapDomainNotFoundExceptionTo404() {
-        allowLegacyRoles(Role.EMPLOYEE);
+        allowRoles(Role.EMPLOYEE);
         doThrow(new WorkTimeUserNotFoundException("user not found: " + EMPLOYEE_ID.value()))
                 .when(getEmployeeWorkTimeUseCase).getWorkTime(EMPLOYEE_ID, MONTH);
 
@@ -175,14 +165,7 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
         assertThat(response.getMessage()).isEqualTo("user not found: " + EMPLOYEE_ID.value());
     }
 
-    private void allowLegacyRoles(Role... roles) {
-        when(userService.findUserForEmail(TEST_EMAIL)).thenReturn(com.gepardec.mega.domain.model.User.builder()
-                .dbId(1L)
-                .userId("legacy-user")
-                .email(TEST_EMAIL)
-                .firstname("Test")
-                .lastname("User")
-                .roles(Set.of(roles))
-                .build());
+    private void allowRoles(Role... roles) {
+        when(authenticatedActorContext.roles()).thenReturn(Set.of(roles));
     }
 }
