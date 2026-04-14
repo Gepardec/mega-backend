@@ -13,9 +13,7 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMont
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployee;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProject;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
@@ -23,9 +21,13 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistItem;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -54,7 +56,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
     private static final ProjectId PROJECT_ID = ProjectId.of(Instancio.create(UUID.class));
     private static final String PROJECT_NAME = "Test Project";
     private static final UserId EMPLOYEE_ID = UserId.of(Instancio.create(UUID.class));
-    private static final String EMPLOYEE_NAME = "Test Employee";
     private static final UserId PROJECT_LEAD_ID = UserId.of(Instancio.create(UUID.class));
     private static final Instant CREATED_AT = Instant.parse("2026-03-20T08:15:00Z");
 
@@ -87,8 +88,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 List.of(new MonthEndWorklistItem(
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        new MonthEndProject(PROJECT_ID, PROJECT_NAME),
-                        new MonthEndEmployee(EMPLOYEE_ID, EMPLOYEE_NAME)
+                        projectRef(),
+                        employeeRef()
                 )),
                 List.of(toWorklistItem(employeeClarification("Please review the booking.")))
         );
@@ -192,8 +193,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 List.of(new MonthEndWorklistItem(
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
                         MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                        new MonthEndProject(PROJECT_ID, PROJECT_NAME),
-                        new MonthEndEmployee(EMPLOYEE_ID, EMPLOYEE_NAME)
+                        projectRef(),
+                        employeeRef()
                 )),
                 List.of()
         );
@@ -320,5 +321,13 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 clarification.createdAt(),
                 clarification.lastModifiedAt()
         );
+    }
+
+    private ProjectRef projectRef() {
+        return new ProjectRef(PROJECT_ID, 77, PROJECT_NAME);
+    }
+
+    private UserRef employeeRef() {
+        return new UserRef(EMPLOYEE_ID, FullName.of("Test", "Employee"), ZepUsername.of("test.employee"));
     }
 }

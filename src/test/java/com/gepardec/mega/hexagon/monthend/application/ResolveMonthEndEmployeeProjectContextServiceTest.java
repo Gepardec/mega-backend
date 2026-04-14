@@ -4,19 +4,18 @@ import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNo
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndProjectContextNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectAssignmentPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Set;
@@ -55,14 +54,13 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
     @Test
     void resolve_shouldReturnContextWithOnlyActiveProjectLeads_whenProjectAndEmployeeContextAreValid() {
         MonthEndProjectSnapshot project = activeProject(Set.of(activeLeadId, inactiveLeadId));
-        MonthEndUserSnapshot employee = activeUser(employeeId, "employee");
-        MonthEndUserSnapshot activeLead = activeUser(activeLeadId, "lead-active");
-        MonthEndUserSnapshot inactiveLead = inactiveUser(inactiveLeadId, "lead-inactive");
+        UserRef employee = activeUser(employeeId, "employee");
+        UserRef activeLead = activeUser(activeLeadId, "lead-active");
 
-        when(monthEndProjectSnapshotPort.findAll()).thenReturn(List.of(project));
-        when(monthEndUserSnapshotPort.findAll()).thenReturn(List.of(employee, activeLead, inactiveLead));
+        when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
+        when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(employee, activeLead));
         when(monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month))
-                .thenReturn(Set.of(employee.zepUsername()));
+                .thenReturn(Set.of(employee.zepUsername().value()));
 
         MonthEndEmployeeProjectContext result = service.resolve(month, projectId, employeeId);
 
@@ -73,16 +71,7 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
 
     @Test
     void resolve_shouldThrow_whenProjectIsMissingOrInactiveInMonth() {
-        MonthEndProjectSnapshot inactiveProject = new MonthEndProjectSnapshot(
-                projectId,
-                77,
-                "Project-77",
-                LocalDate.of(2025, 1, 1),
-                LocalDate.of(2026, 2, 28),
-                true,
-                Set.of(activeLeadId)
-        );
-        when(monthEndProjectSnapshotPort.findAll()).thenReturn(List.of(inactiveProject));
+        when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of());
 
         assertThatThrownBy(() -> service.resolve(month, projectId, employeeId))
                 .isInstanceOf(MonthEndProjectContextNotFoundException.class)
@@ -92,10 +81,9 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
     @Test
     void resolve_shouldThrow_whenSubjectEmployeeIsNotActiveInMonth() {
         MonthEndProjectSnapshot project = activeProject(Set.of(activeLeadId));
-        MonthEndUserSnapshot inactiveEmployee = inactiveUser(employeeId, "employee");
 
-        when(monthEndProjectSnapshotPort.findAll()).thenReturn(List.of(project));
-        when(monthEndUserSnapshotPort.findAll()).thenReturn(List.of(inactiveEmployee));
+        when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
+        when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of());
 
         assertThatThrownBy(() -> service.resolve(month, projectId, employeeId))
                 .isInstanceOf(MonthEndEmployeeContextNotFoundException.class)
@@ -105,11 +93,11 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
     @Test
     void resolve_shouldThrow_whenEmployeeIsNotAssignedToProject() {
         MonthEndProjectSnapshot project = activeProject(Set.of(activeLeadId));
-        MonthEndUserSnapshot employee = activeUser(employeeId, "employee");
-        MonthEndUserSnapshot activeLead = activeUser(activeLeadId, "lead-active");
+        UserRef employee = activeUser(employeeId, "employee");
+        UserRef activeLead = activeUser(activeLeadId, "lead-active");
 
-        when(monthEndProjectSnapshotPort.findAll()).thenReturn(List.of(project));
-        when(monthEndUserSnapshotPort.findAll()).thenReturn(List.of(employee, activeLead));
+        when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
+        when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(employee, activeLead));
         when(monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month))
                 .thenReturn(Set.of("someone-else"));
 
@@ -123,28 +111,16 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
                 projectId,
                 77,
                 "Project-77",
-                LocalDate.of(2025, 1, 1),
-                null,
                 true,
                 leadIds
         );
     }
 
-    private MonthEndUserSnapshot activeUser(UserId userId, String username) {
-        return new MonthEndUserSnapshot(
+    private UserRef activeUser(UserId userId, String username) {
+        return new UserRef(
                 userId,
-                username + " User",
-                username,
-                new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))
-        );
-    }
-
-    private MonthEndUserSnapshot inactiveUser(UserId userId, String username) {
-        return new MonthEndUserSnapshot(
-                userId,
-                username + " User",
-                username,
-                new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), month.atDay(1).minusDays(1)))
+                FullName.of(username, "User"),
+                ZepUsername.of(username)
         );
     }
 }

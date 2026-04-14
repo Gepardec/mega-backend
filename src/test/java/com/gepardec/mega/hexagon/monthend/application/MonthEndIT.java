@@ -26,15 +26,15 @@ import com.gepardec.mega.hexagon.project.adapter.outbound.ProjectRepositoryAdapt
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
 import com.gepardec.mega.hexagon.shared.domain.model.Email;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.adapter.outbound.UserRepositoryAdapter;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
-import com.gepardec.mega.hexagon.user.domain.model.FullName;
 import com.gepardec.mega.hexagon.user.domain.model.User;
-import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.rest.service.ProjectService;
 import io.quarkus.test.InjectMock;
@@ -279,8 +279,7 @@ class MonthEndIT {
                     assertThat(item.project().id()).isEqualTo(project.id());
                     assertThat(item.subjectEmployee()).isNotNull();
                     assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
-                    assertThat(item.subjectEmployee().fullName())
-                            .isEqualTo("%s %s".formatted(employee.name().firstname(), employee.name().lastname()));
+                    assertThat(item.subjectEmployee().fullName()).isEqualTo(employee.name());
                     assertThat(item.canComplete()).isTrue();
                     assertThat(item.completedBy()).isEqualTo(employee.id());
                 });
@@ -330,8 +329,7 @@ class MonthEndIT {
                     assertThat(item.project().id()).isEqualTo(project.id());
                     assertThat(item.subjectEmployee()).isNotNull();
                     assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
-                    assertThat(item.subjectEmployee().fullName())
-                            .isEqualTo("%s %s".formatted(employee.name().firstname(), employee.name().lastname()));
+                    assertThat(item.subjectEmployee().fullName()).isEqualTo(employee.name());
                     assertThat(item.canComplete()).isTrue();
                     assertThat(item.completedBy()).isEqualTo(leadA.id());
                 });
@@ -344,8 +342,7 @@ class MonthEndIT {
                     assertThat(item.project().id()).isEqualTo(project.id());
                     assertThat(item.subjectEmployee()).isNotNull();
                     assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
-                    assertThat(item.subjectEmployee().fullName())
-                            .isEqualTo("%s %s".formatted(employee.name().firstname(), employee.name().lastname()));
+                    assertThat(item.subjectEmployee().fullName()).isEqualTo(employee.name());
                     assertThat(item.canComplete()).isTrue();
                     assertThat(item.completedBy()).isEqualTo(leadA.id());
                 });

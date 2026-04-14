@@ -2,12 +2,14 @@
 
 ## Purpose
 
-Defines the `Project` aggregate and its supporting value objects within the hexagonal domain. The aggregate represents a ZEP project with stable internal identity, master data, and a set of lead references — decoupled from all framework infrastructure.
+Defines the `Project` aggregate root within the hexagonal domain. A Project represents locally persisted project master data synchronized from ZEP, including identity, scheduling metadata, billability, and lead references used by downstream month-end workflows.
 
 ## Requirements
 
 ### Requirement: Project aggregate encapsulates identity and master data
 The `Project` aggregate SHALL be modeled as an immutable, record-oriented type holding a stable internal `ProjectId` (UUID), a ZEP numeric id (`zepId`), a unique `name`, a `startDate`, an optional `endDate`, a `billable` boolean flag, and a set of `UserId` references representing project leads. State transitions such as ZEP resync and project lead sync SHALL return new Project instances instead of mutating existing state. The aggregate SHALL NOT hold any workflow state (that is the concern of a future capability).
+
+`MonthEndProjectSnapshot` — the monthend-specific read model derived from `Project` — SHALL carry `{ ProjectId id, int zepId, String name, boolean billable, Set<UserId> leadIds }` only. It SHALL NOT carry `startDate` or `endDate`; activeness filtering for a given month SHALL be enforced in the adapter before returning the snapshot to the application layer.
 
 #### Scenario: Project created from ZEP profile data
 - **WHEN** `Project.create(ProjectId, ZepProjectProfile)` is called
@@ -22,6 +24,11 @@ The `Project` aggregate SHALL be modeled as an immutable, record-oriented type h
 - **WHEN** `Project.withSyncedZepData(ZepProjectProfile)` is called with updated profile data
 - **THEN** a new Project instance is returned with updated name, startDate, endDate, and billable fields
 - **THEN** the existing `ProjectId` and leads set are preserved
+
+#### Scenario: MonthEndProjectSnapshot does not carry date range fields
+- **WHEN** `MonthEndProjectSnapshot` is constructed
+- **THEN** it contains `id`, `zepId`, `name`, `billable`, and `leadIds` only
+- **THEN** no `startDate` or `endDate` field exists on `MonthEndProjectSnapshot`
 
 ### Requirement: ZepProjectProfile carries billability
 The `ZepProjectProfile` value object SHALL include a `billable` boolean field derived from the ZEP `billingType.id`. A project is billable when `billingType.id` is 1 (BILLABLE) or 2 (BILLABLE_FIXED). A null `billingType` SHALL be treated as non-billable.

@@ -41,7 +41,7 @@ public class GetEmployeeMonthEndWorklistService implements GetEmployeeMonthEndWo
     public MonthEndWorklist getWorklist(UserId employeeId, YearMonth month) {
         List<MonthEndTask> tasks = monthEndTaskRepository.findOpenEmployeeTasks(employeeId, month);
 
-        MonthEndTaskSnapshotLookup snapshotLookup = resolveMonthEndTaskSnapshotLookupService.resolve(tasks);
+        MonthEndTaskSnapshotLookup snapshotLookup = resolveMonthEndTaskSnapshotLookupService.resolve(tasks, month);
         List<MonthEndWorklistItem> worklistItems = tasks.stream()
                 .map(task -> monthEndWorklistMapper.toItem(
                         task,

@@ -7,16 +7,17 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,8 +64,9 @@ class MonthEndWorklistServicesTest {
     @BeforeEach
     void setUp() {
         MonthEndWorklistMapper mapper = Mappers.getMapper(MonthEndWorklistMapper.class);
+        MonthEndProjectRefMapper projectRefMapper = Mappers.getMapper(MonthEndProjectRefMapper.class);
         ResolveMonthEndTaskSnapshotLookupService resolveMonthEndTaskSnapshotLookupService =
-                new ResolveMonthEndTaskSnapshotLookupService(monthEndProjectSnapshotPort, monthEndUserSnapshotPort);
+                new ResolveMonthEndTaskSnapshotLookupService(monthEndProjectSnapshotPort, monthEndUserSnapshotPort, projectRefMapper);
         getEmployeeMonthEndWorklistService = new GetEmployeeMonthEndWorklistService(
                 monthEndTaskRepository,
                 monthEndClarificationRepository,
@@ -90,8 +92,8 @@ class MonthEndWorklistServicesTest {
                 Set.of(employeeId)
         );
         when(monthEndTaskRepository.findOpenEmployeeTasks(employeeId, month)).thenReturn(List.of(task));
-        when(monthEndProjectSnapshotPort.findByIds(any())).thenReturn(List.of(projectSnapshot()));
-        when(monthEndUserSnapshotPort.findByIds(any())).thenReturn(List.of(userSnapshot(employeeId, employeeName)));
+        when(monthEndProjectSnapshotPort.findByIds(any(), any())).thenReturn(List.of(projectSnapshot()));
+        when(monthEndUserSnapshotPort.findByIds(any(), any())).thenReturn(List.of(userSnapshot(employeeId, employeeName)));
 
         MonthEndWorklist worklist = getEmployeeMonthEndWorklistService.getWorklist(employeeId, month);
 
@@ -100,10 +102,9 @@ class MonthEndWorklistServicesTest {
         assertThat(worklist.clarifications()).isEmpty();
         assertThat(worklist.tasks()).singleElement().satisfies(item -> {
             assertThat(item.taskId()).isEqualTo(task.id());
-            assertThat(item.project().id()).isEqualTo(projectId);
-            assertThat(item.project().name()).isEqualTo(projectName);
+            assertThat(item.project()).isEqualTo(projectRef());
             assertThat(item.subjectEmployee().id()).isEqualTo(employeeId);
-            assertThat(item.subjectEmployee().fullName()).isEqualTo(employeeName);
+            assertThat(item.subjectEmployee().fullName()).isEqualTo(toFullName(employeeName));
         });
     }
 
@@ -118,8 +119,8 @@ class MonthEndWorklistServicesTest {
                 Set.of(leadId)
         );
         when(monthEndTaskRepository.findOpenProjectLeadTasks(leadId, month)).thenReturn(List.of(task));
-        when(monthEndProjectSnapshotPort.findByIds(any())).thenReturn(List.of(projectSnapshot()));
-        when(monthEndUserSnapshotPort.findByIds(any())).thenReturn(List.of(userSnapshot(employeeId, employeeName)));
+        when(monthEndProjectSnapshotPort.findByIds(any(), any())).thenReturn(List.of(projectSnapshot()));
+        when(monthEndUserSnapshotPort.findByIds(any(), any())).thenReturn(List.of(userSnapshot(employeeId, employeeName)));
 
         MonthEndWorklist worklist = getProjectLeadMonthEndWorklistService.getWorklist(leadId, month);
 
@@ -128,10 +129,9 @@ class MonthEndWorklistServicesTest {
         assertThat(worklist.clarifications()).isEmpty();
         assertThat(worklist.tasks()).singleElement().satisfies(item -> {
             assertThat(item.taskId()).isEqualTo(task.id());
-            assertThat(item.project().id()).isEqualTo(projectId);
-            assertThat(item.project().name()).isEqualTo(projectName);
+            assertThat(item.project()).isEqualTo(projectRef());
             assertThat(item.subjectEmployee().id()).isEqualTo(employeeId);
-            assertThat(item.subjectEmployee().fullName()).isEqualTo(employeeName);
+            assertThat(item.subjectEmployee().fullName()).isEqualTo(toFullName(employeeName));
         });
     }
 
@@ -168,19 +168,25 @@ class MonthEndWorklistServicesTest {
                 projectId,
                 77,
                 projectName,
-                month.atDay(1),
-                null,
                 true,
                 Set.of(leadId)
         );
     }
 
-    private MonthEndUserSnapshot userSnapshot(UserId id, String fullName) {
-        return new MonthEndUserSnapshot(
+    private ProjectRef projectRef() {
+        return new ProjectRef(projectId, 77, projectName);
+    }
+
+    private UserRef userSnapshot(UserId id, String fullName) {
+        return new UserRef(
                 id,
-                fullName,
-                "test.user",
-                new EmploymentPeriods(new EmploymentPeriod(month.atDay(1).minusYears(1), null))
+                toFullName(fullName),
+                ZepUsername.of("test.user")
         );
+    }
+
+    private FullName toFullName(String fullName) {
+        String[] parts = fullName.split(" ", 2);
+        return FullName.of(parts[0], parts.length > 1 ? parts[1] : null);
     }
 }

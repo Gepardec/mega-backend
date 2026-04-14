@@ -13,17 +13,19 @@ import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndTaskNotFoundExcep
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployee;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProject;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -88,8 +90,8 @@ class MonthEndSharedResourceTest {
                         TASK_ID,
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                         MonthEndTaskStatus.DONE,
-                        new MonthEndProject(PROJECT_ID, PROJECT_NAME),
-                        new MonthEndEmployee(EMPLOYEE_ID, EMPLOYEE_NAME),
+                        projectRef(),
+                        employeeRef(),
                         true,
                         EMPLOYEE_ID
                 ))
@@ -129,8 +131,8 @@ class MonthEndSharedResourceTest {
                         TASK_ID,
                         MonthEndTaskType.PROJECT_LEAD_REVIEW,
                         MonthEndTaskStatus.OPEN,
-                        new MonthEndProject(PROJECT_ID, PROJECT_NAME),
-                        new MonthEndEmployee(EMPLOYEE_ID, EMPLOYEE_NAME),
+                        projectRef(),
+                        employeeRef(),
                         false,
                         null
                 ))
@@ -164,7 +166,7 @@ class MonthEndSharedResourceTest {
                         TASK_ID,
                         MonthEndTaskType.ABRECHNUNG,
                         MonthEndTaskStatus.OPEN,
-                        new MonthEndProject(PROJECT_ID, PROJECT_NAME),
+                        projectRef(),
                         null,
                         true,
                         null
@@ -299,5 +301,13 @@ class MonthEndSharedResourceTest {
                 text,
                 CREATED_AT
         );
+    }
+
+    private ProjectRef projectRef() {
+        return new ProjectRef(PROJECT_ID, 77, PROJECT_NAME);
+    }
+
+    private UserRef employeeRef() {
+        return new UserRef(EMPLOYEE_ID, FullName.of("Shared", "Employee"), ZepUsername.of("shared.employee"));
     }
 }

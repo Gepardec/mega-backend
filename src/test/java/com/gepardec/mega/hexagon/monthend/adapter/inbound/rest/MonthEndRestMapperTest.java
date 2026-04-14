@@ -7,8 +7,6 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployee;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProject;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
@@ -17,8 +15,12 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistItem;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -53,7 +55,12 @@ class MonthEndRestMapperTest {
         MonthEndWorklist worklist = new MonthEndWorklist(
                 employeeId,
                 month,
-                List.of(new MonthEndWorklistItem(taskId, MonthEndTaskType.EMPLOYEE_TIME_CHECK, new MonthEndProject(projectId, projectName), new MonthEndEmployee(employeeId, employeeName))),
+                List.of(new MonthEndWorklistItem(
+                        taskId,
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        projectRef(),
+                        employeeRef()
+                )),
                 List.of(new MonthEndWorklistClarificationItem(
                         clarificationId,
                         projectId,
@@ -119,8 +126,8 @@ class MonthEndRestMapperTest {
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                         MonthEndTaskStatus.OPEN,
-                        new MonthEndProject(projectId, projectName),
-                        new MonthEndEmployee(employeeId, employeeName),
+                        projectRef(),
+                        employeeRef(),
                         true,
                         null
                 ))
@@ -148,8 +155,8 @@ class MonthEndRestMapperTest {
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
                         MonthEndTaskType.PROJECT_LEAD_REVIEW,
                         MonthEndTaskStatus.OPEN,
-                        new MonthEndProject(projectId, projectName),
-                        new MonthEndEmployee(employeeId, employeeName),
+                        projectRef(),
+                        employeeRef(),
                         false,
                         null
                 ))
@@ -170,7 +177,7 @@ class MonthEndRestMapperTest {
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
                         MonthEndTaskType.ABRECHNUNG,
                         MonthEndTaskStatus.OPEN,
-                        new MonthEndProject(projectId, projectName),
+                        projectRef(),
                         null,
                         true,
                         null
@@ -184,5 +191,13 @@ class MonthEndRestMapperTest {
                     assertThat(entry.getSubjectEmployee()).isNull();
                     assertThat(entry.getCanComplete()).isTrue();
                 });
+    }
+
+    private ProjectRef projectRef() {
+        return new ProjectRef(projectId, 77, projectName);
+    }
+
+    private UserRef employeeRef() {
+        return new UserRef(employeeId, FullName.of("Mapper", "Employee"), ZepUsername.of("mapper.employee"));
     }
 }

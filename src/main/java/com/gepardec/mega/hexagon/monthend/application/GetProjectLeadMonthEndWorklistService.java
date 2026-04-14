@@ -41,7 +41,7 @@ public class GetProjectLeadMonthEndWorklistService implements GetProjectLeadMont
     public MonthEndWorklist getWorklist(UserId projectLeadId, YearMonth month) {
         List<MonthEndTask> tasks = monthEndTaskRepository.findOpenProjectLeadTasks(projectLeadId, month);
 
-        MonthEndTaskSnapshotLookup snapshotLookup = resolveMonthEndTaskSnapshotLookupService.resolve(tasks);
+        MonthEndTaskSnapshotLookup snapshotLookup = resolveMonthEndTaskSnapshotLookupService.resolve(tasks, month);
         List<MonthEndWorklistItem> worklistItems = tasks.stream()
                 .map(task -> monthEndWorklistMapper.toItem(
                         task,

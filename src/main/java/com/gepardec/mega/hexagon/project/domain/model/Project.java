@@ -4,6 +4,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Objects;
 import java.util.Set;
 
@@ -34,5 +35,13 @@ public record Project(
 
     public Project withLeads(Set<UserId> updatedLeads) {
         return new Project(id, zepId, name, startDate, endDate, billable, updatedLeads);
+    }
+
+    public boolean isActiveIn(YearMonth month) {
+        LocalDate monthStart = month.atDay(1);
+        LocalDate monthEnd = month.atEndOfMonth();
+        boolean startsBeforeMonthEnds = !startDate.isAfter(monthEnd);
+        boolean endsAfterMonthStarts = endDate == null || !endDate.isBefore(monthStart);
+        return startsBeforeMonthEnds && endsAfterMonthStarts;
     }
 }

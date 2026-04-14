@@ -3,19 +3,18 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.util.Set;
@@ -110,16 +109,13 @@ class CreateMonthEndClarificationServiceTest {
                         projectId,
                         77,
                         "Project-77",
-                        LocalDate.of(2025, 1, 1),
-                        null,
                         true,
                         eligibleLeadIds
                 ),
-                new MonthEndUserSnapshot(
+                new UserRef(
                         employeeId,
-                        "Employee User",
-                        "employee",
-                        new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))
+                        FullName.of("Employee", "User"),
+                        ZepUsername.of("employee")
                 ),
                 eligibleLeadIds
         );

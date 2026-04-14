@@ -1,15 +1,13 @@
 package com.gepardec.mega.hexagon.worktime.application;
 
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetProjectLeadWorkTimeUseCase;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEmployee;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEntry;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeProject;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeProjectSnapshot;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeUserSnapshot;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeZepPort;
@@ -50,13 +48,13 @@ public class GetProjectLeadWorkTimeService implements GetProjectLeadWorkTimeUseC
 
     @Override
     public WorkTimeReport getWorkTime(UserId callerId, YearMonth month) {
-        List<WorkTimeProjectSnapshot> leadProjects = workTimeProjectSnapshotPort.findAllByLead(callerId);
+        List<ProjectRef> leadProjects = workTimeProjectSnapshotPort.findAllByLead(callerId, month);
         if (leadProjects.isEmpty()) {
             return new WorkTimeReport(month, List.of());
         }
 
-        Map<Integer, WorkTimeProjectSnapshot> projectsByZepId = leadProjects.stream()
-                .collect(Collectors.toMap(WorkTimeProjectSnapshot::zepId, Function.identity()));
+        Map<Integer, ProjectRef> projectsByZepId = leadProjects.stream()
+                .collect(Collectors.toMap(ProjectRef::zepId, Function.identity()));
 
         Set<String> employeeZepUsernames = fetchEmployeeZepIds(projectsByZepId.keySet(), month)
                 .await().indefinitely();
@@ -67,16 +65,16 @@ public class GetProjectLeadWorkTimeService implements GetProjectLeadWorkTimeUseC
         Map<String, List<WorkTimeAttendance>> attendancesByEmployee = fetchAttendancesByEmployee(employeeZepUsernames, month)
                 .await().indefinitely();
 
-        Map<String, WorkTimeUserSnapshot> usersByZepUsername = workTimeUserSnapshotPort.findByZepUsernames(employeeZepUsernames.stream()
+        Map<String, UserRef> usersByZepUsername = workTimeUserSnapshotPort.findByZepUsernames(employeeZepUsernames.stream()
                         .map(ZepUsername::of)
-                        .collect(Collectors.toSet()))
+                        .collect(Collectors.toSet()), month)
                 .stream()
                 .filter(user -> user.zepUsername() != null)
-                .collect(Collectors.toMap(WorkTimeUserSnapshot::zepUsername, Function.identity()));
+                .collect(Collectors.toMap(user -> user.zepUsername().value(), Function.identity()));
 
         List<WorkTimeEntry> entries = attendancesByEmployee.entrySet().stream()
                 .flatMap(entry -> toEntries(entry.getKey(), entry.getValue(), usersByZepUsername, projectsByZepId).stream())
-                .sorted(Comparator.comparing((WorkTimeEntry entry) -> entry.employee().name())
+                .sorted(Comparator.comparing((WorkTimeEntry entry) -> entry.employee().fullName().displayName())
                         .thenComparing(entry -> entry.project().name()))
                 .toList();
 
@@ -104,37 +102,36 @@ public class GetProjectLeadWorkTimeService implements GetProjectLeadWorkTimeUseC
     private List<WorkTimeEntry> toEntries(
             String employeeZepId,
             List<WorkTimeAttendance> attendances,
-            Map<String, WorkTimeUserSnapshot> usersByZepUsername,
-            Map<Integer, WorkTimeProjectSnapshot> projectsByZepId
+            Map<String, UserRef> usersByZepUsername,
+            Map<Integer, ProjectRef> projectsByZepId
     ) {
-        WorkTimeUserSnapshot user = usersByZepUsername.get(employeeZepId);
+        UserRef user = usersByZepUsername.get(employeeZepId);
         if (user == null) {
             Log.warnf("Skipping worktime entries for unknown employee zepId=%s", employeeZepId);
             return List.of();
         }
 
         double employeeMonthTotalHours = totalHours(attendances);
-        WorkTimeEmployee employeeRef = new WorkTimeEmployee(user.id(), user.fullName());
 
         return attendances.stream()
                 .filter(attendance -> projectsByZepId.containsKey(attendance.projectZepId()))
                 .collect(Collectors.groupingBy(WorkTimeAttendance::projectZepId))
                 .entrySet().stream()
-                .map(entry -> toEntry(employeeRef, employeeMonthTotalHours, entry.getKey(), entry.getValue(), projectsByZepId))
+                .map(entry -> toEntry(user, employeeMonthTotalHours, entry.getKey(), entry.getValue(), projectsByZepId))
                 .toList();
     }
 
     private WorkTimeEntry toEntry(
-            WorkTimeEmployee employeeRef,
+            UserRef employeeRef,
             double employeeMonthTotalHours,
             Integer zepProjectId,
             List<WorkTimeAttendance> attendances,
-            Map<Integer, WorkTimeProjectSnapshot> projectsByZepId
+            Map<Integer, ProjectRef> projectsByZepId
     ) {
-        WorkTimeProjectSnapshot project = projectsByZepId.get(zepProjectId);
+        ProjectRef project = projectsByZepId.get(zepProjectId);
         return new WorkTimeEntry(
                 employeeRef,
-                new WorkTimeProject(project.id(), project.name()),
+                project,
                 sumBillableHours(attendances),
                 sumNonBillableHours(attendances),
                 employeeMonthTotalHours

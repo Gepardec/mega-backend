@@ -6,21 +6,20 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectAssignmentPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndTaskPlanningService;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Set;
@@ -59,13 +58,13 @@ class GenerateMonthEndTasksServiceTest {
 
     @Test
     void generate_shouldCreateUnifiedTasks_whenBillableProjectHasActiveEmployeeAndLead() {
-        MonthEndUserSnapshot employee = activeUser("employee", "00000000-0000-0000-0000-000000000020");
-        MonthEndUserSnapshot lead = activeUser("lead", "00000000-0000-0000-0000-000000000021");
+        UserRef employee = activeUser("employee", "00000000-0000-0000-0000-000000000020");
+        UserRef lead = activeUser("lead", "00000000-0000-0000-0000-000000000021");
         MonthEndProjectSnapshot project = activeProject(77, true, Set.of(lead.id()));
 
         when(monthEndTaskRepository.findByMonth(month)).thenReturn(List.of());
-        when(monthEndProjectSnapshotPort.findAll()).thenReturn(List.of(project));
-        when(monthEndUserSnapshotPort.findAll()).thenReturn(List.of(employee, lead));
+        when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
+        when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(employee, lead));
         when(monthEndProjectAssignmentPort.findAssignedUsernames(77, month)).thenReturn(Set.of("employee"));
 
         MonthEndTaskGenerationResult result = service.generate(month);
@@ -117,12 +116,12 @@ class GenerateMonthEndTasksServiceTest {
 
     @Test
     void generate_shouldSkipExistingBusinessKeys_whenMonthEndIsRegenerated() {
-        MonthEndUserSnapshot employee = activeUser("employee", "00000000-0000-0000-0000-000000000030");
-        MonthEndUserSnapshot lead = activeUser("lead", "00000000-0000-0000-0000-000000000031");
+        UserRef employee = activeUser("employee", "00000000-0000-0000-0000-000000000030");
+        UserRef lead = activeUser("lead", "00000000-0000-0000-0000-000000000031");
         MonthEndProjectSnapshot project = activeProject(88, true, Set.of(lead.id()));
 
-        when(monthEndProjectSnapshotPort.findAll()).thenReturn(List.of(project));
-        when(monthEndUserSnapshotPort.findAll()).thenReturn(List.of(employee, lead));
+        when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
+        when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(employee, lead));
         when(monthEndProjectAssignmentPort.findAssignedUsernames(88, month)).thenReturn(Set.of("employee"));
         when(monthEndTaskRepository.findByMonth(month)).thenReturn(List.of(
                 MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
@@ -144,12 +143,12 @@ class GenerateMonthEndTasksServiceTest {
 
     @Test
     void generate_shouldOnlyCreateEmployeeTimeCheck_whenProjectIsNonBillableAndHasNoLead() {
-        MonthEndUserSnapshot employee = activeUser("employee", "00000000-0000-0000-0000-000000000040");
+        UserRef employee = activeUser("employee", "00000000-0000-0000-0000-000000000040");
         MonthEndProjectSnapshot project = activeProject(99, false, Set.of());
 
         when(monthEndTaskRepository.findByMonth(month)).thenReturn(List.of());
-        when(monthEndProjectSnapshotPort.findAll()).thenReturn(List.of(project));
-        when(monthEndUserSnapshotPort.findAll()).thenReturn(List.of(employee));
+        when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
+        when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(employee));
         when(monthEndProjectAssignmentPort.findAssignedUsernames(99, month)).thenReturn(Set.of("employee"));
 
         MonthEndTaskGenerationResult result = service.generate(month);
@@ -168,14 +167,14 @@ class GenerateMonthEndTasksServiceTest {
 
     @Test
     void generate_shouldNotSkipEmployeeOwnedTasksForDifferentEmployeesOnSameProject() {
-        MonthEndUserSnapshot employeeA = activeUser("employee-a", Instancio.gen().text().uuid().get());
-        MonthEndUserSnapshot employeeB = activeUser("employee-b", Instancio.gen().text().uuid().get());
-        MonthEndUserSnapshot lead = activeUser("lead", Instancio.gen().text().uuid().get());
+        UserRef employeeA = activeUser("employee-a", Instancio.gen().text().uuid().get());
+        UserRef employeeB = activeUser("employee-b", Instancio.gen().text().uuid().get());
+        UserRef lead = activeUser("lead", Instancio.gen().text().uuid().get());
         MonthEndProjectSnapshot project = activeProject(100, true, Set.of(lead.id()));
 
         when(monthEndTaskRepository.findByMonth(month)).thenReturn(List.of());
-        when(monthEndProjectSnapshotPort.findAll()).thenReturn(List.of(project));
-        when(monthEndUserSnapshotPort.findAll()).thenReturn(List.of(employeeA, employeeB, lead));
+        when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
+        when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(employeeA, employeeB, lead));
         when(monthEndProjectAssignmentPort.findAssignedUsernames(100, month))
                 .thenReturn(Set.of("employee-a", "employee-b"));
 
@@ -208,12 +207,11 @@ class GenerateMonthEndTasksServiceTest {
         }));
     }
 
-    private MonthEndUserSnapshot activeUser(String username, String userId) {
-        return new MonthEndUserSnapshot(
+    private UserRef activeUser(String username, String userId) {
+        return new UserRef(
                 UserId.of(UUID.fromString(userId)),
-                username + " User",
-                username,
-                new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))
+                FullName.of(username, "User"),
+                ZepUsername.of(username)
         );
     }
 
@@ -222,8 +220,6 @@ class GenerateMonthEndTasksServiceTest {
                 ProjectId.generate(),
                 zepId,
                 "Project-" + zepId,
-                LocalDate.of(2025, 1, 1),
-                null,
                 billable,
                 leadIds
         );

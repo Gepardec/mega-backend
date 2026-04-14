@@ -13,9 +13,7 @@ import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployee;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProject;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -24,8 +22,11 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistItem;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -59,9 +60,9 @@ public interface MonthEndRestMapper {
 
     MonthEndStatusOverviewEntry toResponse(MonthEndStatusOverviewItem item);
 
-    MonthEndProjectReference toResponse(MonthEndProject project);
+    MonthEndProjectReference toResponse(ProjectRef project);
 
-    MonthEndEmployeeReference toResponse(MonthEndEmployee subjectEmployee);
+    MonthEndEmployeeReference toResponse(UserRef subjectEmployee);
 
     default String map(YearMonth month) {
         return month == null ? null : month.toString();
@@ -73,6 +74,10 @@ public interface MonthEndRestMapper {
 
     default UUID map(UserId userId) {
         return userId == null ? null : userId.value();
+    }
+
+    default String map(FullName fullName) {
+        return fullName == null ? null : fullName.displayName();
     }
 
     default UUID map(MonthEndTaskId taskId) {

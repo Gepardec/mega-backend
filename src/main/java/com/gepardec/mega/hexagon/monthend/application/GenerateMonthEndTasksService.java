@@ -5,13 +5,13 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskKey;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectAssignmentPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndTaskPlanningService;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -63,32 +63,27 @@ public class GenerateMonthEndTasksService implements GenerateMonthEndTasksUseCas
                 .map(MonthEndTask::businessKey)
                 .collect(Collectors.toCollection(HashSet::new));
 
-        Map<String, MonthEndUserSnapshot> activeUsersByUsername = monthEndUserSnapshotPort.findAll().stream()
-                .filter(user -> user.isActiveIn(month))
+        Map<String, UserRef> activeUsersByUsername = monthEndUserSnapshotPort.findActiveIn(month).stream()
                 .collect(Collectors.toMap(
-                        MonthEndUserSnapshot::zepUsername,
+                        user -> user.zepUsername().value(),
                         Function.identity(),
                         (left, right) -> left,
                         LinkedHashMap::new
                 ));
 
         Set<UserId> activeUserIds = activeUsersByUsername.values().stream()
-                .map(MonthEndUserSnapshot::id)
+                .map(UserRef::id)
                 .collect(Collectors.toCollection(HashSet::new));
 
         List<MonthEndTask> tasksToCreate = new ArrayList<>();
         int skipped = 0;
 
-        for (MonthEndProjectSnapshot project : monthEndProjectSnapshotPort.findAll()) {
-            if (!project.isActiveIn(month)) {
-                continue;
-            }
-
+        for (MonthEndProjectSnapshot project : monthEndProjectSnapshotPort.findActiveIn(month)) {
             Set<UserId> activeLeadIds = project.leadIds().stream()
                     .filter(activeUserIds::contains)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
-            Set<MonthEndUserSnapshot> assignedUsers = monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month).stream()
+            Set<UserRef> assignedUsers = monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month).stream()
                     .map(activeUsersByUsername::get)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
