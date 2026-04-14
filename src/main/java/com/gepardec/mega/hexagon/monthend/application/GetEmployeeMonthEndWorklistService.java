@@ -10,11 +10,13 @@ import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepos
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.time.YearMonth;
 import java.util.List;
 
 @ApplicationScoped
+@Transactional
 public class GetEmployeeMonthEndWorklistService implements GetEmployeeMonthEndWorklistUseCase {
 
     private final MonthEndTaskRepository monthEndTaskRepository;

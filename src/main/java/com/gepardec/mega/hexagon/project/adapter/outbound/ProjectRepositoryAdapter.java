@@ -6,14 +6,12 @@ import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 @ApplicationScoped
-@Transactional
 public class ProjectRepositoryAdapter implements ProjectRepository {
 
     @Inject

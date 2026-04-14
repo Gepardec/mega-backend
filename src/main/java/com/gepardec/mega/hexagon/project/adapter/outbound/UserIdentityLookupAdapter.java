@@ -7,12 +7,10 @@ import com.gepardec.mega.hexagon.user.adapter.outbound.UserPanacheRepository;
 import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
 import java.util.Optional;
 
 @ApplicationScoped
-@Transactional
 public class UserIdentityLookupAdapter implements UserIdentityLookupPort {
 
     @Inject
