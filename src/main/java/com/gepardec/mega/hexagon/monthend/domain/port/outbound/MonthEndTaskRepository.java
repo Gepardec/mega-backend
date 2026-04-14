@@ -3,8 +3,8 @@ package com.gepardec.mega.hexagon.monthend.domain.port.outbound;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskKey;
-import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
-import com.gepardec.mega.hexagon.user.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
 import java.time.YearMonth;
 import java.util.List;

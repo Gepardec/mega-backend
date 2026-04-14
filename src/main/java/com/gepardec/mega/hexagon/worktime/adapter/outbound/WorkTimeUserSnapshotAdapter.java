@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.adapter.outbound;
 
-import com.gepardec.mega.hexagon.user.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeUserSnapshot;

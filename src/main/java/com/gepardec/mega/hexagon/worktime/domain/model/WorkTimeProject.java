@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.domain.model;
 
-import com.gepardec.mega.hexagon.project.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 
 import java.util.Objects;
 

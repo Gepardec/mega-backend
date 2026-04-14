@@ -4,7 +4,7 @@ import com.gepardec.mega.hexagon.generated.model.ApiError;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
 import com.gepardec.mega.hexagon.shared.domain.model.AuthenticatedActor;
-import com.gepardec.mega.hexagon.user.domain.model.Email;
+import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

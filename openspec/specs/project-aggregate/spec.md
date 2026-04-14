@@ -62,8 +62,8 @@ The `leads` field SHALL be a `Set<UserId>` carried directly on the `Project` agg
 - **THEN** the project's leads set is replaced with the resolved `UserId` values on a new Project instance
 
 ### Requirement: Project is decoupled from Quarkus and JPA infrastructure
-The `Project` aggregate and its supporting value objects (`ProjectId`, `ZepProjectProfile`) SHALL NOT import or depend on any Quarkus, CDI, or JPA annotations.
+The `Project` aggregate and its supporting value objects (`ZepProjectProfile`) SHALL NOT import or depend on any Quarkus, CDI, or JPA annotations. `ProjectId` is now a shared kernel type and is imported from `com.gepardec.mega.hexagon.shared.domain.model`.
 
 #### Scenario: Project class has no framework imports
 - **WHEN** `Project.java` is compiled
-- **THEN** it imports only from `com.gepardec.mega.hexagon.project`, `java.*`, and standard libraries
+- **THEN** it imports only from `com.gepardec.mega.hexagon.project`, `com.gepardec.mega.hexagon.shared.domain.model`, `java.*`, and standard libraries

@@ -2,8 +2,8 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.api.MonthEndOpsApi;
 import com.gepardec.mega.hexagon.generated.model.GenerateMonthEndTasksRequest;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GenerateMonthEndTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
-import com.gepardec.mega.hexagon.monthend.domain.port.inbound.GenerateMonthEndTasksUseCase;
 import io.quarkus.oidc.Tenant;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;

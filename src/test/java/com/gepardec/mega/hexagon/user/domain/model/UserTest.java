@@ -1,6 +1,8 @@
 package com.gepardec.mega.hexagon.user.domain.model;
 
+import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

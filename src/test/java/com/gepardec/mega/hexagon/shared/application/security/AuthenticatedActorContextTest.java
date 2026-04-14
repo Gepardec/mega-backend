@@ -1,12 +1,12 @@
 package com.gepardec.mega.hexagon.shared.application.security;
 
 import com.gepardec.mega.hexagon.shared.domain.model.AuthenticatedActor;
+import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
-import com.gepardec.mega.hexagon.user.domain.model.Email;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.FullName;
 import com.gepardec.mega.hexagon.user.domain.model.User;
-import com.gepardec.mega.hexagon.user.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import org.eclipse.microprofile.jwt.ClaimValue;
