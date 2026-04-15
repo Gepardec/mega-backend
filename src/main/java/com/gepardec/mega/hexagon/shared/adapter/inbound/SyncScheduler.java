@@ -4,6 +4,8 @@ import com.gepardec.mega.hexagon.project.application.port.inbound.ProjectLeadSyn
 import com.gepardec.mega.hexagon.project.application.port.inbound.ProjectSyncResult;
 import com.gepardec.mega.hexagon.project.application.port.inbound.SyncProjectLeadsUseCase;
 import com.gepardec.mega.hexagon.project.application.port.inbound.SyncProjectsUseCase;
+import com.gepardec.mega.hexagon.user.application.port.inbound.SyncProjectLeadRolesResult;
+import com.gepardec.mega.hexagon.user.application.port.inbound.SyncProjectLeadRolesUseCase;
 import com.gepardec.mega.hexagon.user.application.port.inbound.SyncUsersUseCase;
 import com.gepardec.mega.hexagon.user.application.port.inbound.UserSyncResult;
 import io.quarkus.logging.Log;
@@ -21,20 +23,23 @@ public class SyncScheduler {
     private final SyncUsersUseCase syncUsersUseCase;
     private final SyncProjectsUseCase syncProjectsUseCase;
     private final SyncProjectLeadsUseCase syncProjectLeadsUseCase;
+    private final SyncProjectLeadRolesUseCase syncProjectLeadRolesUseCase;
 
     @Inject
     public SyncScheduler(
             SyncUsersUseCase syncUsersUseCase,
             SyncProjectsUseCase syncProjectsUseCase,
-            SyncProjectLeadsUseCase syncProjectLeadsUseCase
+            SyncProjectLeadsUseCase syncProjectLeadsUseCase,
+            SyncProjectLeadRolesUseCase syncProjectLeadRolesUseCase
     ) {
         this.syncUsersUseCase = syncUsersUseCase;
         this.syncProjectsUseCase = syncProjectsUseCase;
         this.syncProjectLeadsUseCase = syncProjectLeadsUseCase;
+        this.syncProjectLeadRolesUseCase = syncProjectLeadRolesUseCase;
     }
 
     @Scheduled(
-            identity = "Sync users, projects, and leads every 30 minutes",
+            identity = "Sync users, projects, leads, and lead roles every 30 minutes",
             every = "PT30M",
             delay = 15, delayUnit = TimeUnit.SECONDS
     )
@@ -57,9 +62,17 @@ public class SyncScheduler {
         Instant t2 = Instant.now();
         ProjectLeadSyncResult projectLeadSyncResult = syncProjectLeadsUseCase.sync();
         long projectLeadSyncMs = Duration.between(t2, Instant.now()).toMillis();
-        Log.infof("project-lead-sync: resolved=%d skipped=%d rolesAdded=%d rolesRevoked=%d (duration=%dms)",
+        Log.infof("project-lead-sync: resolved=%d skipped=%d (duration=%dms)",
                 projectLeadSyncResult.resolved(), projectLeadSyncResult.skipped(),
-                projectLeadSyncResult.rolesAdded(), projectLeadSyncResult.rolesRevoked(), projectLeadSyncMs);
+                projectLeadSyncMs);
+
+        Instant t3 = Instant.now();
+        SyncProjectLeadRolesResult syncProjectLeadRolesResult = syncProjectLeadRolesUseCase.sync(projectLeadSyncResult.leadUserIds());
+        long projectLeadRoleAssignmentMs = Duration.between(t3, Instant.now()).toMillis();
+        Log.infof("project-lead-role-sync: rolesAdded=%d rolesRevoked=%d (duration=%dms)",
+                syncProjectLeadRolesResult.rolesAdded(),
+                syncProjectLeadRolesResult.rolesRevoked(),
+                projectLeadRoleAssignmentMs);
 
         Log.infof("sync cycle complete: total duration=%dms",
                 Duration.between(cycleStart, Instant.now()).toMillis());

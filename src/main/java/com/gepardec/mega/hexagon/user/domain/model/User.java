@@ -8,6 +8,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -63,6 +64,32 @@ public record User(
 
     public User withRoles(Set<Role> updatedRoles) {
         return new User(id, email, name, zepUsername, personioId, employmentPeriods, updatedRoles);
+    }
+
+    public User grantProjectLeadRole() {
+        if (roles.contains(Role.PROJECT_LEAD)) {
+            return this;
+        }
+
+        Set<Role> updatedRoles = mutableRoles();
+        updatedRoles.add(Role.PROJECT_LEAD);
+        return withRoles(updatedRoles);
+    }
+
+    public User revokeProjectLeadRole() {
+        if (!roles.contains(Role.PROJECT_LEAD)) {
+            return this;
+        }
+
+        Set<Role> updatedRoles = mutableRoles();
+        updatedRoles.remove(Role.PROJECT_LEAD);
+        return withRoles(updatedRoles);
+    }
+
+    private Set<Role> mutableRoles() {
+        Set<Role> updatedRoles = EnumSet.noneOf(Role.class);
+        updatedRoles.addAll(roles);
+        return updatedRoles;
     }
 
     public boolean isActiveOn(LocalDate referenceDate) {

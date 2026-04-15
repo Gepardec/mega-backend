@@ -11,6 +11,7 @@ import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeZepPort;
+import com.gepardec.mega.hexagon.worktime.domain.services.WorkTimeReportAssembler;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
@@ -34,16 +35,19 @@ public class GetProjectLeadWorkTimeService implements GetProjectLeadWorkTimeUseC
     private final WorkTimeProjectSnapshotPort workTimeProjectSnapshotPort;
     private final WorkTimeUserSnapshotPort workTimeUserSnapshotPort;
     private final WorkTimeZepPort workTimeZepPort;
+    private final WorkTimeReportAssembler workTimeReportAssembler;
 
     @Inject
     public GetProjectLeadWorkTimeService(
             WorkTimeProjectSnapshotPort workTimeProjectSnapshotPort,
             WorkTimeUserSnapshotPort workTimeUserSnapshotPort,
-            WorkTimeZepPort workTimeZepPort
+            WorkTimeZepPort workTimeZepPort,
+            WorkTimeReportAssembler workTimeReportAssembler
     ) {
         this.workTimeProjectSnapshotPort = workTimeProjectSnapshotPort;
         this.workTimeUserSnapshotPort = workTimeUserSnapshotPort;
         this.workTimeZepPort = workTimeZepPort;
+        this.workTimeReportAssembler = workTimeReportAssembler;
     }
 
     @Override
@@ -111,7 +115,7 @@ public class GetProjectLeadWorkTimeService implements GetProjectLeadWorkTimeUseC
             return List.of();
         }
 
-        double employeeMonthTotalHours = totalHours(attendances);
+        double employeeMonthTotalHours = workTimeReportAssembler.totalHours(attendances);
 
         return attendances.stream()
                 .filter(attendance -> projectsByZepId.containsKey(attendance.projectZepId()))
@@ -129,31 +133,6 @@ public class GetProjectLeadWorkTimeService implements GetProjectLeadWorkTimeUseC
             Map<Integer, ProjectRef> projectsByZepId
     ) {
         ProjectRef project = projectsByZepId.get(zepProjectId);
-        return new WorkTimeEntry(
-                employeeRef,
-                project,
-                sumBillableHours(attendances),
-                sumNonBillableHours(attendances),
-                employeeMonthTotalHours
-        );
+        return workTimeReportAssembler.buildEntry(employeeRef, project, attendances, employeeMonthTotalHours);
     }
-
-    private double totalHours(List<WorkTimeAttendance> attendances) {
-        return attendances.stream()
-                .mapToDouble(WorkTimeAttendance::totalHours)
-                .sum();
-    }
-
-    private double sumBillableHours(List<WorkTimeAttendance> attendances) {
-        return attendances.stream()
-                .mapToDouble(WorkTimeAttendance::billableHours)
-                .sum();
-    }
-
-    private double sumNonBillableHours(List<WorkTimeAttendance> attendances) {
-        return attendances.stream()
-                .mapToDouble(WorkTimeAttendance::nonBillableHours)
-                .sum();
-    }
-
 }
