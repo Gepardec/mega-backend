@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Defines the `SyncProjectLeadsUseCase`, `ProjectLeadSyncResult`, and `SyncProjectLeadsService` implementation within the hexagonal domain. The project lead sync step resolves ZEP project lead usernames to internal `UserId` references, updates each project's leads set, and derives `PROJECT_LEAD` role assignments for users.
+Defines the `SyncProjectLeadsUseCase`, `ProjectLeadSyncResult`, and `SyncProjectLeadsService` implementation within the hexagonal domain. The project lead sync step resolves ZEP project lead usernames to internal `UserId` references, updates each project's leads set, and returns the resolved lead ids for follow-up role assignment in the `user` subdomain.
 
 ## Requirements
 
@@ -47,21 +47,21 @@ The system SHALL expose project lead synchronization through `SyncProjectLeadsUs
 #### Scenario: Project lead sync returns a named sync result
 - **WHEN** `SyncProjectLeadsUseCase.sync()` completes
 - **THEN** it returns `ProjectLeadSyncResult`
-- **THEN** the result exposes `resolved`, `skipped`, `rolesAdded`, and `rolesRevoked`
+- **THEN** the result exposes `resolved`, `skipped`, and `leadUserIds`
 
-### Requirement: PROJECT_LEAD role is derived from synced leads
-After syncing all project leads, the system SHALL assign the `PROJECT_LEAD` role to any User who is a lead on at least one project. The system SHALL revoke the `PROJECT_LEAD` role from any User who is no longer a lead on any project. Role changes SHALL be persisted via `UserRepository.saveAll()`.
+### Requirement: Project lead sync exposes resolved lead ids for downstream role assignment
+After syncing all project leads, the system SHALL expose the full set of resolved lead `UserId`s via `ProjectLeadSyncResult.leadUserIds()`. The downstream user-role sync step SHALL use that shared-kernel data to assign or revoke `PROJECT_LEAD` roles in the `user` subdomain.
 
-#### Scenario: User gains PROJECT_LEAD role
+#### Scenario: Result contains the union of all resolved lead ids
 - **WHEN** a user's UserId appears in the leads set of at least one project after project lead sync
-- **THEN** `PROJECT_LEAD` is added to that user's roles
+- **THEN** that `UserId` is included in `ProjectLeadSyncResult.leadUserIds()`
 
-#### Scenario: User loses PROJECT_LEAD role
-- **WHEN** a user's UserId no longer appears in the leads set of any project after project lead sync
-- **THEN** `PROJECT_LEAD` is removed from that user's roles
+#### Scenario: Unknown usernames are excluded from leadUserIds
+- **WHEN** a lead username cannot be resolved during project lead sync
+- **THEN** no `UserId` derived from that username appears in `ProjectLeadSyncResult.leadUserIds()`
 
 ### Requirement: Project lead sync returns a result with operation counts
-`SyncProjectLeadsUseCase.sync()` SHALL return a `ProjectLeadSyncResult` record instead of `void`. `ProjectLeadSyncResult` SHALL contain integer fields: `resolved` (lead usernames successfully resolved to a UserId), `skipped` (lead usernames that could not be resolved), `rolesAdded` (users who gained the `PROJECT_LEAD` role), and `rolesRevoked` (users who lost the `PROJECT_LEAD` role). The `SyncScheduler` SHALL use these counts when composing its log output.
+`SyncProjectLeadsUseCase.sync()` SHALL return a `ProjectLeadSyncResult` record instead of `void`. `ProjectLeadSyncResult` SHALL contain integer fields `resolved` (lead usernames successfully resolved to a UserId), `skipped` (lead usernames that could not be resolved), and a `leadUserIds` set containing the union of resolved lead ids across all synced projects. The `SyncScheduler` SHALL use the counts when composing its project-lead sync log output and pass `leadUserIds` into the follow-up role sync step.
 
 #### Scenario: Result reflects leads resolved during project lead sync
 - **WHEN** `SyncProjectLeadsUseCase.sync()` successfully resolves N usernames to UserIds
@@ -71,16 +71,12 @@ After syncing all project leads, the system SHALL assign the `PROJECT_LEAD` role
 - **WHEN** `SyncProjectLeadsUseCase.sync()` cannot resolve M usernames
 - **THEN** the returned `ProjectLeadSyncResult.skipped()` equals M
 
-#### Scenario: Result reflects PROJECT_LEAD roles added during project lead sync
-- **WHEN** `SyncProjectLeadsUseCase.sync()` grants `PROJECT_LEAD` to K users
-- **THEN** the returned `ProjectLeadSyncResult.rolesAdded()` equals K
-
-#### Scenario: Result reflects PROJECT_LEAD roles revoked during project lead sync
-- **WHEN** `SyncProjectLeadsUseCase.sync()` revokes `PROJECT_LEAD` from L users
-- **THEN** the returned `ProjectLeadSyncResult.rolesRevoked()` equals L
+#### Scenario: Result exposes the resolved lead id set
+- **WHEN** `SyncProjectLeadsUseCase.sync()` resolves lead usernames across one or more projects
+- **THEN** the returned `ProjectLeadSyncResult.leadUserIds()` contains the union of those resolved `UserId` values
 
 ### Requirement: SyncProjectLeadsService is a CDI-managed application-service boundary
-The system SHALL implement `SyncProjectLeadsUseCase` with a CDI-managed application service that owns the transaction boundary for project lead sync and role derivation. `SyncScheduler` SHALL inject the use case via the inbound port instead of manually constructing the service implementation.
+The system SHALL implement `SyncProjectLeadsUseCase` with a CDI-managed application service that owns the transaction boundary for project lead sync only. `SyncScheduler` SHALL inject the use case via the inbound port instead of manually constructing the service implementation.
 
 #### Scenario: Scheduler injects the project lead sync use case
 - **WHEN** the unified `SyncScheduler` starts
@@ -89,4 +85,4 @@ The system SHALL implement `SyncProjectLeadsUseCase` with a CDI-managed applicat
 
 #### Scenario: Project lead sync runs in one application-service transaction
 - **WHEN** `SyncProjectLeadsUseCase.sync()` is invoked
-- **THEN** project lead replacement and user role reconciliation occur within the service-owned transaction boundary
+- **THEN** project lead replacement occurs within the service-owned transaction boundary

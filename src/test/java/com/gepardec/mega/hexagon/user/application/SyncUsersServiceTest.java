@@ -8,12 +8,14 @@ import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.application.port.inbound.UserSyncResult;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
+import com.gepardec.mega.hexagon.user.domain.model.OfficeManagementEmails;
 import com.gepardec.mega.hexagon.user.domain.model.PersonioId;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.model.ZepEmployeeSyncData;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.PersonioEmployeePort;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.ZepEmployeePort;
+import com.gepardec.mega.hexagon.user.domain.services.UserRolePolicyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -176,7 +178,12 @@ class SyncUsersServiceTest {
     }
 
     private SyncUsersService service(List<String> omEmails) {
-        return new SyncUsersService(zepEmployeePort, personioEmployeePort, userRepository, omEmails);
+        return new SyncUsersService(
+                zepEmployeePort,
+                personioEmployeePort,
+                userRepository,
+                new UserRolePolicyService(new OfficeManagementEmails(Set.copyOf(omEmails)))
+        );
     }
 
     private ZepEmployeeSyncData syncData(String username) {

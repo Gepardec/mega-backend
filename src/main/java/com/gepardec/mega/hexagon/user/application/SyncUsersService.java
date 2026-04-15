@@ -10,13 +10,12 @@ import com.gepardec.mega.hexagon.user.domain.model.ZepEmployeeSyncData;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.PersonioEmployeePort;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.ZepEmployeePort;
+import com.gepardec.mega.hexagon.user.domain.services.UserRolePolicyService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,18 +30,16 @@ public class SyncUsersService implements SyncUsersUseCase {
     private final ZepEmployeePort zepEmployeePort;
     private final PersonioEmployeePort personioEmployeePort;
     private final UserRepository userRepository;
-    private final Set<String> officeManagementEmails;
+    private final UserRolePolicyService userRolePolicyService;
 
     @Inject
     public SyncUsersService(ZepEmployeePort zepEmployeePort, PersonioEmployeePort personioEmployeePort,
                             UserRepository userRepository,
-                            @ConfigProperty(name = "mega.mail.reminder.om") List<String> officeManagementEmails) {
+                            UserRolePolicyService userRolePolicyService) {
         this.zepEmployeePort = zepEmployeePort;
         this.personioEmployeePort = personioEmployeePort;
         this.userRepository = userRepository;
-        this.officeManagementEmails = officeManagementEmails.stream()
-                .map(this::normalizeEmail)
-                .collect(Collectors.toUnmodifiableSet());
+        this.userRolePolicyService = userRolePolicyService;
     }
 
     @Override
@@ -103,7 +100,7 @@ public class SyncUsersService implements SyncUsersUseCase {
     }
 
     private User synchronizeUser(ZepEmployeeSyncData zepEmployee, User existingUser) {
-        Set<Role> roles = buildRoles(zepEmployee.email(), existingUser);
+        Set<Role> roles = userRolePolicyService.determineRoles(zepEmployee.email(), existingUser);
         if (existingUser != null) {
             return existingUser.withSyncedZepData(zepEmployee, roles);
         }
@@ -134,21 +131,6 @@ public class SyncUsersService implements SyncUsersUseCase {
         if (!usersToSave.isEmpty()) {
             userRepository.saveAll(usersToSave);
         }
-    }
-
-    private Set<Role> buildRoles(String email, User existingUser) {
-        Set<Role> roles = EnumSet.of(Role.EMPLOYEE);
-        if (officeManagementEmails.contains(normalizeEmail(email))) {
-            roles.add(Role.OFFICE_MANAGEMENT);
-        }
-        if (existingUser != null && existingUser.roles().contains(Role.PROJECT_LEAD)) {
-            roles.add(Role.PROJECT_LEAD);
-        }
-        return roles;
-    }
-
-    private String normalizeEmail(String email) {
-        return email == null ? "" : email.trim().toLowerCase();
     }
 
     private boolean hasNoEmail(ZepEmployeeSyncData profile) {

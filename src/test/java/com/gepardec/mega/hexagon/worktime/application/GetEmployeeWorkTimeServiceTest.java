@@ -13,12 +13,13 @@ import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeZepPort;
+import com.gepardec.mega.hexagon.worktime.domain.services.WorkTimeReportAssembler;
 import io.smallrye.mutiny.Uni;
 import org.assertj.core.api.ThrowableAssert;
 import org.instancio.Instancio;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -43,8 +44,17 @@ class GetEmployeeWorkTimeServiceTest {
     @Mock
     private WorkTimeZepPort workTimeZepPort;
 
-    @InjectMocks
     private GetEmployeeWorkTimeService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new GetEmployeeWorkTimeService(
+                workTimeUserSnapshotPort,
+                workTimeProjectSnapshotPort,
+                workTimeZepPort,
+                new WorkTimeReportAssembler()
+        );
+    }
 
     @Test
     void getWorkTime_shouldAggregateHoursByProjectAndPreserveMonthTotal() {

@@ -6,11 +6,8 @@ import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.UserIdentityLookupPort;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
-import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
-import com.gepardec.mega.hexagon.user.domain.model.User;
-import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -28,28 +25,24 @@ public class SyncProjectLeadsService implements SyncProjectLeadsUseCase {
     private final ZepProjectPort zepProjectPort;
     private final ProjectRepository projectRepository;
     private final UserIdentityLookupPort userIdentityLookupPort;
-    private final UserRepository userRepository;
 
     @Inject
     public SyncProjectLeadsService(ZepProjectPort zepProjectPort, ProjectRepository projectRepository,
-                                   UserIdentityLookupPort userIdentityLookupPort, UserRepository userRepository) {
+                                   UserIdentityLookupPort userIdentityLookupPort) {
         this.zepProjectPort = zepProjectPort;
         this.projectRepository = projectRepository;
         this.userIdentityLookupPort = userIdentityLookupPort;
-        this.userRepository = userRepository;
     }
 
     @Override
     public ProjectLeadSyncResult sync() {
         SyncAccumulator syncAccumulator = syncProjects(projectRepository.findAll());
         persistProjects(syncAccumulator.projectsToSave());
-        RoleReconciliationResult roleReconciliationResult = reconcileUserRoles(syncAccumulator.allLeadUserIds());
 
         return new ProjectLeadSyncResult(
                 syncAccumulator.resolved(),
                 syncAccumulator.skipped(),
-                roleReconciliationResult.rolesAdded(),
-                roleReconciliationResult.rolesRevoked()
+                syncAccumulator.allLeadUserIds()
         );
     }
 
@@ -92,43 +85,6 @@ public class SyncProjectLeadsService implements SyncProjectLeadsUseCase {
         }
     }
 
-    private RoleReconciliationResult reconcileUserRoles(Set<UserId> allLeadUserIds) {
-        List<User> usersToUpdate = userRepository.findAll().stream()
-                .filter(user -> {
-                    boolean isLead = allLeadUserIds.contains(user.id());
-                    boolean hasLeadRole = user.roles().contains(Role.PROJECT_LEAD);
-                    return isLead != hasLeadRole;
-                })
-                .map(user -> updateLeadRole(user, allLeadUserIds.contains(user.id())))
-                .toList();
-
-        int rolesAdded = 0;
-        int rolesRevoked = 0;
-
-        for (User user : usersToUpdate) {
-            if (user.roles().contains(Role.PROJECT_LEAD)) {
-                rolesAdded++;
-            } else {
-                rolesRevoked++;
-            }
-        }
-
-        if (!usersToUpdate.isEmpty()) {
-            userRepository.saveAll(usersToUpdate);
-        }
-        return new RoleReconciliationResult(rolesAdded, rolesRevoked);
-    }
-
-    private User updateLeadRole(User user, boolean shouldBeLead) {
-        Set<Role> updatedRoles = new HashSet<>(user.roles());
-        if (shouldBeLead) {
-            updatedRoles.add(Role.PROJECT_LEAD);
-        } else {
-            updatedRoles.remove(Role.PROJECT_LEAD);
-        }
-        return user.withRoles(updatedRoles);
-    }
-
     private record ProjectLeadResolution(
             Project project,
             Set<UserId> resolvedLeadIds,
@@ -136,9 +92,6 @@ public class SyncProjectLeadsService implements SyncProjectLeadsUseCase {
             int skipped,
             boolean changed
     ) {
-    }
-
-    private record RoleReconciliationResult(int rolesAdded, int rolesRevoked) {
     }
 
     private static final class SyncAccumulator {

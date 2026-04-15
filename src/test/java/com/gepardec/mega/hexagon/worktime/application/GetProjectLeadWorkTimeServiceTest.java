@@ -11,11 +11,12 @@ import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeZepPort;
+import com.gepardec.mega.hexagon.worktime.domain.services.WorkTimeReportAssembler;
 import io.smallrye.mutiny.Uni;
 import org.instancio.Instancio;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -40,8 +41,17 @@ class GetProjectLeadWorkTimeServiceTest {
     @Mock
     private WorkTimeZepPort workTimeZepPort;
 
-    @InjectMocks
     private GetProjectLeadWorkTimeService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new GetProjectLeadWorkTimeService(
+                workTimeProjectSnapshotPort,
+                workTimeUserSnapshotPort,
+                workTimeZepPort,
+                new WorkTimeReportAssembler()
+        );
+    }
 
     @Test
     void getWorkTime_shouldAggregateEntriesAcrossAllLeadProjectsAndPreserveEmployeeTotals() {

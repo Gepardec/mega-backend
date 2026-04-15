@@ -1,8 +1,9 @@
-package com.gepardec.mega.hexagon.monthend.application;
+package com.gepardec.mega.hexagon.monthend.domain.services;
 
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndProjectContextNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectAssignmentPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
@@ -26,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class ResolveMonthEndEmployeeProjectContextServiceTest {
+class MonthEndEmployeeProjectContextServiceTest {
 
     private final YearMonth month = YearMonth.of(2026, 3);
     private final ProjectId projectId = ProjectId.of(Instancio.create(UUID.class));
@@ -37,14 +38,14 @@ class ResolveMonthEndEmployeeProjectContextServiceTest {
     private MonthEndProjectSnapshotPort monthEndProjectSnapshotPort;
     private MonthEndUserSnapshotPort monthEndUserSnapshotPort;
     private MonthEndProjectAssignmentPort monthEndProjectAssignmentPort;
-    private ResolveMonthEndEmployeeProjectContextService service;
+    private MonthEndEmployeeProjectContextService service;
 
     @BeforeEach
     void setUp() {
         monthEndProjectSnapshotPort = mock(MonthEndProjectSnapshotPort.class);
         monthEndUserSnapshotPort = mock(MonthEndUserSnapshotPort.class);
         monthEndProjectAssignmentPort = mock(MonthEndProjectAssignmentPort.class);
-        service = new ResolveMonthEndEmployeeProjectContextService(
+        service = new MonthEndEmployeeProjectContextService(
                 monthEndProjectSnapshotPort,
                 monthEndUserSnapshotPort,
                 monthEndProjectAssignmentPort
