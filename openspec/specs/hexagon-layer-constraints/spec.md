@@ -93,3 +93,10 @@ Classes that extend `PanacheRepository` in `..hexagon..` SHALL reside exclusivel
 #### Scenario: PanacheRepository subclass is in adapter/outbound
 - **WHEN** a class in `..hexagon..` extends `PanacheRepository`
 - **THEN** it SHALL reside in `..hexagon..adapter..outbound..`
+
+### Requirement: MapStruct mappers are confined to adapter packages
+Types in `..hexagon..` annotated with `@Mapper` SHALL reside exclusively in `..hexagon..adapter..`. MapStruct mappers are infrastructure adapters and MUST NOT live in application or domain packages.
+
+#### Scenario: MapStruct mapper is in adapter package
+- **WHEN** a type in `..hexagon..` is annotated with `@Mapper`
+- **THEN** it SHALL reside in `..hexagon..adapter..`

@@ -12,6 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.Mapper;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
@@ -198,6 +199,16 @@ class HexagonalArchitectureTest {
                 .that().areAssignableTo(PanacheRepository.class)
                 .should().resideInAPackage("..hexagon..adapter..outbound..")
                 .because("Panache repositories are outbound persistence adapters and should stay in that layer")
+                .check(allClasses);
+    }
+
+    @Test
+    void mapStructMappersMustResideInAdapterLayer() {
+        classes()
+                .that().resideInAPackage("..hexagon..")
+                .and().areAnnotatedWith(Mapper.class)
+                .should().resideInAPackage("..hexagon..adapter..")
+                .because("MapStruct mappers are infrastructure adapters and should only live in adapter packages")
                 .check(allClasses);
     }
 
