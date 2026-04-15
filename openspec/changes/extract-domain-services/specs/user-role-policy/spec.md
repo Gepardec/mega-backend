@@ -55,17 +55,25 @@ The `User` aggregate SHALL provide `grantProjectLeadRole()` and `revokeProjectLe
 - **WHEN** `user.revokeProjectLeadRole()` is called on a user who does not hold `Role.PROJECT_LEAD`
 - **THEN** the returned user is equal to the original (idempotent)
 
-### Requirement: Domain service reconciles PROJECT_LEAD roles against project assignments
-The system SHALL provide a `ProjectLeadRoleReconciliationService` in `user.domain.services` that, given all users and the full set of lead user IDs after a project lead sync, returns only those users whose `PROJECT_LEAD` role needed to change. Users who are now a lead but lack the role SHALL have it granted. Users who are no longer a lead but hold the role SHALL have it revoked. Users whose role already matches their lead status SHALL be excluded from the result.
+### Requirement: UserRolePolicyService applies the project lead role policy for a single user
+The system SHALL keep project-lead role policy in `UserRolePolicyService` in `user.domain.services`. Given a `User` and whether that user should currently be a lead, it SHALL return a new `User` with the `PROJECT_LEAD` role granted or revoked as needed.
 
 #### Scenario: User who became a lead has PROJECT_LEAD granted
-- **WHEN** `ProjectLeadRoleReconciliationService.reconcile(users, leadUserIds)` is called and a user's ID is in `leadUserIds` but the user does not hold `Role.PROJECT_LEAD`
-- **THEN** the returned list includes that user with `Role.PROJECT_LEAD` granted
+- **WHEN** `UserRolePolicyService.updateProjectLeadRole(user, true)` is called and the user does not hold `Role.PROJECT_LEAD`
+- **THEN** the returned user holds `Role.PROJECT_LEAD`
 
 #### Scenario: User who is no longer a lead has PROJECT_LEAD revoked
-- **WHEN** `ProjectLeadRoleReconciliationService.reconcile(users, leadUserIds)` is called and a user holds `Role.PROJECT_LEAD` but their ID is not in `leadUserIds`
-- **THEN** the returned list includes that user with `Role.PROJECT_LEAD` revoked
+- **WHEN** `UserRolePolicyService.updateProjectLeadRole(user, false)` is called and the user holds `Role.PROJECT_LEAD`
+- **THEN** the returned user no longer holds `Role.PROJECT_LEAD`
 
-#### Scenario: User whose lead status matches their role is excluded
-- **WHEN** `ProjectLeadRoleReconciliationService.reconcile(users, leadUserIds)` is called and a user's `PROJECT_LEAD` role already matches their presence in `leadUserIds`
-- **THEN** that user is not included in the returned list
+#### Scenario: User whose lead status already matches remains unchanged
+- **WHEN** `UserRolePolicyService.updateProjectLeadRole(user, shouldBeLead)` is called and the user's `PROJECT_LEAD` role already matches `shouldBeLead`
+- **THEN** the returned user is equal to the original
+
+### Requirement: Project lead sync is coordinated as two application use cases
+The system SHALL keep `SyncProjectLeadsService` focused on updating project lead assignments in the `project` subdomain. It SHALL return the resolved lead `UserId`s as shared-kernel data. A separate `SyncProjectLeadRolesService` in `user.application` SHALL receive those lead ids, apply `UserRolePolicyService` user by user, and persist changed users. The scheduler SHALL invoke the role sync step after project lead sync completes.
+
+#### Scenario: Scheduler passes resolved lead ids into user role sync
+- **WHEN** `SyncScheduler` runs a sync cycle
+- **THEN** it invokes `SyncProjectLeadsUseCase.sync()`
+- **THEN** it invokes `SyncProjectLeadRolesUseCase.sync(leadUserIds)` with the `leadUserIds` returned by the project lead sync step

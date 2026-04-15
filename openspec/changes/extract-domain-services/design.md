@@ -7,13 +7,12 @@ The hexagonal backend has a strict rule: application services orchestrate, domai
 **Goals:**
 - Relocate `ResolveMonthEndEmployeeProjectContextService` to the domain layer
 - Extract user role assignment policy into a domain service
-- Extract project lead role reconciliation into a domain service and move role mutation onto the `User` aggregate
+- Move project lead role mutation onto the `User` aggregate, keep the role policy in the `user` subdomain, and separate project lead sync from user role assignment
 - Extract worktime hour aggregation into a single domain service, eliminating the duplication
 
 **Non-Goals:**
 - No observable behavior changes
 - No API, REST, or persistence changes
-- No changes to the sync scheduling logic or result types
 - No generic sync abstraction (e.g., shared `ChangeType` enum) — each sync service keeps its own private copy
 
 ## Decisions
@@ -24,7 +23,7 @@ The service only depends on domain ports (`MonthEndProjectSnapshotPort`, `MonthE
 
 *Alternative considered*: Keep it in the application layer as a shared application helper. Rejected because the invariants it enforces (employee active, project active, employee assigned) are domain rules, not orchestration.
 
-### 2. `OfficeManagementEmails` value object bridges config to domain; `UserRolePolicyService` is a CDI bean
+### 2. `OfficeManagementEmails` value object bridges config to domain; `UserRolePolicyService` centralises role policy
 
 The role assignment policy needs the OM email list, which comes from a `@ConfigProperty`. Injecting config annotations directly into a domain service would pull a MicroProfile/Quarkus framework dependency into the domain layer.
 
@@ -32,7 +31,7 @@ The solution follows the same pattern as `Clock`: the domain declares what it ne
 
 - `OfficeManagementEmails` is a domain value object (plain Java record) in `user.domain.model`, wrapping a `Set<String>` of normalised email addresses. It exposes a `contains(String email) → boolean` method that handles case-insensitive, trimmed comparison internally.
 - An `OfficeManagementEmailsProducer` in `user.application` reads `@ConfigProperty` and produces an `@ApplicationScoped` `OfficeManagementEmails` CDI bean.
-- `UserRolePolicyService` is a CDI `@ApplicationScoped` domain service that injects `OfficeManagementEmails`. No framework annotation touches the domain.
+- `UserRolePolicyService` is a CDI `@ApplicationScoped` domain service that injects `OfficeManagementEmails`. It contains both email-based role rules and the single-user project-lead role rule. No framework annotation touches the domain.
 
 *Alternative considered*: Plain Java class constructed by `SyncUsersService`. Rejected because it prevents CDI injection, makes testing harder, and is inconsistent with the other domain services in this change.
 
@@ -40,9 +39,17 @@ The solution follows the same pattern as `Clock`: the domain declares what it ne
 
 The current `updateLeadRole(user, shouldBeLead)` in `SyncProjectLeadsService` directly manipulates a user's role set via `user.withRoles(...)`. This is an aggregate operation — it belongs on `User`. Two methods are added: `User.grantProjectLeadRole()` and `User.revokeProjectLeadRole()`. Both return a new immutable `User` instance.
 
-### 4. `ProjectLeadRoleReconciliationService` is a CDI domain service
+### 4. Project lead sync and role assignment are split across application boundaries
 
-The policy "a user's `PROJECT_LEAD` role must match whether they lead any project" and its implementation (which users need role changes, in which direction) is domain logic. This is extracted to `user.domain.services.ProjectLeadRoleReconciliationService`. It takes all users and the full set of lead user IDs, and returns only the users whose roles needed updating. The application service (`SyncProjectLeadsService`) persists the result.
+The policy "a user's `PROJECT_LEAD` role must match whether they lead any project" is domain logic over the `User` aggregate, but `SyncProjectLeadsService` belongs to the `project` subdomain. Letting the project use case load `User` aggregates directly creates a cross-subdomain access violation.
+
+The solution is:
+- `SyncProjectLeadsService` in `project.application` updates projects only and returns the resolved lead `UserId`s as shared-kernel data
+- `UserRolePolicyService` in `user.domain.services` contains the role policy over `User`, including project-lead role updates for a single user
+- `SyncProjectLeadRolesService` in `user.application` loads users, applies the policy service user by user, and persists the changed users
+- `SyncScheduler` orchestrates the two use cases in sequence
+
+This keeps domain logic with `User` while preventing the `project` subdomain from depending on `User` aggregates or `UserRepository`.
 
 ### 5. `WorkTimeReportAssembler` is a CDI domain service
 

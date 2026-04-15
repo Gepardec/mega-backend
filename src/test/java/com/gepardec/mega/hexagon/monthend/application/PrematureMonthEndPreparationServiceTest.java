@@ -5,12 +5,14 @@ import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssign
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskKey;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
+import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndEmployeeProjectContextService;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndTaskPlanningService;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -48,7 +50,7 @@ class PrematureMonthEndPreparationServiceTest {
     private final Map<MonthEndTaskKey, MonthEndTask> storedTasks = new LinkedHashMap<>();
 
     private MonthEndTaskRepository monthEndTaskRepository;
-    private ResolveMonthEndEmployeeProjectContextService contextResolver;
+    private MonthEndEmployeeProjectContextService contextResolver;
     private CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
     private PrematureMonthEndPreparationService service;
 
@@ -56,7 +58,7 @@ class PrematureMonthEndPreparationServiceTest {
     void setUp() {
         storedTasks.clear();
         monthEndTaskRepository = mock(MonthEndTaskRepository.class);
-        contextResolver = mock(ResolveMonthEndEmployeeProjectContextService.class);
+        contextResolver = mock(MonthEndEmployeeProjectContextService.class);
         createMonthEndClarificationUseCase = mock(CreateMonthEndClarificationUseCase.class);
         service = new PrematureMonthEndPreparationService(
                 monthEndTaskRepository,

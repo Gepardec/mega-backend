@@ -2,8 +2,10 @@ package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
+import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndEmployeeProjectContextService;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
@@ -37,13 +39,13 @@ class CreateMonthEndClarificationServiceTest {
     private final Clock clock = Clock.fixed(Instant.parse("2026-03-31T08:00:00Z"), ZoneOffset.UTC);
 
     private MonthEndClarificationRepository clarificationRepository;
-    private ResolveMonthEndEmployeeProjectContextService contextResolver;
+    private MonthEndEmployeeProjectContextService contextResolver;
     private CreateMonthEndClarificationService service;
 
     @BeforeEach
     void setUp() {
         clarificationRepository = mock(MonthEndClarificationRepository.class);
-        contextResolver = mock(ResolveMonthEndEmployeeProjectContextService.class);
+        contextResolver = mock(MonthEndEmployeeProjectContextService.class);
         service = new CreateMonthEndClarificationService(clarificationRepository, contextResolver, clock);
     }
 

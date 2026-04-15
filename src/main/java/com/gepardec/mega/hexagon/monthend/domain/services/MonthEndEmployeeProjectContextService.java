@@ -1,8 +1,9 @@
-package com.gepardec.mega.hexagon.monthend.application;
+package com.gepardec.mega.hexagon.monthend.domain.services;
 
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndProjectContextNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectAssignmentPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
@@ -19,14 +20,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class ResolveMonthEndEmployeeProjectContextService {
+public class MonthEndEmployeeProjectContextService {
 
     private final MonthEndProjectSnapshotPort monthEndProjectSnapshotPort;
     private final MonthEndUserSnapshotPort monthEndUserSnapshotPort;
     private final MonthEndProjectAssignmentPort monthEndProjectAssignmentPort;
 
     @Inject
-    public ResolveMonthEndEmployeeProjectContextService(
+    public MonthEndEmployeeProjectContextService(
             MonthEndProjectSnapshotPort monthEndProjectSnapshotPort,
             MonthEndUserSnapshotPort monthEndUserSnapshotPort,
             MonthEndProjectAssignmentPort monthEndProjectAssignmentPort
