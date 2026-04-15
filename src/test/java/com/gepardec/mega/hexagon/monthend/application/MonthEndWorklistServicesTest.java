@@ -63,21 +63,18 @@ class MonthEndWorklistServicesTest {
 
     @BeforeEach
     void setUp() {
-        MonthEndWorklistMapper mapper = Mappers.getMapper(MonthEndWorklistMapper.class);
         MonthEndProjectRefMapper projectRefMapper = Mappers.getMapper(MonthEndProjectRefMapper.class);
         ResolveMonthEndTaskSnapshotLookupService resolveMonthEndTaskSnapshotLookupService =
                 new ResolveMonthEndTaskSnapshotLookupService(monthEndProjectSnapshotPort, monthEndUserSnapshotPort, projectRefMapper);
         getEmployeeMonthEndWorklistService = new GetEmployeeMonthEndWorklistService(
                 monthEndTaskRepository,
                 monthEndClarificationRepository,
-                resolveMonthEndTaskSnapshotLookupService,
-                mapper
+                resolveMonthEndTaskSnapshotLookupService
         );
         getProjectLeadMonthEndWorklistService = new GetProjectLeadMonthEndWorklistService(
                 monthEndTaskRepository,
                 monthEndClarificationRepository,
-                resolveMonthEndTaskSnapshotLookupService,
-                mapper
+                resolveMonthEndTaskSnapshotLookupService
         );
     }
 

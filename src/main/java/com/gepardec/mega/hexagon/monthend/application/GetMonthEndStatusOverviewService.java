@@ -19,17 +19,14 @@ public class GetMonthEndStatusOverviewService implements GetMonthEndStatusOvervi
 
     private final MonthEndTaskRepository monthEndTaskRepository;
     private final ResolveMonthEndTaskSnapshotLookupService resolveMonthEndTaskSnapshotLookupService;
-    private final MonthEndStatusOverviewMapper monthEndStatusOverviewMapper;
 
     @Inject
     public GetMonthEndStatusOverviewService(
             MonthEndTaskRepository monthEndTaskRepository,
-            ResolveMonthEndTaskSnapshotLookupService resolveMonthEndTaskSnapshotLookupService,
-            MonthEndStatusOverviewMapper monthEndStatusOverviewMapper
+            ResolveMonthEndTaskSnapshotLookupService resolveMonthEndTaskSnapshotLookupService
     ) {
         this.monthEndTaskRepository = monthEndTaskRepository;
         this.resolveMonthEndTaskSnapshotLookupService = resolveMonthEndTaskSnapshotLookupService;
-        this.monthEndStatusOverviewMapper = monthEndStatusOverviewMapper;
     }
 
     @Override
@@ -42,11 +39,14 @@ public class GetMonthEndStatusOverviewService implements GetMonthEndStatusOvervi
         MonthEndTaskSnapshotLookup snapshotLookup = resolveMonthEndTaskSnapshotLookupService.resolve(tasks, month);
 
         List<MonthEndStatusOverviewItem> entries = tasks.stream()
-                .map(task -> monthEndStatusOverviewMapper.toItem(
-                        task,
+                .map(task -> new MonthEndStatusOverviewItem(
+                        task.id(),
+                        task.type(),
+                        task.status(),
                         snapshotLookup.projectFor(task.projectId()),
                         snapshotLookup.subjectEmployeeFor(task.subjectEmployeeId()),
-                        task.eligibleActorIds().contains(actorId)
+                        task.eligibleActorIds().contains(actorId),
+                        task.completedBy()
                 ))
                 .toList();
         return new MonthEndStatusOverview(actorId, month, entries);

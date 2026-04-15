@@ -1,9 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
@@ -11,6 +8,7 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskKey;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndEmployeeProjectContextService;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndTaskPlanningService;
@@ -23,8 +21,10 @@ import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -50,21 +50,23 @@ class PrematureMonthEndPreparationServiceTest {
     private final Map<MonthEndTaskKey, MonthEndTask> storedTasks = new LinkedHashMap<>();
 
     private MonthEndTaskRepository monthEndTaskRepository;
+    private MonthEndClarificationRepository monthEndClarificationRepository;
     private MonthEndEmployeeProjectContextService contextResolver;
-    private CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
     private PrematureMonthEndPreparationService service;
 
     @BeforeEach
     void setUp() {
         storedTasks.clear();
         monthEndTaskRepository = mock(MonthEndTaskRepository.class);
+        monthEndClarificationRepository = mock(MonthEndClarificationRepository.class);
         contextResolver = mock(MonthEndEmployeeProjectContextService.class);
-        createMonthEndClarificationUseCase = mock(CreateMonthEndClarificationUseCase.class);
+        Clock clock = Clock.fixed(Instant.parse("2026-03-30T12:00:00Z"), ZoneOffset.UTC);
         service = new PrematureMonthEndPreparationService(
                 monthEndTaskRepository,
                 new MonthEndTaskPlanningService(),
                 contextResolver,
-                createMonthEndClarificationUseCase
+                monthEndClarificationRepository,
+                clock
         );
 
         when(monthEndTaskRepository.findByBusinessKey(any()))
@@ -91,31 +93,12 @@ class PrematureMonthEndPreparationServiceTest {
                 });
         assertThat(result.hasClarification()).isFalse();
         assertThat(storedTasks).hasSize(1);
-        verify(createMonthEndClarificationUseCase, never()).create(any(), any(), any(), any(), any(), any());
+        verify(monthEndClarificationRepository, never()).save(any());
     }
 
     @Test
     void prepare_shouldEnsureBillableEmployeeOwnedTasksAndCreateClarification_whenTextProvided() {
         when(contextResolver.resolve(month, projectId, employeeId)).thenReturn(context(true));
-        MonthEndClarification clarification = MonthEndClarification.create(
-                MonthEndClarificationId.generate(),
-                month,
-                projectId,
-                employeeId,
-                employeeId,
-                MonthEndClarificationSide.EMPLOYEE,
-                Set.of(leadId),
-                "Please review before my absence.",
-                Instant.parse("2026-03-30T12:00:00Z")
-        );
-        when(createMonthEndClarificationUseCase.create(
-                month,
-                projectId,
-                employeeId,
-                employeeId,
-                MonthEndClarificationSide.EMPLOYEE,
-                "Please review before my absence."
-        )).thenReturn(clarification);
 
         MonthEndPreparationResult result = service.prepare(
                 month,
@@ -127,16 +110,17 @@ class PrematureMonthEndPreparationServiceTest {
         assertThat(result.ensuredTasks())
                 .extracting(MonthEndTask::type)
                 .containsExactly(MonthEndTaskType.EMPLOYEE_TIME_CHECK, MonthEndTaskType.LEISTUNGSNACHWEIS);
-        assertThat(result.clarification()).isEqualTo(clarification);
+        assertThat(result.clarification())
+                .satisfies(c -> {
+                    assertThat(c.projectId()).isEqualTo(projectId);
+                    assertThat(c.subjectEmployeeId()).isEqualTo(employeeId);
+                    assertThat(c.createdBy()).isEqualTo(employeeId);
+                    assertThat(c.creatorSide()).isEqualTo(MonthEndClarificationSide.EMPLOYEE);
+                    assertThat(c.text()).isEqualTo("Please review before my absence.");
+                    assertThat(c.eligibleProjectLeadIds()).containsOnly(leadId);
+                });
         assertThat(storedTasks).hasSize(2);
-        verify(createMonthEndClarificationUseCase).create(
-                month,
-                projectId,
-                employeeId,
-                employeeId,
-                MonthEndClarificationSide.EMPLOYEE,
-                "Please review before my absence."
-        );
+        verify(monthEndClarificationRepository).save(result.clarification());
     }
 
     @Test
@@ -164,7 +148,7 @@ class PrematureMonthEndPreparationServiceTest {
                 .hasMessageContaining("not assigned");
 
         verify(monthEndTaskRepository, never()).save(any(MonthEndTask.class));
-        verify(createMonthEndClarificationUseCase, never()).create(any(), any(), any(), any(), any(), any());
+        verify(monthEndClarificationRepository, never()).save(any());
     }
 
     private MonthEndEmployeeProjectContext context(boolean billable) {
