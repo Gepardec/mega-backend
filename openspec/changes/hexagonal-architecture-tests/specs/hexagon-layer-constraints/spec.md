@@ -35,19 +35,11 @@ All types residing in `..hexagon..domain..model..` that are not enums SHALL be J
 - **THEN** it SHALL be permitted without the record constraint
 
 ### Requirement: Domain models do not carry JPA annotations
-Types residing in `..hexagon..domain..model..` SHALL NOT be annotated with any JPA persistence annotation (`@Entity`, `@Table`, `@Column`, `@MappedSuperclass`, `@Embeddable`). JPA annotations are adapter concerns and MUST NOT leak into the domain layer.
+Types residing in `..hexagon..domain..model..` SHALL NOT be annotated with any annotation from the `jakarta.persistence` package. Persistence annotations are adapter concerns and MUST NOT leak into the domain layer.
 
-#### Scenario: Domain model has no @Entity annotation
+#### Scenario: Domain model has no jakarta.persistence annotation
 - **WHEN** a type resides in `..hexagon..domain..model..`
-- **THEN** it SHALL NOT be annotated with `@Entity`
-
-#### Scenario: Domain model has no @Table annotation
-- **WHEN** a type resides in `..hexagon..domain..model..`
-- **THEN** it SHALL NOT be annotated with `@Table`
-
-#### Scenario: Domain model has no @Column annotation
-- **WHEN** a type resides in `..hexagon..domain..model..`
-- **THEN** it SHALL NOT be annotated with `@Column`
+- **THEN** it SHALL NOT be annotated with any annotation whose type resides in `jakarta.persistence..`
 
 ### Requirement: Inbound ports are interfaces ending with UseCase
 All types in `..hexagon..application..port..inbound..` that are interfaces SHALL have their simple name ending with `UseCase`. Non-interface types (result records co-located with use case contracts) SHALL be Java records.
