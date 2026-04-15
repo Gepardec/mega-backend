@@ -24,17 +24,14 @@ public class ResolveMonthEndTaskSnapshotLookupService {
 
     private final MonthEndProjectSnapshotPort monthEndProjectSnapshotPort;
     private final MonthEndUserSnapshotPort monthEndUserSnapshotPort;
-    private final MonthEndProjectRefMapper monthEndProjectRefMapper;
 
     @Inject
     public ResolveMonthEndTaskSnapshotLookupService(
             MonthEndProjectSnapshotPort monthEndProjectSnapshotPort,
-            MonthEndUserSnapshotPort monthEndUserSnapshotPort,
-            MonthEndProjectRefMapper monthEndProjectRefMapper
+            MonthEndUserSnapshotPort monthEndUserSnapshotPort
     ) {
         this.monthEndProjectSnapshotPort = monthEndProjectSnapshotPort;
         this.monthEndUserSnapshotPort = monthEndUserSnapshotPort;
-        this.monthEndProjectRefMapper = monthEndProjectRefMapper;
     }
 
     public MonthEndTaskSnapshotLookup resolve(List<MonthEndTask> tasks, YearMonth month) {
@@ -57,7 +54,7 @@ public class ResolveMonthEndTaskSnapshotLookupService {
         return monthEndProjectSnapshotPort.findByIds(projectIds, month).stream()
                 .collect(Collectors.toMap(
                         MonthEndProjectSnapshot::id,
-                        monthEndProjectRefMapper::toRef
+                        snapshot -> new ProjectRef(snapshot.id(), snapshot.zepId(), snapshot.name())
                 ));
     }
 
