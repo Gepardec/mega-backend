@@ -22,19 +22,16 @@ public class GetProjectLeadMonthEndWorklistService implements GetProjectLeadMont
     private final MonthEndTaskRepository monthEndTaskRepository;
     private final MonthEndClarificationRepository monthEndClarificationRepository;
     private final ResolveMonthEndTaskSnapshotLookupService resolveMonthEndTaskSnapshotLookupService;
-    private final MonthEndWorklistMapper monthEndWorklistMapper;
 
     @Inject
     public GetProjectLeadMonthEndWorklistService(
             MonthEndTaskRepository monthEndTaskRepository,
             MonthEndClarificationRepository monthEndClarificationRepository,
-            ResolveMonthEndTaskSnapshotLookupService resolveMonthEndTaskSnapshotLookupService,
-            MonthEndWorklistMapper monthEndWorklistMapper
+            ResolveMonthEndTaskSnapshotLookupService resolveMonthEndTaskSnapshotLookupService
     ) {
         this.monthEndTaskRepository = monthEndTaskRepository;
         this.monthEndClarificationRepository = monthEndClarificationRepository;
         this.resolveMonthEndTaskSnapshotLookupService = resolveMonthEndTaskSnapshotLookupService;
-        this.monthEndWorklistMapper = monthEndWorklistMapper;
     }
 
     @Override
@@ -43,8 +40,9 @@ public class GetProjectLeadMonthEndWorklistService implements GetProjectLeadMont
 
         MonthEndTaskSnapshotLookup snapshotLookup = resolveMonthEndTaskSnapshotLookupService.resolve(tasks, month);
         List<MonthEndWorklistItem> worklistItems = tasks.stream()
-                .map(task -> monthEndWorklistMapper.toItem(
-                        task,
+                .map(task -> new MonthEndWorklistItem(
+                        task.id(),
+                        task.type(),
                         snapshotLookup.projectFor(task.projectId()),
                         snapshotLookup.subjectEmployeeFor(task.subjectEmployeeId())
                 ))
@@ -52,7 +50,17 @@ public class GetProjectLeadMonthEndWorklistService implements GetProjectLeadMont
 
         List<MonthEndWorklistClarificationItem> clarifications = monthEndClarificationRepository
                 .findOpenProjectLeadClarifications(projectLeadId, month).stream()
-                .map(monthEndWorklistMapper::toItem)
+                .map(c -> new MonthEndWorklistClarificationItem(
+                        c.id(),
+                        c.projectId(),
+                        c.subjectEmployeeId(),
+                        c.createdBy(),
+                        c.creatorSide(),
+                        c.status(),
+                        c.text(),
+                        c.createdAt(),
+                        c.lastModifiedAt()
+                ))
                 .toList();
         return new MonthEndWorklist(projectLeadId, month, worklistItems, clarifications);
     }

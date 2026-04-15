@@ -58,14 +58,12 @@ class MonthEndStatusOverviewServiceTest {
 
     @BeforeEach
     void setUp() {
-        MonthEndStatusOverviewMapper mapper = Mappers.getMapper(MonthEndStatusOverviewMapper.class);
         MonthEndProjectRefMapper projectRefMapper = Mappers.getMapper(MonthEndProjectRefMapper.class);
         ResolveMonthEndTaskSnapshotLookupService resolveMonthEndTaskSnapshotLookupService =
                 new ResolveMonthEndTaskSnapshotLookupService(monthEndProjectSnapshotPort, monthEndUserSnapshotPort, projectRefMapper);
         getMonthEndStatusOverviewService = new GetMonthEndStatusOverviewService(
                 monthEndTaskRepository,
-                resolveMonthEndTaskSnapshotLookupService,
-                mapper
+                resolveMonthEndTaskSnapshotLookupService
         );
     }
 

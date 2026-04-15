@@ -1,12 +1,13 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndEmployeeProjectContextService;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndTaskPlanningService;
@@ -17,6 +18,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import java.time.Clock;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Objects;
@@ -28,19 +30,22 @@ public class PrematureMonthEndPreparationService implements PrematureMonthEndPre
     private final MonthEndTaskRepository monthEndTaskRepository;
     private final MonthEndTaskPlanningService monthEndTaskPlanningService;
     private final MonthEndEmployeeProjectContextService contextService;
-    private final CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
+    private final MonthEndClarificationRepository monthEndClarificationRepository;
+    private final Clock clock;
 
     @Inject
     public PrematureMonthEndPreparationService(
             MonthEndTaskRepository monthEndTaskRepository,
             MonthEndTaskPlanningService monthEndTaskPlanningService,
             MonthEndEmployeeProjectContextService contextService,
-            CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase
+            MonthEndClarificationRepository monthEndClarificationRepository,
+            Clock clock
     ) {
         this.monthEndTaskRepository = monthEndTaskRepository;
         this.monthEndTaskPlanningService = monthEndTaskPlanningService;
         this.contextService = contextService;
-        this.createMonthEndClarificationUseCase = createMonthEndClarificationUseCase;
+        this.monthEndClarificationRepository = monthEndClarificationRepository;
+        this.clock = clock;
     }
 
     @Override
@@ -66,14 +71,18 @@ public class PrematureMonthEndPreparationService implements PrematureMonthEndPre
 
         MonthEndClarification clarification = null;
         if (clarificationText != null && !clarificationText.isBlank()) {
-            clarification = createMonthEndClarificationUseCase.create(
+            clarification = MonthEndClarification.create(
+                    MonthEndClarificationId.generate(),
                     month,
                     projectId,
                     context.subjectEmployee().id(),
                     actorId,
                     MonthEndClarificationSide.EMPLOYEE,
-                    clarificationText
+                    context.eligibleProjectLeadIds(),
+                    clarificationText,
+                    clock.instant()
             );
+            monthEndClarificationRepository.save(clarification);
         }
 
         Log.infof(
