@@ -1,16 +1,14 @@
-package com.gepardec.mega.hexagon.worktime.domain.model;
-
-import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+package com.gepardec.mega.hexagon.shared.domain.model;
 
 import java.util.Objects;
 
-public record WorkTimeProjectSnapshot(
+public record ProjectRef(
         ProjectId id,
         int zepId,
         String name
 ) {
 
-    public WorkTimeProjectSnapshot {
+    public ProjectRef {
         Objects.requireNonNull(id, "id must not be null");
         Objects.requireNonNull(name, "name must not be null");
     }

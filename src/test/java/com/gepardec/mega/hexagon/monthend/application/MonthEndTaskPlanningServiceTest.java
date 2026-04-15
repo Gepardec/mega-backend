@@ -3,17 +3,16 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndTaskPlanningService;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,7 +34,7 @@ class MonthEndTaskPlanningServiceTest {
 
     @Test
     void planEmployeeOwnedTasks_shouldCreateOnlyTimeCheck_whenProjectIsNonBillable() {
-        MonthEndUserSnapshot employee = activeUser("employee");
+        UserRef employee = activeUser("employee");
         MonthEndProjectSnapshot project = activeProject(false, Set.of());
 
         List<MonthEndTask> tasks = service.planEmployeeOwnedTasks(month, project, employee);
@@ -50,7 +49,7 @@ class MonthEndTaskPlanningServiceTest {
 
     @Test
     void planEmployeeOwnedTasks_shouldCreateTimeCheckAndLeistungsnachweis_whenProjectIsBillable() {
-        MonthEndUserSnapshot employee = activeUser("employee");
+        UserRef employee = activeUser("employee");
         MonthEndProjectSnapshot project = activeProject(true, Set.of());
 
         List<MonthEndTask> tasks = service.planEmployeeOwnedTasks(month, project, employee);
@@ -68,8 +67,8 @@ class MonthEndTaskPlanningServiceTest {
 
     @Test
     void planProjectTasks_shouldIncludeLeadReviewAndAbrechnung_whenProjectIsBillableAndLeadsExist() {
-        MonthEndUserSnapshot employeeA = activeUser("employee-a");
-        MonthEndUserSnapshot employeeB = activeUser("employee-b");
+        UserRef employeeA = activeUser("employee-a");
+        UserRef employeeB = activeUser("employee-b");
         UserId leadA = UserId.of(Instancio.create(UUID.class));
         UserId leadB = UserId.of(Instancio.create(UUID.class));
         MonthEndProjectSnapshot project = activeProject(true, Set.of(leadA, leadB));
@@ -98,7 +97,7 @@ class MonthEndTaskPlanningServiceTest {
 
     @Test
     void planProjectTasks_shouldSkipLeadOwnedTasks_whenNoActiveLeadsExist() {
-        MonthEndUserSnapshot employee = activeUser("employee");
+        UserRef employee = activeUser("employee");
         MonthEndProjectSnapshot project = activeProject(true, Set.of());
 
         List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(), Set.of(employee));
@@ -110,12 +109,11 @@ class MonthEndTaskPlanningServiceTest {
                 );
     }
 
-    private MonthEndUserSnapshot activeUser(String username) {
-        return new MonthEndUserSnapshot(
+    private UserRef activeUser(String username) {
+        return new UserRef(
                 UserId.of(Instancio.create(UUID.class)),
-                username + " User",
-                username,
-                new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null))
+                FullName.of(username, "User"),
+                ZepUsername.of(username)
         );
     }
 
@@ -124,8 +122,6 @@ class MonthEndTaskPlanningServiceTest {
                 ProjectId.of(Instancio.create(UUID.class)),
                 91,
                 "Project-91",
-                LocalDate.of(2025, 1, 1),
-                null,
                 billable,
                 leadIds
         );

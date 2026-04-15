@@ -4,8 +4,8 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.YearMonth;
@@ -20,11 +20,11 @@ public class MonthEndTaskPlanningService {
             YearMonth month,
             MonthEndProjectSnapshot project,
             Set<UserId> activeLeadIds,
-            Set<MonthEndUserSnapshot> assignedUsers
+            Set<UserRef> assignedUsers
     ) {
         List<MonthEndTask> tasks = new ArrayList<>();
 
-        for (MonthEndUserSnapshot assignedUser : assignedUsers) {
+        for (UserRef assignedUser : assignedUsers) {
             tasks.addAll(planEmployeeOwnedTasks(month, project, assignedUser));
 
             if (!activeLeadIds.isEmpty()) {
@@ -56,7 +56,7 @@ public class MonthEndTaskPlanningService {
     public List<MonthEndTask> planEmployeeOwnedTasks(
             YearMonth month,
             MonthEndProjectSnapshot project,
-            MonthEndUserSnapshot subjectEmployee
+            UserRef subjectEmployee
     ) {
         List<MonthEndTask> tasks = new ArrayList<>();
         tasks.add(MonthEndTask.create(

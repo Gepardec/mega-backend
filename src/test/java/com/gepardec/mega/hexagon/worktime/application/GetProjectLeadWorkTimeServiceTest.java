@@ -1,11 +1,13 @@
 package com.gepardec.mega.hexagon.worktime.application;
 
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeProjectSnapshot;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeUserSnapshot;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeZepPort;
@@ -43,30 +45,31 @@ class GetProjectLeadWorkTimeServiceTest {
 
     @Test
     void getWorkTime_shouldAggregateEntriesAcrossAllLeadProjectsAndPreserveEmployeeTotals() {
+        YearMonth month = YearMonth.of(2026, 3);
         UserId projectLeadId = UserId.of(Instancio.create(UUID.class));
         UserId employeeId = UserId.of(Instancio.create(UUID.class));
         UserId secondEmployeeId = UserId.of(Instancio.create(UUID.class));
-        WorkTimeProjectSnapshot alpha = project(ProjectId.of(Instancio.create(UUID.class)), 11, "Alpha");
-        WorkTimeProjectSnapshot beta = project(ProjectId.of(Instancio.create(UUID.class)), 22, "Beta");
-        when(workTimeProjectSnapshotPort.findAllByLead(projectLeadId)).thenReturn(List.of(alpha, beta));
-        when(workTimeZepPort.fetchProjectMembershipForMonth(11, YearMonth.of(2026, 3))).thenReturn(Uni.createFrom().item(List.of("ada", "grace")));
-        when(workTimeZepPort.fetchProjectMembershipForMonth(22, YearMonth.of(2026, 3))).thenReturn(Uni.createFrom().item(List.of("ada")));
-        when(workTimeZepPort.fetchAttendancesForEmployee("ada", YearMonth.of(2026, 3))).thenReturn(Uni.createFrom().item(List.of(
+        ProjectRef alpha = project(ProjectId.of(Instancio.create(UUID.class)), 11, "Alpha");
+        ProjectRef beta = project(ProjectId.of(Instancio.create(UUID.class)), 22, "Beta");
+        when(workTimeProjectSnapshotPort.findAllByLead(projectLeadId, month)).thenReturn(List.of(alpha, beta));
+        when(workTimeZepPort.fetchProjectMembershipForMonth(11, month)).thenReturn(Uni.createFrom().item(List.of("ada", "grace")));
+        when(workTimeZepPort.fetchProjectMembershipForMonth(22, month)).thenReturn(Uni.createFrom().item(List.of("ada")));
+        when(workTimeZepPort.fetchAttendancesForEmployee("ada", month)).thenReturn(Uni.createFrom().item(List.of(
                 new WorkTimeAttendance("ada", 11, 5.0d, 0.0d),
                 new WorkTimeAttendance("ada", 22, 1.5d, 0.5d),
                 new WorkTimeAttendance("ada", 33, 2.0d, 0.0d)
         )));
-        when(workTimeZepPort.fetchAttendancesForEmployee("grace", YearMonth.of(2026, 3))).thenReturn(Uni.createFrom().item(List.of(
+        when(workTimeZepPort.fetchAttendancesForEmployee("grace", month)).thenReturn(Uni.createFrom().item(List.of(
                 new WorkTimeAttendance("grace", 11, 0.0d, 3.5d)
         )));
-        when(workTimeUserSnapshotPort.findByZepUsernames(Set.of(com.gepardec.mega.hexagon.user.domain.model.ZepUsername.of("ada"), com.gepardec.mega.hexagon.user.domain.model.ZepUsername.of("grace")))).thenReturn(List.of(
+        when(workTimeUserSnapshotPort.findByZepUsernames(Set.of(ZepUsername.of("ada"), ZepUsername.of("grace")), month)).thenReturn(List.of(
                 user(employeeId, "ada", "Ada Lovelace"),
                 user(secondEmployeeId, "grace", "Grace Hopper")
         ));
 
-        WorkTimeReport report = service.getWorkTime(projectLeadId, YearMonth.of(2026, 3));
+        WorkTimeReport report = service.getWorkTime(projectLeadId, month);
 
-        assertThat(report.payrollMonth()).isEqualTo(YearMonth.of(2026, 3));
+        assertThat(report.payrollMonth()).isEqualTo(month);
         assertThat(report.entries()).hasSize(3);
         assertThat(report.entries()).anySatisfy(entry -> {
             assertThat(entry.employee().id()).isEqualTo(employeeId);
@@ -89,14 +92,14 @@ class GetProjectLeadWorkTimeServiceTest {
             assertThat(entry.nonBillableHours()).isEqualTo(3.5d);
             assertThat(entry.employeeMonthTotalHours()).isEqualTo(3.5d);
         });
-        verify(workTimeZepPort).fetchProjectMembershipForMonth(11, YearMonth.of(2026, 3));
-        verify(workTimeZepPort).fetchProjectMembershipForMonth(22, YearMonth.of(2026, 3));
+        verify(workTimeZepPort).fetchProjectMembershipForMonth(11, month);
+        verify(workTimeZepPort).fetchProjectMembershipForMonth(22, month);
     }
 
     @Test
     void getWorkTime_shouldReturnEmptyReportWhenCallerLeadsNoProjects() {
         UserId projectLeadId = UserId.of(Instancio.create(UUID.class));
-        when(workTimeProjectSnapshotPort.findAllByLead(projectLeadId)).thenReturn(List.of());
+        when(workTimeProjectSnapshotPort.findAllByLead(projectLeadId, YearMonth.of(2026, 3))).thenReturn(List.of());
 
         WorkTimeReport report = service.getWorkTime(projectLeadId, YearMonth.of(2026, 3));
 
@@ -106,22 +109,28 @@ class GetProjectLeadWorkTimeServiceTest {
 
     @Test
     void getWorkTime_shouldReturnEmptyReportWhenNoEmployeesBookedTime() {
+        YearMonth month = YearMonth.of(2026, 3);
         UserId projectLeadId = UserId.of(Instancio.create(UUID.class));
-        WorkTimeProjectSnapshot alpha = project(ProjectId.of(Instancio.create(UUID.class)), 11, "Alpha");
-        when(workTimeProjectSnapshotPort.findAllByLead(projectLeadId)).thenReturn(List.of(alpha));
-        when(workTimeZepPort.fetchProjectMembershipForMonth(11, YearMonth.of(2026, 3))).thenReturn(Uni.createFrom().item(List.of()));
+        ProjectRef alpha = project(ProjectId.of(Instancio.create(UUID.class)), 11, "Alpha");
+        when(workTimeProjectSnapshotPort.findAllByLead(projectLeadId, month)).thenReturn(List.of(alpha));
+        when(workTimeZepPort.fetchProjectMembershipForMonth(11, month)).thenReturn(Uni.createFrom().item(List.of()));
 
-        WorkTimeReport report = service.getWorkTime(projectLeadId, YearMonth.of(2026, 3));
+        WorkTimeReport report = service.getWorkTime(projectLeadId, month);
 
-        assertThat(report.payrollMonth()).isEqualTo(YearMonth.of(2026, 3));
+        assertThat(report.payrollMonth()).isEqualTo(month);
         assertThat(report.entries()).isEmpty();
     }
 
-    private WorkTimeUserSnapshot user(UserId userId, String username, String fullName) {
-        return new WorkTimeUserSnapshot(userId, fullName, username);
+    private UserRef user(UserId userId, String username, String fullName) {
+        return new UserRef(userId, toFullName(fullName), ZepUsername.of(username));
     }
 
-    private WorkTimeProjectSnapshot project(ProjectId projectId, int zepId, String name) {
-        return new WorkTimeProjectSnapshot(projectId, zepId, name);
+    private ProjectRef project(ProjectId projectId, int zepId, String name) {
+        return new ProjectRef(projectId, zepId, name);
+    }
+
+    private FullName toFullName(String fullName) {
+        String[] parts = fullName.split(" ", 2);
+        return FullName.of(parts[0], parts.length > 1 ? parts[1] : null);
     }
 }

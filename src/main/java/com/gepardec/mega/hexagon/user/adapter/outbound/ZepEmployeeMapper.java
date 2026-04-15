@@ -1,8 +1,8 @@
 package com.gepardec.mega.hexagon.user.adapter.outbound;
 
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.ZepEmployeeSyncData;
-import com.gepardec.mega.hexagon.user.domain.model.ZepUsername;
 import com.gepardec.mega.zep.rest.dto.ZepEmployee;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

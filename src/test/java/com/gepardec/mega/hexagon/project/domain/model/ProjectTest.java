@@ -5,6 +5,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Set;
 import java.util.UUID;
 
@@ -144,5 +145,23 @@ class ProjectTest {
 
         Set<UserId> leads = project.leads();
         assertThat(leads).isUnmodifiable();
+    }
+
+    @Test
+    void isActiveIn_shouldTreatAnyOverlapWithMonthAsActive() {
+        Project project = new Project(
+                ProjectId.generate(),
+                5,
+                "Delta",
+                LocalDate.of(2024, 3, 15),
+                LocalDate.of(2024, 4, 15),
+                false,
+                Set.of()
+        );
+
+        assertThat(project.isActiveIn(YearMonth.of(2024, 2))).isFalse();
+        assertThat(project.isActiveIn(YearMonth.of(2024, 3))).isTrue();
+        assertThat(project.isActiveIn(YearMonth.of(2024, 4))).isTrue();
+        assertThat(project.isActiveIn(YearMonth.of(2024, 5))).isFalse();
     }
 }

@@ -7,6 +7,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Set;
 
@@ -20,15 +21,17 @@ public class ProjectSnapshotAdapter implements MonthEndProjectSnapshotPort {
     MonthEndProjectSnapshotMapper mapper;
 
     @Override
-    public List<MonthEndProjectSnapshot> findAll() {
+    public List<MonthEndProjectSnapshot> findActiveIn(YearMonth month) {
         return projectRepository.findAll().stream()
+                .filter(project -> project.isActiveIn(month))
                 .map(mapper::toSnapshot)
                 .toList();
     }
 
     @Override
-    public List<MonthEndProjectSnapshot> findByIds(Set<ProjectId> projectIds) {
+    public List<MonthEndProjectSnapshot> findByIds(Set<ProjectId> projectIds, YearMonth month) {
         return projectRepository.findAllByIds(projectIds).stream()
+                .filter(project -> project.isActiveIn(month))
                 .map(mapper::toSnapshot)
                 .toList();
     }

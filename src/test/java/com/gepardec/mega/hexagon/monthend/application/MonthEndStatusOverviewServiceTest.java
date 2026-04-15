@@ -1,7 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployee;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProject;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
@@ -9,14 +7,15 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndUserSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
-import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,8 +59,9 @@ class MonthEndStatusOverviewServiceTest {
     @BeforeEach
     void setUp() {
         MonthEndStatusOverviewMapper mapper = Mappers.getMapper(MonthEndStatusOverviewMapper.class);
+        MonthEndProjectRefMapper projectRefMapper = Mappers.getMapper(MonthEndProjectRefMapper.class);
         ResolveMonthEndTaskSnapshotLookupService resolveMonthEndTaskSnapshotLookupService =
-                new ResolveMonthEndTaskSnapshotLookupService(monthEndProjectSnapshotPort, monthEndUserSnapshotPort);
+                new ResolveMonthEndTaskSnapshotLookupService(monthEndProjectSnapshotPort, monthEndUserSnapshotPort, projectRefMapper);
         getMonthEndStatusOverviewService = new GetMonthEndStatusOverviewService(
                 monthEndTaskRepository,
                 resolveMonthEndTaskSnapshotLookupService,
@@ -91,9 +91,9 @@ class MonthEndStatusOverviewServiceTest {
         );
         when(monthEndTaskRepository.findVisibleTasksForActor(actorId, month))
                 .thenReturn(List.of(openEmployeeTask, completedLeadTask));
-        when(monthEndProjectSnapshotPort.findByIds(Set.of(projectId)))
+        when(monthEndProjectSnapshotPort.findByIds(Set.of(projectId), month))
                 .thenReturn(List.of(snapshot(projectName)));
-        when(monthEndUserSnapshotPort.findByIds(Set.of(actorId, subjectEmployeeId)))
+        when(monthEndUserSnapshotPort.findByIds(Set.of(actorId, subjectEmployeeId), month))
                 .thenReturn(List.of(
                         userSnapshot(actorId, actorName, "actor"),
                         userSnapshot(subjectEmployeeId, subjectEmployeeName, "employee")
@@ -113,8 +113,8 @@ class MonthEndStatusOverviewServiceTest {
                 .satisfies(item -> {
                     assertThat(item.type()).isEqualTo(MonthEndTaskType.EMPLOYEE_TIME_CHECK);
                     assertThat(item.status()).isEqualTo(MonthEndTaskStatus.OPEN);
-                    assertThat(item.project()).isEqualTo(new MonthEndProject(projectId, projectName));
-                    assertThat(item.subjectEmployee()).isEqualTo(new MonthEndEmployee(actorId, actorName));
+                    assertThat(item.project()).isEqualTo(projectRef(projectName));
+                    assertThat(item.subjectEmployee()).isEqualTo(userSnapshot(actorId, actorName, "actor"));
                     assertThat(item.canComplete()).isTrue();
                     assertThat(item.completedBy()).isNull();
                 });
@@ -124,8 +124,8 @@ class MonthEndStatusOverviewServiceTest {
                 .satisfies(item -> {
                     assertThat(item.type()).isEqualTo(MonthEndTaskType.PROJECT_LEAD_REVIEW);
                     assertThat(item.status()).isEqualTo(MonthEndTaskStatus.DONE);
-                    assertThat(item.project()).isEqualTo(new MonthEndProject(projectId, projectName));
-                    assertThat(item.subjectEmployee()).isEqualTo(new MonthEndEmployee(subjectEmployeeId, subjectEmployeeName));
+                    assertThat(item.project()).isEqualTo(projectRef(projectName));
+                    assertThat(item.subjectEmployee()).isEqualTo(userSnapshot(subjectEmployeeId, subjectEmployeeName, "employee"));
                     assertThat(item.canComplete()).isTrue();
                     assertThat(item.completedBy()).isEqualTo(leadAId);
                 });
@@ -154,7 +154,7 @@ class MonthEndStatusOverviewServiceTest {
                 Set.of(actorId)
         );
         when(monthEndTaskRepository.findVisibleTasksForActor(actorId, month)).thenReturn(List.of(abrechnungTask));
-        when(monthEndProjectSnapshotPort.findByIds(Set.of(projectId)))
+        when(monthEndProjectSnapshotPort.findByIds(Set.of(projectId), month))
                 .thenReturn(List.of(snapshot(projectName)));
 
         MonthEndStatusOverview overview = getMonthEndStatusOverviewService.getOverview(actorId, month);
@@ -162,7 +162,7 @@ class MonthEndStatusOverviewServiceTest {
         assertThat(overview.entries()).singleElement()
                 .satisfies(item -> {
                     assertThat(item.type()).isEqualTo(MonthEndTaskType.ABRECHNUNG);
-                    assertThat(item.project()).isEqualTo(new MonthEndProject(projectId, projectName));
+                    assertThat(item.project()).isEqualTo(projectRef(projectName));
                     assertThat(item.subjectEmployee()).isNull();
                     assertThat(item.canComplete()).isTrue();
                     assertThat(item.completedBy()).isNull();
@@ -181,9 +181,9 @@ class MonthEndStatusOverviewServiceTest {
                 Set.of(leadAId)
         );
         when(monthEndTaskRepository.findVisibleTasksForActor(actorId, month)).thenReturn(List.of(subjectOnlyTask));
-        when(monthEndProjectSnapshotPort.findByIds(Set.of(projectId)))
+        when(monthEndProjectSnapshotPort.findByIds(Set.of(projectId), month))
                 .thenReturn(List.of(snapshot(projectName)));
-        when(monthEndUserSnapshotPort.findByIds(Set.of(actorId)))
+        when(monthEndUserSnapshotPort.findByIds(Set.of(actorId), month))
                 .thenReturn(List.of(userSnapshot(actorId, actorName, "actor")));
 
         MonthEndStatusOverview overview = getMonthEndStatusOverviewService.getOverview(actorId, month);
@@ -193,8 +193,8 @@ class MonthEndStatusOverviewServiceTest {
                     assertThat(item.taskId()).isEqualTo(subjectOnlyTask.id());
                     assertThat(item.type()).isEqualTo(MonthEndTaskType.PROJECT_LEAD_REVIEW);
                     assertThat(item.status()).isEqualTo(MonthEndTaskStatus.OPEN);
-                    assertThat(item.project()).isEqualTo(new MonthEndProject(projectId, projectName));
-                    assertThat(item.subjectEmployee()).isEqualTo(new MonthEndEmployee(actorId, actorName));
+                    assertThat(item.project()).isEqualTo(projectRef(projectName));
+                    assertThat(item.subjectEmployee()).isEqualTo(userSnapshot(actorId, actorName, "actor"));
                     assertThat(item.canComplete()).isFalse();
                     assertThat(item.completedBy()).isNull();
                 });
@@ -205,19 +205,25 @@ class MonthEndStatusOverviewServiceTest {
                 projectId,
                 77,
                 name,
-                month.atDay(1),
-                null,
                 true,
                 Set.of(leadAId)
         );
     }
 
-    private MonthEndUserSnapshot userSnapshot(UserId id, String fullName, String username) {
-        return new MonthEndUserSnapshot(
+    private ProjectRef projectRef(String name) {
+        return new ProjectRef(projectId, 77, name);
+    }
+
+    private UserRef userSnapshot(UserId id, String fullName, String username) {
+        return new UserRef(
                 id,
-                fullName,
-                username,
-                new EmploymentPeriods(new EmploymentPeriod(month.atDay(1).minusYears(1), null))
+                toFullName(fullName),
+                ZepUsername.of(username)
         );
+    }
+
+    private FullName toFullName(String fullName) {
+        String[] parts = fullName.split(" ", 2);
+        return FullName.of(parts[0], parts.length > 1 ? parts[1] : null);
     }
 }

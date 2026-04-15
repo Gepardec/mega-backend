@@ -1,15 +1,13 @@
 package com.gepardec.mega.hexagon.worktime.application;
 
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWorkTimeUseCase;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeValidationException;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEmployee;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEntry;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeProject;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeUserSnapshot;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeZepPort;
@@ -45,7 +43,7 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
 
     @Override
     public WorkTimeReport getWorkTime(UserId employeeId, YearMonth month) {
-        WorkTimeUserSnapshot employee = workTimeUserSnapshotPort.findById(employeeId)
+        UserRef employee = workTimeUserSnapshotPort.findById(employeeId, month)
                 .orElseThrow(() -> new WorkTimeUserNotFoundException("user not found: " + employeeId.value()));
 
         return workTimeZepPort.fetchAttendancesForEmployee(requireZepUsername(employee), month)
@@ -53,18 +51,17 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
                 .await().indefinitely();
     }
 
-    private WorkTimeReport toReport(WorkTimeUserSnapshot employee, YearMonth month, List<WorkTimeAttendance> attendances) {
+    private WorkTimeReport toReport(UserRef employee, YearMonth month, List<WorkTimeAttendance> attendances) {
         if (attendances.isEmpty()) {
             return new WorkTimeReport(month, List.of());
         }
 
         double employeeMonthTotalHours = totalHours(attendances);
-        WorkTimeEmployee employeeRef = new WorkTimeEmployee(employee.id(), employee.fullName());
 
         List<WorkTimeEntry> entries = attendances.stream()
                 .collect(Collectors.groupingBy(WorkTimeAttendance::projectZepId))
                 .entrySet().stream()
-                .map(entry -> toEntry(employeeRef, entry.getKey(), entry.getValue(), employeeMonthTotalHours))
+                .map(entry -> toEntry(employee, month, entry.getKey(), entry.getValue(), employeeMonthTotalHours))
                 .flatMap(Optional::stream)
                 .sorted(Comparator.comparing((WorkTimeEntry entry) -> entry.project().name()))
                 .toList();
@@ -73,15 +70,16 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
     }
 
     private Optional<WorkTimeEntry> toEntry(
-            WorkTimeEmployee employeeRef,
+            UserRef employeeRef,
+            YearMonth month,
             Integer zepProjectId,
             List<WorkTimeAttendance> attendances,
             double employeeMonthTotalHours
     ) {
-        return workTimeProjectSnapshotPort.findByZepId(zepProjectId)
+        return workTimeProjectSnapshotPort.findByZepId(zepProjectId, month)
                 .map(project -> new WorkTimeEntry(
                         employeeRef,
-                        new WorkTimeProject(project.id(), project.name()),
+                        project,
                         sumBillableHours(attendances),
                         sumNonBillableHours(attendances),
                         employeeMonthTotalHours
@@ -92,11 +90,11 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
                 });
     }
 
-    private String requireZepUsername(WorkTimeUserSnapshot user) {
-        if (user.zepUsername() == null || user.zepUsername().isBlank()) {
+    private String requireZepUsername(UserRef user) {
+        if (user.zepUsername() == null || user.zepUsername().value().isBlank()) {
             throw new WorkTimeValidationException("zep username missing for user: " + user.id().value());
         }
-        return user.zepUsername();
+        return user.zepUsername().value();
     }
 
     private double totalHours(List<WorkTimeAttendance> attendances) {
