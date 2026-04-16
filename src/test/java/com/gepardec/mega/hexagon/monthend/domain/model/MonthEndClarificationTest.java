@@ -137,6 +137,15 @@ class MonthEndClarificationTest {
                 .hasMessageContaining("cannot be edited");
     }
 
+    @Test
+    void canBeResolvedBy_shouldReturnFalse_whenClarificationAlreadyDone() {
+        MonthEndClarification clarification = employeeCreatedClarification()
+                .resolve(leadA, "Done", createdAt.plusSeconds(10));
+
+        assertThat(clarification.canBeResolvedBy(leadA)).isFalse();
+        assertThat(clarification.canBeResolvedBy(leadB)).isFalse();
+    }
+
     private MonthEndClarification employeeCreatedClarification() {
         return MonthEndClarification.create(
                 MonthEndClarificationId.generate(),

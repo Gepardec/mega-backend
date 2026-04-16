@@ -72,7 +72,7 @@ class ResolveMonthEndTaskSnapshotLookupServiceTest {
         MonthEndTaskSnapshotLookup lookup = resolveMonthEndTaskSnapshotLookupService.resolve(List.of(task), month);
 
         assertThat(lookup.projectFor(projectId)).isEqualTo(projectRef());
-        assertThat(lookup.subjectEmployeeFor(employeeId)).isEqualTo(userSnapshot);
+        assertThat(lookup.userFor(employeeId)).isEqualTo(userSnapshot);
     }
 
     @Test
@@ -91,7 +91,7 @@ class ResolveMonthEndTaskSnapshotLookupServiceTest {
         MonthEndTaskSnapshotLookup lookup = resolveMonthEndTaskSnapshotLookupService.resolve(List.of(task), month);
 
         assertThat(lookup.projectFor(projectId)).isEqualTo(projectRef());
-        assertThat(lookup.subjectEmployeeFor(null)).isNull();
+        assertThat(lookup.userFor(null)).isNull();
         verifyNoInteractions(monthEndUserSnapshotPort);
     }
 
@@ -117,7 +117,7 @@ class ResolveMonthEndTaskSnapshotLookupServiceTest {
     }
 
     @Test
-    void subjectEmployeeFor_shouldThrow_whenSubjectEmployeeSnapshotIsMissing() {
+    void userFor_shouldThrow_whenUserSnapshotIsMissing() {
         MonthEndTask task = MonthEndTask.create(
                 MonthEndTaskId.generate(),
                 month,
@@ -131,7 +131,7 @@ class ResolveMonthEndTaskSnapshotLookupServiceTest {
 
         MonthEndTaskSnapshotLookup lookup = resolveMonthEndTaskSnapshotLookupService.resolve(List.of(task), month);
 
-        assertThatThrownBy(() -> lookup.subjectEmployeeFor(employeeId))
+        assertThatThrownBy(() -> lookup.userFor(employeeId))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("subject employee snapshot not found for employee %s".formatted(employeeId.value()));
     }

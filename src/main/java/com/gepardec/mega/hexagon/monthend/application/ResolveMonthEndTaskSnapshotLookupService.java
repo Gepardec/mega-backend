@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
@@ -18,6 +19,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 public class ResolveMonthEndTaskSnapshotLookupService {
@@ -36,14 +38,24 @@ public class ResolveMonthEndTaskSnapshotLookupService {
 
     public MonthEndTaskSnapshotLookup resolve(List<MonthEndTask> tasks, YearMonth month) {
         Objects.requireNonNull(tasks, "tasks must not be null");
+        return resolve(tasks, List.of(), month);
+    }
+
+    public MonthEndTaskSnapshotLookup resolve(
+            List<MonthEndTask> tasks,
+            List<MonthEndClarification> clarifications,
+            YearMonth month
+    ) {
+        Objects.requireNonNull(tasks, "tasks must not be null");
+        Objects.requireNonNull(clarifications, "clarifications must not be null");
         Objects.requireNonNull(month, "month must not be null");
-        if (tasks.isEmpty()) {
+        if (tasks.isEmpty() && clarifications.isEmpty()) {
             return MonthEndTaskSnapshotLookup.empty();
         }
 
         return new MonthEndTaskSnapshotLookup(
-                findProjectSnapshotsById(tasks, month),
-                findUserSnapshotsById(tasks, month)
+                tasks.isEmpty() ? Map.of() : findProjectSnapshotsById(tasks, month),
+                findUserSnapshotsById(tasks, clarifications, month)
         );
     }
 
@@ -58,14 +70,23 @@ public class ResolveMonthEndTaskSnapshotLookupService {
                 ));
     }
 
-    private Map<UserId, UserRef> findUserSnapshotsById(List<MonthEndTask> tasks, YearMonth month) {
-        Set<UserId> subjectEmployeeIds = tasks.stream()
-                .map(MonthEndTask::subjectEmployeeId)
+    private Map<UserId, UserRef> findUserSnapshotsById(
+            List<MonthEndTask> tasks,
+            List<MonthEndClarification> clarifications,
+            YearMonth month
+    ) {
+        Set<UserId> userIds = Stream.of(
+                        tasks.stream().map(MonthEndTask::subjectEmployeeId),
+                        clarifications.stream().map(MonthEndClarification::subjectEmployeeId),
+                        clarifications.stream().map(MonthEndClarification::createdBy),
+                        clarifications.stream().map(MonthEndClarification::resolvedBy)
+                )
+                .flatMap(Function.identity())
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
-        return subjectEmployeeIds.isEmpty()
+        return userIds.isEmpty()
                 ? Map.of()
-                : monthEndUserSnapshotPort.findByIds(subjectEmployeeIds, month).stream()
+                : monthEndUserSnapshotPort.findByIds(userIds, month).stream()
                   .collect(Collectors.toMap(
                           UserRef::id,
                           Function.identity()
