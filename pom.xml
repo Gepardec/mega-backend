@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.version>3.8.1</maven.version>
 
-        <quarkus.version>3.34.1</quarkus.version>
+        <quarkus.version>3.34.4</quarkus.version>
 
         <ws.rt.version>4.0.4</ws.rt.version>
         <focus-shift.version>2.4.0</focus-shift.version>
