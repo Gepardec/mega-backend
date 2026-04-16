@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetMonthEndStatusOverviewUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -15,13 +15,13 @@ import java.util.List;
 
 @ApplicationScoped
 @Transactional
-public class GetMonthEndStatusOverviewService implements GetMonthEndStatusOverviewUseCase {
+public class GetProjectLeadMonthEndStatusOverviewService implements GetProjectLeadMonthEndStatusOverviewUseCase {
 
     private final MonthEndTaskRepository monthEndTaskRepository;
     private final ResolveMonthEndTaskSnapshotLookupService resolveMonthEndTaskSnapshotLookupService;
 
     @Inject
-    public GetMonthEndStatusOverviewService(
+    public GetProjectLeadMonthEndStatusOverviewService(
             MonthEndTaskRepository monthEndTaskRepository,
             ResolveMonthEndTaskSnapshotLookupService resolveMonthEndTaskSnapshotLookupService
     ) {
@@ -30,10 +30,10 @@ public class GetMonthEndStatusOverviewService implements GetMonthEndStatusOvervi
     }
 
     @Override
-    public MonthEndStatusOverview getOverview(UserId actorId, YearMonth month) {
-        List<MonthEndTask> tasks = monthEndTaskRepository.findVisibleTasksForActor(actorId, month);
+    public MonthEndStatusOverview getOverview(UserId leadId, YearMonth month) {
+        List<MonthEndTask> tasks = monthEndTaskRepository.findLeadProjectTasks(leadId, month);
         if (tasks.isEmpty()) {
-            return new MonthEndStatusOverview(actorId, month, List.of());
+            return new MonthEndStatusOverview(leadId, month, List.of());
         }
 
         MonthEndTaskSnapshotLookup snapshotLookup = resolveMonthEndTaskSnapshotLookupService.resolve(tasks, month);
@@ -45,10 +45,10 @@ public class GetMonthEndStatusOverviewService implements GetMonthEndStatusOvervi
                         task.status(),
                         snapshotLookup.projectFor(task.projectId()),
                         snapshotLookup.subjectEmployeeFor(task.subjectEmployeeId()),
-                        task.eligibleActorIds().contains(actorId),
+                        task.eligibleActorIds().contains(leadId),
                         task.completedBy()
                 ))
                 .toList();
-        return new MonthEndStatusOverview(actorId, month, entries);
+        return new MonthEndStatusOverview(leadId, month, entries);
     }
 }

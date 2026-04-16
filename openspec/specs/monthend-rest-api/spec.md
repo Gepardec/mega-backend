@@ -16,7 +16,7 @@ The system SHALL define the monthend REST API in a single canonical OpenAPI docu
 - **THEN** handwritten monthend REST adapters implement the generated Java API interfaces instead of defining separate handwritten endpoint signatures
 
 ### Requirement: Actor-scoped monthend endpoints derive the acting user from authentication
-The system SHALL treat the authenticated caller as the acting monthend actor for all actor-scoped monthend REST endpoints. Actor-scoped requests MUST NOT require a caller-supplied actor identifier for employee worklists, project-lead worklists, shared status overview, task completion, clarification edit, clarification resolve, or employee self-service preparation.
+The system SHALL treat the authenticated caller as the acting monthend actor for all actor-scoped monthend REST endpoints. Actor-scoped requests MUST NOT require a caller-supplied actor identifier for employee worklists, project-lead worklists, employee status overview, project-lead status overview, task completion, clarification edit, clarification resolve, or employee self-service preparation.
 
 #### Scenario: Employee worklist is resolved for the authenticated employee
 - **WHEN** an authenticated employee requests the employee monthend worklist for a month
@@ -33,8 +33,8 @@ The system SHALL treat the authenticated caller as the acting monthend actor for
 - **THEN** the API uses the authenticated employee as the acting user for preparation
 - **THEN** the request does not require a separate actor identifier
 
-### Requirement: Employee monthend endpoints expose employee worklist and self-service flows
-The system SHALL provide employee-scoped monthend REST endpoints that allow authenticated employees to retrieve their monthend worklist, prepare their own project monthend context, and create clarifications for their own monthend project context. Responses SHALL expose the generated task and clarification models needed by the employee client. Each worklist task entry SHALL include a nested project object containing the project identifier and project name, and a nullable nested subject employee object containing the employee identifier and full name.
+### Requirement: Employee monthend endpoints expose employee worklist, employee overview, and self-service flows
+The system SHALL provide employee-scoped monthend REST endpoints that allow authenticated employees to retrieve their monthend worklist, retrieve their employee status overview, prepare their own project monthend context, and create clarifications for their own monthend project context. Responses SHALL expose the generated task and clarification models needed by the employee client. Each worklist task entry SHALL include a nested project object containing the project identifier and project name, and a nullable nested subject employee object containing the employee identifier and full name.
 
 #### Scenario: Employee retrieves their monthend worklist
 - **WHEN** an authenticated employee requests the employee monthend worklist for a month
@@ -46,6 +46,13 @@ The system SHALL provide employee-scoped monthend REST endpoints that allow auth
 - **THEN** each task entry includes a nested project object containing the project identifier and project name
 - **THEN** each task entry includes a nullable nested subject employee object containing the employee identifier and full name
 
+#### Scenario: Employee retrieves their monthend status overview
+- **WHEN** an authenticated employee requests the employee monthend status overview for a month
+- **THEN** the API returns tasks where the employee is the subject, including both open and completed tasks
+- **THEN** each overview entry includes a nested project object containing the project identifier and project name
+- **THEN** each overview entry includes a nullable nested subject employee object containing the employee identifier and full name
+- **THEN** each overview entry includes a `canComplete` field set to `true` if the employee is eligible to complete that task and `false` otherwise
+
 #### Scenario: Employee prepares a project context with optional clarification
 - **WHEN** an authenticated employee submits a preparation request for one project and month with optional clarification text
 - **THEN** the API ensures the employee-owned monthend obligations for that project context exist
@@ -56,8 +63,8 @@ The system SHALL provide employee-scoped monthend REST endpoints that allow auth
 - **THEN** the API creates an employee-side monthend clarification
 - **THEN** the API returns the created clarification in the generated response model
 
-### Requirement: Project-lead monthend endpoints expose lead worklist and clarification creation
-The system SHALL provide project-lead-scoped monthend REST endpoints that allow authenticated project leads to retrieve their lead worklist and create clarifications for a subject employee in the same monthend project context. Responses SHALL expose the generated task and clarification models needed by the lead client. Each worklist task entry SHALL include a nested project object containing the project identifier and project name, and a nullable nested subject employee object containing the employee identifier and full name.
+### Requirement: Project-lead monthend endpoints expose lead worklist, lead overview, and clarification creation
+The system SHALL provide project-lead-scoped monthend REST endpoints that allow authenticated project leads to retrieve their lead worklist, retrieve their lead status overview, and create clarifications for a subject employee in the same monthend project context. Responses SHALL expose the generated task and clarification models needed by the lead client. Each worklist task entry SHALL include a nested project object containing the project identifier and project name, and a nullable nested subject employee object containing the employee identifier and full name.
 
 #### Scenario: Project lead retrieves the lead monthend worklist
 - **WHEN** an authenticated project lead requests the project-lead monthend worklist for a month
@@ -69,37 +76,20 @@ The system SHALL provide project-lead-scoped monthend REST endpoints that allow 
 - **THEN** each task entry includes a nested project object containing the project identifier and project name
 - **THEN** each task entry includes a nullable nested subject employee object containing the employee identifier and full name
 
+#### Scenario: Project lead retrieves their monthend status overview
+- **WHEN** an authenticated project lead requests the project-lead monthend status overview for a month
+- **THEN** the API returns all tasks for projects the lead leads, including both open and completed tasks
+- **THEN** each overview entry includes a nested project object containing the project identifier and project name
+- **THEN** each overview entry includes a nullable nested subject employee object containing the employee identifier and full name
+- **THEN** each overview entry includes a `canComplete` field set to `true` if the lead is eligible to complete that task and `false` otherwise
+
 #### Scenario: Project lead creates a clarification for a subject employee
 - **WHEN** an authenticated eligible project lead submits a clarification creation request for a subject employee in a monthend project context
 - **THEN** the API creates a project-lead-side monthend clarification
 - **THEN** the API returns the created clarification in the generated response model
 
-### Requirement: Shared monthend endpoints expose status overview and monthend actions
-The system SHALL provide shared monthend REST endpoints that allow authenticated employee or project-lead actors to retrieve a unified actor-centric status overview, complete monthend tasks, edit open clarification text when they are on the creator side, and resolve clarifications when they are on the resolver side. The shared status overview response SHALL expose project display data needed by the UI through a nested project object, subject employee display data through a nullable nested subject employee object, and a `canComplete` boolean for each overview entry indicating whether the requesting actor is eligible to complete that task.
-
-#### Scenario: Employee retrieves unified status overview
-- **WHEN** an authenticated employee requests the shared monthend status overview for a month
-- **THEN** the API returns the actor-centric overview for that employee
-- **THEN** the overview contains both open and completed monthend tasks relevant to that actor including tasks where the employee is the subject
-- **THEN** each overview entry includes a nested project object containing the project identifier and project name
-- **THEN** each overview entry with a subject employee includes a nested subject employee object containing the employee identifier and full name
-- **THEN** each overview entry includes a `canComplete` field set to `true` if the employee is eligible to complete that task and `false` otherwise
-
-#### Scenario: Project lead retrieves unified status overview
-- **WHEN** an authenticated project lead requests the shared monthend status overview for a month
-- **THEN** the API returns the actor-centric overview for that lead
-- **THEN** the overview contains both open and completed monthend tasks relevant to that actor
-- **THEN** each overview entry includes a nested project object containing the project identifier and project name
-- **THEN** each overview entry with a subject employee includes a nested subject employee object containing the employee identifier and full name
-- **THEN** each overview entry includes a `canComplete` field set to `true` if the lead is eligible to complete that task and `false` otherwise
-
-#### Scenario: Abrechnung overview entry omits subject employee object
-- **WHEN** the shared monthend status overview contains an `ABRECHNUNG` entry
-- **THEN** that overview entry includes no subject employee object
-
-#### Scenario: Subject-only employee sees canComplete false for PROJECT_LEAD_REVIEW entry
-- **WHEN** the shared monthend status overview for an employee contains a `PROJECT_LEAD_REVIEW` task where that employee is the subject
-- **THEN** that overview entry has `canComplete` set to `false`
+### Requirement: Shared monthend endpoints expose monthend actions
+The system SHALL provide shared monthend REST endpoints that allow authenticated employee or project-lead actors to complete monthend tasks, edit open clarification text when they are on the creator side, and resolve clarifications when they are on the resolver side.
 
 #### Scenario: Eligible actor completes a monthend task
 - **WHEN** an authenticated eligible actor submits a task completion request

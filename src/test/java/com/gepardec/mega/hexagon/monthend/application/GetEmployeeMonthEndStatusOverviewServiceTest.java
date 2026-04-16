@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class MonthEndStatusOverviewServiceTest {
+class GetEmployeeMonthEndStatusOverviewServiceTest {
 
     private final YearMonth month = YearMonth.of(2026, 3);
     private final ProjectId projectId = ProjectId.of(UUID.fromString(Instancio.gen().text().uuid().get()));
@@ -53,13 +53,13 @@ class MonthEndStatusOverviewServiceTest {
     @Mock
     private MonthEndUserSnapshotPort monthEndUserSnapshotPort;
 
-    private GetMonthEndStatusOverviewService getMonthEndStatusOverviewService;
+    private GetEmployeeMonthEndStatusOverviewService getMonthEndStatusOverviewService;
 
     @BeforeEach
     void setUp() {
         ResolveMonthEndTaskSnapshotLookupService resolveMonthEndTaskSnapshotLookupService =
                 new ResolveMonthEndTaskSnapshotLookupService(monthEndProjectSnapshotPort, monthEndUserSnapshotPort);
-        getMonthEndStatusOverviewService = new GetMonthEndStatusOverviewService(
+        getMonthEndStatusOverviewService = new GetEmployeeMonthEndStatusOverviewService(
                 monthEndTaskRepository,
                 resolveMonthEndTaskSnapshotLookupService
         );
@@ -85,7 +85,7 @@ class MonthEndStatusOverviewServiceTest {
                 MonthEndTaskStatus.DONE,
                 leadAId
         );
-        when(monthEndTaskRepository.findVisibleTasksForActor(actorId, month))
+        when(monthEndTaskRepository.findEmployeeVisibleTasks(actorId, month))
                 .thenReturn(List.of(openEmployeeTask, completedLeadTask));
         when(monthEndProjectSnapshotPort.findByIds(Set.of(projectId), month))
                 .thenReturn(List.of(snapshot(projectName)));
@@ -129,7 +129,7 @@ class MonthEndStatusOverviewServiceTest {
 
     @Test
     void getOverview_shouldReturnEmptyEntriesWhenActorHasNoRelevantTasks() {
-        when(monthEndTaskRepository.findVisibleTasksForActor(actorId, month)).thenReturn(List.of());
+        when(monthEndTaskRepository.findEmployeeVisibleTasks(actorId, month)).thenReturn(List.of());
 
         MonthEndStatusOverview overview = getMonthEndStatusOverviewService.getOverview(actorId, month);
 
@@ -149,7 +149,7 @@ class MonthEndStatusOverviewServiceTest {
                 null,
                 Set.of(actorId)
         );
-        when(monthEndTaskRepository.findVisibleTasksForActor(actorId, month)).thenReturn(List.of(abrechnungTask));
+        when(monthEndTaskRepository.findEmployeeVisibleTasks(actorId, month)).thenReturn(List.of(abrechnungTask));
         when(monthEndProjectSnapshotPort.findByIds(Set.of(projectId), month))
                 .thenReturn(List.of(snapshot(projectName)));
 
@@ -176,7 +176,7 @@ class MonthEndStatusOverviewServiceTest {
                 actorId,
                 Set.of(leadAId)
         );
-        when(monthEndTaskRepository.findVisibleTasksForActor(actorId, month)).thenReturn(List.of(subjectOnlyTask));
+        when(monthEndTaskRepository.findEmployeeVisibleTasks(actorId, month)).thenReturn(List.of(subjectOnlyTask));
         when(monthEndProjectSnapshotPort.findByIds(Set.of(projectId), month))
                 .thenReturn(List.of(snapshot(projectName)));
         when(monthEndUserSnapshotPort.findByIds(Set.of(actorId), month))
