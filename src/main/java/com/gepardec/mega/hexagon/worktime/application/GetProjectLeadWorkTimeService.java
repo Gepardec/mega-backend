@@ -66,15 +66,15 @@ public class GetProjectLeadWorkTimeService implements GetProjectLeadWorkTimeUseC
             return new WorkTimeReport(month, List.of());
         }
 
-        Map<String, List<WorkTimeAttendance>> attendancesByEmployee = fetchAttendancesByEmployee(employeeZepUsernames, month)
-                .await().indefinitely();
-
         Map<String, UserRef> usersByZepUsername = workTimeUserSnapshotPort.findByZepUsernames(employeeZepUsernames.stream()
                         .map(ZepUsername::of)
                         .collect(Collectors.toSet()), month)
                 .stream()
                 .filter(user -> user.zepUsername() != null)
                 .collect(Collectors.toMap(user -> user.zepUsername().value(), Function.identity()));
+
+        Map<String, List<WorkTimeAttendance>> attendancesByEmployee = fetchAttendancesByEmployee(usersByZepUsername.keySet(), month)
+                .await().indefinitely();
 
         List<WorkTimeEntry> entries = attendancesByEmployee.entrySet().stream()
                 .flatMap(entry -> toEntries(entry.getKey(), entry.getValue(), usersByZepUsername, projectsByZepId).stream())
