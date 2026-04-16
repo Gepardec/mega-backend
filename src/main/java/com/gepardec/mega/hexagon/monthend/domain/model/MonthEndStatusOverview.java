@@ -9,13 +9,16 @@ import java.util.Objects;
 public record MonthEndStatusOverview(
         UserId actorId,
         YearMonth month,
-        List<MonthEndStatusOverviewItem> entries
+        List<MonthEndStatusOverviewItem> entries,
+        List<MonthEndOverviewClarificationItem> clarifications
 ) {
 
     public MonthEndStatusOverview {
         Objects.requireNonNull(actorId, "actorId must not be null");
         Objects.requireNonNull(month, "month must not be null");
         Objects.requireNonNull(entries, "entries must not be null");
+        Objects.requireNonNull(clarifications, "clarifications must not be null");
         entries = List.copyOf(entries);
+        clarifications = List.copyOf(clarifications);
     }
 }

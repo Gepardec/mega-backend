@@ -14,7 +14,11 @@ public interface MonthEndClarificationRepository {
 
     List<MonthEndClarification> findOpenEmployeeClarifications(UserId employeeId, YearMonth month);
 
+    List<MonthEndClarification> findAllEmployeeClarifications(UserId employeeId, YearMonth month);
+
     List<MonthEndClarification> findOpenProjectLeadClarifications(UserId projectLeadId, YearMonth month);
+
+    List<MonthEndClarification> findAllProjectLeadClarifications(UserId projectLeadId, YearMonth month);
 
     void save(MonthEndClarification clarification);
 }

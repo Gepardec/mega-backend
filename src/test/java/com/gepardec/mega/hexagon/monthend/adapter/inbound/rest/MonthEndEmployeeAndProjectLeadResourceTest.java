@@ -292,7 +292,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                         employeeRef(),
                         true,
                         null
-                ))
+                )),
+                List.of()
         );
         when(getEmployeeMonthEndStatusOverviewUseCase.getOverview(EMPLOYEE_ID, MONTH)).thenReturn(overview);
 
@@ -343,7 +344,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                         null,
                         true,
                         null
-                ))
+                )),
+                List.of()
         );
         when(getProjectLeadMonthEndStatusOverviewUseCase.getOverview(PROJECT_LEAD_ID, MONTH)).thenReturn(overview);
 

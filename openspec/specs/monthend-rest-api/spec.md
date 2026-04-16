@@ -49,9 +49,12 @@ The system SHALL provide employee-scoped monthend REST endpoints that allow auth
 #### Scenario: Employee retrieves their monthend status overview
 - **WHEN** an authenticated employee requests the employee monthend status overview for a month
 - **THEN** the API returns tasks where the employee is the subject, including both open and completed tasks
-- **THEN** each overview entry includes a nested project object containing the project identifier and project name
-- **THEN** each overview entry includes a nullable nested subject employee object containing the employee identifier and full name
-- **THEN** each overview entry includes a `canComplete` field set to `true` if the employee is eligible to complete that task and `false` otherwise
+- **THEN** the API returns all clarifications where the employee is the subject for that month, including both open and resolved clarifications
+- **THEN** each overview task entry includes a nested project object containing the project identifier and project name
+- **THEN** each overview task entry includes a nullable nested subject employee object containing the employee identifier and full name
+- **THEN** each overview task entry includes a `canComplete` field set to `true` if the employee is eligible to complete that task and `false` otherwise
+- **THEN** each overview clarification entry includes a `canResolve` field set to `true` if the employee is eligible to resolve that clarification and `false` otherwise
+- **THEN** each overview clarification entry includes resolution fields when the clarification is resolved
 
 #### Scenario: Employee prepares a project context with optional clarification
 - **WHEN** an authenticated employee submits a preparation request for one project and month with optional clarification text
@@ -79,9 +82,12 @@ The system SHALL provide project-lead-scoped monthend REST endpoints that allow 
 #### Scenario: Project lead retrieves their monthend status overview
 - **WHEN** an authenticated project lead requests the project-lead monthend status overview for a month
 - **THEN** the API returns all tasks for projects the lead leads, including both open and completed tasks
-- **THEN** each overview entry includes a nested project object containing the project identifier and project name
-- **THEN** each overview entry includes a nullable nested subject employee object containing the employee identifier and full name
-- **THEN** each overview entry includes a `canComplete` field set to `true` if the lead is eligible to complete that task and `false` otherwise
+- **THEN** the API returns all clarifications for projects the lead leads for that month, including both open and resolved clarifications
+- **THEN** each overview task entry includes a nested project object containing the project identifier and project name
+- **THEN** each overview task entry includes a nullable nested subject employee object containing the employee identifier and full name
+- **THEN** each overview task entry includes a `canComplete` field set to `true` if the lead is eligible to complete that task and `false` otherwise
+- **THEN** each overview clarification entry includes a `canResolve` field set to `true` if the lead is eligible to resolve that clarification and `false` otherwise
+- **THEN** each overview clarification entry includes resolution fields when the clarification is resolved
 
 #### Scenario: Project lead creates a clarification for a subject employee
 - **WHEN** an authenticated eligible project lead submits a clarification creation request for a subject employee in a monthend project context

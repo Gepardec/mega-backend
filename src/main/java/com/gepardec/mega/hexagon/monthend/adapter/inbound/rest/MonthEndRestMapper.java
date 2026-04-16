@@ -2,6 +2,7 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.model.MonthEndClarificationResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndEmployeeReference;
+import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntry;
 import com.gepardec.mega.hexagon.generated.model.MonthEndPreparationResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndProjectReference;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewEntry;
@@ -13,6 +14,7 @@ import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndOverviewClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
@@ -59,6 +61,8 @@ public interface MonthEndRestMapper {
     MonthEndWorklistClarification toResponse(MonthEndWorklistClarificationItem item);
 
     MonthEndStatusOverviewEntry toResponse(MonthEndStatusOverviewItem item);
+
+    MonthEndOverviewClarificationEntry toResponse(MonthEndOverviewClarificationItem item);
 
     MonthEndProjectReference toResponse(ProjectRef project);
 

@@ -7,6 +7,7 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndOverviewClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
@@ -130,6 +131,21 @@ class MonthEndRestMapperTest {
                         employeeRef(),
                         true,
                         null
+                )),
+                List.of(new MonthEndOverviewClarificationItem(
+                        MonthEndClarificationId.of(Instancio.create(UUID.class)),
+                        projectId,
+                        employeeId,
+                        leadId,
+                        MonthEndClarificationSide.PROJECT_LEAD,
+                        MonthEndClarificationStatus.OPEN,
+                        "Please update the proof.",
+                        true,
+                        null,
+                        null,
+                        null,
+                        Instant.parse("2026-03-25T10:15:00Z"),
+                        Instant.parse("2026-03-25T10:45:00Z")
                 ))
         );
 
@@ -143,6 +159,11 @@ class MonthEndRestMapperTest {
             assertThat(entry.getSubjectEmployee().getId()).isEqualTo(employeeId.value());
             assertThat(entry.getSubjectEmployee().getFullName()).isEqualTo(employeeName);
             assertThat(entry.getCanComplete()).isTrue();
+        });
+        assertThat(response.getClarifications()).singleElement().satisfies(clarification -> {
+            assertThat(clarification.getProjectId()).isEqualTo(projectId.value());
+            assertThat(clarification.getCreatedBy()).isEqualTo(leadId.value());
+            assertThat(clarification.getCanResolve()).isTrue();
         });
     }
 
@@ -159,7 +180,8 @@ class MonthEndRestMapperTest {
                         employeeRef(),
                         false,
                         null
-                ))
+                )),
+                List.of()
         );
 
         MonthEndStatusOverviewResponse response = mapper.toResponse(overview);
@@ -181,7 +203,8 @@ class MonthEndRestMapperTest {
                         null,
                         true,
                         null
-                ))
+                )),
+                List.of()
         );
 
         MonthEndStatusOverviewResponse response = mapper.toResponse(overview);

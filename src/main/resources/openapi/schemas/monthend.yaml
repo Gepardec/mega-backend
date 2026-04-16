@@ -122,6 +122,58 @@ MonthEndStatusOverviewEntry:
       type: string
       format: uuid
       nullable: true
+MonthEndOverviewClarificationEntry:
+  type: object
+  additionalProperties: false
+  required:
+    - clarificationId
+    - projectId
+    - subjectEmployeeId
+    - createdBy
+    - creatorSide
+    - status
+    - text
+    - canResolve
+    - createdAt
+    - lastModifiedAt
+  properties:
+    clarificationId:
+      type: string
+      format: uuid
+    projectId:
+      type: string
+      format: uuid
+    subjectEmployeeId:
+      type: string
+      format: uuid
+    createdBy:
+      type: string
+      format: uuid
+    creatorSide:
+      $ref: '#/MonthEndClarificationSide'
+    status:
+      $ref: '#/MonthEndClarificationStatus'
+    text:
+      type: string
+    canResolve:
+      type: boolean
+    resolutionNote:
+      type: string
+      nullable: true
+    resolvedBy:
+      type: string
+      format: uuid
+      nullable: true
+    resolvedAt:
+      type: string
+      format: date-time
+      nullable: true
+    createdAt:
+      type: string
+      format: date-time
+    lastModifiedAt:
+      type: string
+      format: date-time
 MonthEndProjectReference:
   type: object
   additionalProperties: false
@@ -152,6 +204,7 @@ MonthEndStatusOverviewResponse:
   required:
     - month
     - entries
+    - clarifications
   properties:
     month:
       $ref: './shared.yaml#/MonthValue'
@@ -159,6 +212,10 @@ MonthEndStatusOverviewResponse:
       type: array
       items:
         $ref: '#/MonthEndStatusOverviewEntry'
+    clarifications:
+      type: array
+      items:
+        $ref: '#/MonthEndOverviewClarificationEntry'
 PrepareMonthEndProjectRequest:
   type: object
   additionalProperties: false
