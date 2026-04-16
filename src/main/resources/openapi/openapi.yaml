@@ -17,18 +17,20 @@ tags:
   - name: WorkTimeProjectLead
     description: Project-lead-scoped work time endpoints
 paths:
+  /monthend/employee/status-overview:
+    $ref: './paths/monthend.yaml#/~1monthend~1employee~1status-overview'
   /monthend/employee/worklist:
     $ref: './paths/monthend.yaml#/~1monthend~1employee~1worklist'
   /monthend/employee/preparations:
     $ref: './paths/monthend.yaml#/~1monthend~1employee~1preparations'
   /monthend/employee/clarifications:
     $ref: './paths/monthend.yaml#/~1monthend~1employee~1clarifications'
+  /monthend/project-lead/status-overview:
+    $ref: './paths/monthend.yaml#/~1monthend~1project-lead~1status-overview'
   /monthend/project-lead/worklist:
     $ref: './paths/monthend.yaml#/~1monthend~1project-lead~1worklist'
   /monthend/project-lead/clarifications:
     $ref: './paths/monthend.yaml#/~1monthend~1project-lead~1clarifications'
-  /monthend/status-overview:
-    $ref: './paths/monthend.yaml#/~1monthend~1status-overview'
   /monthend/tasks/{taskId}/complete:
     $ref: './paths/monthend.yaml#/~1monthend~1tasks~1{taskId}~1complete'
   /monthend/clarifications/{clarificationId}/text:

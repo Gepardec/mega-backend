@@ -1,19 +1,4 @@
-# monthend-rest-api Specification
-
-## Purpose
-TBD - created by archiving change add-spec-first-monthend-api. Update Purpose after archive.
-## Requirements
-### Requirement: Monthend REST API contract is defined spec-first
-The system SHALL define the monthend REST API in a single canonical OpenAPI document. Java API interfaces and HTTP models for monthend endpoints SHALL be generated from that contract and used by the REST adapter implementation.
-
-#### Scenario: Generated API types follow the canonical contract
-- **WHEN** the monthend REST contract is updated
-- **THEN** the OpenAPI document is updated as the canonical source
-- **THEN** the generated Java API interfaces and models reflect that contract for the monthend REST adapter layer
-
-#### Scenario: Monthend REST adapters implement generated interfaces
-- **WHEN** the monthend REST API is implemented
-- **THEN** handwritten monthend REST adapters implement the generated Java API interfaces instead of defining separate handwritten endpoint signatures
+## MODIFIED Requirements
 
 ### Requirement: Actor-scoped monthend endpoints derive the acting user from authentication
 The system SHALL treat the authenticated caller as the acting monthend actor for all actor-scoped monthend REST endpoints. Actor-scoped requests MUST NOT require a caller-supplied actor identifier for employee worklists, project-lead worklists, employee status overview, project-lead status overview, task completion, clarification edit, clarification resolve, or employee self-service preparation.
@@ -32,6 +17,8 @@ The system SHALL treat the authenticated caller as the acting monthend actor for
 - **WHEN** an authenticated employee prepares monthend obligations through the REST API
 - **THEN** the API uses the authenticated employee as the acting user for preparation
 - **THEN** the request does not require a separate actor identifier
+
+---
 
 ### Requirement: Employee monthend endpoints expose employee worklist, employee overview, and self-service flows
 The system SHALL provide employee-scoped monthend REST endpoints that allow authenticated employees to retrieve their monthend worklist, retrieve their employee status overview, prepare their own project monthend context, and create clarifications for their own monthend project context. Responses SHALL expose the generated task and clarification models needed by the employee client. Each worklist task entry SHALL include a nested project object containing the project identifier and project name, and a nullable nested subject employee object containing the employee identifier and full name.
@@ -63,6 +50,8 @@ The system SHALL provide employee-scoped monthend REST endpoints that allow auth
 - **THEN** the API creates an employee-side monthend clarification
 - **THEN** the API returns the created clarification in the generated response model
 
+---
+
 ### Requirement: Project-lead monthend endpoints expose lead worklist, lead overview, and clarification creation
 The system SHALL provide project-lead-scoped monthend REST endpoints that allow authenticated project leads to retrieve their lead worklist, retrieve their lead status overview, and create clarifications for a subject employee in the same monthend project context. Responses SHALL expose the generated task and clarification models needed by the lead client. Each worklist task entry SHALL include a nested project object containing the project identifier and project name, and a nullable nested subject employee object containing the employee identifier and full name.
 
@@ -88,6 +77,8 @@ The system SHALL provide project-lead-scoped monthend REST endpoints that allow 
 - **THEN** the API creates a project-lead-side monthend clarification
 - **THEN** the API returns the created clarification in the generated response model
 
+---
+
 ### Requirement: Shared monthend endpoints expose monthend actions
 The system SHALL provide shared monthend REST endpoints that allow authenticated employee or project-lead actors to complete monthend tasks, edit open clarification text when they are on the creator side, and resolve clarifications when they are on the resolver side.
 
@@ -105,42 +96,3 @@ The system SHALL provide shared monthend REST endpoints that allow authenticated
 - **WHEN** an authenticated actor allowed to resolve a clarification submits a clarification resolution request with an optional resolution note
 - **THEN** the API resolves the clarification through the existing clarification completion flow
 - **THEN** the API returns the resolved clarification state
-
-### Requirement: Work time data is not embedded in the monthend status overview response
-The monthend status overview endpoint SHALL NOT include work time aggregations in its response. Work time per payroll month SHALL be fetched via the dedicated `/worktime` endpoints. The frontend SHALL call the work time endpoints independently to obtain billable/non-billable hour breakdowns alongside the monthend overview.
-
-#### Scenario: Monthend overview response contains no work time fields
-- **WHEN** an authenticated actor requests the monthend status overview
-- **THEN** the response does NOT contain billable hours, non-billable hours, or work time entries
-- **THEN** work time data is available exclusively through the `/worktime/employee/{month}` and `/worktime/projects/{month}` endpoints
-
-### Requirement: Monthend endpoint access follows employee, project-lead, and ops roles
-The system SHALL secure monthend REST endpoints by endpoint group. Employee-scoped endpoints MUST require the employee role, project-lead-scoped endpoints MUST require the project-lead role, shared actor-scoped endpoints MUST require either employee or project-lead role, and internal generation endpoints MUST require the internal sync or cron role defined for operational endpoints.
-
-#### Scenario: User without employee role cannot access employee-scoped endpoint
-- **WHEN** an authenticated caller without the employee role requests an employee-scoped monthend endpoint
-- **THEN** the API rejects the request as forbidden
-
-#### Scenario: User without project-lead role cannot access lead-scoped endpoint
-- **WHEN** an authenticated caller without the project-lead role requests a project-lead-scoped monthend endpoint
-- **THEN** the API rejects the request as forbidden
-
-#### Scenario: Employee can access shared monthend endpoint
-- **WHEN** an authenticated employee requests a shared actor-scoped monthend endpoint
-- **THEN** the API accepts the request and evaluates the action against the existing monthend eligibility rules
-
-#### Scenario: Project lead can access shared monthend endpoint
-- **WHEN** an authenticated project lead requests a shared actor-scoped monthend endpoint
-- **THEN** the API accepts the request and evaluates the action against the existing monthend eligibility rules
-
-#### Scenario: Non-ops caller cannot access generation endpoint
-- **WHEN** an authenticated caller without the internal sync or cron role requests the monthend generation endpoint
-- **THEN** the API rejects the request as forbidden
-
-### Requirement: Internal monthend generation is available through the same API contract
-The system SHALL provide an internal monthend generation endpoint in the same OpenAPI contract for operational callers. The endpoint SHALL trigger monthend task generation for the requested month and return the generation result using generated response models.
-
-#### Scenario: Ops caller triggers generation for a month
-- **WHEN** an authenticated internal ops caller submits a monthend generation request for a month
-- **THEN** the API triggers monthend task generation for that month
-- **THEN** the API returns the generation result including created and skipped counts

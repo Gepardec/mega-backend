@@ -118,7 +118,7 @@ class MonthEndTaskRepositoryAdapterTest {
     }
 
     @Test
-    void findVisibleTasksForActor_shouldReturnEligibleAndSubjectTasksWithoutDuplicates() {
+    void findEmployeeVisibleTasks_shouldReturnOnlyTasksWhereEmployeeIsSubject() {
         YearMonth month = YearMonth.of(2026, 3);
         User employee = user("employee-visible", Set.of(Role.EMPLOYEE));
         User leadA = user("lead-visible-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
@@ -144,7 +144,7 @@ class MonthEndTaskRepositoryAdapterTest {
                 employee.id(),
                 Set.of(employee.id())
         );
-        MonthEndTask unrelatedTask = MonthEndTask.create(
+        MonthEndTask abrechnungTask = MonthEndTask.create(
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.ABRECHNUNG,
@@ -152,11 +152,79 @@ class MonthEndTaskRepositoryAdapterTest {
                 null,
                 Set.of(leadA.id())
         );
-        monthEndTaskRepositoryAdapter.saveAll(List.of(subjectOnlyTask, subjectAndEligibleTask, unrelatedTask));
+        monthEndTaskRepositoryAdapter.saveAll(List.of(subjectOnlyTask, subjectAndEligibleTask, abrechnungTask));
 
-        List<MonthEndTask> tasks = monthEndTaskRepositoryAdapter.findVisibleTasksForActor(employee.id(), month);
+        List<MonthEndTask> tasks = monthEndTaskRepositoryAdapter.findEmployeeVisibleTasks(employee.id(), month);
 
         assertThat(tasks).containsExactlyInAnyOrder(subjectOnlyTask, subjectAndEligibleTask);
+    }
+
+    @Test
+    void findLeadProjectTasks_shouldNotReturnTasksFromProjectsWhereLeadIsOnlyAnEmployee() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User lead = user("lead-emp-only", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        User otherLead = user("other-lead-emp", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        userRepositoryAdapter.saveAll(List.of(lead, otherLead));
+
+        Project ledProject = project(301, true);
+        Project employeeOnlyProject = project(302, true);
+        projectRepositoryAdapter.saveAll(List.of(ledProject, employeeOnlyProject));
+
+        // led project: lead is in eligibleActorIds of PLR/ABRECHNUNG
+        MonthEndTask ledPlr = MonthEndTask.create(
+                MonthEndTaskId.generate(), month, MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                ledProject.id(), lead.id(), Set.of(lead.id())
+        );
+        // employee-only project: lead has their own ETC task (lead in eligibleActorIds as employee)
+        // but NO PLR/ABRECHNUNG with lead as eligible
+        MonthEndTask ownEtc = MonthEndTask.create(
+                MonthEndTaskId.generate(), month, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                employeeOnlyProject.id(), lead.id(), Set.of(lead.id())
+        );
+        MonthEndTask otherLeadPlr = MonthEndTask.create(
+                MonthEndTaskId.generate(), month, MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                employeeOnlyProject.id(), lead.id(), Set.of(otherLead.id())
+        );
+        monthEndTaskRepositoryAdapter.saveAll(List.of(ledPlr, ownEtc, otherLeadPlr));
+
+        List<MonthEndTask> result = monthEndTaskRepositoryAdapter.findLeadProjectTasks(lead.id(), month);
+
+        assertThat(result).containsExactly(ledPlr);
+    }
+
+    @Test
+    void findLeadProjectTasks_shouldReturnAllTasksForProjectsTheLeadLeads() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User employee = user("emp-lead-proj", Set.of(Role.EMPLOYEE));
+        User lead = user("lead-proj", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        User otherLead = user("other-lead-proj", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        userRepositoryAdapter.saveAll(List.of(employee, lead, otherLead));
+
+        Project ledProject = project(201, true);
+        Project unledProject = project(202, true);
+        projectRepositoryAdapter.saveAll(List.of(ledProject, unledProject));
+
+        MonthEndTask etcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                ledProject.id(), employee.id(), Set.of(employee.id())
+        );
+        MonthEndTask plrTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month, MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                ledProject.id(), employee.id(), Set.of(lead.id())
+        );
+        MonthEndTask abrechnungTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month, MonthEndTaskType.ABRECHNUNG,
+                ledProject.id(), null, Set.of(lead.id())
+        );
+        MonthEndTask unledTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month, MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                unledProject.id(), employee.id(), Set.of(otherLead.id())
+        );
+        monthEndTaskRepositoryAdapter.saveAll(List.of(etcTask, plrTask, abrechnungTask, unledTask));
+
+        List<MonthEndTask> result = monthEndTaskRepositoryAdapter.findLeadProjectTasks(lead.id(), month);
+
+        assertThat(result).containsExactlyInAnyOrder(etcTask, plrTask, abrechnungTask);
     }
 
     private User user(String username, Set<Role> roles) {

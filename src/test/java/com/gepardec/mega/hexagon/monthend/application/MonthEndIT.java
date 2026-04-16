@@ -5,8 +5,9 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonth
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndTaskUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GenerateMonthEndTasksUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndWorklistUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetMonthEndStatusOverviewUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
@@ -88,7 +89,10 @@ class MonthEndIT {
     GetProjectLeadMonthEndWorklistUseCase getProjectLeadMonthEndWorklistUseCase;
 
     @Inject
-    GetMonthEndStatusOverviewUseCase getMonthEndStatusOverviewUseCase;
+    GetEmployeeMonthEndStatusOverviewUseCase getEmployeeMonthEndStatusOverviewUseCase;
+
+    @Inject
+    GetProjectLeadMonthEndStatusOverviewUseCase getProjectLeadMonthEndStatusOverviewUseCase;
 
     @Inject
     UserRepositoryAdapter userRepositoryAdapter;
@@ -261,7 +265,7 @@ class MonthEndIT {
 
         completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.id());
 
-        MonthEndStatusOverview statusOverview = getMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        MonthEndStatusOverview statusOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
         MonthEndWorklist updatedWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
 
         assertThat(statusOverview.entries())
@@ -315,8 +319,8 @@ class MonthEndIT {
 
         completeMonthEndTaskUseCase.complete(leadReviewTask.taskId(), leadA.id());
 
-        MonthEndStatusOverview leadAOverview = getMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
-        MonthEndStatusOverview leadBOverview = getMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
+        MonthEndStatusOverview leadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
+        MonthEndStatusOverview leadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
         MonthEndWorklist updatedLeadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH);
         MonthEndWorklist updatedLeadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH);
 

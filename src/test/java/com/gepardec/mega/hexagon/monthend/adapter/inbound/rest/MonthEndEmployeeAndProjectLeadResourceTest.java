@@ -4,18 +4,24 @@ import com.gepardec.mega.hexagon.generated.model.CreateEmployeeClarificationRequ
 import com.gepardec.mega.hexagon.generated.model.CreateProjectLeadClarificationRequest;
 import com.gepardec.mega.hexagon.generated.model.MonthEndClarificationResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndPreparationResponse;
+import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistResponse;
 import com.gepardec.mega.hexagon.generated.model.PrepareMonthEndProjectRequest;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndWorklistUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistClarificationItem;
@@ -66,6 +72,9 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
     GetEmployeeMonthEndWorklistUseCase getEmployeeMonthEndWorklistUseCase;
 
     @InjectMock
+    GetEmployeeMonthEndStatusOverviewUseCase getEmployeeMonthEndStatusOverviewUseCase;
+
+    @InjectMock
     PrematureMonthEndPreparationUseCase prematureMonthEndPreparationUseCase;
 
     @InjectMock
@@ -73,6 +82,9 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
 
     @InjectMock
     GetProjectLeadMonthEndWorklistUseCase getProjectLeadMonthEndWorklistUseCase;
+
+    @InjectMock
+    GetProjectLeadMonthEndStatusOverviewUseCase getProjectLeadMonthEndStatusOverviewUseCase;
 
     @BeforeEach
     void setUp() {
@@ -264,6 +276,107 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 .statusCode(403);
 
         verifyNoInteractions(getProjectLeadMonthEndWorklistUseCase);
+    }
+
+    @Test
+    void getEmployeeMonthEndStatusOverview_shouldReturnMappedOverviewForEmployeeRole() {
+        allowRoles(Role.EMPLOYEE);
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                EMPLOYEE_ID,
+                MONTH,
+                List.of(new MonthEndStatusOverviewItem(
+                        MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        MonthEndTaskStatus.OPEN,
+                        projectRef(),
+                        employeeRef(),
+                        true,
+                        null
+                ))
+        );
+        when(getEmployeeMonthEndStatusOverviewUseCase.getOverview(EMPLOYEE_ID, MONTH)).thenReturn(overview);
+
+        MonthEndStatusOverviewResponse response = given()
+                .accept(ContentType.JSON)
+                .queryParam("month", MONTH.toString())
+                .get("/monthend/employee/status-overview")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(MonthEndStatusOverviewResponse.class);
+
+        assertThat(response.getMonth()).isEqualTo(MONTH.toString());
+        assertThat(response.getEntries()).singleElement().satisfies(entry -> {
+            assertThat(entry.getProject().getId()).isEqualTo(PROJECT_ID.value());
+            assertThat(entry.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
+            assertThat(entry.getCanComplete()).isTrue();
+        });
+        verify(getEmployeeMonthEndStatusOverviewUseCase).getOverview(EMPLOYEE_ID, MONTH);
+    }
+
+    @Test
+    void getEmployeeMonthEndStatusOverview_shouldRejectProjectLeadRole() {
+        allowRoles(Role.PROJECT_LEAD);
+
+        given()
+                .accept(ContentType.JSON)
+                .queryParam("month", MONTH.toString())
+                .get("/monthend/employee/status-overview")
+                .then()
+                .statusCode(403);
+
+        verifyNoInteractions(getEmployeeMonthEndStatusOverviewUseCase);
+    }
+
+    @Test
+    void getProjectLeadMonthEndStatusOverview_shouldReturnMappedOverviewForLeadRole() {
+        allowRoles(Role.PROJECT_LEAD);
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                PROJECT_LEAD_ID,
+                MONTH,
+                List.of(new MonthEndStatusOverviewItem(
+                        MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        MonthEndTaskType.ABRECHNUNG,
+                        MonthEndTaskStatus.OPEN,
+                        projectRef(),
+                        null,
+                        true,
+                        null
+                ))
+        );
+        when(getProjectLeadMonthEndStatusOverviewUseCase.getOverview(PROJECT_LEAD_ID, MONTH)).thenReturn(overview);
+
+        MonthEndStatusOverviewResponse response = given()
+                .accept(ContentType.JSON)
+                .queryParam("month", MONTH.toString())
+                .get("/monthend/project-lead/status-overview")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(MonthEndStatusOverviewResponse.class);
+
+        assertThat(response.getMonth()).isEqualTo(MONTH.toString());
+        assertThat(response.getEntries()).singleElement().satisfies(entry -> {
+            assertThat(entry.getProject().getId()).isEqualTo(PROJECT_ID.value());
+            assertThat(entry.getSubjectEmployee()).isNull();
+            assertThat(entry.getCanComplete()).isTrue();
+        });
+        verify(getProjectLeadMonthEndStatusOverviewUseCase).getOverview(PROJECT_LEAD_ID, MONTH);
+    }
+
+    @Test
+    void getProjectLeadMonthEndStatusOverview_shouldRejectEmployeeRole() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .accept(ContentType.JSON)
+                .queryParam("month", MONTH.toString())
+                .get("/monthend/project-lead/status-overview")
+                .then()
+                .statusCode(403);
+
+        verifyNoInteractions(getProjectLeadMonthEndStatusOverviewUseCase);
     }
 
     private void allowRoles(Role... roles) {
