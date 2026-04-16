@@ -113,12 +113,12 @@ public record MonthEndClarification(
         Objects.requireNonNull(actorId, "actorId must not be null");
         Objects.requireNonNull(completedAt, "completedAt must not be null");
 
-        if (!canBeResolvedBy(actorId)) {
-            throw new MonthEndActorNotAuthorizedException("actor is not allowed to resolve clarification");
-        }
-
         if (status == MonthEndClarificationStatus.DONE) {
             return this;
+        }
+
+        if (!canBeResolvedBy(actorId)) {
+            throw new MonthEndActorNotAuthorizedException("actor is not allowed to resolve clarification");
         }
 
         return new MonthEndClarification(
@@ -150,6 +150,10 @@ public record MonthEndClarification(
 
     public boolean canBeResolvedBy(UserId actorId) {
         Objects.requireNonNull(actorId, "actorId must not be null");
+        if (!isOpen()) {
+            return false;
+        }
+
         return switch (creatorSide) {
             case EMPLOYEE -> eligibleProjectLeadIds.contains(actorId);
             case PROJECT_LEAD -> subjectEmployeeId.equals(actorId);

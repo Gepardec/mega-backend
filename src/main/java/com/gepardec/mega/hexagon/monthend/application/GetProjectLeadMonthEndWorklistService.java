@@ -44,7 +44,7 @@ public class GetProjectLeadMonthEndWorklistService implements GetProjectLeadMont
                         task.id(),
                         task.type(),
                         snapshotLookup.projectFor(task.projectId()),
-                        snapshotLookup.subjectEmployeeFor(task.subjectEmployeeId())
+                        snapshotLookup.userFor(task.subjectEmployeeId())
                 ))
                 .toList();
 

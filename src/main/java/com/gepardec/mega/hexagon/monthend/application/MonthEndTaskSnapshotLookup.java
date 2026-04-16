@@ -33,7 +33,7 @@ public record MonthEndTaskSnapshotLookup(
         return project;
     }
 
-    public UserRef subjectEmployeeFor(UserId subjectEmployeeId) {
+    public UserRef userFor(UserId subjectEmployeeId) {
         if (subjectEmployeeId == null) {
             return null;
         }
