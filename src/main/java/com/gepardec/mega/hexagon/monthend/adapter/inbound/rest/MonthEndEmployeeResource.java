@@ -4,11 +4,13 @@ import com.gepardec.mega.hexagon.generated.api.MonthEndEmployeeApi;
 import com.gepardec.mega.hexagon.generated.model.CreateEmployeeClarificationRequest;
 import com.gepardec.mega.hexagon.generated.model.PrepareMonthEndProjectRequest;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
@@ -25,6 +27,7 @@ import jakarta.ws.rs.core.Response;
 public class MonthEndEmployeeResource implements MonthEndEmployeeApi {
 
     private final GetEmployeeMonthEndWorklistUseCase getEmployeeMonthEndWorklistUseCase;
+    private final GetEmployeeMonthEndStatusOverviewUseCase getEmployeeMonthEndStatusOverviewUseCase;
     private final PrematureMonthEndPreparationUseCase prematureMonthEndPreparationUseCase;
     private final CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
     private final AuthenticatedActorContext authenticatedActorContext;
@@ -34,6 +37,7 @@ public class MonthEndEmployeeResource implements MonthEndEmployeeApi {
     @Inject
     public MonthEndEmployeeResource(
             GetEmployeeMonthEndWorklistUseCase getEmployeeMonthEndWorklistUseCase,
+            GetEmployeeMonthEndStatusOverviewUseCase getEmployeeMonthEndStatusOverviewUseCase,
             PrematureMonthEndPreparationUseCase prematureMonthEndPreparationUseCase,
             CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase,
             AuthenticatedActorContext authenticatedActorContext,
@@ -41,11 +45,22 @@ public class MonthEndEmployeeResource implements MonthEndEmployeeApi {
             MonthEndRestMapper monthEndRestMapper
     ) {
         this.getEmployeeMonthEndWorklistUseCase = getEmployeeMonthEndWorklistUseCase;
+        this.getEmployeeMonthEndStatusOverviewUseCase = getEmployeeMonthEndStatusOverviewUseCase;
         this.prematureMonthEndPreparationUseCase = prematureMonthEndPreparationUseCase;
         this.createMonthEndClarificationUseCase = createMonthEndClarificationUseCase;
         this.authenticatedActorContext = authenticatedActorContext;
         this.transportHelper = transportHelper;
         this.monthEndRestMapper = monthEndRestMapper;
+    }
+
+    @Override
+    public Response getEmployeeMonthEndStatusOverview(String month) {
+        UserId actorId = authenticatedActorContext.userId();
+        MonthEndStatusOverview overview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(
+                actorId,
+                transportHelper.parseMonth(month)
+        );
+        return Response.ok(monthEndRestMapper.toResponse(overview)).build();
     }
 
     @Override

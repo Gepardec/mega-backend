@@ -80,13 +80,33 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
-    public List<MonthEndTask> findVisibleTasksForActor(UserId actorId, YearMonth month) {
+    public List<MonthEndTask> findEmployeeVisibleTasks(UserId employeeId, YearMonth month) {
         return panache.find(
-                        "select distinct task from MonthEndTaskEntity task " +
-                                "left join task.eligibleActorIds actor " +
-                                "where task.monthValue = ?1 and (actor = ?2 or task.subjectEmployeeId = ?2)",
+                        "monthValue = ?1 and subjectEmployeeId = ?2",
                         toMonthValue(month),
-                        actorId.value()
+                        employeeId.value()
+                )
+                .list().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<MonthEndTask> findLeadProjectTasks(UserId leadId, YearMonth month) {
+        return panache.find(
+                        "select task from MonthEndTaskEntity task " +
+                                "where task.monthValue = ?1 " +
+                                "and exists (" +
+                                "    select 1 from MonthEndTaskEntity lead " +
+                                "    join lead.eligibleActorIds actor " +
+                                "    where lead.monthValue = task.monthValue " +
+                                "    and lead.projectId = task.projectId " +
+                                "    and actor = ?2 " +
+                                "    and lead.type in ?3" +
+                                ")",
+                        toMonthValue(month),
+                        leadId.value(),
+                        taskTypesFor(MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR)
                 )
                 .list().stream()
                 .map(mapper::toDomain)

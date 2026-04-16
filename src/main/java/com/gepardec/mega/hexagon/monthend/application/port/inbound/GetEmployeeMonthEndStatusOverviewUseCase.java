@@ -5,7 +5,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
 import java.time.YearMonth;
 
-public interface GetMonthEndStatusOverviewUseCase {
+public interface GetEmployeeMonthEndStatusOverviewUseCase {
 
-    MonthEndStatusOverview getOverview(UserId actorId, YearMonth month);
+    MonthEndStatusOverview getOverview(UserId employeeId, YearMonth month);
 }
