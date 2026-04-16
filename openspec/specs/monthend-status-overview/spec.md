@@ -85,7 +85,7 @@ The system SHALL include all `MonthEndClarification` records related to the acto
 - **Employee overview**: all clarifications where the employee is the `subjectEmployeeId` for that month.
 - **Lead overview**: all clarifications for projects the lead leads for that month (same project scope as the lead's task query).
 
-Each clarification in the overview SHALL be represented as a `MonthEndOverviewClarificationItem` containing: clarification identity, project, subject employee, creator, creator side, status, text, `canResolve`, and, when `DONE`, resolution note, resolver, and resolved timestamp.
+Each clarification in the overview SHALL be represented as a `MonthEndOverviewClarificationItem` containing: clarification identity, project, a nested subject employee reference, a nested creator reference, creator side, status, text, `canResolve`, and, when `DONE`, resolution note, a nested resolver reference, and resolved timestamp.
 
 `canResolve` SHALL be `true` if and only if the requesting actor can resolve that clarification according to the clarification's resolution rules: eligible project leads may resolve employee-created clarifications; the subject employee may resolve lead-created clarifications. `canResolve` SHALL be `false` for `DONE` clarifications.
 
@@ -118,6 +118,11 @@ Each clarification in the overview SHALL be represented as a `MonthEndOverviewCl
 #### Scenario: Overview clarification items include resolution details for done clarifications
 - **WHEN** a `DONE` clarification appears in the overview
 - **THEN** the clarification item includes the resolver identity, resolution timestamp, and optional resolution note
+
+#### Scenario: Overview clarification items expose nested user references
+- **WHEN** a clarification appears in the overview
+- **THEN** the clarification item includes nested user reference objects for the subject employee and creator
+- **THEN** a resolved clarification also includes a nested user reference object for the resolver
 
 ### Requirement: Completed overview entries retain completion details
 The system SHALL expose the completing actor for `DONE` month-end tasks in the status overview.

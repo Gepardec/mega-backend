@@ -99,8 +99,8 @@ class GetEmployeeMonthEndStatusOverviewServiceTest {
                 List.of(new MonthEndOverviewClarificationItem(
                         clarification.id(),
                         projectId,
-                        actorId,
-                        leadId,
+                        new UserRef(actorId, FullName.of("Employee", "Example"), ZepUsername.of("employee.example")),
+                        new UserRef(leadId, FullName.of("Lead", "Example"), ZepUsername.of("lead.example")),
                         MonthEndClarificationSide.PROJECT_LEAD,
                         clarification.status(),
                         clarification.text(),
@@ -123,7 +123,11 @@ class GetEmployeeMonthEndStatusOverviewServiceTest {
 
         assertThat(overview).isSameAs(assembledOverview);
         assertThat(overview.clarifications()).singleElement()
-                .satisfies(item -> assertThat(item.canResolve()).isTrue());
+                .satisfies(item -> {
+                    assertThat(item.subjectEmployee().id()).isEqualTo(actorId);
+                    assertThat(item.createdBy().id()).isEqualTo(leadId);
+                    assertThat(item.canResolve()).isTrue();
+                });
         verify(monthEndTaskRepository).findEmployeeVisibleTasks(actorId, month);
         verify(monthEndClarificationRepository).findAllEmployeeClarifications(actorId, month);
         verify(assembleMonthEndStatusOverviewService).assemble(List.of(task), List.of(clarification), actorId, month);

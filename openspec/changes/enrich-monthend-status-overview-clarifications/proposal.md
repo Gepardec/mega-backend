@@ -4,7 +4,7 @@ The `MonthEndStatusOverview` currently surfaces tasks only, omitting clarificati
 
 ## What Changes
 
-- Add `MonthEndOverviewClarificationItem` domain read model — full clarification fields including resolution info (`resolutionNote`, `resolvedBy`, `resolvedAt`) and a computed `canResolve` boolean. Distinct from `MonthEndWorklistClarificationItem` which remains open-only with no resolution fields.
+- Add `MonthEndOverviewClarificationItem` domain read model — full clarification fields including nested `UserRef` values for `subjectEmployee`, `createdBy`, and `resolvedBy`, plus resolution info (`resolutionNote`, `resolvedAt`) and a computed `canResolve` boolean. Distinct from `MonthEndWorklistClarificationItem` which remains open-only with no resolution fields.
 - Extend `MonthEndStatusOverview` with `List<MonthEndOverviewClarificationItem> clarifications` — all clarifications (OPEN and DONE) related to the fetched tasks' project+employee scope.
 - Add `findAllEmployeeClarifications` and `findAllProjectLeadClarifications` to `MonthEndClarificationRepository` — same scope as the existing `findOpen*` queries but without the OPEN status filter.
 - Add `AssembleMonthEndStatusOverviewService` (application layer) — shared assembler that takes pre-fetched tasks, clarifications, and a resolved snapshot lookup and produces a `MonthEndStatusOverview`. Computes `canComplete` and `canResolve` using existing domain methods on `MonthEndTask` and `MonthEndClarification`.
@@ -20,7 +20,7 @@ The `MonthEndStatusOverview` currently surfaces tasks only, omitting clarificati
 
 - `monthend-status-overview`: Extend spec to require a clarifications list on the overview, `canResolve` semantics, and all clarification statuses (not just open).
 - `monthend-clarifications`: Extend spec to document the two new repository query methods.
-- `monthend-rest-api`: Extend the employee and project-lead overview endpoint scenarios to include clarifications in the response with `canResolve` and resolution fields.
+- `monthend-rest-api`: Extend the employee and project-lead overview endpoint scenarios to include clarifications in the response with nested employee references for subject, creator, and resolver plus `canResolve` and resolution fields.
 
 ## Impact
 
@@ -31,5 +31,5 @@ The `MonthEndStatusOverview` currently surfaces tasks only, omitting clarificati
 - New `AssembleMonthEndStatusOverviewService` application service
 - `GetEmployeeMonthEndStatusOverviewService`: simplified
 - `GetProjectLeadMonthEndStatusOverviewService`: simplified
-- OpenAPI spec: overview response models updated to include clarification list with `canResolve` and resolution fields
+- OpenAPI spec: overview response models updated to include clarification list with nested employee references, `canResolve`, and resolution fields
 - Tests: assembler unit test; updated overview service tests; new adapter tests for both new queries

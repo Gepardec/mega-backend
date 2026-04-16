@@ -42,11 +42,11 @@
 
 ---
 
-### D3: New `MonthEndOverviewClarificationItem` read model
+### D3: New `MonthEndOverviewClarificationItem` read model with resolved user references
 
-**Decision:** Introduce `MonthEndOverviewClarificationItem` with full resolution fields (`resolutionNote`, `resolvedBy`, `resolvedAt`) and `canResolve`.
+**Decision:** Introduce `MonthEndOverviewClarificationItem` with `UserRef` values for `subjectEmployee`, `createdBy`, and nullable `resolvedBy`, alongside full resolution fields (`resolutionNote`, `resolvedAt`) and `canResolve`.
 
-**Rationale:** `MonthEndWorklistClarificationItem` lacks resolution fields and `canResolve` — it was designed for actionable, open-only display. The overview needs resolution fields for DONE clarifications and `canResolve` for open ones. Rather than retrofitting the worklist item (breaking its semantics), a dedicated read model keeps each item type aligned with its consumer's needs.
+**Rationale:** `MonthEndWorklistClarificationItem` lacks resolution fields and `canResolve` — it was designed for actionable, open-only display. The overview needs resolution fields for DONE clarifications, `canResolve` for open ones, and nested user display data so API consumers do not need follow-up lookups for clarification subject, creator, or resolver labels. Rather than retrofitting the worklist item (breaking its semantics), a dedicated read model keeps each item type aligned with its consumer's needs.
 
 **Alternative considered:** Embed `MonthEndClarification` directly — rejected because it exposes `eligibleProjectLeadIds` (a domain internal used for authorization checks) to read-model consumers, and conflates the aggregate with a view type.
 

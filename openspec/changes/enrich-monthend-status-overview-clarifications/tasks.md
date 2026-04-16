@@ -1,6 +1,6 @@
 ## 1. Domain Model
 
-- [x] 1.1 Add `MonthEndOverviewClarificationItem` record to `domain/model/` with fields: `clarificationId`, `projectId`, `subjectEmployeeId`, `createdBy`, `creatorSide`, `status`, `text`, `canResolve`, `resolutionNote`, `resolvedBy`, `resolvedAt`, `createdAt`, `lastModifiedAt`
+- [x] 1.1 Add `MonthEndOverviewClarificationItem` record to `domain/model/` with fields: `clarificationId`, `projectId`, `subjectEmployee`, `createdBy`, `creatorSide`, `status`, `text`, `canResolve`, `resolutionNote`, `resolvedBy`, `resolvedAt`, `createdAt`, `lastModifiedAt` where the employee-related fields are `UserRef` values
 - [x] 1.2 Extend `MonthEndStatusOverview` record with `List<MonthEndOverviewClarificationItem> clarifications`; update compact constructor to include null-check and defensive copy
 
 ## 2. Repository Port
@@ -29,7 +29,7 @@
 
 ## 6. OpenAPI Contract
 
-- [x] 6.1 Update the canonical OpenAPI document: add `MonthEndOverviewClarificationItem` schema (with `canResolve`, resolution fields); extend the employee and project-lead status overview response schemas to include a `clarifications` array
+- [x] 6.1 Update the canonical OpenAPI document: add `MonthEndOverviewClarificationItem` schema (with nested employee references, `canResolve`, and resolution fields); extend the employee and project-lead status overview response schemas to include a `clarifications` array
 
 ## 7. Spec Sync
 

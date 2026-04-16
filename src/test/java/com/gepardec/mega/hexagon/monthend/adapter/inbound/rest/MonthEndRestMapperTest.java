@@ -119,7 +119,8 @@ class MonthEndRestMapperTest {
     }
 
     @Test
-    void toResponse_shouldMapStatusOverviewProjectAndSubjectEmployee() {
+    void toResponse_shouldMapStatusOverviewProjectAndClarificationUserReferences() {
+        Instant resolvedAt = Instant.parse("2026-03-25T10:30:00Z");
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 employeeId,
                 month,
@@ -135,15 +136,15 @@ class MonthEndRestMapperTest {
                 List.of(new MonthEndOverviewClarificationItem(
                         MonthEndClarificationId.of(Instancio.create(UUID.class)),
                         projectId,
-                        employeeId,
-                        leadId,
+                        employeeRef(),
+                        leadRef(),
                         MonthEndClarificationSide.PROJECT_LEAD,
-                        MonthEndClarificationStatus.OPEN,
+                        MonthEndClarificationStatus.DONE,
                         "Please update the proof.",
-                        true,
-                        null,
-                        null,
-                        null,
+                        false,
+                        "Handled in review.",
+                        leadRef(),
+                        resolvedAt,
                         Instant.parse("2026-03-25T10:15:00Z"),
                         Instant.parse("2026-03-25T10:45:00Z")
                 ))
@@ -162,8 +163,14 @@ class MonthEndRestMapperTest {
         });
         assertThat(response.getClarifications()).singleElement().satisfies(clarification -> {
             assertThat(clarification.getProjectId()).isEqualTo(projectId.value());
-            assertThat(clarification.getCreatedBy()).isEqualTo(leadId.value());
-            assertThat(clarification.getCanResolve()).isTrue();
+            assertThat(clarification.getSubjectEmployee().getId()).isEqualTo(employeeId.value());
+            assertThat(clarification.getSubjectEmployee().getFullName()).isEqualTo(employeeName);
+            assertThat(clarification.getCreatedBy().getId()).isEqualTo(leadId.value());
+            assertThat(clarification.getCreatedBy().getFullName()).isEqualTo("Mapper Lead");
+            assertThat(clarification.getResolvedBy().getId()).isEqualTo(leadId.value());
+            assertThat(clarification.getResolvedBy().getFullName()).isEqualTo("Mapper Lead");
+            assertThat(clarification.getResolvedAt()).isEqualTo(OffsetDateTime.ofInstant(resolvedAt, ZoneOffset.UTC));
+            assertThat(clarification.getCanResolve()).isFalse();
         });
     }
 
@@ -222,5 +229,9 @@ class MonthEndRestMapperTest {
 
     private UserRef employeeRef() {
         return new UserRef(employeeId, FullName.of("Mapper", "Employee"), ZepUsername.of("mapper.employee"));
+    }
+
+    private UserRef leadRef() {
+        return new UserRef(leadId, FullName.of("Mapper", "Lead"), ZepUsername.of("mapper.lead"));
     }
 }

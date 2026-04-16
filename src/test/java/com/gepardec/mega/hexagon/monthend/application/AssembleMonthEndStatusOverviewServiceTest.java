@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -105,10 +105,27 @@ class AssembleMonthEndStatusOverviewServiceTest {
                 Instant.parse("2026-03-31T08:06:00Z")
         ).resolve(leadAId, "Handled in the source system.", Instant.parse("2026-03-31T08:10:00Z"));
 
-        when(resolveMonthEndTaskSnapshotLookupService.resolve(List.of(employeeTask, projectLeadReviewTask), month))
+        UserRef employeeRef = new UserRef(
+                employeeId,
+                FullName.of("Employee", "Example"),
+                ZepUsername.of("employee.example")
+        );
+        UserRef leadRef = new UserRef(
+                leadAId,
+                FullName.of("Lead", "Example"),
+                ZepUsername.of("lead.example")
+        );
+        when(resolveMonthEndTaskSnapshotLookupService.resolve(
+                List.of(employeeTask, projectLeadReviewTask),
+                List.of(leadCreatedClarification, employeeCreatedClarification, doneClarification),
+                month
+        ))
                 .thenReturn(new MonthEndTaskSnapshotLookup(
                         Map.of(projectId, new ProjectRef(projectId, 77, "Project Overview")),
-                        Map.of(employeeId, new UserRef(employeeId, FullName.of("Employee", "Example"), ZepUsername.of("employee.example")))
+                        Map.of(
+                                employeeId, employeeRef,
+                                leadAId, leadRef
+                        )
                 ));
 
         MonthEndStatusOverview overview = service.assemble(
@@ -143,6 +160,8 @@ class AssembleMonthEndStatusOverviewServiceTest {
                 .filteredOn(item -> item.clarificationId().equals(leadCreatedClarification.id()))
                 .singleElement()
                 .satisfies(item -> {
+                    assertThat(item.subjectEmployee().id()).isEqualTo(employeeId);
+                    assertThat(item.createdBy().id()).isEqualTo(leadAId);
                     assertThat(item.canResolve()).isTrue();
                     assertThat(item.resolutionNote()).isNull();
                     assertThat(item.resolvedBy()).isNull();
@@ -156,19 +175,24 @@ class AssembleMonthEndStatusOverviewServiceTest {
                 .filteredOn(item -> item.clarificationId().equals(doneClarification.id()))
                 .singleElement()
                 .satisfies(item -> {
+                    assertThat(item.subjectEmployee().id()).isEqualTo(employeeId);
+                    assertThat(item.createdBy().id()).isEqualTo(employeeId);
                     assertThat(item.canResolve()).isFalse();
                     assertThat(item.resolutionNote()).isEqualTo("Handled in the source system.");
-                    assertThat(item.resolvedBy()).isEqualTo(leadAId);
+                    assertThat(item.resolvedBy().id()).isEqualTo(leadAId);
                     assertThat(item.resolvedAt()).isEqualTo(Instant.parse("2026-03-31T08:10:00Z"));
                 });
     }
 
     @Test
-    void assemble_shouldReturnEmptyOverviewWithoutResolvingSnapshots_whenTasksAndClarificationsAreEmpty() {
+    void assemble_shouldReturnEmptyOverview_whenTasksAndClarificationsAreEmpty() {
+        when(resolveMonthEndTaskSnapshotLookupService.resolve(List.of(), List.of(), month))
+                .thenReturn(MonthEndTaskSnapshotLookup.empty());
+
         MonthEndStatusOverview overview = service.assemble(List.of(), List.of(), employeeId, month);
 
         assertThat(overview.entries()).isEmpty();
         assertThat(overview.clarifications()).isEmpty();
-        verifyNoInteractions(resolveMonthEndTaskSnapshotLookupService);
+        verify(resolveMonthEndTaskSnapshotLookupService).resolve(List.of(), List.of(), month);
     }
 }

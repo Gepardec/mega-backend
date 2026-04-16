@@ -128,7 +128,7 @@ MonthEndOverviewClarificationEntry:
   required:
     - clarificationId
     - projectId
-    - subjectEmployeeId
+    - subjectEmployee
     - createdBy
     - creatorSide
     - status
@@ -143,12 +143,10 @@ MonthEndOverviewClarificationEntry:
     projectId:
       type: string
       format: uuid
-    subjectEmployeeId:
-      type: string
-      format: uuid
+    subjectEmployee:
+      $ref: '#/MonthEndEmployeeReference'
     createdBy:
-      type: string
-      format: uuid
+      $ref: '#/MonthEndEmployeeReference'
     creatorSide:
       $ref: '#/MonthEndClarificationSide'
     status:
@@ -161,8 +159,7 @@ MonthEndOverviewClarificationEntry:
       type: string
       nullable: true
     resolvedBy:
-      type: string
-      format: uuid
+      $ref: '#/MonthEndEmployeeReference'
       nullable: true
     resolvedAt:
       type: string

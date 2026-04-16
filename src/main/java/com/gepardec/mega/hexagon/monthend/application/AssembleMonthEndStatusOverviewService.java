@@ -36,9 +36,8 @@ public class AssembleMonthEndStatusOverviewService {
         Objects.requireNonNull(actorId, "actorId must not be null");
         Objects.requireNonNull(month, "month must not be null");
 
-        MonthEndTaskSnapshotLookup snapshotLookup = tasks.isEmpty()
-                ? MonthEndTaskSnapshotLookup.empty()
-                : resolveMonthEndTaskSnapshotLookupService.resolve(tasks, month);
+        MonthEndTaskSnapshotLookup snapshotLookup = resolveMonthEndTaskSnapshotLookupService
+                .resolve(tasks, clarifications, month);
 
         List<MonthEndStatusOverviewItem> entries = tasks.stream()
                 .map(task -> new MonthEndStatusOverviewItem(
@@ -46,7 +45,7 @@ public class AssembleMonthEndStatusOverviewService {
                         task.type(),
                         task.status(),
                         snapshotLookup.projectFor(task.projectId()),
-                        snapshotLookup.subjectEmployeeFor(task.subjectEmployeeId()),
+                        snapshotLookup.userFor(task.subjectEmployeeId()),
                         task.eligibleActorIds().contains(actorId),
                         task.completedBy()
                 ))
@@ -56,14 +55,14 @@ public class AssembleMonthEndStatusOverviewService {
                 .map(clarification -> new MonthEndOverviewClarificationItem(
                         clarification.id(),
                         clarification.projectId(),
-                        clarification.subjectEmployeeId(),
-                        clarification.createdBy(),
+                        snapshotLookup.userFor(clarification.subjectEmployeeId()),
+                        snapshotLookup.userFor(clarification.createdBy()),
                         clarification.creatorSide(),
                         clarification.status(),
                         clarification.text(),
                         clarification.canBeResolvedBy(actorId),
                         clarification.resolutionNote(),
-                        clarification.resolvedBy(),
+                        snapshotLookup.userFor(clarification.resolvedBy()),
                         clarification.resolvedAt(),
                         clarification.createdAt(),
                         clarification.lastModifiedAt()

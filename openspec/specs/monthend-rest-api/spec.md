@@ -53,6 +53,8 @@ The system SHALL provide employee-scoped monthend REST endpoints that allow auth
 - **THEN** each overview task entry includes a nested project object containing the project identifier and project name
 - **THEN** each overview task entry includes a nullable nested subject employee object containing the employee identifier and full name
 - **THEN** each overview task entry includes a `canComplete` field set to `true` if the employee is eligible to complete that task and `false` otherwise
+- **THEN** each overview clarification entry includes nested employee reference objects for `subjectEmployee` and `createdBy`
+- **THEN** each resolved overview clarification entry includes a nested employee reference object for `resolvedBy`
 - **THEN** each overview clarification entry includes a `canResolve` field set to `true` if the employee is eligible to resolve that clarification and `false` otherwise
 - **THEN** each overview clarification entry includes resolution fields when the clarification is resolved
 
@@ -86,6 +88,8 @@ The system SHALL provide project-lead-scoped monthend REST endpoints that allow 
 - **THEN** each overview task entry includes a nested project object containing the project identifier and project name
 - **THEN** each overview task entry includes a nullable nested subject employee object containing the employee identifier and full name
 - **THEN** each overview task entry includes a `canComplete` field set to `true` if the lead is eligible to complete that task and `false` otherwise
+- **THEN** each overview clarification entry includes nested employee reference objects for `subjectEmployee` and `createdBy`
+- **THEN** each resolved overview clarification entry includes a nested employee reference object for `resolvedBy`
 - **THEN** each overview clarification entry includes a `canResolve` field set to `true` if the lead is eligible to resolve that clarification and `false` otherwise
 - **THEN** each overview clarification entry includes resolution fields when the clarification is resolved
 
