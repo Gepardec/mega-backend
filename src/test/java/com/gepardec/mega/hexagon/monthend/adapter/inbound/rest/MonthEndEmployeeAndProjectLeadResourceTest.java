@@ -5,17 +5,13 @@ import com.gepardec.mega.hexagon.generated.model.CreateProjectLeadClarificationR
 import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntry;
 import com.gepardec.mega.hexagon.generated.model.MonthEndPreparationResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
-import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistResponse;
 import com.gepardec.mega.hexagon.generated.model.PrepareMonthEndProjectRequest;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndStatusOverviewUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndStatusOverviewUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
@@ -23,9 +19,6 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistClarificationItem;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistItem;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
@@ -71,9 +64,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
     AuthenticatedActorContext authenticatedActorContext;
 
     @InjectMock
-    GetEmployeeMonthEndWorklistUseCase getEmployeeMonthEndWorklistUseCase;
-
-    @InjectMock
     GetEmployeeMonthEndStatusOverviewUseCase getEmployeeMonthEndStatusOverviewUseCase;
 
     @InjectMock
@@ -81,9 +71,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
 
     @InjectMock
     CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
-
-    @InjectMock
-    GetProjectLeadMonthEndWorklistUseCase getProjectLeadMonthEndWorklistUseCase;
 
     @InjectMock
     GetProjectLeadMonthEndStatusOverviewUseCase getProjectLeadMonthEndStatusOverviewUseCase;
@@ -95,44 +82,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
     void setUp() {
         when(authenticatedActorContext.userId()).thenReturn(EMPLOYEE_ID);
         when(userSnapshotPort.findByIds(any(), any())).thenReturn(List.of(employeeRef(), projectLeadRef()));
-    }
-
-    @Test
-    void getEmployeeMonthEndWorklist_shouldReturnMappedWorklistForEmployeeRole() {
-        allowRoles(Role.EMPLOYEE);
-        MonthEndWorklist worklist = new MonthEndWorklist(
-                EMPLOYEE_ID,
-                MONTH,
-                List.of(new MonthEndWorklistItem(
-                        MonthEndTaskId.of(Instancio.create(UUID.class)),
-                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        projectRef(),
-                        employeeRef()
-                )),
-                List.of(toWorklistItem(employeeClarification("Please review the booking.")))
-        );
-        when(getEmployeeMonthEndWorklistUseCase.getWorklist(EMPLOYEE_ID, MONTH)).thenReturn(worklist);
-
-        MonthEndWorklistResponse response = given()
-                .accept(ContentType.JSON)
-                .queryParam("month", MONTH.toString())
-                .get("/monthend/employee/worklist")
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(MonthEndWorklistResponse.class);
-
-        assertThat(response.getMonth()).isEqualTo(MONTH.toString());
-        assertThat(response.getTasks()).singleElement().satisfies(task -> {
-            assertThat(task.getProject().getId()).isEqualTo(PROJECT_ID.value());
-            assertThat(task.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
-        });
-        assertThat(response.getClarifications()).singleElement().satisfies(clarification -> {
-            assertThat(clarification.getProjectId()).isEqualTo(PROJECT_ID.value());
-            assertThat(clarification.getCreatedBy()).isEqualTo(EMPLOYEE_ID.value());
-            assertThat(clarification.getText()).isEqualTo("Please review the booking.");
-        });
-        verify(getEmployeeMonthEndWorklistUseCase).getWorklist(EMPLOYEE_ID, MONTH);
     }
 
     @Test
@@ -205,39 +154,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
         assertThat(response.getCanResolve()).isFalse();
     }
 
-    @Test
-    void getProjectLeadMonthEndWorklist_shouldReturnMappedWorklistForLeadRole() {
-        allowRoles(Role.PROJECT_LEAD);
-        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
-        MonthEndWorklist worklist = new MonthEndWorklist(
-                PROJECT_LEAD_ID,
-                MONTH,
-                List.of(new MonthEndWorklistItem(
-                        MonthEndTaskId.of(Instancio.create(UUID.class)),
-                        MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                        projectRef(),
-                        employeeRef()
-                )),
-                List.of()
-        );
-        when(getProjectLeadMonthEndWorklistUseCase.getWorklist(PROJECT_LEAD_ID, MONTH)).thenReturn(worklist);
-
-        MonthEndWorklistResponse response = given()
-                .accept(ContentType.JSON)
-                .queryParam("month", MONTH.toString())
-                .get("/monthend/project-lead/worklist")
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(MonthEndWorklistResponse.class);
-
-        assertThat(response.getMonth()).isEqualTo(MONTH.toString());
-        assertThat(response.getTasks()).singleElement().satisfies(task -> {
-            assertThat(task.getProject().getId()).isEqualTo(PROJECT_ID.value());
-            assertThat(task.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
-        });
-        verify(getProjectLeadMonthEndWorklistUseCase).getWorklist(PROJECT_LEAD_ID, MONTH);
-    }
 
     @Test
     void createProjectLeadMonthEndClarification_shouldReturnCreatedClarification() {
@@ -274,20 +190,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
         assertThat(response.getCanEditText()).isTrue();
         assertThat(response.getCanDelete()).isTrue();
         assertThat(response.getCanResolve()).isFalse();
-    }
-
-    @Test
-    void getProjectLeadMonthEndWorklist_shouldRejectEmployeeRole() {
-        allowRoles(Role.EMPLOYEE);
-
-        given()
-                .accept(ContentType.JSON)
-                .queryParam("month", MONTH.toString())
-                .get("/monthend/project-lead/worklist")
-                .then()
-                .statusCode(403);
-
-        verifyNoInteractions(getProjectLeadMonthEndWorklistUseCase);
     }
 
     @Test
@@ -450,19 +352,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 Set.of(PROJECT_LEAD_ID),
                 text,
                 CREATED_AT
-        );
-    }
-
-    private MonthEndWorklistClarificationItem toWorklistItem(MonthEndClarification clarification) {
-        return new MonthEndWorklistClarificationItem(
-                clarification.id(),
-                clarification.projectId(),
-                clarification.subjectEmployeeId(),
-                clarification.createdBy(),
-                MonthEndClarificationStatus.OPEN,
-                clarification.text(),
-                clarification.createdAt(),
-                clarification.lastModifiedAt()
         );
     }
 

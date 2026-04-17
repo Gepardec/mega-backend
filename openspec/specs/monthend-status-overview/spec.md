@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Defines a status-oriented month-end overview for matrix or dashboard-style views that need visibility into both open and completed month-end obligations without changing the existing open-only worklist semantics.
+Defines a status-oriented month-end overview for matrix or dashboard-style views that need visibility into both open and completed month-end obligations.
 
 ## Requirements
 
@@ -135,13 +135,3 @@ The system SHALL expose the completing actor for `DONE` month-end tasks in the s
 - **WHEN** an `OPEN` month-end task appears in the status overview
 - **THEN** the overview entry does not include a completing actor
 
-### Requirement: Worklists remain focused while the status overview preserves status visibility
-The system SHALL keep the existing month-end worklists open-only even when the status overview shows completed tasks.
-
-#### Scenario: Completed employee task stays visible in overview but not in worklist
-- **WHEN** an employee completes one of their month-end tasks
-- **THEN** that task remains visible as `DONE` in the employee's status overview and no longer appears in the employee's open worklist
-
-#### Scenario: Completed shared lead task stays visible in overview but disappears from open lead worklists
-- **WHEN** one eligible lead completes a shared lead-eligible month-end task
-- **THEN** that task remains visible as `DONE` in every eligible lead's status overview and no longer appears in any eligible lead's open worklist
