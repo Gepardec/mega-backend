@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.MonthEndClarificationResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndEmployeeReference;
 import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntry;
 import com.gepardec.mega.hexagon.generated.model.MonthEndPreparationResponse;
@@ -14,7 +13,6 @@ import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndOverviewClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
@@ -29,14 +27,18 @@ import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.UUID;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.JAKARTA)
@@ -44,17 +46,10 @@ public interface MonthEndRestMapper {
 
     MonthEndWorklistResponse toResponse(MonthEndWorklist worklist);
 
-    MonthEndStatusOverviewResponse toResponse(MonthEndStatusOverview overview);
+    MonthEndTaskGenerationResponse toResponse(MonthEndTaskGenerationResult result);
 
     @Mapping(target = "taskId", source = "id")
     MonthEndTaskResponse toResponse(MonthEndTask task);
-
-    @Mapping(target = "clarificationId", source = "id")
-    MonthEndClarificationResponse toResponse(MonthEndClarification clarification);
-
-    MonthEndPreparationResponse toResponse(MonthEndPreparationResult result);
-
-    MonthEndTaskGenerationResponse toResponse(MonthEndTaskGenerationResult result);
 
     MonthEndWorklistTask toResponse(MonthEndWorklistItem item);
 
@@ -62,11 +57,55 @@ public interface MonthEndRestMapper {
 
     MonthEndStatusOverviewEntry toResponse(MonthEndStatusOverviewItem item);
 
-    MonthEndOverviewClarificationEntry toResponse(MonthEndOverviewClarificationItem item);
-
     MonthEndProjectReference toResponse(ProjectRef project);
 
     MonthEndEmployeeReference toResponse(UserRef subjectEmployee);
+
+    MonthEndStatusOverviewResponse toResponse(
+            MonthEndStatusOverview overview,
+            @Context Map<UserId, UserRef> userRefs,
+            @Context UserId actorId
+    );
+
+    MonthEndPreparationResponse toResponse(
+            MonthEndPreparationResult result,
+            @Context Map<UserId, UserRef> userRefs,
+            @Context UserId actorId
+    );
+
+    @Mapping(target = "clarificationId", source = "id")
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "subjectEmployee", ignore = true)
+    @Mapping(target = "resolvedBy", ignore = true)
+    @Mapping(target = "canResolve", ignore = true)
+    @Mapping(target = "canEditText", ignore = true)
+    @Mapping(target = "canDelete", ignore = true)
+    MonthEndOverviewClarificationEntry toClarificationEntry(
+            MonthEndClarification clarification,
+            @Context Map<UserId, UserRef> userRefs,
+            @Context UserId actorId
+    );
+
+    @AfterMapping
+    default void enrichClarificationEntry(
+            MonthEndClarification clarification,
+            @MappingTarget MonthEndOverviewClarificationEntry item,
+            @Context Map<UserId, UserRef> userRefs,
+            @Context UserId actorId
+    ) {
+        UserRef subjectRef = clarification.subjectEmployeeId() != null
+                ? userRefs.get(clarification.subjectEmployeeId())
+                : null;
+        UserRef resolvedByRef = clarification.resolvedBy() != null
+                ? userRefs.get(clarification.resolvedBy())
+                : null;
+        item.createdBy(toResponse(userRefs.get(clarification.createdBy())))
+                .subjectEmployee(subjectRef != null ? toResponse(subjectRef) : null)
+                .resolvedBy(resolvedByRef != null ? toResponse(resolvedByRef) : null)
+                .canResolve(clarification.canBeResolvedBy(actorId))
+                .canEditText(clarification.canEditText(actorId))
+                .canDelete(clarification.canDelete(actorId));
+    }
 
     default String map(YearMonth month) {
         return month == null ? null : month.toString();

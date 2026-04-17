@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.model.ApiError;
-import com.gepardec.mega.hexagon.generated.model.MonthEndClarificationResponse;
+import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntry;
 import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequest;
 import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequest;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndClarificationUseCase;
@@ -14,10 +14,14 @@ import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndTaskNotFoundExcep
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -28,11 +32,13 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,9 +70,13 @@ class MonthEndSharedResourceTest {
     @InjectMock
     DeleteMonthEndClarificationUseCase deleteMonthEndClarificationUseCase;
 
+    @InjectMock
+    MonthEndUserSnapshotPort userSnapshotPort;
+
     @BeforeEach
     void setUp() {
         when(authenticatedActorContext.userId()).thenReturn(EMPLOYEE_ID);
+        when(userSnapshotPort.findByIds(any(), any())).thenReturn(List.of(employeeRef(), projectLeadRef()));
     }
 
     @Test
@@ -94,7 +104,7 @@ class MonthEndSharedResourceTest {
         when(updateMonthEndClarificationUseCase.updateText(CLARIFICATION_ID, PROJECT_LEAD_ID, "Updated by lead."))
                 .thenReturn(clarification);
 
-        MonthEndClarificationResponse response = given()
+        MonthEndOverviewClarificationEntry response = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(new UpdateClarificationTextRequest().text("Updated by lead."))
@@ -102,11 +112,14 @@ class MonthEndSharedResourceTest {
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(MonthEndClarificationResponse.class);
+                .as(MonthEndOverviewClarificationEntry.class);
 
         assertThat(response.getClarificationId()).isEqualTo(CLARIFICATION_ID.value());
-        assertThat(response.getCreatedBy()).isEqualTo(PROJECT_LEAD_ID.value());
+        assertThat(response.getCreatedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
         assertThat(response.getText()).isEqualTo("Updated by lead.");
+        assertThat(response.getCanEditText()).isTrue();
+        assertThat(response.getCanDelete()).isTrue();
+        assertThat(response.getCanResolve()).isFalse();
         verify(updateMonthEndClarificationUseCase).updateText(CLARIFICATION_ID, PROJECT_LEAD_ID, "Updated by lead.");
     }
 
@@ -119,7 +132,7 @@ class MonthEndSharedResourceTest {
         when(completeMonthEndClarificationUseCase.complete(CLARIFICATION_ID, PROJECT_LEAD_ID, "Handled."))
                 .thenReturn(clarification);
 
-        MonthEndClarificationResponse response = given()
+        MonthEndOverviewClarificationEntry response = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(new ResolveClarificationRequest().resolutionNote("Handled."))
@@ -127,11 +140,14 @@ class MonthEndSharedResourceTest {
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(MonthEndClarificationResponse.class);
+                .as(MonthEndOverviewClarificationEntry.class);
 
         assertThat(response.getClarificationId()).isEqualTo(CLARIFICATION_ID.value());
-        assertThat(response.getResolvedBy()).isEqualTo(PROJECT_LEAD_ID.value());
+        assertThat(response.getResolvedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
         assertThat(response.getResolutionNote()).isEqualTo("Handled.");
+        assertThat(response.getCanResolve()).isFalse();
+        assertThat(response.getCanEditText()).isFalse();
+        assertThat(response.getCanDelete()).isFalse();
         verify(completeMonthEndClarificationUseCase).complete(CLARIFICATION_ID, PROJECT_LEAD_ID, "Handled.");
     }
 
@@ -199,5 +215,13 @@ class MonthEndSharedResourceTest {
                 text,
                 CREATED_AT
         );
+    }
+
+    private UserRef employeeRef() {
+        return new UserRef(EMPLOYEE_ID, FullName.of("Test", "Employee"), ZepUsername.of("test.employee"));
+    }
+
+    private UserRef projectLeadRef() {
+        return new UserRef(PROJECT_LEAD_ID, FullName.of("Test", "Project Lead"), ZepUsername.of("test.projectlead"));
     }
 }

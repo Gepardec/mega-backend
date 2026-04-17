@@ -10,7 +10,7 @@ public record MonthEndStatusOverview(
         UserId actorId,
         YearMonth month,
         List<MonthEndStatusOverviewItem> entries,
-        List<MonthEndOverviewClarificationItem> clarifications
+        List<MonthEndClarification> clarifications
 ) {
 
     public MonthEndStatusOverview {

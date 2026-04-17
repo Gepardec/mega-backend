@@ -2,7 +2,6 @@ package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndOverviewClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -11,12 +10,9 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
-import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
-import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
-import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,28 +90,7 @@ class GetProjectLeadMonthEndStatusOverviewServiceTest {
                         true,
                         null
                 )),
-                List.of(new MonthEndOverviewClarificationItem(
-                        clarification.id(),
-                        projectId,
-                        new UserRef(
-                                subjectEmployeeId,
-                                FullName.of("Subject", "Employee"),
-                                ZepUsername.of("subject.employee")
-                        ),
-                        new UserRef(
-                                subjectEmployeeId,
-                                FullName.of("Subject", "Employee"),
-                                ZepUsername.of("subject.employee")
-                        ),
-                        clarification.status(),
-                        clarification.text(),
-                        true,
-                        null,
-                        null,
-                        null,
-                        clarification.createdAt(),
-                        clarification.lastModifiedAt()
-                ))
+                List.of(clarification)
         );
 
         when(monthEndTaskRepository.findLeadProjectTasks(leadId, month)).thenReturn(List.of(task));
@@ -129,9 +104,8 @@ class GetProjectLeadMonthEndStatusOverviewServiceTest {
         assertThat(overview).isSameAs(assembledOverview);
         assertThat(overview.clarifications()).singleElement()
                 .satisfies(item -> {
-                    assertThat(item.subjectEmployee().id()).isEqualTo(subjectEmployeeId);
-                    assertThat(item.createdBy().id()).isEqualTo(subjectEmployeeId);
-                    assertThat(item.canResolve()).isTrue();
+                    assertThat(item.subjectEmployeeId()).isEqualTo(subjectEmployeeId);
+                    assertThat(item.createdBy()).isEqualTo(subjectEmployeeId);
                 });
         verify(monthEndTaskRepository).findLeadProjectTasks(leadId, month);
         verify(monthEndClarificationRepository).findAllProjectLeadClarifications(leadId, month);
