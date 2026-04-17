@@ -2,7 +2,6 @@ package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndOverviewClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -94,20 +93,7 @@ class GetEmployeeMonthEndStatusOverviewServiceTest {
                         true,
                         null
                 )),
-                List.of(new MonthEndOverviewClarificationItem(
-                        clarification.id(),
-                        projectId,
-                        new UserRef(actorId, FullName.of("Employee", "Example"), ZepUsername.of("employee.example")),
-                        new UserRef(leadId, FullName.of("Lead", "Example"), ZepUsername.of("lead.example")),
-                        clarification.status(),
-                        clarification.text(),
-                        true,
-                        null,
-                        null,
-                        null,
-                        clarification.createdAt(),
-                        clarification.lastModifiedAt()
-                ))
+                List.of(clarification)
         );
 
         when(monthEndTaskRepository.findEmployeeVisibleTasks(actorId, month)).thenReturn(List.of(task));
@@ -121,9 +107,8 @@ class GetEmployeeMonthEndStatusOverviewServiceTest {
         assertThat(overview).isSameAs(assembledOverview);
         assertThat(overview.clarifications()).singleElement()
                 .satisfies(item -> {
-                    assertThat(item.subjectEmployee().id()).isEqualTo(actorId);
-                    assertThat(item.createdBy().id()).isEqualTo(leadId);
-                    assertThat(item.canResolve()).isTrue();
+                    assertThat(item.subjectEmployeeId()).isEqualTo(actorId);
+                    assertThat(item.createdBy()).isEqualTo(leadId);
                 });
         verify(monthEndTaskRepository).findEmployeeVisibleTasks(actorId, month);
         verify(monthEndClarificationRepository).findAllEmployeeClarifications(actorId, month);

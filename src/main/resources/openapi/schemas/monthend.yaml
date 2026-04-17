@@ -124,6 +124,8 @@ MonthEndOverviewClarificationEntry:
     - status
     - text
     - canResolve
+    - canEditText
+    - canDelete
     - createdAt
     - lastModifiedAt
   properties:
@@ -143,6 +145,10 @@ MonthEndOverviewClarificationEntry:
     text:
       type: string
     canResolve:
+      type: boolean
+    canEditText:
+      type: boolean
+    canDelete:
       type: boolean
     resolutionNote:
       type: string
@@ -304,55 +310,6 @@ MonthEndTaskResponse:
       type: string
       format: uuid
       nullable: true
-MonthEndClarificationResponse:
-  type: object
-  additionalProperties: false
-  required:
-    - clarificationId
-    - month
-    - projectId
-    - createdBy
-    - status
-    - text
-    - createdAt
-    - lastModifiedAt
-  properties:
-    clarificationId:
-      type: string
-      format: uuid
-    month:
-      $ref: './shared.yaml#/MonthValue'
-    projectId:
-      type: string
-      format: uuid
-    subjectEmployeeId:
-      type: string
-      format: uuid
-      nullable: true
-    createdBy:
-      type: string
-      format: uuid
-    status:
-      $ref: '#/MonthEndClarificationStatus'
-    text:
-      type: string
-    resolutionNote:
-      type: string
-      nullable: true
-    resolvedBy:
-      type: string
-      format: uuid
-      nullable: true
-    createdAt:
-      type: string
-      format: date-time
-    resolvedAt:
-      type: string
-      format: date-time
-      nullable: true
-    lastModifiedAt:
-      type: string
-      format: date-time
 MonthEndPreparationResponse:
   type: object
   additionalProperties: false
@@ -364,7 +321,7 @@ MonthEndPreparationResponse:
       items:
         $ref: '#/MonthEndTaskResponse'
     clarification:
-      $ref: '#/MonthEndClarificationResponse'
+      $ref: '#/MonthEndOverviewClarificationEntry'
       nullable: true
 MonthEndTaskGenerationResponse:
   type: object

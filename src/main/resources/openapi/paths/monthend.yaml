@@ -91,7 +91,7 @@
         content:
           application/json:
             schema:
-              $ref: '../schemas/monthend.yaml#/MonthEndClarificationResponse'
+              $ref: '../schemas/monthend.yaml#/MonthEndOverviewClarificationEntry'
       '400':
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
@@ -164,7 +164,7 @@
         content:
           application/json:
             schema:
-              $ref: '../schemas/monthend.yaml#/MonthEndClarificationResponse'
+              $ref: '../schemas/monthend.yaml#/MonthEndOverviewClarificationEntry'
       '400':
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
@@ -237,7 +237,7 @@
         content:
           application/json:
             schema:
-              $ref: '../schemas/monthend.yaml#/MonthEndClarificationResponse'
+              $ref: '../schemas/monthend.yaml#/MonthEndOverviewClarificationEntry'
       '400':
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
@@ -268,7 +268,7 @@
         content:
           application/json:
             schema:
-              $ref: '../schemas/monthend.yaml#/MonthEndClarificationResponse'
+              $ref: '../schemas/monthend.yaml#/MonthEndOverviewClarificationEntry'
       '400':
         $ref: '../responses/common.yaml#/BadRequest'
       '403':

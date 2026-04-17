@@ -8,6 +8,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
 import java.time.Instant;
 import java.time.YearMonth;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -155,6 +156,18 @@ public record MonthEndClarification(
         Objects.requireNonNull(actorId, "actorId must not be null");
         return eligibleProjectLeadIds.contains(actorId)
                 || (subjectEmployeeId != null && subjectEmployeeId.equals(actorId));
+    }
+
+    public Set<UserId> referencedUserIds() {
+        Set<UserId> ids = new HashSet<>();
+        ids.add(createdBy);
+        if (subjectEmployeeId != null) {
+            ids.add(subjectEmployeeId);
+        }
+        if (resolvedBy != null) {
+            ids.add(resolvedBy);
+        }
+        return ids;
     }
 
     private static void validateEligibleLeads(Set<UserId> eligibleProjectLeadIds) {
