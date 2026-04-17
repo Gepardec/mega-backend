@@ -17,7 +17,6 @@ public record MonthEndClarification(
         ProjectId projectId,
         UserId subjectEmployeeId,
         UserId createdBy,
-        MonthEndClarificationSide creatorSide,
         Set<UserId> eligibleProjectLeadIds,
         MonthEndClarificationStatus status,
         String text,
@@ -32,9 +31,7 @@ public record MonthEndClarification(
         Objects.requireNonNull(id, "id must not be null");
         Objects.requireNonNull(month, "month must not be null");
         Objects.requireNonNull(projectId, "projectId must not be null");
-        Objects.requireNonNull(subjectEmployeeId, "subjectEmployeeId must not be null");
         Objects.requireNonNull(createdBy, "createdBy must not be null");
-        Objects.requireNonNull(creatorSide, "creatorSide must not be null");
         Objects.requireNonNull(eligibleProjectLeadIds, "eligibleProjectLeadIds must not be null");
         Objects.requireNonNull(status, "status must not be null");
         Objects.requireNonNull(createdAt, "createdAt must not be null");
@@ -45,7 +42,7 @@ public record MonthEndClarification(
         resolutionNote = normalizeOptionalText(resolutionNote);
 
         validateEligibleLeads(eligibleProjectLeadIds);
-        validateCreator(createdBy, creatorSide, subjectEmployeeId, eligibleProjectLeadIds);
+        validateCreator(createdBy, subjectEmployeeId, eligibleProjectLeadIds);
         validateTimestamps(createdAt, resolvedAt, lastModifiedAt);
         validateResolutionState(status, resolutionNote, resolvedBy, resolvedAt);
     }
@@ -56,7 +53,6 @@ public record MonthEndClarification(
             ProjectId projectId,
             UserId subjectEmployeeId,
             UserId createdBy,
-            MonthEndClarificationSide creatorSide,
             Set<UserId> eligibleProjectLeadIds,
             String text,
             Instant createdAt
@@ -67,7 +63,6 @@ public record MonthEndClarification(
                 projectId,
                 subjectEmployeeId,
                 createdBy,
-                creatorSide,
                 eligibleProjectLeadIds,
                 MonthEndClarificationStatus.OPEN,
                 text,
@@ -97,7 +92,6 @@ public record MonthEndClarification(
                 projectId,
                 subjectEmployeeId,
                 createdBy,
-                creatorSide,
                 eligibleProjectLeadIds,
                 status,
                 updatedText,
@@ -127,7 +121,6 @@ public record MonthEndClarification(
                 projectId,
                 subjectEmployeeId,
                 createdBy,
-                creatorSide,
                 eligibleProjectLeadIds,
                 MonthEndClarificationStatus.DONE,
                 text,
@@ -145,26 +138,23 @@ public record MonthEndClarification(
 
     public boolean canEditText(UserId actorId) {
         Objects.requireNonNull(actorId, "actorId must not be null");
-        return isOpen() && isActorOnCreatorSide(actorId);
+        return isOpen() && actorId.equals(createdBy);
     }
 
     public boolean canBeResolvedBy(UserId actorId) {
         Objects.requireNonNull(actorId, "actorId must not be null");
-        if (!isOpen()) {
-            return false;
-        }
-
-        return switch (creatorSide) {
-            case EMPLOYEE -> eligibleProjectLeadIds.contains(actorId);
-            case PROJECT_LEAD -> subjectEmployeeId.equals(actorId);
-        };
+        return isOpen() && isInvolved(actorId) && !actorId.equals(createdBy);
     }
 
-    private boolean isActorOnCreatorSide(UserId actorId) {
-        return switch (creatorSide) {
-            case EMPLOYEE -> subjectEmployeeId.equals(actorId);
-            case PROJECT_LEAD -> eligibleProjectLeadIds.contains(actorId);
-        };
+    public boolean canDelete(UserId actorId) {
+        Objects.requireNonNull(actorId, "actorId must not be null");
+        return isOpen() && actorId.equals(createdBy);
+    }
+
+    public boolean isInvolved(UserId actorId) {
+        Objects.requireNonNull(actorId, "actorId must not be null");
+        return eligibleProjectLeadIds.contains(actorId)
+                || (subjectEmployeeId != null && subjectEmployeeId.equals(actorId));
     }
 
     private static void validateEligibleLeads(Set<UserId> eligibleProjectLeadIds) {
@@ -175,25 +165,13 @@ public record MonthEndClarification(
 
     private static void validateCreator(
             UserId createdBy,
-            MonthEndClarificationSide creatorSide,
             UserId subjectEmployeeId,
             Set<UserId> eligibleProjectLeadIds
     ) {
-        switch (creatorSide) {
-            case EMPLOYEE -> {
-                if (!subjectEmployeeId.equals(createdBy)) {
-                    throw new MonthEndValidationException(
-                            "employee-created clarifications must be created by the subject employee"
-                    );
-                }
-            }
-            case PROJECT_LEAD -> {
-                if (!eligibleProjectLeadIds.contains(createdBy)) {
-                    throw new MonthEndValidationException(
-                            "lead-created clarifications must be created by an eligible lead"
-                    );
-                }
-            }
+        boolean creatorIsEmployee = subjectEmployeeId != null && subjectEmployeeId.equals(createdBy);
+        boolean creatorIsLead = eligibleProjectLeadIds.contains(createdBy);
+        if (!creatorIsEmployee && !creatorIsLead) {
+            throw new MonthEndValidationException("clarification creator must be the subject employee or an eligible lead");
         }
     }
 

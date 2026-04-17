@@ -57,7 +57,6 @@ public class AssembleMonthEndStatusOverviewService {
                         clarification.projectId(),
                         snapshotLookup.userFor(clarification.subjectEmployeeId()),
                         snapshotLookup.userFor(clarification.createdBy()),
-                        clarification.creatorSide(),
                         clarification.status(),
                         clarification.text(),
                         clarification.canBeResolvedBy(actorId),

@@ -10,7 +10,6 @@ public record MonthEndWorklistClarificationItem(
         ProjectId projectId,
         UserId subjectEmployeeId,
         UserId createdBy,
-        MonthEndClarificationSide creatorSide,
         MonthEndClarificationStatus status,
         String text,
         Instant createdAt,

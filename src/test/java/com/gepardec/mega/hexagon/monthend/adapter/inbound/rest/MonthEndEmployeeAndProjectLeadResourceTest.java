@@ -14,7 +14,6 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLea
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndOverviewClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
@@ -176,7 +175,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 PROJECT_ID,
                 EMPLOYEE_ID,
                 EMPLOYEE_ID,
-                MonthEndClarificationSide.EMPLOYEE,
                 "Need support."
         )).thenReturn(clarification);
 
@@ -245,7 +243,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 PROJECT_ID,
                 EMPLOYEE_ID,
                 PROJECT_LEAD_ID,
-                MonthEndClarificationSide.PROJECT_LEAD,
                 "Please fix the evidence."
         )).thenReturn(clarification);
 
@@ -299,7 +296,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                         PROJECT_ID,
                         employeeRef(),
                         projectLeadRef(),
-                        MonthEndClarificationSide.PROJECT_LEAD,
                         MonthEndClarificationStatus.OPEN,
                         "Please revisit the supporting evidence.",
                         true,
@@ -371,7 +367,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                         PROJECT_ID,
                         employeeRef(),
                         employeeRef(),
-                        MonthEndClarificationSide.EMPLOYEE,
                         MonthEndClarificationStatus.DONE,
                         "Everything is clarified.",
                         false,
@@ -444,7 +439,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 PROJECT_ID,
                 EMPLOYEE_ID,
                 EMPLOYEE_ID,
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(PROJECT_LEAD_ID),
                 text,
                 CREATED_AT
@@ -458,7 +452,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 PROJECT_ID,
                 EMPLOYEE_ID,
                 PROJECT_LEAD_ID,
-                MonthEndClarificationSide.PROJECT_LEAD,
                 Set.of(PROJECT_LEAD_ID),
                 text,
                 CREATED_AT
@@ -471,7 +464,6 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 clarification.projectId(),
                 clarification.subjectEmployeeId(),
                 clarification.createdBy(),
-                clarification.creatorSide(),
                 MonthEndClarificationStatus.OPEN,
                 clarification.text(),
                 clarification.createdAt(),

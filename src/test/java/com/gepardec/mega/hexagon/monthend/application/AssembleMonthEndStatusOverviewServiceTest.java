@@ -2,7 +2,6 @@ package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
@@ -77,7 +76,6 @@ class AssembleMonthEndStatusOverviewServiceTest {
                 projectId,
                 employeeId,
                 leadAId,
-                MonthEndClarificationSide.PROJECT_LEAD,
                 Set.of(leadAId, leadBId),
                 "Please add the remaining evidence.",
                 Instant.parse("2026-03-31T08:00:00Z")
@@ -88,7 +86,6 @@ class AssembleMonthEndStatusOverviewServiceTest {
                 projectId,
                 employeeId,
                 employeeId,
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(leadAId, leadBId),
                 "Please verify the entered hours.",
                 Instant.parse("2026-03-31T08:05:00Z")
@@ -99,7 +96,6 @@ class AssembleMonthEndStatusOverviewServiceTest {
                 projectId,
                 employeeId,
                 employeeId,
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(leadAId, leadBId),
                 "Already resolved clarification.",
                 Instant.parse("2026-03-31T08:06:00Z")

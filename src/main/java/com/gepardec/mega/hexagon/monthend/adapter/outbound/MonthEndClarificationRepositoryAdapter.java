@@ -50,6 +50,13 @@ public class MonthEndClarificationRepositoryAdapter implements MonthEndClarifica
     }
 
     @Override
+    public void delete(MonthEndClarificationId id) {
+        panache.find("id", id.value())
+                .firstResultOptional()
+                .ifPresent(panache::delete);
+    }
+
+    @Override
     public void save(MonthEndClarification clarification) {
         MonthEndClarificationEntity entity = panache.find("id", clarification.id().value())
                 .firstResultOptional()

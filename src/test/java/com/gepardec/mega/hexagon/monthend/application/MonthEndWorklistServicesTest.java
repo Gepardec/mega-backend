@@ -2,7 +2,6 @@ package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
@@ -138,7 +137,6 @@ class MonthEndWorklistServicesTest {
                 projectId,
                 employeeId,
                 employeeId,
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(leadId),
                 "Please review this clarification.",
                 Instant.parse("2026-03-31T08:00:00Z")

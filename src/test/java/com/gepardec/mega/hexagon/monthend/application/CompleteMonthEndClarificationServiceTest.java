@@ -3,7 +3,6 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -46,7 +45,7 @@ class CompleteMonthEndClarificationServiceTest {
     }
 
     @Test
-    void complete_shouldPersistResolvedClarification_whenActorIsAllowed() {
+    void complete_shouldPersistResolvedClarification_whenLeadResolvesEmployeeCreatedClarification() {
         MonthEndClarification clarification = employeeCreatedClarification();
         when(clarificationRepository.findById(clarification.id())).thenReturn(Optional.of(clarification));
 
@@ -56,6 +55,48 @@ class CompleteMonthEndClarificationServiceTest {
         assertThat(result.resolvedBy()).isEqualTo(leadA);
         assertThat(result.resolvedAt()).isEqualTo(clock.instant());
         assertThat(result.resolutionNote()).isEqualTo("Handled");
+        verify(clarificationRepository).save(result);
+    }
+
+    @Test
+    void complete_shouldPersistResolvedClarification_whenEmployeeResolvesLeadCreatedClarification() {
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                employeeId,
+                leadA,
+                Set.of(leadA, leadB),
+                "Please provide evidence.",
+                Instant.parse("2026-03-31T08:00:00Z")
+        );
+        when(clarificationRepository.findById(clarification.id())).thenReturn(Optional.of(clarification));
+
+        MonthEndClarification result = service.complete(clarification.id(), employeeId, "Evidence attached");
+
+        assertThat(result.status()).isEqualTo(MonthEndClarificationStatus.DONE);
+        assertThat(result.resolvedBy()).isEqualTo(employeeId);
+        verify(clarificationRepository).save(result);
+    }
+
+    @Test
+    void complete_shouldPersistResolvedClarification_whenLeadBResolvesProjectLevelClarificationCreatedByLeadA() {
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                null,
+                leadA,
+                Set.of(leadA, leadB),
+                "Cross-lead issue.",
+                Instant.parse("2026-03-31T08:00:00Z")
+        );
+        when(clarificationRepository.findById(clarification.id())).thenReturn(Optional.of(clarification));
+
+        MonthEndClarification result = service.complete(clarification.id(), leadB, "Acknowledged by lead B");
+
+        assertThat(result.status()).isEqualTo(MonthEndClarificationStatus.DONE);
+        assertThat(result.resolvedBy()).isEqualTo(leadB);
         verify(clarificationRepository).save(result);
     }
 
@@ -88,7 +129,6 @@ class CompleteMonthEndClarificationServiceTest {
                 projectId,
                 employeeId,
                 employeeId,
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(leadA, leadB),
                 "Please verify this.",
                 Instant.parse("2026-03-31T08:00:00Z")

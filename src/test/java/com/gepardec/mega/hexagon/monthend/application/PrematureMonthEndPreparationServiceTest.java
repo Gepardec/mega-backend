@@ -1,7 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
@@ -115,7 +114,6 @@ class PrematureMonthEndPreparationServiceTest {
                     assertThat(c.projectId()).isEqualTo(projectId);
                     assertThat(c.subjectEmployeeId()).isEqualTo(employeeId);
                     assertThat(c.createdBy()).isEqualTo(employeeId);
-                    assertThat(c.creatorSide()).isEqualTo(MonthEndClarificationSide.EMPLOYEE);
                     assertThat(c.text()).isEqualTo("Please review before my absence.");
                     assertThat(c.eligibleProjectLeadIds()).containsOnly(leadId);
                 });

@@ -15,11 +15,6 @@ MonthEndClarificationStatus:
   enum:
     - OPEN
     - DONE
-MonthEndClarificationSide:
-  type: string
-  enum:
-    - EMPLOYEE
-    - PROJECT_LEAD
 MonthEndWorklistTask:
   type: object
   additionalProperties: false
@@ -44,9 +39,7 @@ MonthEndWorklistClarification:
   required:
     - clarificationId
     - projectId
-    - subjectEmployeeId
     - createdBy
-    - creatorSide
     - status
     - text
     - createdAt
@@ -61,11 +54,10 @@ MonthEndWorklistClarification:
     subjectEmployeeId:
       type: string
       format: uuid
+      nullable: true
     createdBy:
       type: string
       format: uuid
-    creatorSide:
-      $ref: '#/MonthEndClarificationSide'
     status:
       $ref: '#/MonthEndClarificationStatus'
     text:
@@ -128,9 +120,7 @@ MonthEndOverviewClarificationEntry:
   required:
     - clarificationId
     - projectId
-    - subjectEmployee
     - createdBy
-    - creatorSide
     - status
     - text
     - canResolve
@@ -145,10 +135,9 @@ MonthEndOverviewClarificationEntry:
       format: uuid
     subjectEmployee:
       $ref: '#/MonthEndEmployeeReference'
+      nullable: true
     createdBy:
       $ref: '#/MonthEndEmployeeReference'
-    creatorSide:
-      $ref: '#/MonthEndClarificationSide'
     status:
       $ref: '#/MonthEndClarificationStatus'
     text:
@@ -249,7 +238,6 @@ CreateProjectLeadClarificationRequest:
   required:
     - month
     - projectId
-    - subjectEmployeeId
     - text
   properties:
     month:
@@ -260,6 +248,7 @@ CreateProjectLeadClarificationRequest:
     subjectEmployeeId:
       type: string
       format: uuid
+      nullable: true
     text:
       type: string
 UpdateClarificationTextRequest:
@@ -322,9 +311,7 @@ MonthEndClarificationResponse:
     - clarificationId
     - month
     - projectId
-    - subjectEmployeeId
     - createdBy
-    - creatorSide
     - status
     - text
     - createdAt
@@ -341,11 +328,10 @@ MonthEndClarificationResponse:
     subjectEmployeeId:
       type: string
       format: uuid
+      nullable: true
     createdBy:
       type: string
       format: uuid
-    creatorSide:
-      $ref: '#/MonthEndClarificationSide'
     status:
       $ref: '#/MonthEndClarificationStatus'
     text:

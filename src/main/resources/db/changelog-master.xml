@@ -24,5 +24,6 @@
     <include file="changelog/hexagon/005-monthend-clarification-model.yaml" relativeToChangelogFile="true"/>
     <include file="changelog/hexagon/006-monthend-task-business-key-uniqueness.yaml" relativeToChangelogFile="true"/>
     <include file="changelog/hexagon/007-user-sync-reshape.yaml" relativeToChangelogFile="true"/>
+    <include file="changelog/hexagon/008-unify-clarification-model.yaml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

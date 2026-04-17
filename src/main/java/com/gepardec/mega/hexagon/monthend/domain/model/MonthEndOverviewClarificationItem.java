@@ -11,7 +11,6 @@ public record MonthEndOverviewClarificationItem(
         ProjectId projectId,
         UserRef subjectEmployee,
         UserRef createdBy,
-        MonthEndClarificationSide creatorSide,
         MonthEndClarificationStatus status,
         String text,
         boolean canResolve,
@@ -25,9 +24,7 @@ public record MonthEndOverviewClarificationItem(
     public MonthEndOverviewClarificationItem {
         Objects.requireNonNull(clarificationId, "clarificationId must not be null");
         Objects.requireNonNull(projectId, "projectId must not be null");
-        Objects.requireNonNull(subjectEmployee, "subjectEmployee must not be null");
         Objects.requireNonNull(createdBy, "createdBy must not be null");
-        Objects.requireNonNull(creatorSide, "creatorSide must not be null");
         Objects.requireNonNull(status, "status must not be null");
         Objects.requireNonNull(text, "text must not be null");
         Objects.requireNonNull(createdAt, "createdAt must not be null");

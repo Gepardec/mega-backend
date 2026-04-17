@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -33,15 +32,11 @@ public class MonthEndClarificationEntity {
     @Column(name = "project_id", nullable = false)
     private UUID projectId;
 
-    @Column(name = "subject_employee_id", nullable = false)
+    @Column(name = "subject_employee_id", nullable = true)
     private UUID subjectEmployeeId;
 
     @Column(name = "created_by", nullable = false)
     private UUID createdBy;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "creator_side", nullable = false)
-    private MonthEndClarificationSide creatorSide;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
@@ -111,14 +106,6 @@ public class MonthEndClarificationEntity {
 
     public void setCreatedBy(UUID createdBy) {
         this.createdBy = createdBy;
-    }
-
-    public MonthEndClarificationSide getCreatorSide() {
-        return creatorSide;
-    }
-
-    public void setCreatorSide(MonthEndClarificationSide creatorSide) {
-        this.creatorSide = creatorSide;
     }
 
     public Set<UUID> getEligibleProjectLeadIds() {

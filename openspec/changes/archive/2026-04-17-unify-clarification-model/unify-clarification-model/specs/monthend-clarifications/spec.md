@@ -1,10 +1,4 @@
-# Month-End Clarifications
-
-## Purpose
-
-Defines the `MonthEndClarification` aggregate for user-created month-end follow-up subtasks, including visibility, editability, resolution, and their independence from generated `MonthEndTask` obligations.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Month-end clarifications model user-created follow-up subtasks
 The system SHALL represent each month-end clarification as a `MonthEndClarification` scoped to one month and one project. A clarification SHALL store its creator (`createdBy`), an optional subject employee (`subjectEmployeeId`), open or done status, clarification text, optional resolution note, eligible project lead snapshot, `createdAt`, optional `resolvedAt`, and `lastModifiedAt`. The `creatorSide` field is removed. When `subjectEmployeeId` is absent the clarification is project-level and the creator MUST be an eligible project lead.
@@ -30,17 +24,6 @@ The system SHALL represent each month-end clarification as a `MonthEndClarificat
 #### Scenario: Project-level clarification cannot be created by a non-lead
 - **WHEN** a user who is not an eligible project lead attempts to create a project-level clarification (no subject employee)
 - **THEN** the system rejects the creation attempt
-
-### Requirement: Clarifications preserve month-end lead eligibility at creation time
-The system SHALL snapshot the eligible project leads of a clarification when it is created. Employee-created clarifications SHALL be resolvable by any lead in that snapshot. Lead-created clarifications SHALL remain visible and editable to the leads in that snapshot while open.
-
-#### Scenario: Employee-created clarification captures all eligible leads
-- **WHEN** the subject employee creates a clarification and the project has multiple eligible leads in that month-end context
-- **THEN** the clarification stores that lead set as its eligible project lead snapshot
-
-#### Scenario: Lead assignment changes do not alter an open clarification
-- **WHEN** project lead assignments change after a clarification has already been created
-- **THEN** the open clarification keeps its original eligible project lead snapshot
 
 ### Requirement: Clarification creation and visibility follow involved-party rules
 The system SHALL allow a clarification to be created only by an involved party. The involved parties of a clarification are: the subject employee (if present) and all eligible project leads. A clarification SHALL be visible to all involved parties.
@@ -111,6 +94,8 @@ The system SHALL complete clarifications through a dedicated clarification compl
 - **WHEN** a user that is not an involved party attempts to resolve the clarification
 - **THEN** the system rejects the completion attempt
 
+## ADDED Requirements
+
 ### Requirement: Clarification creator may permanently delete an open clarification
 The system SHALL allow the creator of a clarification to permanently remove it from the database while it is `OPEN`. Deletion of a `DONE` clarification SHALL be rejected. No other actor SHALL be permitted to delete a clarification. Deletion SHALL be a hard delete with no audit trail retained.
 
@@ -141,34 +126,12 @@ The system SHALL provide a domain service `MonthEndProjectContextService` in `mo
 - **WHEN** a project's leads set contains a UserId that has no matching active user for the given month
 - **THEN** that UserId is absent from `MonthEndProjectContext.eligibleProjectLeadIds()`
 
-### Requirement: Clarifications do not block generated month-end task completion
-The system SHALL treat clarification subtasks as independent from the generated `MonthEndTask` obligations in the same month-end context.
+## REMOVED Requirements
 
-#### Scenario: Generated task can complete while clarification remains open
-- **WHEN** a generated month-end task is completed for a project employee that still has an open clarification
-- **THEN** the generated task completes successfully
-- **THEN** the clarification remains open until it is resolved through the clarification flow
+### Requirement: Open clarification text is editable by the creator side
+**Reason**: Replaced by the unified creator-only edit rule. The concept of "creator side" (EMPLOYEE vs PROJECT_LEAD group) is removed from the model; editability is now determined solely by identity of the creator (`createdBy`).
+**Migration**: All edit authorization checks must use `actor == createdBy` instead of `creatorSide`-based group membership.
 
-### Requirement: Clarification repository supports full-status queries for actor-scoped month-end overviews
-The system SHALL provide two additional repository query methods that return all clarifications for an actor's scope for a given month, regardless of clarification status:
-
-- `findAllEmployeeClarifications(UserId employeeId, YearMonth month)`: returns all `MonthEndClarification` records where the employee is the `subjectEmployeeId` for that month, including both `OPEN` and `DONE`.
-- `findAllProjectLeadClarifications(UserId leadId, YearMonth month)`: returns all `MonthEndClarification` records for projects the lead leads for that month, including both `OPEN` and `DONE`.
-
-The existing `findOpenEmployeeClarifications` and `findOpenProjectLeadClarifications` methods SHALL remain unchanged with their open-only semantics for use by the worklist.
-
-#### Scenario: findAllEmployeeClarifications returns open and done clarifications
-- **WHEN** `findAllEmployeeClarifications` is called for an employee who has both open and done clarifications as subject employee in that month
-- **THEN** both open and done clarifications are returned
-
-#### Scenario: findAllEmployeeClarifications excludes clarifications from other months
-- **WHEN** `findAllEmployeeClarifications` is called for a given month
-- **THEN** clarifications from other months are not returned
-
-#### Scenario: findAllProjectLeadClarifications returns clarifications for all led projects
-- **WHEN** `findAllProjectLeadClarifications` is called for a lead who leads multiple projects
-- **THEN** clarifications for all those projects are returned, regardless of status
-
-#### Scenario: findAllProjectLeadClarifications excludes clarifications from projects the lead does not lead
-- **WHEN** `findAllProjectLeadClarifications` is called
-- **THEN** clarifications from projects where the lead has no eligible-actor role are not returned
+### Requirement: Clarifications resolve to the opposite side with an optional resolution note
+**Reason**: Replaced by the unified involved-non-creator resolution rule. The "opposite side resolves" invariant does not hold for project-level clarifications where both creator and resolver are on the lead side.
+**Migration**: All resolution authorization checks must use `isInvolved(actor) AND actor != createdBy` instead of `creatorSide`-based opposite-side checks.

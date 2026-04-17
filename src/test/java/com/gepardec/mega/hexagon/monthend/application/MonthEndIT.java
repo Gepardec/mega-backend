@@ -12,7 +12,6 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLea
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
@@ -546,7 +545,6 @@ class MonthEndIT {
                 project.id(),
                 employee.id(),
                 employee.id(),
-                MonthEndClarificationSide.EMPLOYEE,
                 "Please verify the remaining booking."
         );
 
@@ -588,13 +586,12 @@ class MonthEndIT {
                 project.id(),
                 employee.id(),
                 leadA.id(),
-                MonthEndClarificationSide.PROJECT_LEAD,
                 "Please update the supporting note."
         );
 
         MonthEndClarification updatedClarification = updateMonthEndClarificationUseCase.updateText(
                 clarification.id(),
-                leadB.id(),
+                leadA.id(),
                 "Please update the supporting note before close."
         );
 

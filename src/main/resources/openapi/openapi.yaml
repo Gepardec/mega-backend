@@ -35,6 +35,8 @@ paths:
     $ref: './paths/monthend.yaml#/~1monthend~1tasks~1{taskId}~1complete'
   /monthend/clarifications/{clarificationId}/text:
     $ref: './paths/monthend.yaml#/~1monthend~1clarifications~1{clarificationId}~1text'
+  /monthend/clarifications/{clarificationId}:
+    $ref: './paths/monthend.yaml#/~1monthend~1clarifications~1{clarificationId}'
   /monthend/clarifications/{clarificationId}/resolve:
     $ref: './paths/monthend.yaml#/~1monthend~1clarifications~1{clarificationId}~1resolve'
   /monthend/ops/generation:

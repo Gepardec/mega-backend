@@ -2,7 +2,6 @@ package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndOverviewClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
@@ -79,7 +78,6 @@ class GetEmployeeMonthEndStatusOverviewServiceTest {
                 projectId,
                 actorId,
                 leadId,
-                MonthEndClarificationSide.PROJECT_LEAD,
                 Set.of(leadId),
                 "Please add the remaining note.",
                 Instant.parse("2026-03-31T08:00:00Z")
@@ -101,7 +99,6 @@ class GetEmployeeMonthEndStatusOverviewServiceTest {
                         projectId,
                         new UserRef(actorId, FullName.of("Employee", "Example"), ZepUsername.of("employee.example")),
                         new UserRef(leadId, FullName.of("Lead", "Example"), ZepUsername.of("lead.example")),
-                        MonthEndClarificationSide.PROJECT_LEAD,
                         clarification.status(),
                         clarification.text(),
                         true,
