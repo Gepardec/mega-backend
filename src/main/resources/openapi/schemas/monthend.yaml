@@ -124,12 +124,12 @@ MonthEndStatusOverviewResponse:
   additionalProperties: false
   required:
     - month
-    - entries
+    - tasks
     - clarifications
   properties:
     month:
       $ref: './shared.yaml#/MonthValue'
-    entries:
+    tasks:
       type: array
       items:
         $ref: '#/MonthEndStatusOverviewEntry'

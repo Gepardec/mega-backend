@@ -13,17 +13,16 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMont
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
-import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
@@ -78,10 +77,14 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
     @InjectMock
     MonthEndUserSnapshotPort userSnapshotPort;
 
+    @InjectMock
+    MonthEndProjectSnapshotPort projectSnapshotPort;
+
     @BeforeEach
     void setUp() {
         when(authenticatedActorContext.userId()).thenReturn(EMPLOYEE_ID);
         when(userSnapshotPort.findByIds(any(), any())).thenReturn(List.of(employeeRef(), projectLeadRef()));
+        when(projectSnapshotPort.findByIds(any(), any())).thenReturn(List.of(projectSnapshot()));
     }
 
     @Test
@@ -199,14 +202,13 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 EMPLOYEE_ID,
                 MONTH,
-                List.of(new MonthEndStatusOverviewItem(
+                List.of(MonthEndTask.create(
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        MONTH,
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        MonthEndTaskStatus.OPEN,
-                        projectRef(),
-                        employeeRef(),
-                        true,
-                        null
+                        PROJECT_ID,
+                        EMPLOYEE_ID,
+                        Set.of(EMPLOYEE_ID)
                 )),
                 List.of(clarification)
         );
@@ -222,7 +224,7 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 .as(MonthEndStatusOverviewResponse.class);
 
         assertThat(response.getMonth()).isEqualTo(MONTH.toString());
-        assertThat(response.getEntries()).singleElement().satisfies(entry -> {
+        assertThat(response.getTasks()).singleElement().satisfies(entry -> {
             assertThat(entry.getProject().getId()).isEqualTo(PROJECT_ID.value());
             assertThat(entry.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
             assertThat(entry.getCanComplete()).isTrue();
@@ -261,14 +263,13 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 PROJECT_LEAD_ID,
                 MONTH,
-                List.of(new MonthEndStatusOverviewItem(
+                List.of(MonthEndTask.create(
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        MONTH,
                         MonthEndTaskType.ABRECHNUNG,
-                        MonthEndTaskStatus.OPEN,
-                        projectRef(),
+                        PROJECT_ID,
                         null,
-                        true,
-                        null
+                        Set.of(PROJECT_LEAD_ID)
                 )),
                 List.of(resolvedClarification)
         );
@@ -284,7 +285,7 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 .as(MonthEndStatusOverviewResponse.class);
 
         assertThat(response.getMonth()).isEqualTo(MONTH.toString());
-        assertThat(response.getEntries()).singleElement().satisfies(entry -> {
+        assertThat(response.getTasks()).singleElement().satisfies(entry -> {
             assertThat(entry.getProject().getId()).isEqualTo(PROJECT_ID.value());
             assertThat(entry.getSubjectEmployee()).isNull();
             assertThat(entry.getCanComplete()).isTrue();
@@ -355,8 +356,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
         );
     }
 
-    private ProjectRef projectRef() {
-        return new ProjectRef(PROJECT_ID, 77, PROJECT_NAME);
+    private MonthEndProjectSnapshot projectSnapshot() {
+        return new MonthEndProjectSnapshot(PROJECT_ID, 77, PROJECT_NAME, true, Set.of(PROJECT_LEAD_ID));
     }
 
     private UserRef employeeRef() {

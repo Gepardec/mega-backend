@@ -12,7 +12,6 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEn
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
@@ -112,38 +111,38 @@ class MonthEndIT {
         assertThat(result.skipped()).isZero();
 
         MonthEndStatusOverview employeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
-        List<MonthEndStatusOverviewItem> eligibleOpenItems = employeeOverview.entries().stream()
-                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+        List<MonthEndTask> eligibleOpenItems = employeeOverview.tasks().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(employee.id()))
                 .toList();
         assertThat(eligibleOpenItems)
-                .extracting(MonthEndStatusOverviewItem::type)
+                .extracting(MonthEndTask::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                         MonthEndTaskType.LEISTUNGSNACHWEIS
                 );
         assertThat(eligibleOpenItems)
                 .allSatisfy(item -> {
-                    assertThat(item.project().id()).isEqualTo(project.id());
-                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
+                    assertThat(item.projectId()).isEqualTo(project.id());
+                    assertThat(item.subjectEmployeeId()).isEqualTo(employee.id());
                 });
 
-        MonthEndStatusOverviewItem employeeTimeCheck = eligibleOpenItems.stream()
+        MonthEndTask employeeTimeCheck = eligibleOpenItems.stream()
                 .filter(item -> item.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .findFirst()
                 .orElseThrow();
 
-        completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.id());
+        completeMonthEndTaskUseCase.complete(employeeTimeCheck.id(), employee.id());
 
         MonthEndStatusOverview updatedOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
-        List<MonthEndStatusOverviewItem> updatedEligibleOpenItems = updatedOverview.entries().stream()
-                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+        List<MonthEndTask> updatedEligibleOpenItems = updatedOverview.tasks().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(employee.id()))
                 .toList();
         assertThat(updatedEligibleOpenItems)
                 .singleElement()
                 .satisfies(item -> {
                     assertThat(item.type()).isEqualTo(MonthEndTaskType.LEISTUNGSNACHWEIS);
-                    assertThat(item.project().id()).isEqualTo(project.id());
-                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
+                    assertThat(item.projectId()).isEqualTo(project.id());
+                    assertThat(item.subjectEmployeeId()).isEqualTo(employee.id());
                 });
     }
 
@@ -162,55 +161,55 @@ class MonthEndIT {
 
         MonthEndStatusOverview leadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
         MonthEndStatusOverview leadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
-        List<MonthEndStatusOverviewItem> leadAEligibleOpen = leadAOverview.entries().stream()
-                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+        List<MonthEndTask> leadAEligibleOpen = leadAOverview.tasks().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(leadA.id()))
                 .toList();
-        List<MonthEndStatusOverviewItem> leadBEligibleOpen = leadBOverview.entries().stream()
-                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+        List<MonthEndTask> leadBEligibleOpen = leadBOverview.tasks().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(leadB.id()))
                 .toList();
 
         assertThat(leadAEligibleOpen)
-                .extracting(MonthEndStatusOverviewItem::type)
+                .extracting(MonthEndTask::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.PROJECT_LEAD_REVIEW,
                         MonthEndTaskType.ABRECHNUNG
                 );
         assertThat(leadBEligibleOpen)
-                .extracting(MonthEndStatusOverviewItem::type)
+                .extracting(MonthEndTask::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.PROJECT_LEAD_REVIEW,
                         MonthEndTaskType.ABRECHNUNG
                 );
 
-        MonthEndStatusOverviewItem leadReviewItem = leadAEligibleOpen.stream()
+        MonthEndTask leadReviewItem = leadAEligibleOpen.stream()
                 .filter(item -> item.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
                 .findFirst()
                 .orElseThrow();
 
-        completeMonthEndTaskUseCase.complete(leadReviewItem.taskId(), leadA.id());
+        completeMonthEndTaskUseCase.complete(leadReviewItem.id(), leadA.id());
 
         MonthEndStatusOverview updatedLeadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
         MonthEndStatusOverview updatedLeadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
-        List<MonthEndStatusOverviewItem> updatedLeadAEligibleOpen = updatedLeadAOverview.entries().stream()
-                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+        List<MonthEndTask> updatedLeadAEligibleOpen = updatedLeadAOverview.tasks().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(leadA.id()))
                 .toList();
-        List<MonthEndStatusOverviewItem> updatedLeadBEligibleOpen = updatedLeadBOverview.entries().stream()
-                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+        List<MonthEndTask> updatedLeadBEligibleOpen = updatedLeadBOverview.tasks().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(leadB.id()))
                 .toList();
 
         assertThat(updatedLeadAEligibleOpen)
                 .singleElement()
                 .satisfies(item -> {
                     assertThat(item.type()).isEqualTo(MonthEndTaskType.ABRECHNUNG);
-                    assertThat(item.project().id()).isEqualTo(project.id());
-                    assertThat(item.subjectEmployee()).isNull();
+                    assertThat(item.projectId()).isEqualTo(project.id());
+                    assertThat(item.subjectEmployeeId()).isNull();
                 });
         assertThat(updatedLeadBEligibleOpen)
                 .singleElement()
                 .satisfies(item -> {
                     assertThat(item.type()).isEqualTo(MonthEndTaskType.ABRECHNUNG);
-                    assertThat(item.project().id()).isEqualTo(project.id());
-                    assertThat(item.subjectEmployee()).isNull();
+                    assertThat(item.projectId()).isEqualTo(project.id());
+                    assertThat(item.subjectEmployeeId()).isNull();
                 });
     }
 
@@ -265,41 +264,39 @@ class MonthEndIT {
         generateMonthEndTasksUseCase.generate(MONTH);
 
         MonthEndStatusOverview employeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
-        MonthEndStatusOverviewItem employeeTimeCheck = employeeOverview.entries().stream()
+        MonthEndTask employeeTimeCheck = employeeOverview.tasks().stream()
                 .filter(item -> item.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .findFirst()
                 .orElseThrow();
 
-        completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.id());
+        completeMonthEndTaskUseCase.complete(employeeTimeCheck.id(), employee.id());
 
         MonthEndStatusOverview statusOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
 
-        assertThat(statusOverview.entries())
-                .extracting(MonthEndStatusOverviewItem::type, MonthEndStatusOverviewItem::status)
+        assertThat(statusOverview.tasks())
+                .extracting(MonthEndTask::type, MonthEndTask::status)
                 .containsExactlyInAnyOrder(
                         tuple(MonthEndTaskType.PROJECT_LEAD_REVIEW, MonthEndTaskStatus.OPEN),
                         tuple(MonthEndTaskType.EMPLOYEE_TIME_CHECK, MonthEndTaskStatus.DONE),
                         tuple(MonthEndTaskType.LEISTUNGSNACHWEIS, MonthEndTaskStatus.OPEN)
                 );
-        assertThat(statusOverview.entries())
-                .filteredOn(item -> item.taskId().equals(employeeTimeCheck.taskId()))
+        assertThat(statusOverview.tasks())
+                .filteredOn(item -> item.id().equals(employeeTimeCheck.id()))
                 .singleElement()
                 .satisfies(item -> {
-                    assertThat(item.project().name()).isEqualTo(project.name());
-                    assertThat(item.project().id()).isEqualTo(project.id());
-                    assertThat(item.subjectEmployee()).isNotNull();
-                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
-                    assertThat(item.subjectEmployee().fullName()).isEqualTo(employee.name());
-                    assertThat(item.canComplete()).isTrue();
+                    assertThat(item.projectId()).isEqualTo(project.id());
+                    assertThat(item.subjectEmployeeId()).isNotNull();
+                    assertThat(item.subjectEmployeeId()).isEqualTo(employee.id());
+                    assertThat(item.canBeCompletedBy(employee.id())).isTrue();
                     assertThat(item.completedBy()).isEqualTo(employee.id());
                 });
-        assertThat(statusOverview.entries())
+        assertThat(statusOverview.tasks())
                 .filteredOn(item -> item.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
                 .singleElement()
                 .satisfies(item -> {
-                    assertThat(item.subjectEmployee()).isNotNull();
-                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
-                    assertThat(item.canComplete()).isFalse();
+                    assertThat(item.subjectEmployeeId()).isNotNull();
+                    assertThat(item.subjectEmployeeId()).isEqualTo(employee.id());
+                    assertThat(item.canBeCompletedBy(employee.id())).isFalse();
                     assertThat(item.completedBy()).isNull();
                 });
     }
@@ -315,50 +312,46 @@ class MonthEndIT {
         generateMonthEndTasksUseCase.generate(MONTH);
 
         MonthEndStatusOverview leadAInitialOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
-        MonthEndStatusOverviewItem leadReviewTask = leadAInitialOverview.entries().stream()
+        MonthEndTask leadReviewTask = leadAInitialOverview.tasks().stream()
                 .filter(item -> item.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
                 .findFirst()
                 .orElseThrow();
 
-        completeMonthEndTaskUseCase.complete(leadReviewTask.taskId(), leadA.id());
+        completeMonthEndTaskUseCase.complete(leadReviewTask.id(), leadA.id());
 
         MonthEndStatusOverview leadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
         MonthEndStatusOverview leadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
 
-        assertThat(leadAOverview.entries())
-                .filteredOn(item -> item.taskId().equals(leadReviewTask.taskId()))
+        assertThat(leadAOverview.tasks())
+                .filteredOn(item -> item.id().equals(leadReviewTask.id()))
                 .singleElement()
                 .satisfies(item -> {
                     assertThat(item.status()).isEqualTo(MonthEndTaskStatus.DONE);
-                    assertThat(item.project().name()).isEqualTo(project.name());
-                    assertThat(item.project().id()).isEqualTo(project.id());
-                    assertThat(item.subjectEmployee()).isNotNull();
-                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
-                    assertThat(item.subjectEmployee().fullName()).isEqualTo(employee.name());
-                    assertThat(item.canComplete()).isTrue();
+                    assertThat(item.projectId()).isEqualTo(project.id());
+                    assertThat(item.subjectEmployeeId()).isNotNull();
+                    assertThat(item.subjectEmployeeId()).isEqualTo(employee.id());
+                    assertThat(item.canBeCompletedBy(leadA.id())).isTrue();
                     assertThat(item.completedBy()).isEqualTo(leadA.id());
                 });
-        assertThat(leadBOverview.entries())
-                .filteredOn(item -> item.taskId().equals(leadReviewTask.taskId()))
+        assertThat(leadBOverview.tasks())
+                .filteredOn(item -> item.id().equals(leadReviewTask.id()))
                 .singleElement()
                 .satisfies(item -> {
                     assertThat(item.status()).isEqualTo(MonthEndTaskStatus.DONE);
-                    assertThat(item.project().name()).isEqualTo(project.name());
-                    assertThat(item.project().id()).isEqualTo(project.id());
-                    assertThat(item.subjectEmployee()).isNotNull();
-                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
-                    assertThat(item.subjectEmployee().fullName()).isEqualTo(employee.name());
-                    assertThat(item.canComplete()).isTrue();
+                    assertThat(item.projectId()).isEqualTo(project.id());
+                    assertThat(item.subjectEmployeeId()).isNotNull();
+                    assertThat(item.subjectEmployeeId()).isEqualTo(employee.id());
+                    assertThat(item.canBeCompletedBy(leadB.id())).isTrue();
                     assertThat(item.completedBy()).isEqualTo(leadA.id());
                 });
-        assertThat(leadAOverview.entries())
+        assertThat(leadAOverview.tasks())
                 .filteredOn(item -> item.type() == MonthEndTaskType.ABRECHNUNG)
                 .singleElement()
-                .satisfies(item -> assertThat(item.subjectEmployee()).isNull());
-        assertThat(leadBOverview.entries())
+                .satisfies(item -> assertThat(item.subjectEmployeeId()).isNull());
+        assertThat(leadBOverview.tasks())
                 .filteredOn(item -> item.type() == MonthEndTaskType.ABRECHNUNG)
                 .singleElement()
-                .satisfies(item -> assertThat(item.subjectEmployee()).isNull());
+                .satisfies(item -> assertThat(item.subjectEmployeeId()).isNull());
     }
 
     @Test
@@ -381,11 +374,11 @@ class MonthEndIT {
         MonthEndStatusOverview leadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
 
         assertThat(preparation.hasClarification()).isTrue();
-        List<MonthEndStatusOverviewItem> employeeEligibleOpen = employeeOverview.entries().stream()
-                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+        List<MonthEndTask> employeeEligibleOpen = employeeOverview.tasks().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(employee.id()))
                 .toList();
         assertThat(employeeEligibleOpen)
-                .extracting(MonthEndStatusOverviewItem::type)
+                .extracting(MonthEndTask::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                         MonthEndTaskType.LEISTUNGSNACHWEIS
@@ -395,26 +388,26 @@ class MonthEndIT {
                     assertThat(c.id()).isEqualTo(preparation.clarification().id());
                     assertThat(c.text()).isEqualTo("I am leaving before the scheduled run.");
                 });
-        assertThat(leadAOverview.entries().stream()
-                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+        assertThat(leadAOverview.tasks().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(leadA.id()))
                 .toList()).isEmpty();
         assertThat(leadAOverview.clarifications()).singleElement()
                 .satisfies(c -> assertThat(c.id()).isEqualTo(preparation.clarification().id()));
-        assertThat(leadBOverview.entries().stream()
-                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+        assertThat(leadBOverview.tasks().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(leadB.id()))
                 .toList()).isEmpty();
         assertThat(leadBOverview.clarifications()).singleElement()
                 .satisfies(c -> assertThat(c.id()).isEqualTo(preparation.clarification().id()));
 
-        MonthEndStatusOverviewItem preparedEmployeeTimeCheck = employeeEligibleOpen.stream()
+        MonthEndTask preparedEmployeeTimeCheck = employeeEligibleOpen.stream()
                 .filter(item -> item.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .findFirst()
                 .orElseThrow();
-        completeMonthEndTaskUseCase.complete(preparedEmployeeTimeCheck.taskId(), employee.id());
+        completeMonthEndTaskUseCase.complete(preparedEmployeeTimeCheck.id(), employee.id());
 
         MonthEndStatusOverview updatedEmployeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
-        List<MonthEndStatusOverviewItem> updatedEligibleOpen = updatedEmployeeOverview.entries().stream()
-                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+        List<MonthEndTask> updatedEligibleOpen = updatedEmployeeOverview.tasks().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(employee.id()))
                 .toList();
         assertThat(updatedEligibleOpen)
                 .singleElement()
@@ -575,12 +568,12 @@ class MonthEndIT {
         );
 
         MonthEndStatusOverview employeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
-        MonthEndStatusOverviewItem employeeTimeCheck = employeeOverview.entries().stream()
+        MonthEndTask employeeTimeCheck = employeeOverview.tasks().stream()
                 .filter(item -> item.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .findFirst()
                 .orElseThrow();
 
-        completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.id());
+        completeMonthEndTaskUseCase.complete(employeeTimeCheck.id(), employee.id());
 
         MonthEndStatusOverview updatedEmployeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
         assertThat(updatedEmployeeOverview.clarifications()).singleElement()

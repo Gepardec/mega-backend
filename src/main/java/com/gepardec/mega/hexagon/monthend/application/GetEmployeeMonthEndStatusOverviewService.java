@@ -20,17 +20,14 @@ public class GetEmployeeMonthEndStatusOverviewService implements GetEmployeeMont
 
     private final MonthEndTaskRepository monthEndTaskRepository;
     private final MonthEndClarificationRepository monthEndClarificationRepository;
-    private final AssembleMonthEndStatusOverviewService assembleMonthEndStatusOverviewService;
 
     @Inject
     public GetEmployeeMonthEndStatusOverviewService(
             MonthEndTaskRepository monthEndTaskRepository,
-            MonthEndClarificationRepository monthEndClarificationRepository,
-            AssembleMonthEndStatusOverviewService assembleMonthEndStatusOverviewService
+            MonthEndClarificationRepository monthEndClarificationRepository
     ) {
         this.monthEndTaskRepository = monthEndTaskRepository;
         this.monthEndClarificationRepository = monthEndClarificationRepository;
-        this.assembleMonthEndStatusOverviewService = assembleMonthEndStatusOverviewService;
     }
 
     @Override
@@ -38,6 +35,6 @@ public class GetEmployeeMonthEndStatusOverviewService implements GetEmployeeMont
         List<MonthEndTask> tasks = monthEndTaskRepository.findEmployeeVisibleTasks(employeeId, month);
         List<MonthEndClarification> clarifications = monthEndClarificationRepository
                 .findAllEmployeeClarifications(employeeId, month);
-        return assembleMonthEndStatusOverviewService.assemble(tasks, clarifications, employeeId, month);
+        return new MonthEndStatusOverview(employeeId, month, tasks, clarifications);
     }
 }

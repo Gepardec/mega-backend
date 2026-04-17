@@ -3,19 +3,13 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
-import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
-import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
-import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
-import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,22 +41,18 @@ class GetEmployeeMonthEndStatusOverviewServiceTest {
     @Mock
     private MonthEndClarificationRepository monthEndClarificationRepository;
 
-    @Mock
-    private AssembleMonthEndStatusOverviewService assembleMonthEndStatusOverviewService;
-
     private GetEmployeeMonthEndStatusOverviewService service;
 
     @BeforeEach
     void setUp() {
         service = new GetEmployeeMonthEndStatusOverviewService(
                 monthEndTaskRepository,
-                monthEndClarificationRepository,
-                assembleMonthEndStatusOverviewService
+                monthEndClarificationRepository
         );
     }
 
     @Test
-    void getOverview_shouldFetchTasksAndClarificationsAndReturnAssemblerResult() {
+    void getOverview_shouldReturnTasksAndClarificationsDirectly() {
         MonthEndTask task = MonthEndTask.create(
                 MonthEndTaskId.generate(),
                 month,
@@ -81,51 +71,29 @@ class GetEmployeeMonthEndStatusOverviewServiceTest {
                 "Please add the remaining note.",
                 Instant.parse("2026-03-31T08:00:00Z")
         );
-        MonthEndStatusOverview assembledOverview = new MonthEndStatusOverview(
-                actorId,
-                month,
-                List.of(new MonthEndStatusOverviewItem(
-                        task.id(),
-                        task.type(),
-                        MonthEndTaskStatus.OPEN,
-                        new ProjectRef(projectId, 77, "Project Employee"),
-                        new UserRef(actorId, FullName.of("Employee", "Example"), ZepUsername.of("employee.example")),
-                        true,
-                        null
-                )),
-                List.of(clarification)
-        );
 
         when(monthEndTaskRepository.findEmployeeVisibleTasks(actorId, month)).thenReturn(List.of(task));
         when(monthEndClarificationRepository.findAllEmployeeClarifications(actorId, month))
                 .thenReturn(List.of(clarification));
-        when(assembleMonthEndStatusOverviewService.assemble(List.of(task), List.of(clarification), actorId, month))
-                .thenReturn(assembledOverview);
 
         MonthEndStatusOverview overview = service.getOverview(actorId, month);
 
-        assertThat(overview).isSameAs(assembledOverview);
-        assertThat(overview.clarifications()).singleElement()
-                .satisfies(item -> {
-                    assertThat(item.subjectEmployeeId()).isEqualTo(actorId);
-                    assertThat(item.createdBy()).isEqualTo(leadId);
-                });
+        assertThat(overview.actorId()).isEqualTo(actorId);
+        assertThat(overview.month()).isEqualTo(month);
+        assertThat(overview.tasks()).containsExactly(task);
+        assertThat(overview.clarifications()).containsExactly(clarification);
         verify(monthEndTaskRepository).findEmployeeVisibleTasks(actorId, month);
         verify(monthEndClarificationRepository).findAllEmployeeClarifications(actorId, month);
-        verify(assembleMonthEndStatusOverviewService).assemble(List.of(task), List.of(clarification), actorId, month);
     }
 
     @Test
-    void getOverview_shouldDelegateEmptyCollectionsToAssembler() {
-        MonthEndStatusOverview assembledOverview = new MonthEndStatusOverview(actorId, month, List.of(), List.of());
+    void getOverview_shouldReturnEmptyOverview_whenNoTasksOrClarifications() {
         when(monthEndTaskRepository.findEmployeeVisibleTasks(actorId, month)).thenReturn(List.of());
         when(monthEndClarificationRepository.findAllEmployeeClarifications(actorId, month)).thenReturn(List.of());
-        when(assembleMonthEndStatusOverviewService.assemble(List.of(), List.of(), actorId, month))
-                .thenReturn(assembledOverview);
 
         MonthEndStatusOverview overview = service.getOverview(actorId, month);
 
-        assertThat(overview.entries()).isEmpty();
+        assertThat(overview.tasks()).isEmpty();
         assertThat(overview.clarifications()).isEmpty();
     }
 }

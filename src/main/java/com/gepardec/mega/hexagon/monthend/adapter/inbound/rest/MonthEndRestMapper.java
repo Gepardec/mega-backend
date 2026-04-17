@@ -12,7 +12,6 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
@@ -43,14 +42,47 @@ public interface MonthEndRestMapper {
     @Mapping(target = "taskId", source = "id")
     MonthEndTaskResponse toResponse(MonthEndTask task);
 
-    MonthEndStatusOverviewEntry toResponse(MonthEndStatusOverviewItem item);
-
     MonthEndProjectReference toResponse(ProjectRef project);
 
     MonthEndEmployeeReference toResponse(UserRef subjectEmployee);
 
+    @Mapping(target = "taskId", source = "id")
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "subjectEmployee", ignore = true)
+    @Mapping(target = "canComplete", ignore = true)
+    @Mapping(target = "completedBy", ignore = true)
+    MonthEndStatusOverviewEntry toEntry(
+            MonthEndTask task,
+            @Context Map<ProjectId, ProjectRef> projectRefs,
+            @Context Map<UserId, UserRef> userRefs,
+            @Context UserId actorId
+    );
+
+    @AfterMapping
+    default void enrichTaskEntry(
+            MonthEndTask task,
+            @MappingTarget MonthEndStatusOverviewEntry entry,
+            @Context Map<ProjectId, ProjectRef> projectRefs,
+            @Context Map<UserId, UserRef> userRefs,
+            @Context UserId actorId
+    ) {
+        ProjectRef project = projectRefs.get(task.projectId());
+        if (project == null) {
+            throw new IllegalStateException(
+                    "project snapshot not found for project " + task.projectId().value());
+        }
+        UserRef subjectEmployee = task.subjectEmployeeId() != null
+                ? userRefs.get(task.subjectEmployeeId())
+                : null;
+        entry.project(toResponse(project))
+                .subjectEmployee(subjectEmployee != null ? toResponse(subjectEmployee) : null)
+                .canComplete(task.canBeCompletedBy(actorId))
+                .completedBy(map(task.completedBy()));
+    }
+
     MonthEndStatusOverviewResponse toResponse(
             MonthEndStatusOverview overview,
+            @Context Map<ProjectId, ProjectRef> projectRefs,
             @Context Map<UserId, UserRef> userRefs,
             @Context UserId actorId
     );
