@@ -2,7 +2,6 @@ package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.project.adapter.outbound.ProjectRepositoryAdapter;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
@@ -59,7 +58,6 @@ class MonthEndClarificationRepositoryAdapterTest {
                 project.id(),
                 employee.id(),
                 employee.id(),
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(lead.id()),
                 "Please review this.",
                 Instant.parse("2026-03-31T08:00:00Z")
@@ -70,7 +68,6 @@ class MonthEndClarificationRepositoryAdapterTest {
                 project.id(),
                 employee.id(),
                 employee.id(),
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(lead.id()),
                 "Already resolved",
                 Instant.parse("2026-03-31T08:05:00Z")
@@ -81,7 +78,6 @@ class MonthEndClarificationRepositoryAdapterTest {
                 project.id(),
                 otherEmployee.id(),
                 otherEmployee.id(),
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(lead.id()),
                 "Other employee clarification",
                 Instant.parse("2026-03-31T08:15:00Z")
@@ -115,7 +111,6 @@ class MonthEndClarificationRepositoryAdapterTest {
                 project.id(),
                 employee.id(),
                 employee.id(),
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(lead.id()),
                 "Please review this open clarification.",
                 Instant.parse("2026-03-31T09:00:00Z")
@@ -126,7 +121,6 @@ class MonthEndClarificationRepositoryAdapterTest {
                 project.id(),
                 employee.id(),
                 employee.id(),
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(lead.id()),
                 "Already resolved clarification",
                 Instant.parse("2026-03-31T09:05:00Z")
@@ -137,7 +131,6 @@ class MonthEndClarificationRepositoryAdapterTest {
                 project.id(),
                 employee.id(),
                 employee.id(),
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(lead.id()),
                 "Other month clarification",
                 Instant.parse("2026-04-01T09:00:00Z")
@@ -148,7 +141,6 @@ class MonthEndClarificationRepositoryAdapterTest {
                 project.id(),
                 otherEmployee.id(),
                 otherEmployee.id(),
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(lead.id()),
                 "Other employee clarification",
                 Instant.parse("2026-03-31T09:15:00Z")
@@ -184,7 +176,6 @@ class MonthEndClarificationRepositoryAdapterTest {
                 project.id(),
                 employee.id(),
                 leadA.id(),
-                MonthEndClarificationSide.PROJECT_LEAD,
                 Set.of(leadA.id(), leadB.id()),
                 "Need employee follow-up",
                 Instant.parse("2026-03-31T08:00:00Z")
@@ -195,7 +186,6 @@ class MonthEndClarificationRepositoryAdapterTest {
                 project.id(),
                 employee.id(),
                 employee.id(),
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(leadA.id(), leadB.id()),
                 "Resolved issue",
                 Instant.parse("2026-03-31T08:05:00Z")
@@ -209,6 +199,65 @@ class MonthEndClarificationRepositoryAdapterTest {
                 .containsExactly(sharedClarification);
         assertThat(clarificationRepositoryAdapter.findOpenProjectLeadClarifications(leadC.id(), month))
                 .isEmpty();
+    }
+
+    @Test
+    void findOpenProjectLeadClarifications_shouldIncludeProjectLevelClarifications() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User leadA = user("pl-leadA", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        User leadB = user("pl-leadB", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        User leadC = user("pl-leadC", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        userRepositoryAdapter.saveAll(List.of(leadA, leadB, leadC));
+
+        Project project = project(199, true);
+        projectRepositoryAdapter.saveAll(List.of(project));
+
+        MonthEndClarification projectLevelClarification = MonthEndClarification.create(
+                MonthEndClarificationId.generate(),
+                month,
+                project.id(),
+                null,
+                leadA.id(),
+                Set.of(leadA.id(), leadB.id()),
+                "Cross-lead discussion.",
+                Instant.parse("2026-03-31T08:00:00Z")
+        );
+        clarificationRepositoryAdapter.save(projectLevelClarification);
+
+        assertThat(clarificationRepositoryAdapter.findOpenProjectLeadClarifications(leadA.id(), month))
+                .containsExactly(projectLevelClarification);
+        assertThat(clarificationRepositoryAdapter.findOpenProjectLeadClarifications(leadB.id(), month))
+                .containsExactly(projectLevelClarification);
+        assertThat(clarificationRepositoryAdapter.findOpenProjectLeadClarifications(leadC.id(), month))
+                .isEmpty();
+    }
+
+    @Test
+    void delete_shouldRemoveClarificationFromRepository() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User employee = user("del-employee", Set.of(Role.EMPLOYEE));
+        User lead = user("del-lead", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        userRepositoryAdapter.saveAll(List.of(employee, lead));
+
+        Project project = project(299, true);
+        projectRepositoryAdapter.saveAll(List.of(project));
+
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.generate(),
+                month,
+                project.id(),
+                employee.id(),
+                employee.id(),
+                Set.of(lead.id()),
+                "To be deleted.",
+                Instant.parse("2026-03-31T08:00:00Z")
+        );
+        clarificationRepositoryAdapter.save(clarification);
+        assertThat(clarificationRepositoryAdapter.findById(clarification.id())).isPresent();
+
+        clarificationRepositoryAdapter.delete(clarification.id());
+
+        assertThat(clarificationRepositoryAdapter.findById(clarification.id())).isEmpty();
     }
 
     @Test
@@ -230,7 +279,6 @@ class MonthEndClarificationRepositoryAdapterTest {
                 visibleProject.id(),
                 employee.id(),
                 leadA.id(),
-                MonthEndClarificationSide.PROJECT_LEAD,
                 Set.of(leadA.id(), leadB.id()),
                 "Open clarification for led project",
                 Instant.parse("2026-03-31T10:00:00Z")
@@ -241,7 +289,6 @@ class MonthEndClarificationRepositoryAdapterTest {
                 visibleProject.id(),
                 employee.id(),
                 employee.id(),
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(leadA.id(), leadB.id()),
                 "Done clarification for led project",
                 Instant.parse("2026-03-31T10:05:00Z")
@@ -252,7 +299,6 @@ class MonthEndClarificationRepositoryAdapterTest {
                 visibleProject.id(),
                 employee.id(),
                 employee.id(),
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(leadA.id(), leadB.id()),
                 "Other month clarification",
                 Instant.parse("2026-04-01T10:00:00Z")
@@ -263,7 +309,6 @@ class MonthEndClarificationRepositoryAdapterTest {
                 hiddenProject.id(),
                 employee.id(),
                 leadC.id(),
-                MonthEndClarificationSide.PROJECT_LEAD,
                 Set.of(leadC.id()),
                 "Hidden clarification",
                 Instant.parse("2026-03-31T10:07:00Z")

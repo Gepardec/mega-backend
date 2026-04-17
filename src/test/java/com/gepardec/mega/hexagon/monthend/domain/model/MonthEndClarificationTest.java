@@ -2,6 +2,7 @@ package com.gepardec.mega.hexagon.monthend.domain.model;
 
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.assertj.core.api.ThrowableAssert;
@@ -33,7 +34,6 @@ class MonthEndClarificationTest {
                 projectId,
                 employeeId,
                 employeeId,
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(leadA, leadB),
                 "Please verify the missing entry.",
                 createdAt
@@ -41,6 +41,7 @@ class MonthEndClarificationTest {
 
         assertThat(clarification.status()).isEqualTo(MonthEndClarificationStatus.OPEN);
         assertThat(clarification.createdBy()).isEqualTo(employeeId);
+        assertThat(clarification.subjectEmployeeId()).isEqualTo(employeeId);
         assertThat(clarification.createdAt()).isEqualTo(createdAt);
         assertThat(clarification.lastModifiedAt()).isEqualTo(createdAt);
         assertThat(clarification.resolvedBy()).isNull();
@@ -48,7 +49,59 @@ class MonthEndClarificationTest {
     }
 
     @Test
-    void editText_shouldUpdateTextAndLastModifiedAt_whenEditedByEmployeeCreator() {
+    void create_shouldInitializeOpenClarification_whenLeadCreatesForEmployee() {
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                employeeId,
+                leadA,
+                Set.of(leadA, leadB),
+                "Please provide supporting evidence.",
+                createdAt
+        );
+
+        assertThat(clarification.status()).isEqualTo(MonthEndClarificationStatus.OPEN);
+        assertThat(clarification.createdBy()).isEqualTo(leadA);
+        assertThat(clarification.subjectEmployeeId()).isEqualTo(employeeId);
+    }
+
+    @Test
+    void create_shouldInitializeProjectLevelClarification_whenLeadCreatesWithNoSubjectEmployee() {
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                null,
+                leadA,
+                Set.of(leadA, leadB),
+                "Cross-lead discussion required.",
+                createdAt
+        );
+
+        assertThat(clarification.status()).isEqualTo(MonthEndClarificationStatus.OPEN);
+        assertThat(clarification.subjectEmployeeId()).isNull();
+        assertThat(clarification.createdBy()).isEqualTo(leadA);
+    }
+
+    @Test
+    void create_shouldThrow_whenProjectLevelClarificationCreatedByNonLead() {
+        ThrowableAssert.ThrowingCallable throwingCallable = () -> MonthEndClarification.create(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                null,
+                employeeId,
+                Set.of(leadA, leadB),
+                "This should fail.",
+                createdAt
+        );
+
+        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class);
+    }
+
+    @Test
+    void editText_shouldUpdateTextAndLastModifiedAt_whenEditedByCreator() {
         MonthEndClarification clarification = employeeCreatedClarification();
         Instant modifiedAt = createdAt.plusSeconds(60);
 
@@ -59,28 +112,27 @@ class MonthEndClarificationTest {
     }
 
     @Test
-    void editText_shouldAllowEligibleLead_whenCreatedByLeadSide() {
+    void editText_shouldThrow_whenNonCreatorLeadAttemptsEdit() {
         MonthEndClarification clarification = MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
                 month,
                 projectId,
                 employeeId,
                 leadA,
-                MonthEndClarificationSide.PROJECT_LEAD,
                 Set.of(leadA, leadB),
                 "Need updated project note",
                 createdAt
         );
-        Instant modifiedAt = createdAt.plusSeconds(120);
 
-        MonthEndClarification updated = clarification.editText(leadB, "Need updated project note ASAP", modifiedAt);
+        ThrowableAssert.ThrowingCallable throwingCallable = () -> clarification.editText(leadB, "Edited by non-creator", createdAt.plusSeconds(120));
 
-        assertThat(updated.text()).isEqualTo("Need updated project note ASAP");
-        assertThat(updated.lastModifiedAt()).isEqualTo(modifiedAt);
+        assertThatThrownBy(throwingCallable)
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
+                .hasMessageContaining("not allowed");
     }
 
     @Test
-    void editText_shouldThrow_whenResolverSideAttemptsEdit() {
+    void editText_shouldThrow_whenNonCreatorEmployeeAttemptsEdit() {
         MonthEndClarification clarification = employeeCreatedClarification();
 
         ThrowableAssert.ThrowingCallable throwingCallable = () -> clarification.editText(leadA, "Trying to edit", createdAt.plusSeconds(1));
@@ -91,7 +143,7 @@ class MonthEndClarificationTest {
     }
 
     @Test
-    void resolve_shouldStoreResolverAndOptionalResolutionNote_whenResolvedByOppositeSide() {
+    void resolve_shouldStoreResolverAndOptionalResolutionNote_whenResolvedByLead() {
         MonthEndClarification clarification = employeeCreatedClarification();
         Instant resolvedAt = createdAt.plusSeconds(300);
 
@@ -105,14 +157,13 @@ class MonthEndClarificationTest {
     }
 
     @Test
-    void resolve_shouldThrow_whenActorIsNotAllowed() {
+    void resolve_shouldThrow_whenCreatorAttemptsToResolveOwnClarification() {
         MonthEndClarification clarification = MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
                 month,
                 projectId,
                 employeeId,
                 leadA,
-                MonthEndClarificationSide.PROJECT_LEAD,
                 Set.of(leadA, leadB),
                 "Please adjust your note",
                 createdAt
@@ -123,6 +174,25 @@ class MonthEndClarificationTest {
         assertThatThrownBy(throwingCallable)
                 .isInstanceOf(MonthEndActorNotAuthorizedException.class)
                 .hasMessageContaining("not allowed");
+    }
+
+    @Test
+    void resolve_shouldAllowCrossLeadResolution_whenLeadBResolvesLeadACreatedClarification() {
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                null,
+                leadA,
+                Set.of(leadA, leadB),
+                "Cross-lead discussion.",
+                createdAt
+        );
+
+        MonthEndClarification resolved = clarification.resolve(leadB, "Acknowledged.", createdAt.plusSeconds(60));
+
+        assertThat(resolved.status()).isEqualTo(MonthEndClarificationStatus.DONE);
+        assertThat(resolved.resolvedBy()).isEqualTo(leadB);
     }
 
     @Test
@@ -146,6 +216,28 @@ class MonthEndClarificationTest {
         assertThat(clarification.canBeResolvedBy(leadB)).isFalse();
     }
 
+    @Test
+    void canDelete_shouldReturnTrue_whenActorIsCreatorAndClarificationIsOpen() {
+        MonthEndClarification clarification = employeeCreatedClarification();
+
+        assertThat(clarification.canDelete(employeeId)).isTrue();
+    }
+
+    @Test
+    void canDelete_shouldReturnFalse_whenActorIsNotCreator() {
+        MonthEndClarification clarification = employeeCreatedClarification();
+
+        assertThat(clarification.canDelete(leadA)).isFalse();
+    }
+
+    @Test
+    void canDelete_shouldReturnFalse_whenClarificationIsDone() {
+        MonthEndClarification clarification = employeeCreatedClarification()
+                .resolve(leadA, "Done", createdAt.plusSeconds(10));
+
+        assertThat(clarification.canDelete(employeeId)).isFalse();
+    }
+
     private MonthEndClarification employeeCreatedClarification() {
         return MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
@@ -153,7 +245,6 @@ class MonthEndClarificationTest {
                 projectId,
                 employeeId,
                 employeeId,
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(leadA, leadB),
                 "Please verify the missing entry.",
                 createdAt

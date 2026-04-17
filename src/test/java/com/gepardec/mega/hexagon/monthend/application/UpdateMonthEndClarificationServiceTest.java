@@ -3,7 +3,6 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
@@ -43,14 +42,13 @@ class UpdateMonthEndClarificationServiceTest {
     }
 
     @Test
-    void updateText_shouldPersistEditedClarification_whenActorIsAllowed() {
+    void updateText_shouldPersistEditedClarification_whenActorIsCreator() {
         MonthEndClarification clarification = MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
                 month,
                 projectId,
                 employeeId,
                 employeeId,
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(leadId),
                 "Original text",
                 Instant.parse("2026-03-31T08:00:00Z")
@@ -62,6 +60,46 @@ class UpdateMonthEndClarificationServiceTest {
         assertThat(result.text()).isEqualTo("Updated text");
         assertThat(result.lastModifiedAt()).isEqualTo(clock.instant());
         verify(clarificationRepository).save(result);
+    }
+
+    @Test
+    void updateText_shouldThrow_whenActorIsNotCreator() {
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                employeeId,
+                employeeId,
+                Set.of(leadId),
+                "Original text",
+                Instant.parse("2026-03-31T08:00:00Z")
+        );
+        when(clarificationRepository.findById(clarification.id())).thenReturn(Optional.of(clarification));
+
+        assertThatThrownBy(() -> service.updateText(clarification.id(), leadId, "Lead trying to edit"))
+                .isInstanceOf(com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException.class)
+                .hasMessageContaining("not allowed");
+    }
+
+    @Test
+    void updateText_shouldThrow_whenLeadCreatedClarificationAndOtherLeadAttemptsEdit() {
+        UserId leadA = UserId.of(Instancio.create(UUID.class));
+        UserId leadB = UserId.of(Instancio.create(UUID.class));
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                null,
+                leadA,
+                Set.of(leadA, leadB),
+                "Project-level note",
+                Instant.parse("2026-03-31T08:00:00Z")
+        );
+        when(clarificationRepository.findById(clarification.id())).thenReturn(Optional.of(clarification));
+
+        assertThatThrownBy(() -> service.updateText(clarification.id(), leadB, "Trying to edit"))
+                .isInstanceOf(com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException.class)
+                .hasMessageContaining("not allowed");
     }
 
     @Test

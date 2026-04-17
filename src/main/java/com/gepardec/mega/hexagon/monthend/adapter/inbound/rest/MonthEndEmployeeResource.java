@@ -8,7 +8,6 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMo
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
@@ -71,7 +70,6 @@ public class MonthEndEmployeeResource implements MonthEndEmployeeApi {
                 transportHelper.toProjectId(request.getProjectId()),
                 actorId,
                 actorId,
-                MonthEndClarificationSide.EMPLOYEE,
                 request.getText()
         );
         return Response.status(Response.Status.CREATED)

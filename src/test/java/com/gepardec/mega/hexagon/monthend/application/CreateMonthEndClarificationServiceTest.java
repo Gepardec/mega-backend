@@ -1,11 +1,12 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndEmployeeProjectContextService;
+import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndProjectContextService;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
@@ -39,19 +40,21 @@ class CreateMonthEndClarificationServiceTest {
     private final Clock clock = Clock.fixed(Instant.parse("2026-03-31T08:00:00Z"), ZoneOffset.UTC);
 
     private MonthEndClarificationRepository clarificationRepository;
-    private MonthEndEmployeeProjectContextService contextResolver;
+    private MonthEndEmployeeProjectContextService employeeContextService;
+    private MonthEndProjectContextService projectContextService;
     private CreateMonthEndClarificationService service;
 
     @BeforeEach
     void setUp() {
         clarificationRepository = mock(MonthEndClarificationRepository.class);
-        contextResolver = mock(MonthEndEmployeeProjectContextService.class);
-        service = new CreateMonthEndClarificationService(clarificationRepository, contextResolver, clock);
+        employeeContextService = mock(MonthEndEmployeeProjectContextService.class);
+        projectContextService = mock(MonthEndProjectContextService.class);
+        service = new CreateMonthEndClarificationService(clarificationRepository, employeeContextService, projectContextService, clock);
     }
 
     @Test
     void create_shouldPersistClarification_whenEmployeeCreatesInValidContext() {
-        when(contextResolver.resolve(month, projectId, employeeId))
+        when(employeeContextService.resolve(month, projectId, employeeId))
                 .thenReturn(employeeContext(Set.of(leadA, leadB)));
 
         MonthEndClarification result = service.create(
@@ -59,37 +62,56 @@ class CreateMonthEndClarificationServiceTest {
                 projectId,
                 employeeId,
                 employeeId,
-                MonthEndClarificationSide.EMPLOYEE,
                 "Please check this project entry."
         );
 
-        assertThat(result.creatorSide()).isEqualTo(MonthEndClarificationSide.EMPLOYEE);
+        assertThat(result.subjectEmployeeId()).isEqualTo(employeeId);
+        assertThat(result.createdBy()).isEqualTo(employeeId);
         assertThat(result.eligibleProjectLeadIds()).containsExactlyInAnyOrder(leadA, leadB);
         assertThat(result.createdAt()).isEqualTo(clock.instant());
         verify(clarificationRepository).save(any(MonthEndClarification.class));
     }
 
     @Test
-    void create_shouldAllowLeadSideForDualRoleUser_whenRequestedExplicitly() {
-        when(contextResolver.resolve(month, projectId, employeeId))
-                .thenReturn(employeeContext(Set.of(employeeId, leadB)));
+    void create_shouldPersistClarification_whenLeadCreatesForEmployee() {
+        when(employeeContextService.resolve(month, projectId, employeeId))
+                .thenReturn(employeeContext(Set.of(leadA, leadB)));
 
         MonthEndClarification result = service.create(
                 month,
                 projectId,
                 employeeId,
-                employeeId,
-                MonthEndClarificationSide.PROJECT_LEAD,
+                leadA,
                 "Please update this from the lead perspective."
         );
 
-        assertThat(result.creatorSide()).isEqualTo(MonthEndClarificationSide.PROJECT_LEAD);
+        assertThat(result.subjectEmployeeId()).isEqualTo(employeeId);
+        assertThat(result.createdBy()).isEqualTo(leadA);
+        verify(clarificationRepository).save(any(MonthEndClarification.class));
+    }
+
+    @Test
+    void create_shouldPersistProjectLevelClarification_whenLeadCreatesWithNoSubjectEmployee() {
+        when(projectContextService.resolve(month, projectId))
+                .thenReturn(projectContext(Set.of(leadA, leadB)));
+
+        MonthEndClarification result = service.create(
+                month,
+                projectId,
+                null,
+                leadA,
+                "Cross-lead discussion."
+        );
+
+        assertThat(result.subjectEmployeeId()).isNull();
+        assertThat(result.createdBy()).isEqualTo(leadA);
+        assertThat(result.eligibleProjectLeadIds()).containsExactlyInAnyOrder(leadA, leadB);
         verify(clarificationRepository).save(any(MonthEndClarification.class));
     }
 
     @Test
     void create_shouldThrow_whenProjectContextIsMissing() {
-        when(contextResolver.resolve(month, projectId, employeeId))
+        when(employeeContextService.resolve(month, projectId, employeeId))
                 .thenThrow(new IllegalArgumentException("month-end project context not found"));
 
         assertThatThrownBy(() -> service.create(
@@ -97,7 +119,6 @@ class CreateMonthEndClarificationServiceTest {
                 projectId,
                 employeeId,
                 employeeId,
-                MonthEndClarificationSide.EMPLOYEE,
                 "Please check this."
         ))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -118,6 +139,20 @@ class CreateMonthEndClarificationServiceTest {
                         employeeId,
                         FullName.of("Employee", "User"),
                         ZepUsername.of("employee")
+                ),
+                eligibleLeadIds
+        );
+    }
+
+    private MonthEndProjectContext projectContext(Set<UserId> eligibleLeadIds) {
+        return new MonthEndProjectContext(
+                month,
+                new MonthEndProjectSnapshot(
+                        projectId,
+                        77,
+                        "Project-77",
+                        true,
+                        eligibleLeadIds
                 ),
                 eligibleLeadIds
         );

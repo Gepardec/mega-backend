@@ -5,7 +5,6 @@ import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistResponse;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndOverviewClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
@@ -67,7 +66,6 @@ class MonthEndRestMapperTest {
                         projectId,
                         employeeId,
                         employeeId,
-                        MonthEndClarificationSide.EMPLOYEE,
                         MonthEndClarificationStatus.OPEN,
                         "Please review",
                         createdAt,
@@ -101,7 +99,6 @@ class MonthEndRestMapperTest {
                 projectId,
                 employeeId,
                 employeeId,
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(leadId),
                 "Initial clarification",
                 createdAt
@@ -138,7 +135,6 @@ class MonthEndRestMapperTest {
                         projectId,
                         employeeRef(),
                         leadRef(),
-                        MonthEndClarificationSide.PROJECT_LEAD,
                         MonthEndClarificationStatus.DONE,
                         "Please update the proof.",
                         false,

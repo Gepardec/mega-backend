@@ -21,4 +21,6 @@ public interface MonthEndClarificationRepository {
     List<MonthEndClarification> findAllProjectLeadClarifications(UserId projectLeadId, YearMonth month);
 
     void save(MonthEndClarification clarification);
+
+    void delete(MonthEndClarificationId id);
 }
