@@ -51,7 +51,7 @@ class AssembleMonthEndStatusOverviewServiceTest {
     }
 
     @Test
-    void assemble_shouldMapTaskCompletionAndClarificationResolutionFlags() {
+    void assemble_shouldMapTaskCompletionAndPassThroughClarificationsUnchanged() {
         MonthEndTask employeeTask = MonthEndTask.create(
                 MonthEndTaskId.generate(),
                 month,
@@ -106,22 +106,13 @@ class AssembleMonthEndStatusOverviewServiceTest {
                 FullName.of("Employee", "Example"),
                 ZepUsername.of("employee.example")
         );
-        UserRef leadRef = new UserRef(
-                leadAId,
-                FullName.of("Lead", "Example"),
-                ZepUsername.of("lead.example")
-        );
         when(resolveMonthEndTaskSnapshotLookupService.resolve(
                 List.of(employeeTask, projectLeadReviewTask),
-                List.of(leadCreatedClarification, employeeCreatedClarification, doneClarification),
                 month
         ))
                 .thenReturn(new MonthEndTaskSnapshotLookup(
                         Map.of(projectId, new ProjectRef(projectId, 77, "Project Overview")),
-                        Map.of(
-                                employeeId, employeeRef,
-                                leadAId, leadRef
-                        )
+                        Map.of(employeeId, employeeRef)
                 ));
 
         MonthEndStatusOverview overview = service.assemble(
@@ -152,43 +143,20 @@ class AssembleMonthEndStatusOverviewServiceTest {
                     assertThat(item.canComplete()).isFalse();
                     assertThat(item.completedBy()).isEqualTo(leadAId);
                 });
-        assertThat(overview.clarifications())
-                .filteredOn(item -> item.clarificationId().equals(leadCreatedClarification.id()))
-                .singleElement()
-                .satisfies(item -> {
-                    assertThat(item.subjectEmployee().id()).isEqualTo(employeeId);
-                    assertThat(item.createdBy().id()).isEqualTo(leadAId);
-                    assertThat(item.canResolve()).isTrue();
-                    assertThat(item.resolutionNote()).isNull();
-                    assertThat(item.resolvedBy()).isNull();
-                    assertThat(item.resolvedAt()).isNull();
-                });
-        assertThat(overview.clarifications())
-                .filteredOn(item -> item.clarificationId().equals(employeeCreatedClarification.id()))
-                .singleElement()
-                .satisfies(item -> assertThat(item.canResolve()).isFalse());
-        assertThat(overview.clarifications())
-                .filteredOn(item -> item.clarificationId().equals(doneClarification.id()))
-                .singleElement()
-                .satisfies(item -> {
-                    assertThat(item.subjectEmployee().id()).isEqualTo(employeeId);
-                    assertThat(item.createdBy().id()).isEqualTo(employeeId);
-                    assertThat(item.canResolve()).isFalse();
-                    assertThat(item.resolutionNote()).isEqualTo("Handled in the source system.");
-                    assertThat(item.resolvedBy().id()).isEqualTo(leadAId);
-                    assertThat(item.resolvedAt()).isEqualTo(Instant.parse("2026-03-31T08:10:00Z"));
-                });
+        assertThat(overview.clarifications()).containsExactly(
+                leadCreatedClarification, employeeCreatedClarification, doneClarification
+        );
     }
 
     @Test
     void assemble_shouldReturnEmptyOverview_whenTasksAndClarificationsAreEmpty() {
-        when(resolveMonthEndTaskSnapshotLookupService.resolve(List.of(), List.of(), month))
+        when(resolveMonthEndTaskSnapshotLookupService.resolve(List.of(), month))
                 .thenReturn(MonthEndTaskSnapshotLookup.empty());
 
         MonthEndStatusOverview overview = service.assemble(List.of(), List.of(), employeeId, month);
 
         assertThat(overview.entries()).isEmpty();
         assertThat(overview.clarifications()).isEmpty();
-        verify(resolveMonthEndTaskSnapshotLookupService).resolve(List.of(), List.of(), month);
+        verify(resolveMonthEndTaskSnapshotLookupService).resolve(List.of(), month);
     }
 }

@@ -1,7 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndOverviewClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -37,7 +36,7 @@ public class AssembleMonthEndStatusOverviewService {
         Objects.requireNonNull(month, "month must not be null");
 
         MonthEndTaskSnapshotLookup snapshotLookup = resolveMonthEndTaskSnapshotLookupService
-                .resolve(tasks, clarifications, month);
+                .resolve(tasks, month);
 
         List<MonthEndStatusOverviewItem> entries = tasks.stream()
                 .map(task -> new MonthEndStatusOverviewItem(
@@ -51,23 +50,6 @@ public class AssembleMonthEndStatusOverviewService {
                 ))
                 .toList();
 
-        List<MonthEndOverviewClarificationItem> clarificationItems = clarifications.stream()
-                .map(clarification -> new MonthEndOverviewClarificationItem(
-                        clarification.id(),
-                        clarification.projectId(),
-                        snapshotLookup.userFor(clarification.subjectEmployeeId()),
-                        snapshotLookup.userFor(clarification.createdBy()),
-                        clarification.status(),
-                        clarification.text(),
-                        clarification.canBeResolvedBy(actorId),
-                        clarification.resolutionNote(),
-                        snapshotLookup.userFor(clarification.resolvedBy()),
-                        clarification.resolvedAt(),
-                        clarification.createdAt(),
-                        clarification.lastModifiedAt()
-                ))
-                .toList();
-
-        return new MonthEndStatusOverview(actorId, month, entries, clarificationItems);
+        return new MonthEndStatusOverview(actorId, month, entries, clarifications);
     }
 }

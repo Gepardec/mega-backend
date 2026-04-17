@@ -2,7 +2,7 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.model.CreateEmployeeClarificationRequest;
 import com.gepardec.mega.hexagon.generated.model.CreateProjectLeadClarificationRequest;
-import com.gepardec.mega.hexagon.generated.model.MonthEndClarificationResponse;
+import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntry;
 import com.gepardec.mega.hexagon.generated.model.MonthEndPreparationResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistResponse;
@@ -14,8 +14,8 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLea
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndOverviewClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
@@ -26,6 +26,7 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistItem;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -50,6 +51,7 @@ import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -86,9 +88,13 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
     @InjectMock
     GetProjectLeadMonthEndStatusOverviewUseCase getProjectLeadMonthEndStatusOverviewUseCase;
 
+    @InjectMock
+    MonthEndUserSnapshotPort userSnapshotPort;
+
     @BeforeEach
     void setUp() {
         when(authenticatedActorContext.userId()).thenReturn(EMPLOYEE_ID);
+        when(userSnapshotPort.findByIds(any(), any())).thenReturn(List.of(employeeRef(), projectLeadRef()));
     }
 
     @Test
@@ -159,6 +165,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
         assertThat(response.getEnsuredTasks()).hasSize(2);
         assertThat(response.getClarification()).isNotNull();
         assertThat(response.getClarification().getText()).isEqualTo("Leaving early.");
+        assertThat(response.getClarification().getCanEditText()).isTrue();
+        assertThat(response.getClarification().getCanDelete()).isTrue();
         verify(prematureMonthEndPreparationUseCase).prepare(MONTH, PROJECT_ID, EMPLOYEE_ID, "Leaving early.");
     }
 
@@ -178,7 +186,7 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 "Need support."
         )).thenReturn(clarification);
 
-        MonthEndClarificationResponse response = given()
+        MonthEndOverviewClarificationEntry response = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
@@ -186,12 +194,15 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 .then()
                 .statusCode(201)
                 .extract()
-                .as(MonthEndClarificationResponse.class);
+                .as(MonthEndOverviewClarificationEntry.class);
 
         assertThat(response.getProjectId()).isEqualTo(PROJECT_ID.value());
-        assertThat(response.getCreatedBy()).isEqualTo(EMPLOYEE_ID.value());
-        assertThat(response.getSubjectEmployeeId()).isEqualTo(EMPLOYEE_ID.value());
+        assertThat(response.getCreatedBy().getId()).isEqualTo(EMPLOYEE_ID.value());
+        assertThat(response.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
         assertThat(response.getText()).isEqualTo("Need support.");
+        assertThat(response.getCanEditText()).isTrue();
+        assertThat(response.getCanDelete()).isTrue();
+        assertThat(response.getCanResolve()).isFalse();
     }
 
     @Test
@@ -246,7 +257,7 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 "Please fix the evidence."
         )).thenReturn(clarification);
 
-        MonthEndClarificationResponse response = given()
+        MonthEndOverviewClarificationEntry response = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
@@ -254,12 +265,15 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                 .then()
                 .statusCode(201)
                 .extract()
-                .as(MonthEndClarificationResponse.class);
+                .as(MonthEndOverviewClarificationEntry.class);
 
         assertThat(response.getProjectId()).isEqualTo(PROJECT_ID.value());
-        assertThat(response.getCreatedBy()).isEqualTo(PROJECT_LEAD_ID.value());
-        assertThat(response.getSubjectEmployeeId()).isEqualTo(EMPLOYEE_ID.value());
+        assertThat(response.getCreatedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
+        assertThat(response.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
         assertThat(response.getText()).isEqualTo("Please fix the evidence.");
+        assertThat(response.getCanEditText()).isTrue();
+        assertThat(response.getCanDelete()).isTrue();
+        assertThat(response.getCanResolve()).isFalse();
     }
 
     @Test
@@ -279,6 +293,7 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
     @Test
     void getEmployeeMonthEndStatusOverview_shouldReturnMappedOverviewForEmployeeRole() {
         allowRoles(Role.EMPLOYEE);
+        MonthEndClarification clarification = projectLeadClarification("Please revisit the supporting evidence.");
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 EMPLOYEE_ID,
                 MONTH,
@@ -291,20 +306,7 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                         true,
                         null
                 )),
-                List.of(new MonthEndOverviewClarificationItem(
-                        com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId.of(Instancio.create(UUID.class)),
-                        PROJECT_ID,
-                        employeeRef(),
-                        projectLeadRef(),
-                        MonthEndClarificationStatus.OPEN,
-                        "Please revisit the supporting evidence.",
-                        true,
-                        null,
-                        null,
-                        null,
-                        CREATED_AT,
-                        CREATED_AT
-                ))
+                List.of(clarification)
         );
         when(getEmployeeMonthEndStatusOverviewUseCase.getOverview(EMPLOYEE_ID, MONTH)).thenReturn(overview);
 
@@ -323,11 +325,13 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
             assertThat(entry.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
             assertThat(entry.getCanComplete()).isTrue();
         });
-        assertThat(response.getClarifications()).singleElement().satisfies(clarification -> {
-            assertThat(clarification.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
-            assertThat(clarification.getCreatedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
-            assertThat(clarification.getResolvedBy()).isNull();
-            assertThat(clarification.getCanResolve()).isTrue();
+        assertThat(response.getClarifications()).singleElement().satisfies(c -> {
+            assertThat(c.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
+            assertThat(c.getCreatedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
+            assertThat(c.getResolvedBy()).isNull();
+            assertThat(c.getCanResolve()).isTrue();
+            assertThat(c.getCanEditText()).isFalse();
+            assertThat(c.getCanDelete()).isFalse();
         });
         verify(getEmployeeMonthEndStatusOverviewUseCase).getOverview(EMPLOYEE_ID, MONTH);
     }
@@ -350,6 +354,8 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
     void getProjectLeadMonthEndStatusOverview_shouldReturnMappedOverviewForLeadRole() {
         allowRoles(Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
+        MonthEndClarification resolvedClarification = employeeClarification("Everything is clarified.")
+                .resolve(PROJECT_LEAD_ID, "Confirmed by project lead.", CREATED_AT.plusSeconds(600));
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 PROJECT_LEAD_ID,
                 MONTH,
@@ -362,20 +368,7 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
                         true,
                         null
                 )),
-                List.of(new MonthEndOverviewClarificationItem(
-                        com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId.of(Instancio.create(UUID.class)),
-                        PROJECT_ID,
-                        employeeRef(),
-                        employeeRef(),
-                        MonthEndClarificationStatus.DONE,
-                        "Everything is clarified.",
-                        false,
-                        "Confirmed by project lead.",
-                        projectLeadRef(),
-                        CREATED_AT.plusSeconds(600),
-                        CREATED_AT,
-                        CREATED_AT.plusSeconds(600)
-                ))
+                List.of(resolvedClarification)
         );
         when(getProjectLeadMonthEndStatusOverviewUseCase.getOverview(PROJECT_LEAD_ID, MONTH)).thenReturn(overview);
 
@@ -394,11 +387,13 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
             assertThat(entry.getSubjectEmployee()).isNull();
             assertThat(entry.getCanComplete()).isTrue();
         });
-        assertThat(response.getClarifications()).singleElement().satisfies(clarification -> {
-            assertThat(clarification.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
-            assertThat(clarification.getCreatedBy().getId()).isEqualTo(EMPLOYEE_ID.value());
-            assertThat(clarification.getResolvedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
-            assertThat(clarification.getCanResolve()).isFalse();
+        assertThat(response.getClarifications()).singleElement().satisfies(c -> {
+            assertThat(c.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
+            assertThat(c.getCreatedBy().getId()).isEqualTo(EMPLOYEE_ID.value());
+            assertThat(c.getResolvedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
+            assertThat(c.getCanResolve()).isFalse();
+            assertThat(c.getCanEditText()).isFalse();
+            assertThat(c.getCanDelete()).isFalse();
         });
         verify(getProjectLeadMonthEndStatusOverviewUseCase).getOverview(PROJECT_LEAD_ID, MONTH);
     }
@@ -434,7 +429,7 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
 
     private MonthEndClarification employeeClarification(String text) {
         return MonthEndClarification.create(
-                com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId.of(Instancio.create(UUID.class)),
+                MonthEndClarificationId.of(Instancio.create(UUID.class)),
                 MONTH,
                 PROJECT_ID,
                 EMPLOYEE_ID,
@@ -447,7 +442,7 @@ class MonthEndEmployeeAndProjectLeadResourceTest {
 
     private MonthEndClarification projectLeadClarification(String text) {
         return MonthEndClarification.create(
-                com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId.of(Instancio.create(UUID.class)),
+                MonthEndClarificationId.of(Instancio.create(UUID.class)),
                 MONTH,
                 PROJECT_ID,
                 EMPLOYEE_ID,
