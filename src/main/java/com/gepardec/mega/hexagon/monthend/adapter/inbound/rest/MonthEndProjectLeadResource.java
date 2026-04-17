@@ -4,10 +4,8 @@ import com.gepardec.mega.hexagon.generated.api.MonthEndProjectLeadApi;
 import com.gepardec.mega.hexagon.generated.model.CreateProjectLeadClarificationRequest;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndStatusOverviewUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
@@ -31,7 +29,6 @@ import java.util.stream.Collectors;
 @MegaRolesAllowed(Role.PROJECT_LEAD)
 public class MonthEndProjectLeadResource implements MonthEndProjectLeadApi {
 
-    private final GetProjectLeadMonthEndWorklistUseCase getProjectLeadMonthEndWorklistUseCase;
     private final GetProjectLeadMonthEndStatusOverviewUseCase getProjectLeadMonthEndStatusOverviewUseCase;
     private final CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
     private final MonthEndUserSnapshotPort userSnapshotPort;
@@ -41,7 +38,6 @@ public class MonthEndProjectLeadResource implements MonthEndProjectLeadApi {
 
     @Inject
     public MonthEndProjectLeadResource(
-            GetProjectLeadMonthEndWorklistUseCase getProjectLeadMonthEndWorklistUseCase,
             GetProjectLeadMonthEndStatusOverviewUseCase getProjectLeadMonthEndStatusOverviewUseCase,
             CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase,
             MonthEndUserSnapshotPort userSnapshotPort,
@@ -49,7 +45,6 @@ public class MonthEndProjectLeadResource implements MonthEndProjectLeadApi {
             MonthEndRestTransportHelper transportHelper,
             MonthEndRestMapper monthEndRestMapper
     ) {
-        this.getProjectLeadMonthEndWorklistUseCase = getProjectLeadMonthEndWorklistUseCase;
         this.getProjectLeadMonthEndStatusOverviewUseCase = getProjectLeadMonthEndStatusOverviewUseCase;
         this.createMonthEndClarificationUseCase = createMonthEndClarificationUseCase;
         this.userSnapshotPort = userSnapshotPort;
@@ -86,16 +81,6 @@ public class MonthEndProjectLeadResource implements MonthEndProjectLeadApi {
         return Response.status(Response.Status.CREATED)
                 .entity(monthEndRestMapper.toClarificationEntry(clarification, userRefs, actorId))
                 .build();
-    }
-
-    @Override
-    public Response getProjectLeadMonthEndWorklist(String month) {
-        UserId actorId = authenticatedActorContext.userId();
-        MonthEndWorklist worklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(
-                actorId,
-                transportHelper.parseMonth(month)
-        );
-        return Response.ok(monthEndRestMapper.toResponse(worklist)).build();
     }
 
     private Map<UserId, UserRef> resolveUserRefs(Set<UserId> ids, YearMonth month) {

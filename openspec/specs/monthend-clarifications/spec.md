@@ -48,7 +48,7 @@ The system SHALL snapshot the eligible project leads of a clarification when it 
 The system SHALL allow a clarification to be created only by an involved party. The involved parties of a clarification are: the subject employee (if present) and all eligible project leads. A clarification SHALL be visible to all involved parties.
 
 #### Scenario: Employee-created clarification is visible to subject employee and all leads
-- **WHEN** the subject employee creates a clarification for a project in their month-end worklist context
+- **WHEN** the subject employee creates a clarification for a project in their month-end project context
 - **THEN** the clarification is visible to that employee
 - **THEN** the clarification is visible to every eligible project lead in the clarification's lead snapshot
 
@@ -156,8 +156,6 @@ The system SHALL provide two additional repository query methods that return all
 
 - `findAllEmployeeClarifications(UserId employeeId, YearMonth month)`: returns all `MonthEndClarification` records where the employee is the `subjectEmployeeId` for that month, including both `OPEN` and `DONE`.
 - `findAllProjectLeadClarifications(UserId leadId, YearMonth month)`: returns all `MonthEndClarification` records for projects the lead leads for that month, including both `OPEN` and `DONE`.
-
-The existing `findOpenEmployeeClarifications` and `findOpenProjectLeadClarifications` methods SHALL remain unchanged with their open-only semantics for use by the worklist.
 
 #### Scenario: findAllEmployeeClarifications returns open and done clarifications
 - **WHEN** `findAllEmployeeClarifications` is called for an employee who has both open and done clarifications as subject employee in that month

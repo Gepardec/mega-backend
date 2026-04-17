@@ -2,18 +2,13 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntry;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
-import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistResponse;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistClarificationItem;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistItem;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
@@ -46,49 +41,6 @@ class MonthEndRestMapperTest {
     private final String employeeName = "Mapper Employee";
     private final UserId leadId = UserId.of(Instancio.create(UUID.class));
     private final UserId otherUserId = UserId.of(Instancio.create(UUID.class));
-
-    @Test
-    void toResponse_shouldMapWorklistIdsAndCollections() {
-        MonthEndTaskId taskId = MonthEndTaskId.of(Instancio.create(UUID.class));
-        MonthEndClarificationId clarificationId = MonthEndClarificationId.of(Instancio.create(UUID.class));
-        Instant createdAt = Instant.parse("2026-03-25T09:15:00Z");
-        Instant modifiedAt = Instant.parse("2026-03-26T10:45:00Z");
-        MonthEndWorklist worklist = new MonthEndWorklist(
-                employeeId,
-                month,
-                List.of(new MonthEndWorklistItem(
-                        taskId,
-                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        projectRef(),
-                        employeeRef()
-                )),
-                List.of(new MonthEndWorklistClarificationItem(
-                        clarificationId,
-                        projectId,
-                        employeeId,
-                        employeeId,
-                        MonthEndClarificationStatus.OPEN,
-                        "Please review",
-                        createdAt,
-                        modifiedAt
-                ))
-        );
-
-        MonthEndWorklistResponse response = mapper.toResponse(worklist);
-
-        assertThat(response.getMonth()).isEqualTo("2026-03");
-        assertThat(response.getTasks()).singleElement().satisfies(task -> {
-            assertThat(task.getTaskId()).isEqualTo(taskId.value());
-            assertThat(task.getProject().getId()).isEqualTo(projectId.value());
-            assertThat(task.getSubjectEmployee().getId()).isEqualTo(employeeId.value());
-        });
-        assertThat(response.getClarifications()).singleElement().satisfies(clarification -> {
-            assertThat(clarification.getClarificationId()).isEqualTo(clarificationId.value());
-            assertThat(clarification.getProjectId()).isEqualTo(projectId.value());
-            assertThat(clarification.getCreatedAt()).isEqualTo(OffsetDateTime.ofInstant(createdAt, ZoneOffset.UTC));
-            assertThat(clarification.getLastModifiedAt()).isEqualTo(OffsetDateTime.ofInstant(modifiedAt, ZoneOffset.UTC));
-        });
-    }
 
     @Test
     void toResponse_shouldMapStatusOverviewProjectAndClarificationUserReferences() {

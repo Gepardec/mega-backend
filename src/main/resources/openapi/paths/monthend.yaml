@@ -21,29 +21,6 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
-'/monthend/employee/worklist':
-  get:
-    tags:
-      - MonthEndEmployee
-    operationId: getEmployeeMonthEndWorklist
-    summary: Get the authenticated employee's month-end worklist
-    security:
-      - bearerAuth: [ ]
-    parameters:
-      - $ref: '../parameters/common.yaml#/MonthQueryParameter'
-    responses:
-      '200':
-        description: Employee month-end worklist
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/monthend.yaml#/MonthEndWorklistResponse'
-      '400':
-        $ref: '../responses/common.yaml#/BadRequest'
-      '403':
-        $ref: '../responses/common.yaml#/Forbidden'
-      '500':
-        $ref: '../responses/common.yaml#/InternalServerError'
 '/monthend/employee/preparations':
   post:
     tags:
@@ -115,29 +92,6 @@
           application/json:
             schema:
               $ref: '../schemas/monthend.yaml#/MonthEndStatusOverviewResponse'
-      '400':
-        $ref: '../responses/common.yaml#/BadRequest'
-      '403':
-        $ref: '../responses/common.yaml#/Forbidden'
-      '500':
-        $ref: '../responses/common.yaml#/InternalServerError'
-'/monthend/project-lead/worklist':
-  get:
-    tags:
-      - MonthEndProjectLead
-    operationId: getProjectLeadMonthEndWorklist
-    summary: Get the authenticated project lead's month-end worklist
-    security:
-      - bearerAuth: [ ]
-    parameters:
-      - $ref: '../parameters/common.yaml#/MonthQueryParameter'
-    responses:
-      '200':
-        description: Project-lead month-end worklist
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/monthend.yaml#/MonthEndWorklistResponse'
       '400':
         $ref: '../responses/common.yaml#/BadRequest'
       '403':

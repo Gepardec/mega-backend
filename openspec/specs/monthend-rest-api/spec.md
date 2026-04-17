@@ -16,12 +16,7 @@ The system SHALL define the monthend REST API in a single canonical OpenAPI docu
 - **THEN** handwritten monthend REST adapters implement the generated Java API interfaces instead of defining separate handwritten endpoint signatures
 
 ### Requirement: Actor-scoped monthend endpoints derive the acting user from authentication
-The system SHALL treat the authenticated caller as the acting monthend actor for all actor-scoped monthend REST endpoints. Actor-scoped requests MUST NOT require a caller-supplied actor identifier for employee worklists, project-lead worklists, employee status overview, project-lead status overview, task completion, clarification edit, clarification resolve, or employee self-service preparation.
-
-#### Scenario: Employee worklist is resolved for the authenticated employee
-- **WHEN** an authenticated employee requests the employee monthend worklist for a month
-- **THEN** the API resolves the acting employee from the authentication context
-- **THEN** the request does not require an employee identifier
+The system SHALL treat the authenticated caller as the acting monthend actor for all actor-scoped monthend REST endpoints. Actor-scoped requests MUST NOT require a caller-supplied actor identifier for employee status overview, project-lead status overview, task completion, clarification edit, clarification resolve, or employee self-service preparation.
 
 #### Scenario: Task completion is attributed to the authenticated caller
 - **WHEN** an authenticated eligible actor completes a monthend task through the REST API
@@ -33,18 +28,8 @@ The system SHALL treat the authenticated caller as the acting monthend actor for
 - **THEN** the API uses the authenticated employee as the acting user for preparation
 - **THEN** the request does not require a separate actor identifier
 
-### Requirement: Employee monthend endpoints expose employee worklist, employee overview, and self-service flows
-The system SHALL provide employee-scoped monthend REST endpoints that allow authenticated employees to retrieve their monthend worklist, retrieve their employee status overview, prepare their own project monthend context, and create clarifications for their own monthend project context. Responses SHALL expose the generated task and clarification models needed by the employee client. Each worklist task entry SHALL include a nested project object containing the project identifier and project name, and a nullable nested subject employee object containing the employee identifier and full name.
-
-#### Scenario: Employee retrieves their monthend worklist
-- **WHEN** an authenticated employee requests the employee monthend worklist for a month
-- **THEN** the API returns the employee's open monthend tasks for that month
-- **THEN** the API returns the employee-visible open clarifications for that month
-
-#### Scenario: Employee worklist task includes nested project and subject employee
-- **WHEN** an authenticated employee requests the employee monthend worklist for a month
-- **THEN** each task entry includes a nested project object containing the project identifier and project name
-- **THEN** each task entry includes a nullable nested subject employee object containing the employee identifier and full name
+### Requirement: Employee monthend endpoints expose employee overview and self-service flows
+The system SHALL provide employee-scoped monthend REST endpoints that allow authenticated employees to retrieve their employee status overview, prepare their own project monthend context, and create clarifications for their own monthend project context. Responses SHALL expose the generated task and clarification models needed by the employee client.
 
 #### Scenario: Employee retrieves their monthend status overview
 - **WHEN** an authenticated employee requests the employee monthend status overview for a month
@@ -70,18 +55,8 @@ The system SHALL provide employee-scoped monthend REST endpoints that allow auth
 - **THEN** the API creates a monthend clarification with the authenticated employee as creator and subject
 - **THEN** the API returns the created clarification as a fully enriched clarification response including UserRefs for `createdBy` and `subjectEmployee`, and `canResolve`, `canEditText`, and `canDelete` flags evaluated for the authenticated employee
 
-### Requirement: Project-lead monthend endpoints expose lead worklist, lead overview, and clarification creation
-The system SHALL provide project-lead-scoped monthend REST endpoints that allow authenticated project leads to retrieve their lead worklist, retrieve their lead status overview, and create clarifications with an optional subject employee in the same monthend project context. Responses SHALL expose the generated task and clarification models needed by the lead client. Each worklist task entry SHALL include a nested project object containing the project identifier and project name, and a nullable nested subject employee object containing the employee identifier and full name.
-
-#### Scenario: Project lead retrieves the lead monthend worklist
-- **WHEN** an authenticated project lead requests the project-lead monthend worklist for a month
-- **THEN** the API returns the lead-visible open monthend tasks for that month
-- **THEN** the API returns the lead-visible open clarifications for that month
-
-#### Scenario: Lead worklist task includes nested project and subject employee
-- **WHEN** an authenticated project lead requests the project-lead monthend worklist for a month
-- **THEN** each task entry includes a nested project object containing the project identifier and project name
-- **THEN** each task entry includes a nullable nested subject employee object containing the employee identifier and full name
+### Requirement: Project-lead monthend endpoints expose lead overview and clarification creation
+The system SHALL provide project-lead-scoped monthend REST endpoints that allow authenticated project leads to retrieve their lead status overview and create clarifications with an optional subject employee in the same monthend project context. Responses SHALL expose the generated task and clarification models needed by the lead client.
 
 #### Scenario: Project lead retrieves their monthend status overview
 - **WHEN** an authenticated project lead requests the project-lead monthend status overview for a month
