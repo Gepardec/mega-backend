@@ -6,7 +6,6 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEn
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
@@ -60,12 +59,14 @@ public class MonthEndProjectLeadResource implements MonthEndProjectLeadApi {
     @Override
     public Response createProjectLeadMonthEndClarification(CreateProjectLeadClarificationRequest request) {
         UserId actorId = authenticatedActorContext.userId();
+        UserId subjectEmployeeId = request.getSubjectEmployeeId() != null
+                ? transportHelper.toUserId(request.getSubjectEmployeeId())
+                : null;
         MonthEndClarification clarification = createMonthEndClarificationUseCase.create(
                 transportHelper.parseMonth(request.getMonth()),
                 transportHelper.toProjectId(request.getProjectId()),
-                transportHelper.toUserId(request.getSubjectEmployeeId()),
+                subjectEmployeeId,
                 actorId,
-                MonthEndClarificationSide.PROJECT_LEAD,
                 request.getText()
         );
         return Response.status(Response.Status.CREATED)

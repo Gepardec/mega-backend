@@ -6,11 +6,13 @@ import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequest;
 import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequest;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndTaskUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.DeleteMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndTaskNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -31,6 +33,7 @@ import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -57,6 +60,9 @@ class MonthEndSharedResourceTest {
 
     @InjectMock
     CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase;
+
+    @InjectMock
+    DeleteMonthEndClarificationUseCase deleteMonthEndClarificationUseCase;
 
     @BeforeEach
     void setUp() {
@@ -129,6 +135,42 @@ class MonthEndSharedResourceTest {
         verify(completeMonthEndClarificationUseCase).complete(CLARIFICATION_ID, PROJECT_LEAD_ID, "Handled.");
     }
 
+    @Test
+    void deleteMonthEndClarification_shouldReturn204_whenCreatorDeletesOwnClarification() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .delete("/monthend/clarifications/{clarificationId}", CLARIFICATION_ID.value())
+                .then()
+                .statusCode(204);
+
+        verify(deleteMonthEndClarificationUseCase).delete(CLARIFICATION_ID, EMPLOYEE_ID);
+    }
+
+    @Test
+    void deleteMonthEndClarification_shouldReturn403_whenNonCreatorAttemptsDelete() {
+        allowRoles(Role.EMPLOYEE);
+        doThrow(new MonthEndActorNotAuthorizedException("actor is not allowed to delete this clarification"))
+                .when(deleteMonthEndClarificationUseCase).delete(CLARIFICATION_ID, EMPLOYEE_ID);
+
+        given()
+                .delete("/monthend/clarifications/{clarificationId}", CLARIFICATION_ID.value())
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    void deleteMonthEndClarification_shouldReturn404_whenClarificationNotFound() {
+        allowRoles(Role.EMPLOYEE);
+        doThrow(new MonthEndClarificationNotFoundException("clarification not found: " + CLARIFICATION_ID.value()))
+                .when(deleteMonthEndClarificationUseCase).delete(CLARIFICATION_ID, EMPLOYEE_ID);
+
+        given()
+                .delete("/monthend/clarifications/{clarificationId}", CLARIFICATION_ID.value())
+                .then()
+                .statusCode(404);
+    }
+
     private void allowRoles(Role... roles) {
         when(authenticatedActorContext.roles()).thenReturn(Set.of(roles));
     }
@@ -140,7 +182,6 @@ class MonthEndSharedResourceTest {
                 PROJECT_ID,
                 EMPLOYEE_ID,
                 EMPLOYEE_ID,
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(PROJECT_LEAD_ID),
                 text,
                 CREATED_AT
@@ -154,11 +195,9 @@ class MonthEndSharedResourceTest {
                 PROJECT_ID,
                 EMPLOYEE_ID,
                 PROJECT_LEAD_ID,
-                MonthEndClarificationSide.PROJECT_LEAD,
                 Set.of(PROJECT_LEAD_ID),
                 text,
                 CREATED_AT
         );
     }
-
 }

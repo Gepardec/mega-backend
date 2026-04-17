@@ -55,7 +55,6 @@ public class GetEmployeeMonthEndWorklistService implements GetEmployeeMonthEndWo
                         c.projectId(),
                         c.subjectEmployeeId(),
                         c.createdBy(),
-                        c.creatorSide(),
                         c.status(),
                         c.text(),
                         c.createdAt(),

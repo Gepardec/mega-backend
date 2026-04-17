@@ -2,7 +2,6 @@ package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndOverviewClarificationItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
@@ -79,7 +78,6 @@ class GetProjectLeadMonthEndStatusOverviewServiceTest {
                 projectId,
                 subjectEmployeeId,
                 subjectEmployeeId,
-                MonthEndClarificationSide.EMPLOYEE,
                 Set.of(leadId),
                 "Please verify the employee clarification.",
                 Instant.parse("2026-03-31T08:00:00Z")
@@ -109,7 +107,6 @@ class GetProjectLeadMonthEndStatusOverviewServiceTest {
                                 FullName.of("Subject", "Employee"),
                                 ZepUsername.of("subject.employee")
                         ),
-                        MonthEndClarificationSide.EMPLOYEE,
                         clarification.status(),
                         clarification.text(),
                         true,

@@ -3,7 +3,6 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationSide;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -77,7 +76,6 @@ public class PrematureMonthEndPreparationService implements PrematureMonthEndPre
                     projectId,
                     context.subjectEmployee().id(),
                     actorId,
-                    MonthEndClarificationSide.EMPLOYEE,
                     context.eligibleProjectLeadIds(),
                     clarificationText,
                     clock.instant()
