@@ -8,9 +8,6 @@ import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewEntry;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndTaskGenerationResponse;
 import com.gepardec.mega.hexagon.generated.model.MonthEndTaskResponse;
-import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistClarification;
-import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistResponse;
-import com.gepardec.mega.hexagon.generated.model.MonthEndWorklistTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
@@ -19,9 +16,6 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewIte
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistClarificationItem;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistItem;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
@@ -44,16 +38,10 @@ import java.util.UUID;
 @Mapper(componentModel = MappingConstants.ComponentModel.JAKARTA)
 public interface MonthEndRestMapper {
 
-    MonthEndWorklistResponse toResponse(MonthEndWorklist worklist);
-
     MonthEndTaskGenerationResponse toResponse(MonthEndTaskGenerationResult result);
 
     @Mapping(target = "taskId", source = "id")
     MonthEndTaskResponse toResponse(MonthEndTask task);
-
-    MonthEndWorklistTask toResponse(MonthEndWorklistItem item);
-
-    MonthEndWorklistClarification toResponse(MonthEndWorklistClarificationItem item);
 
     MonthEndStatusOverviewEntry toResponse(MonthEndStatusOverviewItem item);
 

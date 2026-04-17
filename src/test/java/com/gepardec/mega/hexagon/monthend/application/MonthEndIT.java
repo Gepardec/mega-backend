@@ -6,9 +6,7 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonth
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GenerateMonthEndTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndStatusOverviewUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndStatusOverviewUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndWorklistUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
@@ -19,8 +17,6 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklist;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndWorklistItem;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.project.adapter.outbound.ProjectRepositoryAdapter;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
@@ -82,12 +78,6 @@ class MonthEndIT {
     CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase;
 
     @Inject
-    GetEmployeeMonthEndWorklistUseCase getEmployeeMonthEndWorklistUseCase;
-
-    @Inject
-    GetProjectLeadMonthEndWorklistUseCase getProjectLeadMonthEndWorklistUseCase;
-
-    @Inject
     GetEmployeeMonthEndStatusOverviewUseCase getEmployeeMonthEndStatusOverviewUseCase;
 
     @Inject
@@ -121,33 +111,39 @@ class MonthEndIT {
         assertThat(result.created()).isEqualTo(4);
         assertThat(result.skipped()).isZero();
 
-        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
-        assertThat(employeeWorklist.tasks())
-                .extracting(MonthEndWorklistItem::type)
+        MonthEndStatusOverview employeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        List<MonthEndStatusOverviewItem> eligibleOpenItems = employeeOverview.entries().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+                .toList();
+        assertThat(eligibleOpenItems)
+                .extracting(MonthEndStatusOverviewItem::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                         MonthEndTaskType.LEISTUNGSNACHWEIS
                 );
-        assertThat(employeeWorklist.tasks())
-                .allSatisfy(task -> {
-                    assertThat(task.project().id()).isEqualTo(project.id());
-                    assertThat(task.subjectEmployee().id()).isEqualTo(employee.id());
+        assertThat(eligibleOpenItems)
+                .allSatisfy(item -> {
+                    assertThat(item.project().id()).isEqualTo(project.id());
+                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
                 });
 
-        MonthEndWorklistItem employeeTimeCheck = employeeWorklist.tasks().stream()
-                .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
+        MonthEndStatusOverviewItem employeeTimeCheck = eligibleOpenItems.stream()
+                .filter(item -> item.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .findFirst()
                 .orElseThrow();
 
         completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.id());
 
-        MonthEndWorklist updatedEmployeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
-        assertThat(updatedEmployeeWorklist.tasks())
+        MonthEndStatusOverview updatedOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        List<MonthEndStatusOverviewItem> updatedEligibleOpenItems = updatedOverview.entries().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+                .toList();
+        assertThat(updatedEligibleOpenItems)
                 .singleElement()
-                .satisfies(task -> {
-                    assertThat(task.type()).isEqualTo(MonthEndTaskType.LEISTUNGSNACHWEIS);
-                    assertThat(task.project().id()).isEqualTo(project.id());
-                    assertThat(task.subjectEmployee().id()).isEqualTo(employee.id());
+                .satisfies(item -> {
+                    assertThat(item.type()).isEqualTo(MonthEndTaskType.LEISTUNGSNACHWEIS);
+                    assertThat(item.project().id()).isEqualTo(project.id());
+                    assertThat(item.subjectEmployee().id()).isEqualTo(employee.id());
                 });
     }
 
@@ -164,45 +160,57 @@ class MonthEndIT {
         assertThat(result.created()).isEqualTo(4);
         assertThat(result.skipped()).isZero();
 
-        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH);
-        MonthEndWorklist leadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH);
+        MonthEndStatusOverview leadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
+        MonthEndStatusOverview leadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
+        List<MonthEndStatusOverviewItem> leadAEligibleOpen = leadAOverview.entries().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+                .toList();
+        List<MonthEndStatusOverviewItem> leadBEligibleOpen = leadBOverview.entries().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+                .toList();
 
-        assertThat(leadAWorklist.tasks())
-                .extracting(MonthEndWorklistItem::type)
+        assertThat(leadAEligibleOpen)
+                .extracting(MonthEndStatusOverviewItem::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.PROJECT_LEAD_REVIEW,
                         MonthEndTaskType.ABRECHNUNG
                 );
-        assertThat(leadBWorklist.tasks())
-                .extracting(MonthEndWorklistItem::type)
+        assertThat(leadBEligibleOpen)
+                .extracting(MonthEndStatusOverviewItem::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.PROJECT_LEAD_REVIEW,
                         MonthEndTaskType.ABRECHNUNG
                 );
 
-        MonthEndWorklistItem leadReviewTask = leadAWorklist.tasks().stream()
-                .filter(task -> task.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
+        MonthEndStatusOverviewItem leadReviewItem = leadAEligibleOpen.stream()
+                .filter(item -> item.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
                 .findFirst()
                 .orElseThrow();
 
-        completeMonthEndTaskUseCase.complete(leadReviewTask.taskId(), leadA.id());
+        completeMonthEndTaskUseCase.complete(leadReviewItem.taskId(), leadA.id());
 
-        MonthEndWorklist updatedLeadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH);
-        MonthEndWorklist updatedLeadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH);
+        MonthEndStatusOverview updatedLeadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
+        MonthEndStatusOverview updatedLeadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
+        List<MonthEndStatusOverviewItem> updatedLeadAEligibleOpen = updatedLeadAOverview.entries().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+                .toList();
+        List<MonthEndStatusOverviewItem> updatedLeadBEligibleOpen = updatedLeadBOverview.entries().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+                .toList();
 
-        assertThat(updatedLeadAWorklist.tasks())
+        assertThat(updatedLeadAEligibleOpen)
                 .singleElement()
-                .satisfies(task -> {
-                    assertThat(task.type()).isEqualTo(MonthEndTaskType.ABRECHNUNG);
-                    assertThat(task.project().id()).isEqualTo(project.id());
-                    assertThat(task.subjectEmployee()).isNull();
+                .satisfies(item -> {
+                    assertThat(item.type()).isEqualTo(MonthEndTaskType.ABRECHNUNG);
+                    assertThat(item.project().id()).isEqualTo(project.id());
+                    assertThat(item.subjectEmployee()).isNull();
                 });
-        assertThat(updatedLeadBWorklist.tasks())
+        assertThat(updatedLeadBEligibleOpen)
                 .singleElement()
-                .satisfies(task -> {
-                    assertThat(task.type()).isEqualTo(MonthEndTaskType.ABRECHNUNG);
-                    assertThat(task.project().id()).isEqualTo(project.id());
-                    assertThat(task.subjectEmployee()).isNull();
+                .satisfies(item -> {
+                    assertThat(item.type()).isEqualTo(MonthEndTaskType.ABRECHNUNG);
+                    assertThat(item.project().id()).isEqualTo(project.id());
+                    assertThat(item.subjectEmployee()).isNull();
                 });
     }
 
@@ -248,7 +256,7 @@ class MonthEndIT {
     }
 
     @Test
-    void monthEndFlow_shouldKeepCompletedEmployeeTaskVisibleInStatusOverviewWhileWorklistStaysOpenOnly() {
+    void monthEndFlow_shouldKeepCompletedEmployeeTaskVisibleInStatusOverview() {
         User employee = user("employee-overview", Set.of(Role.EMPLOYEE));
         User lead = user("lead-overview", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
         Project project = project(712, Set.of(lead.id()));
@@ -256,16 +264,15 @@ class MonthEndIT {
 
         generateMonthEndTasksUseCase.generate(MONTH);
 
-        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
-        MonthEndWorklistItem employeeTimeCheck = employeeWorklist.tasks().stream()
-                .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
+        MonthEndStatusOverview employeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        MonthEndStatusOverviewItem employeeTimeCheck = employeeOverview.entries().stream()
+                .filter(item -> item.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .findFirst()
                 .orElseThrow();
 
         completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.id());
 
         MonthEndStatusOverview statusOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
-        MonthEndWorklist updatedWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
 
         assertThat(statusOverview.entries())
                 .extracting(MonthEndStatusOverviewItem::type, MonthEndStatusOverviewItem::status)
@@ -295,9 +302,6 @@ class MonthEndIT {
                     assertThat(item.canComplete()).isFalse();
                     assertThat(item.completedBy()).isNull();
                 });
-        assertThat(updatedWorklist.tasks())
-                .extracting(MonthEndWorklistItem::type)
-                .containsExactly(MonthEndTaskType.LEISTUNGSNACHWEIS);
     }
 
     @Test
@@ -310,9 +314,9 @@ class MonthEndIT {
 
         generateMonthEndTasksUseCase.generate(MONTH);
 
-        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH);
-        MonthEndWorklistItem leadReviewTask = leadAWorklist.tasks().stream()
-                .filter(task -> task.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
+        MonthEndStatusOverview leadAInitialOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
+        MonthEndStatusOverviewItem leadReviewTask = leadAInitialOverview.entries().stream()
+                .filter(item -> item.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
                 .findFirst()
                 .orElseThrow();
 
@@ -320,8 +324,6 @@ class MonthEndIT {
 
         MonthEndStatusOverview leadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
         MonthEndStatusOverview leadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
-        MonthEndWorklist updatedLeadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH);
-        MonthEndWorklist updatedLeadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH);
 
         assertThat(leadAOverview.entries())
                 .filteredOn(item -> item.taskId().equals(leadReviewTask.taskId()))
@@ -357,12 +359,6 @@ class MonthEndIT {
                 .filteredOn(item -> item.type() == MonthEndTaskType.ABRECHNUNG)
                 .singleElement()
                 .satisfies(item -> assertThat(item.subjectEmployee()).isNull());
-        assertThat(updatedLeadAWorklist.tasks())
-                .extracting(MonthEndWorklistItem::type)
-                .containsExactly(MonthEndTaskType.ABRECHNUNG);
-        assertThat(updatedLeadBWorklist.tasks())
-                .extracting(MonthEndWorklistItem::type)
-                .containsExactly(MonthEndTaskType.ABRECHNUNG);
     }
 
     @Test
@@ -380,41 +376,51 @@ class MonthEndIT {
                 "I am leaving before the scheduled run."
         );
 
-        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
-        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH);
-        MonthEndWorklist leadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH);
+        MonthEndStatusOverview employeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        MonthEndStatusOverview leadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
+        MonthEndStatusOverview leadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
 
         assertThat(preparation.hasClarification()).isTrue();
-        assertThat(employeeWorklist.tasks())
-                .extracting(MonthEndWorklistItem::type)
+        List<MonthEndStatusOverviewItem> employeeEligibleOpen = employeeOverview.entries().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+                .toList();
+        assertThat(employeeEligibleOpen)
+                .extracting(MonthEndStatusOverviewItem::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                         MonthEndTaskType.LEISTUNGSNACHWEIS
                 );
-        assertThat(employeeWorklist.clarifications()).singleElement()
-                .satisfies(item -> {
-                    assertThat(item.clarificationId()).isEqualTo(preparation.clarification().id());
-                    assertThat(item.text()).isEqualTo("I am leaving before the scheduled run.");
+        assertThat(employeeOverview.clarifications()).singleElement()
+                .satisfies(c -> {
+                    assertThat(c.id()).isEqualTo(preparation.clarification().id());
+                    assertThat(c.text()).isEqualTo("I am leaving before the scheduled run.");
                 });
-        assertThat(leadAWorklist.tasks()).isEmpty();
-        assertThat(leadAWorklist.clarifications()).singleElement()
-                .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(preparation.clarification().id()));
-        assertThat(leadBWorklist.tasks()).isEmpty();
-        assertThat(leadBWorklist.clarifications()).singleElement()
-                .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(preparation.clarification().id()));
+        assertThat(leadAOverview.entries().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+                .toList()).isEmpty();
+        assertThat(leadAOverview.clarifications()).singleElement()
+                .satisfies(c -> assertThat(c.id()).isEqualTo(preparation.clarification().id()));
+        assertThat(leadBOverview.entries().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+                .toList()).isEmpty();
+        assertThat(leadBOverview.clarifications()).singleElement()
+                .satisfies(c -> assertThat(c.id()).isEqualTo(preparation.clarification().id()));
 
-        MonthEndWorklistItem preparedEmployeeTimeCheck = employeeWorklist.tasks().stream()
-                .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
+        MonthEndStatusOverviewItem preparedEmployeeTimeCheck = employeeEligibleOpen.stream()
+                .filter(item -> item.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .findFirst()
                 .orElseThrow();
         completeMonthEndTaskUseCase.complete(preparedEmployeeTimeCheck.taskId(), employee.id());
 
-        MonthEndWorklist updatedEmployeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
-        assertThat(updatedEmployeeWorklist.tasks())
+        MonthEndStatusOverview updatedEmployeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        List<MonthEndStatusOverviewItem> updatedEligibleOpen = updatedEmployeeOverview.entries().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canComplete())
+                .toList();
+        assertThat(updatedEligibleOpen)
                 .singleElement()
-                .satisfies(task -> assertThat(task.type()).isEqualTo(MonthEndTaskType.LEISTUNGSNACHWEIS));
-        assertThat(updatedEmployeeWorklist.clarifications()).singleElement()
-                .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(preparation.clarification().id()));
+                .satisfies(item -> assertThat(item.type()).isEqualTo(MonthEndTaskType.LEISTUNGSNACHWEIS));
+        assertThat(updatedEmployeeOverview.clarifications()).singleElement()
+                .satisfies(c -> assertThat(c.id()).isEqualTo(preparation.clarification().id()));
     }
 
     @Test
@@ -504,30 +510,6 @@ class MonthEndIT {
                         user1.id(),
                         user2.id()
                 ));
-
-        MonthEndWorklist user1EmployeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(user1.id(), MONTH);
-        MonthEndWorklist user2EmployeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(user2.id(), MONTH);
-        MonthEndWorklist user1LeadWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(user1.id(), MONTH);
-        MonthEndWorklist user2LeadWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(user2.id(), MONTH);
-
-        assertThat(user1EmployeeWorklist.tasks()).hasSize(2);
-        assertThat(user1EmployeeWorklist.tasks())
-                .allSatisfy(task -> {
-                    assertThat(task.project().id()).isEqualTo(project1.id());
-                    assertThat(task.subjectEmployee().id()).isEqualTo(user1.id());
-                });
-
-        assertThat(user2EmployeeWorklist.tasks()).hasSize(4);
-        assertThat(user2EmployeeWorklist.tasks())
-                .extracting(task -> task.project().id())
-                .containsExactlyInAnyOrder(project1.id(), project1.id(), project2.id(), project2.id());
-        assertThat(user2EmployeeWorklist.tasks())
-                .allSatisfy(task -> assertThat(task.subjectEmployee().id()).isEqualTo(user2.id()));
-
-        assertThat(user1LeadWorklist.tasks()).hasSize(5);
-        assertThat(user2LeadWorklist.tasks()).hasSize(2);
-        assertThat(user1EmployeeWorklist.clarifications()).isEmpty();
-        assertThat(user1LeadWorklist.clarifications()).isEmpty();
     }
 
     @Test
@@ -548,22 +530,19 @@ class MonthEndIT {
                 "Please verify the remaining booking."
         );
 
-        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
-        MonthEndWorklist leadAWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH);
-        MonthEndWorklist leadBWorklist = getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH);
+        MonthEndStatusOverview employeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        MonthEndStatusOverview leadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
+        MonthEndStatusOverview leadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
 
-        assertThat(employeeWorklist.clarifications()).singleElement()
-                .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(clarification.id()));
-        assertThat(leadAWorklist.clarifications()).singleElement()
-                .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(clarification.id()));
-        assertThat(leadBWorklist.clarifications()).singleElement()
-                .satisfies(item -> assertThat(item.clarificationId()).isEqualTo(clarification.id()));
+        assertThat(employeeOverview.clarifications()).singleElement()
+                .satisfies(c -> assertThat(c.id()).isEqualTo(clarification.id()));
+        assertThat(leadAOverview.clarifications()).singleElement()
+                .satisfies(c -> assertThat(c.id()).isEqualTo(clarification.id()));
+        assertThat(leadBOverview.clarifications()).singleElement()
+                .satisfies(c -> assertThat(c.id()).isEqualTo(clarification.id()));
 
         completeMonthEndClarificationUseCase.complete(clarification.id(), leadA.id(), "Handled by lead.");
 
-        assertThat(getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH).clarifications()).isEmpty();
-        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH).clarifications()).isEmpty();
-        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH).clarifications()).isEmpty();
         assertThat(monthEndClarificationRepository.findById(clarification.id()))
                 .hasValueSatisfying(saved -> {
                     assertThat(saved.resolvedBy()).isEqualTo(leadA.id());
@@ -595,26 +574,25 @@ class MonthEndIT {
                 "Please update the supporting note before close."
         );
 
-        MonthEndWorklist employeeWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
-        MonthEndWorklistItem employeeTimeCheck = employeeWorklist.tasks().stream()
-                .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
+        MonthEndStatusOverview employeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        MonthEndStatusOverviewItem employeeTimeCheck = employeeOverview.entries().stream()
+                .filter(item -> item.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .findFirst()
                 .orElseThrow();
 
         completeMonthEndTaskUseCase.complete(employeeTimeCheck.taskId(), employee.id());
 
-        MonthEndWorklist stillOpenClarificationWorklist = getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH);
-        assertThat(stillOpenClarificationWorklist.clarifications()).singleElement()
-                .satisfies(item -> {
-                    assertThat(item.clarificationId()).isEqualTo(clarification.id());
-                    assertThat(item.text()).isEqualTo("Please update the supporting note before close.");
+        MonthEndStatusOverview updatedEmployeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        assertThat(updatedEmployeeOverview.clarifications()).singleElement()
+                .satisfies(c -> {
+                    assertThat(c.id()).isEqualTo(clarification.id());
+                    assertThat(c.text()).isEqualTo("Please update the supporting note before close.");
                 });
 
         completeMonthEndClarificationUseCase.complete(updatedClarification.id(), employee.id(), "Updated and resolved.");
 
-        assertThat(getEmployeeMonthEndWorklistUseCase.getWorklist(employee.id(), MONTH).clarifications()).isEmpty();
-        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadA.id(), MONTH).clarifications()).isEmpty();
-        assertThat(getProjectLeadMonthEndWorklistUseCase.getWorklist(leadB.id(), MONTH).clarifications()).isEmpty();
+        assertThat(monthEndClarificationRepository.findById(updatedClarification.id()))
+                .hasValueSatisfying(saved -> assertThat(saved.resolvedBy()).isEqualTo(employee.id()));
     }
 
     private void persistFixture(List<User> users, Project project, Set<String> assignedUsernames) {
