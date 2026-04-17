@@ -3,15 +3,12 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
-import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,22 +41,18 @@ class GetProjectLeadMonthEndStatusOverviewServiceTest {
     @Mock
     private MonthEndClarificationRepository monthEndClarificationRepository;
 
-    @Mock
-    private AssembleMonthEndStatusOverviewService assembleMonthEndStatusOverviewService;
-
     private GetProjectLeadMonthEndStatusOverviewService service;
 
     @BeforeEach
     void setUp() {
         service = new GetProjectLeadMonthEndStatusOverviewService(
                 monthEndTaskRepository,
-                monthEndClarificationRepository,
-                assembleMonthEndStatusOverviewService
+                monthEndClarificationRepository
         );
     }
 
     @Test
-    void getOverview_shouldFetchTasksAndClarificationsAndReturnAssemblerResult() {
+    void getOverview_shouldReturnTasksAndClarificationsDirectly() {
         MonthEndTask task = MonthEndTask.create(
                 MonthEndTaskId.generate(),
                 month,
@@ -78,51 +71,29 @@ class GetProjectLeadMonthEndStatusOverviewServiceTest {
                 "Please verify the employee clarification.",
                 Instant.parse("2026-03-31T08:00:00Z")
         );
-        MonthEndStatusOverview assembledOverview = new MonthEndStatusOverview(
-                leadId,
-                month,
-                List.of(new MonthEndStatusOverviewItem(
-                        task.id(),
-                        task.type(),
-                        MonthEndTaskStatus.OPEN,
-                        new ProjectRef(projectId, 88, "Project Lead"),
-                        null,
-                        true,
-                        null
-                )),
-                List.of(clarification)
-        );
 
         when(monthEndTaskRepository.findLeadProjectTasks(leadId, month)).thenReturn(List.of(task));
         when(monthEndClarificationRepository.findAllProjectLeadClarifications(leadId, month))
                 .thenReturn(List.of(clarification));
-        when(assembleMonthEndStatusOverviewService.assemble(List.of(task), List.of(clarification), leadId, month))
-                .thenReturn(assembledOverview);
 
         MonthEndStatusOverview overview = service.getOverview(leadId, month);
 
-        assertThat(overview).isSameAs(assembledOverview);
-        assertThat(overview.clarifications()).singleElement()
-                .satisfies(item -> {
-                    assertThat(item.subjectEmployeeId()).isEqualTo(subjectEmployeeId);
-                    assertThat(item.createdBy()).isEqualTo(subjectEmployeeId);
-                });
+        assertThat(overview.actorId()).isEqualTo(leadId);
+        assertThat(overview.month()).isEqualTo(month);
+        assertThat(overview.tasks()).containsExactly(task);
+        assertThat(overview.clarifications()).containsExactly(clarification);
         verify(monthEndTaskRepository).findLeadProjectTasks(leadId, month);
         verify(monthEndClarificationRepository).findAllProjectLeadClarifications(leadId, month);
-        verify(assembleMonthEndStatusOverviewService).assemble(List.of(task), List.of(clarification), leadId, month);
     }
 
     @Test
-    void getOverview_shouldDelegateEmptyCollectionsToAssembler() {
-        MonthEndStatusOverview assembledOverview = new MonthEndStatusOverview(leadId, month, List.of(), List.of());
+    void getOverview_shouldReturnEmptyOverview_whenNoTasksOrClarifications() {
         when(monthEndTaskRepository.findLeadProjectTasks(leadId, month)).thenReturn(List.of());
         when(monthEndClarificationRepository.findAllProjectLeadClarifications(leadId, month)).thenReturn(List.of());
-        when(assembleMonthEndStatusOverviewService.assemble(List.of(), List.of(), leadId, month))
-                .thenReturn(assembledOverview);
 
         MonthEndStatusOverview overview = service.getOverview(leadId, month);
 
-        assertThat(overview.entries()).isEmpty();
+        assertThat(overview.tasks()).isEmpty();
         assertThat(overview.clarifications()).isEmpty();
     }
 }
