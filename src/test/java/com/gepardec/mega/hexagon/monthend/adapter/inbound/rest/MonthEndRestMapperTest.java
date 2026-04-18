@@ -5,9 +5,8 @@ import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverviewItem;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -60,14 +59,13 @@ class MonthEndRestMapperTest {
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 employeeId,
                 month,
-                List.of(new MonthEndStatusOverviewItem(
+                List.of(MonthEndTask.create(
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        month,
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        MonthEndTaskStatus.OPEN,
-                        projectRef(),
-                        employeeRef(),
-                        true,
-                        null
+                        projectId,
+                        employeeId,
+                        Set.of(employeeId)
                 )),
                 List.of(clarification)
         );
@@ -76,10 +74,10 @@ class MonthEndRestMapperTest {
                 leadId, leadRef()
         );
 
-        MonthEndStatusOverviewResponse response = mapper.toResponse(overview, userRefs, employeeId);
+        MonthEndStatusOverviewResponse response = mapper.toResponse(overview, Map.of(projectId, projectRef()), userRefs, employeeId);
 
         assertThat(response.getMonth()).isEqualTo("2026-03");
-        assertThat(response.getEntries()).singleElement().satisfies(entry -> {
+        assertThat(response.getTasks()).singleElement().satisfies(entry -> {
             assertThat(entry.getProject().getId()).isEqualTo(projectId.value());
             assertThat(entry.getProject().getName()).isEqualTo(projectName);
             assertThat(entry.getSubjectEmployee()).isNotNull();
@@ -105,21 +103,20 @@ class MonthEndRestMapperTest {
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 employeeId,
                 month,
-                List.of(new MonthEndStatusOverviewItem(
+                List.of(MonthEndTask.create(
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        month,
                         MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                        MonthEndTaskStatus.OPEN,
-                        projectRef(),
-                        employeeRef(),
-                        false,
-                        null
+                        projectId,
+                        employeeId,
+                        Set.of(leadId)
                 )),
                 List.of()
         );
 
-        MonthEndStatusOverviewResponse response = mapper.toResponse(overview, Map.of(), employeeId);
+        MonthEndStatusOverviewResponse response = mapper.toResponse(overview, Map.of(projectId, projectRef()), Map.of(), employeeId);
 
-        assertThat(response.getEntries()).singleElement()
+        assertThat(response.getTasks()).singleElement()
                 .satisfies(entry -> assertThat(entry.getCanComplete()).isFalse());
     }
 
@@ -128,21 +125,20 @@ class MonthEndRestMapperTest {
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 employeeId,
                 month,
-                List.of(new MonthEndStatusOverviewItem(
+                List.of(MonthEndTask.create(
                         MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        month,
                         MonthEndTaskType.ABRECHNUNG,
-                        MonthEndTaskStatus.OPEN,
-                        projectRef(),
+                        projectId,
                         null,
-                        true,
-                        null
+                        Set.of(employeeId)
                 )),
                 List.of()
         );
 
-        MonthEndStatusOverviewResponse response = mapper.toResponse(overview, Map.of(), employeeId);
+        MonthEndStatusOverviewResponse response = mapper.toResponse(overview, Map.of(projectId, projectRef()), Map.of(), employeeId);
 
-        assertThat(response.getEntries()).singleElement()
+        assertThat(response.getTasks()).singleElement()
                 .satisfies(entry -> {
                     assertThat(entry.getSubjectEmployee()).isNull();
                     assertThat(entry.getCanComplete()).isTrue();

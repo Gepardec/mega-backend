@@ -12,6 +12,8 @@ The system SHALL provide role-specific month-end status overviews, including bot
 - **Employee overview**: returns all `MonthEndTask` records where the employee is the `subjectEmployeeId`. This covers their own `EMPLOYEE_TIME_CHECK` and `LEISTUNGSNACHWEIS` tasks (where they are also eligible) and `PROJECT_LEAD_REVIEW` tasks about them (where they are subject but not eligible).
 - **Lead overview**: returns all `MonthEndTask` records for projects the lead leads. A lead leads a project for a given month if they are in `eligibleActorIds` of any task for that project and month. This includes employee-owned tasks on those projects (visible but not actionable) as well as shared lead tasks (actionable).
 
+The use case SHALL return a `MonthEndStatusOverview` containing raw `MonthEndTask` domain objects in `entries`. No application service SHALL pre-enrich tasks with display references (`ProjectRef`, `UserRef`) or compute actor-specific flags. Task display enrichment — resolving project and user identifiers to display references and evaluating `canComplete` — is NOT a domain or application concern and SHALL be performed exclusively by the REST adapter.
+
 `canComplete` SHALL be `true` if and only if the actor is in `eligibleActorIds` for that task, regardless of role.
 
 #### Scenario: Employee overview includes open and completed employee-owned tasks
@@ -65,7 +67,7 @@ The system SHALL include the month-end task identity, task type, task status, a 
 - **THEN** that overview entry includes no subject employee reference object
 
 ### Requirement: Status overview entries expose whether the actor can complete the task
-The system SHALL include a `canComplete` flag on each overview entry indicating whether the requesting actor is eligible to complete that task. `canComplete` SHALL be `true` if and only if the actor is in `eligibleActorIds` for that task.
+The system SHALL include a `canComplete` flag on each overview entry indicating whether the requesting actor is eligible to complete that task. `canComplete` SHALL be `true` if and only if the actor is in `eligibleActorIds` for that task. The REST adapter SHALL compute `canComplete` by calling `task.canBeCompletedBy(actorId)` — a domain method on `MonthEndTask` that returns `true` iff `actorId` is in `eligibleActorIds`.
 
 #### Scenario: Eligible actor sees canComplete true for their own task
 - **WHEN** an employee requests their status overview and an entry corresponds to a task where that employee is in `eligibleActorIds`

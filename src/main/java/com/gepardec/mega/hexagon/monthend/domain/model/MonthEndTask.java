@@ -86,6 +86,10 @@ public record MonthEndTask(
         return status == MonthEndTaskStatus.OPEN;
     }
 
+    public boolean canBeCompletedBy(UserId actorId) {
+        return eligibleActorIds.contains(actorId);
+    }
+
     public MonthEndTaskKey businessKey() {
         return new MonthEndTaskKey(month, projectId, type, subjectEmployeeId);
     }
