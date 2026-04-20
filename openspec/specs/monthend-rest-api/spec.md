@@ -28,11 +28,11 @@ The system SHALL treat the authenticated caller as the acting monthend actor for
 - **THEN** the API uses the authenticated employee as the acting user for preparation
 - **THEN** the request does not require a separate actor identifier
 
-### Requirement: Employee monthend endpoints expose employee overview and self-service flows
-The system SHALL provide employee-scoped monthend REST endpoints that allow authenticated employees to retrieve their employee status overview, prepare their own project monthend context, and create clarifications for their own monthend project context. Responses SHALL expose the generated task and clarification models needed by the employee client.
+### Requirement: Monthend status overview is available via explicit role-suffixed paths
+The system SHALL provide two explicit status overview endpoints — one for the employee view and one for the project-lead view — so that actors holding both roles can independently request either view. `GET /monthend/{month}/status-overview/employee` SHALL return tasks and clarifications where the authenticated actor is the subject. `GET /monthend/{month}/status-overview/project-lead` SHALL return all tasks and clarifications for projects the authenticated actor leads.
 
 #### Scenario: Employee retrieves their monthend status overview
-- **WHEN** an authenticated employee requests the employee monthend status overview for a month
+- **WHEN** an authenticated actor requests `GET /monthend/{month}/status-overview/employee`
 - **THEN** the API returns tasks where the employee is the subject, including both open and completed tasks
 - **THEN** the API returns all clarifications where the employee is the subject for that month, including both open and resolved clarifications
 - **THEN** each overview task entry includes a nested project object containing the project identifier and project name
@@ -45,21 +45,8 @@ The system SHALL provide employee-scoped monthend REST endpoints that allow auth
 - **THEN** each overview clarification entry includes a `canDelete` field set to `true` if the employee is the creator of that clarification and it is open, `false` otherwise
 - **THEN** each overview clarification entry includes resolution fields when the clarification is resolved
 
-#### Scenario: Employee prepares a project context with optional clarification
-- **WHEN** an authenticated employee submits a preparation request for one project and month with optional clarification text
-- **THEN** the API ensures the employee-owned monthend obligations for that project context exist
-- **THEN** the API includes the ensured tasks and the created clarification when clarification text was provided
-
-#### Scenario: Employee creates a clarification for their own project context
-- **WHEN** an authenticated employee submits a clarification creation request for their own monthend project context
-- **THEN** the API creates a monthend clarification with the authenticated employee as creator and subject
-- **THEN** the API returns the created clarification as a fully enriched clarification response including UserRefs for `createdBy` and `subjectEmployee`, and `canResolve`, `canEditText`, and `canDelete` flags evaluated for the authenticated employee
-
-### Requirement: Project-lead monthend endpoints expose lead overview and clarification creation
-The system SHALL provide project-lead-scoped monthend REST endpoints that allow authenticated project leads to retrieve their lead status overview and create clarifications with an optional subject employee in the same monthend project context. Responses SHALL expose the generated task and clarification models needed by the lead client.
-
 #### Scenario: Project lead retrieves their monthend status overview
-- **WHEN** an authenticated project lead requests the project-lead monthend status overview for a month
+- **WHEN** an authenticated project lead requests `GET /monthend/{month}/status-overview/project-lead`
 - **THEN** the API returns all tasks for projects the lead leads, including both open and completed tasks
 - **THEN** the API returns all clarifications for projects the lead leads for that month, including both open and resolved clarifications
 - **THEN** each overview task entry includes a nested project object containing the project identifier and project name
@@ -72,11 +59,37 @@ The system SHALL provide project-lead-scoped monthend REST endpoints that allow 
 - **THEN** each overview clarification entry includes a `canDelete` field set to `true` if the lead is the creator of that clarification and it is open, `false` otherwise
 - **THEN** each overview clarification entry includes resolution fields when the clarification is resolved
 
-#### Scenario: Project lead creates a clarification with an optional subject employee
-- **WHEN** an authenticated eligible project lead submits a clarification creation request with an optional subject employee in a monthend project context
-- **THEN** the API creates a monthend clarification with the authenticated lead as creator
-- **THEN** when a subject employee is provided the clarification is scoped to that employee; when absent the clarification is project-level
+#### Scenario: Project lead requests employee view for their own employee page
+- **WHEN** an authenticated project lead requests `GET /monthend/{month}/status-overview/employee`
+- **THEN** the API returns only tasks and clarifications where the lead is the subject employee
+- **THEN** the response is identical in shape to a regular employee overview
+
+#### Scenario: Employee prepares a project context with optional clarification
+- **WHEN** an authenticated employee submits a preparation request for one project and month with optional clarification text to `POST /monthend/preparations`
+- **THEN** the API ensures the employee-owned monthend obligations for that project context exist
+- **THEN** the API includes the ensured tasks and the created clarification when clarification text was provided
+
+#### Scenario: Employee creates a clarification for their own project context
+- **WHEN** an authenticated employee submits a `CreateClarificationRequest` to `POST /monthend/clarifications` without a `subjectEmployeeId`
+- **THEN** the API creates a monthend clarification with the authenticated employee as both creator and subject
+- **THEN** the API returns the created clarification as a fully enriched clarification response including UserRefs for `createdBy` and `subjectEmployee`, and `canResolve`, `canEditText`, and `canDelete` flags evaluated for the authenticated employee
+
+### Requirement: Project-lead monthend clarification creation uses a unified endpoint with optional subject
+The system SHALL allow project leads to create monthend clarifications via the unified `POST /monthend/clarifications` endpoint. When the authenticated actor holds the project-lead role and a `subjectEmployeeId` is provided in the request, the clarification SHALL be scoped to that employee. When the authenticated actor holds the project-lead role and no `subjectEmployeeId` is provided, the clarification SHALL be project-level with `subjectEmployeeId = null`. When the authenticated actor does not hold the project-lead role, `subjectEmployeeId` SHALL always be set to the authenticated actor's own ID regardless of the request body.
+
+#### Scenario: Project lead creates a clarification with an explicit subject employee
+- **WHEN** an authenticated project lead submits a `CreateClarificationRequest` to `POST /monthend/clarifications` with a `subjectEmployeeId`
+- **THEN** the API creates a monthend clarification with the authenticated lead as creator and the specified employee as subject
 - **THEN** the API returns the created clarification as a fully enriched clarification response including UserRefs for all involved user references and `canResolve`, `canEditText`, and `canDelete` flags evaluated for the authenticated lead
+
+#### Scenario: Project lead creates a project-level clarification without subject
+- **WHEN** an authenticated project lead submits a `CreateClarificationRequest` to `POST /monthend/clarifications` without a `subjectEmployeeId`
+- **THEN** the API creates a monthend clarification with the authenticated lead as creator and a null subject employee
+- **THEN** the API returns the created clarification as a fully enriched clarification response
+
+#### Scenario: Employee cannot create a clarification scoped to another employee
+- **WHEN** an authenticated actor without the project-lead role submits a `CreateClarificationRequest` to `POST /monthend/clarifications` with a `subjectEmployeeId` referencing another user
+- **THEN** the API ignores the provided `subjectEmployeeId` and creates the clarification with the authenticated actor as both creator and subject
 
 ### Requirement: Shared monthend endpoints expose monthend actions
 The system SHALL provide shared monthend REST endpoints that allow authenticated employee or project-lead actors to complete monthend tasks, edit open clarification text when they are the creator, resolve clarifications when they are an involved party other than the creator, and delete their own open clarifications.
@@ -128,15 +141,25 @@ The monthend status overview endpoint SHALL NOT include work time aggregations i
 - **THEN** work time data is available exclusively through the `/worktime/employee/{month}` and `/worktime/projects/{month}` endpoints
 
 ### Requirement: Monthend endpoint access follows employee, project-lead, and ops roles
-The system SHALL secure monthend REST endpoints by endpoint group. Employee-scoped endpoints MUST require the employee role, project-lead-scoped endpoints MUST require the project-lead role, shared actor-scoped endpoints MUST require either employee or project-lead role, and internal generation endpoints MUST require the internal sync or cron role defined for operational endpoints.
+The system SHALL secure monthend REST endpoints by operation. The status overview endpoint and clarification/preparation creation endpoints MUST require at least the employee role. Internal generation endpoints MUST require the internal sync or cron role defined for operational endpoints.
 
-#### Scenario: User without employee role cannot access employee-scoped endpoint
-- **WHEN** an authenticated caller without the employee role requests an employee-scoped monthend endpoint
+#### Scenario: Unauthenticated caller cannot access monthend endpoints
+- **WHEN** an unauthenticated caller requests any actor-scoped monthend endpoint
+- **THEN** the API rejects the request as unauthorized
+
+#### Scenario: Employee can access the employee status overview endpoint
+- **WHEN** an authenticated employee requests `GET /monthend/{month}/status-overview/employee`
+- **THEN** the API accepts the request and returns the employee view
+
+#### Scenario: Non-project-lead cannot access the project-lead status overview endpoint
+- **WHEN** an authenticated actor without the project-lead role requests `GET /monthend/{month}/status-overview/project-lead`
 - **THEN** the API rejects the request as forbidden
 
-#### Scenario: User without project-lead role cannot access lead-scoped endpoint
-- **WHEN** an authenticated caller without the project-lead role requests a project-lead-scoped monthend endpoint
-- **THEN** the API rejects the request as forbidden
+#### Scenario: Project lead can access both status overview endpoints
+- **WHEN** an authenticated project lead requests `GET /monthend/{month}/status-overview/project-lead`
+- **THEN** the API accepts the request and returns the project-lead view
+- **WHEN** the same project lead requests `GET /monthend/{month}/status-overview/employee`
+- **THEN** the API accepts the request and returns the employee view scoped to that lead
 
 #### Scenario: Employee can access shared monthend endpoint
 - **WHEN** an authenticated employee requests a shared actor-scoped monthend endpoint
@@ -147,13 +170,13 @@ The system SHALL secure monthend REST endpoints by endpoint group. Employee-scop
 - **THEN** the API accepts the request and evaluates the action against the existing monthend eligibility rules
 
 #### Scenario: Non-ops caller cannot access generation endpoint
-- **WHEN** an authenticated caller without the internal sync or cron role requests the monthend generation endpoint
+- **WHEN** an authenticated caller without the internal sync or cron role requests `POST /monthend/{month}/generate`
 - **THEN** the API rejects the request as forbidden
 
 ### Requirement: Internal monthend generation is available through the same API contract
-The system SHALL provide an internal monthend generation endpoint in the same OpenAPI contract for operational callers. The endpoint SHALL trigger monthend task generation for the requested month and return the generation result using generated response models.
+The system SHALL provide an internal monthend generation endpoint in the same OpenAPI contract for operational callers. The endpoint SHALL trigger monthend task generation for the requested month and return the generation result using generated response models. The month SHALL be encoded in the path.
 
 #### Scenario: Ops caller triggers generation for a month
-- **WHEN** an authenticated internal ops caller submits a monthend generation request for a month
+- **WHEN** an authenticated internal ops caller submits `POST /monthend/{month}/generate`
 - **THEN** the API triggers monthend task generation for that month
 - **THEN** the API returns the generation result including created and skipped counts
