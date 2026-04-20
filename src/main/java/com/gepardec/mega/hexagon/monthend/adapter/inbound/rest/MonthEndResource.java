@@ -2,6 +2,7 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.api.MonthEndApi;
 import com.gepardec.mega.hexagon.generated.model.CreateClarificationRequest;
+import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
 import com.gepardec.mega.hexagon.generated.model.PrepareMonthEndProjectRequest;
 import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequest;
 import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequest;
@@ -100,17 +101,24 @@ public class MonthEndResource implements MonthEndApi {
 
     @Override
     @MegaRolesAllowed(Role.EMPLOYEE)
-    public Response getMonthEndStatusOverview(String month) {
+    public Response getEmployeeMonthEndStatusOverview(String month) {
         UserId actorId = authenticatedActorContext.userId();
         YearMonth parsedMonth = transportHelper.parseMonth(month);
 
-        MonthEndStatusOverview overview = authenticatedActorContext.hasRole(Role.PROJECT_LEAD)
-                ? getProjectLeadMonthEndStatusOverviewUseCase.getOverview(actorId, parsedMonth)
-                : getEmployeeMonthEndStatusOverviewUseCase.getOverview(actorId, parsedMonth);
+        MonthEndStatusOverview overview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(actorId, parsedMonth);
 
-        Map<ProjectId, ProjectRef> projectRefs = resolveProjectRefs(overview.tasks(), overview.month());
-        Map<UserId, UserRef> userRefs = resolveUserRefs(overviewUserIds(overview), overview.month());
-        return Response.ok(monthEndRestMapper.toResponse(overview, projectRefs, userRefs, actorId)).build();
+        return Response.ok(toOverviewResponse(overview, actorId)).build();
+    }
+
+    @Override
+    @MegaRolesAllowed(Role.PROJECT_LEAD)
+    public Response getProjectLeadMonthEndStatusOverview(String month) {
+        UserId actorId = authenticatedActorContext.userId();
+        YearMonth parsedMonth = transportHelper.parseMonth(month);
+
+        MonthEndStatusOverview overview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(actorId, parsedMonth);
+
+        return Response.ok(toOverviewResponse(overview, actorId)).build();
     }
 
     @Override
@@ -118,8 +126,12 @@ public class MonthEndResource implements MonthEndApi {
     public Response createMonthEndClarification(CreateClarificationRequest request) {
         UserId actorId = authenticatedActorContext.userId();
         UserId subjectEmployeeId = actorId;
-        if (authenticatedActorContext.hasRole(Role.PROJECT_LEAD) && request.getSubjectEmployeeId() != null) {
-            subjectEmployeeId = transportHelper.toUserId(request.getSubjectEmployeeId());
+        if (authenticatedActorContext.hasRole(Role.PROJECT_LEAD)) {
+            if (request.getSubjectEmployeeId() != null) {
+                subjectEmployeeId = transportHelper.toUserId(request.getSubjectEmployeeId());
+            } else {
+                subjectEmployeeId = null;
+            }
         }
 
         MonthEndClarification clarification = createMonthEndClarificationUseCase.create(
@@ -241,6 +253,15 @@ public class MonthEndResource implements MonthEndApi {
         }
         return userSnapshotPort.findByIds(ids, month).stream()
                 .collect(Collectors.toMap(UserRef::id, Function.identity()));
+    }
+
+    private MonthEndStatusOverviewResponse toOverviewResponse(
+            MonthEndStatusOverview overview,
+            UserId actorId
+    ) {
+        Map<ProjectId, ProjectRef> projectRefs = resolveProjectRefs(overview.tasks(), overview.month());
+        Map<UserId, UserRef> userRefs = resolveUserRefs(overviewUserIds(overview), overview.month());
+        return monthEndRestMapper.toResponse(overview, projectRefs, userRefs, actorId);
     }
 
     private static Set<UserId> overviewUserIds(MonthEndStatusOverview overview) {

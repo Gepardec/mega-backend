@@ -33,7 +33,7 @@
 
 ## 6. Overview Path Correction
 
-- [ ] 6.1 Update `openapi/paths/monthend.yaml`: replace `GET /monthend/{month}/status-overview` with two paths — `GET /monthend/{month}/status-overview/employee` and `GET /monthend/{month}/status-overview/project-lead` — each with its own `operationId`
-- [ ] 6.2 Run the OpenAPI generator and verify two separate methods are generated in `MonthEndApi`
-- [ ] 6.3 In `MonthEndResource`: replace `getMonthEndStatusOverview` with `getEmployeeMonthEndStatusOverview` (delegates unconditionally to the employee use case, `@MegaRolesAllowed(Role.EMPLOYEE)`) and `getProjectLeadMonthEndStatusOverview` (delegates unconditionally to the project-lead use case, `@MegaRolesAllowed(Role.PROJECT_LEAD)`)
-- [ ] 6.4 Update `MonthEndResourceTest`: add test that a project-lead calling `/employee` gets employee view; add test that a caller without project-lead role gets 403 on `/project-lead`
+- [x] 6.1 Update `openapi/paths/monthend.yaml`: replace `GET /monthend/{month}/status-overview` with two paths — `GET /monthend/{month}/status-overview/employee` and `GET /monthend/{month}/status-overview/project-lead` — each with its own `operationId`
+- [x] 6.2 Run the OpenAPI generator and verify two separate methods are generated in `MonthEndApi`
+- [x] 6.3 In `MonthEndResource`: replace `getMonthEndStatusOverview` with `getEmployeeMonthEndStatusOverview` (delegates unconditionally to the employee use case, `@MegaRolesAllowed(Role.EMPLOYEE)`) and `getProjectLeadMonthEndStatusOverview` (delegates unconditionally to the project-lead use case, `@MegaRolesAllowed(Role.PROJECT_LEAD)`)
+- [x] 6.4 Update `MonthEndResourceTest`: add test that a project-lead calling `/employee` gets employee view; add test that a caller without project-lead role gets 403 on `/project-lead`

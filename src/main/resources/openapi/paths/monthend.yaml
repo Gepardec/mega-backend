@@ -1,9 +1,9 @@
-'/monthend/{month}/status-overview':
+'/monthend/{month}/status-overview/employee':
   get:
     tags:
       - MonthEnd
-    operationId: getMonthEndStatusOverview
-    summary: Get the authenticated actor's month-end status overview
+    operationId: getEmployeeMonthEndStatusOverview
+    summary: Get the authenticated actor's employee month-end status overview
     security:
       - bearerAuth: [ ]
     parameters:
@@ -15,7 +15,35 @@
           $ref: '../schemas/shared.yaml#/MonthValue'
     responses:
       '200':
-        description: Month-end status overview
+        description: Employee month-end status overview
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/monthend.yaml#/MonthEndStatusOverviewResponse'
+      '400':
+        $ref: '../responses/common.yaml#/BadRequest'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'
+'/monthend/{month}/status-overview/project-lead':
+  get:
+    tags:
+      - MonthEnd
+    operationId: getProjectLeadMonthEndStatusOverview
+    summary: Get the authenticated actor's project-lead month-end status overview
+    security:
+      - bearerAuth: [ ]
+    parameters:
+      - name: month
+        in: path
+        required: true
+        description: Month-end context in yyyy-MM format.
+        schema:
+          $ref: '../schemas/shared.yaml#/MonthValue'
+    responses:
+      '200':
+        description: Project-lead month-end status overview
         content:
           application/json:
             schema:

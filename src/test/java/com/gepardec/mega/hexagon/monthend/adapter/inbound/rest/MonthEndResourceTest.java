@@ -119,7 +119,7 @@ class MonthEndResourceTest {
     }
 
     @Test
-    void getMonthEndStatusOverview_shouldReturnMappedOverviewForEmployeeRole() {
+    void getEmployeeMonthEndStatusOverview_shouldReturnMappedOverviewForEmployeeRole() {
         allowRoles(Role.EMPLOYEE);
         MonthEndClarification clarification = projectLeadClarification("Please revisit the supporting evidence.");
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
@@ -139,7 +139,7 @@ class MonthEndResourceTest {
 
         MonthEndStatusOverviewResponse response = given()
                 .accept(ContentType.JSON)
-                .get("/monthend/{month}/status-overview", MONTH.toString())
+                .get("/monthend/{month}/status-overview/employee", MONTH.toString())
                 .then()
                 .statusCode(200)
                 .extract()
@@ -164,10 +164,51 @@ class MonthEndResourceTest {
     }
 
     @Test
-    void getMonthEndStatusOverview_shouldReturnMappedOverviewForLeadRole() {
+    void getEmployeeMonthEndStatusOverview_shouldReturnEmployeeViewForProjectLead() {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
-        when(authenticatedActorContext.hasRole(Role.PROJECT_LEAD)).thenReturn(true);
+        MonthEndClarification clarification = leadSelfProjectLevelClarification("Own employee-page clarification.");
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                PROJECT_LEAD_ID,
+                MONTH,
+                List.of(MonthEndTask.create(
+                        MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        MONTH,
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        PROJECT_ID,
+                        PROJECT_LEAD_ID,
+                        Set.of(PROJECT_LEAD_ID)
+                )),
+                List.of(clarification)
+        );
+        when(getEmployeeMonthEndStatusOverviewUseCase.getOverview(PROJECT_LEAD_ID, MONTH)).thenReturn(overview);
+
+        MonthEndStatusOverviewResponse response = given()
+                .accept(ContentType.JSON)
+                .get("/monthend/{month}/status-overview/employee", MONTH.toString())
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(MonthEndStatusOverviewResponse.class);
+
+        assertThat(response.getMonth()).isEqualTo(MONTH.toString());
+        assertThat(response.getTasks()).singleElement().satisfies(entry -> {
+            assertThat(entry.getProject().getId()).isEqualTo(PROJECT_ID.value());
+            assertThat(entry.getSubjectEmployee().getId()).isEqualTo(PROJECT_LEAD_ID.value());
+            assertThat(entry.getCanComplete()).isTrue();
+        });
+        assertThat(response.getClarifications()).singleElement().satisfies(clarificationEntry -> {
+            assertThat(clarificationEntry.getSubjectEmployee()).isNull();
+            assertThat(clarificationEntry.getCreatedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
+        });
+        verify(getEmployeeMonthEndStatusOverviewUseCase).getOverview(PROJECT_LEAD_ID, MONTH);
+        verifyNoInteractions(getProjectLeadMonthEndStatusOverviewUseCase);
+    }
+
+    @Test
+    void getProjectLeadMonthEndStatusOverview_shouldReturnMappedOverviewForLeadRole() {
+        allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         MonthEndClarification resolvedClarification = employeeClarification("Everything is clarified.")
                 .resolve(PROJECT_LEAD_ID, "Confirmed by project lead.", CREATED_AT.plusSeconds(600));
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
@@ -187,7 +228,7 @@ class MonthEndResourceTest {
 
         MonthEndStatusOverviewResponse response = given()
                 .accept(ContentType.JSON)
-                .get("/monthend/{month}/status-overview", MONTH.toString())
+                .get("/monthend/{month}/status-overview/project-lead", MONTH.toString())
                 .then()
                 .statusCode(200)
                 .extract()
@@ -209,6 +250,19 @@ class MonthEndResourceTest {
         });
         verify(getProjectLeadMonthEndStatusOverviewUseCase).getOverview(PROJECT_LEAD_ID, MONTH);
         verifyNoInteractions(getEmployeeMonthEndStatusOverviewUseCase);
+    }
+
+    @Test
+    void getProjectLeadMonthEndStatusOverview_shouldRejectEmployeeRole() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .accept(ContentType.JSON)
+                .get("/monthend/{month}/status-overview/project-lead", MONTH.toString())
+                .then()
+                .statusCode(403);
+
+        verifyNoInteractions(getProjectLeadMonthEndStatusOverviewUseCase);
     }
 
     @Test
@@ -331,7 +385,7 @@ class MonthEndResourceTest {
     }
 
     @Test
-    void createMonthEndClarification_shouldUseActorAsSubjectWhenLeadOmitsSubjectEmployee() {
+    void createMonthEndClarification_shouldCreateProjectLevelClarificationWhenLeadOmitsSubjectEmployee() {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         when(authenticatedActorContext.hasRole(Role.PROJECT_LEAD)).thenReturn(true);
@@ -339,11 +393,11 @@ class MonthEndResourceTest {
                 .month(MONTH.toString())
                 .projectId(PROJECT_ID.value())
                 .text("Project-level follow-up.");
-        MonthEndClarification clarification = leadSelfClarification("Project-level follow-up.");
+        MonthEndClarification clarification = leadProjectLevelClarification("Project-level follow-up.");
         when(createMonthEndClarificationUseCase.create(
                 MONTH,
                 PROJECT_ID,
-                PROJECT_LEAD_ID,
+                null,
                 PROJECT_LEAD_ID,
                 "Project-level follow-up."
         )).thenReturn(clarification);
@@ -359,14 +413,52 @@ class MonthEndResourceTest {
                 .as(MonthEndOverviewClarificationEntry.class);
 
         assertThat(response.getCreatedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
-        assertThat(response.getSubjectEmployee().getId()).isEqualTo(PROJECT_LEAD_ID.value());
+        assertThat(response.getSubjectEmployee()).isNull();
         assertThat(response.getText()).isEqualTo("Project-level follow-up.");
         verify(createMonthEndClarificationUseCase).create(
                 MONTH,
                 PROJECT_ID,
-                PROJECT_LEAD_ID,
+                null,
                 PROJECT_LEAD_ID,
                 "Project-level follow-up."
+        );
+    }
+
+    @Test
+    void createMonthEndClarification_shouldIgnoreProvidedSubjectEmployeeForEmployeeCaller() {
+        allowRoles(Role.EMPLOYEE);
+        CreateClarificationRequest request = new CreateClarificationRequest()
+                .month(MONTH.toString())
+                .projectId(PROJECT_ID.value())
+                .subjectEmployeeId(PROJECT_LEAD_ID.value())
+                .text("Still my own clarification.");
+        MonthEndClarification clarification = employeeClarification("Still my own clarification.");
+        when(createMonthEndClarificationUseCase.create(
+                MONTH,
+                PROJECT_ID,
+                EMPLOYEE_ID,
+                EMPLOYEE_ID,
+                "Still my own clarification."
+        )).thenReturn(clarification);
+
+        MonthEndOverviewClarificationEntry response = given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(request)
+                .post("/monthend/clarifications")
+                .then()
+                .statusCode(201)
+                .extract()
+                .as(MonthEndOverviewClarificationEntry.class);
+
+        assertThat(response.getCreatedBy().getId()).isEqualTo(EMPLOYEE_ID.value());
+        assertThat(response.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
+        verify(createMonthEndClarificationUseCase).create(
+                MONTH,
+                PROJECT_ID,
+                EMPLOYEE_ID,
+                EMPLOYEE_ID,
+                "Still my own clarification."
         );
     }
 
@@ -551,12 +643,25 @@ class MonthEndResourceTest {
         );
     }
 
-    private MonthEndClarification leadSelfClarification(String text) {
+    private MonthEndClarification leadProjectLevelClarification(String text) {
         return MonthEndClarification.create(
                 CLARIFICATION_ID,
                 MONTH,
                 PROJECT_ID,
+                null,
                 PROJECT_LEAD_ID,
+                Set.of(PROJECT_LEAD_ID),
+                text,
+                CREATED_AT
+        );
+    }
+
+    private MonthEndClarification leadSelfProjectLevelClarification(String text) {
+        return MonthEndClarification.create(
+                CLARIFICATION_ID,
+                MONTH,
+                PROJECT_ID,
+                null,
                 PROJECT_LEAD_ID,
                 Set.of(PROJECT_LEAD_ID),
                 text,
