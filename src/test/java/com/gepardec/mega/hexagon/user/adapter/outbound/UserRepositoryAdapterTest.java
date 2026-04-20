@@ -49,6 +49,17 @@ class UserRepositoryAdapterTest {
     }
 
     @Test
+    void findByFullName_returnsMatchingUser() {
+        User user = user("jane.smith", "Jane", "Smith", Set.of(Role.EMPLOYEE), null);
+        userRepositoryAdapter.saveAll(List.of(user));
+
+        Optional<User> found = userRepositoryAdapter.findByFullName(FullName.of("Jane", "Smith"));
+
+        assertThat(found).isPresent();
+        assertThat(found.get().name()).isEqualTo(FullName.of("Jane", "Smith"));
+    }
+
+    @Test
     void findAll_returnsAllSavedUsers() {
         User user1 = user("user1", Set.of(Role.EMPLOYEE), null);
         User user2 = user("user2", Set.of(Role.EMPLOYEE, Role.OFFICE_MANAGEMENT), PersonioId.of(77));
@@ -83,11 +94,26 @@ class UserRepositoryAdapterTest {
         assertThat(found.get().roles()).containsExactlyInAnyOrder(Role.EMPLOYEE, Role.OFFICE_MANAGEMENT);
     }
 
+    @Test
+    void findByRole_returnsUsersWithMatchingRole() {
+        User employee = user("employee", Set.of(Role.EMPLOYEE), null);
+        User officeManager = user("office", Set.of(Role.EMPLOYEE, Role.OFFICE_MANAGEMENT), null);
+        userRepositoryAdapter.saveAll(List.of(employee, officeManager));
+
+        List<User> found = userRepositoryAdapter.findByRole(Role.OFFICE_MANAGEMENT);
+
+        assertThat(found).singleElement().extracting(User::id).isEqualTo(officeManager.id());
+    }
+
     private User user(String username, Set<Role> roles, PersonioId personioId) {
+        return user(username, "John", "Doe", roles, personioId);
+    }
+
+    private User user(String username, String firstname, String lastname, Set<Role> roles, PersonioId personioId) {
         return new User(
                 UserId.generate(),
                 Email.of(username + "@example.com"),
-                FullName.of("John", "Doe"),
+                FullName.of(firstname, lastname),
                 ZepUsername.of(username),
                 personioId,
                 new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2024, 1, 1), null)),

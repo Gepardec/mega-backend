@@ -1,12 +1,14 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationCompletedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import jakarta.enterprise.event.Event;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -36,12 +40,14 @@ class CompleteMonthEndClarificationServiceTest {
     private final Clock clock = Clock.fixed(Instant.parse("2026-03-31T10:00:00Z"), ZoneOffset.UTC);
 
     private MonthEndClarificationRepository clarificationRepository;
+    private Event<ClarificationCompletedEvent> clarificationCompletedEvent;
     private CompleteMonthEndClarificationService service;
 
     @BeforeEach
     void setUp() {
         clarificationRepository = mock(MonthEndClarificationRepository.class);
-        service = new CompleteMonthEndClarificationService(clarificationRepository, clock);
+        clarificationCompletedEvent = mock(Event.class);
+        service = new CompleteMonthEndClarificationService(clarificationRepository, clock, clarificationCompletedEvent);
     }
 
     @Test
@@ -56,6 +62,10 @@ class CompleteMonthEndClarificationServiceTest {
         assertThat(result.resolvedAt()).isEqualTo(clock.instant());
         assertThat(result.resolutionNote()).isEqualTo("Handled");
         verify(clarificationRepository).save(result);
+        verify(clarificationCompletedEvent).fire(argThat(event ->
+                event.clarificationId().equals(clarification.id())
+                        && event.resolver().equals(leadA)
+        ));
     }
 
     @Test
@@ -110,6 +120,7 @@ class CompleteMonthEndClarificationServiceTest {
 
         assertThat(result.resolvedBy()).isEqualTo(leadA);
         verify(clarificationRepository, never()).save(doneClarification);
+        verify(clarificationCompletedEvent, never()).fire(any());
     }
 
     @Test

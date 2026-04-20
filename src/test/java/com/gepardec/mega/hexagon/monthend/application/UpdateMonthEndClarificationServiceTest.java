@@ -1,11 +1,13 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationUpdatedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import jakarta.enterprise.event.Event;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +22,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,12 +36,14 @@ class UpdateMonthEndClarificationServiceTest {
     private final Clock clock = Clock.fixed(Instant.parse("2026-03-31T09:00:00Z"), ZoneOffset.UTC);
 
     private MonthEndClarificationRepository clarificationRepository;
+    private Event<ClarificationUpdatedEvent> clarificationUpdatedEvent;
     private UpdateMonthEndClarificationService service;
 
     @BeforeEach
     void setUp() {
         clarificationRepository = mock(MonthEndClarificationRepository.class);
-        service = new UpdateMonthEndClarificationService(clarificationRepository, clock);
+        clarificationUpdatedEvent = mock(Event.class);
+        service = new UpdateMonthEndClarificationService(clarificationRepository, clock, clarificationUpdatedEvent);
     }
 
     @Test
@@ -60,6 +65,12 @@ class UpdateMonthEndClarificationServiceTest {
         assertThat(result.text()).isEqualTo("Updated text");
         assertThat(result.lastModifiedAt()).isEqualTo(clock.instant());
         verify(clarificationRepository).save(result);
+        verify(clarificationUpdatedEvent).fire(argThat(event ->
+                event.clarificationId().equals(result.id())
+                        && event.actorId().equals(employeeId)
+                        && event.subjectEmployeeId().equals(employeeId)
+                        && event.text().equals("Updated text")
+        ));
     }
 
     @Test

@@ -3,11 +3,13 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationDeletedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import jakarta.enterprise.event.Event;
 import org.assertj.core.api.ThrowableAssert;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +22,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -34,12 +37,14 @@ class DeleteMonthEndClarificationServiceTest {
     private final Instant createdAt = Instant.parse("2026-03-31T08:00:00Z");
 
     private MonthEndClarificationRepository clarificationRepository;
+    private Event<ClarificationDeletedEvent> clarificationDeletedEvent;
     private DeleteMonthEndClarificationService service;
 
     @BeforeEach
     void setUp() {
         clarificationRepository = mock(MonthEndClarificationRepository.class);
-        service = new DeleteMonthEndClarificationService(clarificationRepository);
+        clarificationDeletedEvent = mock(Event.class);
+        service = new DeleteMonthEndClarificationService(clarificationRepository, clarificationDeletedEvent);
     }
 
     @Test
@@ -50,6 +55,7 @@ class DeleteMonthEndClarificationServiceTest {
         service.delete(clarification.id(), creatorId);
 
         verify(clarificationRepository).delete(clarification.id());
+        verify(clarificationDeletedEvent).fire(argThat(event -> event.clarificationId().equals(clarification.id())));
     }
 
     @Test

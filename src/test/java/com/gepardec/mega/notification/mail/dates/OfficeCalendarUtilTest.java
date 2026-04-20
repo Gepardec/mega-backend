@@ -1,6 +1,6 @@
 package com.gepardec.mega.notification.mail.dates;
 
-import com.gepardec.mega.domain.utils.OfficeCalendarUtil;
+import com.gepardec.mega.hexagon.shared.domain.util.OfficeCalendarUtil;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
