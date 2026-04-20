@@ -30,3 +30,10 @@
 - [x] 5.1 Create `MonthEndResourceTest` covering: employee gets employee overview, project-lead gets project-lead overview, clarification creation with and without `subjectEmployeeId`, ops generation endpoint
 - [x] 5.2 Delete or migrate tests from `MonthEndEmployeeAndProjectLeadResourceTest`, `MonthEndSharedResourceTest`, `MonthEndOpsResourceTest`
 - [x] 5.3 Run the full test suite and fix any compilation or runtime failures caused by the path and DTO changes
+
+## 6. Overview Path Correction
+
+- [ ] 6.1 Update `openapi/paths/monthend.yaml`: replace `GET /monthend/{month}/status-overview` with two paths — `GET /monthend/{month}/status-overview/employee` and `GET /monthend/{month}/status-overview/project-lead` — each with its own `operationId`
+- [ ] 6.2 Run the OpenAPI generator and verify two separate methods are generated in `MonthEndApi`
+- [ ] 6.3 In `MonthEndResource`: replace `getMonthEndStatusOverview` with `getEmployeeMonthEndStatusOverview` (delegates unconditionally to the employee use case, `@MegaRolesAllowed(Role.EMPLOYEE)`) and `getProjectLeadMonthEndStatusOverview` (delegates unconditionally to the project-lead use case, `@MegaRolesAllowed(Role.PROJECT_LEAD)`)
+- [ ] 6.4 Update `MonthEndResourceTest`: add test that a project-lead calling `/employee` gets employee view; add test that a caller without project-lead role gets 403 on `/project-lead`

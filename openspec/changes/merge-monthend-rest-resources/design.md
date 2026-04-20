@@ -2,14 +2,14 @@
 
 The monthend REST layer currently consists of four resource classes: `MonthEndEmployeeResource`, `MonthEndProjectLeadResource`, `MonthEndSharedResource`, and `MonthEndOpsResource`, each implementing a separate generated OpenAPI interface. The split originated from class-level role annotations (`@MegaRolesAllowed`) which force role separation into the class hierarchy.
 
-Every user in the system holds the `EMPLOYEE` role; project leads hold both `EMPLOYEE` and `PROJECT_LEAD`. This means clients must know a user's role before constructing the URL to call — a leaky API design. The role information is already present in the JWT and available server-side.
+Every user in the system holds the `EMPLOYEE` role; project leads hold both `EMPLOYEE` and `PROJECT_LEAD`. Because a project lead is simultaneously an employee, the frontend has two distinct pages — an employee page and a project-lead page — each requiring a different data set from the same person for the same month.
 
 ## Goals / Non-Goals
 
 **Goals:**
 - One `MonthEndResource` class, one `MonthEndApi` generated interface, one `MonthEnd` OpenAPI tag
-- Role-dispatch inside methods where employee vs. project-lead behaviour diverges
-- Month encoded in path for `status-overview` (GET, no body) and `generate` (ops, month is the only operand)
+- Two explicit overview paths — `/employee` and `/project-lead` suffixed — so actors with both roles can request either view independently
+- Month encoded in path for overview endpoints (GET, no body) and `generate` (ops, month is the only operand)
 - Eliminate duplicated `resolveProjectRefs`/`resolveUserRefs` helper methods
 - Merged `CreateClarificationRequest` DTO (replaces both employee and project-lead variants)
 
@@ -20,22 +20,20 @@ Every user in the system holds the `EMPLOYEE` role; project leads hold both `EMP
 
 ## Decisions
 
-### Role dispatch via `AuthenticatedActorContext` at method level
+### Explicit overview paths per view; no role dispatch for overview
 
-`MonthEndResource` receives class-level `@Authenticated`. Methods that diverge per role check `authenticatedActorContext.hasRole(Role.PROJECT_LEAD)` and delegate to the appropriate use case:
+The status overview is split into two paths:
 
-```java
-// GET /monthend/{month}/status-overview
-if (authenticatedActorContext.hasRole(Role.PROJECT_LEAD)) {
-    overview = getProjectLeadOverviewUseCase.getOverview(actorId, month);
-} else {
-    overview = getEmployeeOverviewUseCase.getOverview(actorId, month);
-}
+```
+GET /monthend/{month}/status-overview/employee      @MegaRolesAllowed(EMPLOYEE)
+GET /monthend/{month}/status-overview/project-lead  @MegaRolesAllowed(PROJECT_LEAD)
 ```
 
-Role-specific access control (`@MegaRolesAllowed`) moves from class-level to method-level. Previously employee-only methods keep `@MegaRolesAllowed(Role.EMPLOYEE)` (which all users satisfy); previously project-lead-only methods get `@MegaRolesAllowed(Role.PROJECT_LEAD)`.
+Each delegates unconditionally to its dedicated use case. A project lead can call both — the employee page calls the `/employee` path, the project-lead page calls the `/project-lead` path. No runtime role check inside the method body.
 
-**Alternative considered:** Keep separate resource classes but extract shared helpers via a base class or utility bean. Rejected — it solves duplication but leaves client friction and the multi-interface proliferation in place.
+**Alternative considered:** Single `GET /monthend/{month}/status-overview` with server-side role dispatch (`if hasRole(PROJECT_LEAD)`). Rejected — a user holding both roles can never retrieve the employee view, since the project-lead branch always wins. A query parameter (`?view=employee/project-lead`) was also considered and rejected: the parameter would dispatch to fundamentally different use cases rather than filtering, which misrepresents query parameter semantics.
+
+Role-specific access control (`@MegaRolesAllowed`) is method-level throughout `MonthEndResource`. All other methods (clarification create, preparations, shared actions) are unchanged by this decision.
 
 ### `@Authenticated` at class level; `@Tenant("mega-cron")` at method level for ops
 
@@ -55,7 +53,10 @@ Decision: attempt the merge first. If the cron token is rejected by the default 
 
 `CreateEmployeeClarificationRequest` (fields: `month`, `projectId`, `text`) and `CreateProjectLeadClarificationRequest` (fields: `month`, `projectId`, `text`, `subjectEmployeeId?`) are replaced by a single `CreateClarificationRequest` with optional `subjectEmployeeId`.
 
-Dispatch logic: if the actor holds `PROJECT_LEAD` and `subjectEmployeeId` is present, use it; otherwise `subjectEmployeeId = actorId`.
+Dispatch logic:
+- Actor holds `PROJECT_LEAD` + `subjectEmployeeId` present → use provided ID
+- Actor holds `PROJECT_LEAD` + `subjectEmployeeId` absent → `null` (project-level clarification)
+- Actor does not hold `PROJECT_LEAD` → `subjectEmployeeId = actorId` always (provided value ignored)
 
 ### Single `MonthEnd` OpenAPI tag
 
@@ -65,7 +66,6 @@ Dispatch logic: if the actor holds `PROJECT_LEAD` and `subjectEmployeeId` is pre
 
 - **`@Authenticated` + `@Tenant` interaction** → If the default-tenant authentication guard fires before tenant resolution on the ops method, the cron token will be rejected. Mitigation: test early; extract ops back to its own class if needed (no domain changes required).
 - **BREAKING path changes** → All monthend URLs change. Frontend and any other consumers must update. No parallel alias paths — the old structure is removed outright.
-- **Role dispatch branching in resource methods** → Adds an `if/else` branch to two methods. Acceptable given the trivial nature of the check and the reduction in overall class count.
 
 ## Migration Plan
 
