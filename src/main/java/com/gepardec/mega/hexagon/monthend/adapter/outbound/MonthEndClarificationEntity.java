@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
+import com.gepardec.mega.hexagon.shared.domain.model.SourceSystem;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -37,6 +38,10 @@ public class MonthEndClarificationEntity {
 
     @Column(name = "created_by", nullable = false)
     private UUID createdBy;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source_system", nullable = false)
+    private SourceSystem sourceSystem;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
@@ -106,6 +111,14 @@ public class MonthEndClarificationEntity {
 
     public void setCreatedBy(UUID createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public SourceSystem getSourceSystem() {
+        return sourceSystem;
+    }
+
+    public void setSourceSystem(SourceSystem sourceSystem) {
+        this.sourceSystem = sourceSystem;
     }
 
     public Set<UUID> getEligibleProjectLeadIds() {

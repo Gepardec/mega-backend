@@ -4,12 +4,14 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.DeleteMonthEn
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationDeletedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
@@ -18,10 +20,15 @@ import jakarta.transaction.Transactional;
 public class DeleteMonthEndClarificationService implements DeleteMonthEndClarificationUseCase {
 
     private final MonthEndClarificationRepository monthEndClarificationRepository;
+    private final Event<ClarificationDeletedEvent> clarificationDeletedEvent;
 
     @Inject
-    public DeleteMonthEndClarificationService(MonthEndClarificationRepository monthEndClarificationRepository) {
+    public DeleteMonthEndClarificationService(
+            MonthEndClarificationRepository monthEndClarificationRepository,
+            Event<ClarificationDeletedEvent> clarificationDeletedEvent
+    ) {
         this.monthEndClarificationRepository = monthEndClarificationRepository;
+        this.clarificationDeletedEvent = clarificationDeletedEvent;
     }
 
     @Override
@@ -40,6 +47,12 @@ public class DeleteMonthEndClarificationService implements DeleteMonthEndClarifi
         }
 
         monthEndClarificationRepository.delete(id);
+        clarificationDeletedEvent.fire(new ClarificationDeletedEvent(
+                clarification.id(),
+                clarification.createdBy(),
+                clarification.subjectEmployeeId(),
+                clarification.text()
+        ));
         Log.infof("Deleted month-end clarification %s by actor %s", id.value(), actorId.value());
     }
 }

@@ -4,6 +4,7 @@ import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorize
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.SourceSystem;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
 import java.time.Instant;
@@ -18,6 +19,7 @@ public record MonthEndClarification(
         ProjectId projectId,
         UserId subjectEmployeeId,
         UserId createdBy,
+        SourceSystem sourceSystem,
         Set<UserId> eligibleProjectLeadIds,
         MonthEndClarificationStatus status,
         String text,
@@ -33,6 +35,7 @@ public record MonthEndClarification(
         Objects.requireNonNull(month, "month must not be null");
         Objects.requireNonNull(projectId, "projectId must not be null");
         Objects.requireNonNull(createdBy, "createdBy must not be null");
+        Objects.requireNonNull(sourceSystem, "sourceSystem must not be null");
         Objects.requireNonNull(eligibleProjectLeadIds, "eligibleProjectLeadIds must not be null");
         Objects.requireNonNull(status, "status must not be null");
         Objects.requireNonNull(createdAt, "createdAt must not be null");
@@ -58,12 +61,37 @@ public record MonthEndClarification(
             String text,
             Instant createdAt
     ) {
+        return create(
+                id,
+                month,
+                projectId,
+                subjectEmployeeId,
+                createdBy,
+                SourceSystem.MEGA,
+                eligibleProjectLeadIds,
+                text,
+                createdAt
+        );
+    }
+
+    public static MonthEndClarification create(
+            MonthEndClarificationId id,
+            YearMonth month,
+            ProjectId projectId,
+            UserId subjectEmployeeId,
+            UserId createdBy,
+            SourceSystem sourceSystem,
+            Set<UserId> eligibleProjectLeadIds,
+            String text,
+            Instant createdAt
+    ) {
         return new MonthEndClarification(
                 id,
                 month,
                 projectId,
                 subjectEmployeeId,
                 createdBy,
+                sourceSystem,
                 eligibleProjectLeadIds,
                 MonthEndClarificationStatus.OPEN,
                 text,
@@ -93,6 +121,7 @@ public record MonthEndClarification(
                 projectId,
                 subjectEmployeeId,
                 createdBy,
+                sourceSystem,
                 eligibleProjectLeadIds,
                 status,
                 updatedText,
@@ -122,6 +151,7 @@ public record MonthEndClarification(
                 projectId,
                 subjectEmployeeId,
                 createdBy,
+                sourceSystem,
                 eligibleProjectLeadIds,
                 MonthEndClarificationStatus.DONE,
                 text,
