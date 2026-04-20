@@ -66,6 +66,8 @@ class AuthenticatedActorContextTest {
 
         assertThat(authenticatedActorContext.userId()).isEqualTo(actorId);
         assertThat(authenticatedActorContext.roles()).containsExactly(Role.EMPLOYEE);
+        assertThat(authenticatedActorContext.hasRole(Role.EMPLOYEE)).isTrue();
+        assertThat(authenticatedActorContext.hasRole(Role.PROJECT_LEAD)).isFalse();
 
         verify(userRepository, times(1)).findByEmail(Email.of(EMAIL));
     }

@@ -4,29 +4,21 @@ info:
   version: 1.0.0
   description: Spec-first REST API for month-end and worktime flows.
 tags:
-  - name: MonthEndEmployee
-    description: Employee-scoped month-end endpoints
-  - name: MonthEndProjectLead
-    description: Project-lead-scoped month-end endpoints
-  - name: MonthEndShared
-    description: Shared actor-scoped month-end endpoints
-  - name: MonthEndOps
-    description: Internal operational month-end endpoints
+  - name: MonthEnd
+    description: Month-end endpoints for employees, project leads, and operational callers
   - name: WorkTimeEmployee
     description: Employee-scoped work time endpoints
   - name: WorkTimeProjectLead
     description: Project-lead-scoped work time endpoints
 paths:
-  /monthend/employee/status-overview:
-    $ref: './paths/monthend.yaml#/~1monthend~1employee~1status-overview'
-  /monthend/employee/preparations:
-    $ref: './paths/monthend.yaml#/~1monthend~1employee~1preparations'
-  /monthend/employee/clarifications:
-    $ref: './paths/monthend.yaml#/~1monthend~1employee~1clarifications'
-  /monthend/project-lead/status-overview:
-    $ref: './paths/monthend.yaml#/~1monthend~1project-lead~1status-overview'
-  /monthend/project-lead/clarifications:
-    $ref: './paths/monthend.yaml#/~1monthend~1project-lead~1clarifications'
+  /monthend/{month}/status-overview/employee:
+    $ref: './paths/monthend.yaml#/~1monthend~1{month}~1status-overview~1employee'
+  /monthend/{month}/status-overview/project-lead:
+    $ref: './paths/monthend.yaml#/~1monthend~1{month}~1status-overview~1project-lead'
+  /monthend/preparations:
+    $ref: './paths/monthend.yaml#/~1monthend~1preparations'
+  /monthend/clarifications:
+    $ref: './paths/monthend.yaml#/~1monthend~1clarifications'
   /monthend/tasks/{taskId}/complete:
     $ref: './paths/monthend.yaml#/~1monthend~1tasks~1{taskId}~1complete'
   /monthend/clarifications/{clarificationId}/text:
@@ -35,8 +27,8 @@ paths:
     $ref: './paths/monthend.yaml#/~1monthend~1clarifications~1{clarificationId}'
   /monthend/clarifications/{clarificationId}/resolve:
     $ref: './paths/monthend.yaml#/~1monthend~1clarifications~1{clarificationId}~1resolve'
-  /monthend/ops/generation:
-    $ref: './paths/monthend.yaml#/~1monthend~1ops~1generation'
+  /monthend/{month}/generate:
+    $ref: './paths/monthend.yaml#/~1monthend~1{month}~1generate'
   /worktime/employee/{payrollMonth}:
     $ref: './paths/worktime.yaml#/~1worktime~1employee~1{payrollMonth}'
   /worktime/projects/{payrollMonth}:
