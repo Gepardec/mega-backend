@@ -45,6 +45,10 @@ public class AuthenticatedActorContext {
         return authenticatedActor().roles();
     }
 
+    public boolean hasRole(Role role) {
+        return role != null && roles().contains(role);
+    }
+
     private AuthenticatedActor resolveAuthenticatedActor() {
         String value = emailClaim.getValue();
         if (value == null || value.isBlank()) {
