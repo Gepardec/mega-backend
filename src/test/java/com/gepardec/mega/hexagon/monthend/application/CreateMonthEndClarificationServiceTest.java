@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
+import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationCreatedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectContext;
@@ -9,9 +10,11 @@ import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndEmployeeProjec
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndProjectContextService;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.SourceSystem;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
+import jakarta.enterprise.event.Event;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +29,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,6 +46,7 @@ class CreateMonthEndClarificationServiceTest {
     private MonthEndClarificationRepository clarificationRepository;
     private MonthEndEmployeeProjectContextService employeeContextService;
     private MonthEndProjectContextService projectContextService;
+    private Event<ClarificationCreatedEvent> clarificationCreatedEvent;
     private CreateMonthEndClarificationService service;
 
     @BeforeEach
@@ -49,7 +54,14 @@ class CreateMonthEndClarificationServiceTest {
         clarificationRepository = mock(MonthEndClarificationRepository.class);
         employeeContextService = mock(MonthEndEmployeeProjectContextService.class);
         projectContextService = mock(MonthEndProjectContextService.class);
-        service = new CreateMonthEndClarificationService(clarificationRepository, employeeContextService, projectContextService, clock);
+        clarificationCreatedEvent = mock(Event.class);
+        service = new CreateMonthEndClarificationService(
+                clarificationRepository,
+                employeeContextService,
+                projectContextService,
+                clock,
+                clarificationCreatedEvent
+        );
     }
 
     @Test
@@ -67,9 +79,15 @@ class CreateMonthEndClarificationServiceTest {
 
         assertThat(result.subjectEmployeeId()).isEqualTo(employeeId);
         assertThat(result.createdBy()).isEqualTo(employeeId);
+        assertThat(result.sourceSystem()).isEqualTo(SourceSystem.MEGA);
         assertThat(result.eligibleProjectLeadIds()).containsExactlyInAnyOrder(leadA, leadB);
         assertThat(result.createdAt()).isEqualTo(clock.instant());
         verify(clarificationRepository).save(any(MonthEndClarification.class));
+        verify(clarificationCreatedEvent).fire(argThat(event ->
+                event.creator().equals(employeeId)
+                        && event.subjectEmployeeId().equals(employeeId)
+                        && event.sourceSystem() == SourceSystem.MEGA
+        ));
     }
 
     @Test

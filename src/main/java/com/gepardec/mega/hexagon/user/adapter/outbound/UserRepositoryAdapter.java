@@ -1,6 +1,8 @@
 package com.gepardec.mega.hexagon.user.adapter.outbound;
 
 import com.gepardec.mega.hexagon.shared.domain.model.Email;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
+import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.model.User;
@@ -38,10 +40,29 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
+    public Optional<User> findByFullName(FullName fullName) {
+        return panache.find("firstname = ?1 and lastname = ?2", fullName.firstname(), fullName.lastname())
+                .firstResultOptional()
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public Optional<User> findByZepUsername(ZepUsername username) {
         return panache.find("zepUsername", username.value())
                 .firstResultOptional()
                 .map(mapper::toDomain);
+    }
+
+    @Override
+    public List<User> findByRole(Role role) {
+        return panache.find(
+                        "select distinct user from HexagonUserEntity user join user.roles role where role = ?1",
+                        role
+                )
+                .list()
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override
