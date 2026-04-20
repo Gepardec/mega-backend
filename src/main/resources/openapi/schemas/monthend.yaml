@@ -152,22 +152,7 @@ PrepareMonthEndProjectRequest:
     clarificationText:
       type: string
       nullable: true
-CreateEmployeeClarificationRequest:
-  type: object
-  additionalProperties: false
-  required:
-    - month
-    - projectId
-    - text
-  properties:
-    month:
-      $ref: './shared.yaml#/MonthValue'
-    projectId:
-      type: string
-      format: uuid
-    text:
-      type: string
-CreateProjectLeadClarificationRequest:
+CreateClarificationRequest:
   type: object
   additionalProperties: false
   required:
@@ -201,14 +186,6 @@ ResolveClarificationRequest:
     resolutionNote:
       type: string
       nullable: true
-GenerateMonthEndTasksRequest:
-  type: object
-  additionalProperties: false
-  required:
-    - month
-  properties:
-    month:
-      $ref: './shared.yaml#/MonthValue'
 MonthEndTaskResponse:
   type: object
   additionalProperties: false

@@ -1,13 +1,18 @@
-'/monthend/employee/status-overview':
+'/monthend/{month}/status-overview/employee':
   get:
     tags:
-      - MonthEndEmployee
+      - MonthEnd
     operationId: getEmployeeMonthEndStatusOverview
-    summary: Get the authenticated employee's month-end status overview
+    summary: Get the authenticated actor's employee month-end status overview
     security:
       - bearerAuth: [ ]
     parameters:
-      - $ref: '../parameters/common.yaml#/MonthQueryParameter'
+      - name: month
+        in: path
+        required: true
+        description: Month-end context in yyyy-MM format.
+        schema:
+          $ref: '../schemas/shared.yaml#/MonthValue'
     responses:
       '200':
         description: Employee month-end status overview
@@ -21,12 +26,40 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
-'/monthend/employee/preparations':
+'/monthend/{month}/status-overview/project-lead':
+  get:
+    tags:
+      - MonthEnd
+    operationId: getProjectLeadMonthEndStatusOverview
+    summary: Get the authenticated actor's project-lead month-end status overview
+    security:
+      - bearerAuth: [ ]
+    parameters:
+      - name: month
+        in: path
+        required: true
+        description: Month-end context in yyyy-MM format.
+        schema:
+          $ref: '../schemas/shared.yaml#/MonthValue'
+    responses:
+      '200':
+        description: Project-lead month-end status overview
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/monthend.yaml#/MonthEndStatusOverviewResponse'
+      '400':
+        $ref: '../responses/common.yaml#/BadRequest'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'
+'/monthend/preparations':
   post:
     tags:
-      - MonthEndEmployee
-    operationId: prepareEmployeeMonthEndProject
-    summary: Prepare the authenticated employee's month-end project context
+      - MonthEnd
+    operationId: prepareMonthEndProject
+    summary: Prepare the authenticated actor's month-end project context
     security:
       - bearerAuth: [ ]
     requestBody:
@@ -48,12 +81,12 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
-'/monthend/employee/clarifications':
+'/monthend/clarifications':
   post:
     tags:
-      - MonthEndEmployee
-    operationId: createEmployeeMonthEndClarification
-    summary: Create an employee-side month-end clarification
+      - MonthEnd
+    operationId: createMonthEndClarification
+    summary: Create a month-end clarification for the authenticated actor
     security:
       - bearerAuth: [ ]
     requestBody:
@@ -61,57 +94,7 @@
       content:
         application/json:
           schema:
-            $ref: '../schemas/monthend.yaml#/CreateEmployeeClarificationRequest'
-    responses:
-      '201':
-        description: Created clarification
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/monthend.yaml#/MonthEndOverviewClarificationEntry'
-      '400':
-        $ref: '../responses/common.yaml#/BadRequest'
-      '403':
-        $ref: '../responses/common.yaml#/Forbidden'
-      '500':
-        $ref: '../responses/common.yaml#/InternalServerError'
-'/monthend/project-lead/status-overview':
-  get:
-    tags:
-      - MonthEndProjectLead
-    operationId: getProjectLeadMonthEndStatusOverview
-    summary: Get the authenticated project lead's month-end status overview
-    security:
-      - bearerAuth: [ ]
-    parameters:
-      - $ref: '../parameters/common.yaml#/MonthQueryParameter'
-    responses:
-      '200':
-        description: Project-lead month-end status overview
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/monthend.yaml#/MonthEndStatusOverviewResponse'
-      '400':
-        $ref: '../responses/common.yaml#/BadRequest'
-      '403':
-        $ref: '../responses/common.yaml#/Forbidden'
-      '500':
-        $ref: '../responses/common.yaml#/InternalServerError'
-'/monthend/project-lead/clarifications':
-  post:
-    tags:
-      - MonthEndProjectLead
-    operationId: createProjectLeadMonthEndClarification
-    summary: Create a project-lead-side month-end clarification
-    security:
-      - bearerAuth: [ ]
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/monthend.yaml#/CreateProjectLeadClarificationRequest'
+            $ref: '../schemas/monthend.yaml#/CreateClarificationRequest'
     responses:
       '201':
         description: Created clarification
@@ -128,7 +111,7 @@
 '/monthend/tasks/{taskId}/complete':
   post:
     tags:
-      - MonthEndShared
+      - MonthEnd
     operationId: completeMonthEndTask
     summary: Complete a month-end task for the authenticated actor
     security:
@@ -153,7 +136,7 @@
 '/monthend/clarifications/{clarificationId}':
   delete:
     tags:
-      - MonthEndShared
+      - MonthEnd
     operationId: deleteMonthEndClarification
     summary: Delete an open month-end clarification (creator only)
     security:
@@ -172,7 +155,7 @@
 '/monthend/clarifications/{clarificationId}/text':
   put:
     tags:
-      - MonthEndShared
+      - MonthEnd
     operationId: updateMonthEndClarificationText
     summary: Update month-end clarification text for the authenticated actor
     security:
@@ -203,7 +186,7 @@
 '/monthend/clarifications/{clarificationId}/resolve':
   post:
     tags:
-      - MonthEndShared
+      - MonthEnd
     operationId: resolveMonthEndClarification
     summary: Resolve a month-end clarification for the authenticated actor
     security:
@@ -231,20 +214,21 @@
         $ref: '../responses/common.yaml#/NotFound'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
-'/monthend/ops/generation':
+'/monthend/{month}/generate':
   post:
     tags:
-      - MonthEndOps
+      - MonthEnd
     operationId: generateMonthEndTasks
     summary: Generate month-end tasks for a month
     security:
       - mega-cron: [ ]
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/monthend.yaml#/GenerateMonthEndTasksRequest'
+    parameters:
+      - name: month
+        in: path
+        required: true
+        description: Month-end context in yyyy-MM format.
+        schema:
+          $ref: '../schemas/shared.yaml#/MonthValue'
     responses:
       '200':
         description: Month-end generation result
