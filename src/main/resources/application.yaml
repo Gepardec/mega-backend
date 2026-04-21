@@ -210,6 +210,10 @@ mega:
       subject-prefix: "LOCAL: "
       employees:
         notification: true
+  google:
+    gmail:
+    pubsub:
+      topic: "projects/mega-260510/topics/MegaWebhookEmail-NGROK"
 
 ## local-sso profile
 "%localsso":
