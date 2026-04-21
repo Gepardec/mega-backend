@@ -15,7 +15,9 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEn
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.DeleteMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GenerateMonthEndTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndStatusOverviewUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeePayrollMonthUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndStatusOverviewUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadPayrollMonthUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
@@ -66,6 +68,8 @@ import static org.mockito.Mockito.when;
 class MonthEndResourceTest {
 
     private static final YearMonth MONTH = YearMonth.of(2026, 3);
+    private static final YearMonth PREVIOUS_PAYROLL_MONTH = YearMonth.of(2026, 2);
+    private static final YearMonth CURRENT_PAYROLL_MONTH = YearMonth.of(2026, 3);
     private static final ProjectId PROJECT_ID = ProjectId.of(Instancio.create(UUID.class));
     private static final String PROJECT_NAME = "Test Project";
     private static final UserId EMPLOYEE_ID = UserId.of(Instancio.create(UUID.class));
@@ -76,6 +80,12 @@ class MonthEndResourceTest {
 
     @InjectMock
     AuthenticatedActorContext authenticatedActorContext;
+
+    @InjectMock
+    GetEmployeePayrollMonthUseCase getEmployeePayrollMonthUseCase;
+
+    @InjectMock
+    GetProjectLeadPayrollMonthUseCase getProjectLeadPayrollMonthUseCase;
 
     @InjectMock
     GetEmployeeMonthEndStatusOverviewUseCase getEmployeeMonthEndStatusOverviewUseCase;
@@ -116,6 +126,70 @@ class MonthEndResourceTest {
         when(authenticatedActorContext.hasRole(Role.PROJECT_LEAD)).thenReturn(false);
         when(userSnapshotPort.findByIds(any(), any())).thenReturn(List.of(employeeRef(), projectLeadRef()));
         when(projectSnapshotPort.findByIds(any(), any())).thenReturn(List.of(projectSnapshot()));
+    }
+
+    @Test
+    void getEmployeePayrollMonth_shouldReturnPreviousMonthForEmployeeWithOpenTasks() {
+        allowRoles(Role.EMPLOYEE);
+        when(getEmployeePayrollMonthUseCase.getPayrollMonth(EMPLOYEE_ID)).thenReturn(PREVIOUS_PAYROLL_MONTH);
+
+        String response = given()
+                .get("/monthend/payroll-month/employee")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString();
+
+        assertThat(response).isEqualTo(PREVIOUS_PAYROLL_MONTH.toString());
+        verify(getEmployeePayrollMonthUseCase).getPayrollMonth(EMPLOYEE_ID);
+        verifyNoInteractions(getProjectLeadPayrollMonthUseCase);
+    }
+
+    @Test
+    void getEmployeePayrollMonth_shouldReturnCurrentMonthForEmployeeWithoutOpenTasks() {
+        allowRoles(Role.EMPLOYEE);
+        when(getEmployeePayrollMonthUseCase.getPayrollMonth(EMPLOYEE_ID)).thenReturn(CURRENT_PAYROLL_MONTH);
+
+        String response = given()
+                .get("/monthend/payroll-month/employee")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString();
+
+        assertThat(response).isEqualTo(CURRENT_PAYROLL_MONTH.toString());
+        verify(getEmployeePayrollMonthUseCase).getPayrollMonth(EMPLOYEE_ID);
+        verifyNoInteractions(getProjectLeadPayrollMonthUseCase);
+    }
+
+    @Test
+    void getProjectLeadPayrollMonth_shouldReturnPreviousMonthForProjectLead() {
+        allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
+        when(getProjectLeadPayrollMonthUseCase.getPayrollMonth()).thenReturn(PREVIOUS_PAYROLL_MONTH);
+
+        String response = given()
+                .get("/monthend/payroll-month/project-lead")
+                .then()
+                .statusCode(200)
+                .extract()
+                .asString();
+
+        assertThat(response).isEqualTo(PREVIOUS_PAYROLL_MONTH.toString());
+        verify(getProjectLeadPayrollMonthUseCase).getPayrollMonth();
+        verifyNoInteractions(getEmployeePayrollMonthUseCase);
+    }
+
+    @Test
+    void getProjectLeadPayrollMonth_shouldRejectEmployeeWithoutProjectLeadRole() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .get("/monthend/payroll-month/project-lead")
+                .then()
+                .statusCode(403);
+
+        verifyNoInteractions(getProjectLeadPayrollMonthUseCase);
     }
 
     @Test
