@@ -42,6 +42,6 @@ public class WorkTimeEmployeeResource implements WorkTimeEmployeeApi {
                 actorId,
                 workTimeRestTransportHelper.parsePayrollMonth(payrollMonth)
         );
-        return Response.ok(workTimeRestMapper.toResponse(report)).build();
+        return Response.ok(workTimeRestMapper.toDto(report)).build();
     }
 }

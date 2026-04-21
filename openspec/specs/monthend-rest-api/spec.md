@@ -127,7 +127,7 @@ The REST adapter SHALL be responsible for all clarification response enrichment.
 - **THEN** the client can update its local overview state directly from the mutation response without issuing a separate overview request
 
 #### Scenario: Capability flags reflect the authenticated actor's permissions
-- **WHEN** the REST adapter maps a clarification to its response DTO
+- **WHEN** the REST adapter maps a clarification to its generated `Dto`
 - **THEN** `canEditText` is `true` only when the authenticated actor is the creator and the clarification is open
 - **THEN** `canResolve` is `true` only when the authenticated actor is an involved party, is not the creator, and the clarification is open
 - **THEN** `canDelete` is `true` only when the authenticated actor is the creator and the clarification is open
@@ -174,7 +174,7 @@ The system SHALL secure monthend REST endpoints by operation. The status overvie
 - **THEN** the API rejects the request as forbidden
 
 ### Requirement: Internal monthend generation is available through the same API contract
-The system SHALL provide an internal monthend generation endpoint in the same OpenAPI contract for operational callers. The endpoint SHALL trigger monthend task generation for the requested month and return the generation result using generated response models. The month SHALL be encoded in the path.
+The system SHALL provide an internal monthend generation endpoint in the same OpenAPI contract for operational callers. The endpoint SHALL trigger monthend task generation for the requested month and return the generation result using generated `Dto` types. The month SHALL be encoded in the path.
 
 #### Scenario: Ops caller triggers generation for a month
 - **WHEN** an authenticated internal ops caller submits `POST /monthend/{month}/generate`

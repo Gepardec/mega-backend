@@ -1,13 +1,13 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.MonthEndEmployeeReference;
-import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntry;
-import com.gepardec.mega.hexagon.generated.model.MonthEndPreparationResponse;
-import com.gepardec.mega.hexagon.generated.model.MonthEndProjectReference;
-import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewEntry;
-import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
-import com.gepardec.mega.hexagon.generated.model.MonthEndTaskGenerationResponse;
-import com.gepardec.mega.hexagon.generated.model.MonthEndTaskResponse;
+import com.gepardec.mega.hexagon.generated.model.ProjectRefDto;
+import com.gepardec.mega.hexagon.generated.model.UserRefDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntryDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndPreparationDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewEntryDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndTaskGenerationDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndTaskDto;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
@@ -37,21 +37,21 @@ import java.util.UUID;
 @Mapper(componentModel = MappingConstants.ComponentModel.JAKARTA)
 public interface MonthEndRestMapper {
 
-    MonthEndTaskGenerationResponse toResponse(MonthEndTaskGenerationResult result);
+    MonthEndTaskGenerationDto toDto(MonthEndTaskGenerationResult result);
 
     @Mapping(target = "taskId", source = "id")
-    MonthEndTaskResponse toResponse(MonthEndTask task);
+    MonthEndTaskDto toDto(MonthEndTask task);
 
-    MonthEndProjectReference toResponse(ProjectRef project);
+    ProjectRefDto toDto(ProjectRef project);
 
-    MonthEndEmployeeReference toResponse(UserRef subjectEmployee);
+    UserRefDto toDto(UserRef subjectEmployee);
 
     @Mapping(target = "taskId", source = "id")
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "subjectEmployee", ignore = true)
     @Mapping(target = "canComplete", ignore = true)
     @Mapping(target = "completedBy", ignore = true)
-    MonthEndStatusOverviewEntry toEntry(
+    MonthEndStatusOverviewEntryDto toEntry(
             MonthEndTask task,
             @Context Map<ProjectId, ProjectRef> projectRefs,
             @Context Map<UserId, UserRef> userRefs,
@@ -61,7 +61,7 @@ public interface MonthEndRestMapper {
     @AfterMapping
     default void enrichTaskEntry(
             MonthEndTask task,
-            @MappingTarget MonthEndStatusOverviewEntry entry,
+            @MappingTarget MonthEndStatusOverviewEntryDto entry,
             @Context Map<ProjectId, ProjectRef> projectRefs,
             @Context Map<UserId, UserRef> userRefs,
             @Context UserId actorId
@@ -74,20 +74,20 @@ public interface MonthEndRestMapper {
         UserRef subjectEmployee = task.subjectEmployeeId() != null
                 ? userRefs.get(task.subjectEmployeeId())
                 : null;
-        entry.project(toResponse(project))
-                .subjectEmployee(subjectEmployee != null ? toResponse(subjectEmployee) : null)
+        entry.project(toDto(project))
+                .subjectEmployee(subjectEmployee != null ? toDto(subjectEmployee) : null)
                 .canComplete(task.canBeCompletedBy(actorId))
                 .completedBy(map(task.completedBy()));
     }
 
-    MonthEndStatusOverviewResponse toResponse(
+    MonthEndStatusOverviewDto toDto(
             MonthEndStatusOverview overview,
             @Context Map<ProjectId, ProjectRef> projectRefs,
             @Context Map<UserId, UserRef> userRefs,
             @Context UserId actorId
     );
 
-    MonthEndPreparationResponse toResponse(
+    MonthEndPreparationDto toDto(
             MonthEndPreparationResult result,
             @Context Map<UserId, UserRef> userRefs,
             @Context UserId actorId
@@ -100,7 +100,7 @@ public interface MonthEndRestMapper {
     @Mapping(target = "canResolve", ignore = true)
     @Mapping(target = "canEditText", ignore = true)
     @Mapping(target = "canDelete", ignore = true)
-    MonthEndOverviewClarificationEntry toClarificationEntry(
+    MonthEndOverviewClarificationEntryDto toClarificationEntry(
             MonthEndClarification clarification,
             @Context Map<UserId, UserRef> userRefs,
             @Context UserId actorId
@@ -109,7 +109,7 @@ public interface MonthEndRestMapper {
     @AfterMapping
     default void enrichClarificationEntry(
             MonthEndClarification clarification,
-            @MappingTarget MonthEndOverviewClarificationEntry item,
+            @MappingTarget MonthEndOverviewClarificationEntryDto item,
             @Context Map<UserId, UserRef> userRefs,
             @Context UserId actorId
     ) {
@@ -119,9 +119,9 @@ public interface MonthEndRestMapper {
         UserRef resolvedByRef = clarification.resolvedBy() != null
                 ? userRefs.get(clarification.resolvedBy())
                 : null;
-        item.createdBy(toResponse(userRefs.get(clarification.createdBy())))
-                .subjectEmployee(subjectRef != null ? toResponse(subjectRef) : null)
-                .resolvedBy(resolvedByRef != null ? toResponse(resolvedByRef) : null)
+        item.createdBy(toDto(userRefs.get(clarification.createdBy())))
+                .subjectEmployee(subjectRef != null ? toDto(subjectRef) : null)
+                .resolvedBy(resolvedByRef != null ? toDto(resolvedByRef) : null)
                 .canResolve(clarification.canBeResolvedBy(actorId))
                 .canEditText(clarification.canEditText(actorId))
                 .canDelete(clarification.canDelete(actorId));

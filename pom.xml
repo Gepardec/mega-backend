@@ -411,6 +411,7 @@
                             <generateModelDocumentation>true</generateModelDocumentation>
                             <generateApiDocumentation>true</generateApiDocumentation>
                             <addCompileSourceRoot>true</addCompileSourceRoot>
+                            <modelNameSuffix>Dto</modelNameSuffix>
                             <configOptions>
                                 <interfaceOnly>true</interfaceOnly>
                                 <useJakartaEe>true</useJakartaEe>

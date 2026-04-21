@@ -1,28 +1,4 @@
-WorkTimeEmployeeReference:
-  type: object
-  additionalProperties: false
-  required:
-    - id
-    - name
-  properties:
-    id:
-      type: string
-      format: uuid
-    name:
-      type: string
-WorkTimeProjectReference:
-  type: object
-  additionalProperties: false
-  required:
-    - id
-    - name
-  properties:
-    id:
-      type: string
-      format: uuid
-    name:
-      type: string
-WorkTimeEntryResponse:
+WorkTimeEntry:
   type: object
   additionalProperties: false
   required:
@@ -33,9 +9,9 @@ WorkTimeEntryResponse:
     - employeeMonthTotalHours
   properties:
     employee:
-      $ref: '#/WorkTimeEmployeeReference'
+      $ref: './shared.yaml#/UserRef'
     project:
-      $ref: '#/WorkTimeProjectReference'
+      $ref: './shared.yaml#/ProjectRef'
     billableHours:
       type: number
       format: double
@@ -45,7 +21,7 @@ WorkTimeEntryResponse:
     employeeMonthTotalHours:
       type: number
       format: double
-WorkTimeReportResponse:
+WorkTimeReport:
   type: object
   additionalProperties: false
   required:
@@ -57,4 +33,4 @@ WorkTimeReportResponse:
     entries:
       type: array
       items:
-        $ref: '#/WorkTimeEntryResponse'
+        $ref: '#/WorkTimeEntry'
