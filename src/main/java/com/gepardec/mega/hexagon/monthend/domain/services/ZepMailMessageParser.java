@@ -24,12 +24,13 @@ public class ZepMailMessageParser {
     private static final String MITARBEITER = "Mitarbeiter";
     private static final String PROJEKT = "Projekt";
     private static final String VORGANG = "Vorgang";
-    private static final String BEMERKUNGEN = "Bemerkungen";
+    private static final String BEMERKUNG = "Bemerkung";
     private static final String ANMERKUNG = "Anmerkung";
     private static final Pattern TABLE_ROW_PATTERN = Pattern.compile(
-            "<tr>\\s*<td>(.*?)</td>\\s*<td>.*?<span>(.*?)</span>.*?</td>\\s*</tr>",
+            "<tr>\\s*<td[^>]*>(.*?)</td>\\s*<td[^>]*>(.*?)</td>\\s*</tr>",
             Pattern.DOTALL | Pattern.CASE_INSENSITIVE
     );
+    private static final Pattern HTML_TAG_PATTERN = Pattern.compile("<[^>]+>");
 
     public ZepMailParseResult parse(ZepRawMail rawMail) {
         Map<String, String> tableMap = parseTableToMap(rawMail.htmlBody());
@@ -53,7 +54,7 @@ public class ZepMailMessageParser {
                 extractLastName(tableMap.get(MITARBEITER)),
                 extractProjectName(tableMap.get(PROJEKT)),
                 tableMap.get(VORGANG),
-                tableMap.get(BEMERKUNGEN),
+                tableMap.get(BEMERKUNG),
                 tableMap.get(ANMERKUNG)
         );
 
@@ -64,15 +65,24 @@ public class ZepMailMessageParser {
         Map<String, String> result = new LinkedHashMap<>();
         var matcher = TABLE_ROW_PATTERN.matcher(html);
         while (matcher.find()) {
-            result.put(matcher.group(1).strip(), matcher.group(2).strip());
+            String key = stripHtml(matcher.group(1));
+            String value = stripHtml(matcher.group(2));
+            if (!key.isBlank()) {
+                result.put(key, value);
+            }
         }
         return result;
     }
 
+    private String stripHtml(String html) {
+        return HTML_TAG_PATTERN.matcher(html).replaceAll("").strip();
+    }
+
     private String extractTableHtml(String html) {
-        int start = html.indexOf("<table");
-        int end = html.lastIndexOf("</table>") + "</table>".length();
-        if (start >= 0 && end > start) {
+        int start = html.lastIndexOf("<table");
+        if (start < 0) return html;
+        int end = html.indexOf("</table>", start) + "</table>".length();
+        if (end > start) {
             return html.substring(start, end);
         }
         return html;
@@ -83,7 +93,7 @@ public class ZepMailMessageParser {
     }
 
     private boolean isBodyValid(Map<String, String> tableMap) {
-        return tableMap.keySet().containsAll(List.of(ZEP_ID_ERSTELLER, MITARBEITER, PROJEKT, VORGANG, BEMERKUNGEN, ANMERKUNG))
+        return tableMap.keySet().containsAll(List.of(ZEP_ID_ERSTELLER, MITARBEITER, PROJEKT, VORGANG, BEMERKUNG, ANMERKUNG))
                 && !tableMap.get(ANMERKUNG).isBlank();
     }
 

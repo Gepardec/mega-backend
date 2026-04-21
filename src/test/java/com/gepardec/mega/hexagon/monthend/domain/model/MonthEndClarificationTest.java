@@ -196,6 +196,24 @@ class MonthEndClarificationTest {
     }
 
     @Test
+    void canEditText_shouldReturnFalse_whenSourceSystemIsZep() {
+        MonthEndClarification clarification = zepCreatedClarification();
+
+        assertThat(clarification.canEditText(leadA)).isFalse();
+    }
+
+    @Test
+    void editText_shouldThrow_whenSourceSystemIsZep() {
+        MonthEndClarification clarification = zepCreatedClarification();
+
+        ThrowableAssert.ThrowingCallable throwingCallable = () -> clarification.editText(leadA, "Edited", createdAt.plusSeconds(1));
+
+        assertThatThrownBy(throwingCallable)
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
+                .hasMessageContaining("not allowed");
+    }
+
+    @Test
     void editText_shouldThrow_whenClarificationAlreadyDone() {
         MonthEndClarification clarification = employeeCreatedClarification()
                 .resolve(leadA, "Done", createdAt.plusSeconds(10));
@@ -247,6 +265,20 @@ class MonthEndClarificationTest {
                 employeeId,
                 Set.of(leadA, leadB),
                 "Please verify the missing entry.",
+                createdAt
+        );
+    }
+
+    private MonthEndClarification zepCreatedClarification() {
+        return MonthEndClarification.create(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                employeeId,
+                leadA,
+                SourceSystem.ZEP,
+                Set.of(leadA, leadB),
+                "ZEP-imported clarification text.",
                 createdAt
         );
     }

@@ -10,7 +10,7 @@ import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndEmployeeProjec
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndProjectContextService;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
-import com.gepardec.mega.hexagon.shared.domain.model.SourceSystem;
+import com.gepardec.mega.hexagon.monthend.domain.model.SourceSystem;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
