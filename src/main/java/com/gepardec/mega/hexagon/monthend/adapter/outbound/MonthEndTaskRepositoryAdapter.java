@@ -114,13 +114,16 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
-    public List<MonthEndTask> findOpenEmployeeTasks(UserId employeeId, YearMonth month) {
-        return findOpenTasks(employeeId, month, MonthEndCompletionPolicy.INDIVIDUAL_ACTOR);
-    }
-
-    @Override
-    public List<MonthEndTask> findOpenProjectLeadTasks(UserId projectLeadId, YearMonth month) {
-        return findOpenTasks(projectLeadId, month, MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR);
+    public List<MonthEndTask> findOpenSubjectTasks(UserId subjectId, YearMonth month) {
+        return panache.find(
+                        "monthValue = ?1 and status = ?2 and subjectEmployeeId = ?3",
+                        toMonthValue(month),
+                        MonthEndTaskStatus.OPEN,
+                        subjectId.value()
+                )
+                .list().stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override
@@ -133,21 +136,6 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
         for (MonthEndTask task : tasks) {
             upsert(task);
         }
-    }
-
-    private List<MonthEndTask> findOpenTasks(UserId actorId, YearMonth month, MonthEndCompletionPolicy policy) {
-        return panache.find(
-                        "select distinct task from MonthEndTaskEntity task " +
-                                "join task.eligibleActorIds actor " +
-                                "where task.monthValue = ?1 and task.status = ?2 and actor = ?3 and task.type in ?4",
-                        toMonthValue(month),
-                        MonthEndTaskStatus.OPEN,
-                        actorId.value(),
-                        taskTypesFor(policy)
-                )
-                .list().stream()
-                .map(mapper::toDomain)
-                .toList();
     }
 
     private List<MonthEndTaskType> taskTypesFor(MonthEndCompletionPolicy policy) {

@@ -1,3 +1,41 @@
+'/monthend/payroll-month/employee':
+  get:
+    tags:
+      - MonthEnd
+    operationId: getEmployeePayrollMonth
+    summary: Get the authenticated actor's employee payroll month
+    security:
+      - bearerAuth: [ ]
+    responses:
+      '200':
+        description: Employee payroll month
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/shared.yaml#/MonthValue'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'
+'/monthend/payroll-month/project-lead':
+  get:
+    tags:
+      - MonthEnd
+    operationId: getProjectLeadPayrollMonth
+    summary: Get the authenticated actor's project-lead payroll month
+    security:
+      - bearerAuth: [ ]
+    responses:
+      '200':
+        description: Project-lead payroll month
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/shared.yaml#/MonthValue'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'
 '/monthend/{month}/status-overview/employee':
   get:
     tags:
