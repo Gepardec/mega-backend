@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntry;
-import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
+import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntryDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
@@ -42,7 +42,7 @@ class MonthEndRestMapperTest {
     private final UserId otherUserId = UserId.of(Instancio.create(UUID.class));
 
     @Test
-    void toResponse_shouldMapStatusOverviewProjectAndClarificationUserReferences() {
+    void toDto_shouldMapStatusOverviewProjectAndClarificationUserReferences() {
         Instant createdAt = Instant.parse("2026-03-25T10:15:00Z");
         Instant resolvedAt = Instant.parse("2026-03-25T10:30:00Z");
         MonthEndClarification clarification = MonthEndClarification.create(
@@ -74,7 +74,7 @@ class MonthEndRestMapperTest {
                 leadId, leadRef()
         );
 
-        MonthEndStatusOverviewResponse response = mapper.toResponse(overview, Map.of(projectId, projectRef()), userRefs, employeeId);
+        MonthEndStatusOverviewDto response = mapper.toDto(overview, Map.of(projectId, projectRef()), userRefs, employeeId);
 
         assertThat(response.getMonth()).isEqualTo("2026-03");
         assertThat(response.getTasks()).singleElement().satisfies(entry -> {
@@ -99,7 +99,7 @@ class MonthEndRestMapperTest {
     }
 
     @Test
-    void toResponse_shouldMapStatusOverviewCanCompleteFalseForSubjectOnlyEntry() {
+    void toDto_shouldMapStatusOverviewCanCompleteFalseForSubjectOnlyEntry() {
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 employeeId,
                 month,
@@ -114,14 +114,14 @@ class MonthEndRestMapperTest {
                 List.of()
         );
 
-        MonthEndStatusOverviewResponse response = mapper.toResponse(overview, Map.of(projectId, projectRef()), Map.of(), employeeId);
+        MonthEndStatusOverviewDto response = mapper.toDto(overview, Map.of(projectId, projectRef()), Map.of(), employeeId);
 
         assertThat(response.getTasks()).singleElement()
                 .satisfies(entry -> assertThat(entry.getCanComplete()).isFalse());
     }
 
     @Test
-    void toResponse_shouldOmitStatusOverviewSubjectEmployeeForAbrechnung() {
+    void toDto_shouldOmitStatusOverviewSubjectEmployeeForAbrechnung() {
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 employeeId,
                 month,
@@ -136,7 +136,7 @@ class MonthEndRestMapperTest {
                 List.of()
         );
 
-        MonthEndStatusOverviewResponse response = mapper.toResponse(overview, Map.of(projectId, projectRef()), Map.of(), employeeId);
+        MonthEndStatusOverviewDto response = mapper.toDto(overview, Map.of(projectId, projectRef()), Map.of(), employeeId);
 
         assertThat(response.getTasks()).singleElement()
                 .satisfies(entry -> {
@@ -163,7 +163,7 @@ class MonthEndRestMapperTest {
                 leadId, leadRef()
         );
 
-        MonthEndOverviewClarificationEntry entry = mapper.toClarificationEntry(clarification, userRefs, employeeId);
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(clarification, userRefs, employeeId);
 
         assertThat(entry.getCanEditText()).isTrue();
         assertThat(entry.getCanDelete()).isTrue();
@@ -191,7 +191,7 @@ class MonthEndRestMapperTest {
                 leadId, leadRef()
         );
 
-        MonthEndOverviewClarificationEntry entry = mapper.toClarificationEntry(clarification, userRefs, leadId);
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(clarification, userRefs, leadId);
 
         assertThat(entry.getCanResolve()).isTrue();
         assertThat(entry.getCanEditText()).isFalse();
@@ -215,7 +215,7 @@ class MonthEndRestMapperTest {
                 leadId, leadRef()
         );
 
-        MonthEndOverviewClarificationEntry entry = mapper.toClarificationEntry(clarification, userRefs, otherUserId);
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(clarification, userRefs, otherUserId);
 
         assertThat(entry.getCanResolve()).isFalse();
         assertThat(entry.getCanEditText()).isFalse();
@@ -241,7 +241,7 @@ class MonthEndRestMapperTest {
                 leadId, leadRef()
         );
 
-        MonthEndOverviewClarificationEntry entry = mapper.toClarificationEntry(clarification, userRefs, employeeId);
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(clarification, userRefs, employeeId);
 
         assertThat(entry.getCanResolve()).isFalse();
         assertThat(entry.getCanEditText()).isFalse();
@@ -265,7 +265,7 @@ class MonthEndRestMapperTest {
         );
         Map<UserId, UserRef> userRefs = Map.of(leadId, leadRef());
 
-        MonthEndOverviewClarificationEntry entry = mapper.toClarificationEntry(clarification, userRefs, leadId);
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(clarification, userRefs, leadId);
 
         assertThat(entry.getSubjectEmployee()).isNull();
         assertThat(entry.getCreatedBy().getId()).isEqualTo(leadId.value());

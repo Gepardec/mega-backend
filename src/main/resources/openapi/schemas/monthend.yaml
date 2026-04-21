@@ -33,11 +33,11 @@ MonthEndStatusOverviewEntry:
     status:
       $ref: '#/MonthEndTaskStatus'
     project:
-      $ref: '#/MonthEndProjectReference'
+      $ref: './shared.yaml#/ProjectRef'
     canComplete:
       type: boolean
     subjectEmployee:
-      $ref: '#/MonthEndEmployeeReference'
+      $ref: './shared.yaml#/UserRef'
       nullable: true
     completedBy:
       type: string
@@ -65,10 +65,10 @@ MonthEndOverviewClarificationEntry:
       type: string
       format: uuid
     subjectEmployee:
-      $ref: '#/MonthEndEmployeeReference'
+      $ref: './shared.yaml#/UserRef'
       nullable: true
     createdBy:
-      $ref: '#/MonthEndEmployeeReference'
+      $ref: './shared.yaml#/UserRef'
     status:
       $ref: '#/MonthEndClarificationStatus'
     text:
@@ -83,7 +83,7 @@ MonthEndOverviewClarificationEntry:
       type: string
       nullable: true
     resolvedBy:
-      $ref: '#/MonthEndEmployeeReference'
+      $ref: './shared.yaml#/UserRef'
       nullable: true
     resolvedAt:
       type: string
@@ -95,31 +95,7 @@ MonthEndOverviewClarificationEntry:
     lastModifiedAt:
       type: string
       format: date-time
-MonthEndProjectReference:
-  type: object
-  additionalProperties: false
-  required:
-    - id
-    - name
-  properties:
-    id:
-      type: string
-      format: uuid
-    name:
-      type: string
-MonthEndEmployeeReference:
-  type: object
-  additionalProperties: false
-  required:
-    - id
-    - fullName
-  properties:
-    id:
-      type: string
-      format: uuid
-    fullName:
-      type: string
-MonthEndStatusOverviewResponse:
+MonthEndStatusOverview:
   type: object
   additionalProperties: false
   required:
@@ -186,7 +162,7 @@ ResolveClarificationRequest:
     resolutionNote:
       type: string
       nullable: true
-MonthEndTaskResponse:
+MonthEndTask:
   type: object
   additionalProperties: false
   required:
@@ -216,7 +192,7 @@ MonthEndTaskResponse:
       type: string
       format: uuid
       nullable: true
-MonthEndPreparationResponse:
+MonthEndPreparation:
   type: object
   additionalProperties: false
   required:
@@ -225,11 +201,11 @@ MonthEndPreparationResponse:
     ensuredTasks:
       type: array
       items:
-        $ref: '#/MonthEndTaskResponse'
+        $ref: '#/MonthEndTask'
     clarification:
       $ref: '#/MonthEndOverviewClarificationEntry'
       nullable: true
-MonthEndTaskGenerationResponse:
+MonthEndTaskGeneration:
   type: object
   additionalProperties: false
   required:

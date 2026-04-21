@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.ApiError;
+import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
 import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.error.MonthEndRestAdapterException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
@@ -14,7 +14,7 @@ public class MonthEndRestAdapterExceptionMapper implements ExceptionMapper<Month
     @Override
     public Response toResponse(MonthEndRestAdapterException exception) {
         return Response.status(Response.Status.BAD_REQUEST)
-                .entity(new ApiError().message(exception.getMessage()))
+                .entity(new ApiErrorDto().message(exception.getMessage()))
                 .build();
     }
 }
