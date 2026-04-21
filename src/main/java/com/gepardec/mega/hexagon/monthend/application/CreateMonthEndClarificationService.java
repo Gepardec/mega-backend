@@ -8,7 +8,7 @@ import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarifica
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndEmployeeProjectContextService;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndProjectContextService;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
-import com.gepardec.mega.hexagon.shared.domain.model.SourceSystem;
+import com.gepardec.mega.hexagon.monthend.domain.model.SourceSystem;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;

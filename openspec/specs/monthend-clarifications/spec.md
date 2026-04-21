@@ -67,7 +67,7 @@ The system SHALL allow a clarification to be created only by an involved party. 
 - **THEN** the system rejects the creation attempt
 
 ### Requirement: Open clarification text is editable only by the creator
-The system SHALL allow edits to the main clarification text only while the clarification is `OPEN`, and only by the actor who created the clarification (`createdBy`). All other involved parties SHALL be rejected when attempting to edit.
+The system SHALL allow edits to the main clarification text only while the clarification is `OPEN`, and only by the actor who created the clarification (`createdBy`). All other involved parties SHALL be rejected when attempting to edit. Clarifications with `sourceSystem = ZEP` SHALL never be editable, regardless of actor or status.
 
 #### Scenario: Creator edits their open clarification
 - **WHEN** the creator edits the text of their own open clarification
@@ -80,6 +80,10 @@ The system SHALL allow edits to the main clarification text only while the clari
 
 #### Scenario: Done clarification text cannot be edited
 - **WHEN** any actor attempts to edit the text of a clarification with status `DONE`
+- **THEN** the system rejects the edit attempt
+
+#### Scenario: ZEP-sourced clarification text cannot be edited
+- **WHEN** any actor attempts to edit the text of a clarification with `sourceSystem = ZEP`
 - **THEN** the system rejects the edit attempt
 
 ### Requirement: Clarifications are resolved by any involved party except the creator
