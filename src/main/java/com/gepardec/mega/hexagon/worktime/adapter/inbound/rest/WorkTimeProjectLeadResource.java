@@ -42,6 +42,6 @@ public class WorkTimeProjectLeadResource implements WorkTimeProjectLeadApi {
                 actorId,
                 workTimeRestTransportHelper.parsePayrollMonth(payrollMonth)
         );
-        return Response.ok(workTimeRestMapper.toResponse(report)).build();
+        return Response.ok(workTimeRestMapper.toDto(report)).build();
     }
 }

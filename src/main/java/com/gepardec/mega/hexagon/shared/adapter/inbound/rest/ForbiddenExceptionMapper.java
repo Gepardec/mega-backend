@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.shared.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.ApiError;
+import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
 import com.gepardec.mega.hexagon.shared.domain.model.AuthenticatedActor;
@@ -37,7 +37,7 @@ public class ForbiddenExceptionMapper implements ExceptionMapper<ForbiddenExcept
                 exception.getMessage()
         );
         return Response.status(Response.Status.FORBIDDEN)
-                .entity(new ApiError().message(exception.getMessage()))
+                .entity(new ApiErrorDto().message(exception.getMessage()))
                 .build();
     }
 }

@@ -1,14 +1,14 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.ApiError;
-import com.gepardec.mega.hexagon.generated.model.CreateClarificationRequest;
-import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntry;
-import com.gepardec.mega.hexagon.generated.model.MonthEndPreparationResponse;
-import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewResponse;
-import com.gepardec.mega.hexagon.generated.model.MonthEndTaskGenerationResponse;
-import com.gepardec.mega.hexagon.generated.model.PrepareMonthEndProjectRequest;
-import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequest;
-import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequest;
+import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
+import com.gepardec.mega.hexagon.generated.model.CreateClarificationRequestDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntryDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndPreparationDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndTaskGenerationDto;
+import com.gepardec.mega.hexagon.generated.model.PrepareMonthEndProjectRequestDto;
+import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequestDto;
+import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequestDto;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndTaskUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
@@ -137,13 +137,13 @@ class MonthEndResourceTest {
         );
         when(getEmployeeMonthEndStatusOverviewUseCase.getOverview(EMPLOYEE_ID, MONTH)).thenReturn(overview);
 
-        MonthEndStatusOverviewResponse response = given()
+        MonthEndStatusOverviewDto response = given()
                 .accept(ContentType.JSON)
                 .get("/monthend/{month}/status-overview/employee", MONTH.toString())
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(MonthEndStatusOverviewResponse.class);
+                .as(MonthEndStatusOverviewDto.class);
 
         assertThat(response.getMonth()).isEqualTo(MONTH.toString());
         assertThat(response.getTasks()).singleElement().satisfies(entry -> {
@@ -183,13 +183,13 @@ class MonthEndResourceTest {
         );
         when(getEmployeeMonthEndStatusOverviewUseCase.getOverview(PROJECT_LEAD_ID, MONTH)).thenReturn(overview);
 
-        MonthEndStatusOverviewResponse response = given()
+        MonthEndStatusOverviewDto response = given()
                 .accept(ContentType.JSON)
                 .get("/monthend/{month}/status-overview/employee", MONTH.toString())
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(MonthEndStatusOverviewResponse.class);
+                .as(MonthEndStatusOverviewDto.class);
 
         assertThat(response.getMonth()).isEqualTo(MONTH.toString());
         assertThat(response.getTasks()).singleElement().satisfies(entry -> {
@@ -226,13 +226,13 @@ class MonthEndResourceTest {
         );
         when(getProjectLeadMonthEndStatusOverviewUseCase.getOverview(PROJECT_LEAD_ID, MONTH)).thenReturn(overview);
 
-        MonthEndStatusOverviewResponse response = given()
+        MonthEndStatusOverviewDto response = given()
                 .accept(ContentType.JSON)
                 .get("/monthend/{month}/status-overview/project-lead", MONTH.toString())
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(MonthEndStatusOverviewResponse.class);
+                .as(MonthEndStatusOverviewDto.class);
 
         assertThat(response.getMonth()).isEqualTo(MONTH.toString());
         assertThat(response.getTasks()).singleElement().satisfies(entry -> {
@@ -268,7 +268,7 @@ class MonthEndResourceTest {
     @Test
     void prepareMonthEndProject_shouldReturnPreparedTasksAndClarification() {
         allowRoles(Role.EMPLOYEE);
-        PrepareMonthEndProjectRequest request = new PrepareMonthEndProjectRequest()
+        PrepareMonthEndProjectRequestDto request = new PrepareMonthEndProjectRequestDto()
                 .month(MONTH.toString())
                 .projectId(PROJECT_ID.value())
                 .clarificationText("Leaving early.");
@@ -282,7 +282,7 @@ class MonthEndResourceTest {
         when(prematureMonthEndPreparationUseCase.prepare(MONTH, PROJECT_ID, EMPLOYEE_ID, "Leaving early."))
                 .thenReturn(result);
 
-        MonthEndPreparationResponse response = given()
+        MonthEndPreparationDto response = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
@@ -290,7 +290,7 @@ class MonthEndResourceTest {
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(MonthEndPreparationResponse.class);
+                .as(MonthEndPreparationDto.class);
 
         assertThat(response.getEnsuredTasks()).hasSize(2);
         assertThat(response.getClarification()).isNotNull();
@@ -303,7 +303,7 @@ class MonthEndResourceTest {
     @Test
     void createMonthEndClarification_shouldReturnCreatedClarificationForEmployee() {
         allowRoles(Role.EMPLOYEE);
-        CreateClarificationRequest request = new CreateClarificationRequest()
+        CreateClarificationRequestDto request = new CreateClarificationRequestDto()
                 .month(MONTH.toString())
                 .projectId(PROJECT_ID.value())
                 .text("Need support.");
@@ -316,7 +316,7 @@ class MonthEndResourceTest {
                 "Need support."
         )).thenReturn(clarification);
 
-        MonthEndOverviewClarificationEntry response = given()
+        MonthEndOverviewClarificationEntryDto response = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
@@ -324,7 +324,7 @@ class MonthEndResourceTest {
                 .then()
                 .statusCode(201)
                 .extract()
-                .as(MonthEndOverviewClarificationEntry.class);
+                .as(MonthEndOverviewClarificationEntryDto.class);
 
         assertThat(response.getProjectId()).isEqualTo(PROJECT_ID.value());
         assertThat(response.getCreatedBy().getId()).isEqualTo(EMPLOYEE_ID.value());
@@ -347,7 +347,7 @@ class MonthEndResourceTest {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         when(authenticatedActorContext.hasRole(Role.PROJECT_LEAD)).thenReturn(true);
-        CreateClarificationRequest request = new CreateClarificationRequest()
+        CreateClarificationRequestDto request = new CreateClarificationRequestDto()
                 .month(MONTH.toString())
                 .projectId(PROJECT_ID.value())
                 .subjectEmployeeId(EMPLOYEE_ID.value())
@@ -361,7 +361,7 @@ class MonthEndResourceTest {
                 "Please fix the evidence."
         )).thenReturn(clarification);
 
-        MonthEndOverviewClarificationEntry response = given()
+        MonthEndOverviewClarificationEntryDto response = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
@@ -369,7 +369,7 @@ class MonthEndResourceTest {
                 .then()
                 .statusCode(201)
                 .extract()
-                .as(MonthEndOverviewClarificationEntry.class);
+                .as(MonthEndOverviewClarificationEntryDto.class);
 
         assertThat(response.getProjectId()).isEqualTo(PROJECT_ID.value());
         assertThat(response.getCreatedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
@@ -389,7 +389,7 @@ class MonthEndResourceTest {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         when(authenticatedActorContext.hasRole(Role.PROJECT_LEAD)).thenReturn(true);
-        CreateClarificationRequest request = new CreateClarificationRequest()
+        CreateClarificationRequestDto request = new CreateClarificationRequestDto()
                 .month(MONTH.toString())
                 .projectId(PROJECT_ID.value())
                 .text("Project-level follow-up.");
@@ -402,7 +402,7 @@ class MonthEndResourceTest {
                 "Project-level follow-up."
         )).thenReturn(clarification);
 
-        MonthEndOverviewClarificationEntry response = given()
+        MonthEndOverviewClarificationEntryDto response = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
@@ -410,7 +410,7 @@ class MonthEndResourceTest {
                 .then()
                 .statusCode(201)
                 .extract()
-                .as(MonthEndOverviewClarificationEntry.class);
+                .as(MonthEndOverviewClarificationEntryDto.class);
 
         assertThat(response.getCreatedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
         assertThat(response.getSubjectEmployee()).isNull();
@@ -427,7 +427,7 @@ class MonthEndResourceTest {
     @Test
     void createMonthEndClarification_shouldIgnoreProvidedSubjectEmployeeForEmployeeCaller() {
         allowRoles(Role.EMPLOYEE);
-        CreateClarificationRequest request = new CreateClarificationRequest()
+        CreateClarificationRequestDto request = new CreateClarificationRequestDto()
                 .month(MONTH.toString())
                 .projectId(PROJECT_ID.value())
                 .subjectEmployeeId(PROJECT_LEAD_ID.value())
@@ -441,7 +441,7 @@ class MonthEndResourceTest {
                 "Still my own clarification."
         )).thenReturn(clarification);
 
-        MonthEndOverviewClarificationEntry response = given()
+        MonthEndOverviewClarificationEntryDto response = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
@@ -449,7 +449,7 @@ class MonthEndResourceTest {
                 .then()
                 .statusCode(201)
                 .extract()
-                .as(MonthEndOverviewClarificationEntry.class);
+                .as(MonthEndOverviewClarificationEntryDto.class);
 
         assertThat(response.getCreatedBy().getId()).isEqualTo(EMPLOYEE_ID.value());
         assertThat(response.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
@@ -468,13 +468,13 @@ class MonthEndResourceTest {
         when(completeMonthEndTaskUseCase.complete(TASK_ID, EMPLOYEE_ID))
                 .thenThrow(new MonthEndTaskNotFoundException("month-end task not found"));
 
-        ApiError response = given()
+        ApiErrorDto response = given()
                 .accept(ContentType.JSON)
                 .post("/monthend/tasks/{taskId}/complete", TASK_ID.value())
                 .then()
                 .statusCode(404)
                 .extract()
-                .as(ApiError.class);
+                .as(ApiErrorDto.class);
 
         assertThat(response.getMessage()).isEqualTo("month-end task not found");
     }
@@ -487,15 +487,15 @@ class MonthEndResourceTest {
         when(updateMonthEndClarificationUseCase.updateText(CLARIFICATION_ID, PROJECT_LEAD_ID, "Updated by lead."))
                 .thenReturn(clarification);
 
-        MonthEndOverviewClarificationEntry response = given()
+        MonthEndOverviewClarificationEntryDto response = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(new UpdateClarificationTextRequest().text("Updated by lead."))
+                .body(new UpdateClarificationTextRequestDto().text("Updated by lead."))
                 .put("/monthend/clarifications/{clarificationId}/text", CLARIFICATION_ID.value())
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(MonthEndOverviewClarificationEntry.class);
+                .as(MonthEndOverviewClarificationEntryDto.class);
 
         assertThat(response.getClarificationId()).isEqualTo(CLARIFICATION_ID.value());
         assertThat(response.getCreatedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
@@ -515,15 +515,15 @@ class MonthEndResourceTest {
         when(completeMonthEndClarificationUseCase.complete(CLARIFICATION_ID, PROJECT_LEAD_ID, "Handled."))
                 .thenReturn(clarification);
 
-        MonthEndOverviewClarificationEntry response = given()
+        MonthEndOverviewClarificationEntryDto response = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(new ResolveClarificationRequest().resolutionNote("Handled."))
+                .body(new ResolveClarificationRequestDto().resolutionNote("Handled."))
                 .post("/monthend/clarifications/{clarificationId}/resolve", CLARIFICATION_ID.value())
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(MonthEndOverviewClarificationEntry.class);
+                .as(MonthEndOverviewClarificationEntryDto.class);
 
         assertThat(response.getClarificationId()).isEqualTo(CLARIFICATION_ID.value());
         assertThat(response.getResolvedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
@@ -576,13 +576,13 @@ class MonthEndResourceTest {
         MonthEndTaskGenerationResult result = new MonthEndTaskGenerationResult(MONTH, 4, 2);
         when(generateMonthEndTasksUseCase.generate(MONTH)).thenReturn(result);
 
-        MonthEndTaskGenerationResponse response = given()
+        MonthEndTaskGenerationDto response = given()
                 .accept(ContentType.JSON)
                 .post("/monthend/{month}/generate", MONTH.toString())
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(MonthEndTaskGenerationResponse.class);
+                .as(MonthEndTaskGenerationDto.class);
 
         assertThat(response.getMonth()).isEqualTo(MONTH.toString());
         assertThat(response.getCreated()).isEqualTo(4);

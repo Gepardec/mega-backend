@@ -1,8 +1,8 @@
 package com.gepardec.mega.hexagon.worktime.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.WorkTimeEmployeeReference;
-import com.gepardec.mega.hexagon.generated.model.WorkTimeProjectReference;
-import com.gepardec.mega.hexagon.generated.model.WorkTimeReportResponse;
+import com.gepardec.mega.hexagon.generated.model.UserRefDto;
+import com.gepardec.mega.hexagon.generated.model.ProjectRefDto;
+import com.gepardec.mega.hexagon.generated.model.WorkTimeReportDto;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
@@ -19,12 +19,12 @@ import java.util.UUID;
 @Mapper(componentModel = MappingConstants.ComponentModel.JAKARTA)
 public interface WorkTimeRestMapper {
 
-    WorkTimeReportResponse toResponse(WorkTimeReport report);
+    WorkTimeReportDto toDto(WorkTimeReport report);
 
-    @Mapping(target = "name", source = "fullName")
-    WorkTimeEmployeeReference toResponse(UserRef employee);
+    @Mapping(target = "fullName", source = "fullName")
+    UserRefDto toDto(UserRef employee);
 
-    WorkTimeProjectReference toResponse(ProjectRef project);
+    ProjectRefDto toDto(ProjectRef project);
 
     default String map(YearMonth month) {
         return month == null ? null : month.toString();

@@ -9,3 +9,27 @@ ApiError:
     message:
       type: string
       description: Human-readable error message when available.
+ProjectRef:
+  type: object
+  additionalProperties: false
+  required:
+    - id
+    - name
+  properties:
+    id:
+      type: string
+      format: uuid
+    name:
+      type: string
+UserRef:
+  type: object
+  additionalProperties: false
+  required:
+    - id
+    - fullName
+  properties:
+    id:
+      type: string
+      format: uuid
+    fullName:
+      type: string

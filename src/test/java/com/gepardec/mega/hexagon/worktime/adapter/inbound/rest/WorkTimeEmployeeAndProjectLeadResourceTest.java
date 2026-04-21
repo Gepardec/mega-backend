@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.worktime.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.ApiError;
-import com.gepardec.mega.hexagon.generated.model.WorkTimeReportResponse;
+import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
+import com.gepardec.mega.hexagon.generated.model.WorkTimeReportDto;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -73,13 +73,13 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
         );
         when(getEmployeeWorkTimeUseCase.getWorkTime(EMPLOYEE_ID, MONTH)).thenReturn(report);
 
-        WorkTimeReportResponse response = given()
+        WorkTimeReportDto response = given()
                 .accept(ContentType.JSON)
                 .get("/worktime/employee/" + MONTH)
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(WorkTimeReportResponse.class);
+                .as(WorkTimeReportDto.class);
 
         assertThat(response.getPayrollMonth()).isEqualTo(MONTH.toString());
         assertThat(response.getEntries()).singleElement().satisfies(entry -> {
@@ -106,13 +106,13 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
         );
         when(getProjectLeadWorkTimeUseCase.getWorkTime(PROJECT_LEAD_ID, MONTH)).thenReturn(report);
 
-        WorkTimeReportResponse response = given()
+        WorkTimeReportDto response = given()
                 .accept(ContentType.JSON)
                 .get("/worktime/projects/" + MONTH)
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(WorkTimeReportResponse.class);
+                .as(WorkTimeReportDto.class);
 
         assertThat(response.getPayrollMonth()).isEqualTo(MONTH.toString());
         assertThat(response.getEntries()).singleElement().satisfies(entry -> {
@@ -156,13 +156,13 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
         doThrow(new WorkTimeUserNotFoundException("user not found: " + EMPLOYEE_ID.value()))
                 .when(getEmployeeWorkTimeUseCase).getWorkTime(EMPLOYEE_ID, MONTH);
 
-        ApiError response = given()
+        ApiErrorDto response = given()
                 .accept(ContentType.JSON)
                 .get("/worktime/employee/" + MONTH)
                 .then()
                 .statusCode(404)
                 .extract()
-                .as(ApiError.class);
+                .as(ApiErrorDto.class);
 
         assertThat(response.getMessage()).isEqualTo("user not found: " + EMPLOYEE_ID.value());
     }

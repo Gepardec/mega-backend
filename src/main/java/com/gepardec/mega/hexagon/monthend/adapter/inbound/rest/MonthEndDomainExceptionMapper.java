@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.ApiError;
+import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
@@ -27,7 +27,7 @@ public class MonthEndDomainExceptionMapper implements ExceptionMapper<MonthEndEx
         }
 
         return Response.status(status)
-                .entity(new ApiError().message(exception.getMessage()))
+                .entity(new ApiErrorDto().message(exception.getMessage()))
                 .build();
     }
 }

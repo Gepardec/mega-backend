@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.WorkTimeReportResponse;
+import com.gepardec.mega.hexagon.generated.model.WorkTimeReportDto;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
@@ -24,7 +24,7 @@ class WorkTimeRestMapperTest {
     private final WorkTimeRestMapper mapper = Mappers.getMapper(WorkTimeRestMapper.class);
 
     @Test
-    void toResponse_shouldMapReportAndNestedReferences() {
+    void toDto_shouldMapReportAndNestedReferences() {
         UserId employeeId = UserId.of(Instancio.create(UUID.class));
         ProjectId projectId = ProjectId.of(Instancio.create(UUID.class));
         WorkTimeReport report = new WorkTimeReport(
@@ -38,12 +38,12 @@ class WorkTimeRestMapperTest {
                 ))
         );
 
-        WorkTimeReportResponse response = mapper.toResponse(report);
+        WorkTimeReportDto response = mapper.toDto(report);
 
         assertThat(response.getPayrollMonth()).isEqualTo("2026-03");
         assertThat(response.getEntries()).singleElement().satisfies(entry -> {
             assertThat(entry.getEmployee().getId()).isEqualTo(employeeId.value());
-            assertThat(entry.getEmployee().getName()).isEqualTo("Ada Lovelace");
+            assertThat(entry.getEmployee().getFullName()).isEqualTo("Ada Lovelace");
             assertThat(entry.getProject().getId()).isEqualTo(projectId.value());
             assertThat(entry.getProject().getName()).isEqualTo("Spec First");
             assertThat(entry.getBillableHours()).isEqualTo(12.5d);

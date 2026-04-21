@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.ApiError;
+import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeException;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,7 +19,7 @@ public class WorkTimeDomainExceptionMapper implements ExceptionMapper<WorkTimeEx
                 : Response.Status.BAD_REQUEST;
 
         return Response.status(status)
-                .entity(new ApiError().message(exception.getMessage()))
+                .entity(new ApiErrorDto().message(exception.getMessage()))
                 .build();
     }
 }

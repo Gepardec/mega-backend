@@ -14,7 +14,7 @@
         content:
           application/json:
             schema:
-              $ref: '../schemas/worktime.yaml#/WorkTimeReportResponse'
+              $ref: '../schemas/worktime.yaml#/WorkTimeReport'
       '400':
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
@@ -37,7 +37,7 @@
         content:
           application/json:
             schema:
-              $ref: '../schemas/worktime.yaml#/WorkTimeReportResponse'
+              $ref: '../schemas/worktime.yaml#/WorkTimeReport'
       '400':
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
