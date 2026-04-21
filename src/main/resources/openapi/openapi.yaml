@@ -11,6 +11,10 @@ tags:
   - name: WorkTimeProjectLead
     description: Project-lead-scoped work time endpoints
 paths:
+  /monthend/payroll-month/employee:
+    $ref: './paths/monthend.yaml#/~1monthend~1payroll-month~1employee'
+  /monthend/payroll-month/project-lead:
+    $ref: './paths/monthend.yaml#/~1monthend~1payroll-month~1project-lead'
   /monthend/{month}/status-overview/employee:
     $ref: './paths/monthend.yaml#/~1monthend~1{month}~1status-overview~1employee'
   /monthend/{month}/status-overview/project-lead:

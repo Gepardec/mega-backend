@@ -42,79 +42,46 @@ class MonthEndTaskRepositoryAdapterTest {
     ProjectRepositoryAdapter projectRepositoryAdapter;
 
     @Test
-    void findOpenEmployeeTasks_shouldReturnOnlyOpenIndividualActorTasks() {
+    void findOpenSubjectTasks_shouldReturnAllOpenTasksWhereActorIsSubjectAndExcludeCompletedOnes() {
         YearMonth month = YearMonth.of(2026, 3);
         User employee = user("employee", Set.of(Role.EMPLOYEE));
         User lead = user("lead", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
-        userRepositoryAdapter.saveAll(List.of(employee, lead));
+        User otherEmployee = user("other-employee", Set.of(Role.EMPLOYEE));
+        userRepositoryAdapter.saveAll(List.of(employee, lead, otherEmployee));
 
         Project project = project(42, true);
         projectRepositoryAdapter.saveAll(List.of(project));
 
-        MonthEndTask openEmployeeTask = MonthEndTask.create(
-                MonthEndTaskId.generate(),
-                month,
+        MonthEndTask openEtcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                project.id(),
-                employee.id(),
-                Set.of(employee.id())
+                project.id(), employee.id(), Set.of(employee.id())
         );
-        MonthEndTask doneEmployeeTask = MonthEndTask.create(
-                MonthEndTaskId.generate(),
-                month,
+        MonthEndTask doneEtcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
                 MonthEndTaskType.LEISTUNGSNACHWEIS,
-                project.id(),
-                employee.id(),
-                Set.of(employee.id())
+                project.id(), employee.id(), Set.of(employee.id())
         ).complete(employee.id());
-        MonthEndTask openLeadTask = MonthEndTask.create(
-                MonthEndTaskId.generate(),
-                month,
+        MonthEndTask openReviewTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                project.id(),
-                employee.id(),
-                Set.of(lead.id())
+                project.id(), employee.id(), Set.of(lead.id())
         );
-        monthEndTaskRepositoryAdapter.saveAll(List.of(openEmployeeTask, doneEmployeeTask, openLeadTask));
-
-        List<MonthEndTask> tasks = monthEndTaskRepositoryAdapter.findOpenEmployeeTasks(employee.id(), month);
-
-        assertThat(tasks).containsExactly(openEmployeeTask);
-    }
-
-    @Test
-    void findOpenProjectLeadTasks_shouldHideCompletedSharedTaskForAllEligibleLeads() {
-        YearMonth month = YearMonth.of(2026, 3);
-        User employee = user("subject", Set.of(Role.EMPLOYEE));
-        User leadA = user("leadA", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
-        User leadB = user("leadB", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
-        userRepositoryAdapter.saveAll(List.of(employee, leadA, leadB));
-
-        Project project = project(99, true);
-        projectRepositoryAdapter.saveAll(List.of(project));
-
-        MonthEndTask sharedTask = MonthEndTask.create(
-                MonthEndTaskId.generate(),
-                month,
+        MonthEndTask doneReviewTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                project.id(),
-                employee.id(),
-                Set.of(leadA.id(), leadB.id())
+                project.id(), employee.id(), Set.of(lead.id())
+        ).complete(lead.id());
+        MonthEndTask otherEmployeeTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(), otherEmployee.id(), Set.of(otherEmployee.id())
         );
-        monthEndTaskRepositoryAdapter.save(sharedTask);
+        monthEndTaskRepositoryAdapter.saveAll(List.of(openEtcTask, doneEtcTask, openReviewTask, doneReviewTask, otherEmployeeTask));
 
-        assertThat(monthEndTaskRepositoryAdapter.findOpenProjectLeadTasks(leadA.id(), month))
-                .containsExactly(sharedTask);
-        assertThat(monthEndTaskRepositoryAdapter.findOpenProjectLeadTasks(leadB.id(), month))
-                .containsExactly(sharedTask);
+        List<MonthEndTask> tasks = monthEndTaskRepositoryAdapter.findOpenSubjectTasks(employee.id(), month);
 
-        MonthEndTask completedTask = sharedTask.complete(leadA.id());
-        monthEndTaskRepositoryAdapter.save(completedTask);
-
-        assertThat(monthEndTaskRepositoryAdapter.findOpenProjectLeadTasks(leadA.id(), month)).isEmpty();
-        assertThat(monthEndTaskRepositoryAdapter.findOpenProjectLeadTasks(leadB.id(), month)).isEmpty();
-        assertThat(monthEndTaskRepositoryAdapter.findById(sharedTask.id()))
-                .contains(completedTask);
+        assertThat(tasks).containsExactlyInAnyOrder(openEtcTask, openReviewTask);
     }
 
     @Test
