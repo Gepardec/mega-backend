@@ -4,7 +4,6 @@ import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorize
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
-import com.gepardec.mega.hexagon.shared.domain.model.SourceSystem;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
 import java.time.Instant;
@@ -169,7 +168,7 @@ public record MonthEndClarification(
 
     public boolean canEditText(UserId actorId) {
         Objects.requireNonNull(actorId, "actorId must not be null");
-        return isOpen() && actorId.equals(createdBy);
+        return sourceSystem != SourceSystem.ZEP && isOpen() && actorId.equals(createdBy);
     }
 
     public boolean canBeResolvedBy(UserId actorId) {

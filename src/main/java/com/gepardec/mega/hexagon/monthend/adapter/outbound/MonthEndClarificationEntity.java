@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
-import com.gepardec.mega.hexagon.shared.domain.model.SourceSystem;
+import com.gepardec.mega.hexagon.monthend.domain.model.SourceSystem;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;

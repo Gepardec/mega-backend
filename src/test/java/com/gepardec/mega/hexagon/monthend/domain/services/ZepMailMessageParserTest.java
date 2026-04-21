@@ -13,12 +13,13 @@ class ZepMailMessageParserTest {
 
     private static final String SUBJECT = "Projektzeit Fr, 03.11.2023 von 11:15 bis 12:00 (0,75 Stunden)";
     private static final String HTML_BODY = "<table><tbody>" +
-            "<tr><td>Ersteller-ID</td><td><div><span>001-mmustermann</span></div></td></tr>" +
-            "<tr><td>Mitarbeiter</td><td><div><span>Mustermann, Max</span></div></td></tr>" +
-            "<tr><td>Projekt</td><td><div><span>Gepardec SE-Gilde (Ein cooles Projekt)</span></div></td></tr>" +
-            "<tr><td>Vorgang</td><td><div><span>Learning Friday</span></div></td></tr>" +
-            "<tr><td>Bemerkungen</td><td><div><span>MEGA</span></div></td></tr>" +
-            "<tr><td>Anmerkung</td><td><div><span>Projekt passt nicht, bitte anpassen!</span></div></td></tr>" +
+            "<tr><td>Ersteller-ID</td><td><div>001-mmustermann</div></td></tr>" +
+            "<tr><td>Mitarbeiter</td><td><div>Mustermann, Max</div></td></tr>" +
+            "<tr><td>Projekt</td><td><div>Gepardec SE-Gilde (Ein cooles Projekt)</div></td></tr>" +
+            "<tr><td>Vorgang</td><td><div>Learning Friday</div></td></tr>" +
+            "<tr><td>Tätigkeit</td><td><div>bearbeiten</div></td></tr>" +
+            "<tr><td>Bemerkung</td><td><div>MEGA</div></td></tr>" +
+            "<tr><td><b>Anmerkung</b></td><td><b>Projekt passt nicht, bitte anpassen!</b></td></tr>" +
             "</tbody></table>";
 
     private final ZepMailMessageParser parser = new ZepMailMessageParser();
