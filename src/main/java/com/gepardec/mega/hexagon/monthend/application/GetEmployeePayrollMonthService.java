@@ -25,7 +25,7 @@ public class GetEmployeePayrollMonthService implements GetEmployeePayrollMonthUs
         YearMonth currentMonth = YearMonth.now();
         YearMonth previousMonth = currentMonth.minusMonths(1);
 
-        if (monthEndTaskRepository.findOpenEmployeeTasks(actorId, previousMonth).isEmpty()) {
+        if (monthEndTaskRepository.findOpenSubjectTasks(actorId, previousMonth).isEmpty()) {
             return currentMonth;
         }
 

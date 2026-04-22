@@ -10,7 +10,7 @@
       '200':
         description: Employee payroll month
         content:
-          text/plain:
+          application/json:
             schema:
               $ref: '../schemas/shared.yaml#/MonthValue'
       '403':
@@ -29,7 +29,7 @@
       '200':
         description: Project-lead payroll month
         content:
-          text/plain:
+          application/json:
             schema:
               $ref: '../schemas/shared.yaml#/MonthValue'
       '403':

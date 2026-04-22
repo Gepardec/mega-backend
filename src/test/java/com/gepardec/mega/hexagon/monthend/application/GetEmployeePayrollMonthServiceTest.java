@@ -50,23 +50,23 @@ class GetEmployeePayrollMonthServiceTest {
                 actorId,
                 Set.of(actorId)
         );
-        when(monthEndTaskRepository.findOpenEmployeeTasks(actorId, previousMonth)).thenReturn(List.of(openTask));
+        when(monthEndTaskRepository.findOpenSubjectTasks(actorId, previousMonth)).thenReturn(List.of(openTask));
 
         YearMonth payrollMonth = service.getPayrollMonth(actorId);
 
         assertThat(payrollMonth).isEqualTo(previousMonth);
-        verify(monthEndTaskRepository).findOpenEmployeeTasks(actorId, previousMonth);
+        verify(monthEndTaskRepository).findOpenSubjectTasks(actorId, previousMonth);
     }
 
     @Test
     void getPayrollMonth_shouldReturnCurrentMonth_whenNoOpenTasksExistForPreviousMonth() {
         YearMonth currentMonth = YearMonth.now();
         YearMonth previousMonth = currentMonth.minusMonths(1);
-        when(monthEndTaskRepository.findOpenEmployeeTasks(actorId, previousMonth)).thenReturn(List.of());
+        when(monthEndTaskRepository.findOpenSubjectTasks(actorId, previousMonth)).thenReturn(List.of());
 
         YearMonth payrollMonth = service.getPayrollMonth(actorId);
 
         assertThat(payrollMonth).isEqualTo(currentMonth);
-        verify(monthEndTaskRepository).findOpenEmployeeTasks(actorId, previousMonth);
+        verify(monthEndTaskRepository).findOpenSubjectTasks(actorId, previousMonth);
     }
 }

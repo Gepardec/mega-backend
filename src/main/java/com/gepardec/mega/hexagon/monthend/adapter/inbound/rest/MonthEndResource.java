@@ -113,7 +113,7 @@ public class MonthEndResource implements MonthEndApi {
         UserId actorId = authenticatedActorContext.userId();
         YearMonth payrollMonth = getEmployeePayrollMonthUseCase.getPayrollMonth(actorId);
 
-        return Response.ok(payrollMonth.toString()).build();
+        return Response.ok(payrollMonth).build();
     }
 
     @Override
@@ -121,7 +121,7 @@ public class MonthEndResource implements MonthEndApi {
     public Response getProjectLeadPayrollMonth() {
         YearMonth payrollMonth = getProjectLeadPayrollMonthUseCase.getPayrollMonth();
 
-        return Response.ok(payrollMonth.toString()).build();
+        return Response.ok(payrollMonth).build();
     }
 
     @Override

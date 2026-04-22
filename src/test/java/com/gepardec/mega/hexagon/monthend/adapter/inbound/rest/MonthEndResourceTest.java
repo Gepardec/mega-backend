@@ -133,14 +133,14 @@ class MonthEndResourceTest {
         allowRoles(Role.EMPLOYEE);
         when(getEmployeePayrollMonthUseCase.getPayrollMonth(EMPLOYEE_ID)).thenReturn(PREVIOUS_PAYROLL_MONTH);
 
-        String response = given()
+        YearMonth response = given()
                 .get("/monthend/payroll-month/employee")
                 .then()
                 .statusCode(200)
                 .extract()
-                .asString();
+                .as(YearMonth.class);
 
-        assertThat(response).isEqualTo(PREVIOUS_PAYROLL_MONTH.toString());
+        assertThat(response).isEqualTo(PREVIOUS_PAYROLL_MONTH);
         verify(getEmployeePayrollMonthUseCase).getPayrollMonth(EMPLOYEE_ID);
         verifyNoInteractions(getProjectLeadPayrollMonthUseCase);
     }
@@ -150,14 +150,14 @@ class MonthEndResourceTest {
         allowRoles(Role.EMPLOYEE);
         when(getEmployeePayrollMonthUseCase.getPayrollMonth(EMPLOYEE_ID)).thenReturn(CURRENT_PAYROLL_MONTH);
 
-        String response = given()
+        YearMonth response = given()
                 .get("/monthend/payroll-month/employee")
                 .then()
                 .statusCode(200)
                 .extract()
-                .asString();
+                .as(YearMonth.class);
 
-        assertThat(response).isEqualTo(CURRENT_PAYROLL_MONTH.toString());
+        assertThat(response).isEqualTo(CURRENT_PAYROLL_MONTH);
         verify(getEmployeePayrollMonthUseCase).getPayrollMonth(EMPLOYEE_ID);
         verifyNoInteractions(getProjectLeadPayrollMonthUseCase);
     }
@@ -168,14 +168,14 @@ class MonthEndResourceTest {
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         when(getProjectLeadPayrollMonthUseCase.getPayrollMonth()).thenReturn(PREVIOUS_PAYROLL_MONTH);
 
-        String response = given()
+        YearMonth response = given()
                 .get("/monthend/payroll-month/project-lead")
                 .then()
                 .statusCode(200)
                 .extract()
-                .asString();
+                .as(YearMonth.class);
 
-        assertThat(response).isEqualTo(PREVIOUS_PAYROLL_MONTH.toString());
+        assertThat(response).isEqualTo(PREVIOUS_PAYROLL_MONTH);
         verify(getProjectLeadPayrollMonthUseCase).getPayrollMonth();
         verifyNoInteractions(getEmployeePayrollMonthUseCase);
     }
