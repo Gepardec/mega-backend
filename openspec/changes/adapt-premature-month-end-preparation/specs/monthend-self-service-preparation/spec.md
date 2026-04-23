@@ -52,8 +52,8 @@ The system SHALL require the subject employee to provide a non-blank clarificati
 
 ### Requirement: Employee can explicitly prepare their own project month-end obligations
 **Reason**: Replaced by the updated requirement "Employee can explicitly prepare their own month-end obligations across all assigned projects". The old requirement assumed a single project context per call and made `projectId` a required input. The new requirement discovers all assigned projects automatically.
-**Migration**: Callers of `POST /monthend/preparations` must remove `projectId` from the request body and provide `clarificationText` as a required field.
+**Migration**: Callers of `POST /monthend/generate-prematurely` must remove `projectId` from the request body and provide `clarificationText` as a required field.
 
 ### Requirement: Self-service preparation can optionally create a clarification in the same context
 **Reason**: Replaced by the updated requirement "Self-service preparation creates a mandatory clarification for each newly prepared project context". Clarification text is no longer optional and is now fanned out per project context.
-**Migration**: `clarificationText` transitions from nullable/optional to required in `PrepareMonthEndProjectRequest`.
+**Migration**: `clarificationText` transitions from nullable/optional to required in `GenerateMonthEndPrematurelyRequest`.

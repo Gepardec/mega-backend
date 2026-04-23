@@ -19,8 +19,8 @@ paths:
     $ref: './paths/monthend.yaml#/~1monthend~1{month}~1status-overview~1employee'
   /monthend/{month}/status-overview/project-lead:
     $ref: './paths/monthend.yaml#/~1monthend~1{month}~1status-overview~1project-lead'
-  /monthend/preparations:
-    $ref: './paths/monthend.yaml#/~1monthend~1preparations'
+  /monthend/generate-prematurely:
+    $ref: './paths/monthend.yaml#/~1monthend~1generate-prematurely'
   /monthend/clarifications:
     $ref: './paths/monthend.yaml#/~1monthend~1clarifications'
   /monthend/tasks/{taskId}/complete:

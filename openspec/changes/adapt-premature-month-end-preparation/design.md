@@ -55,7 +55,7 @@ The required behaviour is: one call prepares **all** projects the employee is as
 
 ### 5. 204 No Content response
 
-**Chosen:** `POST /monthend/preparations` returns 204 after successful preparation.
+**Chosen:** `POST /monthend/generate-prematurely` returns 204 after successful preparation.
 
 **Why:** The client has no demonstrated need to process the newly created tasks or clarifications immediately after submission — the status overview endpoints already provide that. Returning a body would require maintaining `MonthEndPreparationResult` and its REST mapping, which adds complexity for no client benefit.
 

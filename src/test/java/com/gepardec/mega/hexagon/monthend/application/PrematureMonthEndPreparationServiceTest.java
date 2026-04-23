@@ -1,15 +1,15 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskKey;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectAssignmentPort;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
-import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndEmployeeProjectContextService;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndTaskPlanningService;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -19,152 +19,148 @@ import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class PrematureMonthEndPreparationServiceTest {
 
     private final YearMonth month = YearMonth.of(2026, 3);
-    private final ProjectId projectId = ProjectId.of(Instancio.create(UUID.class));
     private final UserId employeeId = UserId.of(Instancio.create(UUID.class));
-    private final UserId leadId = UserId.of(Instancio.create(UUID.class));
-
-    private final Map<MonthEndTaskKey, MonthEndTask> storedTasks = new LinkedHashMap<>();
+    private final UserId leadAId = UserId.of(Instancio.create(UUID.class));
+    private final UserId leadBId = UserId.of(Instancio.create(UUID.class));
+    private final UserId inactiveLeadId = UserId.of(Instancio.create(UUID.class));
 
     private MonthEndTaskRepository monthEndTaskRepository;
     private MonthEndClarificationRepository monthEndClarificationRepository;
-    private MonthEndEmployeeProjectContextService contextResolver;
+    private MonthEndProjectSnapshotPort monthEndProjectSnapshotPort;
+    private MonthEndUserSnapshotPort monthEndUserSnapshotPort;
+    private MonthEndProjectAssignmentPort monthEndProjectAssignmentPort;
     private PrematureMonthEndPreparationService service;
 
     @BeforeEach
     void setUp() {
-        storedTasks.clear();
         monthEndTaskRepository = mock(MonthEndTaskRepository.class);
         monthEndClarificationRepository = mock(MonthEndClarificationRepository.class);
-        contextResolver = mock(MonthEndEmployeeProjectContextService.class);
+        monthEndProjectSnapshotPort = mock(MonthEndProjectSnapshotPort.class);
+        monthEndUserSnapshotPort = mock(MonthEndUserSnapshotPort.class);
+        monthEndProjectAssignmentPort = mock(MonthEndProjectAssignmentPort.class);
         Clock clock = Clock.fixed(Instant.parse("2026-03-30T12:00:00Z"), ZoneOffset.UTC);
         service = new PrematureMonthEndPreparationService(
                 monthEndTaskRepository,
                 new MonthEndTaskPlanningService(),
-                contextResolver,
+                monthEndProjectSnapshotPort,
+                monthEndUserSnapshotPort,
+                monthEndProjectAssignmentPort,
                 monthEndClarificationRepository,
                 clock
         );
-
-        when(monthEndTaskRepository.findByBusinessKey(any()))
-                .thenAnswer(invocation -> Optional.ofNullable(storedTasks.get(invocation.getArgument(0))));
-        doAnswer(invocation -> {
-            MonthEndTask task = invocation.getArgument(0);
-            storedTasks.put(task.businessKey(), task);
-            return null;
-        }).when(monthEndTaskRepository).save(any(MonthEndTask.class));
     }
 
     @Test
-    void prepare_shouldEnsureOnlyEmployeeTimeCheck_whenProjectIsNonBillable() {
-        when(contextResolver.resolve(month, projectId, employeeId)).thenReturn(context(false));
+    void prepare_shouldFanOutAcrossAssignedProjectsSkipExistingContextsAndCreateClarifications() {
+        UserRef employee = userRef(employeeId, "employee");
+        UserRef leadA = userRef(leadAId, "lead-a");
+        UserRef leadB = userRef(leadBId, "lead-b");
+        MonthEndProjectSnapshot billableProject = project(101, true, leadAId, inactiveLeadId);
+        MonthEndProjectSnapshot nonBillableProject = project(102, false, leadBId);
+        MonthEndProjectSnapshot alreadyPreparedProject = project(103, true, leadAId);
+        MonthEndProjectSnapshot unassignedProject = project(104, true, leadAId);
 
-        MonthEndPreparationResult result = service.prepare(month, projectId, employeeId, null);
+        when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(employee, leadA, leadB));
+        when(monthEndProjectSnapshotPort.findActiveIn(month))
+                .thenReturn(List.of(billableProject, nonBillableProject, alreadyPreparedProject, unassignedProject));
+        when(monthEndProjectAssignmentPort.findAssignedUsernames(101, month)).thenReturn(Set.of("employee"));
+        when(monthEndProjectAssignmentPort.findAssignedUsernames(102, month)).thenReturn(Set.of("employee"));
+        when(monthEndProjectAssignmentPort.findAssignedUsernames(103, month)).thenReturn(Set.of("employee"));
+        when(monthEndProjectAssignmentPort.findAssignedUsernames(104, month)).thenReturn(Set.of("someone-else"));
+        when(monthEndTaskRepository.existsForSubjectEmployee(month, billableProject.id(), employeeId)).thenReturn(false);
+        when(monthEndTaskRepository.existsForSubjectEmployee(month, nonBillableProject.id(), employeeId)).thenReturn(false);
+        when(monthEndTaskRepository.existsForSubjectEmployee(month, alreadyPreparedProject.id(), employeeId)).thenReturn(true);
 
-        assertThat(result.ensuredTasks())
+        service.prepare(month, employeeId, "Vacation.");
+
+        ArgumentCaptor<MonthEndTask> taskCaptor = ArgumentCaptor.forClass(MonthEndTask.class);
+        verify(monthEndTaskRepository, times(3)).save(taskCaptor.capture());
+        assertThat(taskCaptor.getAllValues())
+                .extracting(MonthEndTask::projectId, MonthEndTask::type, MonthEndTask::subjectEmployeeId)
+                .containsExactly(
+                        tuple(billableProject.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK, employeeId),
+                        tuple(billableProject.id(), MonthEndTaskType.LEISTUNGSNACHWEIS, employeeId),
+                        tuple(nonBillableProject.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK, employeeId)
+                );
+
+        ArgumentCaptor<MonthEndClarification> clarificationCaptor =
+                ArgumentCaptor.forClass(MonthEndClarification.class);
+        verify(monthEndClarificationRepository, times(2)).save(clarificationCaptor.capture());
+        assertThat(clarificationCaptor.getAllValues())
+                .extracting(MonthEndClarification::projectId, MonthEndClarification::text)
+                .containsExactly(
+                        tuple(billableProject.id(), "Vacation."),
+                        tuple(nonBillableProject.id(), "Vacation.")
+                );
+        assertThat(clarificationCaptor.getAllValues())
+                .filteredOn(clarification -> clarification.projectId().equals(billableProject.id()))
                 .singleElement()
-                .satisfies(task -> {
-                    assertThat(task.type()).isEqualTo(MonthEndTaskType.EMPLOYEE_TIME_CHECK);
-                    assertThat(task.projectId()).isEqualTo(projectId);
-                    assertThat(task.subjectEmployeeId()).isEqualTo(employeeId);
+                .satisfies(clarification -> {
+                    assertThat(clarification.subjectEmployeeId()).isEqualTo(employeeId);
+                    assertThat(clarification.createdBy()).isEqualTo(employeeId);
+                    assertThat(clarification.eligibleProjectLeadIds()).containsExactly(leadAId);
                 });
-        assertThat(result.hasClarification()).isFalse();
-        assertThat(storedTasks).hasSize(1);
-        verify(monthEndClarificationRepository, never()).save(any());
+        assertThat(clarificationCaptor.getAllValues())
+                .filteredOn(clarification -> clarification.projectId().equals(nonBillableProject.id()))
+                .singleElement()
+                .satisfies(clarification -> assertThat(clarification.eligibleProjectLeadIds()).containsExactly(leadBId));
+        verify(monthEndTaskRepository, never()).existsForSubjectEmployee(month, unassignedProject.id(), employeeId);
     }
 
     @Test
-    void prepare_shouldEnsureBillableEmployeeOwnedTasksAndCreateClarification_whenTextProvided() {
-        when(contextResolver.resolve(month, projectId, employeeId)).thenReturn(context(true));
+    void prepare_shouldThrow_whenActorIsNotActiveInMonth() {
+        when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(userRef(leadAId, "lead-a")));
 
-        MonthEndPreparationResult result = service.prepare(
-                month,
-                projectId,
-                employeeId,
-                "Please review before my absence."
+        assertThatThrownBy(() -> service.prepare(month, employeeId, "Vacation."))
+                .isInstanceOf(MonthEndEmployeeContextNotFoundException.class)
+                .hasMessageContaining(employeeId.value().toString());
+
+        verifyNoInteractions(
+                monthEndProjectSnapshotPort,
+                monthEndProjectAssignmentPort,
+                monthEndTaskRepository,
+                monthEndClarificationRepository
         );
-
-        assertThat(result.ensuredTasks())
-                .extracting(MonthEndTask::type)
-                .containsExactly(MonthEndTaskType.EMPLOYEE_TIME_CHECK, MonthEndTaskType.LEISTUNGSNACHWEIS);
-        assertThat(result.clarification())
-                .satisfies(c -> {
-                    assertThat(c.projectId()).isEqualTo(projectId);
-                    assertThat(c.subjectEmployeeId()).isEqualTo(employeeId);
-                    assertThat(c.createdBy()).isEqualTo(employeeId);
-                    assertThat(c.text()).isEqualTo("Please review before my absence.");
-                    assertThat(c.eligibleProjectLeadIds()).containsOnly(leadId);
-                });
-        assertThat(storedTasks).hasSize(2);
-        verify(monthEndClarificationRepository).save(result.clarification());
     }
 
-    @Test
-    void prepare_shouldBeIdempotent_whenRepeatedForSameProjectContext() {
-        when(contextResolver.resolve(month, projectId, employeeId)).thenReturn(context(true));
-
-        MonthEndPreparationResult first = service.prepare(month, projectId, employeeId, null);
-        MonthEndPreparationResult second = service.prepare(month, projectId, employeeId, null);
-
-        assertThat(storedTasks).hasSize(2);
-        assertThat(second.ensuredTasks())
-                .extracting(MonthEndTask::id)
-                .containsExactlyElementsOf(first.ensuredTasks().stream().map(MonthEndTask::id).toList());
-        verify(monthEndTaskRepository).save(first.ensuredTasks().get(0));
-        verify(monthEndTaskRepository).save(first.ensuredTasks().get(1));
+    private MonthEndProjectSnapshot project(int zepId, boolean billable, UserId... leadIds) {
+        return new MonthEndProjectSnapshot(
+                ProjectId.of(Instancio.create(UUID.class)),
+                zepId,
+                "Project-" + zepId,
+                billable,
+                Set.of(leadIds)
+        );
     }
 
-    @Test
-    void prepare_shouldReject_whenActorCannotPrepareProjectContext() {
-        when(contextResolver.resolve(month, projectId, employeeId))
-                .thenThrow(new MonthEndEmployeeNotAssignedToProjectException("employee is not assigned to project"));
-
-        assertThatThrownBy(() -> service.prepare(month, projectId, employeeId, null))
-                .isInstanceOf(MonthEndEmployeeNotAssignedToProjectException.class)
-                .hasMessageContaining("not assigned");
-
-        verify(monthEndTaskRepository, never()).save(any(MonthEndTask.class));
-        verify(monthEndClarificationRepository, never()).save(any());
-    }
-
-    private MonthEndEmployeeProjectContext context(boolean billable) {
-        return new MonthEndEmployeeProjectContext(
-                month,
-                new MonthEndProjectSnapshot(
-                        projectId,
-                        91,
-                        "Project-91",
-                        billable,
-                        Set.of(leadId)
-                ),
-                new UserRef(
-                        employeeId,
-                        FullName.of("Employee", "User"),
-                        ZepUsername.of("employee")
-                ),
-                Set.of(leadId)
+    private UserRef userRef(UserId id, String username) {
+        return new UserRef(
+                id,
+                FullName.of("Test", username),
+                ZepUsername.of(username)
         );
     }
 }

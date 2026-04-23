@@ -7,8 +7,8 @@ The `PrematureMonthEndPreparationUseCase` currently requires the employee to sup
 - **BREAKING** `PrematureMonthEndPreparationUseCase.prepare()` drops the `projectId` parameter and returns `void` instead of `MonthEndPreparationResult`
 - The use case now fans out across all projects the actor is assigned to in the given month, generating employee-owned tasks and one clarification per project context where no tasks exist yet
 - `clarificationText` becomes required (was optional/nullable)
-- `POST /monthend/preparations` response changes from `200 + body` to `204 No Content`
-- `projectId` is removed from the `PrepareMonthEndProjectRequest` OpenAPI schema
+- `POST /monthend/generate-prematurely` response changes from `200 + body` to `204 No Content`
+- `projectId` is removed from the `GenerateMonthEndPrematurelyRequest` OpenAPI schema
 - `MonthEndPreparationResult` domain record is deleted
 - `MonthEndTaskRepository.findByBusinessKey()` is deleted (no remaining callers)
 - New outbound port method `MonthEndTaskRepository.existsForSubjectEmployee(month, projectId, subjectEmployeeId)` guards against re-preparation of already-prepared project contexts
@@ -23,7 +23,7 @@ _(none — this change adapts existing behaviour only)_
 ### Modified Capabilities
 
 - `monthend-self-service-preparation`: requirement changes from single-project to all-assigned-projects, clarification text becomes required, idempotency rule now applies at project-context level
-- `monthend-rest-api`: `POST /monthend/preparations` request no longer includes `projectId`, response changes to 204 No Content
+- `monthend-rest-api`: `POST /monthend/generate-prematurely` request no longer includes `projectId`, response changes to 204 No Content
 
 ## Impact
 
@@ -31,6 +31,6 @@ _(none — this change adapts existing behaviour only)_
 - **Application service**: `PrematureMonthEndPreparationService` — full rewrite; drops dependency on `MonthEndEmployeeProjectContextService`, gains direct dependencies on `MonthEndProjectSnapshotPort`, `MonthEndUserSnapshotPort`, `MonthEndProjectAssignmentPort`
 - **Outbound port + adapter**: `MonthEndTaskRepository` — remove `findByBusinessKey`, add `existsForSubjectEmployee`
 - **Domain model**: `MonthEndPreparationResult` deleted
-- **REST adapter**: `MonthEndResource.prepareMonthEndProject()` — 204 response, no body; `MonthEndRestMapper` — remove `toDto(MonthEndPreparationResult, ...)` overload
-- **OpenAPI contract**: `PrepareMonthEndProjectRequest` schema updated; path response updated
+- **REST adapter**: `MonthEndResource.generateMonthEndPrematurely()` — 204 response, no body; `MonthEndRestMapper` — remove `toDto(MonthEndPreparationResult, ...)` overload
+- **OpenAPI contract**: `GenerateMonthEndPrematurelyRequest` schema updated; path response updated
 - **Tests**: `PrematureMonthEndPreparationServiceTest` rewritten; two `MonthEndIT` tests updated; `MonthEndResourceTest` preparation test updated

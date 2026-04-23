@@ -15,10 +15,10 @@ The system SHALL treat the authenticated caller as the acting monthend actor for
 - **THEN** the request requires a non-blank clarification text
 
 ### Requirement: Employee self-service preparation endpoint accepts month and clarification text only
-The system SHALL provide `POST /monthend/preparations` accepting a request body with `month` and `clarificationText` as required fields. The endpoint SHALL NOT accept a `projectId` field. The endpoint SHALL return `204 No Content` on success.
+The system SHALL provide `POST /monthend/generate-prematurely` accepting a request body with `month` and `clarificationText` as required fields. The endpoint SHALL NOT accept a `projectId` field. The endpoint SHALL return `204 No Content` on success.
 
 #### Scenario: Employee prepares month-end obligations with clarification
-- **WHEN** an authenticated employee submits `{ "month": "2026-03", "clarificationText": "I am leaving before the scheduled run." }` to `POST /monthend/preparations`
+- **WHEN** an authenticated employee submits `{ "month": "2026-03", "clarificationText": "I am leaving before the scheduled run." }` to `POST /monthend/generate-prematurely`
 - **THEN** the API prepares employee-owned tasks for all projects the employee is assigned to in that month
 - **THEN** the API returns `204 No Content`
 
@@ -30,4 +30,4 @@ The system SHALL provide `POST /monthend/preparations` accepting a request body 
 
 ### Requirement: Employee prepares a project context with optional clarification
 **Reason**: Replaced by "Employee self-service preparation endpoint accepts month and clarification text only". The old requirement described a `projectId`-scoped request returning `200` with a `MonthEndPreparationResultDto` body. The endpoint now operates across all assigned projects, requires clarification text, and returns `204 No Content`.
-**Migration**: Remove `projectId` from `PrepareMonthEndProjectRequest`. Add `clarificationText` as required. Update client response handling from `200 + body` to `204 No Content`.
+**Migration**: Remove `projectId` from `GenerateMonthEndPrematurelyRequest`. Add `clarificationText` as required. Update client response handling from `200 + body` to `204 No Content`.

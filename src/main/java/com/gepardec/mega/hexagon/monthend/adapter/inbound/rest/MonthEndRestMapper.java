@@ -3,14 +3,12 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 import com.gepardec.mega.hexagon.generated.model.ProjectRefDto;
 import com.gepardec.mega.hexagon.generated.model.UserRefDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntryDto;
-import com.gepardec.mega.hexagon.generated.model.MonthEndPreparationDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewEntryDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndTaskGenerationDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndTaskDto;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
@@ -83,12 +81,6 @@ public interface MonthEndRestMapper {
     MonthEndStatusOverviewDto toDto(
             MonthEndStatusOverview overview,
             @Context Map<ProjectId, ProjectRef> projectRefs,
-            @Context Map<UserId, UserRef> userRefs,
-            @Context UserId actorId
-    );
-
-    MonthEndPreparationDto toDto(
-            MonthEndPreparationResult result,
             @Context Map<UserId, UserRef> userRefs,
             @Context UserId actorId
     );
