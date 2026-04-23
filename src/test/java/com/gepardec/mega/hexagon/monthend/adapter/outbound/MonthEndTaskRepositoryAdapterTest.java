@@ -127,6 +127,48 @@ class MonthEndTaskRepositoryAdapterTest {
     }
 
     @Test
+    void existsForSubjectEmployee_shouldReturnTrueOnlyForMatchingMonthProjectAndSubject() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User employee = user("employee-exists", Set.of(Role.EMPLOYEE));
+        User otherEmployee = user("other-employee-exists", Set.of(Role.EMPLOYEE));
+        userRepositoryAdapter.saveAll(List.of(employee, otherEmployee));
+
+        Project project = project(133, true);
+        Project otherProject = project(134, true);
+        projectRepositoryAdapter.saveAll(List.of(project, otherProject));
+
+        MonthEndTask matchingTask = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(),
+                employee.id(),
+                Set.of(employee.id())
+        );
+        MonthEndTask otherProjectTask = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                otherProject.id(),
+                employee.id(),
+                Set.of(employee.id())
+        );
+        MonthEndTask otherSubjectTask = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(),
+                otherEmployee.id(),
+                Set.of(otherEmployee.id())
+        );
+        monthEndTaskRepositoryAdapter.saveAll(List.of(matchingTask, otherProjectTask, otherSubjectTask));
+
+        assertThat(monthEndTaskRepositoryAdapter.existsForSubjectEmployee(month, project.id(), employee.id())).isTrue();
+        assertThat(monthEndTaskRepositoryAdapter.existsForSubjectEmployee(month.plusMonths(1), project.id(), employee.id())).isFalse();
+        assertThat(monthEndTaskRepositoryAdapter.existsForSubjectEmployee(month, otherProject.id(), otherEmployee.id())).isFalse();
+    }
+
+    @Test
     void findLeadProjectTasks_shouldNotReturnTasksFromProjectsWhereLeadIsOnlyAnEmployee() {
         YearMonth month = YearMonth.of(2026, 3);
         User lead = user("lead-emp-only", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));

@@ -2,11 +2,10 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
 import com.gepardec.mega.hexagon.generated.model.CreateClarificationRequestDto;
+import com.gepardec.mega.hexagon.generated.model.GenerateMonthEndPrematurelyRequestDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntryDto;
-import com.gepardec.mega.hexagon.generated.model.MonthEndPreparationDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndTaskGenerationDto;
-import com.gepardec.mega.hexagon.generated.model.PrepareMonthEndProjectRequestDto;
 import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequestDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequestDto;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndClarificationUseCase;
@@ -25,7 +24,6 @@ import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotF
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndTaskNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -52,6 +50,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -340,38 +339,54 @@ class MonthEndResourceTest {
     }
 
     @Test
-    void prepareMonthEndProject_shouldReturnPreparedTasksAndClarification() {
+    void generateMonthEndPrematurely_shouldReturnNoContent() {
         allowRoles(Role.EMPLOYEE);
-        PrepareMonthEndProjectRequestDto request = new PrepareMonthEndProjectRequestDto()
+        GenerateMonthEndPrematurelyRequestDto request = new GenerateMonthEndPrematurelyRequestDto()
                 .month(MONTH.toString())
-                .projectId(PROJECT_ID.value())
                 .clarificationText("Leaving early.");
-        MonthEndPreparationResult result = new MonthEndPreparationResult(
-                List.of(
-                        employeeTask(MonthEndTaskType.EMPLOYEE_TIME_CHECK),
-                        employeeTask(MonthEndTaskType.LEISTUNGSNACHWEIS)
-                ),
-                employeeClarification("Leaving early.")
-        );
-        when(prematureMonthEndPreparationUseCase.prepare(MONTH, PROJECT_ID, EMPLOYEE_ID, "Leaving early."))
-                .thenReturn(result);
 
-        MonthEndPreparationDto response = given()
+        given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
-                .post("/monthend/preparations")
+                .post("/monthend/generate-prematurely")
                 .then()
-                .statusCode(200)
-                .extract()
-                .as(MonthEndPreparationDto.class);
+                .statusCode(204);
 
-        assertThat(response.getEnsuredTasks()).hasSize(2);
-        assertThat(response.getClarification()).isNotNull();
-        assertThat(response.getClarification().getText()).isEqualTo("Leaving early.");
-        assertThat(response.getClarification().getCanEditText()).isTrue();
-        assertThat(response.getClarification().getCanDelete()).isTrue();
-        verify(prematureMonthEndPreparationUseCase).prepare(MONTH, PROJECT_ID, EMPLOYEE_ID, "Leaving early.");
+        verify(prematureMonthEndPreparationUseCase).prepare(MONTH, EMPLOYEE_ID, "Leaving early.");
+    }
+
+    @Test
+    void generateMonthEndPrematurely_shouldRejectMissingClarificationText() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(Map.of("month", MONTH.toString()))
+                .post("/monthend/generate-prematurely")
+                .then()
+                .statusCode(400);
+
+        verifyNoInteractions(prematureMonthEndPreparationUseCase);
+    }
+
+    @Test
+    void generateMonthEndPrematurely_shouldRejectBlankClarificationText() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(Map.of(
+                        "month", MONTH.toString(),
+                        "clarificationText", " "
+                ))
+                .post("/monthend/generate-prematurely")
+                .then()
+                .statusCode(400);
+
+        verifyNoInteractions(prematureMonthEndPreparationUseCase);
     }
 
     @Test
@@ -678,17 +693,6 @@ class MonthEndResourceTest {
 
     private void allowRoles(Role... roles) {
         when(authenticatedActorContext.roles()).thenReturn(Set.of(roles));
-    }
-
-    private MonthEndTask employeeTask(MonthEndTaskType type) {
-        return MonthEndTask.create(
-                MonthEndTaskId.of(Instancio.create(UUID.class)),
-                MONTH,
-                type,
-                PROJECT_ID,
-                EMPLOYEE_ID,
-                Set.of(EMPLOYEE_ID)
-        );
     }
 
     private MonthEndClarification employeeClarification(String text) {

@@ -92,12 +92,12 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
-'/monthend/preparations':
+'/monthend/generate-prematurely':
   post:
     tags:
       - MonthEnd
-    operationId: prepareMonthEndProject
-    summary: Prepare the authenticated actor's month-end project context
+    operationId: generateMonthEndPrematurely
+    summary: Generate the authenticated actor's month-end project contexts prematurely
     security:
       - bearerAuth: [ ]
     requestBody:
@@ -105,14 +105,10 @@
       content:
         application/json:
           schema:
-            $ref: '../schemas/monthend.yaml#/PrepareMonthEndProjectRequest'
+            $ref: '../schemas/monthend.yaml#/GenerateMonthEndPrematurelyRequest'
     responses:
-      '200':
-        description: Prepared month-end project context
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/monthend.yaml#/MonthEndPreparation'
+      '204':
+        description: Prepared month-end project contexts
       '400':
         $ref: '../responses/common.yaml#/BadRequest'
       '403':

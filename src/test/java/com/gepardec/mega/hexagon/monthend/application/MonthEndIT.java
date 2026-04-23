@@ -10,7 +10,6 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLea
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
@@ -220,16 +219,16 @@ class MonthEndIT {
         Project project = project(714, Set.of(lead.id()));
         persistFixture(List.of(employee, lead), project, Set.of(employee.zepUsername().value()));
 
-        MonthEndPreparationResult preparation = prematureMonthEndPreparationUseCase.prepare(
+        prematureMonthEndPreparationUseCase.prepare(
                 MONTH,
-                project.id(),
                 employee.id(),
-                null
+                "I am leaving before the scheduled run."
         );
 
-        assertThat(preparation.ensuredTasks())
+        List<MonthEndTask> preparedTasks = monthEndTaskRepositoryAdapter.findByMonth(MONTH);
+        assertThat(preparedTasks)
                 .extracting(MonthEndTask::type)
-                .containsExactly(MonthEndTaskType.EMPLOYEE_TIME_CHECK, MonthEndTaskType.LEISTUNGSNACHWEIS);
+                .containsExactlyInAnyOrder(MonthEndTaskType.EMPLOYEE_TIME_CHECK, MonthEndTaskType.LEISTUNGSNACHWEIS);
 
         MonthEndTaskGenerationResult generationResult = generateMonthEndTasksUseCase.generate(MONTH);
         List<MonthEndTask> allTasks = monthEndTaskRepositoryAdapter.findByMonth(MONTH);
@@ -250,7 +249,7 @@ class MonthEndIT {
                 .map(MonthEndTask::id)
                 .toList())
                 .containsExactlyInAnyOrderElementsOf(
-                        preparation.ensuredTasks().stream().map(MonthEndTask::id).toList()
+                        preparedTasks.stream().map(MonthEndTask::id).toList()
                 );
     }
 
@@ -359,12 +358,19 @@ class MonthEndIT {
         User employee = user("employee-prepared", Set.of(Role.EMPLOYEE));
         User leadA = user("lead-prepared-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
         User leadB = user("lead-prepared-b", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
-        Project project = project(715, Set.of(leadA.id(), leadB.id()));
-        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.zepUsername().value()));
+        Project projectA = project(715, Set.of(leadA.id(), leadB.id()));
+        Project projectB = project(716, Set.of(leadA.id()));
+        persistFixture(
+                List.of(employee, leadA, leadB),
+                List.of(projectA, projectB),
+                Map.of(
+                        projectA.zepId(), Set.of(employee.zepUsername().value()),
+                        projectB.zepId(), Set.of(employee.zepUsername().value())
+                )
+        );
 
-        MonthEndPreparationResult preparation = prematureMonthEndPreparationUseCase.prepare(
+        prematureMonthEndPreparationUseCase.prepare(
                 MONTH,
-                project.id(),
                 employee.id(),
                 "I am leaving before the scheduled run."
         );
@@ -373,7 +379,6 @@ class MonthEndIT {
         MonthEndStatusOverview leadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
         MonthEndStatusOverview leadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
 
-        assertThat(preparation.hasClarification()).isTrue();
         List<MonthEndTask> employeeEligibleOpen = employeeOverview.tasks().stream()
                 .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(employee.id()))
                 .toList();
@@ -381,23 +386,28 @@ class MonthEndIT {
                 .extracting(MonthEndTask::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        MonthEndTaskType.LEISTUNGSNACHWEIS,
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                         MonthEndTaskType.LEISTUNGSNACHWEIS
                 );
-        assertThat(employeeOverview.clarifications()).singleElement()
-                .satisfies(c -> {
-                    assertThat(c.id()).isEqualTo(preparation.clarification().id());
-                    assertThat(c.text()).isEqualTo("I am leaving before the scheduled run.");
-                });
+        assertThat(employeeOverview.clarifications())
+                .extracting(MonthEndClarification::projectId, MonthEndClarification::text)
+                .containsExactlyInAnyOrder(
+                        tuple(projectA.id(), "I am leaving before the scheduled run."),
+                        tuple(projectB.id(), "I am leaving before the scheduled run.")
+                );
         assertThat(leadAOverview.tasks().stream()
                 .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(leadA.id()))
                 .toList()).isEmpty();
-        assertThat(leadAOverview.clarifications()).singleElement()
-                .satisfies(c -> assertThat(c.id()).isEqualTo(preparation.clarification().id()));
+        assertThat(leadAOverview.clarifications())
+                .extracting(MonthEndClarification::projectId)
+                .containsExactlyInAnyOrder(projectA.id(), projectB.id());
         assertThat(leadBOverview.tasks().stream()
                 .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(leadB.id()))
                 .toList()).isEmpty();
-        assertThat(leadBOverview.clarifications()).singleElement()
-                .satisfies(c -> assertThat(c.id()).isEqualTo(preparation.clarification().id()));
+        assertThat(leadBOverview.clarifications())
+                .singleElement()
+                .satisfies(c -> assertThat(c.projectId()).isEqualTo(projectA.id()));
 
         MonthEndTask preparedEmployeeTimeCheck = employeeEligibleOpen.stream()
                 .filter(item -> item.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
@@ -410,10 +420,15 @@ class MonthEndIT {
                 .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(employee.id()))
                 .toList();
         assertThat(updatedEligibleOpen)
-                .singleElement()
-                .satisfies(item -> assertThat(item.type()).isEqualTo(MonthEndTaskType.LEISTUNGSNACHWEIS));
-        assertThat(updatedEmployeeOverview.clarifications()).singleElement()
-                .satisfies(c -> assertThat(c.id()).isEqualTo(preparation.clarification().id()));
+                .extracting(MonthEndTask::type)
+                .containsExactlyInAnyOrder(
+                        MonthEndTaskType.LEISTUNGSNACHWEIS,
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        MonthEndTaskType.LEISTUNGSNACHWEIS
+                );
+        assertThat(updatedEmployeeOverview.clarifications())
+                .extracting(MonthEndClarification::projectId)
+                .containsExactlyInAnyOrder(projectA.id(), projectB.id());
     }
 
     @Test
