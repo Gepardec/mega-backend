@@ -1,17 +1,20 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectAssignmentPort;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
-import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndEmployeeProjectContextService;
+import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndTaskPlanningService;
-import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -19,8 +22,13 @@ import jakarta.transaction.Transactional;
 
 import java.time.Clock;
 import java.time.YearMonth;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 @Transactional
@@ -28,7 +36,9 @@ public class PrematureMonthEndPreparationService implements PrematureMonthEndPre
 
     private final MonthEndTaskRepository monthEndTaskRepository;
     private final MonthEndTaskPlanningService monthEndTaskPlanningService;
-    private final MonthEndEmployeeProjectContextService contextService;
+    private final MonthEndProjectSnapshotPort monthEndProjectSnapshotPort;
+    private final MonthEndUserSnapshotPort monthEndUserSnapshotPort;
+    private final MonthEndProjectAssignmentPort monthEndProjectAssignmentPort;
     private final MonthEndClarificationRepository monthEndClarificationRepository;
     private final Clock clock;
 
@@ -36,69 +46,92 @@ public class PrematureMonthEndPreparationService implements PrematureMonthEndPre
     public PrematureMonthEndPreparationService(
             MonthEndTaskRepository monthEndTaskRepository,
             MonthEndTaskPlanningService monthEndTaskPlanningService,
-            MonthEndEmployeeProjectContextService contextService,
+            MonthEndProjectSnapshotPort monthEndProjectSnapshotPort,
+            MonthEndUserSnapshotPort monthEndUserSnapshotPort,
+            MonthEndProjectAssignmentPort monthEndProjectAssignmentPort,
             MonthEndClarificationRepository monthEndClarificationRepository,
             Clock clock
     ) {
         this.monthEndTaskRepository = monthEndTaskRepository;
         this.monthEndTaskPlanningService = monthEndTaskPlanningService;
-        this.contextService = contextService;
+        this.monthEndProjectSnapshotPort = monthEndProjectSnapshotPort;
+        this.monthEndUserSnapshotPort = monthEndUserSnapshotPort;
+        this.monthEndProjectAssignmentPort = monthEndProjectAssignmentPort;
         this.monthEndClarificationRepository = monthEndClarificationRepository;
         this.clock = clock;
     }
 
     @Override
-    public MonthEndPreparationResult prepare(
+    public void prepare(
             YearMonth month,
-            ProjectId projectId,
             UserId actorId,
             String clarificationText
     ) {
         Objects.requireNonNull(month, "month must not be null");
-        Objects.requireNonNull(projectId, "projectId must not be null");
         Objects.requireNonNull(actorId, "actorId must not be null");
+        String requiredClarificationText = requireNonBlank(clarificationText);
 
-        MonthEndEmployeeProjectContext context = contextService.resolve(month, projectId, actorId);
+        Map<UserId, UserRef> activeUsersById = monthEndUserSnapshotPort.findActiveIn(month).stream()
+                .collect(Collectors.toMap(
+                        UserRef::id,
+                        Function.identity()
+                ));
 
-        List<MonthEndTask> ensuredTasks = monthEndTaskPlanningService.planEmployeeOwnedTasks(
-                        month,
-                        context.project(),
-                        context.subjectEmployee()
-                ).stream()
-                .map(this::ensureTask)
+        UserRef actor = activeUsersById.get(actorId);
+        if (actor == null) {
+            throw new MonthEndEmployeeContextNotFoundException(
+                    "month-end employee context not found for employee %s in %s".formatted(actorId.value(), month)
+            );
+        }
+
+        List<MonthEndProjectSnapshot> relevantProjects = monthEndProjectSnapshotPort.findActiveIn(month).stream()
+                .filter(project -> isAssignedTo(project, month, actor))
+                .filter(project -> !monthEndTaskRepository.existsForSubjectEmployee(month, project.id(), actorId))
                 .toList();
 
-        MonthEndClarification clarification = null;
-        if (clarificationText != null && !clarificationText.isBlank()) {
-            clarification = MonthEndClarification.create(
+        int totalTasks = 0;
+        int projectsNewlyPrepared = 0;
+
+        for (MonthEndProjectSnapshot project : relevantProjects) {
+            List<MonthEndTask> tasks = monthEndTaskPlanningService.planEmployeeOwnedTasks(month, project, actor);
+            tasks.forEach(monthEndTaskRepository::save);
+
+            Set<UserId> eligibleLeadIds = project.leadIds().stream()
+                    .filter(activeUsersById::containsKey)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            monthEndClarificationRepository.save(MonthEndClarification.create(
                     MonthEndClarificationId.generate(),
                     month,
-                    projectId,
-                    context.subjectEmployee().id(),
+                    project.id(),
                     actorId,
-                    context.eligibleProjectLeadIds(),
-                    clarificationText,
+                    actorId,
+                    eligibleLeadIds,
+                    requiredClarificationText,
                     clock.instant()
-            );
-            monthEndClarificationRepository.save(clarification);
+            ));
+
+            totalTasks += tasks.size();
+            projectsNewlyPrepared++;
         }
 
         Log.infof(
-                "Prepared month-end obligations for actor %s, project %s, month %s: ensured=%d clarificationCreated=%s",
+                "Employee %s prematurely prepared %d tasks across %d projects for month %s",
                 actorId.value(),
-                projectId.value(),
-                month,
-                ensuredTasks.size(),
-                clarification != null
+                totalTasks,
+                projectsNewlyPrepared,
+                month
         );
-        return new MonthEndPreparationResult(ensuredTasks, clarification);
     }
 
-    private MonthEndTask ensureTask(MonthEndTask candidate) {
-        return monthEndTaskRepository.findByBusinessKey(candidate.businessKey())
-                .orElseGet(() -> {
-                    monthEndTaskRepository.save(candidate);
-                    return candidate;
-                });
+    private boolean isAssignedTo(MonthEndProjectSnapshot project, YearMonth month, UserRef actor) {
+        return monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month)
+                .contains(actor.zepUsername().value());
+    }
+
+    private String requireNonBlank(String value) {
+        if (value == null || value.isBlank()) {
+            throw new MonthEndValidationException("clarificationText must not be blank");
+        }
+        return value;
     }
 }

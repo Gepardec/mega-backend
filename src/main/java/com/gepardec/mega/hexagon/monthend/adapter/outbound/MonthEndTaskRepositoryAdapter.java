@@ -3,7 +3,6 @@ package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndCompletionPolicy;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskKey;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
@@ -35,35 +34,21 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
-    public Optional<MonthEndTask> findByBusinessKey(MonthEndTaskKey businessKey) {
-        if (businessKey.subjectEmployeeId() == null) {
-            return panache.find(
-                            "monthValue = ?1 and projectId = ?2 and type = ?3 and subjectEmployeeId is null",
-                            toMonthValue(businessKey.month()),
-                            businessKey.projectId().value(),
-                            businessKey.type()
-                    )
-                    .firstResultOptional()
-                    .map(mapper::toDomain);
-        }
-
-        return panache.find(
-                        "monthValue = ?1 and projectId = ?2 and type = ?3 and subjectEmployeeId = ?4",
-                        toMonthValue(businessKey.month()),
-                        businessKey.projectId().value(),
-                        businessKey.type(),
-                        businessKey.subjectEmployeeId().value()
-                )
-                .firstResultOptional()
-                .map(mapper::toDomain);
-    }
-
-    @Override
     public List<MonthEndTask> findByMonth(YearMonth month) {
         return panache.find("monthValue", toMonthValue(month))
                 .list().stream()
                 .map(mapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public boolean existsForSubjectEmployee(YearMonth month, ProjectId projectId, UserId subjectEmployeeId) {
+        return panache.count(
+                "monthValue = ?1 and projectId = ?2 and subjectEmployeeId = ?3",
+                toMonthValue(month),
+                projectId.value(),
+                subjectEmployeeId.value()
+        ) > 0;
     }
 
     @Override

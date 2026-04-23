@@ -1,10 +1,4 @@
-# Month-End Self-Service Preparation
-
-## Purpose
-
-Defines the explicit employee-driven workflow for preparing employee-owned month-end obligations across all assigned projects before scheduled month-end generation runs.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Employee can explicitly prepare their own month-end obligations across all assigned projects
 The system SHALL allow the subject employee to explicitly prepare employee-owned month-end obligations for all projects they are assigned to in the given month, in a single operation, before the scheduled month-end generation runs. Preparation SHALL create the employee-owned `MonthEndTask` obligations that scheduled generation would create for each assigned project in the same month. The employee SHALL provide a non-blank clarification text as a mandatory reason for early preparation.
@@ -53,3 +47,13 @@ The system SHALL require the subject employee to provide a non-blank clarificati
 #### Scenario: Clarification is not created for skipped project contexts
 - **WHEN** the subject employee prepares a month for which some projects are already prepared
 - **THEN** the system creates a clarification only for project contexts where new tasks were also created in the same operation
+
+## REMOVED Requirements
+
+### Requirement: Employee can explicitly prepare their own project month-end obligations
+**Reason**: Replaced by the updated requirement "Employee can explicitly prepare their own month-end obligations across all assigned projects". The old requirement assumed a single project context per call and made `projectId` a required input. The new requirement discovers all assigned projects automatically.
+**Migration**: Callers of `POST /monthend/generate-prematurely` must remove `projectId` from the request body and provide `clarificationText` as a required field.
+
+### Requirement: Self-service preparation can optionally create a clarification in the same context
+**Reason**: Replaced by the updated requirement "Self-service preparation creates a mandatory clarification for each newly prepared project context". Clarification text is no longer optional and is now fanned out per project context.
+**Migration**: `clarificationText` transitions from nullable/optional to required in `GenerateMonthEndPrematurelyRequest`.

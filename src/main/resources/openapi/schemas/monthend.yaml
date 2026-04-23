@@ -113,21 +113,18 @@ MonthEndStatusOverview:
       type: array
       items:
         $ref: '#/MonthEndOverviewClarificationEntry'
-PrepareMonthEndProjectRequest:
+GenerateMonthEndPrematurelyRequest:
   type: object
   additionalProperties: false
   required:
     - month
-    - projectId
+    - clarificationText
   properties:
     month:
       $ref: './shared.yaml#/MonthValue'
-    projectId:
-      type: string
-      format: uuid
     clarificationText:
       type: string
-      nullable: true
+      x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
 CreateClarificationRequest:
   type: object
   additionalProperties: false
@@ -191,19 +188,6 @@ MonthEndTask:
     completedBy:
       type: string
       format: uuid
-      nullable: true
-MonthEndPreparation:
-  type: object
-  additionalProperties: false
-  required:
-    - ensuredTasks
-  properties:
-    ensuredTasks:
-      type: array
-      items:
-        $ref: '#/MonthEndTask'
-    clarification:
-      $ref: '#/MonthEndOverviewClarificationEntry'
       nullable: true
 MonthEndTaskGeneration:
   type: object

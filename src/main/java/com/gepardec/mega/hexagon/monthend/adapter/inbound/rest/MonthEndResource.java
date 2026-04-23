@@ -2,8 +2,8 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.api.MonthEndApi;
 import com.gepardec.mega.hexagon.generated.model.CreateClarificationRequestDto;
+import com.gepardec.mega.hexagon.generated.model.GenerateMonthEndPrematurelyRequestDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
-import com.gepardec.mega.hexagon.generated.model.PrepareMonthEndProjectRequestDto;
 import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequestDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequestDto;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndClarificationUseCase;
@@ -18,7 +18,6 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLea
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndPreparationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -175,20 +174,17 @@ public class MonthEndResource implements MonthEndApi {
 
     @Override
     @MegaRolesAllowed(Role.EMPLOYEE)
-    public Response prepareMonthEndProject(PrepareMonthEndProjectRequestDto request) {
+    public Response generateMonthEndPrematurely(GenerateMonthEndPrematurelyRequestDto request) {
         UserId actorId = authenticatedActorContext.userId();
         YearMonth month = transportHelper.parseMonth(request.getMonth());
 
-        MonthEndPreparationResult result = prematureMonthEndPreparationUseCase.prepare(
+        prematureMonthEndPreparationUseCase.prepare(
                 month,
-                transportHelper.toProjectId(request.getProjectId()),
                 actorId,
                 request.getClarificationText()
         );
 
-        Set<UserId> ids = result.hasClarification() ? result.clarification().referencedUserIds() : Set.of();
-        Map<UserId, UserRef> userRefs = resolveUserRefs(ids, month);
-        return Response.ok(monthEndRestMapper.toDto(result, userRefs, actorId)).build();
+        return Response.noContent().build();
     }
 
     @Override
