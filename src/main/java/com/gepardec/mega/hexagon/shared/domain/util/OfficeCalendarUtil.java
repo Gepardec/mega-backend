@@ -35,6 +35,10 @@ public final class OfficeCalendarUtil {
                 .toList();
     }
 
+    public static boolean isLastWorkingDayOfMonth(LocalDate date) {
+        return getWorkingDaysForYearMonth(YearMonth.from(date)).getLast().equals(date);
+    }
+
     public static boolean isHoliday(LocalDate date) {
         return HOLIDAY_MANAGER.isHoliday(date);
     }
