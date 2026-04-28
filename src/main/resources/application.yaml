@@ -6,7 +6,7 @@ quarkus:
   http:
     cors:
       enabled: true
-      origins: "/https://mega-frontend([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/,/https://gepardec-sso([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/,/https://mega-backend([a-z0-9-]*)\\.play\\.run\\.gepardec\\.com/"
+      origins: "/https://mega-frontend([a-z0-9-]*)\\.apps\\.cloudscale-lpg-2\\.appuio\\.cloud/,/https://gepardec-sso([a-z0-9-]*)\\.apps\\.cloudscale-lpg-2\\.appuio\\.cloud/,/https://mega-backend([a-z0-9-]*)\\.apps\\.cloudscale-lpg-2\\.appuio\\.cloud/"
       access-control-allow-credentials: true
     non-application-root-path: ${quarkus.http.root-path}
 
