@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.monthend.domain.model;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
+import com.gepardec.mega.hexagon.shared.domain.SystemActor;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
@@ -69,6 +70,33 @@ public record MonthEndClarification(
                 SourceSystem.MEGA,
                 eligibleProjectLeadIds,
                 text,
+                createdAt
+        );
+    }
+
+    public static MonthEndClarification createBySystem(
+            MonthEndClarificationId id,
+            YearMonth month,
+            ProjectId projectId,
+            UserId subjectEmployeeId,
+            Set<UserId> eligibleProjectLeadIds,
+            String text,
+            Instant createdAt
+    ) {
+        return new MonthEndClarification(
+                id,
+                month,
+                projectId,
+                subjectEmployeeId,
+                SystemActor.USER_ID,
+                SourceSystem.MEGA,
+                eligibleProjectLeadIds,
+                MonthEndClarificationStatus.OPEN,
+                text,
+                null,
+                null,
+                createdAt,
+                null,
                 createdAt
         );
     }
@@ -173,12 +201,18 @@ public record MonthEndClarification(
 
     public boolean canBeResolvedBy(UserId actorId) {
         Objects.requireNonNull(actorId, "actorId must not be null");
+        if (SystemActor.USER_ID.equals(createdBy)) {
+            return isOpen()
+                    && eligibleProjectLeadIds.contains(actorId)
+                    && !actorId.equals(subjectEmployeeId)
+                    && !actorId.equals(SystemActor.USER_ID);
+        }
         return isOpen() && isInvolved(actorId) && !actorId.equals(createdBy);
     }
 
     public boolean canDelete(UserId actorId) {
         Objects.requireNonNull(actorId, "actorId must not be null");
-        return isOpen() && actorId.equals(createdBy);
+        return isOpen() && actorId.equals(createdBy) && !SystemActor.USER_ID.equals(createdBy);
     }
 
     public boolean isInvolved(UserId actorId) {
@@ -212,7 +246,8 @@ public record MonthEndClarification(
     ) {
         boolean creatorIsEmployee = subjectEmployeeId != null && subjectEmployeeId.equals(createdBy);
         boolean creatorIsLead = eligibleProjectLeadIds.contains(createdBy);
-        if (!creatorIsEmployee && !creatorIsLead) {
+        boolean creatorIsSystem = SystemActor.USER_ID.equals(createdBy);
+        if (!creatorIsSystem && !creatorIsEmployee && !creatorIsLead) {
             throw new MonthEndValidationException("clarification creator must be the subject employee or an eligible lead");
         }
     }

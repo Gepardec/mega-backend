@@ -2,6 +2,7 @@ package com.gepardec.mega.hexagon.monthend.domain.model;
 
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
+import com.gepardec.mega.hexagon.shared.domain.SystemActor;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
@@ -78,6 +79,23 @@ public record MonthEndTask(
         );
     }
 
+    public MonthEndTask completeBySystem() {
+        if (status == MonthEndTaskStatus.DONE) {
+            return this;
+        }
+
+        return new MonthEndTask(
+                id,
+                month,
+                type,
+                projectId,
+                subjectEmployeeId,
+                eligibleActorIds,
+                MonthEndTaskStatus.DONE,
+                SystemActor.USER_ID
+        );
+    }
+
     public MonthEndCompletionPolicy completionPolicy() {
         return type.completionPolicy();
     }
@@ -147,7 +165,7 @@ public record MonthEndTask(
             if (completedBy == null) {
                 throw new MonthEndValidationException("completed tasks must record the completing actor");
             }
-            if (!eligibleActorIds.contains(completedBy)) {
+            if (!SystemActor.USER_ID.equals(completedBy) && !eligibleActorIds.contains(completedBy)) {
                 throw new MonthEndValidationException("completedBy must be part of the eligible actor set");
             }
         }

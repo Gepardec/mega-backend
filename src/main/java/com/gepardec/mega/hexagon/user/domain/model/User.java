@@ -24,11 +24,14 @@ public record User(
 
     public User {
         Objects.requireNonNull(id, "id must not be null");
-        Objects.requireNonNull(email, "email must not be null");
         Objects.requireNonNull(name, "name must not be null");
-        Objects.requireNonNull(zepUsername, "zepUsername must not be null");
         Objects.requireNonNull(employmentPeriods, "employmentPeriods must not be null");
         roles = Set.copyOf(Objects.requireNonNull(roles, "roles must not be null"));
+
+        if (!isSystemActor(roles)) {
+            Objects.requireNonNull(email, "email must not be null");
+            Objects.requireNonNull(zepUsername, "zepUsername must not be null");
+        }
     }
 
     public static User create(UserId id, ZepEmployeeSyncData syncData, Set<Role> roles) {
@@ -102,5 +105,13 @@ public record User(
 
     public boolean hasPersonioId() {
         return personioId != null;
+    }
+
+    public boolean isSystemActor() {
+        return isSystemActor(roles);
+    }
+
+    private static boolean isSystemActor(Set<Role> roles) {
+        return roles.contains(Role.SYSTEM);
     }
 }

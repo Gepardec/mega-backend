@@ -5,12 +5,14 @@ import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class UserTest {
 
@@ -48,6 +50,39 @@ class UserTest {
         User updatedUser = user.revokeProjectLeadRole();
 
         assertThat(updatedUser).isEqualTo(user);
+    }
+
+    @Test
+    void constructor_shouldAllowNullZepUsernameAndEmailForSystemActor() {
+        User systemActor = new User(
+                UserId.generate(),
+                null,
+                FullName.of("MEGA", "System"),
+                null,
+                null,
+                EmploymentPeriods.empty(),
+                Set.of(Role.SYSTEM)
+        );
+
+        assertThat(systemActor.email()).isNull();
+        assertThat(systemActor.zepUsername()).isNull();
+        assertThat(systemActor.isSystemActor()).isTrue();
+        assertThat(systemActor.isActiveIn(java.time.YearMonth.of(2026, 3))).isFalse();
+    }
+
+    @Test
+    void constructor_shouldRejectNullZepUsernameAndEmailForRegularUser() {
+        ThrowableAssert.ThrowingCallable throwingCallable = () -> new User(
+                UserId.generate(),
+                null,
+                FullName.of("Regular", "User"),
+                null,
+                null,
+                EmploymentPeriods.empty(),
+                Set.of(Role.EMPLOYEE)
+        );
+
+        assertThatThrownBy(throwingCallable).isInstanceOf(NullPointerException.class);
     }
 
     private User user(Set<Role> roles) {

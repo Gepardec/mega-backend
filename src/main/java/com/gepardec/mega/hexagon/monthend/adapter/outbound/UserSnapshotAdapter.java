@@ -31,7 +31,7 @@ public class UserSnapshotAdapter implements MonthEndUserSnapshotPort {
     @Override
     public List<UserRef> findByIds(Set<UserId> userIds, YearMonth month) {
         return userRepository.findByIds(userIds).stream()
-                .filter(user -> user.isActiveIn(month))
+                .filter(user -> user.isSystemActor() || user.isActiveIn(month))
                 .map(mapper::toSnapshot)
                 .toList();
     }

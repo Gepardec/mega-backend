@@ -2,6 +2,7 @@ package com.gepardec.mega.hexagon.monthend.domain.model;
 
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
+import com.gepardec.mega.hexagon.shared.domain.SystemActor;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.assertj.core.api.ThrowableAssert;
@@ -162,6 +163,23 @@ class MonthEndTaskTest {
         assertThatThrownBy(() -> task.complete(outsider))
                 .isInstanceOf(MonthEndActorNotAuthorizedException.class)
                 .hasMessageContaining("not eligible");
+    }
+
+    @Test
+    void completeBySystem_shouldMarkTaskDoneAndStoreSystemActor() {
+        MonthEndTask task = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectId,
+                employeeId,
+                Set.of(employeeId)
+        );
+
+        MonthEndTask completedTask = task.completeBySystem();
+
+        assertThat(completedTask.status()).isEqualTo(MonthEndTaskStatus.DONE);
+        assertThat(completedTask.completedBy()).isEqualTo(SystemActor.USER_ID);
     }
 
     @Test

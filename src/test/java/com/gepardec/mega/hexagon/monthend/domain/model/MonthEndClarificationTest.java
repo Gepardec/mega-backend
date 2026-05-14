@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.monthend.domain.model;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
+import com.gepardec.mega.hexagon.shared.domain.SystemActor;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.assertj.core.api.ThrowableAssert;
@@ -254,6 +255,27 @@ class MonthEndClarificationTest {
                 .resolve(leadA, "Done", createdAt.plusSeconds(10));
 
         assertThat(clarification.canDelete(employeeId)).isFalse();
+    }
+
+    @Test
+    void createBySystem_shouldBypassCreatorValidationAndRestrictPermissions() {
+        MonthEndClarification clarification = MonthEndClarification.createBySystem(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                employeeId,
+                Set.of(leadA),
+                "Auto-confirmed because employee is absent.",
+                createdAt
+        );
+
+        assertThat(clarification.status()).isEqualTo(MonthEndClarificationStatus.OPEN);
+        assertThat(clarification.createdBy()).isEqualTo(SystemActor.USER_ID);
+        assertThat(clarification.sourceSystem()).isEqualTo(SourceSystem.MEGA);
+        assertThat(clarification.canDelete(employeeId)).isFalse();
+        assertThat(clarification.canBeResolvedBy(employeeId)).isFalse();
+        assertThat(clarification.canBeResolvedBy(SystemActor.USER_ID)).isFalse();
+        assertThat(clarification.canBeResolvedBy(leadA)).isTrue();
     }
 
     private MonthEndClarification employeeCreatedClarification() {

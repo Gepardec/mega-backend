@@ -8,6 +8,7 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
+import com.gepardec.mega.hexagon.shared.domain.SystemActor;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
@@ -271,6 +272,28 @@ class MonthEndRestMapperTest {
         assertThat(entry.getCreatedBy().getId()).isEqualTo(leadId.value());
     }
 
+    @Test
+    void toClarificationEntry_shouldRenderSystemActorFromUserRef() {
+        MonthEndClarification clarification = MonthEndClarification.createBySystem(
+                MonthEndClarificationId.of(Instancio.create(UUID.class)),
+                month,
+                projectId,
+                employeeId,
+                Set.of(leadId),
+                "Auto-confirmed because employee is absent.",
+                Instant.parse("2026-03-25T09:00:00Z")
+        );
+
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(
+                clarification,
+                Map.of(employeeId, employeeRef(), leadId, leadRef(), SystemActor.USER_ID, systemActorRef()),
+                leadId
+        );
+
+        assertThat(entry.getCreatedBy().getId()).isEqualTo(SystemActor.USER_ID.value());
+        assertThat(entry.getCreatedBy().getFullName()).isEqualTo("MEGA System");
+    }
+
     private ProjectRef projectRef() {
         return new ProjectRef(projectId, 77, projectName);
     }
@@ -281,5 +304,9 @@ class MonthEndRestMapperTest {
 
     private UserRef leadRef() {
         return new UserRef(leadId, FullName.of("Mapper", "Lead"), ZepUsername.of("mapper.lead"));
+    }
+
+    private UserRef systemActorRef() {
+        return new UserRef(SystemActor.USER_ID, FullName.of("MEGA", "System"), null);
     }
 }

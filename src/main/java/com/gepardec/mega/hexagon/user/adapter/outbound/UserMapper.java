@@ -31,9 +31,9 @@ public interface UserMapper {
     default User toDomain(UserEntity entity) {
         return new User(
                 UserId.of(entity.getId()),
-                Email.of(entity.getEmail()),
+                toEmail(entity.getEmail()),
                 FullName.of(entity.getFirstname(), entity.getLastname()),
-                ZepUsername.of(entity.getZepUsername()),
+                toZepUsername(entity.getZepUsername()),
                 toPersonioId(entity.getPersonioId()),
                 new EmploymentPeriods(
                         entity.getEmploymentPeriods() == null
@@ -50,6 +50,14 @@ public interface UserMapper {
 
     default String fromZepUsername(ZepUsername zepUsername) {
         return zepUsername == null ? null : zepUsername.value();
+    }
+
+    default Email toEmail(String email) {
+        return email == null ? null : Email.of(email);
+    }
+
+    default ZepUsername toZepUsername(String zepUsername) {
+        return zepUsername == null ? null : ZepUsername.of(zepUsername);
     }
 
     default PersonioId toPersonioId(Integer personioId) {
