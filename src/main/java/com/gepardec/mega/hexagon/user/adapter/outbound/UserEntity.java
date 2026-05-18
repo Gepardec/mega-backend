@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -47,6 +48,9 @@ public class UserEntity {
     @ElementCollection
     @CollectionTable(name = "hexagon_user_employment_periods", joinColumns = @JoinColumn(name = "user_id"))
     private Set<UserEmploymentPeriodEmbeddable> employmentPeriods = new HashSet<>();
+
+    @Column(name = "release_date")
+    private LocalDate releaseDate;
 
     public UUID getId() {
         return id;
@@ -110,5 +114,13 @@ public class UserEntity {
 
     public void setEmploymentPeriods(Set<UserEmploymentPeriodEmbeddable> employmentPeriods) {
         this.employmentPeriods = employmentPeriods;
+    }
+
+    public LocalDate getReleaseDate() {
+        return releaseDate;
+    }
+
+    public void setReleaseDate(LocalDate releaseDate) {
+        this.releaseDate = releaseDate;
     }
 }

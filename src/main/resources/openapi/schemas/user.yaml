@@ -1,0 +1,54 @@
+ActiveUser:
+  type: object
+  additionalProperties: false
+  required:
+    - userId
+    - fullName
+    - email
+  properties:
+    userId:
+      type: string
+      format: uuid
+    fullName:
+      type: string
+    email:
+      type: string
+      format: email
+    releaseDate:
+      type: string
+      format: date
+      nullable: true
+UpdateReleaseDateEntry:
+  type: object
+  additionalProperties: false
+  required:
+    - userId
+    - releaseDate
+  properties:
+    userId:
+      type: string
+      format: uuid
+    releaseDate:
+      type: string
+      format: date
+UpdateReleaseDatesRequest:
+  type: object
+  additionalProperties: false
+  required:
+    - entries
+  properties:
+    entries:
+      type: array
+      items:
+        $ref: '#/UpdateReleaseDateEntry'
+UpdateReleaseDatesResponse:
+  type: object
+  additionalProperties: false
+  required:
+    - failedUserIds
+  properties:
+    failedUserIds:
+      type: array
+      items:
+        type: string
+        format: uuid

@@ -16,6 +16,7 @@ public interface ZepEmployeeMapper {
     @Mapping(target = "firstname", source = "employee.firstname")
     @Mapping(target = "lastname", source = "employee.lastname")
     @Mapping(target = "employmentPeriods", source = "employmentPeriods")
+    @Mapping(target = "releaseDate", source = "employee.releaseDate")
     ZepEmployeeSyncData toSyncData(ZepEmployee employee, EmploymentPeriods employmentPeriods);
 
     default ZepUsername toZepUsername(String username) {

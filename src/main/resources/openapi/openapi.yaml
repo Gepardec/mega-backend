@@ -6,6 +6,8 @@ info:
 tags:
   - name: MonthEnd
     description: Month-end endpoints for employees, project leads, and operational callers
+  - name: User
+    description: Office management user endpoints
   - name: WorkTimeEmployee
     description: Employee-scoped work time endpoints
   - name: WorkTimeProjectLead
@@ -33,11 +35,24 @@ paths:
     $ref: './paths/monthend.yaml#/~1monthend~1clarifications~1{clarificationId}~1resolve'
   /monthend/{month}/generate:
     $ref: './paths/monthend.yaml#/~1monthend~1{month}~1generate'
+  /users/active:
+    $ref: './paths/user.yaml#/~1users~1active'
+  /users/release-dates:
+    $ref: './paths/user.yaml#/~1users~1release-dates'
   /worktime/employee/{payrollMonth}:
     $ref: './paths/worktime.yaml#/~1worktime~1employee~1{payrollMonth}'
   /worktime/projects/{payrollMonth}:
     $ref: './paths/worktime.yaml#/~1worktime~1projects~1{payrollMonth}'
 components:
+  schemas:
+    ActiveUser:
+      $ref: './schemas/user.yaml#/ActiveUser'
+    UpdateReleaseDateEntry:
+      $ref: './schemas/user.yaml#/UpdateReleaseDateEntry'
+    UpdateReleaseDatesRequest:
+      $ref: './schemas/user.yaml#/UpdateReleaseDatesRequest'
+    UpdateReleaseDatesResponse:
+      $ref: './schemas/user.yaml#/UpdateReleaseDatesResponse'
   securitySchemes:
     bearerAuth:
       type: oauth2

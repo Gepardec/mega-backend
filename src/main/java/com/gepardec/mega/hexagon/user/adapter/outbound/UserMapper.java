@@ -26,6 +26,7 @@ public interface UserMapper {
     @Mapping(target = "zepUsername", source = "zepUsername")
     @Mapping(target = "personioId", source = "personioId")
     @Mapping(target = "employmentPeriods", source = "employmentPeriods.employmentPeriods")
+    @Mapping(target = "releaseDate", source = "releaseDate")
     void updateEntity(User user, @MappingTarget UserEntity entity);
 
     default User toDomain(UserEntity entity) {
@@ -40,7 +41,8 @@ public interface UserMapper {
                                 ? java.util.List.of()
                                 : entity.getEmploymentPeriods().stream().map(this::toDomain).toList()
                 ),
-                entity.getRoles() == null ? Set.of() : Set.copyOf(entity.getRoles())
+                entity.getRoles() == null ? Set.of() : Set.copyOf(entity.getRoles()),
+                entity.getReleaseDate()
         );
     }
 

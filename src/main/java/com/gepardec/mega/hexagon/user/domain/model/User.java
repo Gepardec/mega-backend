@@ -19,8 +19,21 @@ public record User(
         ZepUsername zepUsername,
         PersonioId personioId,
         EmploymentPeriods employmentPeriods,
-        Set<Role> roles
+        Set<Role> roles,
+        LocalDate releaseDate
 ) {
+
+    public User(
+            UserId id,
+            Email email,
+            FullName name,
+            ZepUsername zepUsername,
+            PersonioId personioId,
+            EmploymentPeriods employmentPeriods,
+            Set<Role> roles
+    ) {
+        this(id, email, name, zepUsername, personioId, employmentPeriods, roles, null);
+    }
 
     public User {
         Objects.requireNonNull(id, "id must not be null");
@@ -42,7 +55,8 @@ public record User(
                 syncData.zepUsername(),
                 null,
                 syncData.employmentPeriods(),
-                roles
+                roles,
+                syncData.releaseDate()
         );
     }
 
@@ -54,7 +68,8 @@ public record User(
                 syncData.zepUsername(),
                 personioId,
                 syncData.employmentPeriods(),
-                roles
+                roles,
+                syncData.releaseDate()
         );
     }
 
@@ -62,11 +77,18 @@ public record User(
         if (newPersonioId == null || Objects.equals(personioId, newPersonioId)) {
             return this;
         }
-        return new User(id, email, name, zepUsername, newPersonioId, employmentPeriods, roles);
+        return new User(id, email, name, zepUsername, newPersonioId, employmentPeriods, roles, releaseDate);
     }
 
     public User withRoles(Set<Role> updatedRoles) {
-        return new User(id, email, name, zepUsername, personioId, employmentPeriods, updatedRoles);
+        return new User(id, email, name, zepUsername, personioId, employmentPeriods, updatedRoles, releaseDate);
+    }
+
+    public User withReleaseDate(LocalDate newReleaseDate) {
+        if (Objects.equals(releaseDate, newReleaseDate)) {
+            return this;
+        }
+        return new User(id, email, name, zepUsername, personioId, employmentPeriods, roles, newReleaseDate);
     }
 
     public User grantProjectLeadRole() {

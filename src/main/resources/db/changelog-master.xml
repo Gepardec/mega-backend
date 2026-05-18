@@ -27,5 +27,6 @@
     <include file="changelog/hexagon/008-unify-clarification-model.yaml" relativeToChangelogFile="true"/>
     <include file="changelog/hexagon/009-clarification-source-system.yaml" relativeToChangelogFile="true"/>
     <include file="changelog/hexagon/010-system-actor.yaml" relativeToChangelogFile="true"/>
+    <include file="changelog/hexagon/011-user-release-date.yaml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

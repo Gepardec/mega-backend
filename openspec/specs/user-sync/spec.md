@@ -59,12 +59,24 @@ The system SHALL create a new `User` aggregate with a generated `UserId` for any
 - **WHEN** a ZEP employee's username has no matching User in the repository
 - **THEN** a new User is created with a generated UUID and saved to the repository
 
+### Requirement: Sync populates release date from ZEP employee data
+The system SHALL read each employee's release date from ZEP during the sync and persist it locally. If an employee has no release date in ZEP, the locally stored value SHALL be set to null. The sync SHALL NOT skip an employee solely because their release date is absent.
+
+#### Scenario: Release date present in ZEP is persisted during sync
+- **WHEN** a ZEP employee has a release date set
+- **THEN** that release date is persisted locally for that employee after the sync runs
+
+#### Scenario: Release date absent in ZEP is stored as null
+- **WHEN** a ZEP employee has no release date
+- **THEN** the employee's locally stored release date is null after the sync runs
+- **THEN** sync proceeds normally without error
+
 ### Requirement: Sync updates existing Users from ZEP data
-The system SHALL update each User that matches an incoming ZEP employee with the latest locally owned user fields, roles, and employment periods from the sync input.
+The system SHALL update each User that matches an incoming ZEP employee with the latest locally owned user fields, roles, employment periods, and release date from the sync input.
 
 #### Scenario: Existing user updated with fresh ZEP data
 - **WHEN** a ZEP employee's username matches an existing User
-- **THEN** the User is updated with the latest synced local fields, roles, and employment periods
+- **THEN** the User is updated with the latest synced local fields, roles, employment periods, and release date
 
 ### Requirement: Sync enriches Users with Personio data on a best-effort basis
 The system SHALL use Personio during routine sync only to resolve a stable Personio reference for Users that do not already have one. It SHALL attempt lookup by email, store the resolved Personio identifier when available, and skip the Personio lookup for Users whose Personio identifier is already known. If Personio returns no match or is unavailable, sync SHALL continue without error.
@@ -91,7 +103,7 @@ Routine user sync SHALL persist only locally owned user state and stable provide
 
 #### Scenario: Sync does not persist regular working times
 - **WHEN** sync processes ZEP employee data
-- **THEN** it persists core user fields and employment periods
+- **THEN** it persists core user fields, employment periods, and release date
 - **THEN** regular working times are not synchronized into local user persistence
 
 ### Requirement: Sync persists all changes atomically

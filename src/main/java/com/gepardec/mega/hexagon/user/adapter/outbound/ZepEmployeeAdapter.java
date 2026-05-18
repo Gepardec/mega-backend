@@ -1,15 +1,20 @@
 package com.gepardec.mega.hexagon.user.adapter.outbound;
 
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.ZepEmployeeSyncData;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.ZepEmployeePort;
+import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.impl.Soap;
 import com.gepardec.mega.zep.rest.dto.ZepEmployee;
 import com.gepardec.mega.zep.rest.service.EmployeeService;
 import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @ApplicationScoped
@@ -24,11 +29,23 @@ public class ZepEmployeeAdapter implements ZepEmployeePort {
     @Inject
     ZepEmployeeMapper mapper;
 
+    @Inject
+    @Soap
+    ZepService zepService;
+
     @Override
     public List<ZepEmployeeSyncData> fetchAll() {
         return employeeService.getZepEmployees().stream()
                 .map(this::toSyncData)
                 .toList();
+    }
+
+    @Override
+    public Uni<Void> updateReleaseDate(ZepUsername username, LocalDate releaseDate) {
+        return Uni.createFrom().item(() -> {
+            zepService.updateEmployeesReleaseDate(username.value(), releaseDate.toString());
+            return null;
+        }).replaceWithVoid();
     }
 
     private ZepEmployeeSyncData toSyncData(ZepEmployee zepEmployee) {

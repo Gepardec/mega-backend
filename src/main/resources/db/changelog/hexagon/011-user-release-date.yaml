@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-user-release-date-001
+      author: mega
+      changes:
+        - addColumn:
+            tableName: hexagon_users
+            columns:
+              - column:
+                  name: release_date
+                  type: date
