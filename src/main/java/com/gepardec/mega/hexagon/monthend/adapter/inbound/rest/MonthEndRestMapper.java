@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
+import com.gepardec.mega.application.configuration.ZepConfig;
 import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntryDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewEntryDto;
@@ -40,9 +41,11 @@ public interface MonthEndRestMapper {
     @Mapping(target = "taskId", source = "id")
     MonthEndTaskDto toDto(MonthEndTask task);
 
-    ProjectRefDto toDto(ProjectRef project);
+    @Mapping(target = "zepUrl", ignore = true)
+    ProjectRefDto toDto(ProjectRef project, @Context ZepConfig zepConfig);
 
-    UserRefDto toDto(UserRef subjectEmployee);
+    @Mapping(target = "zepUrl", ignore = true)
+    UserRefDto toDto(UserRef subjectEmployee, @Context ZepConfig zepConfig);
 
     @Mapping(target = "taskId", source = "id")
     @Mapping(target = "project", ignore = true)
@@ -53,7 +56,8 @@ public interface MonthEndRestMapper {
             MonthEndTask task,
             @Context Map<ProjectId, ProjectRef> projectRefs,
             @Context Map<UserId, UserRef> userRefs,
-            @Context UserId actorId
+            @Context UserId actorId,
+            @Context ZepConfig zepConfig
     );
 
     @AfterMapping
@@ -62,7 +66,8 @@ public interface MonthEndRestMapper {
             @MappingTarget MonthEndStatusOverviewEntryDto entry,
             @Context Map<ProjectId, ProjectRef> projectRefs,
             @Context Map<UserId, UserRef> userRefs,
-            @Context UserId actorId
+            @Context UserId actorId,
+            @Context ZepConfig zepConfig
     ) {
         ProjectRef project = projectRefs.get(task.projectId());
         if (project == null) {
@@ -72,8 +77,8 @@ public interface MonthEndRestMapper {
         UserRef subjectEmployee = task.subjectEmployeeId() != null
                 ? userRefs.get(task.subjectEmployeeId())
                 : null;
-        entry.project(toDto(project))
-                .subjectEmployee(subjectEmployee != null ? toDto(subjectEmployee) : null)
+        entry.project(toDto(project, zepConfig))
+                .subjectEmployee(subjectEmployee != null ? toDto(subjectEmployee, zepConfig) : null)
                 .canComplete(task.canBeCompletedBy(actorId))
                 .completedBy(map(task.completedBy()));
     }
@@ -82,7 +87,8 @@ public interface MonthEndRestMapper {
             MonthEndStatusOverview overview,
             @Context Map<ProjectId, ProjectRef> projectRefs,
             @Context Map<UserId, UserRef> userRefs,
-            @Context UserId actorId
+            @Context UserId actorId,
+            @Context ZepConfig zepConfig
     );
 
     @Mapping(target = "clarificationId", source = "id")
@@ -95,7 +101,8 @@ public interface MonthEndRestMapper {
     MonthEndOverviewClarificationEntryDto toClarificationEntry(
             MonthEndClarification clarification,
             @Context Map<UserId, UserRef> userRefs,
-            @Context UserId actorId
+            @Context UserId actorId,
+            @Context ZepConfig zepConfig
     );
 
     @AfterMapping
@@ -103,7 +110,8 @@ public interface MonthEndRestMapper {
             MonthEndClarification clarification,
             @MappingTarget MonthEndOverviewClarificationEntryDto item,
             @Context Map<UserId, UserRef> userRefs,
-            @Context UserId actorId
+            @Context UserId actorId,
+            @Context ZepConfig zepConfig
     ) {
         UserRef subjectRef = clarification.subjectEmployeeId() != null
                 ? userRefs.get(clarification.subjectEmployeeId())
@@ -111,12 +119,32 @@ public interface MonthEndRestMapper {
         UserRef resolvedByRef = clarification.resolvedBy() != null
                 ? userRefs.get(clarification.resolvedBy())
                 : null;
-        item.createdBy(toDto(userRefs.get(clarification.createdBy())))
-                .subjectEmployee(subjectRef != null ? toDto(subjectRef) : null)
-                .resolvedBy(resolvedByRef != null ? toDto(resolvedByRef) : null)
+        item.createdBy(toDto(userRefs.get(clarification.createdBy()), zepConfig))
+                .subjectEmployee(subjectRef != null ? toDto(subjectRef, zepConfig) : null)
+                .resolvedBy(resolvedByRef != null ? toDto(resolvedByRef, zepConfig) : null)
                 .canResolve(clarification.canBeResolvedBy(actorId))
                 .canEditText(clarification.canEditText(actorId))
                 .canDelete(clarification.canDelete(actorId));
+    }
+
+    @AfterMapping
+    default void enrichProjectRef(
+            ProjectRef project,
+            @MappingTarget ProjectRefDto dto,
+            @Context ZepConfig zepConfig
+    ) {
+        dto.setZepUrl(zepConfig.buildProjectUrl(project.zepId()));
+    }
+
+    @AfterMapping
+    default void enrichUserRef(
+            UserRef subjectEmployee,
+            @MappingTarget UserRefDto dto,
+            @Context ZepConfig zepConfig
+    ) {
+        dto.setZepUrl(subjectEmployee.zepUsername() != null
+                ? zepConfig.buildEmployeeUrl(subjectEmployee.zepUsername())
+                : null);
     }
 
     default String map(YearMonth month) {

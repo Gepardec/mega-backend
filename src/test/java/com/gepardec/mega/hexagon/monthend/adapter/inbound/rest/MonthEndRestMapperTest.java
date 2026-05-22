@@ -1,7 +1,10 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
+import com.gepardec.mega.application.configuration.ZepConfig;
 import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntryDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
+import com.gepardec.mega.hexagon.generated.model.ProjectRefDto;
+import com.gepardec.mega.hexagon.generated.model.UserRefDto;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
@@ -18,6 +21,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+import org.mockito.Mockito;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -29,10 +33,17 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 
 class MonthEndRestMapperTest {
 
+    private static final String PROJECT_URL_PREFIX = "https://zep.example.test/project/";
+    private static final String EMPLOYEE_URL_PREFIX = "https://zep.example.test/employee/";
+
     private final MonthEndRestMapper mapper = Mappers.getMapper(MonthEndRestMapper.class);
+    private final ZepConfig zepConfig = createZepConfig();
 
     private final YearMonth month = YearMonth.of(2026, 3);
     private final ProjectId projectId = ProjectId.of(Instancio.create(UUID.class));
@@ -41,6 +52,42 @@ class MonthEndRestMapperTest {
     private final String employeeName = "Mapper Employee";
     private final UserId leadId = UserId.of(Instancio.create(UUID.class));
     private final UserId otherUserId = UserId.of(Instancio.create(UUID.class));
+
+    private ZepConfig createZepConfig() {
+        ZepConfig zepConfig = Mockito.mock(ZepConfig.class);
+        when(zepConfig.buildProjectUrl(anyInt()))
+                .thenAnswer(invocation -> PROJECT_URL_PREFIX + invocation.getArgument(0, Integer.class));
+        when(zepConfig.buildEmployeeUrl(any(ZepUsername.class)))
+                .thenAnswer(invocation -> EMPLOYEE_URL_PREFIX + invocation.getArgument(0, ZepUsername.class).value());
+        return zepConfig;
+    }
+
+    @Test
+    void toDto_shouldMapProjectRefWithZepUrl() {
+        ProjectRefDto dto = mapper.toDto(projectRef(), zepConfig);
+
+        assertThat(dto.getId()).isEqualTo(projectId.value());
+        assertThat(dto.getName()).isEqualTo(projectName);
+        assertThat(dto.getZepUrl()).isEqualTo(PROJECT_URL_PREFIX + "77");
+    }
+
+    @Test
+    void toDto_shouldMapUserRefWithZepUrlWhenUsernamePresent() {
+        UserRefDto dto = mapper.toDto(employeeRef(), zepConfig);
+
+        assertThat(dto.getId()).isEqualTo(employeeId.value());
+        assertThat(dto.getFullName()).isEqualTo(employeeName);
+        assertThat(dto.getZepUrl()).isEqualTo(EMPLOYEE_URL_PREFIX + "mapper.employee");
+    }
+
+    @Test
+    void toDto_shouldMapUserRefWithNullZepUrlWhenUsernameMissing() {
+        UserRefDto dto = mapper.toDto(new UserRef(employeeId, FullName.of("Mapper", "Employee"), null), zepConfig);
+
+        assertThat(dto.getId()).isEqualTo(employeeId.value());
+        assertThat(dto.getFullName()).isEqualTo(employeeName);
+        assertThat(dto.getZepUrl()).isNull();
+    }
 
     @Test
     void toDto_shouldMapStatusOverviewProjectAndClarificationUserReferences() {
@@ -75,7 +122,13 @@ class MonthEndRestMapperTest {
                 leadId, leadRef()
         );
 
-        MonthEndStatusOverviewDto response = mapper.toDto(overview, Map.of(projectId, projectRef()), userRefs, employeeId);
+        MonthEndStatusOverviewDto response = mapper.toDto(
+                overview,
+                Map.of(projectId, projectRef()),
+                userRefs,
+                employeeId,
+                zepConfig
+        );
 
         assertThat(response.getMonth()).isEqualTo("2026-03");
         assertThat(response.getTasks()).singleElement().satisfies(entry -> {
@@ -115,7 +168,13 @@ class MonthEndRestMapperTest {
                 List.of()
         );
 
-        MonthEndStatusOverviewDto response = mapper.toDto(overview, Map.of(projectId, projectRef()), Map.of(), employeeId);
+        MonthEndStatusOverviewDto response = mapper.toDto(
+                overview,
+                Map.of(projectId, projectRef()),
+                Map.of(),
+                employeeId,
+                zepConfig
+        );
 
         assertThat(response.getTasks()).singleElement()
                 .satisfies(entry -> assertThat(entry.getCanComplete()).isFalse());
@@ -137,7 +196,13 @@ class MonthEndRestMapperTest {
                 List.of()
         );
 
-        MonthEndStatusOverviewDto response = mapper.toDto(overview, Map.of(projectId, projectRef()), Map.of(), employeeId);
+        MonthEndStatusOverviewDto response = mapper.toDto(
+                overview,
+                Map.of(projectId, projectRef()),
+                Map.of(),
+                employeeId,
+                zepConfig
+        );
 
         assertThat(response.getTasks()).singleElement()
                 .satisfies(entry -> {
@@ -164,7 +229,12 @@ class MonthEndRestMapperTest {
                 leadId, leadRef()
         );
 
-        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(clarification, userRefs, employeeId);
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(
+                clarification,
+                userRefs,
+                employeeId,
+                zepConfig
+        );
 
         assertThat(entry.getCanEditText()).isTrue();
         assertThat(entry.getCanDelete()).isTrue();
@@ -192,7 +262,12 @@ class MonthEndRestMapperTest {
                 leadId, leadRef()
         );
 
-        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(clarification, userRefs, leadId);
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(
+                clarification,
+                userRefs,
+                leadId,
+                zepConfig
+        );
 
         assertThat(entry.getCanResolve()).isTrue();
         assertThat(entry.getCanEditText()).isFalse();
@@ -216,7 +291,12 @@ class MonthEndRestMapperTest {
                 leadId, leadRef()
         );
 
-        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(clarification, userRefs, otherUserId);
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(
+                clarification,
+                userRefs,
+                otherUserId,
+                zepConfig
+        );
 
         assertThat(entry.getCanResolve()).isFalse();
         assertThat(entry.getCanEditText()).isFalse();
@@ -242,7 +322,12 @@ class MonthEndRestMapperTest {
                 leadId, leadRef()
         );
 
-        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(clarification, userRefs, employeeId);
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(
+                clarification,
+                userRefs,
+                employeeId,
+                zepConfig
+        );
 
         assertThat(entry.getCanResolve()).isFalse();
         assertThat(entry.getCanEditText()).isFalse();
@@ -266,7 +351,12 @@ class MonthEndRestMapperTest {
         );
         Map<UserId, UserRef> userRefs = Map.of(leadId, leadRef());
 
-        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(clarification, userRefs, leadId);
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(
+                clarification,
+                userRefs,
+                leadId,
+                zepConfig
+        );
 
         assertThat(entry.getSubjectEmployee()).isNull();
         assertThat(entry.getCreatedBy().getId()).isEqualTo(leadId.value());
@@ -287,7 +377,8 @@ class MonthEndRestMapperTest {
         MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(
                 clarification,
                 Map.of(employeeId, employeeRef(), leadId, leadRef(), SystemActor.USER_ID, systemActorRef()),
-                leadId
+                leadId,
+                zepConfig
         );
 
         assertThat(entry.getCreatedBy().getId()).isEqualTo(SystemActor.USER_ID.value());

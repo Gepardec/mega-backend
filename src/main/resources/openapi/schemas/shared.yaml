@@ -21,6 +21,9 @@ ProjectRef:
       format: uuid
     name:
       type: string
+    zepUrl:
+      type: string
+      nullable: true
 UserRef:
   type: object
   additionalProperties: false
@@ -33,3 +36,6 @@ UserRef:
       format: uuid
     fullName:
       type: string
+    zepUrl:
+      type: string
+      nullable: true
