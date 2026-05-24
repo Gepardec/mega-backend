@@ -65,10 +65,24 @@ class AuthenticatedActorContextTest {
         when(userRepository.findByEmail(Email.of(EMAIL))).thenReturn(Optional.of(user(actorId, EMAIL)));
 
         assertThat(authenticatedActorContext.userId()).isEqualTo(actorId);
+        assertThat(authenticatedActorContext.user().id()).isEqualTo(actorId);
         assertThat(authenticatedActorContext.roles()).containsExactly(Role.EMPLOYEE);
         assertThat(authenticatedActorContext.hasRole(Role.EMPLOYEE)).isTrue();
         assertThat(authenticatedActorContext.hasRole(Role.PROJECT_LEAD)).isFalse();
 
+        verify(userRepository, times(1)).findByEmail(Email.of(EMAIL));
+    }
+
+    @Test
+    void user_shouldReturnResolvedUser() {
+        UserId actorId = UserId.of(Instancio.create(UUID.class));
+        User resolvedUser = user(actorId, EMAIL);
+        when(emailClaim.getValue()).thenReturn(EMAIL);
+        when(userRepository.findByEmail(Email.of(EMAIL))).thenReturn(Optional.of(resolvedUser));
+
+        User user = authenticatedActorContext.user();
+
+        assertThat(user).isEqualTo(resolvedUser);
         verify(userRepository, times(1)).findByEmail(Email.of(EMAIL));
     }
 

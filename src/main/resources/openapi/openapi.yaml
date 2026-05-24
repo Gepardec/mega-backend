@@ -37,6 +37,8 @@ paths:
     $ref: './paths/monthend.yaml#/~1monthend~1{month}~1generate'
   /users/active:
     $ref: './paths/user.yaml#/~1users~1active'
+  /users/me:
+    $ref: './paths/user.yaml#/~1users~1me'
   /users/release-dates:
     $ref: './paths/user.yaml#/~1users~1release-dates'
   /worktime/employee/{payrollMonth}:
@@ -47,6 +49,8 @@ components:
   schemas:
     ActiveUser:
       $ref: './schemas/user.yaml#/ActiveUser'
+    User:
+      $ref: './schemas/user.yaml#/User'
     UpdateReleaseDateEntry:
       $ref: './schemas/user.yaml#/UpdateReleaseDateEntry'
     UpdateReleaseDatesRequest:

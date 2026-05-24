@@ -1,3 +1,22 @@
+'/users/me':
+  get:
+    tags:
+      - User
+    operationId: getCurrentUser
+    summary: Get the authenticated employee profile
+    security:
+      - bearerAuth: [ ]
+    responses:
+      '200':
+        description: Authenticated employee profile
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/user.yaml#/User'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'
 '/users/active':
   get:
     tags:

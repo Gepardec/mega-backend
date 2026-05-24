@@ -19,7 +19,7 @@ public class AuthenticatedActorContext {
 
     private final ClaimValue<String> emailClaim;
     private final UserRepository userRepository;
-    private AuthenticatedActor authenticatedActor;
+    private User user;
 
     @Inject
     public AuthenticatedActorContext(
@@ -31,14 +31,19 @@ public class AuthenticatedActorContext {
     }
 
     public AuthenticatedActor authenticatedActor() {
-        if (authenticatedActor == null) {
-            authenticatedActor = resolveAuthenticatedActor();
-        }
-        return authenticatedActor;
+        User currentUser = user();
+        return new AuthenticatedActor(currentUser.id(), currentUser.email(), currentUser.roles());
     }
 
     public UserId userId() {
         return authenticatedActor().userId();
+    }
+
+    public User user() {
+        if (user == null) {
+            user = resolveUser();
+        }
+        return user;
     }
 
     public Set<Role> roles() {
@@ -49,17 +54,15 @@ public class AuthenticatedActorContext {
         return role != null && roles().contains(role);
     }
 
-    private AuthenticatedActor resolveAuthenticatedActor() {
+    private User resolveUser() {
         String value = emailClaim.getValue();
         if (value == null || value.isBlank()) {
             throw new ForbiddenException("authenticated actor email is not available");
         }
 
-        User user = userRepository.findByEmail(Email.of(value))
+        return userRepository.findByEmail(Email.of(value))
                 .orElseThrow(() -> new ForbiddenException(
                         "authenticated actor not found for email: " + value
                 ));
-
-        return new AuthenticatedActor(user.id(), user.email(), user.roles());
     }
 }

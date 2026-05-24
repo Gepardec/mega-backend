@@ -4,6 +4,8 @@ import com.gepardec.mega.hexagon.generated.api.UserApi;
 import com.gepardec.mega.hexagon.generated.model.ActiveUserDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDateEntryDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDatesRequestDto;
+import com.gepardec.mega.hexagon.generated.model.UserDto;
+import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.user.application.port.inbound.GetActiveUsersUseCase;
@@ -23,16 +25,19 @@ public class UserResource implements UserApi {
 
     private final GetActiveUsersUseCase getActiveUsersUseCase;
     private final UpdateReleaseDatesUseCase updateReleaseDatesUseCase;
+    private final AuthenticatedActorContext authenticatedActorContext;
     private final UserRestMapper userRestMapper;
 
     @Inject
     public UserResource(
             GetActiveUsersUseCase getActiveUsersUseCase,
             UpdateReleaseDatesUseCase updateReleaseDatesUseCase,
+            AuthenticatedActorContext authenticatedActorContext,
             UserRestMapper userRestMapper
     ) {
         this.getActiveUsersUseCase = getActiveUsersUseCase;
         this.updateReleaseDatesUseCase = updateReleaseDatesUseCase;
+        this.authenticatedActorContext = authenticatedActorContext;
         this.userRestMapper = userRestMapper;
     }
 
@@ -43,6 +48,13 @@ public class UserResource implements UserApi {
                 .map(userRestMapper::toDto)
                 .toList();
         return Response.ok(activeUsers).build();
+    }
+
+    @Override
+    @MegaRolesAllowed(Role.EMPLOYEE)
+    public Response getCurrentUser() {
+        UserDto currentUser = userRestMapper.toUserDto(authenticatedActorContext.user());
+        return Response.ok(currentUser).build();
     }
 
     @Override
