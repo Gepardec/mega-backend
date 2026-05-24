@@ -65,3 +65,59 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
+'/users/internal-rates':
+  post:
+    tags:
+      - User
+    operationId: uploadInternalRates
+    summary: Bulk-update employee hourly rates via CSV upload
+    security:
+      - bearerAuth: [ ]
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required:
+              - file
+            properties:
+              file:
+                type: string
+                format: binary
+    responses:
+      '200':
+        description: Internal rates updated successfully
+      '400':
+        description: CSV validation failed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/user.yaml#/InternalRateUploadError'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'
+'/users/internal-rates/csv-template':
+  get:
+    tags:
+      - User
+    operationId: getInternalRatesCsvTemplate
+    summary: Download CSV template for internal rate upload
+    security:
+      - bearerAuth: [ ]
+    responses:
+      '200':
+        description: CSV template of active users
+        headers:
+          Content-Disposition:
+            schema:
+              type: string
+        content:
+          text/csv:
+            schema:
+              type: string
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'

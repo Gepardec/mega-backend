@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.user.adapter.outbound;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
+import com.gepardec.mega.hexagon.user.domain.model.HourlyRate;
 import com.gepardec.mega.hexagon.user.domain.model.ZepEmployeeSyncData;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.ZepEmployeePort;
 import com.gepardec.mega.zep.ZepService;
@@ -44,6 +45,14 @@ public class ZepEmployeeAdapter implements ZepEmployeePort {
     public Uni<Void> updateReleaseDate(ZepUsername username, LocalDate releaseDate) {
         return Uni.createFrom().item(() -> {
             zepService.updateEmployeesReleaseDate(username.value(), releaseDate.toString());
+            return null;
+        }).replaceWithVoid();
+    }
+
+    @Override
+    public Uni<Void> updateHourlyRate(ZepUsername username, HourlyRate hourlyRate, LocalDate effectiveFrom) {
+        return Uni.createFrom().item(() -> {
+            zepService.updateEmployeeHourlyRate(username.value(), hourlyRate.value(), effectiveFrom.toString());
             return null;
         }).replaceWithVoid();
     }

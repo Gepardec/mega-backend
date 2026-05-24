@@ -84,3 +84,17 @@ UpdateReleaseDatesResponse:
       items:
         type: string
         format: uuid
+InternalRateUploadError:
+  type: object
+  additionalProperties: false
+  required:
+    - errorCode
+    - lines
+  properties:
+    errorCode:
+      type: string
+    lines:
+      type: array
+      items:
+        type: integer
+        format: int32

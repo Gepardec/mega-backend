@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.user.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.model.ActiveUserDto;
+import com.gepardec.mega.hexagon.generated.model.InternalRateUploadErrorDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDateEntryDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDatesRequestDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDatesResponseDto;
@@ -12,17 +13,23 @@ import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.application.port.inbound.GetActiveUsersUseCase;
+import com.gepardec.mega.hexagon.user.application.port.inbound.InternalRateUpdateCommand;
+import com.gepardec.mega.hexagon.user.application.port.inbound.UpdateInternalRatesUseCase;
 import com.gepardec.mega.hexagon.user.application.port.inbound.UpdateReleaseDateCommand;
 import com.gepardec.mega.hexagon.user.application.port.inbound.UpdateReleaseDatesResult;
 import com.gepardec.mega.hexagon.user.application.port.inbound.UpdateReleaseDatesUseCase;
+import com.gepardec.mega.hexagon.user.domain.error.UnknownUsersException;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
+import com.gepardec.mega.hexagon.user.domain.model.HourlyRate;
 import com.gepardec.mega.hexagon.user.domain.model.PersonioId;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
+import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.http.ContentType;
+import io.restassured.specification.MultiPartSpecification;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -32,7 +39,9 @@ import java.util.Set;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -49,6 +58,9 @@ class UserResourceTest {
 
     @InjectMock
     UpdateReleaseDatesUseCase updateReleaseDatesUseCase;
+
+    @InjectMock
+    UpdateInternalRatesUseCase updateInternalRatesUseCase;
 
     @Test
     void getCurrentUser_shouldReturnCurrentUserForEmployee() {
@@ -189,8 +201,170 @@ class UserResourceTest {
         verifyNoInteractions(updateReleaseDatesUseCase);
     }
 
+    @Test
+    void uploadInternalRates_shouldReturn200AndMapCsvToCommands() {
+        allowRoles(Role.OFFICE_MANAGEMENT);
+        String csv = """
+                #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
+                beta,72.5,2026-05-01
+                alpha;80;2026-05-02
+                """;
+
+        given()
+                .multiPart(buildCsvPart(csv))
+                .post("/users/internal-rates")
+                .then()
+                .statusCode(200);
+
+        verify(updateInternalRatesUseCase).update(argThat(commands ->
+                commands.equals(List.of(
+                        new InternalRateUpdateCommand(
+                                ZepUsername.of("beta"),
+                                HourlyRate.of(72.5),
+                                LocalDate.of(2026, 5, 1)
+                        ),
+                        new InternalRateUpdateCommand(
+                                ZepUsername.of("alpha"),
+                                HourlyRate.of(80),
+                                LocalDate.of(2026, 5, 2)
+                        )
+                ))
+        ));
+    }
+
+    @Test
+    void uploadInternalRates_shouldReturnEmptyFileError() {
+        allowRoles(Role.OFFICE_MANAGEMENT);
+        String csv = """
+                #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
+                
+                #comment
+                """;
+
+        InternalRateUploadErrorDto response = given()
+                .multiPart(buildCsvPart(csv))
+                .post("/users/internal-rates")
+                .then()
+                .statusCode(400)
+                .extract()
+                .as(InternalRateUploadErrorDto.class);
+
+        assertThat(response.getErrorCode()).isEqualTo("EMPTY_FILE");
+        assertThat(response.getLines()).isEmpty();
+        verifyNoInteractions(updateInternalRatesUseCase);
+    }
+
+    @Test
+    void uploadInternalRates_shouldReturnBadFormatErrorWithOriginalLineNumbers() {
+        allowRoles(Role.OFFICE_MANAGEMENT);
+        String csv = """
+                #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
+                alpha,72.5,2026-05-01
+                
+                beta,not-a-number,2026-05-02
+                gamma,12
+                """;
+
+        InternalRateUploadErrorDto response = given()
+                .multiPart(buildCsvPart(csv))
+                .post("/users/internal-rates")
+                .then()
+                .statusCode(400)
+                .extract()
+                .as(InternalRateUploadErrorDto.class);
+
+        assertThat(response.getErrorCode()).isEqualTo("BAD_FORMAT");
+        assertThat(response.getLines()).containsExactly(4, 5);
+        verifyNoInteractions(updateInternalRatesUseCase);
+    }
+
+    @Test
+    void uploadInternalRates_shouldReturnUnknownUsersErrorWithCorrelatedLines() {
+        allowRoles(Role.OFFICE_MANAGEMENT);
+        String csv = """
+                #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
+                alpha,72.5,2026-05-01
+                missing,70,2026-05-02
+                missing,71,2026-05-03
+                """;
+
+        doThrow(new UnknownUsersException(Set.of(ZepUsername.of("missing"))))
+                .when(updateInternalRatesUseCase).update(anyList());
+
+        InternalRateUploadErrorDto response = given()
+                .multiPart(buildCsvPart(csv))
+                .post("/users/internal-rates")
+                .then()
+                .statusCode(400)
+                .extract()
+                .as(InternalRateUploadErrorDto.class);
+
+        assertThat(response.getErrorCode()).isEqualTo("UNKNOWN_USERS");
+        assertThat(response.getLines()).containsExactly(3, 4);
+    }
+
+    @Test
+    void uploadInternalRates_shouldReturnForbiddenForNonOfficeManagementRole() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .multiPart(buildCsvPart("alpha,72.5,2026-05-01\n"))
+                .post("/users/internal-rates")
+                .then()
+                .statusCode(403);
+
+        verifyNoInteractions(updateInternalRatesUseCase);
+    }
+
+    @Test
+    void getInternalRatesCsvTemplate_shouldReturnTemplateWithSortedRowsAndContentDisposition() {
+        allowRoles(Role.OFFICE_MANAGEMENT);
+
+        User zeta = user("zeta", LocalDate.of(2026, 4, 30));
+        User alpha = user("alpha", LocalDate.of(2026, 4, 30));
+        when(getActiveUsersUseCase.getActiveUsers()).thenReturn(List.of(zeta, alpha));
+
+        String csv = given()
+                .accept("text/csv")
+                .get("/users/internal-rates/csv-template")
+                .then()
+                .statusCode(200)
+                .header("Content-Disposition", "attachment; filename=\"hourly_rates_template.csv\"")
+                .extract()
+                .asString();
+
+        String[] lines = csv.split("\n");
+        String today = LocalDate.now().toString();
+
+        assertThat(lines).hasSize(3);
+        assertThat(lines[0]).isEqualTo("#ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD");
+        assertThat(lines[1]).isEqualTo("alpha,," + today);
+        assertThat(lines[2]).isEqualTo("zeta,," + today);
+    }
+
+    @Test
+    void getInternalRatesCsvTemplate_shouldReturnForbiddenForNonOfficeManagementRole() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .accept("text/csv")
+                .get("/users/internal-rates/csv-template")
+                .then()
+                .statusCode(403);
+
+        verifyNoInteractions(getActiveUsersUseCase);
+    }
+
     private void allowRoles(Role... roles) {
         when(authenticatedActorContext.roles()).thenReturn(Set.of(roles));
+    }
+
+    private MultiPartSpecification buildCsvPart(String csvContent) {
+        return new MultiPartSpecBuilder(csvContent)
+                .controlName("file")
+                .fileName("hourly-rates.csv")
+                .mimeType("text/csv")
+                .build();
     }
 
     private User user(String username, LocalDate releaseDate) {

@@ -41,6 +41,10 @@ paths:
     $ref: './paths/user.yaml#/~1users~1me'
   /users/release-dates:
     $ref: './paths/user.yaml#/~1users~1release-dates'
+  /users/internal-rates:
+    $ref: './paths/user.yaml#/~1users~1internal-rates'
+  /users/internal-rates/csv-template:
+    $ref: './paths/user.yaml#/~1users~1internal-rates~1csv-template'
   /worktime/employee/{payrollMonth}:
     $ref: './paths/worktime.yaml#/~1worktime~1employee~1{payrollMonth}'
   /worktime/projects/{payrollMonth}:
@@ -57,6 +61,8 @@ components:
       $ref: './schemas/user.yaml#/UpdateReleaseDatesRequest'
     UpdateReleaseDatesResponse:
       $ref: './schemas/user.yaml#/UpdateReleaseDatesResponse'
+    InternalRateUploadError:
+      $ref: './schemas/user.yaml#/InternalRateUploadError'
   securitySchemes:
     bearerAuth:
       type: oauth2
