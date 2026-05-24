@@ -48,21 +48,18 @@ class MonthEndTaskPlanningServiceTest {
     }
 
     @Test
-    void planEmployeeOwnedTasks_shouldCreateTimeCheckAndLeistungsnachweis_whenProjectIsBillable() {
+    void planEmployeeOwnedTasks_shouldCreateOnlyTimeCheck_whenProjectIsBillable() {
         UserRef employee = activeUser("employee");
         MonthEndProjectSnapshot project = activeProject(true, Set.of());
 
         List<MonthEndTask> tasks = service.planEmployeeOwnedTasks(month, project, employee);
 
-        assertThat(tasks).extracting(MonthEndTask::type)
-                .containsExactly(
-                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        MonthEndTaskType.LEISTUNGSNACHWEIS
-                );
-        assertThat(tasks).allSatisfy(task -> {
-            assertThat(task.subjectEmployeeId()).isEqualTo(employee.id());
-            assertThat(task.eligibleActorIds()).containsExactly(employee.id());
-        });
+        assertThat(tasks).singleElement()
+                .satisfies(task -> {
+                    assertThat(task.type()).isEqualTo(MonthEndTaskType.EMPLOYEE_TIME_CHECK);
+                    assertThat(task.subjectEmployeeId()).isEqualTo(employee.id());
+                    assertThat(task.eligibleActorIds()).containsExactly(employee.id());
+                });
     }
 
     @Test
@@ -87,6 +84,14 @@ class MonthEndTaskPlanningServiceTest {
                 .toList())
                 .containsExactlyInAnyOrder(employeeA.id(), employeeB.id());
         assertThat(tasks.stream()
+                .filter(task -> task.type() == MonthEndTaskType.LEISTUNGSNACHWEIS)
+                .toList())
+                .hasSize(2)
+                .allSatisfy(task -> {
+                    assertThat(task.subjectEmployeeId()).isIn(employeeA.id(), employeeB.id());
+                    assertThat(task.eligibleActorIds()).containsExactlyInAnyOrder(leadA, leadB);
+                });
+        assertThat(tasks.stream()
                 .filter(task -> task.type() == MonthEndTaskType.ABRECHNUNG))
                 .singleElement()
                 .satisfies(task -> {
@@ -102,10 +107,22 @@ class MonthEndTaskPlanningServiceTest {
 
         List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(), Set.of(employee));
 
+        assertThat(tasks).singleElement()
+                .satisfies(task -> assertThat(task.type()).isEqualTo(MonthEndTaskType.EMPLOYEE_TIME_CHECK));
+    }
+
+    @Test
+    void planProjectTasks_shouldNotCreateLeistungsnachweis_whenProjectIsNonBillable() {
+        UserRef employee = activeUser("employee");
+        UserId lead = UserId.of(Instancio.create(UUID.class));
+        MonthEndProjectSnapshot project = activeProject(false, Set.of(lead));
+
+        List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(lead), Set.of(employee));
+
         assertThat(tasks).extracting(MonthEndTask::type)
-                .containsExactly(
+                .containsExactlyInAnyOrder(
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        MonthEndTaskType.LEISTUNGSNACHWEIS
+                        MonthEndTaskType.PROJECT_LEAD_REVIEW
                 );
     }
 

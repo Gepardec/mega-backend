@@ -36,6 +36,7 @@ class PayrollMonthCompletionAdapterTest {
 
         UserId allDoneEmployee = UserId.generate();
         UserId mixedEmployee = UserId.generate();
+        UserId leadId = UserId.generate();
 
         MonthEndTask doneTaskA = MonthEndTask.create(
                 MonthEndTaskId.generate(),
@@ -51,8 +52,8 @@ class PayrollMonthCompletionAdapterTest {
                 MonthEndTaskType.LEISTUNGSNACHWEIS,
                 projectId,
                 allDoneEmployee,
-                Set.of(allDoneEmployee)
-        ).complete(allDoneEmployee);
+                Set.of(leadId)
+        ).complete(leadId);
 
         MonthEndTask doneMixedTask = MonthEndTask.create(
                 MonthEndTaskId.generate(),
@@ -68,7 +69,7 @@ class PayrollMonthCompletionAdapterTest {
                 MonthEndTaskType.LEISTUNGSNACHWEIS,
                 projectId,
                 mixedEmployee,
-                Set.of(mixedEmployee)
+                Set.of(leadId)
         );
 
         MonthEndTask projectLevelTask = MonthEndTask.create(

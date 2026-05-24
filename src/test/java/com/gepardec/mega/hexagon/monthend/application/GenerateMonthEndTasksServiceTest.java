@@ -96,6 +96,8 @@ class GenerateMonthEndTasksServiceTest {
                     .findFirst()
                     .orElseThrow();
             assertThat(leistungsnachweis.subjectEmployeeId()).isEqualTo(employee.id());
+            assertThat(leistungsnachweis.eligibleActorIds()).containsExactly(lead.id());
+            assertThat(leistungsnachweis.completionPolicy()).isEqualTo(MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR);
 
             MonthEndTask projectLeadReview = tasks.stream()
                     .filter(task -> task.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
@@ -127,7 +129,7 @@ class GenerateMonthEndTasksServiceTest {
                 MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                         project.id(), employee.id(), Set.of(employee.id())),
                 MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.LEISTUNGSNACHWEIS,
-                        project.id(), employee.id(), Set.of(employee.id())),
+                        project.id(), employee.id(), Set.of(lead.id())),
                 MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.PROJECT_LEAD_REVIEW,
                         project.id(), employee.id(), Set.of(lead.id())),
                 MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.ABRECHNUNG,
@@ -195,6 +197,11 @@ class GenerateMonthEndTasksServiceTest {
                     .toList())
                     .containsExactlyInAnyOrder(employeeA.id(), employeeB.id());
             assertThat(tasks.stream()
+                    .filter(task -> task.type() == MonthEndTaskType.LEISTUNGSNACHWEIS)
+                    .map(MonthEndTask::eligibleActorIds)
+                    .toList())
+                    .allSatisfy(eligibleActors -> assertThat(eligibleActors).containsExactly(lead.id()));
+            assertThat(tasks.stream()
                     .filter(task -> task.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
                     .map(MonthEndTask::subjectEmployeeId)
                     .toList())
@@ -203,6 +210,34 @@ class GenerateMonthEndTasksServiceTest {
                     .filter(task -> task.type() == MonthEndTaskType.ABRECHNUNG))
                     .singleElement()
                     .satisfies(task -> assertThat(task.eligibleActorIds()).containsExactly(lead.id()));
+            return true;
+        }));
+    }
+
+    @Test
+    void generate_shouldNotCreateLeistungsnachweis_whenProjectIsNonBillableEvenWithActiveLead() {
+        UserRef employee = activeUser("employee", "00000000-0000-0000-0000-000000000050");
+        UserRef lead = activeUser("lead", "00000000-0000-0000-0000-000000000051");
+        MonthEndProjectSnapshot project = activeProject(101, false, Set.of(lead.id()));
+
+        when(monthEndTaskRepository.findByMonth(month)).thenReturn(List.of());
+        when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
+        when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(employee, lead));
+        when(monthEndProjectAssignmentPort.findAssignedUsernames(101, month)).thenReturn(Set.of("employee"));
+
+        MonthEndTaskGenerationResult result = service.generate(month);
+
+        assertThat(result.created()).isEqualTo(2);
+        assertThat(result.skipped()).isZero();
+        verify(monthEndTaskRepository).saveAll(argThat(tasks -> {
+            assertThat(tasks).extracting(MonthEndTask::type)
+                    .containsExactlyInAnyOrder(
+                            MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                            MonthEndTaskType.PROJECT_LEAD_REVIEW
+                    );
+            assertThat(tasks.stream()
+                    .filter(task -> task.type() == MonthEndTaskType.LEISTUNGSNACHWEIS))
+                    .isEmpty();
             return true;
         }));
     }

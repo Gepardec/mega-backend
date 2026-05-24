@@ -14,7 +14,7 @@ The system SHALL complete all month-end obligations through the `MonthEndTask` a
 - **THEN** the task status becomes `DONE`
 
 #### Scenario: Lead completes a shared project task
-- **WHEN** one eligible project lead completes an open `PROJECT_LEAD_REVIEW` or `ABRECHNUNG` task
+- **WHEN** one eligible project lead completes an open `PROJECT_LEAD_REVIEW`, `LEISTUNGSNACHWEIS`, or `ABRECHNUNG` task
 - **THEN** the task status becomes `DONE`
 
 #### Scenario: System actor completes an employee-owned task on behalf of an absent employee

@@ -97,7 +97,7 @@ class MonthEndIT {
     ProjectService projectService;
 
     @Test
-    void monthEndFlow_shouldGenerateAndCompleteEmployeeChecklistItems() {
+    void monthEndFlow_shouldGenerateAndCompleteEmployeeTimeCheckItems() {
         User employee = user("employee", Set.of(Role.EMPLOYEE));
         User lead = user("lead", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
         Project project = project(701, Set.of(lead.id()));
@@ -115,15 +115,16 @@ class MonthEndIT {
                 .toList();
         assertThat(eligibleOpenItems)
                 .extracting(MonthEndTask::type)
-                .containsExactlyInAnyOrder(
-                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        MonthEndTaskType.LEISTUNGSNACHWEIS
-                );
+                .containsExactly(MonthEndTaskType.EMPLOYEE_TIME_CHECK);
         assertThat(eligibleOpenItems)
                 .allSatisfy(item -> {
                     assertThat(item.projectId()).isEqualTo(project.id());
                     assertThat(item.subjectEmployeeId()).isEqualTo(employee.id());
                 });
+        assertThat(employeeOverview.tasks())
+                .filteredOn(item -> item.type() == MonthEndTaskType.LEISTUNGSNACHWEIS)
+                .singleElement()
+                .satisfies(item -> assertThat(item.canBeCompletedBy(employee.id())).isFalse());
 
         MonthEndTask employeeTimeCheck = eligibleOpenItems.stream()
                 .filter(item -> item.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
@@ -136,13 +137,7 @@ class MonthEndIT {
         List<MonthEndTask> updatedEligibleOpenItems = updatedOverview.tasks().stream()
                 .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(employee.id()))
                 .toList();
-        assertThat(updatedEligibleOpenItems)
-                .singleElement()
-                .satisfies(item -> {
-                    assertThat(item.type()).isEqualTo(MonthEndTaskType.LEISTUNGSNACHWEIS);
-                    assertThat(item.projectId()).isEqualTo(project.id());
-                    assertThat(item.subjectEmployeeId()).isEqualTo(employee.id());
-                });
+        assertThat(updatedEligibleOpenItems).isEmpty();
     }
 
     @Test
@@ -171,12 +166,14 @@ class MonthEndIT {
                 .extracting(MonthEndTask::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        MonthEndTaskType.LEISTUNGSNACHWEIS,
                         MonthEndTaskType.ABRECHNUNG
                 );
         assertThat(leadBEligibleOpen)
                 .extracting(MonthEndTask::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        MonthEndTaskType.LEISTUNGSNACHWEIS,
                         MonthEndTaskType.ABRECHNUNG
                 );
 
@@ -197,19 +194,11 @@ class MonthEndIT {
                 .toList();
 
         assertThat(updatedLeadAEligibleOpen)
-                .singleElement()
-                .satisfies(item -> {
-                    assertThat(item.type()).isEqualTo(MonthEndTaskType.ABRECHNUNG);
-                    assertThat(item.projectId()).isEqualTo(project.id());
-                    assertThat(item.subjectEmployeeId()).isNull();
-                });
+                .extracting(MonthEndTask::type)
+                .containsExactlyInAnyOrder(MonthEndTaskType.LEISTUNGSNACHWEIS, MonthEndTaskType.ABRECHNUNG);
         assertThat(updatedLeadBEligibleOpen)
-                .singleElement()
-                .satisfies(item -> {
-                    assertThat(item.type()).isEqualTo(MonthEndTaskType.ABRECHNUNG);
-                    assertThat(item.projectId()).isEqualTo(project.id());
-                    assertThat(item.subjectEmployeeId()).isNull();
-                });
+                .extracting(MonthEndTask::type)
+                .containsExactlyInAnyOrder(MonthEndTaskType.LEISTUNGSNACHWEIS, MonthEndTaskType.ABRECHNUNG);
     }
 
     @Test
@@ -228,13 +217,13 @@ class MonthEndIT {
         List<MonthEndTask> preparedTasks = monthEndTaskRepositoryAdapter.findByMonth(MONTH);
         assertThat(preparedTasks)
                 .extracting(MonthEndTask::type)
-                .containsExactlyInAnyOrder(MonthEndTaskType.EMPLOYEE_TIME_CHECK, MonthEndTaskType.LEISTUNGSNACHWEIS);
+                .containsExactly(MonthEndTaskType.EMPLOYEE_TIME_CHECK);
 
         MonthEndTaskGenerationResult generationResult = generateMonthEndTasksUseCase.generate(MONTH);
         List<MonthEndTask> allTasks = monthEndTaskRepositoryAdapter.findByMonth(MONTH);
 
-        assertThat(generationResult.created()).isEqualTo(2);
-        assertThat(generationResult.skipped()).isEqualTo(2);
+        assertThat(generationResult.created()).isEqualTo(3);
+        assertThat(generationResult.skipped()).isEqualTo(1);
         assertThat(allTasks)
                 .extracting(MonthEndTask::type)
                 .containsExactlyInAnyOrder(
@@ -244,8 +233,7 @@ class MonthEndIT {
                         MonthEndTaskType.ABRECHNUNG
                 );
         assertThat(allTasks.stream()
-                .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK
-                        || task.type() == MonthEndTaskType.LEISTUNGSNACHWEIS)
+                .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .map(MonthEndTask::id)
                 .toList())
                 .containsExactlyInAnyOrderElementsOf(
@@ -294,6 +282,14 @@ class MonthEndIT {
                 .singleElement()
                 .satisfies(item -> {
                     assertThat(item.subjectEmployeeId()).isNotNull();
+                    assertThat(item.subjectEmployeeId()).isEqualTo(employee.id());
+                    assertThat(item.canBeCompletedBy(employee.id())).isFalse();
+                    assertThat(item.completedBy()).isNull();
+                });
+        assertThat(statusOverview.tasks())
+                .filteredOn(item -> item.type() == MonthEndTaskType.LEISTUNGSNACHWEIS)
+                .singleElement()
+                .satisfies(item -> {
                     assertThat(item.subjectEmployeeId()).isEqualTo(employee.id());
                     assertThat(item.canBeCompletedBy(employee.id())).isFalse();
                     assertThat(item.completedBy()).isNull();
@@ -386,9 +382,7 @@ class MonthEndIT {
                 .extracting(MonthEndTask::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        MonthEndTaskType.LEISTUNGSNACHWEIS,
-                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        MonthEndTaskType.LEISTUNGSNACHWEIS
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK
                 );
         assertThat(employeeOverview.clarifications())
                 .extracting(MonthEndClarification::projectId, MonthEndClarification::text)
@@ -421,11 +415,7 @@ class MonthEndIT {
                 .toList();
         assertThat(updatedEligibleOpen)
                 .extracting(MonthEndTask::type)
-                .containsExactlyInAnyOrder(
-                        MonthEndTaskType.LEISTUNGSNACHWEIS,
-                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        MonthEndTaskType.LEISTUNGSNACHWEIS
-                );
+                .containsExactly(MonthEndTaskType.EMPLOYEE_TIME_CHECK);
         assertThat(updatedEmployeeOverview.clarifications())
                 .extracting(MonthEndClarification::projectId)
                 .containsExactlyInAnyOrder(projectA.id(), projectB.id());
@@ -498,6 +488,18 @@ class MonthEndIT {
                 .toList())
                 .allSatisfy(task -> assertThat(task.eligibleActorIds()).containsExactly(user1.id()));
         assertThat(leadReviews.stream()
+                .filter(task -> task.projectId().equals(project2.id()))
+                .toList())
+                .singleElement()
+                .satisfies(task -> assertThat(task.eligibleActorIds()).containsExactlyInAnyOrder(
+                        user1.id(),
+                        user2.id()
+                ));
+        assertThat(leistungsnachweise.stream()
+                .filter(task -> task.projectId().equals(project1.id()))
+                .toList())
+                .allSatisfy(task -> assertThat(task.eligibleActorIds()).containsExactly(user1.id()));
+        assertThat(leistungsnachweise.stream()
                 .filter(task -> task.projectId().equals(project2.id()))
                 .toList())
                 .singleElement()

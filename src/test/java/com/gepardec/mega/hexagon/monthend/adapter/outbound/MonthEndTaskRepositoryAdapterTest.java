@@ -60,8 +60,8 @@ class MonthEndTaskRepositoryAdapterTest {
         MonthEndTask doneEtcTask = MonthEndTask.create(
                 MonthEndTaskId.generate(), month,
                 MonthEndTaskType.LEISTUNGSNACHWEIS,
-                project.id(), employee.id(), Set.of(employee.id())
-        ).complete(employee.id());
+                project.id(), employee.id(), Set.of(lead.id())
+        ).complete(lead.id());
         MonthEndTask openReviewTask = MonthEndTask.create(
                 MonthEndTaskId.generate(), month,
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,

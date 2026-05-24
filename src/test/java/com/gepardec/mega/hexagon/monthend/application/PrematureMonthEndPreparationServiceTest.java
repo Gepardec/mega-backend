@@ -97,12 +97,11 @@ class PrematureMonthEndPreparationServiceTest {
         service.prepare(month, employeeId, "Vacation.");
 
         ArgumentCaptor<MonthEndTask> taskCaptor = ArgumentCaptor.forClass(MonthEndTask.class);
-        verify(monthEndTaskRepository, times(3)).save(taskCaptor.capture());
+        verify(monthEndTaskRepository, times(2)).save(taskCaptor.capture());
         assertThat(taskCaptor.getAllValues())
                 .extracting(MonthEndTask::projectId, MonthEndTask::type, MonthEndTask::subjectEmployeeId)
                 .containsExactly(
                         tuple(billableProject.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK, employeeId),
-                        tuple(billableProject.id(), MonthEndTaskType.LEISTUNGSNACHWEIS, employeeId),
                         tuple(nonBillableProject.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK, employeeId)
                 );
 

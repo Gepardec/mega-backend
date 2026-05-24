@@ -70,11 +70,11 @@ class MonthEndTaskTest {
     }
 
     @Test
-    void create_shouldRejectEmployeeOwnedTaskWithMultipleEligibleActors() {
+    void create_shouldRejectEmployeeTimeCheckWithMultipleEligibleActors() {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> MonthEndTask.create(
                 MonthEndTaskId.generate(),
                 month,
-                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                 projectId,
                 employeeId,
                 Set.of(employeeId, leadA)
@@ -112,6 +112,22 @@ class MonthEndTaskTest {
 
         assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class)
                 .hasMessageContaining("eligible employee actor");
+    }
+
+    @Test
+    void create_shouldAllowLeistungsnachweisWhenEligibleActorsAreProjectLeads() {
+        MonthEndTask task = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                projectId,
+                employeeId,
+                Set.of(leadA, leadB)
+        );
+
+        assertThat(task.subjectEmployeeId()).isEqualTo(employeeId);
+        assertThat(task.eligibleActorIds()).containsExactlyInAnyOrder(leadA, leadB);
+        assertThat(task.completionPolicy()).isEqualTo(MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR);
     }
 
     @Test

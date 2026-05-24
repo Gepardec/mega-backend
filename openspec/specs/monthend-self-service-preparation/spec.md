@@ -12,12 +12,11 @@ The system SHALL allow the subject employee to explicitly prepare employee-owned
 #### Scenario: Employee prepares all assigned projects including non-billable ones
 - **WHEN** the subject employee prepares month-end obligations for a month in which they are assigned to a non-billable project
 - **THEN** the system creates one `EMPLOYEE_TIME_CHECK` task for that month, project, and subject employee
-- **THEN** the system does not create a `LEISTUNGSNACHWEIS` task for that non-billable project context
 
 #### Scenario: Employee prepares all assigned projects including billable ones
 - **WHEN** the subject employee prepares month-end obligations for a month in which they are assigned to a billable project
 - **THEN** the system creates one `EMPLOYEE_TIME_CHECK` task for that month, project, and subject employee
-- **THEN** the system creates one `LEISTUNGSNACHWEIS` task for that month, project, and subject employee
+- **THEN** the system does not create a `LEISTUNGSNACHWEIS` task for that billable project context
 
 #### Scenario: Employee assigned to multiple projects gets tasks for each
 - **WHEN** the subject employee prepares month-end obligations for a month in which they are assigned to more than one project

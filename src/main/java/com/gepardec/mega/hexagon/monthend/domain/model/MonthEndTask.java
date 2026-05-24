@@ -128,7 +128,7 @@ public record MonthEndTask(
             Set<UserId> eligibleActorIds
     ) {
         switch (type) {
-            case EMPLOYEE_TIME_CHECK, LEISTUNGSNACHWEIS -> {
+            case EMPLOYEE_TIME_CHECK -> {
                 if (subjectEmployeeId == null) {
                     throw new MonthEndValidationException("employee-owned tasks require a subject employee");
                 }
@@ -136,6 +136,11 @@ public record MonthEndTask(
                     throw new MonthEndValidationException(
                             "employee-owned tasks must reference their eligible employee actor"
                     );
+                }
+            }
+            case LEISTUNGSNACHWEIS -> {
+                if (subjectEmployeeId == null) {
+                    throw new MonthEndValidationException("leistungsnachweis tasks require a subject employee");
                 }
             }
             case PROJECT_LEAD_REVIEW -> {

@@ -37,6 +37,17 @@ public class MonthEndTaskPlanningService {
                         activeLeadIds
                 ));
             }
+
+            if (project.billable() && !activeLeadIds.isEmpty()) {
+                tasks.add(MonthEndTask.create(
+                        MonthEndTaskId.generate(),
+                        month,
+                        MonthEndTaskType.LEISTUNGSNACHWEIS,
+                        project.id(),
+                        assignedUser.id(),
+                        activeLeadIds
+                ));
+            }
         }
 
         if (project.billable() && !activeLeadIds.isEmpty()) {
@@ -67,17 +78,6 @@ public class MonthEndTaskPlanningService {
                 subjectEmployee.id(),
                 Set.of(subjectEmployee.id())
         ));
-
-        if (project.billable()) {
-            tasks.add(MonthEndTask.create(
-                    MonthEndTaskId.generate(),
-                    month,
-                    MonthEndTaskType.LEISTUNGSNACHWEIS,
-                    project.id(),
-                    subjectEmployee.id(),
-                    Set.of(subjectEmployee.id())
-            ));
-        }
 
         return tasks;
     }
