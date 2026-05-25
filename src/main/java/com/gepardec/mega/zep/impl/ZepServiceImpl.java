@@ -26,12 +26,12 @@ public class ZepServiceImpl implements ZepService {
 
     @Override
     public Employee getEmployee(String userId) {
-        return zepServiceSoap.getEmployee(userId);
+        return zepServiceRest.getEmployee(userId);
     }
 
     @Override
     public List<Employee> getEmployees() {
-        return zepServiceSoap.getEmployees();
+        return zepServiceRest.getEmployees();
     }
 
     @Override
@@ -41,32 +41,32 @@ public class ZepServiceImpl implements ZepService {
 
     @Override
     public List<ProjectEntry> getProjectTimes(Employee employee, YearMonth payrollMonth) {
-        return zepServiceSoap.getProjectTimes(employee, payrollMonth);
+        return zepServiceRest.getProjectTimes(employee, payrollMonth);
     }
 
     @Override
     public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, YearMonth payrollMonth) {
-        return zepServiceSoap.getProjectTimesForEmployeePerProject(project, payrollMonth);
+        return zepServiceRest.getProjectTimesForEmployeePerProject(project, payrollMonth);
     }
 
     @Override
     public List<Project> getProjectsForMonthYear(YearMonth payrollMonth) {
-        return zepServiceSoap.getProjectsForMonthYear(payrollMonth);
+        return zepServiceRest.getProjectsForMonthYear(payrollMonth);
     }
 
     @Override
     public Optional<Project> getProjectByName(String projectName, YearMonth payrollMonth) {
-        return zepServiceSoap.getProjectByName(projectName, payrollMonth);
+        return zepServiceRest.getProjectByName(projectName, payrollMonth);
     }
 
     @Override
     public List<AbsenceTime> getAbsenceForEmployee(Employee employee, YearMonth payrollMonth) {
-        return zepServiceSoap.getAbsenceForEmployee(employee, payrollMonth);
+        return zepServiceRest.getAbsenceForEmployee(employee, payrollMonth);
     }
 
     @Override
     public List<ProjectTime> getBillableForEmployee(Employee employee, YearMonth payrollMonth) {
-        return zepServiceSoap.getBillableForEmployee(employee, payrollMonth);
+        return zepServiceRest.getBillableForEmployee(employee, payrollMonth);
     }
 
     @Override

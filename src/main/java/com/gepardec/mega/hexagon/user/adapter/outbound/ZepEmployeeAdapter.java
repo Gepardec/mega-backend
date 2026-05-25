@@ -7,7 +7,6 @@ import com.gepardec.mega.hexagon.user.domain.model.HourlyRate;
 import com.gepardec.mega.hexagon.user.domain.model.ZepEmployeeSyncData;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.ZepEmployeePort;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.impl.Soap;
 import com.gepardec.mega.zep.rest.dto.ZepEmployee;
 import com.gepardec.mega.zep.rest.service.EmployeeService;
 import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
@@ -31,7 +30,6 @@ public class ZepEmployeeAdapter implements ZepEmployeePort {
     ZepEmployeeMapper mapper;
 
     @Inject
-    @Soap
     ZepService zepService;
 
     @Override

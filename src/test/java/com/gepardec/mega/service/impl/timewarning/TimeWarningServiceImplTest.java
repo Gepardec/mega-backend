@@ -4,9 +4,6 @@ import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.EmploymentPeriod;
 import com.gepardec.mega.domain.model.EmploymentPeriods;
-import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.User;
-import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.WorkTimeBookingWarning;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyDirection;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
@@ -20,11 +17,15 @@ import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
 import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.domain.utils.DateUtils;
+import com.gepardec.mega.hexagon.shared.domain.model.Email;
+import com.gepardec.mega.hexagon.shared.domain.model.Role;
+import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.service.api.TimeWarningService;
 import com.gepardec.mega.service.helper.WarningCalculatorsManager;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -46,14 +48,9 @@ class TimeWarningServiceImplTest {
     @InjectMock
     WarningCalculatorsManager warningCalculatorsManager;
 
-    @InjectMock
-    UserContext userContext;
-
     @Test
     void getAllWarningsForEmployeeAndMonth_whenWarningsPresent_thenReturnListOfMonthlyWarning() {
         User user = createUserForRole();
-        when(userContext.getUser()).thenReturn(user);
-
         Employee employee = createEmployeeForUser(user);
 
         when(warningCalculatorsManager.determineJourneyWarnings(any()))
@@ -76,8 +73,6 @@ class TimeWarningServiceImplTest {
     @Test
     void getAllWarningsForEmployeeAndMonth_whenNoWarningsPresent_thenReturnEmptyList() {
         User user = createUserForRole();
-        when(userContext.getUser()).thenReturn(user);
-
         Employee employee = createEmployeeForUser(user);
 
         when(warningCalculatorsManager.determineJourneyWarnings(any()))
@@ -99,8 +94,6 @@ class TimeWarningServiceImplTest {
     @Test
     void getAllWarningsForEmployeeAndMonth_whenEmptyEntryListWarning_thenReturnWarningWithoutDates() {
         User user = createUserForRole();
-        when(userContext.getUser()).thenReturn(user);
-
         Employee employee = createEmployeeForUser(user);
 
         when(warningCalculatorsManager.determineJourneyWarnings(any()))
@@ -133,8 +126,6 @@ class TimeWarningServiceImplTest {
     @Test
     void getAllWarningsForEmployeeAndMonth_whenDateSpecificWarnings_thenReturnWarningsWithDates() {
         User user = createUserForRole();
-        when(userContext.getUser()).thenReturn(user);
-
         Employee employee = createEmployeeForUser(user);
 
         when(warningCalculatorsManager.determineJourneyWarnings(any()))
@@ -344,25 +335,21 @@ class TimeWarningServiceImplTest {
 
     private Employee createEmployeeForUser(final User user) {
         return Employee.builder()
-                .email(user.getEmail())
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
+                .email(user.email().value())
+                .firstname(user.name().firstname())
+                .lastname(user.name().lastname())
                 .title("Ing.")
-                .userId(user.getUserId())
+                .userId(user.zepUsername().value())
                 .releaseDate("2020-01-01")
                 .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)))
                 .build();
     }
 
     private User createUserForRole() {
-        return User.builder()
-                .dbId(1)
-                .userId("1")
-                .email("max.mustermann@gpeardec.com")
-                .firstname("Max")
-                .lastname("Mustermann")
-                .roles(Set.of(Role.EMPLOYEE))
-                .build();
+        return Instancio.of(User.class)
+                .set(field(User::email), Email.of("max.mustermann@gpeardec.com"))
+                .set(field(User::roles), Set.of(Role.EMPLOYEE))
+                .create();
     }
 
     private List<TimeWarning> createNoTimeEntries() {

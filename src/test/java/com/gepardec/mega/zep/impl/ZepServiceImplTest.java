@@ -2,11 +2,9 @@ package com.gepardec.mega.zep.impl;
 
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
-import com.gepardec.mega.domain.model.User;
-import com.gepardec.mega.domain.model.UserContext;
-import com.gepardec.mega.service.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.ZepSoapProvider;
+import com.gepardec.mega.zep.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
 import de.provantis.zep.BeschaeftigungszeitListeType;
 import de.provantis.zep.BeschaeftigungszeitType;
@@ -68,9 +66,6 @@ class ZepServiceImplTest {
     @Inject
     Logger logger;
 
-    @InjectMock
-    UserContext userContext;
-
     ZepSoapServiceImpl zepService;
 
     private ProjektMitarbeiterListeType projektMitarbeiterListeType;
@@ -127,8 +122,6 @@ class ZepServiceImplTest {
                 List.of(createMitarbeiterType(0))
         ));
 
-        when(userContext.getUser()).thenReturn(User.builder().personioId(123).build());
-
         final Employee employee = zepService.getEmployee("0");
         assertThat(employee).isNotNull();
         assertThat(employee.getUserId()).isEqualTo("0");
@@ -146,8 +139,6 @@ class ZepServiceImplTest {
         when(zepSoapPortType.readMitarbeiter(any())).thenReturn(createReadMitarbeiterResponseType(
                 List.of(mitarbeiter)
         ));
-
-        when(userContext.getUser()).thenReturn(User.builder().personioId(123).build());
 
         final Employee employee = zepService.getEmployee("0");
 
@@ -185,8 +176,6 @@ class ZepServiceImplTest {
         Mockito.when(zepSoapPortType.readMitarbeiter(Mockito.any(ReadMitarbeiterRequestType.class))).thenReturn(createReadMitarbeiterResponseType(
                 List.of(createMitarbeiterType(0), createMitarbeiterType(1), createMitarbeiterType(2))
         ));
-
-        when(userContext.getUser()).thenReturn(User.builder().personioId(123).build());
 
         final List<Employee> employee = zepService.getEmployees();
 

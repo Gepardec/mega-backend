@@ -7,9 +7,6 @@ import com.gepardec.mega.domain.model.MonthlyAbsences;
 import com.gepardec.mega.domain.model.MonthlyBillInfo;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
-import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.User;
-import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.WorkTimeBookingWarning;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyDirection;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
@@ -19,6 +16,11 @@ import com.gepardec.mega.domain.model.monthlyreport.Task;
 import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.domain.utils.DateUtils;
+import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
+import com.gepardec.mega.hexagon.shared.domain.model.Email;
+import com.gepardec.mega.hexagon.shared.domain.model.Role;
+import com.gepardec.mega.hexagon.user.domain.model.User;
+import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.api.WorkerResource;
 import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
@@ -29,21 +31,20 @@ import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import com.gepardec.mega.rest.model.WorkTimeBookingWarningDto;
-import com.gepardec.mega.rest.provider.PayrollContext;
-import com.gepardec.mega.rest.provider.PayrollMonthProvider;
 import com.gepardec.mega.service.api.AbsenceService;
 import com.gepardec.mega.service.api.DateHelperService;
-import com.gepardec.mega.service.api.EmployeeService;
 import com.gepardec.mega.service.api.TimeWarningService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.impl.Rest;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectSpy;
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.oidc.Claim;
 import io.quarkus.test.security.oidc.OidcSecurity;
 import jakarta.inject.Inject;
+import org.instancio.Instancio;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -54,8 +55,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.gepardec.mega.rest.provider.PayrollContext.PayrollContextType.EMPLOYEE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -66,9 +67,6 @@ import static org.mockito.Mockito.when;
         @Claim(key = "email", value = "test@gepardec.com")
 })
 class WorkerResourceTest {
-
-    @InjectMock
-    EmployeeService employeeService;
 
     @InjectMock
     WorkingTimeUtil workingTimeUtil;
@@ -86,11 +84,13 @@ class WorkerResourceTest {
     PersonioEmployeesService personioEmployeesService;
 
     @InjectMock
-    @Rest
     ZepService zepService;
 
+    @InjectSpy
+    AuthenticatedActorContext userContext;
+
     @InjectMock
-    UserContext userContext;
+    UserRepository userRepository;
 
     @InjectMock
     MonthlyAbsencesMapper monthlyAbsencesMapper;
@@ -101,21 +101,23 @@ class WorkerResourceTest {
     @InjectMock
     DateHelperService dateHelperService;
 
-    @InjectMock
-    @PayrollContext(EMPLOYEE)
-    PayrollMonthProvider payrollMonthProvider;
-
     @Inject
     WorkerResource workerResource;
 
+    private User userForRole;
+
+    @BeforeEach
+    void setUp() {
+        userForRole = createUserForRole();
+        when(userRepository.findByEmail(Email.of("test@gepardec.com"))).thenReturn(Optional.of(userForRole));
+    }
+
     @Test
     void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithoutAttachmentAndCreditCard_thenReturnObjectWithAttachmentWarningsAndNoCreditCard() {
-        User userForRole = createUserForRole();
-        when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
         PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(false).build();
 
-        when(employeeService.getEmployee(userAsEmployee.getUserId()))
+        when(zepService.getEmployee(userAsEmployee.getUserId()))
                 .thenReturn(userAsEmployee);
 
         when(personioEmployeesService.getPersonioEmployeeByEmail(anyString()))
@@ -138,12 +140,10 @@ class WorkerResourceTest {
 
     @Test
     void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithAllAttachmentsAndNoCreditCard_thenReturnObjectWithoutAttachmentWarningsAndNoCreditCard() {
-        User userForRole = createUserForRole();
-        when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
         PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(false).build();
 
-        when(employeeService.getEmployee(userAsEmployee.getUserId()))
+        when(zepService.getEmployee(userAsEmployee.getUserId()))
                 .thenReturn(userAsEmployee);
 
         when(personioEmployeesService.getPersonioEmployeeByEmail(anyString()))
@@ -166,12 +166,10 @@ class WorkerResourceTest {
 
     @Test
     void getMonthlyBillInfoForEmployeeByMonth_whenEmployeeHasBillsWithAllAttachmentsAndCreditCard_thenReturnObjectWithoutAttachmentWarningsAndWithCreditCard() {
-        User userForRole = createUserForRole();
-        when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
         PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(false).build();
 
-        when(employeeService.getEmployee(userAsEmployee.getUserId()))
+        when(zepService.getEmployee(userAsEmployee.getUserId()))
                 .thenReturn(userAsEmployee);
 
         when(personioEmployeesService.getPersonioEmployeeByEmail(anyString()))
@@ -194,12 +192,10 @@ class WorkerResourceTest {
 
     @Test
     void getBillsForEmployeeByMonth_whenEmployeeHasNoBills_thenReturnObjectWithSumZero() {
-        User userForRole = createUserForRole();
-        when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
         PersonioEmployee personioEmployee = PersonioEmployee.builder().hasCreditCard(false).build();
 
-        when(employeeService.getEmployee(userAsEmployee.getUserId()))
+        when(zepService.getEmployee(userAsEmployee.getUserId()))
                 .thenReturn(userAsEmployee);
 
         when(personioEmployeesService.getPersonioEmployeeByEmail(anyString()))
@@ -222,12 +218,10 @@ class WorkerResourceTest {
 
     @Test
     void getAllProjectsForMonthAndEmployee_whenEmployeeHasProjectTimes_thenReturnListOfProjects() {
-        User userForRole = createUserForRole();
-        when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
 
-        when(employeeService.getEmployee(anyString()))
+        when(zepService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
 
         when(zepService.getAllProjectsForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
@@ -242,12 +236,10 @@ class WorkerResourceTest {
 
     @Test
     void getAllProjectsForMonthAndEmployee_whenEmployeeHasNoProjectTimes_thenReturnListOf() {
-        User userForRole = createUserForRole();
-        when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
 
-        when(employeeService.getEmployee(anyString()))
+        when(zepService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
 
         when(zepService.getAllProjectsForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
@@ -262,14 +254,12 @@ class WorkerResourceTest {
 
     @Test
     void getAllAbsencesForMonthAndEmployee_whenEmployeeHasAbsences_thenReturnAbsenceObjectWithValues() {
-        User userForRole = createUserForRole();
-        when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
         int availableVacationDays = 20;
         double doctorsVisitingTime = 1.75;
 
-        when(employeeService.getEmployee(anyString()))
+        when(zepService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
 
         when(personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail(anyString()))
@@ -277,9 +267,6 @@ class WorkerResourceTest {
 
         when(zepService.getDoctorsVisitingTimeForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(doctorsVisitingTime);
-
-        when(payrollMonthProvider.getPayrollMonth())
-                .thenReturn(YearMonth.now());
 
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(createAbsenceListForEmployee());
@@ -305,13 +292,11 @@ class WorkerResourceTest {
 
     @Test
     void getAllAbsencesForMonthAndEmployee_whenEmployeeHasNoAbsences_thenReturnAbsenceObjectWithAllZeros() {
-        User userForRole = createUserForRole();
-        when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
         int availableVacationDays = 0;
         double doctorsVisitingTime = 0.0;
 
-        when(employeeService.getEmployee(anyString()))
+        when(zepService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
 
         when(personioEmployeesService.getAvailableVacationDaysForEmployeeByEmail(anyString()))
@@ -319,8 +304,6 @@ class WorkerResourceTest {
 
         when(zepService.getDoctorsVisitingTimeForMonthAndEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(doctorsVisitingTime);
-
-        when(payrollMonthProvider.getPayrollMonth()).thenReturn(YearMonth.now());
 
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(createAbsenceListForEmployeeWithNoAbsences());
@@ -365,11 +348,9 @@ class WorkerResourceTest {
 
     @Test
     void getOfficeDaysForMonthAndEmployee_whenEmployeeHasAbsences_thenReturnAbsenceObjectWithValues() {
-        User userForRole = createUserForRole();
-        when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
-        when(employeeService.getEmployee(anyString()))
+        when(zepService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
 
         when(workingTimeUtil.getAbsenceTimesForEmployee(any(), any(), any(YearMonth.class)))
@@ -387,8 +368,6 @@ class WorkerResourceTest {
         when(absenceService.numberOfFridaysAbsent(any()))
                 .thenReturn(1);
 
-        when(payrollMonthProvider.getPayrollMonth()).thenReturn(YearMonth.now());
-
         MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(YearMonth.now());
 
         assertThat(actual.getHomeofficeDays()).isEqualTo(4);
@@ -398,11 +377,9 @@ class WorkerResourceTest {
 
     @Test
     void getOfficeDaysForMonthAndEmployee_whenEmployeeHasNoAbsences_thenReturnAbsenceObjectWithZeroHomeOfficeDaysAndAllFridaysAtOffice() {
-        User userForRole = createUserForRole();
-        when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
-        when(employeeService.getEmployee(anyString()))
+        when(zepService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
 
         when(workingTimeUtil.getAbsenceTimesForEmployee(any(), any(), any(YearMonth.class)))
@@ -420,8 +397,6 @@ class WorkerResourceTest {
         when(absenceService.numberOfFridaysAbsent(any()))
                 .thenReturn(0);
 
-        when(payrollMonthProvider.getPayrollMonth()).thenReturn(YearMonth.now());
-
         MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(YearMonth.now());
 
         assertThat(actual.getHomeofficeDays()).isZero();
@@ -431,14 +406,10 @@ class WorkerResourceTest {
 
     @Test
     void getAllWarningsForEmployeeAndMonth_whenHasWarnings_thenReturnListOfMonthlyWarningDtos() {
-        User userForRole = createUserForRole();
-        when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
-        when(employeeService.getEmployee(anyString()))
+        when(zepService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
-
-        when(payrollMonthProvider.getPayrollMonth()).thenReturn(YearMonth.now());
 
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(createAbsenceTimeListForRequest(userAsEmployee.getUserId()));
@@ -463,14 +434,10 @@ class WorkerResourceTest {
 
     @Test
     void getAllWarningsForEmployeeAndMonth_whenHasNoWarnings_thenReturnEmptyList() {
-        User userForRole = createUserForRole();
-        when(userContext.getUser()).thenReturn(userForRole);
         final Employee userAsEmployee = createEmployeeForUser(userForRole);
 
-        when(employeeService.getEmployee(anyString()))
+        when(zepService.getEmployee(anyString()))
                 .thenReturn(userAsEmployee);
-
-        when(payrollMonthProvider.getPayrollMonth()).thenReturn(YearMonth.now());
 
         when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class)))
                 .thenReturn(new ArrayList<>());
@@ -748,23 +715,19 @@ class WorkerResourceTest {
 
     private Employee createEmployeeForUser(final User user) {
         return Employee.builder()
-                .email(user.getEmail())
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
+                .email(user.email().value())
+                .firstname(user.name().firstname())
+                .lastname(user.name().lastname())
                 .title("Ing.")
-                .userId(user.getUserId())
+                .userId(user.zepUsername().value())
                 .releaseDate("2020-01-01")
                 .build();
     }
 
     private User createUserForRole() {
-        return User.builder()
-                .dbId(1)
-                .userId("1")
-                .email("max.mustermann@gpeardec.com")
-                .firstname("Max")
-                .lastname("Mustermann")
-                .roles(Set.of(Role.EMPLOYEE))
-                .build();
+        return Instancio.of(User.class)
+                .set(field(User::email), Email.of("max.mustermann@gpeardec.com"))
+                .set(field(User::roles), Set.of(Role.EMPLOYEE))
+                .create();
     }
 }

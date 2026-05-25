@@ -24,8 +24,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil.getWorkingDaysBetween;
-import static com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil.getWorkingDaysForYearMonth;
+import static com.gepardec.mega.service.helper.OfficeCalendarUtil.getWorkingDaysBetween;
+import static com.gepardec.mega.service.helper.OfficeCalendarUtil.getWorkingDaysForYearMonth;
 
 @ApplicationScoped
 public class WorkingTimeUtil {
