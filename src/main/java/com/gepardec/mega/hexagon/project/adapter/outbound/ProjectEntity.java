@@ -14,8 +14,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@Entity(name = "HexagonProjectEntity")
-@Table(name = "hexagon_projects")
+@Entity(name = "ProjectEntity")
+@Table(name = "projects")
 public class ProjectEntity {
 
     @Id
@@ -39,7 +39,7 @@ public class ProjectEntity {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
-            name = "hexagon_project_leads",
+            name = "project_leads",
             joinColumns = @JoinColumn(name = "project_id")
     )
     @Column(name = "user_id")

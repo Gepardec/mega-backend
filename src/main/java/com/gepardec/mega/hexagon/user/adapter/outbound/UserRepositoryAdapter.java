@@ -56,7 +56,7 @@ public class UserRepositoryAdapter implements UserRepository {
     @Override
     public List<User> findByRole(Role role) {
         return panache.find(
-                        "select distinct user from HexagonUserEntity user join user.roles role where role = ?1",
+                        "select distinct user from UserEntity user join user.roles role where role = ?1",
                         role
                 )
                 .list()

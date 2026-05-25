@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-rename-hexagon-tables-001
+      author: mega
+      changes:
+        - renameTable:
+            oldTableName: hexagon_users
+            newTableName: users
+        - renameTable:
+            oldTableName: hexagon_user_roles
+            newTableName: user_roles
+        - renameTable:
+            oldTableName: hexagon_user_employment_periods
+            newTableName: user_employment_periods
+        - renameTable:
+            oldTableName: hexagon_projects
+            newTableName: projects
+        - renameTable:
+            oldTableName: hexagon_project_leads
+            newTableName: project_leads

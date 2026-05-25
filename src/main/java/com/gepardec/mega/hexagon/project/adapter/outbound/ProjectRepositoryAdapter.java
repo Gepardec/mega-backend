@@ -37,7 +37,7 @@ public class ProjectRepositoryAdapter implements ProjectRepository {
     @Override
     public List<Project> findAllByLead(UserId leadId) {
         return panache.find(
-                        "select distinct p from HexagonProjectEntity p join p.leads lead where lead = ?1",
+                        "select distinct p from ProjectEntity p join p.leads lead where lead = ?1",
                         leadId.value()
                 ).list().stream()
                 .map(mapper::toDomain)

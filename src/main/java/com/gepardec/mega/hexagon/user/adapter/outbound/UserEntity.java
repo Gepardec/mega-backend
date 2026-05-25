@@ -16,8 +16,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@Entity(name = "HexagonUserEntity")
-@Table(name = "hexagon_users")
+@Entity(name = "UserEntity")
+@Table(name = "users")
 public class UserEntity {
 
     @Id
@@ -34,7 +34,7 @@ public class UserEntity {
     private String lastname;
 
     @ElementCollection
-    @CollectionTable(name = "hexagon_user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>();
@@ -46,7 +46,7 @@ public class UserEntity {
     private Integer personioId;
 
     @ElementCollection
-    @CollectionTable(name = "hexagon_user_employment_periods", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(name = "user_employment_periods", joinColumns = @JoinColumn(name = "user_id"))
     private Set<UserEmploymentPeriodEmbeddable> employmentPeriods = new HashSet<>();
 
     @Column(name = "release_date")

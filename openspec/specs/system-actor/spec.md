@@ -7,11 +7,11 @@ Defines the MEGA application's first-class system actor identity: its stable UUI
 ## Requirements
 
 ### Requirement: The MEGA application has a first-class system actor identity
-The system SHALL define a `Role.SYSTEM` value in the shared `Role` enum. A well-known system actor row SHALL be seeded in `hexagon_users` via Liquibase with a stable, well-known UUID. The system actor's `UserId` SHALL be exposed as `SystemActor.USER_ID` in `com.gepardec.mega.hexagon.shared.domain.model`. The system actor SHALL have no ZEP username, no email, no Personio ID, and no employment periods.
+The system SHALL define a `Role.SYSTEM` value in the shared `Role` enum. A well-known system actor row SHALL be seeded in `users` via Liquibase with a stable, well-known UUID. The system actor's `UserId` SHALL be exposed as `SystemActor.USER_ID` in `com.gepardec.mega.hexagon.shared.domain.model`. The system actor SHALL have no ZEP username, no email, no Personio ID, and no employment periods.
 
 #### Scenario: System actor row is present after migration
 - **WHEN** the Liquibase changelog has been applied
-- **THEN** `hexagon_users` contains exactly one row with `Role.SYSTEM`
+- **THEN** `users` contains exactly one row with `Role.SYSTEM`
 - **THEN** that row's UUID matches the `SystemActor.USER_ID` constant
 
 ### Requirement: System actor is excluded from active user snapshot queries
