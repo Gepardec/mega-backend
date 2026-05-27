@@ -1,9 +1,9 @@
 package com.gepardec.mega.hexagon.worktime.adapter.outbound;
 
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
+import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeAbsenceZepPort;
 import com.gepardec.mega.hexagon.worktime.domain.model.Absence;
 import com.gepardec.mega.hexagon.worktime.domain.model.AbsenceType;
-import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeAbsenceZepPort;
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
 import com.gepardec.mega.zep.rest.service.AbsenceService;
 import jakarta.enterprise.context.ApplicationScoped;

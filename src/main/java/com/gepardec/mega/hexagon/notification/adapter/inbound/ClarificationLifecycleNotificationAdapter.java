@@ -5,9 +5,9 @@ import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationCreatedEvent
 import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationDeletedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationUpdatedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.event.ZepMailProcessingFailedEvent;
-import com.gepardec.mega.hexagon.notification.domain.ClarificationNotificationType;
-import com.gepardec.mega.hexagon.notification.domain.port.outbound.NotificationMailPort;
 import com.gepardec.mega.hexagon.monthend.domain.model.SourceSystem;
+import com.gepardec.mega.hexagon.notification.application.port.outbound.NotificationMailPort;
+import com.gepardec.mega.hexagon.notification.domain.ClarificationNotificationType;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;

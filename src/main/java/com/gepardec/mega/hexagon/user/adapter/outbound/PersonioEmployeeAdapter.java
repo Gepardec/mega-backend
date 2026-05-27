@@ -1,8 +1,8 @@
 package com.gepardec.mega.hexagon.user.adapter.outbound;
 
 import com.gepardec.mega.hexagon.shared.domain.model.Email;
+import com.gepardec.mega.hexagon.user.application.port.outbound.PersonioEmployeePort;
 import com.gepardec.mega.hexagon.user.domain.model.PersonioId;
-import com.gepardec.mega.hexagon.user.domain.port.outbound.PersonioEmployeePort;
 import com.gepardec.mega.personio.commons.model.BaseResponse;
 import com.gepardec.mega.personio.employees.EmployeesResponse;
 import com.gepardec.mega.personio.employees.PersonioEmployeeDto;

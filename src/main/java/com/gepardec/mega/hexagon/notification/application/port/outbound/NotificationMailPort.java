@@ -1,4 +1,4 @@
-package com.gepardec.mega.hexagon.notification.domain.port.outbound;
+package com.gepardec.mega.hexagon.notification.application.port.outbound;
 
 import com.gepardec.mega.hexagon.notification.domain.MailNotificationId;
 import com.gepardec.mega.hexagon.shared.domain.model.Email;

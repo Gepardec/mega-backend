@@ -9,12 +9,12 @@ import jakarta.inject.Inject;
 import java.time.LocalDate;
 
 @ApplicationScoped
-public class ReminderEmailSchedulerAdapter {
+public class ReminderEmailScheduler {
 
     private final SendScheduledRemindersUseCase sendScheduledRemindersUseCase;
 
     @Inject
-    public ReminderEmailSchedulerAdapter(SendScheduledRemindersUseCase sendScheduledRemindersUseCase) {
+    public ReminderEmailScheduler(SendScheduledRemindersUseCase sendScheduledRemindersUseCase) {
         this.sendScheduledRemindersUseCase = sendScheduledRemindersUseCase;
     }
 

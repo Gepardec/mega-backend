@@ -1,4 +1,4 @@
-package com.gepardec.mega.hexagon.project.domain.port.outbound;
+package com.gepardec.mega.hexagon.project.application.port.outbound;
 
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
 

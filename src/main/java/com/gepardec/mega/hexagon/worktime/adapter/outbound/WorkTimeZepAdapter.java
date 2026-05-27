@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.worktime.adapter.outbound;
 
+import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeZepPort;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
-import com.gepardec.mega.hexagon.worktime.domain.port.outbound.WorkTimeZepPort;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.rest.service.AttendanceService;

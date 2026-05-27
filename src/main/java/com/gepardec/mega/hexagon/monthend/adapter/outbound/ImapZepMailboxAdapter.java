@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
+import com.gepardec.mega.hexagon.monthend.application.port.outbound.ZepMailboxPort;
 import com.gepardec.mega.hexagon.monthend.domain.model.ZepRawMail;
-import com.gepardec.mega.hexagon.monthend.domain.port.outbound.ZepMailboxPort;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

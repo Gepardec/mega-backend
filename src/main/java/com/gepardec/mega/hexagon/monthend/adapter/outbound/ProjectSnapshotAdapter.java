@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
+import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
-import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import jakarta.enterprise.context.ApplicationScoped;

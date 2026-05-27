@@ -2,12 +2,12 @@ package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.AbsentEmployeeAutoCompletion;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteTasksForAbsentEmployeeUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndEmployeeAbsencePort;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
-import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndEmployeeAbsencePort;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.util.OfficeCalendarUtil;

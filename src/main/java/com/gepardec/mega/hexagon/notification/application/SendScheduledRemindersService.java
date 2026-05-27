@@ -1,8 +1,8 @@
 package com.gepardec.mega.hexagon.notification.application;
 
 import com.gepardec.mega.hexagon.notification.application.port.inbound.SendScheduledRemindersUseCase;
+import com.gepardec.mega.hexagon.notification.application.port.outbound.NotificationMailPort;
 import com.gepardec.mega.hexagon.notification.domain.ReminderType;
-import com.gepardec.mega.hexagon.notification.domain.port.outbound.NotificationMailPort;
 import com.gepardec.mega.hexagon.notification.domain.service.ReminderSchedulePolicy;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;

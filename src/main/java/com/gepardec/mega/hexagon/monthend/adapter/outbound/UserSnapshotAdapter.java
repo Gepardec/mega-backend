@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
-import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
+import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;

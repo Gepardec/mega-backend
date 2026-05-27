@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.project.adapter.outbound;
 
-import com.gepardec.mega.hexagon.project.domain.port.outbound.UserIdentityLookupPort;
+import com.gepardec.mega.hexagon.project.application.port.outbound.UserIdentityLookupPort;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.adapter.outbound.UserEntity;

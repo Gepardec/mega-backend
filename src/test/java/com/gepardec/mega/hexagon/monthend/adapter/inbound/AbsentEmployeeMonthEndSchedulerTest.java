@@ -2,7 +2,7 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound;
 
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.AbsentEmployeeAutoCompletion;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteTasksForAbsentEmployeeUseCase;
-import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndUserSnapshotPort;
+import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserRef;

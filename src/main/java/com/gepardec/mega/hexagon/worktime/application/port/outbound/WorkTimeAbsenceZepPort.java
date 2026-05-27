@@ -1,4 +1,4 @@
-package com.gepardec.mega.hexagon.worktime.domain.port.outbound;
+package com.gepardec.mega.hexagon.worktime.application.port.outbound;
 
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.domain.model.Absence;

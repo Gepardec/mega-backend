@@ -1,9 +1,9 @@
 package com.gepardec.mega.hexagon.notification.adapter.outbound;
 
+import com.gepardec.mega.hexagon.notification.application.port.outbound.NotificationMailPort;
 import com.gepardec.mega.hexagon.notification.domain.ClarificationNotificationType;
 import com.gepardec.mega.hexagon.notification.domain.MailNotificationId;
 import com.gepardec.mega.hexagon.notification.domain.ReminderType;
-import com.gepardec.mega.hexagon.notification.domain.port.outbound.NotificationMailPort;
 import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import com.google.common.net.MediaType;
 import io.quarkus.logging.Log;

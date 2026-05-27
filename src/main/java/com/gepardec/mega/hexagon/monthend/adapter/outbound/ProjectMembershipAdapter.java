@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
-import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndProjectAssignmentPort;
+import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectAssignmentPort;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.rest.service.ProjectService;
 import jakarta.enterprise.context.ApplicationScoped;

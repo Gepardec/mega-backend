@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
-import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndEmployeeAbsencePort;
+import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndEmployeeAbsencePort;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeAbsencesUseCase;
 import com.gepardec.mega.hexagon.worktime.domain.model.Absence;

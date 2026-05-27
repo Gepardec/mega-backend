@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.project.adapter.outbound;
 
+import com.gepardec.mega.hexagon.project.application.port.outbound.ZepProjectPort;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
-import com.gepardec.mega.hexagon.project.domain.port.outbound.ZepProjectPort;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.rest.service.ProjectService;
 import jakarta.enterprise.context.ApplicationScoped;

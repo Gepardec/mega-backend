@@ -1,4 +1,4 @@
-package com.gepardec.mega.hexagon.worktime.domain.port.outbound;
+package com.gepardec.mega.hexagon.worktime.application.port.outbound;
 
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
 import io.smallrye.mutiny.Uni;

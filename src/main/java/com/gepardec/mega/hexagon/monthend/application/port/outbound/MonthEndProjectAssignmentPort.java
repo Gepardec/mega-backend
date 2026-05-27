@@ -1,4 +1,4 @@
-package com.gepardec.mega.hexagon.monthend.domain.port.outbound;
+package com.gepardec.mega.hexagon.monthend.application.port.outbound;
 
 import java.time.YearMonth;
 import java.util.Set;
