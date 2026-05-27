@@ -8,7 +8,6 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.ZepMailParseResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.ZepProjektzeitEntry;
 import com.gepardec.mega.hexagon.monthend.domain.model.ZepRawMail;
-import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndEmployeeProjectContextService;
 import com.gepardec.mega.hexagon.monthend.domain.services.ZepMailMessageParser;
 import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;

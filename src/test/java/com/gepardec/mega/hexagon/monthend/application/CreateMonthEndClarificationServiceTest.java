@@ -6,8 +6,6 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectCo
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
-import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndEmployeeProjectContextService;
-import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndProjectContextService;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.monthend.domain.model.SourceSystem;

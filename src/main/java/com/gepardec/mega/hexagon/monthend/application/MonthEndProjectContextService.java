@@ -1,4 +1,4 @@
-package com.gepardec.mega.hexagon.monthend.domain.services;
+package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndUserSnapshotPort;
