@@ -6,6 +6,9 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.lang.ArchCondition;
+import com.tngtech.archunit.lang.ConditionEvents;
+import com.tngtech.archunit.lang.SimpleConditionEvent;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.Entity;
@@ -45,6 +48,27 @@ class HexagonalArchitectureTest {
                 @Override
                 public boolean test(JavaAnnotation<?> input) {
                     return input.getRawType().getPackageName().startsWith("jakarta.persistence");
+                }
+            };
+    private static final ArchCondition<JavaClass> RESIDE_IN_SAME_PACKAGE_AS_TESTED_CLASS =
+            new ArchCondition<>("reside in the same package as the class under test") {
+                @Override
+                public void check(JavaClass testClass, ConditionEvents events) {
+                    String testedClassName = testClass.getSimpleName().replaceAll("Test$", "");
+                    String expectedFqn = testClass.getPackageName() + "." + testedClassName;
+
+                    boolean foundInSamePackage = allClasses.stream().anyMatch(c -> c.getFullName().equals(expectedFqn));
+                    if (foundInSamePackage) {
+                        return;
+                    }
+
+                    allClasses.stream()
+                            .filter(c -> c.getSimpleName().equals(testedClassName))
+                            .findFirst()
+                            .ifPresent(misplacedClass -> events.add(SimpleConditionEvent.violated(testClass,
+                                    String.format("<%s> is in package [%s] but the tested class <%s> is in package [%s]",
+                                            testClass.getName(), testClass.getPackageName(),
+                                            misplacedClass.getName(), misplacedClass.getPackageName()))));
                 }
             };
 
@@ -237,5 +261,20 @@ class HexagonalArchitectureTest {
                 .should().beAnnotatedWith(Transactional.class)
                 .because("use case implementations define the unit of work in the hexagonal application layer")
                 .check(allClasses);
+    }
+
+    @Test
+    void testClassesMustResideInSamePackageAsTestedClass() {
+        JavaClasses testClasses = new ClassFileImporter()
+                .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_ARCHIVES)
+                .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_JARS)
+                .withImportOption(ImportOption.Predefined.ONLY_INCLUDE_TESTS)
+                .importPackages("com.gepardec.mega.hexagon");
+
+        classes()
+                .that().haveSimpleNameEndingWith("Test")
+                .should(RESIDE_IN_SAME_PACKAGE_AS_TESTED_CLASS)
+                .because("test classes must be co-located with the class they test")
+                .check(testClasses);
     }
 }
