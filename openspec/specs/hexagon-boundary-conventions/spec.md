@@ -41,7 +41,7 @@ The hexagon SHALL define a small shared kernel for concepts that are reused acro
 - **THEN** that type remains in the consuming domain rather than being moved into the shared kernel
 
 ### Requirement: Inbound ports belong in the application layer
-Driver port interfaces (`*UseCase`) define how the outside world drives the application. They are application boundary contracts and MUST be placed in the module's `application.port.inbound` package (`<module>.application.port.inbound`). Supporting boundary-specific contract types that exist only for that inbound API, such as sync result records, SHOULD live there as well. Implementations remain in the module's `application` package. No `*UseCase` interface SHALL reside in a `domain.port.inbound` package.
+Driver port interfaces (`*UseCase`) define how the outside world drives the application. They are application boundary contracts and MUST be placed in the module's `application.port.inbound` package (`<module>.application.port.inbound`). Supporting boundary-specific contract types that exist only for that inbound API, such as sync result records, SHOULD live there as well. Implementations remain in the module's `application` package. No `*UseCase` interface SHALL reside in a `application.port.inbound` package.
 
 #### Scenario: Use case interface lives in the inbound application port package
 - **WHEN** a new use case interface is defined for a hexagon module
@@ -51,9 +51,9 @@ Driver port interfaces (`*UseCase`) define how the outside world drives the appl
 - **WHEN** a module defines a boundary-specific record that exists only to support an inbound use case contract
 - **THEN** it is placed in `<module>.application.port.inbound`
 
-#### Scenario: No use case interface in domain.port.inbound
+#### Scenario: No use case interface in application.port.inbound
 - **WHEN** the source tree is examined
-- **THEN** no `*UseCase` interface exists under any `domain.port.inbound` package
+- **THEN** no `*UseCase` interface exists under any `application.port.inbound` package
 
 ### Requirement: Cross-aggregate persistence references remain identifier-based
 Hexagon persistence models MUST represent references to other aggregates with identifiers or identifier collections unless both objects belong to the same aggregate boundary. Domains that need additional context for those foreign references MUST obtain it through explicit query or read-model ports and map the result into local domain projections.
