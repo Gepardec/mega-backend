@@ -9,7 +9,7 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import java.util.List;
 
 @ApplicationScoped
-public class ProjectEmployeesMapper implements Mapper<MultivaluedMap<String, String>, List<ZepProjectEmployee>>{
+public class ProjectEmployeesMapper implements Mapper<MultivaluedMap<String, String>, List<ZepProjectEmployee>> {
 
     public static final String USER = "user";
     public static final String LEAD = "lead";
@@ -22,13 +22,17 @@ public class ProjectEmployeesMapper implements Mapper<MultivaluedMap<String, Str
             zepProjectEmployees.forEach(zepProjectEmployee -> {
                 map.add(USER, zepProjectEmployee.username());
 
-                if (zepProjectEmployee.type() != null && zepProjectEmployee.type().id() != 0) {
-                        map.add(LEAD, String.valueOf(zepProjectEmployee.username()));
+                if (isLeadEmployee(zepProjectEmployee)) {
+                    map.add(LEAD, String.valueOf(zepProjectEmployee.username()));
                 }
             });
             return map;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new ZepServiceException("While trying to map ZepProjectEmployee to MultivaluedMap of \"user\" and \"lead\" collections, an error occurred", e);
         }
+    }
+
+    private boolean isLeadEmployee(ZepProjectEmployee employee) {
+        return employee.type() != null && employee.type().id() != 0;
     }
 }

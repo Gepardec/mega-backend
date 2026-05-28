@@ -36,6 +36,7 @@ class WarningCalculatorsManagerTest {
     private static final Integer[] HOLIDAYS = {8, 25, 26};
     private static final Integer[] WEEKEND_DAYS = {5, 6, 12, 13, 19, 20, 26, 27};
     private static final String DOCTOR_APPOINTMENT = "Arztbesuch";
+    private static final String DOCTOR_APPOINTMENT_ZEP_ID = "233";
 
     @Mock
     ResourceBundle messages;
@@ -70,7 +71,7 @@ class WarningCalculatorsManagerTest {
 
     private ProjectTimeEntry projectTimeEntryFor(final int startHour, final int startMinute, final int endHour,
                                                  final int endMinute) {
-        return projectTimeEntryFor(1, startHour, startMinute, 1, endHour, endMinute, WorkingLocation.MAIN, WarningCalculatorsManagerTest.DOCTOR_APPOINTMENT);
+        return projectTimeEntryFor(1, startHour, startMinute, 1, endHour, endMinute, WorkingLocation.MAIN, WarningCalculatorsManagerTest.DOCTOR_APPOINTMENT_ZEP_ID);
     }
 
     private ProjectTimeEntry projectTimeEntryFor(final int startDay, final int startHour, final int startMinute, final int endDay, final int endHour,

@@ -41,22 +41,22 @@ public class ZepServiceImpl implements ZepService {
 
     @Override
     public List<ProjectEntry> getProjectTimes(Employee employee, YearMonth payrollMonth) {
-        return zepServiceRest.getProjectTimes(employee, payrollMonth);
+        return zepServiceSoap.getProjectTimes(employee, payrollMonth);
     }
 
     @Override
     public List<ProjectTime> getProjectTimesForEmployeePerProject(String project, YearMonth payrollMonth) {
-        return zepServiceRest.getProjectTimesForEmployeePerProject(project, payrollMonth);
+        return zepServiceSoap.getProjectTimesForEmployeePerProject(project, payrollMonth);
     }
 
     @Override
     public List<Project> getProjectsForMonthYear(YearMonth payrollMonth) {
-        return zepServiceRest.getProjectsForMonthYear(payrollMonth);
+        return zepServiceSoap.getProjectsForMonthYear(payrollMonth);
     }
 
     @Override
     public Optional<Project> getProjectByName(String projectName, YearMonth payrollMonth) {
-        return zepServiceRest.getProjectByName(projectName, payrollMonth);
+        return zepServiceSoap.getProjectByName(projectName, payrollMonth);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class ZepServiceImpl implements ZepService {
 
     @Override
     public List<ProjectTime> getBillableForEmployee(Employee employee, YearMonth payrollMonth) {
-        return zepServiceRest.getBillableForEmployee(employee, payrollMonth);
+        return zepServiceSoap.getBillableForEmployee(employee, payrollMonth);
     }
 
     @Override

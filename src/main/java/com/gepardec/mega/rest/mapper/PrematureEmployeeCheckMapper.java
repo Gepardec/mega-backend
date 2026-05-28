@@ -1,6 +1,7 @@
 package com.gepardec.mega.rest.mapper;
 
 import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
+import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.rest.model.PrematureEmployeeCheckDto;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -11,11 +12,14 @@ public class PrematureEmployeeCheckMapper implements DtoMapper<PrematureEmployee
     @Inject
     UserMapper userMapper;
 
+    @Inject
+    UserContext userContext;
+
     @Override
     public PrematureEmployeeCheckDto mapToDto(PrematureEmployeeCheck object) {
         return PrematureEmployeeCheckDto.builder()
                 .id(object.getId())
-                .user(userMapper.mapToDto(object.getUser()))
+                .user(userMapper.mapToDto(userContext.getUser()))
                 .forMonth(object.getForMonth())
                 .reason(object.getReason())
                 .state(object.getState())
@@ -26,7 +30,7 @@ public class PrematureEmployeeCheckMapper implements DtoMapper<PrematureEmployee
     public PrematureEmployeeCheck mapToDomain(PrematureEmployeeCheckDto object) {
         return PrematureEmployeeCheck.builder()
                 .id(object.getId())
-                .user(userMapper.mapToDomain(object.getUser()))
+                .user(userContext.getUser())
                 .forMonth(object.getForMonth())
                 .reason(object.getReason())
                 .state(object.getState())

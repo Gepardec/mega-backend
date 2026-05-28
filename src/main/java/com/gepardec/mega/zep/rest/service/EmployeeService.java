@@ -1,9 +1,9 @@
 package com.gepardec.mega.zep.rest.service;
 
-import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepEmployee;
-import com.gepardec.mega.zep.util.ResponseParser;
+import com.gepardec.mega.zep.rest.dto.ZepResponse;
+import io.smallrye.mutiny.Multi;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @ApplicationScoped
 public class EmployeeService {
@@ -21,39 +22,24 @@ public class EmployeeService {
     @Inject
     Logger logger;
 
-    @Inject
-    ResponseParser responseParser;
-
     public Optional<ZepEmployee> getZepEmployeeByUsername(String name) {
-        try {
-            return responseParser.retrieveSingle(zepEmployeeRestClient.getByUsername(name),
-                    ZepEmployee.class);
-        } catch (ZepServiceException e) {
-            String message = "Error retrieving employee \"%s\" from ZEP: No /data field in response".formatted(name);
-            logger.warn(message, e);
-        }
-        return Optional.empty();
-    }
-
-    public Optional<ZepEmployee> getZepEmployeeByPersonalNumber(String personalNumber) {
-        try {
-            return responseParser
-                    .retrieveSingle(zepEmployeeRestClient.getByPersonalNumber(personalNumber),
-                            ZepEmployee[].class)
-                    .map(employees -> employees[0]);
-        } catch (ZepServiceException e) {
-            String message = "Error retrieving employee \"%s\" from ZEP: No /data field in response".formatted(personalNumber);
-            logger.warn(message, e);
-        }
-
-        return Optional.empty();
-
+        return zepEmployeeRestClient.getByUsername(name)
+                .onFailure().invoke(e -> logger.warn("Error retrieving employee", e))
+                .map(response -> Optional.ofNullable(response.data()))
+                .onItem().ifNull().continueWith(Optional::empty)
+                .await().indefinitely();
     }
 
     public List<ZepEmployee> getZepEmployees() {
-        return responseParser.retrieveAll(
-                page -> zepEmployeeRestClient.getAllEmployeesOfPage(page),
-                ZepEmployee.class);
+        return Multi.createBy().repeating()
+                .uni(AtomicInteger::new, page ->
+                        zepEmployeeRestClient.getAllEmployeesOfPage(page.incrementAndGet())
+                                .onFailure().invoke(ex -> logger.warn("Error retrieving employees from ZEP", ex))
+                )
+                .whilst(ZepResponse::hasNext)
+                .map(ZepResponse::data)
+                .onItem().<ZepEmployee>disjoint()
+                .collect().asList()
+                .await().indefinitely();
     }
-
 }

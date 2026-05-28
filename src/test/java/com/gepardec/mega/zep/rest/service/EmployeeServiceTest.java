@@ -1,27 +1,25 @@
 package com.gepardec.mega.zep.rest.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gepardec.mega.helper.ResourceFileService;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepEmployee;
 import com.gepardec.mega.zep.rest.dto.ZepEmploymentPeriod;
-import com.gepardec.mega.zep.rest.dto.ZepLanguage;
-import com.gepardec.mega.zep.rest.dto.ZepSalutation;
+import com.gepardec.mega.zep.rest.dto.ZepResponse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -40,57 +38,36 @@ class EmployeeServiceTest {
     @Inject
     ResourceFileService resourceFileService;
 
+    @Inject
+    ObjectMapper objectMapper;
+
     @BeforeEach
     void init() {
         resourceFileService.getSingleFile("/user007.json").ifPresent(json -> {
-            Response response = Response.ok().entity(json).build();
-            when(zepEmployeeRestClient.getByPersonalNumber("007")).thenReturn(response);
+            try {
+                ZepResponse<ZepEmployee> response = objectMapper.readValue(json, new TypeReference<>() {
+                });
+                when(zepEmployeeRestClient.getByUsername("007")).thenReturn(Uni.createFrom().item(response));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         });
 
         List<String> responseJson = resourceFileService.getDirContents("/users");
 
         IntStream.range(0, responseJson.size()).forEach(
-                i -> when(zepEmployeeRestClient
-                        .getAllEmployeesOfPage(i + 1))
-                        .thenReturn(Response.ok().entity(responseJson.get(i)).build())
+                i -> {
+                    try {
+                        ZepResponse<List<ZepEmployee>> response = objectMapper.readValue(responseJson.get(i), new TypeReference<>() {
+                        });
+                        when(zepEmployeeRestClient.getAllEmployeesOfPage(i + 1))
+                                .thenReturn(Uni.createFrom().item(response));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
         );
     }
-
-    @Test
-    void getEmployeeJson_thenReturnZepEmployee() {
-
-        List<ZepEmploymentPeriod> zepEmploymentPeriods = List.of(
-                ZepEmploymentPeriod.builder()
-                        .build(),
-                ZepEmploymentPeriod.builder()
-                        .build());
-        when(employmentPeriodService.getZepEmploymentPeriodsByUsername(anyString())).thenReturn(zepEmploymentPeriods);
-
-        ZepEmployee referenceEmployee = ZepEmployee.builder()
-                .username("007-jbond")
-                .firstname("James")
-                .lastname("Bond")
-                .salutation(ZepSalutation.builder()
-                        .name("Sir")
-                        .build()
-                )
-                .title("BSc")
-                .email("james.bond@gepardec.com")
-                .releaseDate(LocalDate.of(2022, 2, 28))
-                .priceGroup("03")
-                .language(ZepLanguage.builder()
-                        .id("en")
-                        .build()
-                )
-                .build();
-
-
-        Optional<ZepEmployee> zepEmployee = employeeService.getZepEmployeeByPersonalNumber("007");
-
-        assertThat(zepEmployee).isPresent();
-        assertThat(zepEmployee.get()).usingRecursiveComparison().isEqualTo(referenceEmployee);
-    }
-
 
     @Test
     void getZepEmployees_whenEmployeesList() {
@@ -125,6 +102,4 @@ class EmployeeServiceTest {
 
         employees.forEach(employee -> assertThat(employeeNames).contains(employee.username()));
     }
-
-
 }

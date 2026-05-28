@@ -11,18 +11,10 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.time.YearMonth;
 
-@Path("/management")
-@Tag(name = "ManagementResource")
+@Path("/projectmanagement")
+@Tag(name = "ProjectManagementResource")
 @Produces(MediaType.APPLICATION_JSON)
-public interface ManagementResource {
-
-    @GET
-    @Path("/officemanagemententries")
-    Response getAllOfficeManagementEntries(@QueryParam("projectStateLogicSingle") boolean projectStateLogicSingle);
-
-    @GET
-    @Path("/officemanagemententries/{payrollMonth}")
-    Response getAllOfficeManagementEntries(@PathParam("payrollMonth") YearMonth payrollMonth, @QueryParam("projectStateLogicSingle") boolean projectStateLogicSingle);
+public interface ProjectManagementResource {
 
     @GET
     @Path("/projectmanagemententries")
@@ -31,8 +23,4 @@ public interface ManagementResource {
     @GET
     @Path("/projectmanagemententries/{payrollMonth}")
     Response getAllProjectManagementEntries(@PathParam("payrollMonth") YearMonth payrollMonth, @QueryParam("all") boolean allProjects, @QueryParam("projectStateLogicSingle") boolean projectStateLogicSingle);
-
-    @GET
-    @Path("/projectsWithoutLeads")
-    Response getProjectsWithoutLeads();
 }

@@ -3,6 +3,7 @@ package com.gepardec.mega.rest.mapper;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.personio.commons.model.Attribute;
 import com.gepardec.mega.personio.employees.PersonioEmployeeDto;
+import com.google.common.base.Strings;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
@@ -33,8 +34,8 @@ public class PersonioEmployeeMapper implements DtoMapper<PersonioEmployee, Perso
                 .email(dto.email() == null ?
                         null : dto.email().getValue())
                 .vacationDayBalance(0.0)
-                .guildLead(dto.guildLead() == null ? null : dto.guildLead().getValue())
-                .internalProjectLead(dto.internalProjectLead() == null ? null : dto.internalProjectLead().getValue())
+                .guildLead(dto.guildLead() == null ? null : Strings.emptyToNull(dto.guildLead().getValue()))
+                .internalProjectLead(dto.internalProjectLead() == null ? null : Strings.emptyToNull(dto.internalProjectLead().getValue()))
                 .hasCreditCard(dto.hasCreditCard().getValue().equals("Ja"))
                 .personioId(dto.id().getValue())
                 .build();

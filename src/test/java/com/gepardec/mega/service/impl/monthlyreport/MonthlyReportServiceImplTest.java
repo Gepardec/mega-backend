@@ -1,607 +1,605 @@
 package com.gepardec.mega.service.impl.monthlyreport;
 
+import com.gepardec.mega.db.entity.employee.EmployeeState;
+import com.gepardec.mega.db.entity.employee.Step;
+import com.gepardec.mega.db.entity.employee.StepEntry;
 import com.gepardec.mega.domain.model.AbsenceTime;
+import com.gepardec.mega.domain.model.Attendances;
+import com.gepardec.mega.domain.model.Comment;
 import com.gepardec.mega.domain.model.Employee;
-import com.gepardec.mega.domain.model.EmploymentPeriod;
-import com.gepardec.mega.domain.model.EmploymentPeriods;
-import com.gepardec.mega.domain.model.PersonioEmployee;
-import com.gepardec.mega.domain.model.RegularWorkingTime;
-import com.gepardec.mega.domain.model.RegularWorkingTimes;
-import com.gepardec.mega.domain.model.Role;
+import com.gepardec.mega.domain.model.EmployeeCheck;
+import com.gepardec.mega.domain.model.PrematureEmployeeCheck;
+import com.gepardec.mega.domain.model.ProjectTime;
+import com.gepardec.mega.domain.model.StepName;
 import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.UserContext;
-import com.gepardec.mega.domain.model.monthlyreport.AbsenteeType;
-import com.gepardec.mega.domain.model.monthlyreport.MonthlyReport;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
-import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
-import com.gepardec.mega.domain.model.monthlyreport.Task;
-import com.gepardec.mega.domain.model.monthlyreport.TimeWarning;
-import com.gepardec.mega.domain.model.monthlyreport.TimeWarningType;
-import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
-import com.gepardec.mega.personio.employees.PersonioEmployeesService;
+import com.gepardec.mega.service.api.CommentService;
 import com.gepardec.mega.service.api.EmployeeService;
-import com.gepardec.mega.service.helper.WarningCalculatorsManager;
-import com.gepardec.mega.service.impl.MonthlyReportServiceImpl;
+import com.gepardec.mega.service.api.MonthlyReportService;
+import com.gepardec.mega.service.api.PrematureEmployeeCheckService;
+import com.gepardec.mega.service.api.StepEntryService;
+import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.oidc.Claim;
-import io.quarkus.test.security.oidc.OidcSecurity;
 import jakarta.inject.Inject;
-import org.junit.jupiter.api.AfterEach;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 
-import java.time.DayOfWeek;
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
-@TestSecurity(user = "test")
-@OidcSecurity(claims = {
-        @Claim(key = "email", value = "test@gepardec.com")
-})
 class MonthlyReportServiceImplTest {
+
+    @Inject
+    MonthlyReportService monthlyReportService;
 
     @InjectMock
     ZepService zepService;
 
     @InjectMock
-    WarningCalculatorsManager warningCalculatorsManager;
+    CommentService commentService;
 
     @InjectMock
-    PersonioEmployeesService personioEmployeesService;
+    StepEntryService stepEntryService;
 
-    @Inject
-    MonthlyReportServiceImpl monthlyReportService;
+    @InjectMock
+    UserContext userContext;
 
     @InjectMock
     EmployeeService employeeService;
 
     @InjectMock
-    UserContext userContext;
+    WorkingTimeUtil workingTimeUtil;
 
-    MockedStatic<UserContext> mockStatic;
+    @InjectMock
+    PrematureEmployeeCheckService prematureEmployeeCheckService;
+
+    private static final String TEST_USER_ID = "test-user-id";
+    private static final String TEST_EMAIL = "test@gepardec.com";
+    private static final YearMonth TEST_PAYROLL_MONTH = YearMonth.of(2026, 1);
+
+    private Employee testEmployee;
 
     @BeforeEach
-    void init() {
-        mockStatic = mockStatic(UserContext.class);
+    void setUp() {
+        User testUser = mock(User.class);
+        when(testUser.getUserId()).thenReturn(TEST_USER_ID);
+        when(testUser.getEmail()).thenReturn(TEST_EMAIL);
+        when(userContext.getUser()).thenReturn(testUser);
 
-        User user = createUser();
-        when(userContext.getUser()).thenReturn(user);
-
-        Employee employee1 = createEmployeeForUser(user);
-        when(employeeService.getEmployee(anyString())).thenReturn(employee1);
-
-        PersonioEmployee personioEmployee = PersonioEmployee.builder()
-                .guildLead("guildLead")
-                .internalProjectLead("internalProjectLead")
-                .vacationDayBalance(0d)
-                .build();
-
-        when(personioEmployeesService.getPersonioEmployeeByEmail(any()))
-                .thenReturn(Optional.of(personioEmployee));
+        testEmployee = mock(Employee.class);
+        when(testEmployee.getEmail()).thenReturn(TEST_EMAIL);
+        when(testEmployee.getUserId()).thenReturn(TEST_USER_ID);
+        when(employeeService.getEmployee(TEST_USER_ID)).thenReturn(testEmployee);
     }
 
-    @AfterEach
-    void close() {
-        mockStatic.close();
-    }
+    @Nested
+    class GetEmployeeCheck {
 
-    @Test
-    void getMonthEndReportForUser_MitarbeiterValid() {
-        assertThat(monthlyReportService.getMonthEndReportForUser(YearMonth.now()))
-                .isNotNull();
-    }
+        @Test
+        void getEmployeeCheck_WhenEmployeeCheckStatePresent_ShouldReturnEmployeeCheckWithState() {
+            // Arrange
+            Pair<EmployeeState, String> employeeCheckState = Pair.of(EmployeeState.DONE, "All good");
+            when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.of(employeeCheckState));
+            when(stepEntryService.findEmployeeInternalCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(commentService.findCommentsForEmployee(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenReturn(Collections.emptyList());
+            when(prematureEmployeeCheckService.findByEmailAndMonth(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Collections.emptyList());
 
-    @Test
-    void getMonthEndReportForUser_MitarbeiterValid_ProjektzeitenValid() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(new ArrayList<>());
-        when(warningCalculatorsManager.determineNoTimeEntries(any(Employee.class), anyList(), anyList())).thenReturn(new ArrayList<>());
+            // Act
+            EmployeeCheck result = monthlyReportService.getEmployeeCheck(TEST_PAYROLL_MONTH);
 
-        assertThat(monthlyReportService.getMonthEndReportForUser(YearMonth.now()))
-                .isNotNull();
-    }
-
-    @Test
-    void getMonthEndReportForUser_MitarbeiterValid_ProjektzeitenValid_NoWarning() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjektzeitenResponseType(10));
-        when(warningCalculatorsManager.determineNoTimeEntries(any(Employee.class), anyList(), anyList())).thenReturn(new ArrayList<>());
-
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 4));
-
-        assertThat(monthEndReportForUser)
-                .isNotNull();
-        assertThat(monthEndReportForUser.getEmployee().getEmail())
-                .isEqualTo("max.mustermann@gepardec.com");
-        assertThat(monthEndReportForUser.getTimeWarnings())
-                .isNotNull();
-    }
-
-    @Test
-    void getMonthEndReportForUser_MitarbeiterValid_ProjektzeitenValid_Warning() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(new ArrayList<>());
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(createTimeWarningList());
-
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 4));
-
-        assertThat(monthEndReportForUser)
-                .isNotNull();
-        assertThat(monthEndReportForUser.getEmployee().getEmail())
-                .isEqualTo("max.mustermann@gepardec.com");
-        assertThat(monthEndReportForUser.getTimeWarnings())
-                .isNotNull();
-        assertThat(monthEndReportForUser.getTimeWarnings())
-                .isNotNull()
-                .isNotEmpty();
-        assertThat(monthEndReportForUser.getTimeWarnings().getFirst().getDate())
-                .isEqualTo(LocalDate.of(2020, 1, 31));
-    }
-
-    @Test
-    void getMonthEndReportForUser_isUserIsValidAndHasNursingAbsenceDays_thenReturnsReportWithCorrectNursingDays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<AbsenceTime> absenceList = new ArrayList<>();
-        AbsenceTime nursingDay = new AbsenceTime(
-                "0",
-                LocalDate.of(2020, 2, 27),
-                LocalDate.of(2020, 2, 29),
-                "PU",
-                true
-
-        );
-
-        absenceList.add(nursingDay);
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(absenceList);
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
-
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 2));
-
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getEmployee().getEmail())
-                .isEqualTo("max.mustermann@gepardec.com");
-        assertThat(monthEndReportForUser.getTimeWarnings())
-                .isNotNull()
-                .isEmpty();
-        assertThat(monthEndReportForUser.getNursingDays()).isEqualTo(2);
-    }
-
-    @Test
-    void getMonthEndReportForUser_isUserIsValidAndHasMaternityLeaveAbsenceDays_thenReturnsReportWithCorrectAmountOfMaternityLeaveDays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<AbsenceTime> absenceList = new ArrayList<>();
-        AbsenceTime maternityLeaveDay = new AbsenceTime(
-                "0",
-                LocalDate.of(2020, 2, 27),
-                LocalDate.of(2020, 2, 29),
-                "KA",
-                true
-        );
-        absenceList.add(maternityLeaveDay);
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(absenceList);
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
-
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 2));
-
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getEmployee().getEmail())
-                .isEqualTo("max.mustermann@gepardec.com");
-        assertThat(monthEndReportForUser.getTimeWarnings())
-                .isNotNull()
-                .isEmpty();
-        assertThat(monthEndReportForUser.getMaternityLeaveDays()).isEqualTo(2);
-    }
-
-    @Test
-    void getMonthEndReportForUser_isUserIsValidAndHasExternalTrainingAbsenceDays_thenReturnsReportWithCorrectAmountOfExternalTrainingDays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<AbsenceTime> absenceList = new ArrayList<>();
-        AbsenceTime externalTrainingAbsence = createAbsenceFromType("EW");
-        absenceList.add(externalTrainingAbsence);
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(absenceList);
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
-
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 2));
-
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getEmployee()).isNotNull();
-        assertThat(monthEndReportForUser.getEmployee().getEmail()).isEqualTo("max.mustermann@gepardec.com");
-        assertThat(monthEndReportForUser.getTimeWarnings())
-                .isNotNull()
-                .isEmpty();
-        assertThat(monthEndReportForUser.getExternalTrainingDays()).isEqualTo(2);
-    }
-
-    @Test
-    void getMonthEndReportForUser_isUserIsValidAndHasConferenceAbsenceDays_thenReturnsReportWithCorrectAmountOfConferenceDays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<AbsenceTime> absenceList = new ArrayList<>();
-        AbsenceTime conferenceDaysAbsence = createAbsenceFromType("KO");
-        absenceList.add(conferenceDaysAbsence);
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(absenceList);
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
-
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 2));
-
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getEmployee().getEmail())
-                .isEqualTo("max.mustermann@gepardec.com");
-        assertThat(monthEndReportForUser.getTimeWarnings())
-                .isNotNull()
-                .isEmpty();
-        assertThat(monthEndReportForUser.getConferenceDays()).isEqualTo(2);
-    }
-
-    @Test
-    void getMonthEndReportForUser_isUserIsValidAndHasMaternityProtectionAbsenceDays_thenReturnsReportWithCorrectAmountOfMaternityProtectionDays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<AbsenceTime> absenceList = new ArrayList<>();
-        AbsenceTime maternityProtectionDaysAbsence = createAbsenceFromType("MU");
-        absenceList.add(maternityProtectionDaysAbsence);
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(absenceList);
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
-
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 2));
-
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getEmployee().getEmail())
-                .isEqualTo("max.mustermann@gepardec.com");
-        assertThat(monthEndReportForUser.getTimeWarnings())
-                .isNotNull()
-                .isEmpty();
-        assertThat(monthEndReportForUser.getMaternityProtectionDays()).isEqualTo(2);
-    }
-
-    @Test
-    void getMonthEndReportForUser_isUserIsValidAndHasFatherMonthAbsenceDays_thenReturnsReportWithCorrectAmountOfFatherMonthDays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<AbsenceTime> absenceList = new ArrayList<>();
-        AbsenceTime fatherMonthDaysAbsence = createAbsenceFromType("PA");
-        absenceList.add(fatherMonthDaysAbsence);
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(absenceList);
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
-
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 2));
-
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getEmployee().getEmail())
-                .isEqualTo("max.mustermann@gepardec.com");
-        assertThat(monthEndReportForUser.getTimeWarnings())
-                .isNotNull()
-                .isEmpty();
-        assertThat(monthEndReportForUser.getFatherMonthDays()).isEqualTo(2);
-    }
-
-    @Test
-    void getMonthEndReportForUser_isUserIsValidAndHasPaidSpecialLeaveAbsenceDays_thenReturnsReportWithCorrectAmountOfPaidSpecialLeaveDays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<AbsenceTime> absenceList = new ArrayList<>();
-        AbsenceTime paidSpecialLeaveDaysAbsence = createAbsenceFromType("SU");
-        absenceList.add(paidSpecialLeaveDaysAbsence);
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(absenceList);
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
-
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 2));
-
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getEmployee().getEmail())
-                .isEqualTo("max.mustermann@gepardec.com");
-        assertThat(monthEndReportForUser.getTimeWarnings())
-                .isNotNull()
-                .isEmpty();
-        assertThat(monthEndReportForUser.getPaidSpecialLeaveDays()).isEqualTo(2);
-    }
-
-    @Test
-    void getMonthEndReportForUser_isUserIsValidAndHasNonPaidVacationAbsenceDays_thenReturnsReportWithCorrectAmountOfNonPaidVacationDays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjektzeitenResponseType(18));
-        List<AbsenceTime> absenceList = new ArrayList<>();
-        AbsenceTime nonPaidVacationDaysAbsence = createAbsenceFromType("UU");
-        absenceList.add(nonPaidVacationDaysAbsence);
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(absenceList);
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
-
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 2));
-
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getEmployee().getEmail())
-                .isEqualTo("max.mustermann@gepardec.com");
-        assertThat(monthEndReportForUser.getTimeWarnings())
-                .isNotNull()
-                .isEmpty();
-        assertThat(monthEndReportForUser.getNonPaidVacationDays()).isEqualTo(2);
-    }
-
-    @Test
-    void getMonthEndReportForUser_isUserValidAndHasPaidVacationOverWeekend_thenReturnsReportWithOnlyVacationDaysOnWorkdays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(createVacationAbsenceList());
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
-
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2020, 2));
-
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getVacationDays()).isEqualTo(2);
-    }
-
-    @Test
-    void getMonthEndReportForUser_WithYearAndMonth_isUserValidAndHasPaidVacationOverWeekendWhichExtendsOverMonthEnd_thenReturnsReportWithOnlyVacationDaysOnWorkdays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(createVacationAbsenceListWhichExtendsOverMonthEnd());
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
-
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 4));
-
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getVacationDays()).isEqualTo(5);
-    }
-
-    @Test
-    @Disabled("Needs to be reworked with mocked services etc.")
-    void getMonthEndReportForUser_isUserValidAndHasPaidVacationOverWeekendWhichExtendsOverMonthEnd_thenReturnsReportWithOnlyVacationDaysOnWorkdays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
-
-        List<AbsenceTime> absenceList = new ArrayList<>();
-
-        var vacationDaysAbsenceBuilder = AbsenceTime.builder()
-                .reason(AbsenteeType.VACATION_DAYS.getType())
-                .accepted(true);
-
-        LocalDate firstOfCurrentMonth = LocalDate.now();
-        LocalDate firstOfLastMonth = LocalDate.now().withMonth(firstOfCurrentMonth.getMonthValue() - 1);
-        LocalDate midOfMonth = LocalDate.now().withDayOfMonth(14);
-        LocalDate startDate;
-        LocalDate endDate;
-
-        if (firstOfCurrentMonth.isAfter(midOfMonth)) {
-            startDate = firstOfCurrentMonth.withDayOfMonth(1);
-            endDate = firstOfCurrentMonth.withDayOfMonth(10);
-        } else {
-            startDate = firstOfLastMonth.withDayOfMonth(1);
-            endDate = firstOfLastMonth.withDayOfMonth(10);
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.employee()).isEqualTo(testEmployee);
+            assertThat(result.employeeCheckState()).isEqualTo(EmployeeState.DONE);
+            assertThat(result.employeeCheckStateReason()).isEqualTo("All good");
+            assertThat(result.internalCheckState()).isNull();
         }
 
-        vacationDaysAbsenceBuilder.fromDate(startDate);
-        vacationDaysAbsenceBuilder.toDate(endDate);
-        absenceList.add(vacationDaysAbsenceBuilder.build());
+        @Test
+        void getEmployeeCheck_WhenInternalCheckStatePresent_ShouldReturnEmployeeCheckWithInternalState() {
+            // Arrange
+            when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findEmployeeInternalCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.of(EmployeeState.IN_PROGRESS));
+            when(commentService.findCommentsForEmployee(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenReturn(Collections.emptyList());
+            when(prematureEmployeeCheckService.findByEmailAndMonth(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Collections.emptyList());
 
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(absenceList);
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
+            // Act
+            EmployeeCheck result = monthlyReportService.getEmployeeCheck(TEST_PAYROLL_MONTH);
 
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.now());
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.internalCheckState()).isEqualTo(EmployeeState.IN_PROGRESS);
+        }
 
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getVacationDays()).isGreaterThan(4);
-    }
+        @Test
+        void getEmployeeCheck_WhenPrematureCheckAndCurrentMonth_ShouldUsePrematureCheckState() {
+            // Arrange
+            YearMonth currentMonth = YearMonth.now();
+            when(stepEntryService.findEmployeeCheckState(testEmployee, currentMonth))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findEmployeeInternalCheckState(testEmployee, currentMonth))
+                    .thenReturn(Optional.empty());
+            when(commentService.findCommentsForEmployee(TEST_EMAIL, currentMonth))
+                    .thenReturn(Collections.emptyList());
+            when(prematureEmployeeCheckService.findByEmailAndMonth(TEST_EMAIL, currentMonth))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(testEmployee, currentMonth))
+                    .thenReturn(Collections.emptyList());
 
-    @Test
-    void getMonthEndReportForUser_isUserValidAndHasHomeofficeOverWeekend_thenReturnsReportWithHomeOfficeOnWorkdays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(createHomeOfficeListWhichExtendsOverWeekend());
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
+            // Act
+            EmployeeCheck result = monthlyReportService.getEmployeeCheck(currentMonth);
 
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2020, 2));
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.employeeCheckState()).isEqualTo(EmployeeState.PREMATURE_CHECK);
+        }
 
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getHomeofficeDays()).isEqualTo(2);
-        assertThat(monthEndReportForUser.getTimeWarnings()).isEmpty();
-    }
+        @Test
+        void getEmployeeCheck_WhenPrematureCheckAndPastMonth_ShouldReturnNullState() {
+            // Arrange
+            YearMonth pastMonth = YearMonth.now().minusMonths(2);
+            when(stepEntryService.findEmployeeCheckState(testEmployee, pastMonth))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findEmployeeInternalCheckState(testEmployee, pastMonth))
+                    .thenReturn(Optional.empty());
+            when(commentService.findCommentsForEmployee(TEST_EMAIL, pastMonth))
+                    .thenReturn(Collections.emptyList());
+            when(prematureEmployeeCheckService.findByEmailAndMonth(TEST_EMAIL, pastMonth))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(testEmployee, pastMonth))
+                    .thenReturn(Collections.emptyList());
 
-    @Test
-    void getMonthEndReportForUser_isUserValidAndHasHomeofficeOverWeekendAndExtendsOverMonth_thenReturnsReportWithHomeOfficeOnWorkdays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(createHomeOfficeListWhichExtendsOverMonth());
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
+            // Act
+            EmployeeCheck result = monthlyReportService.getEmployeeCheck(pastMonth);
 
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 4));
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.employeeCheckState()).isNull();
+        }
 
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getHomeofficeDays()).isEqualTo(5);
-        assertThat(monthEndReportForUser.getTimeWarnings()).isEmpty();
-    }
+        @Test
+        void getEmployeeCheck_WhenCommentsExist_ShouldIncludeComments() {
+            // Arrange
+            Comment comment1 = mock(Comment.class);
+            Comment comment2 = mock(Comment.class);
+            List<Comment> comments = List.of(comment1, comment2);
 
-    @Test
-    void getMonthEndReportForUser_isUserValidAndHasTimeCompensationOverWeekend_thenReturnsReportWithCorrectTimeCompensationOnWorkdays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(createTimeCompensationWhichExtendsOverWeekend());
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
+            when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findEmployeeInternalCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(commentService.findCommentsForEmployee(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenReturn(comments);
+            when(prematureEmployeeCheckService.findByEmailAndMonth(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Collections.emptyList());
 
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 4));
+            // Act
+            EmployeeCheck result = monthlyReportService.getEmployeeCheck(TEST_PAYROLL_MONTH);
 
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getCompensatoryDays()).isEqualTo(5);
-        assertThat(monthEndReportForUser.getTimeWarnings()).isEmpty();
-    }
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.comments()).hasSize(2);
+            assertThat(result.comments()).containsExactly(comment1, comment2);
+        }
 
-    @Test
-    void getMonthEndReportForUser_isUserValidAndHasTimeCompensationOverWeekendAndExtendsOverMonth_thenReturnsReportWithCorrectTimeCompensationOnWorkdays() {
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class))).thenReturn(createReadProjectTimesResponseTypeForCorrectVacationDays());
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class))).thenReturn(createTimeCompensationWhichExtendsOverWeekendAndMonth());
-        when(warningCalculatorsManager.determineTimeWarnings(anyList())).thenReturn(new ArrayList<>());
+        @Test
+        void getEmployeeCheck_WhenPrematureEmployeeCheckExists_ShouldIncludePrematureCheck() {
+            // Arrange
+            PrematureEmployeeCheck prematureCheck = mock(PrematureEmployeeCheck.class);
+            when(prematureCheck.getReason()).thenReturn("Premature reason");
 
-        final MonthlyReport monthEndReportForUser = monthlyReportService.getMonthEndReportForUser(YearMonth.of(2022, 4));
+            when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findEmployeeInternalCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(commentService.findCommentsForEmployee(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenReturn(Collections.emptyList());
+            when(prematureEmployeeCheckService.findByEmailAndMonth(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.of(prematureCheck));
+            when(stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Collections.emptyList());
 
-        assertThat(monthEndReportForUser).isNotNull();
-        assertThat(monthEndReportForUser.getCompensatoryDays()).isEqualTo(5);
-        assertThat(monthEndReportForUser.getTimeWarnings()).isEmpty();
-    }
+            // Act
+            EmployeeCheck result = monthlyReportService.getEmployeeCheck(TEST_PAYROLL_MONTH);
 
-    private List<AbsenceTime> createVacationAbsenceList() {
-        List<AbsenceTime> absenceList = new ArrayList<>();
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.prematureEmployeeCheck()).isEqualTo(prematureCheck);
+            assertThat(result.employeeCheckStateReason()).isEqualTo("Premature reason");
+        }
 
-        AbsenceTime vacationDaysAbsence = createAbsenceFromType("UB");
-        absenceList.add(vacationDaysAbsence);
+        @Test
+        void getEmployeeCheck_WhenStepEntryReasonExists_ShouldUseStepEntryReason() {
+            // Arrange
+            StepEntry stepEntry = mock(StepEntry.class);
+            when(stepEntry.getStateReason()).thenReturn("Step entry reason");
 
-        return absenceList;
-    }
+            when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findEmployeeInternalCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(commentService.findCommentsForEmployee(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenReturn(Collections.emptyList());
+            when(prematureEmployeeCheckService.findByEmailAndMonth(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findStepEntryForEmployeeAtStep(1L, TEST_EMAIL, TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenReturn(stepEntry);
+            when(stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Collections.emptyList());
 
-    private List<AbsenceTime> createHomeOfficeListWhichExtendsOverWeekend() {
-        List<AbsenceTime> absenceList = new ArrayList<>();
+            // Act
+            EmployeeCheck result = monthlyReportService.getEmployeeCheck(TEST_PAYROLL_MONTH);
 
-        AbsenceTime vacationDaysAbsence = createAbsenceFromType("HO");
-        absenceList.add(vacationDaysAbsence);
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.employeeCheckStateReason()).isEqualTo("Step entry reason");
+        }
 
-        return absenceList;
-    }
+        @Test
+        void getEmployeeCheck_WhenStepEntryThrowsException_ShouldHandleGracefully() {
+            // Arrange
+            when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findEmployeeInternalCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(commentService.findCommentsForEmployee(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenReturn(Collections.emptyList());
+            when(prematureEmployeeCheckService.findByEmailAndMonth(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenReturn(Optional.empty());
+            when(stepEntryService.findStepEntryForEmployeeAtStep(1L, TEST_EMAIL, TEST_EMAIL, TEST_PAYROLL_MONTH))
+                    .thenThrow(new IllegalStateException("Test exception"));
+            when(stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(testEmployee, TEST_PAYROLL_MONTH))
+                    .thenReturn(Collections.emptyList());
 
-    private List<AbsenceTime> createHomeOfficeListWhichExtendsOverMonth() {
-        List<AbsenceTime> absenceList = new ArrayList<>();
+            // Act
+            EmployeeCheck result = monthlyReportService.getEmployeeCheck(TEST_PAYROLL_MONTH);
 
-        AbsenceTime vacationDaysAbsence = AbsenceTime.builder()
-                .reason("HO")
-                .accepted(true)
-                .toDate(LocalDate.of(2022, 5, 3))
-                .fromDate(LocalDate.of(2022, 4, 25))
-                .build();
-        absenceList.add(vacationDaysAbsence);
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.employeeCheckStateReason()).isNull();
+        }
 
-        return absenceList;
-    }
+        @Nested
+        class MonthCompletion {
 
-    private List<AbsenceTime> createTimeCompensationWhichExtendsOverWeekend() {
-        List<AbsenceTime> absenceList = new ArrayList<>();
+            @Test
+            void getEmployeeCheck_WhenAllStepsCompleted_ShouldReturnTrueForOtherChecksDone() {
+                // Arrange
+                StepEntry controlTimeEntry = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project1", EmployeeState.DONE);
+                StepEntry otherEntry = createStepEntry("OTHER_STEP", "Project1", EmployeeState.DONE);
 
-        AbsenceTime vacationDaysAbsence = AbsenceTime.builder()
-                .reason(AbsenteeType.COMPENSATORY_DAYS.getType())
-                .accepted(true)
-                .toDate(LocalDate.of(2022, 4, 29))
-                .fromDate(LocalDate.of(2022, 4, 25))
-                .build();
-        absenceList.add(vacationDaysAbsence);
+                when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(stepEntryService.findEmployeeInternalCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(commentService.findCommentsForEmployee(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                        .thenReturn(Collections.emptyList());
+                when(prematureEmployeeCheckService.findByEmailAndMonth(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(List.of(controlTimeEntry, otherEntry));
 
-        return absenceList;
-    }
+                // Act
+                EmployeeCheck result = monthlyReportService.getEmployeeCheck(TEST_PAYROLL_MONTH);
 
-    private List<AbsenceTime> createTimeCompensationWhichExtendsOverWeekendAndMonth() {
-        List<AbsenceTime> absenceList = new ArrayList<>();
+                // Assert
+                assertThat(result).isNotNull();
+                assertThat(result.otherChecksDone()).isTrue();
+            }
 
-        AbsenceTime vacationDaysAbsence = AbsenceTime.builder()
-                .reason(AbsenteeType.COMPENSATORY_DAYS.getType())
-                .accepted(true)
-                .toDate(LocalDate.of(2022, 5, 3))
-                .fromDate(LocalDate.of(2022, 4, 25))
-                .build();
-        absenceList.add(vacationDaysAbsence);
+            @Test
+            void getEmployeeCheck_WhenControlTimeEvidencesNotDone_ShouldReturnFalseForOtherChecksDone() {
+                // Arrange
+                StepEntry controlTimeEntry = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project1", EmployeeState.IN_PROGRESS);
 
-        return absenceList;
-    }
+                when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(stepEntryService.findEmployeeInternalCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(commentService.findCommentsForEmployee(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                        .thenReturn(Collections.emptyList());
+                when(prematureEmployeeCheckService.findByEmailAndMonth(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(List.of(controlTimeEntry));
 
-    private List<AbsenceTime> createVacationAbsenceListWhichExtendsOverMonthEnd() {
-        List<AbsenceTime> absenceList = new ArrayList<>();
+                // Act
+                EmployeeCheck result = monthlyReportService.getEmployeeCheck(TEST_PAYROLL_MONTH);
 
-        AbsenceTime vacationDaysAbsence = AbsenceTime.builder()
-                .reason(AbsenteeType.VACATION_DAYS.getType())
-                .accepted(true)
-                .toDate(LocalDate.of(2022, 5, 3))
-                .fromDate(LocalDate.of(2022, 4, 25))
-                .build();
-        absenceList.add(vacationDaysAbsence);
+                // Assert
+                assertThat(result).isNotNull();
+                assertThat(result.otherChecksDone()).isFalse();
+            }
 
-        return absenceList;
-    }
+            @Test
+            void getEmployeeCheck_WhenOtherStepsNotDone_ShouldReturnFalseForOtherChecksDone() {
+                // Arrange
+                StepEntry controlTimeEntry = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project1", EmployeeState.DONE);
+                StepEntry otherEntry = createStepEntry("OTHER_STEP", "Project1", EmployeeState.IN_PROGRESS);
 
-    private List<ProjectEntry> createReadProjectTimesResponseTypeForCorrectVacationDays() {
-        List<Integer> weekEndDays = List.of(2, 3, 9, 10, 16, 17, 18, 19, 20);
-        List<ProjectEntry> projectTimeEntryList = new ArrayList<>();
+                when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(stepEntryService.findEmployeeInternalCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(commentService.findCommentsForEmployee(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                        .thenReturn(Collections.emptyList());
+                when(prematureEmployeeCheckService.findByEmailAndMonth(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(List.of(controlTimeEntry, otherEntry));
 
-        for (int i = 1; i <= 22; i++) {
-            if (!weekEndDays.contains(i)) {
-                projectTimeEntryList.add(ProjectTimeEntry.builder()
-                        .fromTime(LocalDateTime.of(2022, 4, i, 8, 0))
-                        .toTime(LocalDateTime.of(2022, 4, i, 16, 30))
-                        .task(Task.BEARBEITEN)
-                        .workingLocation(WorkingLocation.MAIN).build());
+                // Act
+                EmployeeCheck result = monthlyReportService.getEmployeeCheck(TEST_PAYROLL_MONTH);
+
+                // Assert
+                assertThat(result).isNotNull();
+                assertThat(result.otherChecksDone()).isFalse();
+            }
+
+            @Test
+            void getEmployeeCheck_WhenMultipleProjectsAndOneControlTimeDone_ShouldReturnTrue() {
+                // Arrange
+                StepEntry controlTimeEntry1 = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project1", EmployeeState.DONE);
+                StepEntry controlTimeEntry2 = createStepEntry(StepName.CONTROL_TIME_EVIDENCES.name(), "Project2", EmployeeState.IN_PROGRESS);
+
+                when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(stepEntryService.findEmployeeInternalCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(commentService.findCommentsForEmployee(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                        .thenReturn(Collections.emptyList());
+                when(prematureEmployeeCheckService.findByEmailAndMonth(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(List.of(controlTimeEntry1, controlTimeEntry2));
+
+                // Act
+                EmployeeCheck result = monthlyReportService.getEmployeeCheck(TEST_PAYROLL_MONTH);
+
+                // Assert
+                assertThat(result).isNotNull();
+                assertThat(result.otherChecksDone()).isFalse();
+            }
+
+            @Test
+            void getEmployeeCheck_WhenNoStepEntries_ShouldReturnTrueForOtherChecksDone() {
+                // Arrange
+                when(stepEntryService.findEmployeeCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(stepEntryService.findEmployeeInternalCheckState(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(commentService.findCommentsForEmployee(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                        .thenReturn(Collections.emptyList());
+                when(prematureEmployeeCheckService.findByEmailAndMonth(TEST_EMAIL, TEST_PAYROLL_MONTH))
+                        .thenReturn(Optional.empty());
+                when(stepEntryService.findAllOwnedAndUnassignedStepEntriesExceptControlTimes(testEmployee, TEST_PAYROLL_MONTH))
+                        .thenReturn(Collections.emptyList());
+
+                // Act
+                EmployeeCheck result = monthlyReportService.getEmployeeCheck(TEST_PAYROLL_MONTH);
+
+                // Assert
+                assertThat(result).isNotNull();
+                assertThat(result.otherChecksDone()).isTrue();
             }
         }
-
-        return projectTimeEntryList;
     }
 
-    private List<TimeWarning> createTimeWarningList() {
-        TimeWarning timewarning = new TimeWarning();
-        timewarning.setDate(LocalDate.of(2020, 1, 31));
-        timewarning.getWarningTypes().add(TimeWarningType.OUTSIDE_CORE_WORKING_TIME);
-        timewarning.setExcessWorkTime(1d);
-        timewarning.setMissingBreakTime(0.5d);
-        List<TimeWarning> timeWarningList = new ArrayList<>();
-        timeWarningList.add(timewarning);
+    @Nested
+    class GetAttendances {
 
-        return timeWarningList;
+        @Test
+        void getAttendances_WhenValidData_ShouldReturnAttendances() {
+            // Arrange
+            List<ProjectEntry> projectTimes = new ArrayList<>();
+            List<ProjectTime> billableTimes = new ArrayList<>();
+            List<AbsenceTime> absenceTimes = new ArrayList<>();
+
+            when(zepService.getProjectTimes(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(projectTimes);
+            when(zepService.getBillableForEmployee(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(billableTimes);
+            when(zepService.getAbsenceForEmployee(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(absenceTimes);
+
+            when(workingTimeUtil.getTotalWorkingTimeForEmployee(projectTimes)).thenReturn("160:00");
+            when(workingTimeUtil.getOvertimeForEmployee(testEmployee, projectTimes, absenceTimes, TEST_PAYROLL_MONTH)).thenReturn(10.0);
+            when(workingTimeUtil.getBillableTimesForEmployee(billableTimes, testEmployee)).thenReturn("120:00");
+            when(workingTimeUtil.getDurationFromTimeString("160:00")).thenReturn(Duration.ofHours(160));
+            when(workingTimeUtil.getDurationFromTimeString("120:00")).thenReturn(Duration.ofHours(120));
+            when(workingTimeUtil.getBillablePercentage(Duration.ofHours(160), Duration.ofHours(120))).thenReturn(75.0);
+
+            // Act
+            Attendances result = monthlyReportService.getAttendances(TEST_PAYROLL_MONTH);
+
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.totalWorkingTimeHours()).isEqualTo(160.0);
+            assertThat(result.overtimeHours()).isEqualTo(10.0);
+            assertThat(result.billableTimeHours()).isEqualTo(120.0);
+            assertThat(result.billablePercentage()).isEqualTo(75.0);
+        }
+
+        @Test
+        void getAttendances_WhenZeroWorkingTime_ShouldReturnZeroValues() {
+            // Arrange
+            List<ProjectEntry> projectTimes = new ArrayList<>();
+            List<ProjectTime> billableTimes = new ArrayList<>();
+            List<AbsenceTime> absenceTimes = new ArrayList<>();
+
+            when(zepService.getProjectTimes(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(projectTimes);
+            when(zepService.getBillableForEmployee(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(billableTimes);
+            when(zepService.getAbsenceForEmployee(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(absenceTimes);
+
+            when(workingTimeUtil.getTotalWorkingTimeForEmployee(projectTimes)).thenReturn("00:00");
+            when(workingTimeUtil.getOvertimeForEmployee(testEmployee, projectTimes, absenceTimes, TEST_PAYROLL_MONTH)).thenReturn(0.0);
+            when(workingTimeUtil.getBillableTimesForEmployee(billableTimes, testEmployee)).thenReturn("00:00");
+            when(workingTimeUtil.getDurationFromTimeString("00:00")).thenReturn(Duration.ZERO);
+            when(workingTimeUtil.getBillablePercentage(Duration.ZERO, Duration.ZERO)).thenReturn(0.0);
+
+            // Act
+            Attendances result = monthlyReportService.getAttendances(TEST_PAYROLL_MONTH);
+
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.totalWorkingTimeHours()).isEqualTo(0.0);
+            assertThat(result.overtimeHours()).isEqualTo(0.0);
+            assertThat(result.billableTimeHours()).isEqualTo(0.0);
+            assertThat(result.billablePercentage()).isEqualTo(0.0);
+        }
+
+        @Test
+        void getAttendances_WhenNegativeOvertime_ShouldReturnNegativeValue() {
+            // Arrange
+            List<ProjectEntry> projectTimes = new ArrayList<>();
+            List<ProjectTime> billableTimes = new ArrayList<>();
+            List<AbsenceTime> absenceTimes = new ArrayList<>();
+
+            when(zepService.getProjectTimes(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(projectTimes);
+            when(zepService.getBillableForEmployee(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(billableTimes);
+            when(zepService.getAbsenceForEmployee(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(absenceTimes);
+
+            when(workingTimeUtil.getTotalWorkingTimeForEmployee(projectTimes)).thenReturn("150:00");
+            when(workingTimeUtil.getOvertimeForEmployee(testEmployee, projectTimes, absenceTimes, TEST_PAYROLL_MONTH)).thenReturn(-10.0);
+            when(workingTimeUtil.getBillableTimesForEmployee(billableTimes, testEmployee)).thenReturn("100:00");
+            when(workingTimeUtil.getDurationFromTimeString("150:00")).thenReturn(Duration.ofHours(150));
+            when(workingTimeUtil.getDurationFromTimeString("100:00")).thenReturn(Duration.ofHours(100));
+            when(workingTimeUtil.getBillablePercentage(Duration.ofHours(150), Duration.ofHours(100))).thenReturn(66.67);
+
+            // Act
+            Attendances result = monthlyReportService.getAttendances(TEST_PAYROLL_MONTH);
+
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.totalWorkingTimeHours()).isEqualTo(150.0);
+            assertThat(result.overtimeHours()).isEqualTo(-10.0);
+            assertThat(result.billableTimeHours()).isEqualTo(100.0);
+            assertThat(result.billablePercentage()).isEqualTo(66.67);
+        }
+
+        @Test
+        void getAttendances_WhenPartialHours_ShouldConvertMinutesCorrectly() {
+            // Arrange
+            List<ProjectEntry> projectTimes = new ArrayList<>();
+            List<ProjectTime> billableTimes = new ArrayList<>();
+            List<AbsenceTime> absenceTimes = new ArrayList<>();
+
+            when(zepService.getProjectTimes(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(projectTimes);
+            when(zepService.getBillableForEmployee(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(billableTimes);
+            when(zepService.getAbsenceForEmployee(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(absenceTimes);
+
+            // 160 hours and 30 minutes = 9630 minutes
+            when(workingTimeUtil.getTotalWorkingTimeForEmployee(projectTimes)).thenReturn("160:30");
+            when(workingTimeUtil.getOvertimeForEmployee(testEmployee, projectTimes, absenceTimes, TEST_PAYROLL_MONTH)).thenReturn(5.5);
+            // 120 hours and 15 minutes = 7215 minutes
+            when(workingTimeUtil.getBillableTimesForEmployee(billableTimes, testEmployee)).thenReturn("120:15");
+            when(workingTimeUtil.getDurationFromTimeString("160:30")).thenReturn(Duration.ofMinutes(9630));
+            when(workingTimeUtil.getDurationFromTimeString("120:15")).thenReturn(Duration.ofMinutes(7215));
+            when(workingTimeUtil.getBillablePercentage(Duration.ofMinutes(9630), Duration.ofMinutes(7215))).thenReturn(74.92);
+
+            // Act
+            Attendances result = monthlyReportService.getAttendances(TEST_PAYROLL_MONTH);
+
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.totalWorkingTimeHours()).isEqualTo(160.5); // 9630 / 60 = 160.5
+            assertThat(result.overtimeHours()).isEqualTo(5.5);
+            assertThat(result.billableTimeHours()).isEqualTo(120.25); // 7215 / 60 = 120.25
+            assertThat(result.billablePercentage()).isEqualTo(74.92);
+        }
+
+        @Test
+        void getAttendances_ShouldCallAllZepServiceMethods() {
+            // Arrange
+            List<ProjectEntry> projectTimes = new ArrayList<>();
+            List<ProjectTime> billableTimes = new ArrayList<>();
+            List<AbsenceTime> absenceTimes = new ArrayList<>();
+
+            when(zepService.getProjectTimes(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(projectTimes);
+            when(zepService.getBillableForEmployee(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(billableTimes);
+            when(zepService.getAbsenceForEmployee(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(absenceTimes);
+
+            when(workingTimeUtil.getTotalWorkingTimeForEmployee(projectTimes)).thenReturn("160:00");
+            when(workingTimeUtil.getOvertimeForEmployee(testEmployee, projectTimes, absenceTimes, TEST_PAYROLL_MONTH)).thenReturn(10.0);
+            when(workingTimeUtil.getBillableTimesForEmployee(billableTimes, testEmployee)).thenReturn("120:00");
+            when(workingTimeUtil.getDurationFromTimeString("160:00")).thenReturn(Duration.ofHours(160));
+            when(workingTimeUtil.getDurationFromTimeString("120:00")).thenReturn(Duration.ofHours(120));
+            when(workingTimeUtil.getBillablePercentage(Duration.ofHours(160), Duration.ofHours(120))).thenReturn(75.0);
+
+            // Act
+            monthlyReportService.getAttendances(TEST_PAYROLL_MONTH);
+
+            // Assert
+            verify(zepService).getProjectTimes(testEmployee, TEST_PAYROLL_MONTH);
+            verify(zepService).getBillableForEmployee(testEmployee, TEST_PAYROLL_MONTH);
+            verify(zepService).getAbsenceForEmployee(testEmployee, TEST_PAYROLL_MONTH);
+        }
+
+        @Test
+        void getAttendances_ShouldCallAllWorkingTimeUtilMethods() {
+            // Arrange
+            List<ProjectEntry> projectTimes = new ArrayList<>();
+            List<ProjectTime> billableTimes = new ArrayList<>();
+            List<AbsenceTime> absenceTimes = new ArrayList<>();
+
+            when(zepService.getProjectTimes(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(projectTimes);
+            when(zepService.getBillableForEmployee(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(billableTimes);
+            when(zepService.getAbsenceForEmployee(testEmployee, TEST_PAYROLL_MONTH)).thenReturn(absenceTimes);
+
+            when(workingTimeUtil.getTotalWorkingTimeForEmployee(projectTimes)).thenReturn("160:00");
+            when(workingTimeUtil.getOvertimeForEmployee(testEmployee, projectTimes, absenceTimes, TEST_PAYROLL_MONTH)).thenReturn(10.0);
+            when(workingTimeUtil.getBillableTimesForEmployee(billableTimes, testEmployee)).thenReturn("120:00");
+            when(workingTimeUtil.getDurationFromTimeString("160:00")).thenReturn(Duration.ofHours(160));
+            when(workingTimeUtil.getDurationFromTimeString("120:00")).thenReturn(Duration.ofHours(120));
+            when(workingTimeUtil.getBillablePercentage(Duration.ofHours(160), Duration.ofHours(120))).thenReturn(75.0);
+
+            // Act
+            monthlyReportService.getAttendances(TEST_PAYROLL_MONTH);
+
+            // Assert
+            verify(workingTimeUtil).getTotalWorkingTimeForEmployee(projectTimes);
+            verify(workingTimeUtil).getOvertimeForEmployee(testEmployee, projectTimes, absenceTimes, TEST_PAYROLL_MONTH);
+            verify(workingTimeUtil).getBillableTimesForEmployee(billableTimes, testEmployee);
+            verify(workingTimeUtil, times(2)).getDurationFromTimeString("160:00");
+            verify(workingTimeUtil, times(2)).getDurationFromTimeString("120:00");
+            verify(workingTimeUtil).getBillablePercentage(Duration.ofHours(160), Duration.ofHours(120));
+        }
     }
 
-    private List<ProjectEntry> createReadProjektzeitenResponseType(int bisHours) {
-
-        return List.of(
-                ProjectTimeEntry.builder()
-                        .fromTime(LocalDateTime.of(2020, 1, 31, 7, 0))
-                        .toTime(LocalDateTime.of(2020, 1, 31, bisHours, 0))
-                        .task(Task.BEARBEITEN)
-                        .workingLocation(WorkingLocation.MAIN).build(),
-                ProjectTimeEntry.builder()
-                        .fromTime(LocalDateTime.of(2020, 1, 30, 7, 0))
-                        .toTime(LocalDateTime.of(2020, 1, 30, 10, 0))
-                        .task(Task.BEARBEITEN)
-                        .workingLocation(WorkingLocation.MAIN).build()
-        );
-    }
-
-    private Employee createEmployeeForUser(final User user) {
-        Map<DayOfWeek, Duration> regularWorkingHours = Map.ofEntries(
-                Map.entry(DayOfWeek.MONDAY, Duration.ofHours(8)),
-                Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(8)),
-                Map.entry(DayOfWeek.WEDNESDAY, Duration.ofHours(8)),
-                Map.entry(DayOfWeek.THURSDAY, Duration.ofHours(8)),
-                Map.entry(DayOfWeek.FRIDAY, Duration.ofHours(6)),
-                Map.entry(DayOfWeek.SATURDAY, Duration.ofHours(0)),
-                Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
-
-        return Employee.builder()
-                .email(user.getEmail())
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
-                .title("Ing.")
-                .userId(user.getUserId())
-                .releaseDate("2020-01-01")
-                .employmentPeriods(new EmploymentPeriods(new EmploymentPeriod(LocalDate.of(2020, 1, 1), null)))
-                .regularWorkingTimes(new RegularWorkingTimes(new RegularWorkingTime(null, regularWorkingHours)))
-                .build();
-    }
-
-    private User createUser() {
-        return User.builder()
-                .dbId(1)
-                .userId("1")
-                .email("max.mustermann@gepardec.com")
-                .firstname("Max")
-                .lastname("Mustermann")
-                .roles(Set.of(Role.EMPLOYEE))
-                .build();
-    }
-
-    private AbsenceTime createAbsenceFromType(String type) {
-        return AbsenceTime.builder()
-                .reason(type)
-                .accepted(true)
-                .toDate(LocalDate.of(2020, 2, 29))
-                .fromDate(LocalDate.of(2020, 2, 27))
-                .build();
+    private StepEntry createStepEntry(String stepName, String project, EmployeeState state) {
+        StepEntry stepEntry = mock(StepEntry.class);
+        Step step = mock(Step.class);
+        when(step.getName()).thenReturn(stepName);
+        when(stepEntry.getStep()).thenReturn(step);
+        when(stepEntry.getProject()).thenReturn(project);
+        when(stepEntry.getState()).thenReturn(state);
+        return stepEntry;
     }
 }

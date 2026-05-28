@@ -1,12 +1,15 @@
 package com.gepardec.mega.zep.rest.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gepardec.mega.helper.ResourceFileService;
 import com.gepardec.mega.zep.rest.client.ZepAttendanceRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
+import com.gepardec.mega.zep.rest.dto.ZepResponse;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +37,9 @@ class AttendanceServiceTest {
     @Inject
     ResourceFileService resourceFileService;
 
+    @Inject
+    ObjectMapper objectMapper;
+
     @BeforeEach
     void init() {
         List<String> users = List.of("001-duser", "002-tuser");
@@ -46,9 +52,15 @@ class AttendanceServiceTest {
 
         IntStream.range(0, responseJson.size()).forEach(
                 i -> {
-                    when(zepAttendanceRestClient
-                            .getAttendance(anyString(), anyString(), eq(user), eq(i + 1)))
-                            .thenReturn(Response.ok().entity(responseJson.get(i)).build());
+                    try {
+                        ZepResponse<List<ZepAttendance>> response = objectMapper.readValue(responseJson.get(i), new TypeReference<>() {
+                        });
+                        when(zepAttendanceRestClient
+                                .getAttendance(anyString(), anyString(), eq(user), eq(i + 1)))
+                                .thenReturn(Uni.createFrom().item(response));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
         );
     }
@@ -58,9 +70,14 @@ class AttendanceServiceTest {
 
         IntStream.range(0, responseJson.size()).forEach(
                 i -> {
-                    when(zepAttendanceRestClient
-                            .getAttendanceForUserAndProject(anyString(), anyString(), eq(user), eq(1), eq(i + 1)))
-                            .thenReturn(Response.ok().entity(responseJson.get(i)).build());
+                    try {
+                        ZepResponse response = objectMapper.readValue(responseJson.get(i), ZepResponse.class);
+                        when(zepAttendanceRestClient
+                                .getAttendanceForUserAndProject(anyString(), anyString(), eq(user), eq(1), eq(i + 1)))
+                                .thenReturn(Uni.createFrom().item(response));
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                 }
         );
     }

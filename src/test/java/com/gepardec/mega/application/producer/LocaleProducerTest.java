@@ -2,17 +2,16 @@ package com.gepardec.mega.application.producer;
 
 import com.gepardec.mega.application.configuration.ApplicationConfig;
 import io.quarkus.test.junit.QuarkusTest;
-import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.HttpHeaders;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -20,58 +19,62 @@ class LocaleProducerTest {
 
     private static final Locale DEFAULT_LOCALE = Locale.GERMAN;
 
-    @Inject
-    LocaleProducer producer;
-
-    private HttpServletRequest requestSpy;
+    private LocaleProducer producer;
+    private HttpHeaders headersMock;
 
     @BeforeEach
     void beforeEach() {
-        requestSpy = spy(HttpServletRequest.class);
-        ApplicationConfig applicationConfigSpy = spy(ApplicationConfig.class);
+        ApplicationConfig applicationConfigMock = mock(ApplicationConfig.class);
+        headersMock = mock(HttpHeaders.class);
 
-        lenient().when(applicationConfigSpy.getLocales()).thenReturn(List.of(Locale.GERMAN, Locale.ENGLISH));
-        lenient().when(applicationConfigSpy.getDefaultLocale()).thenReturn(Locale.GERMAN);
+        when(applicationConfigMock.getLocales()).thenReturn(List.of(Locale.GERMAN, Locale.ENGLISH));
+        when(applicationConfigMock.getDefaultLocale()).thenReturn(DEFAULT_LOCALE);
 
-        producer = new LocaleProducer(applicationConfigSpy, requestSpy);
+        producer = new LocaleProducer(applicationConfigMock);
+        producer.headers = headersMock;
     }
 
     @Test
-    void init_whenRequestHasNoLocale_thenCurrentLocaleIsDefaultLocale() {
-        when(requestSpy.getLocale()).thenReturn(null);
+    void produceLocale_whenRequestHasNoLocale_thenReturnsDefaultLocale() {
+        when(headersMock.getAcceptableLanguages()).thenReturn(Collections.emptyList());
 
-        producer.init();
-        final Locale actual = producer.getCurrentLocale();
+        final Locale actual = producer.produceLocale();
 
         assertThat(actual).isEqualTo(DEFAULT_LOCALE);
     }
 
     @Test
-    void init_whenRequestHasUnsupportedLocaleFRENCH_thenCurrentLocaleIsDefaultLocale() {
-        when(requestSpy.getLocale()).thenReturn(Locale.FRENCH);
+    void produceLocale_whenRequestHasUnsupportedLocaleFRENCH_thenReturnsDefaultLocale() {
+        when(headersMock.getAcceptableLanguages()).thenReturn(List.of(Locale.FRENCH));
 
-        producer.init();
-        final Locale actual = producer.getCurrentLocale();
+        final Locale actual = producer.produceLocale();
 
         assertThat(actual).isEqualTo(DEFAULT_LOCALE);
     }
 
     @Test
-    void init_whenRequestHasLocaleGERMAN_thenCurrentLocaleIsGERMAN() {
-        when(requestSpy.getLocale()).thenReturn(Locale.GERMAN);
+    void produceLocale_whenRequestHasLocaleGERMAN_thenReturnsGERMAN() {
+        when(headersMock.getAcceptableLanguages()).thenReturn(List.of(Locale.GERMAN));
 
-        producer.init();
-        final Locale actual = producer.getCurrentLocale();
+        final Locale actual = producer.produceLocale();
 
         assertThat(actual).isEqualTo(Locale.GERMAN);
     }
 
     @Test
-    void init_whenRequestHasLocaleENGLISH_thenCurrentLocaleIsENGLISH() {
-        when(requestSpy.getLocale()).thenReturn(Locale.ENGLISH);
+    void produceLocale_whenRequestHasLocaleENGLISH_thenReturnsENGLISH() {
+        when(headersMock.getAcceptableLanguages()).thenReturn(List.of(Locale.ENGLISH));
 
-        producer.init();
-        final Locale actual = producer.getCurrentLocale();
+        final Locale actual = producer.produceLocale();
+
+        assertThat(actual).isEqualTo(Locale.ENGLISH);
+    }
+
+    @Test
+    void produceLocale_whenRequestHasMultipleLocales_thenReturnsFirstSupportedLocale() {
+        when(headersMock.getAcceptableLanguages()).thenReturn(List.of(Locale.ENGLISH, Locale.GERMAN));
+
+        final Locale actual = producer.produceLocale();
 
         assertThat(actual).isEqualTo(Locale.ENGLISH);
     }
