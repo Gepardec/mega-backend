@@ -40,7 +40,7 @@ jobs:
           bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r target/jacoco-report/jacoco.xml
 
       # build the container image and release it as a package in this repository
-      - uses: mr-smithers-excellent/docker-build-push@v6
+      - uses: mr-smithers-excellent/docker-build-push@v7
         name: push-container-image
         with:
           image: mega-backend
