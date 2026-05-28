@@ -63,13 +63,12 @@ public class ResourceFileService {
 
     private File getFileOfResourcesPath(String path) {
         try {
-            URL resource = getClass().getResource("/");
+            URL resource = getClass().getResource(path);
             if (resource == null) {
                 throw new IOException("Resource not found: " + path);
             }
             String resourcesPath = resource.getPath();
-            String absPath = resourcesPath + path;
-            return new File(absPath);
+            return new File(resourcesPath);
         } catch (Exception e) {
             throw new RuntimeException("Error reading resource Path for test resources", e);
         }
