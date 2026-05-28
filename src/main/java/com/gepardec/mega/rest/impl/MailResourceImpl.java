@@ -1,14 +1,14 @@
 package com.gepardec.mega.rest.impl;
 
-import com.gepardec.mega.notification.mail.ReminderEmailSender;
-import com.gepardec.mega.notification.mail.receiver.MailReceiver;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateClarificationFromZepMailUseCase;
+import com.gepardec.mega.hexagon.notification.application.port.inbound.SendScheduledRemindersUseCase;
 import com.gepardec.mega.rest.api.MailResource;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-import org.slf4j.Logger;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @RequestScoped
@@ -16,20 +16,16 @@ import java.time.LocalDateTime;
 public class MailResourceImpl implements MailResource {
 
     @Inject
-    ReminderEmailSender reminderEmailSender;
+    SendScheduledRemindersUseCase sendScheduledRemindersUseCase;
 
     @Inject
-    MailReceiver mailReceiver;
-
-    @Inject
-    Logger logger;
+    CreateClarificationFromZepMailUseCase createClarificationFromZepMailUseCase;
 
     @Override
     public Response sendReminder() {
         try {
-            reminderEmailSender.sendReminder();
+            sendScheduledRemindersUseCase.send(LocalDate.now());
         } catch (Exception e) {
-            logger.error(e.getMessage());
             return Response.serverError().entity(e.getMessage()).build();
         }
 
@@ -39,9 +35,8 @@ public class MailResourceImpl implements MailResource {
     @Override
     public Response retrieveZepEmailsFromInbox() {
         try {
-            mailReceiver.retrieveZepEmailsFromInbox();
+            createClarificationFromZepMailUseCase.create();
         } catch (Exception e) {
-            logger.error(e.getMessage());
             return Response.serverError().entity(e.getMessage()).build();
         }
 

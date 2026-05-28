@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-monthend-task-model-003
+      author: mega
+      changes:
+        - sql:
+            sql: |
+              alter table monthend_task
+              add constraint uidx_monthend_task_business_key
+              unique nulls not distinct (month_value, project_id, type, subject_employee_id)

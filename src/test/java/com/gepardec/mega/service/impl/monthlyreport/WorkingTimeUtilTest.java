@@ -6,8 +6,6 @@ import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.RegularWorkingTime;
 import com.gepardec.mega.domain.model.RegularWorkingTimes;
-import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.User;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
@@ -37,7 +35,6 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -366,14 +363,6 @@ class WorkingTimeUtilTest {
     }
 
     private Employee.Builder createEmployee() {
-        User user = User.builder()
-                .dbId(1)
-                .userId("1")
-                .email("max.mustermann@gpeardec.com")
-                .firstname("Max")
-                .lastname("Mustermann")
-                .roles(Set.of(Role.EMPLOYEE))
-                .build();
         Map<DayOfWeek, Duration> regularWorkingHours = Map.ofEntries(
                 Map.entry(DayOfWeek.MONDAY, Duration.ofHours(8)),
                 Map.entry(DayOfWeek.TUESDAY, Duration.ofHours(8)),
@@ -384,11 +373,11 @@ class WorkingTimeUtilTest {
                 Map.entry(DayOfWeek.SUNDAY, Duration.ofHours(0)));
 
         return Employee.builder()
-                .email(user.getEmail())
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
+                .email("max.mustermann@gpeardec.com")
+                .firstname("Max")
+                .lastname("Mustermann")
                 .title("Ing.")
-                .userId(user.getUserId())
+                .userId("1")
                 .releaseDate("2020-01-01")
                 .regularWorkingTimes(new RegularWorkingTimes(new RegularWorkingTime(null, regularWorkingHours)));
     }

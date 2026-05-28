@@ -1,0 +1,38 @@
+package com.gepardec.mega.hexagon.monthend.adapter.outbound;
+
+import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectSnapshotPort;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
+import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import java.time.YearMonth;
+import java.util.List;
+import java.util.Set;
+
+@ApplicationScoped
+public class ProjectSnapshotAdapter implements MonthEndProjectSnapshotPort {
+
+    @Inject
+    ProjectRepository projectRepository;
+
+    @Inject
+    MonthEndProjectSnapshotMapper mapper;
+
+    @Override
+    public List<MonthEndProjectSnapshot> findActiveIn(YearMonth month) {
+        return projectRepository.findAll().stream()
+                .filter(project -> project.isActiveIn(month))
+                .map(mapper::toSnapshot)
+                .toList();
+    }
+
+    @Override
+    public List<MonthEndProjectSnapshot> findByIds(Set<ProjectId> projectIds, YearMonth month) {
+        return projectRepository.findAllByIds(projectIds).stream()
+                .filter(project -> project.isActiveIn(month))
+                .map(mapper::toSnapshot)
+                .toList();
+    }
+}

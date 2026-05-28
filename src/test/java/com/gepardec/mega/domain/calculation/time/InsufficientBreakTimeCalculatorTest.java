@@ -117,11 +117,11 @@ class InsufficientBreakTimeCalculatorTest {
 
     @Test
     void when4EntriesAnd30MinBreakAndWithOneJourneyTimeEntry_thenWarningButIgnoredJourneyTimeEntry() {
-        final ProjectTimeEntry timeEntryOne = projectTimeEntryFor(7, 10);
-        final ProjectTimeEntry timeEntryTwo = projectTimeEntryFor(10, 30, 17, 15);
-        final JourneyTimeEntry timeEntryThree = journeyTimeEntryFor(17, 15, 19, 30);
+        final ProjectTimeEntry threeHours = projectTimeEntryFor(7, 10);
+        final ProjectTimeEntry sixHoursFortyFiveMinutes = projectTimeEntryFor(10, 30, 17, 15);
+        final JourneyTimeEntry journey = journeyTimeEntryFor(17, 15, 19, 30);
 
-        final List<TimeWarning> warnings = calculator.calculate(List.of(timeEntryOne, timeEntryTwo, timeEntryThree));
+        final List<TimeWarning> warnings = calculator.calculate(List.of(threeHours, sixHoursFortyFiveMinutes, journey));
 
         assertThat(warnings).isEmpty();
     }
@@ -138,12 +138,9 @@ class InsufficientBreakTimeCalculatorTest {
         final List<TimeWarning> warnings = calculator.calculate(List.of(timeEntry));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.getFirst().getMissingBreakTime()).isEqualTo(0.5);
-
-        assertThat(warnings).hasSize(1);
         final TimeWarning warning = warnings.getFirst();
         assertThat(warning.getDate()).isNotNull();
-        assertThat(warning.getMissingBreakTime()).isNotNull();
+        assertThat(warning.getMissingBreakTime()).isEqualTo(0.5);
         assertThat(warning.getMissingRestTime()).isNull();
         assertThat(warning.getExcessWorkTime()).isNull();
     }
@@ -154,16 +151,6 @@ class InsufficientBreakTimeCalculatorTest {
         final ProjectTimeEntry timeEntryTwo = projectTimeEntryFor(10, 16);
 
         final List<TimeWarning> warnings = calculator.calculate(List.of(timeEntryTwo, timeEntryOne));
-
-        assertThat(warnings).hasSize(1);
-        assertThat(warnings.getFirst().getMissingBreakTime()).isEqualTo(0.5);
-    }
-
-    @Test
-    void when7Hours_thenWarning() {
-        final ProjectTimeEntry timeEntry = projectTimeEntryFor(7, 14);
-
-        final List<TimeWarning> warnings = calculator.calculate(List.of(timeEntry));
 
         assertThat(warnings).hasSize(1);
         assertThat(warnings.getFirst().getMissingBreakTime()).isEqualTo(0.5);
@@ -256,5 +243,16 @@ class InsufficientBreakTimeCalculatorTest {
 
         assertThat(warnings)
                 .isEmpty();
+    }
+
+    @Test
+    void whenBreakTakenAfterContinuousWorkExceeds6Hours_thenWarning() {
+        final ProjectTimeEntry eightHours = projectTimeEntryFor(6, 14);
+        final ProjectTimeEntry twoHours = projectTimeEntryFor(15, 17);
+
+        final List<TimeWarning> warnings = calculator.calculate(List.of(eightHours, twoHours));
+
+        assertThat(warnings).hasSize(1);
+        assertThat(warnings.getFirst().getMissingBreakTime()).isEqualTo(0.5);
     }
 }

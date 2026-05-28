@@ -1,0 +1,36 @@
+WorkTimeEntry:
+  type: object
+  additionalProperties: false
+  required:
+    - employee
+    - project
+    - billableHours
+    - nonBillableHours
+    - employeeMonthTotalHours
+  properties:
+    employee:
+      $ref: './shared.yaml#/UserRef'
+    project:
+      $ref: './shared.yaml#/ProjectRef'
+    billableHours:
+      type: number
+      format: double
+    nonBillableHours:
+      type: number
+      format: double
+    employeeMonthTotalHours:
+      type: number
+      format: double
+WorkTimeReport:
+  type: object
+  additionalProperties: false
+  required:
+    - payrollMonth
+    - entries
+  properties:
+    payrollMonth:
+      $ref: './shared.yaml#/MonthValue'
+    entries:
+      type: array
+      items:
+        $ref: '#/WorkTimeEntry'

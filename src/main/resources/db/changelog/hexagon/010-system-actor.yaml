@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-system-actor-001
+      author: mega
+      changes:
+        - insert:
+            tableName: hexagon_users
+            columns:
+              - column:
+                  name: id
+                  value: "00000000-0000-0000-0000-000000000001"
+              - column:
+                  name: firstname
+                  value: "MEGA"
+              - column:
+                  name: lastname
+                  value: "System"
+        - insert:
+            tableName: hexagon_user_roles
+            columns:
+              - column:
+                  name: user_id
+                  value: "00000000-0000-0000-0000-000000000001"
+              - column:
+                  name: role
+                  value: "SYSTEM"

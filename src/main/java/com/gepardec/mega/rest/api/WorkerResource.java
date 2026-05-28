@@ -1,7 +1,6 @@
 package com.gepardec.mega.rest.api;
 
 import com.gepardec.mega.rest.model.AttendancesDto;
-import com.gepardec.mega.rest.model.EmployeeCheckDto;
 import com.gepardec.mega.rest.model.LeadersDto;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
@@ -10,11 +9,9 @@ import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
 import com.gepardec.mega.rest.model.WorkTimeBookingWarningDto;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -31,14 +28,6 @@ import java.util.List;
 @Tag(name = "WorkerResource")
 @Produces(MediaType.APPLICATION_JSON)
 public interface WorkerResource {
-
-    @GET
-    @Path("/payrollMonth")
-    YearMonth payrollMonth();
-
-    @GET
-    @Path("/employeeCheck")
-    EmployeeCheckDto employeeCheck(@QueryParam("payrollMonth") YearMonth payrollMonth);
 
     @Operation(operationId = "getBillInformationForEmployee", description = "Get total sum of bills (and if every bill has an attachment), get sum of private and company bills and info about credit card that the user uploaded for current month.")
     @APIResponse(responseCode = "200",

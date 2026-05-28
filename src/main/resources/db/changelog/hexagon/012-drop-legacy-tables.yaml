@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-drop-legacy-tables-001
+      author: mega
+      changes:
+        - dropTable:
+            tableName: employee_user_roles
+        - dropTable:
+            tableName: enterprise_entry
+        - dropTable:
+            tableName: project_comment
+        - dropTable:
+            tableName: comment
+        - dropTable:
+            tableName: step_entry
+        - dropTable:
+            tableName: project_employee
+        - dropTable:
+            tableName: project_project_entry
+        - dropTable:
+            tableName: premature_employee_check
+        - dropTable:
+            tableName: project_entry
+        - dropTable:
+            tableName: project
+        - dropTable:
+            tableName: step
+        - dropTable:
+            tableName: employee_user

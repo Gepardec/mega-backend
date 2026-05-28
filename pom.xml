@@ -7,6 +7,7 @@
     <artifactId>mega-backend</artifactId>
     <version>${revision}</version>
     <name>MEGA ZEP-Backend</name>
+    <packaging>quarkus</packaging>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -49,6 +50,11 @@
         <spring-beans.version>7.0.7</spring-beans.version>
         <spring-data-jpa.version>4.0.5</spring-data-jpa.version>
         <snakeyaml.version>2.6</snakeyaml.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <instancio-junit.version>6.0.0-RC2</instancio-junit.version>
+        <openapi-generator-maven-plugin.version>7.12.0</openapi-generator-maven-plugin.version>
+        <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
+        <archunit.version>1.3.0</archunit.version>
 
         <!-- Plugins -->
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
@@ -65,7 +71,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>io.quarkus</groupId>
+                <groupId>io.quarkus.platform</groupId>
                 <artifactId>quarkus-bom</artifactId>
                 <version>${quarkus.version}</version>
                 <type>pom</type>
@@ -223,6 +229,16 @@
             <artifactId>jollyday-jaxb</artifactId>
             <version>${focus-shift.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.quarkiverse.mapstruct</groupId>
+            <artifactId>quarkus-mapstruct</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
 
         <!-- Mail -->
         <dependency>
@@ -267,6 +283,18 @@
             <artifactId>quarkus-jacoco</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.instancio</groupId>
+            <artifactId>instancio-junit</artifactId>
+            <version>${instancio-junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+            <version>${archunit.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -290,7 +318,7 @@
                             <goal>wsdl2java</goal>
                         </goals>
                         <configuration>
-                            <sourceRoot>${project.build.directory}/generated-sources</sourceRoot>
+                            <sourceRoot>${project.build.directory}/generated-sources/cxf</sourceRoot>
                             <wsdlOptions>
                                 <wsdlOption>
                                     <wsdl>${project.basedir}/src/main/resources/wsdl/zep_v7.wsdl</wsdl>
@@ -339,17 +367,109 @@
                 </dependencies>
             </plugin>
 
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>${openapi-generator-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>bundle-root-openapi</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/openapi.yaml</inputSpec>
+                            <generatorName>openapi-yaml</generatorName>
+                            <output>${project.build.directory}/generated-sources/openapi-bundle</output>
+                            <generateModelTests>false</generateModelTests>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <addCompileSourceRoot>false</addCompileSourceRoot>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-rest-api</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.build.directory}/generated-sources/openapi-bundle/openapi/openapi.yaml</inputSpec>
+                            <generatorName>jaxrs-spec</generatorName>
+                            <output>${project.build.directory}/generated-sources/openapi</output>
+                            <apiPackage>com.gepardec.mega.hexagon.generated.api</apiPackage>
+                            <modelPackage>com.gepardec.mega.hexagon.generated.model</modelPackage>
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                            <generateModelTests>false</generateModelTests>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelDocumentation>true</generateModelDocumentation>
+                            <generateApiDocumentation>true</generateApiDocumentation>
+                            <addCompileSourceRoot>true</addCompileSourceRoot>
+                            <modelNameSuffix>Dto</modelNameSuffix>
+                            <configOptions>
+                                <interfaceOnly>true</interfaceOnly>
+                                <useJakartaEe>true</useJakartaEe>
+                                <useBeanValidation>true</useBeanValidation>
+                                <useTags>true</useTags>
+                                <useMicroProfileOpenAPIAnnotations>true</useMicroProfileOpenAPIAnnotations>
+                                <returnResponse>true</returnResponse>
+                                <dateLibrary>java8</dateLibrary>
+                                <openApiNullable>false</openApiNullable>
+                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                                <useSwaggerAnnotations>false</useSwaggerAnnotations>
+                                <annotationLibrary>none</annotationLibrary>
+                                <library>quarkus</library>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
             <plugin>
-                <groupId>io.quarkus</groupId>
+                <groupId>io.quarkus.platform</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
                 <version>${quarkus.version}</version>
                 <extensions>true</extensions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.1</version>
+                <configuration>
+                    <parameters>true</parameters>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${mapstruct.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <generatedSourcesDirectory>
+                        ${project.build.directory}/generated-sources/mapstruct
+                    </generatedSourcesDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build-helper-maven-plugin.version}</version>
                 <executions>
                     <execution>
+                        <id>add-generated-sources</id>
+                        <phase>generate-sources</phase>
                         <goals>
-                            <goal>build</goal>
+                            <goal>add-source</goal>
                         </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources/cxf</source>
+                                <source>${project.build.directory}/generated-sources/mapstruct</source>
+                                <source>${project.build.directory}/generated-sources/openapi/src/gen/java</source>
+                            </sources>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

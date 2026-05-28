@@ -1,0 +1,85 @@
+openapi: 3.0.3
+info:
+  title: MEGA Backend API
+  version: 1.0.0
+  description: Spec-first REST API for month-end and worktime flows.
+tags:
+  - name: MonthEnd
+    description: Month-end endpoints for employees, project leads, and operational callers
+  - name: User
+    description: Office management user endpoints
+  - name: WorkTimeEmployee
+    description: Employee-scoped work time endpoints
+  - name: WorkTimeProjectLead
+    description: Project-lead-scoped work time endpoints
+paths:
+  /monthend/payroll-month/employee:
+    $ref: './paths/monthend.yaml#/~1monthend~1payroll-month~1employee'
+  /monthend/payroll-month/project-lead:
+    $ref: './paths/monthend.yaml#/~1monthend~1payroll-month~1project-lead'
+  /monthend/{month}/status-overview/employee:
+    $ref: './paths/monthend.yaml#/~1monthend~1{month}~1status-overview~1employee'
+  /monthend/{month}/status-overview/project-lead:
+    $ref: './paths/monthend.yaml#/~1monthend~1{month}~1status-overview~1project-lead'
+  /monthend/generate-prematurely:
+    $ref: './paths/monthend.yaml#/~1monthend~1generate-prematurely'
+  /monthend/clarifications:
+    $ref: './paths/monthend.yaml#/~1monthend~1clarifications'
+  /monthend/tasks/{taskId}/complete:
+    $ref: './paths/monthend.yaml#/~1monthend~1tasks~1{taskId}~1complete'
+  /monthend/clarifications/{clarificationId}/text:
+    $ref: './paths/monthend.yaml#/~1monthend~1clarifications~1{clarificationId}~1text'
+  /monthend/clarifications/{clarificationId}:
+    $ref: './paths/monthend.yaml#/~1monthend~1clarifications~1{clarificationId}'
+  /monthend/clarifications/{clarificationId}/resolve:
+    $ref: './paths/monthend.yaml#/~1monthend~1clarifications~1{clarificationId}~1resolve'
+  /monthend/{month}/generate:
+    $ref: './paths/monthend.yaml#/~1monthend~1{month}~1generate'
+  /users/active:
+    $ref: './paths/user.yaml#/~1users~1active'
+  /users/me:
+    $ref: './paths/user.yaml#/~1users~1me'
+  /users/release-dates:
+    $ref: './paths/user.yaml#/~1users~1release-dates'
+  /users/internal-rates:
+    $ref: './paths/user.yaml#/~1users~1internal-rates'
+  /users/internal-rates/csv-template:
+    $ref: './paths/user.yaml#/~1users~1internal-rates~1csv-template'
+  /worktime/employee/{payrollMonth}:
+    $ref: './paths/worktime.yaml#/~1worktime~1employee~1{payrollMonth}'
+  /worktime/projects/{payrollMonth}:
+    $ref: './paths/worktime.yaml#/~1worktime~1projects~1{payrollMonth}'
+components:
+  schemas:
+    ActiveUser:
+      $ref: './schemas/user.yaml#/ActiveUser'
+    User:
+      $ref: './schemas/user.yaml#/User'
+    UpdateReleaseDateEntry:
+      $ref: './schemas/user.yaml#/UpdateReleaseDateEntry'
+    UpdateReleaseDatesRequest:
+      $ref: './schemas/user.yaml#/UpdateReleaseDatesRequest'
+    UpdateReleaseDatesResponse:
+      $ref: './schemas/user.yaml#/UpdateReleaseDatesResponse'
+    InternalRateUploadError:
+      $ref: './schemas/user.yaml#/InternalRateUploadError'
+  securitySchemes:
+    bearerAuth:
+      type: oauth2
+      description: Authenticated employee or project-lead token obtained from the connected OIDC server.
+      flows:
+        authorizationCode:
+          authorizationUrl: PLACEHOLDER_AUTHORIZATION_URL
+          tokenUrl: PLACEHOLDER_TOKEN_URL
+          scopes:
+            openid: OpenID Connect scope
+            profile: Access to the authenticated user's profile claims
+            email: Access to the authenticated user's email claim
+            microprofile-jwt: Access token scope used by the application
+    mega-cron:
+      type: oauth2
+      description: Internal operational OAuth2 client-credentials token for month-end generation.
+      flows:
+        clientCredentials:
+          tokenUrl: PLACEHOLDER_TOKEN_URL
+          scopes: { }

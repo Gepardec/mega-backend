@@ -1,0 +1,137 @@
+## MODIFIED Requirements
+
+### Requirement: Month-end clarifications model user-created follow-up subtasks
+The system SHALL represent each month-end clarification as a `MonthEndClarification` scoped to one month and one project. A clarification SHALL store its creator (`createdBy`), an optional subject employee (`subjectEmployeeId`), open or done status, clarification text, optional resolution note, eligible project lead snapshot, `createdAt`, optional `resolvedAt`, and `lastModifiedAt`. The `creatorSide` field is removed. When `subjectEmployeeId` is absent the clarification is project-level and the creator MUST be an eligible project lead.
+
+#### Scenario: Employee-created clarification is initialized as open
+- **WHEN** the subject employee creates a clarification for a project in a month-end context
+- **THEN** the system creates one `MonthEndClarification` for that month, project, and subject employee
+- **THEN** the clarification status is `OPEN`
+- **THEN** `createdBy`, `createdAt`, and `lastModifiedAt` are populated
+
+#### Scenario: Lead-created clarification for subject employee is initialized as open
+- **WHEN** an eligible project lead creates a clarification for a project employee in a month-end context
+- **THEN** the system creates one `MonthEndClarification` for that month, project, and subject employee
+- **THEN** the clarification status is `OPEN`
+- **THEN** the clarification stores the creating lead as `createdBy`
+
+#### Scenario: Lead-created project-level clarification is initialized as open
+- **WHEN** an eligible project lead creates a clarification with no subject employee
+- **THEN** the system creates one `MonthEndClarification` for that month and project with `subjectEmployeeId` absent
+- **THEN** the clarification status is `OPEN`
+- **THEN** `createdBy`, `createdAt`, and `lastModifiedAt` are populated
+
+#### Scenario: Project-level clarification cannot be created by a non-lead
+- **WHEN** a user who is not an eligible project lead attempts to create a project-level clarification (no subject employee)
+- **THEN** the system rejects the creation attempt
+
+### Requirement: Clarification creation and visibility follow involved-party rules
+The system SHALL allow a clarification to be created only by an involved party. The involved parties of a clarification are: the subject employee (if present) and all eligible project leads. A clarification SHALL be visible to all involved parties.
+
+#### Scenario: Employee-created clarification is visible to subject employee and all leads
+- **WHEN** the subject employee creates a clarification for a project in their month-end worklist context
+- **THEN** the clarification is visible to that employee
+- **THEN** the clarification is visible to every eligible project lead in the clarification's lead snapshot
+
+#### Scenario: Lead-created clarification for employee is visible to subject employee and all leads
+- **WHEN** an eligible project lead creates a clarification for a project employee in that month-end context
+- **THEN** the clarification is visible to the subject employee
+- **THEN** the clarification is visible to every eligible project lead in the clarification's lead snapshot
+
+#### Scenario: Project-level clarification is visible to eligible leads only
+- **WHEN** a lead creates a project-level clarification with no subject employee
+- **THEN** the clarification is visible to every eligible project lead in the clarification's lead snapshot
+- **THEN** no subject employee has visibility because none exists
+
+#### Scenario: Ineligible actor cannot create a clarification
+- **WHEN** a user who is not an involved party attempts to create a clarification
+- **THEN** the system rejects the creation attempt
+
+### Requirement: Open clarification text is editable only by the creator
+The system SHALL allow edits to the main clarification text only while the clarification is `OPEN`, and only by the actor who created the clarification (`createdBy`). All other involved parties SHALL be rejected when attempting to edit.
+
+#### Scenario: Creator edits their open clarification
+- **WHEN** the creator edits the text of their own open clarification
+- **THEN** the clarification text is updated
+- **THEN** `lastModifiedAt` is updated
+
+#### Scenario: Non-creator involved party cannot edit clarification text
+- **WHEN** an involved party who is not the creator attempts to edit the text of an open clarification
+- **THEN** the system rejects the edit attempt
+
+#### Scenario: Done clarification text cannot be edited
+- **WHEN** any actor attempts to edit the text of a clarification with status `DONE`
+- **THEN** the system rejects the edit attempt
+
+### Requirement: Clarifications are resolved by any involved party except the creator
+The system SHALL complete clarifications through a dedicated clarification completion flow. Any involved party who is NOT the creator SHALL be allowed to resolve an open clarification. Resolution SHALL set the clarification status to `DONE`, populate `resolvedBy` and `resolvedAt`, and MAY store a resolution note.
+
+#### Scenario: Eligible lead resolves an employee-created clarification
+- **WHEN** an eligible project lead (who is not the creator) resolves an open employee-created clarification
+- **THEN** the clarification status becomes `DONE`
+- **THEN** `resolvedBy` and `resolvedAt` are populated
+
+#### Scenario: Employee resolves a lead-created clarification with a note
+- **WHEN** the subject employee resolves an open lead-created clarification and provides a resolution note
+- **THEN** the clarification status becomes `DONE`
+- **THEN** the resolution note is stored with the clarification
+
+#### Scenario: Another lead resolves a lead-created clarification for employee
+- **WHEN** an eligible project lead who is not the creating lead resolves an open lead-for-employee clarification
+- **THEN** the clarification status becomes `DONE`
+- **THEN** `resolvedBy` and `resolvedAt` are populated
+
+#### Scenario: Another lead resolves a project-level clarification
+- **WHEN** an eligible project lead who is not the creating lead resolves an open project-level clarification
+- **THEN** the clarification status becomes `DONE`
+- **THEN** `resolvedBy` and `resolvedAt` are populated
+
+#### Scenario: Creator cannot resolve their own clarification
+- **WHEN** the creator of a clarification attempts to resolve it
+- **THEN** the system rejects the resolution attempt
+
+#### Scenario: Ineligible actor cannot resolve a clarification
+- **WHEN** a user that is not an involved party attempts to resolve the clarification
+- **THEN** the system rejects the completion attempt
+
+## ADDED Requirements
+
+### Requirement: Clarification creator may permanently delete an open clarification
+The system SHALL allow the creator of a clarification to permanently remove it from the database while it is `OPEN`. Deletion of a `DONE` clarification SHALL be rejected. No other actor SHALL be permitted to delete a clarification. Deletion SHALL be a hard delete with no audit trail retained.
+
+#### Scenario: Creator deletes their open clarification
+- **WHEN** the creator requests deletion of their own open clarification
+- **THEN** the clarification is permanently removed from the database
+
+#### Scenario: Creator cannot delete their done clarification
+- **WHEN** the creator requests deletion of their own done clarification
+- **THEN** the system rejects the deletion attempt
+
+#### Scenario: Non-creator cannot delete a clarification
+- **WHEN** an involved party who is not the creator requests deletion of a clarification
+- **THEN** the system rejects the deletion attempt
+
+### Requirement: Domain service resolves project-level context for lead-only clarification creation
+The system SHALL provide a domain service `MonthEndProjectContextService` in `monthend.domain.services` that validates and assembles the context required for creating a project-level clarification (no subject employee). The service SHALL verify that the project is active for the given month and return a `MonthEndProjectContext` containing the project snapshot and the set of lead IDs that are active for that month. It SHALL NOT validate any subject employee or project assignment.
+
+#### Scenario: Valid project context assembled successfully
+- **WHEN** `MonthEndProjectContextService.resolve(month, projectId)` is called with a project active in that month
+- **THEN** the service returns a `MonthEndProjectContext` containing the matching project snapshot and the filtered set of active lead IDs
+
+#### Scenario: Unknown or inactive project raises error
+- **WHEN** no project matching `projectId` is active in the given month
+- **THEN** the service throws `MonthEndProjectContextNotFoundException`
+
+#### Scenario: Inactive lead is excluded from project context
+- **WHEN** a project's leads set contains a UserId that has no matching active user for the given month
+- **THEN** that UserId is absent from `MonthEndProjectContext.eligibleProjectLeadIds()`
+
+## REMOVED Requirements
+
+### Requirement: Open clarification text is editable by the creator side
+**Reason**: Replaced by the unified creator-only edit rule. The concept of "creator side" (EMPLOYEE vs PROJECT_LEAD group) is removed from the model; editability is now determined solely by identity of the creator (`createdBy`).
+**Migration**: All edit authorization checks must use `actor == createdBy` instead of `creatorSide`-based group membership.
+
+### Requirement: Clarifications resolve to the opposite side with an optional resolution note
+**Reason**: Replaced by the unified involved-non-creator resolution rule. The "opposite side resolves" invariant does not hold for project-level clarifications where both creator and resolver are on the lead side.
+**Migration**: All resolution authorization checks must use `isInvolved(actor) AND actor != createdBy` instead of `creatorSide`-based opposite-side checks.

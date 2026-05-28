@@ -52,7 +52,7 @@ public record ZepEmployee (
                 @JsonProperty
                 private String email;
 
-                @JsonProperty("release_date")
+                @JsonProperty("approval_date")
                 private LocalDate releaseDate;
                 @JsonProperty("price_group")
                 private String priceGroup;

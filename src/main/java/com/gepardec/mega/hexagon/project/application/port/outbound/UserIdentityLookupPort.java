@@ -1,0 +1,11 @@
+package com.gepardec.mega.hexagon.project.application.port.outbound;
+
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
+
+import java.util.Optional;
+
+public interface UserIdentityLookupPort {
+
+    Optional<UserId> findUserIdByZepUsername(ZepUsername username);
+}

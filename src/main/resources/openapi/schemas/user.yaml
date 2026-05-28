@@ -1,0 +1,100 @@
+User:
+  type: object
+  additionalProperties: false
+  required:
+    - id
+    - email
+    - fullName
+    - zepUsername
+    - roles
+  properties:
+    id:
+      type: string
+      format: uuid
+    email:
+      type: string
+      format: email
+    fullName:
+      type: string
+    zepUsername:
+      type: string
+    releaseDate:
+      type: string
+      format: date
+      nullable: true
+    roles:
+      type: array
+      items:
+        type: string
+    personioId:
+      type: integer
+      format: int32
+      nullable: true
+ActiveUser:
+  type: object
+  additionalProperties: false
+  required:
+    - userId
+    - fullName
+    - email
+  properties:
+    userId:
+      type: string
+      format: uuid
+    fullName:
+      type: string
+    email:
+      type: string
+      format: email
+    releaseDate:
+      type: string
+      format: date
+      nullable: true
+UpdateReleaseDateEntry:
+  type: object
+  additionalProperties: false
+  required:
+    - userId
+    - releaseDate
+  properties:
+    userId:
+      type: string
+      format: uuid
+    releaseDate:
+      type: string
+      format: date
+UpdateReleaseDatesRequest:
+  type: object
+  additionalProperties: false
+  required:
+    - entries
+  properties:
+    entries:
+      type: array
+      items:
+        $ref: '#/UpdateReleaseDateEntry'
+UpdateReleaseDatesResponse:
+  type: object
+  additionalProperties: false
+  required:
+    - failedUserIds
+  properties:
+    failedUserIds:
+      type: array
+      items:
+        type: string
+        format: uuid
+InternalRateUploadError:
+  type: object
+  additionalProperties: false
+  required:
+    - errorCode
+    - lines
+  properties:
+    errorCode:
+      type: string
+    lines:
+      type: array
+      items:
+        type: integer
+        format: int32

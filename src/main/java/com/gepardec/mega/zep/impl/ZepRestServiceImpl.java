@@ -12,7 +12,6 @@ import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.RegularWorkingTimes;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
-import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
@@ -81,9 +80,6 @@ class ZepRestServiceImpl implements ZepService {
 
     @Inject
     EmploymentPeriodService employmentPeriodService;
-
-    @Inject
-    DateHelperService dateHelperService;
 
     @Inject
     EmployeeMapper employeeMapper;

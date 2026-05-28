@@ -1,8 +1,5 @@
 package com.gepardec.mega.domain.calculation.journey;
 
-import com.gepardec.mega.domain.model.Role;
-import com.gepardec.mega.domain.model.User;
-import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyDirection;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyWarning;
@@ -14,43 +11,31 @@ import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
 import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 class InvalidWorkingLocationInJourneyCalculatorTest {
 
-    @InjectMocks
     private InvalidWorkingLocationInJourneyCalculator calculator;
 
-    @Mock
-    UserContext userContext;
-
     @BeforeEach
-    void init() {
-        MockitoAnnotations.openMocks(this);
+    void setUp() {
+        calculator = new InvalidWorkingLocationInJourneyCalculator();
     }
 
     @Test
     void getAllWarningsForEmployeeAndMonth_whenInvalidJourneyWorkingLocation_thenGetError() {
-        User user = createUserForRole(Role.EMPLOYEE);
-        when(userContext.getUser()).thenReturn(user);
-
         List<ProjectEntry> projectEntries = createProjectEntryListForRequestForJourney();
 
         List<JourneyWarning> actual = calculator.calculate(projectEntries);
 
         assertThat(actual)
                 .hasSize(1)
-                .flatExtracting(entry -> entry.getWarningTypes())
+                .flatExtracting(JourneyWarning::getWarningTypes)
                 .containsExactly(JourneyWarningType.INVALID_WORKING_LOCATION);
     }
 
@@ -137,17 +122,6 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
                 .workingLocation(workLoc)
                 .journeyDirection(direction)
                 .vehicle(Vehicle.OTHER_INACTIVE)
-                .build();
-    }
-
-    private User createUserForRole(final Role role) {
-        return User.builder()
-                .dbId(1)
-                .userId("1")
-                .email("max.mustermann@gpeardec.com")
-                .firstname("Max")
-                .lastname("Mustermann")
-                .roles(Set.of(role))
                 .build();
     }
 

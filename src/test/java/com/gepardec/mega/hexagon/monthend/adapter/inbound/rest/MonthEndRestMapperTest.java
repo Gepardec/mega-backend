@@ -1,0 +1,403 @@
+package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
+
+import com.gepardec.mega.application.configuration.ZepConfig;
+import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntryDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
+import com.gepardec.mega.hexagon.generated.model.ProjectRefDto;
+import com.gepardec.mega.hexagon.generated.model.UserRefDto;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
+import com.gepardec.mega.hexagon.shared.domain.SystemActor;
+import com.gepardec.mega.hexagon.shared.domain.model.FullName;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
+import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
+import org.instancio.Instancio;
+import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
+import org.mockito.Mockito;
+
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
+
+class MonthEndRestMapperTest {
+
+    private static final String PROJECT_URL_PREFIX = "https://zep.example.test/project/";
+    private static final String EMPLOYEE_URL_PREFIX = "https://zep.example.test/employee/";
+
+    private final MonthEndRestMapper mapper = Mappers.getMapper(MonthEndRestMapper.class);
+    private final ZepConfig zepConfig = createZepConfig();
+
+    private final YearMonth month = YearMonth.of(2026, 3);
+    private final ProjectId projectId = ProjectId.of(Instancio.create(UUID.class));
+    private final String projectName = "Project Mapper";
+    private final UserId employeeId = UserId.of(Instancio.create(UUID.class));
+    private final String employeeName = "Mapper Employee";
+    private final UserId leadId = UserId.of(Instancio.create(UUID.class));
+    private final UserId otherUserId = UserId.of(Instancio.create(UUID.class));
+
+    private ZepConfig createZepConfig() {
+        ZepConfig zepConfig = Mockito.mock(ZepConfig.class);
+        when(zepConfig.buildProjectUrl(anyInt()))
+                .thenAnswer(invocation -> PROJECT_URL_PREFIX + invocation.getArgument(0, Integer.class));
+        when(zepConfig.buildEmployeeUrl(any(ZepUsername.class)))
+                .thenAnswer(invocation -> EMPLOYEE_URL_PREFIX + invocation.getArgument(0, ZepUsername.class).value());
+        return zepConfig;
+    }
+
+    @Test
+    void toDto_shouldMapProjectRefWithZepUrl() {
+        ProjectRefDto dto = mapper.toDto(projectRef(), zepConfig);
+
+        assertThat(dto.getId()).isEqualTo(projectId.value());
+        assertThat(dto.getName()).isEqualTo(projectName);
+        assertThat(dto.getZepUrl()).isEqualTo(PROJECT_URL_PREFIX + "77");
+    }
+
+    @Test
+    void toDto_shouldMapUserRefWithZepUrlWhenUsernamePresent() {
+        UserRefDto dto = mapper.toDto(employeeRef(), zepConfig);
+
+        assertThat(dto.getId()).isEqualTo(employeeId.value());
+        assertThat(dto.getFullName()).isEqualTo(employeeName);
+        assertThat(dto.getZepUrl()).isEqualTo(EMPLOYEE_URL_PREFIX + "mapper.employee");
+    }
+
+    @Test
+    void toDto_shouldMapUserRefWithNullZepUrlWhenUsernameMissing() {
+        UserRefDto dto = mapper.toDto(new UserRef(employeeId, FullName.of("Mapper", "Employee"), null), zepConfig);
+
+        assertThat(dto.getId()).isEqualTo(employeeId.value());
+        assertThat(dto.getFullName()).isEqualTo(employeeName);
+        assertThat(dto.getZepUrl()).isNull();
+    }
+
+    @Test
+    void toDto_shouldMapStatusOverviewProjectAndClarificationUserReferences() {
+        Instant createdAt = Instant.parse("2026-03-25T10:15:00Z");
+        Instant resolvedAt = Instant.parse("2026-03-25T10:30:00Z");
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.of(Instancio.create(UUID.class)),
+                month,
+                projectId,
+                employeeId,
+                employeeId,
+                Set.of(leadId),
+                "Please update the proof.",
+                createdAt
+        ).resolve(leadId, "Handled in review.", resolvedAt);
+
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                employeeId,
+                month,
+                List.of(MonthEndTask.create(
+                        MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        month,
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        projectId,
+                        employeeId,
+                        Set.of(employeeId)
+                )),
+                List.of(clarification)
+        );
+        Map<UserId, UserRef> userRefs = Map.of(
+                employeeId, employeeRef(),
+                leadId, leadRef()
+        );
+
+        MonthEndStatusOverviewDto response = mapper.toDto(
+                overview,
+                Map.of(projectId, projectRef()),
+                userRefs,
+                employeeId,
+                zepConfig
+        );
+
+        assertThat(response.getMonth()).isEqualTo("2026-03");
+        assertThat(response.getTasks()).singleElement().satisfies(entry -> {
+            assertThat(entry.getProject().getId()).isEqualTo(projectId.value());
+            assertThat(entry.getProject().getName()).isEqualTo(projectName);
+            assertThat(entry.getSubjectEmployee()).isNotNull();
+            assertThat(entry.getSubjectEmployee().getId()).isEqualTo(employeeId.value());
+            assertThat(entry.getSubjectEmployee().getFullName()).isEqualTo(employeeName);
+            assertThat(entry.getCanComplete()).isTrue();
+        });
+        assertThat(response.getClarifications()).singleElement().satisfies(c -> {
+            assertThat(c.getProjectId()).isEqualTo(projectId.value());
+            assertThat(c.getSubjectEmployee().getId()).isEqualTo(employeeId.value());
+            assertThat(c.getSubjectEmployee().getFullName()).isEqualTo(employeeName);
+            assertThat(c.getCreatedBy().getId()).isEqualTo(employeeId.value());
+            assertThat(c.getCreatedBy().getFullName()).isEqualTo("Mapper Employee");
+            assertThat(c.getResolvedBy().getId()).isEqualTo(leadId.value());
+            assertThat(c.getResolvedBy().getFullName()).isEqualTo("Mapper Lead");
+            assertThat(c.getResolvedAt()).isEqualTo(OffsetDateTime.ofInstant(resolvedAt, ZoneOffset.UTC));
+            assertThat(c.getCanResolve()).isFalse();
+        });
+    }
+
+    @Test
+    void toDto_shouldMapStatusOverviewCanCompleteFalseForSubjectOnlyEntry() {
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                employeeId,
+                month,
+                List.of(MonthEndTask.create(
+                        MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        month,
+                        MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        projectId,
+                        employeeId,
+                        Set.of(leadId)
+                )),
+                List.of()
+        );
+
+        MonthEndStatusOverviewDto response = mapper.toDto(
+                overview,
+                Map.of(projectId, projectRef()),
+                Map.of(),
+                employeeId,
+                zepConfig
+        );
+
+        assertThat(response.getTasks()).singleElement()
+                .satisfies(entry -> assertThat(entry.getCanComplete()).isFalse());
+    }
+
+    @Test
+    void toDto_shouldOmitStatusOverviewSubjectEmployeeForAbrechnung() {
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                employeeId,
+                month,
+                List.of(MonthEndTask.create(
+                        MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        month,
+                        MonthEndTaskType.ABRECHNUNG,
+                        projectId,
+                        null,
+                        Set.of(employeeId)
+                )),
+                List.of()
+        );
+
+        MonthEndStatusOverviewDto response = mapper.toDto(
+                overview,
+                Map.of(projectId, projectRef()),
+                Map.of(),
+                employeeId,
+                zepConfig
+        );
+
+        assertThat(response.getTasks()).singleElement()
+                .satisfies(entry -> {
+                    assertThat(entry.getSubjectEmployee()).isNull();
+                    assertThat(entry.getCanComplete()).isTrue();
+                });
+    }
+
+    @Test
+    void toClarificationEntry_asCreator_shouldAllowEditAndDeleteButNotResolve() {
+        Instant createdAt = Instant.parse("2026-03-25T09:00:00Z");
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.of(Instancio.create(UUID.class)),
+                month,
+                projectId,
+                employeeId,
+                employeeId,
+                Set.of(leadId),
+                "Please clarify these hours.",
+                createdAt
+        );
+        Map<UserId, UserRef> userRefs = Map.of(
+                employeeId, employeeRef(),
+                leadId, leadRef()
+        );
+
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(
+                clarification,
+                userRefs,
+                employeeId,
+                zepConfig
+        );
+
+        assertThat(entry.getCanEditText()).isTrue();
+        assertThat(entry.getCanDelete()).isTrue();
+        assertThat(entry.getCanResolve()).isFalse();
+        assertThat(entry.getCreatedBy().getId()).isEqualTo(employeeId.value());
+        assertThat(entry.getSubjectEmployee().getId()).isEqualTo(employeeId.value());
+        assertThat(entry.getResolvedBy()).isNull();
+        assertThat(entry.getCreatedAt()).isEqualTo(OffsetDateTime.ofInstant(createdAt, ZoneOffset.UTC));
+    }
+
+    @Test
+    void toClarificationEntry_asEligibleLead_shouldAllowResolveButNotEditOrDelete() {
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.of(Instancio.create(UUID.class)),
+                month,
+                projectId,
+                employeeId,
+                employeeId,
+                Set.of(leadId),
+                "Please clarify these hours.",
+                Instant.parse("2026-03-25T09:00:00Z")
+        );
+        Map<UserId, UserRef> userRefs = Map.of(
+                employeeId, employeeRef(),
+                leadId, leadRef()
+        );
+
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(
+                clarification,
+                userRefs,
+                leadId,
+                zepConfig
+        );
+
+        assertThat(entry.getCanResolve()).isTrue();
+        assertThat(entry.getCanEditText()).isFalse();
+        assertThat(entry.getCanDelete()).isFalse();
+    }
+
+    @Test
+    void toClarificationEntry_asNonInvolved_shouldDisableAllPermissions() {
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.of(Instancio.create(UUID.class)),
+                month,
+                projectId,
+                employeeId,
+                employeeId,
+                Set.of(leadId),
+                "Please clarify these hours.",
+                Instant.parse("2026-03-25T09:00:00Z")
+        );
+        Map<UserId, UserRef> userRefs = Map.of(
+                employeeId, employeeRef(),
+                leadId, leadRef()
+        );
+
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(
+                clarification,
+                userRefs,
+                otherUserId,
+                zepConfig
+        );
+
+        assertThat(entry.getCanResolve()).isFalse();
+        assertThat(entry.getCanEditText()).isFalse();
+        assertThat(entry.getCanDelete()).isFalse();
+    }
+
+    @Test
+    void toClarificationEntry_whenDone_shouldDisableAllPermissionsForCreator() {
+        Instant createdAt = Instant.parse("2026-03-25T09:00:00Z");
+        Instant resolvedAt = Instant.parse("2026-03-25T10:00:00Z");
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.of(Instancio.create(UUID.class)),
+                month,
+                projectId,
+                employeeId,
+                employeeId,
+                Set.of(leadId),
+                "Please clarify these hours.",
+                createdAt
+        ).resolve(leadId, "Looks good.", resolvedAt);
+        Map<UserId, UserRef> userRefs = Map.of(
+                employeeId, employeeRef(),
+                leadId, leadRef()
+        );
+
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(
+                clarification,
+                userRefs,
+                employeeId,
+                zepConfig
+        );
+
+        assertThat(entry.getCanResolve()).isFalse();
+        assertThat(entry.getCanEditText()).isFalse();
+        assertThat(entry.getCanDelete()).isFalse();
+        assertThat(entry.getResolvedBy().getId()).isEqualTo(leadId.value());
+        assertThat(entry.getResolutionNote()).isEqualTo("Looks good.");
+        assertThat(entry.getResolvedAt()).isEqualTo(OffsetDateTime.ofInstant(resolvedAt, ZoneOffset.UTC));
+    }
+
+    @Test
+    void toClarificationEntry_withNullSubjectEmployee_shouldMapSubjectToNull() {
+        MonthEndClarification clarification = MonthEndClarification.create(
+                MonthEndClarificationId.of(Instancio.create(UUID.class)),
+                month,
+                projectId,
+                null,
+                leadId,
+                Set.of(leadId),
+                "General project note.",
+                Instant.parse("2026-03-25T09:00:00Z")
+        );
+        Map<UserId, UserRef> userRefs = Map.of(leadId, leadRef());
+
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(
+                clarification,
+                userRefs,
+                leadId,
+                zepConfig
+        );
+
+        assertThat(entry.getSubjectEmployee()).isNull();
+        assertThat(entry.getCreatedBy().getId()).isEqualTo(leadId.value());
+    }
+
+    @Test
+    void toClarificationEntry_shouldRenderSystemActorFromUserRef() {
+        MonthEndClarification clarification = MonthEndClarification.createBySystem(
+                MonthEndClarificationId.of(Instancio.create(UUID.class)),
+                month,
+                projectId,
+                employeeId,
+                Set.of(leadId),
+                "Auto-confirmed because employee is absent.",
+                Instant.parse("2026-03-25T09:00:00Z")
+        );
+
+        MonthEndOverviewClarificationEntryDto entry = mapper.toClarificationEntry(
+                clarification,
+                Map.of(employeeId, employeeRef(), leadId, leadRef(), SystemActor.USER_ID, systemActorRef()),
+                leadId,
+                zepConfig
+        );
+
+        assertThat(entry.getCreatedBy().getId()).isEqualTo(SystemActor.USER_ID.value());
+        assertThat(entry.getCreatedBy().getFullName()).isEqualTo("MEGA System");
+    }
+
+    private ProjectRef projectRef() {
+        return new ProjectRef(projectId, 77, projectName);
+    }
+
+    private UserRef employeeRef() {
+        return new UserRef(employeeId, FullName.of("Mapper", "Employee"), ZepUsername.of("mapper.employee"));
+    }
+
+    private UserRef leadRef() {
+        return new UserRef(leadId, FullName.of("Mapper", "Lead"), ZepUsername.of("mapper.lead"));
+    }
+
+    private UserRef systemActorRef() {
+        return new UserRef(SystemActor.USER_ID, FullName.of("MEGA", "System"), null);
+    }
+}

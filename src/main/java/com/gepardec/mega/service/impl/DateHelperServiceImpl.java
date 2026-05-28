@@ -1,7 +1,7 @@
 package com.gepardec.mega.service.impl;
 
-import com.gepardec.mega.notification.mail.dates.OfficeCalendarUtil;
 import com.gepardec.mega.service.api.DateHelperService;
+import com.gepardec.mega.service.helper.OfficeCalendarUtil;
 import jakarta.enterprise.context.RequestScoped;
 
 import java.time.LocalDate;

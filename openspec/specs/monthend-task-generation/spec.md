@@ -1,0 +1,63 @@
+# Month-End Task Generation
+
+## Purpose
+
+Defines how month-end obligations are generated from active projects, active users, project assignments, and captured lead eligibility, including idempotent regeneration and scheduled triggering.
+
+## Requirements
+
+### Requirement: Generation creates employee-owned month-end tasks per assigned project
+The system SHALL generate employee-owned month-end tasks for every active employee assigned to an active project in the requested month. It MUST create an `EMPLOYEE_TIME_CHECK` task for every such assignment.
+
+#### Scenario: Billable project creates employee time check task
+- **WHEN** an active employee is assigned to a billable active project during month-end generation
+- **THEN** the system creates one `EMPLOYEE_TIME_CHECK` task for that employee and project
+
+#### Scenario: Non-billable project creates employee time check task
+- **WHEN** an active employee is assigned to a non-billable active project during month-end generation
+- **THEN** the system creates one `EMPLOYEE_TIME_CHECK` task for that employee and project
+
+### Requirement: Generation creates project-owned month-end tasks with eligible leads
+The system SHALL generate project-owned month-end tasks for active projects using the leads assigned at generation time. It MUST create one `PROJECT_LEAD_REVIEW` task per active assigned employee, one `LEISTUNGSNACHWEIS` task per active assigned employee on a billable project, and one `ABRECHNUNG` task per billable project, each with the eligible project leads captured at generation time.
+
+#### Scenario: Lead review is generated once per employee
+- **WHEN** an active project has active assigned employees and at least one active lead
+- **THEN** the system creates one `PROJECT_LEAD_REVIEW` task per active assigned employee with all active project leads as eligible actors
+
+#### Scenario: Leistungsnachweis is generated once per employee on a billable project
+- **WHEN** an active billable project has active assigned employees and at least one active lead
+- **THEN** the system creates one `LEISTUNGSNACHWEIS` task per active assigned employee with all active project leads as eligible actors
+
+#### Scenario: Leistungsnachweis is not generated when billable project has no active leads
+- **WHEN** an active billable project has active assigned employees but no active leads
+- **THEN** the system does not create `LEISTUNGSNACHWEIS` tasks for that project
+
+#### Scenario: Non-billable project does not generate Leistungsnachweis
+- **WHEN** an active employee is assigned to a non-billable active project during month-end generation
+- **THEN** the system does not create a `LEISTUNGSNACHWEIS` task for that assignment
+
+#### Scenario: Abrechnung is generated once per billable project
+- **WHEN** an active billable project has at least one active lead
+- **THEN** the system creates one `ABRECHNUNG` task for the project with all active project leads as eligible actors
+
+### Requirement: Generation is idempotent for an existing month
+The system SHALL avoid duplicate month-end tasks when generation is rerun for the same month and business obligation, regardless of whether the existing obligation was created by scheduled generation or by explicit employee self-service preparation.
+
+#### Scenario: Regeneration keeps existing task instances
+- **WHEN** month-end generation runs again for a month where the same project obligation already exists
+- **THEN** the system does not create a duplicate `MonthEndTask` for that obligation
+
+#### Scenario: Scheduled generation skips an employee task prepared through self-service
+- **WHEN** scheduled month-end generation runs for a month where an employee-owned obligation with the same business key was already prepared explicitly by the subject employee
+- **THEN** the system does not create a duplicate `MonthEndTask` for that obligation
+
+### Requirement: Scheduled generation is the primary driver of month-end task creation
+The system SHALL trigger month-end task generation through a scheduled method on the last **working** day of the month for the current month. The scheduler SHALL fire daily during the last week of the month (days 25–31) and skip execution on any day that is not the last working day, accounting for weekends and Austrian public holidays.
+
+#### Scenario: Scheduled trigger runs on last working day
+- **WHEN** the scheduler fires and today is the last working day of the current month
+- **THEN** the scheduler invokes month-end task generation for that current `YearMonth`
+
+#### Scenario: Scheduled trigger skips on a non-last-working day
+- **WHEN** the scheduler fires and today is not the last working day of the current month
+- **THEN** the scheduler exits without invoking month-end task generation
