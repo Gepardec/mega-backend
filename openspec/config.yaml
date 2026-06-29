@@ -10,5 +10,9 @@ schema: spec-driven
 #     Domain: e-commerce platform
 
 rules:
+  proposal:
+    - Before finalising Modified Capabilities, review all specs in openspec/specs/ that share a bounded-context prefix with any BC this change touches (specs follow the "<bounded-context>-<purpose>" naming pattern, e.g. "user-aggregate", "user-rest-api"). Include any whose requirements are affected.
+  specs:
+    - Name spec folders "<bounded-context>-<purpose>" (e.g. "user-aggregate", "monthend-rest-api"). Cross-cutting specs with no single BC owner may omit the prefix (e.g. "system-actor").
   tasks:
     - Do not include spec sync or spec archive steps (e.g. "sync delta spec to main spec"). Spec syncing is handled by the opsx:sync or archive workflow, not by implementation tasks.
