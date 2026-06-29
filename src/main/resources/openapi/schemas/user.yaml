@@ -7,6 +7,7 @@ User:
     - fullName
     - zepUsername
     - roles
+    - isExternal
   properties:
     id:
       type: string
@@ -30,6 +31,8 @@ User:
       type: integer
       format: int32
       nullable: true
+    isExternal:
+      type: boolean
 ActiveUser:
   type: object
   additionalProperties: false

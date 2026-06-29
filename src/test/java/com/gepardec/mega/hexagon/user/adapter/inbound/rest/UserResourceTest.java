@@ -65,7 +65,7 @@ class UserResourceTest {
     @Test
     void getCurrentUser_shouldReturnCurrentUserForEmployee() {
         allowRoles(Role.EMPLOYEE);
-        User user = currentUser("employee", LocalDate.of(2026, 4, 30), 4242);
+        User user = currentUser("worker", LocalDate.of(2026, 4, 30), 4242);
         when(authenticatedActorContext.user()).thenReturn(user);
 
         UserDto response = given()
@@ -77,18 +77,37 @@ class UserResourceTest {
                 .as(UserDto.class);
 
         assertThat(response.getId()).isEqualTo(user.id().value());
-        assertThat(response.getEmail()).isEqualTo("employee@example.com");
+        assertThat(response.getEmail()).isEqualTo("worker@example.com");
         assertThat(response.getFullName()).isEqualTo("Test User");
-        assertThat(response.getZepUsername()).isEqualTo("employee");
+        assertThat(response.getZepUsername()).isEqualTo("worker");
         assertThat(response.getReleaseDate()).isEqualTo(LocalDate.of(2026, 4, 30));
         assertThat(response.getRoles()).containsExactlyInAnyOrder("EMPLOYEE");
         assertThat(response.getPersonioId()).isEqualTo(4242);
+        assertThat(response.getIsExternal()).isFalse();
+    }
+
+    @Test
+    void getCurrentUser_shouldReturnExternalFlagForExternalEmployee() {
+        allowRoles(Role.EMPLOYEE);
+        User user = currentUser("eworker", LocalDate.of(2026, 4, 30), 4242);
+        when(authenticatedActorContext.user()).thenReturn(user);
+
+        UserDto response = given()
+                .accept(ContentType.JSON)
+                .get("/users/me")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(UserDto.class);
+
+        assertThat(response.getZepUsername()).isEqualTo("eworker");
+        assertThat(response.getIsExternal()).isTrue();
     }
 
     @Test
     void getCurrentUser_shouldReturnNullReleaseDateAndPersonioIdWhenUnavailable() {
         allowRoles(Role.EMPLOYEE);
-        User user = currentUser("employee", null, null);
+        User user = currentUser("worker", null, null);
         when(authenticatedActorContext.user()).thenReturn(user);
 
         UserDto response = given()

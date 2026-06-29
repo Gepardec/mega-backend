@@ -53,6 +53,20 @@ class UserTest {
     }
 
     @Test
+    void isExternal_shouldReturnTrueWhenZepUsernameStartsWithE() {
+        User user = user("eworker", Set.of(Role.EMPLOYEE));
+
+        assertThat(user.isExternal()).isTrue();
+    }
+
+    @Test
+    void isExternal_shouldReturnFalseWhenZepUsernameDoesNotStartWithE() {
+        User user = user("worker", Set.of(Role.EMPLOYEE));
+
+        assertThat(user.isExternal()).isFalse();
+    }
+
+    @Test
     void constructor_shouldAllowNullZepUsernameAndEmailForSystemActor() {
         User systemActor = new User(
                 UserId.generate(),
@@ -86,11 +100,15 @@ class UserTest {
     }
 
     private User user(Set<Role> roles) {
+        return user("employee", roles);
+    }
+
+    private User user(String username, Set<Role> roles) {
         return new User(
                 UserId.generate(),
-                Email.of("employee@example.com"),
+                Email.of(username + "@example.com"),
                 FullName.of("Employee", "User"),
-                ZepUsername.of("employee"),
+                ZepUsername.of(username),
                 null,
                 new EmploymentPeriods(new EmploymentPeriod(LocalDate.now().minusYears(1), null)),
                 roles
