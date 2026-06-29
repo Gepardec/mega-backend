@@ -44,7 +44,7 @@ jobs:
           👉 **[View SonarQube Dashboard]($SONAR_URL/dashboard?id=$PROJECT_KEY)**"
 
           # 2. Check if we already posted a comment on this PR
-          EXISTING_COMMENT_ID=$(gh pr view $PR_NUMBER --json comments --jq ".comments[] | select(.body | contains(\"SonarQube Analysis Report\")) | .id" | head -n 1)
+          EXISTING_COMMENT_ID=$(gh pr view $PR_NUMBER --json comments --jq ".comments[] | select(.body | contains(\"SonarQube Analysis Report\")) | .databaseId" | head -n 1)
 
           # 3. If it exists, update it. If not, create a new one.
           if [ -n "$EXISTING_COMMENT_ID" ]; then
