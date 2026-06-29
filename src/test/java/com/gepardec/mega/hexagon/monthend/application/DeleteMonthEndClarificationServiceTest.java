@@ -55,7 +55,12 @@ class DeleteMonthEndClarificationServiceTest {
         service.delete(clarification.id(), creatorId);
 
         verify(clarificationRepository).delete(clarification.id());
-        verify(clarificationDeletedEvent).fire(argThat(event -> event.clarificationId().equals(clarification.id())));
+        verify(clarificationDeletedEvent).fire(argThat(event ->
+                event.clarificationId().equals(clarification.id())
+                        && event.creator().equals(creatorId)
+                        && event.subjectEmployeeId().equals(creatorId)
+                        && event.eligibleProjectLeadIds().equals(Set.of(leadId))
+        ));
     }
 
     @Test

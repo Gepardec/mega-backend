@@ -57,7 +57,8 @@ public class PersistZepClarificationService {
                 clarification.sourceSystem(),
                 clarification.createdBy(),
                 clarification.subjectEmployeeId(),
-                clarification.text()
+                clarification.text(),
+                clarification.eligibleProjectLeadIds()
         ));
     }
 }

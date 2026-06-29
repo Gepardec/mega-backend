@@ -47,7 +47,8 @@ public class UpdateMonthEndClarificationService implements UpdateMonthEndClarifi
                 updatedClarification.id(),
                 actorId,
                 updatedClarification.subjectEmployeeId(),
-                updatedClarification.text()
+                updatedClarification.text(),
+                updatedClarification.eligibleProjectLeadIds()
         ));
         Log.infof("Updated month-end clarification %s", clarificationId.value());
         return updatedClarification;
