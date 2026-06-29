@@ -14,10 +14,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.version>3.8.1</maven.version>
 
-        <quarkus.version>3.36.0</quarkus.version>
+        <quarkus.version>3.36.1</quarkus.version>
 
         <ws.rt.version>4.0.5</ws.rt.version>
-        <focus-shift.version>2.10.1</focus-shift.version>
+        <focus-shift.version>2.12.0</focus-shift.version>
         <assertj.version>3.21.0</assertj.version>
         <basicjaxb-plugins.version>3.0.0</basicjaxb-plugins.version>
         <jakarta.mail-api.version>2.1.5</jakarta.mail-api.version>
@@ -40,7 +40,7 @@
         <!-- 3rd-party version properties -->
         <google-api-client-bom.version>2.9.0</google-api-client-bom.version>
         <google-api-services-gmail.version>v1-rev20260525-2.0.0</google-api-services-gmail.version>
-        <google-auth-library-oauth2-http.version>1.47.0</google-auth-library-oauth2-http.version>
+        <google-auth-library-oauth2-http.version>1.48.0</google-auth-library-oauth2-http.version>
         <postgresql.version>42.7.8</postgresql.version>
         <assertj-core.version>3.27.7</assertj-core.version>
         <liquibase-maven-plugina.version>5.0.3</liquibase-maven-plugina.version>
