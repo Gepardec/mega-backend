@@ -122,7 +122,7 @@ public class MonthEndResource implements MonthEndApi {
     @Override
     @MegaRolesAllowed(Role.PROJECT_LEAD)
     public Response getProjectLeadPayrollMonth() {
-        YearMonth payrollMonth = getProjectLeadPayrollMonthUseCase.getPayrollMonth();
+        YearMonth payrollMonth = getProjectLeadPayrollMonthUseCase.getPayrollMonth(authenticatedActorContext.userId());
 
         return Response.ok(payrollMonth).build();
     }
