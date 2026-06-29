@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -113,6 +114,25 @@ class AutoUpdateReleaseDatesServiceTest {
 
         assertThat(result.updatedUserIds()).containsExactly(persistedUser.id());
         assertThat(result.failedUserIds()).containsExactly(localFailUser.id());
+    }
+
+    @Test
+    void autoUpdate_shouldSkipEmployeeWhoseReleaseDateIsAlreadySetForPayrollMonth() {
+        YearMonth payrollMonth = YearMonth.of(2026, 4);
+        LocalDate releaseDate = LocalDate.of(2026, 4, 30);
+
+        User alreadyUpdatedUser = user("already-updated", LocalDate.of(2025, 1, 1), null)
+                .withReleaseDate(releaseDate);
+
+        when(userRepository.findAll()).thenReturn(List.of(alreadyUpdatedUser));
+        when(payrollMonthCompletionPort.findUsersWithAllTasksCompleted(payrollMonth))
+                .thenReturn(Set.of(alreadyUpdatedUser.id()));
+
+        AutoUpdateReleaseDatesResult result = service.autoUpdate();
+
+        assertThat(result.updatedUserIds()).isEmpty();
+        assertThat(result.failedUserIds()).isEmpty();
+        verifyNoInteractions(zepEmployeePort);
     }
 
     private User user(String username, LocalDate startDate, LocalDate endDate) {

@@ -53,6 +53,7 @@ public class AutoUpdateReleaseDatesService implements AutoUpdateReleaseDatesUseC
         List<User> usersToUpdate = userRepository.findAll().stream()
                 .filter(user -> user.isActiveIn(payrollMonth))
                 .filter(user -> completedTaskUsers.contains(user.id()))
+                .filter(user -> !releaseDate.equals(user.releaseDate()))
                 .toList();
 
         if (usersToUpdate.isEmpty()) {
