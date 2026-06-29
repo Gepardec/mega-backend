@@ -1,0 +1,5 @@
+name: sonar-scan.yaml
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
