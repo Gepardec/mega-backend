@@ -38,7 +38,7 @@ jobs:
           PROJECT_KEY: "mega-backend"
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          # 1. Define the comment body with Markdown
+          # 1. Define the comment body with Markdown 
           COMMENT_BODY="### 🔍 SonarQube Analysis Report
           The static analysis for this PR is complete. You can view the full dashboard, security hotspots, and code smells here:
           👉 **[View SonarQube Dashboard]($SONAR_URL/dashboard?id=$PROJECT_KEY)**"
