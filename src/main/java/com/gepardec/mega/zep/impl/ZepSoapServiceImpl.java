@@ -111,8 +111,6 @@ class ZepSoapServiceImpl implements ZepService {
     @CacheInvalidate(cacheName = "employee")
     @Override
     public void updateEmployeesReleaseDate(final String userId, final String releaseDate) {
-        logger.info("start update user {} with releaseDate {}", userId, releaseDate);
-
         final UpdateMitarbeiterRequestType umrt = new UpdateMitarbeiterRequestType();
         umrt.setRequestHeader(zepSoapProvider.createRequestHeaderType());
 
@@ -127,8 +125,6 @@ class ZepSoapServiceImpl implements ZepService {
                 .flatMap(response -> Optional.ofNullable(response.getResponseHeader()))
                 .map(ResponseHeaderType::getReturnCode)
                 .orElse(null);
-
-        logger.info("finish update user {} with response {}", userId, returnCode);
 
         if (StringUtils.isNotBlank(returnCode) && Integer.parseInt(returnCode) != 0) {
             throw new ZepServiceException("updateEmployeeReleaseDate failed with code: " + returnCode);
