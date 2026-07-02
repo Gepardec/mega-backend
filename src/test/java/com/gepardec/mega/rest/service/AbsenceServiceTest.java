@@ -1,6 +1,5 @@
 package com.gepardec.mega.rest.service;
 
-import com.gepardec.mega.zep.rest.client.ZepAbsenceRestClient;
 import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
 import com.gepardec.mega.zep.rest.dto.ZepResponse;
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -31,10 +31,6 @@ class AbsenceServiceTest {
     @InjectMock
     @RestClient
     ZepEmployeeRestClient zepEmployeeRestClient;
-
-    @InjectMock
-    @RestClient
-    ZepAbsenceRestClient zepAbsenceRestClient;
 
     @Inject
     AbsenceService absenceService;
@@ -66,12 +62,6 @@ class AbsenceServiceTest {
         when(zepEmployeeRestClient.getAbsencesByUsername(employeeName, 1))
                 .thenReturn(Uni.createFrom().item(new ZepResponse<>(mockAbsences, new ZepResponse.Links(null, null))));
 
-        // Mock individual absence fetches
-        when(zepAbsenceRestClient.getAbsenceById(1))
-                .thenReturn(Uni.createFrom().item(new ZepResponse<>(mockAbsences.getFirst(), null)));
-        when(zepAbsenceRestClient.getAbsenceById(2))
-                .thenReturn(Uni.createFrom().item(new ZepResponse<>(mockAbsences.get(1), null)));
-
         List<ZepAbsence> result = absenceService.getZepAbsencesByEmployeeNameForDateRange(employeeName, payrollMonth);
 
         assertThat(result)
@@ -89,5 +79,28 @@ class AbsenceServiceTest {
 
         assertThatException().isThrownBy(() -> absenceService.getZepAbsencesByEmployeeNameForDateRange(employeeName, payrollMonth));
         verify(logger).warn(eq("Error retrieving absences from ZEP"), any(Throwable.class));
+    }
+
+    @Test
+    void getZepAbsencesByEmployeeNameForDateRange_whenAbsenceSpansMonthBoundary_thenRetain() {
+        // Given
+        LocalDate startSickness = LocalDate.of(2026, Month.JUNE, 29);
+        LocalDate endSickness = LocalDate.of(2026, Month.JULY, 1);
+
+        ZepAbsence absence = ZepAbsence.builder()
+                .employeeId("999-mtest")
+                .startDate(startSickness)
+                .endDate(endSickness)
+                .id(1)
+                .build();
+
+        when(zepEmployeeRestClient.getAbsencesByUsername("999-mtest", 1))
+                .thenReturn(Uni.createFrom().item(new ZepResponse<>(List.of(absence), new ZepResponse.Links(null, null))));
+
+        // When
+        List<ZepAbsence> result = absenceService.getZepAbsencesByEmployeeNameForDateRange("999-mtest", YearMonth.of(2026, Month.JUNE));
+
+        // Then
+        assertThat(result).hasSize(1);
     }
 }

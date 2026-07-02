@@ -48,7 +48,7 @@ public class WorkTimeAbsenceZepAdapter implements WorkTimeAbsenceZepPort {
         if (zepAbsence.absenceReason() == null) {
             return Optional.empty();
         }
-        return AbsenceType.fromZepCode(zepAbsence.absenceReason().name());
+        return AbsenceType.fromZepCode(zepAbsence.absenceReason());
     }
 
     private Stream<LocalDate> expandDates(ZepAbsence zepAbsence, YearMonth month) {
