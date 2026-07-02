@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.user.application;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
+import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import com.gepardec.mega.hexagon.user.application.port.inbound.SyncUsersUseCase;
 import com.gepardec.mega.hexagon.user.application.port.inbound.UserSyncResult;
 import com.gepardec.mega.hexagon.user.application.port.outbound.PersonioEmployeePort;
@@ -77,8 +78,15 @@ public class SyncUsersService implements SyncUsersUseCase {
                 .map(ZepEmployeeSyncData::zepUsername)
                 .collect(Collectors.toSet());
 
-        return userRepository.findByZepUsernames(zepUsernames).stream()
+        Map<ZepUsername, User> existingByUsername = userRepository.findByZepUsernames(zepUsernames).stream()
                 .collect(Collectors.toMap(User::zepUsername, Function.identity()));
+
+        syncInput.stream()
+                .filter(employee -> !existingByUsername.containsKey(employee.zepUsername()))
+                .forEach(employee -> userRepository.findByEmail(Email.of(employee.email()))
+                        .ifPresent(user -> existingByUsername.put(employee.zepUsername(), user)));
+
+        return existingByUsername;
     }
 
     private SyncAccumulator synchronizeUsers(List<ZepEmployeeSyncData> zepEmployees, Map<ZepUsername, User> existingByUsername) {
