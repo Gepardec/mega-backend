@@ -13,7 +13,7 @@ public record ZepAbsence (
     LocalDate startDate,
     LocalDate endDate,
     boolean approved,
-    ZepAbsenceReason absenceReason) {
+    String absenceReason) {
 
     @JsonCreator
     public ZepAbsence(Builder builder) {
@@ -47,8 +47,8 @@ public record ZepAbsence (
         private LocalDate endDate;
         @JsonProperty
         private boolean approved;
-        @JsonProperty("absenceReason")
-        private ZepAbsenceReason absenceReason;
+        @JsonProperty("absence_reason_id")
+        private String absenceReason;
 
         public Builder id(Integer id) {
             this.id = id;
@@ -81,7 +81,7 @@ public record ZepAbsence (
             return this;
         }
 
-        public Builder absenceReason(ZepAbsenceReason absenceReason) {
+        public Builder absenceReason(String absenceReason) {
             this.absenceReason = absenceReason;
             return this;
         }

@@ -165,7 +165,7 @@ class MonthEndResourceTest {
     void getProjectLeadPayrollMonth_shouldReturnPreviousMonthForProjectLead() {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
-        when(getProjectLeadPayrollMonthUseCase.getPayrollMonth()).thenReturn(PREVIOUS_PAYROLL_MONTH);
+        when(getProjectLeadPayrollMonthUseCase.getPayrollMonth(PROJECT_LEAD_ID)).thenReturn(PREVIOUS_PAYROLL_MONTH);
 
         YearMonth response = given()
                 .get("/monthend/payroll-month/project-lead")
@@ -175,7 +175,7 @@ class MonthEndResourceTest {
                 .as(YearMonth.class);
 
         assertThat(response).isEqualTo(PREVIOUS_PAYROLL_MONTH);
-        verify(getProjectLeadPayrollMonthUseCase).getPayrollMonth();
+        verify(getProjectLeadPayrollMonthUseCase).getPayrollMonth(PROJECT_LEAD_ID);
         verifyNoInteractions(getEmployeePayrollMonthUseCase);
     }
 

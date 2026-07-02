@@ -50,9 +50,9 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
         UserRef employee = workTimeUserSnapshotPort.findById(employeeId, month)
                 .orElseThrow(() -> new WorkTimeUserNotFoundException("user not found: " + employeeId.value()));
 
-        return workTimeZepPort.fetchAttendancesForEmployee(requireZepUsername(employee), month)
-                .map(attendances -> toReport(employee, month, attendances))
+        List<WorkTimeAttendance> attendances = workTimeZepPort.fetchAttendancesForEmployee(requireZepUsername(employee), month)
                 .await().indefinitely();
+        return toReport(employee, month, attendances);
     }
 
     private WorkTimeReport toReport(UserRef employee, YearMonth month, List<WorkTimeAttendance> attendances) {

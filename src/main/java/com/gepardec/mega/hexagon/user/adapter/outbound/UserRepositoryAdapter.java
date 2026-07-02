@@ -5,6 +5,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
+import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -34,8 +35,13 @@ public class UserRepositoryAdapter implements UserRepository {
 
     @Override
     public Optional<User> findByEmail(Email email) {
-        return panache.find("email", email.value())
-                .firstResultOptional()
+        List<UserEntity> users = panache.list("email", email.value());
+        if (users.size() > 1) {
+            throw new ForbiddenException("authenticated actor resolution is ambiguous for email: %s (%d users found)"
+                    .formatted(email.value(), users.size()));
+        }
+        return users.stream()
+                .findFirst()
                 .map(mapper::toDomain);
     }
 

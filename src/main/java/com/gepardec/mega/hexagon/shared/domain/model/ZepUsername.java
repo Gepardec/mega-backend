@@ -11,4 +11,8 @@ public record ZepUsername(String value) {
     public static ZepUsername of(String value) {
         return new ZepUsername(value);
     }
+
+    public boolean isExternal() {
+        return value.startsWith("e");
+    }
 }

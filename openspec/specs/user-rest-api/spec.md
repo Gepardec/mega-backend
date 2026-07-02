@@ -52,12 +52,12 @@ The system SHALL process all release date updates in a single `PUT /users/releas
 - **THEN** the response reflects the partial outcome via `failedUserIds`
 
 ### Requirement: Authenticated employee can retrieve their own profile
-The system SHALL expose a `GET /users/me` endpoint that returns the profile of the currently authenticated user. The endpoint SHALL be restricted to the `EMPLOYEE` role. The response SHALL include the user's identifier (UUID), email address, full name, ZEP username, release date (nullable), roles, and Personio ID (nullable).
+The system SHALL expose a `GET /users/me` endpoint that returns the profile of the currently authenticated user. The endpoint SHALL be restricted to the `EMPLOYEE` role. The response SHALL include the user's identifier (UUID), email address, full name, ZEP username, release date (nullable), roles, Personio ID (nullable), and a boolean `isExternal` flag indicating whether the user is an external employee.
 
 #### Scenario: Employee retrieves their own profile
 - **WHEN** an authenticated `EMPLOYEE` user calls `GET /users/me`
 - **THEN** the system returns `200 OK` with the user's profile
-- **THEN** the response includes `id` (UUID), `email`, `fullName`, `zepUsername`, `releaseDate` (nullable date), `roles` (array of role strings), and `personioId` (nullable integer)
+- **THEN** the response includes `id` (UUID), `email`, `fullName`, `zepUsername`, `releaseDate` (nullable date), `roles` (array of role strings), `personioId` (nullable integer), and `isExternal` (boolean)
 
 #### Scenario: Unauthenticated request is rejected
 - **WHEN** a request without a valid authentication token calls `GET /users/me`
@@ -74,6 +74,14 @@ The system SHALL expose a `GET /users/me` endpoint that returns the profile of t
 #### Scenario: User has no Personio ID
 - **WHEN** an authenticated `EMPLOYEE` user calls `GET /users/me` and their Personio ID is not available
 - **THEN** the system returns `200 OK` with `personioId` as `null`
+
+#### Scenario: Internal user is identified correctly
+- **WHEN** an authenticated `EMPLOYEE` user whose ZEP username does not start with "e" calls `GET /users/me`
+- **THEN** the system returns `200 OK` with `isExternal: false`
+
+#### Scenario: External user is identified correctly
+- **WHEN** an authenticated `EMPLOYEE` user whose ZEP username starts with "e" calls `GET /users/me`
+- **THEN** the system returns `200 OK` with `isExternal: true`
 
 ### Requirement: Office management can upload a CSV to bulk-update employee hourly rates
 The system SHALL expose a `POST /users/internal-rates` endpoint that accepts a `multipart/form-data` CSV file upload and updates the hourly rate for each employee listed in the file in ZEP. The endpoint SHALL be restricted to the `OFFICE_MANAGEMENT` role. The CSV format SHALL be: one row per employee with fields `zepUsername`, `hourlyRate`, `effectiveFrom` (ISO date), separated by comma or semicolon. Lines beginning with `#` SHALL be treated as comments and ignored. Blank lines SHALL be ignored. On validation failure the response SHALL be `400 Bad Request` with `application/json` body `{ "errorCode": "<code>", "lines": [<n>, ...] }`.

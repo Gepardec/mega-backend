@@ -44,15 +44,17 @@ class SyncUsersServiceTest {
         zepEmployeePort = mock(ZepEmployeePort.class);
         personioEmployeePort = mock(PersonioEmployeePort.class);
         userRepository = mock(UserRepository.class);
+        when(userRepository.findByZepUsernames(anySet())).thenReturn(List.of());
+        when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
+        when(personioEmployeePort.findPersonioIdByEmail(any())).thenReturn(Optional.empty());
     }
 
     @Test
     void sync_createsNewUserForUnknownZepEmployee() {
         when(zepEmployeePort.fetchAll()).thenReturn(List.of(syncData("jdoe")));
-        when(userRepository.findByZepUsernames(anySet())).thenReturn(List.of());
-        when(personioEmployeePort.findPersonioIdByEmail(any())).thenReturn(Optional.empty());
+        UserSyncResult result = service(List.of()).sync();
 
-        service(List.of()).sync();
+        verify(userRepository).findByEmail(Email.of("jdoe@example.com"));
 
         verify(userRepository).saveAll(argThat(users -> {
             assertThat(users).hasSize(1);
@@ -61,6 +63,8 @@ class SyncUsersServiceTest {
             assertThat(users.getFirst().employmentPeriods().employmentPeriods()).hasSize(1);
             return true;
         }));
+        assertThat(result.added()).isEqualTo(1);
+        assertThat(result.updated()).isZero();
     }
 
     @Test
@@ -70,7 +74,6 @@ class SyncUsersServiceTest {
 
         when(zepEmployeePort.fetchAll()).thenReturn(List.of(updatedSyncData));
         when(userRepository.findByZepUsernames(Set.of(ZepUsername.of("jdoe")))).thenReturn(List.of(existing));
-        when(personioEmployeePort.findPersonioIdByEmail(any())).thenReturn(Optional.empty());
 
         service(List.of()).sync();
 
@@ -85,8 +88,6 @@ class SyncUsersServiceTest {
     @Test
     void sync_assignsOfficeManagementRoleByConfiguredEmail() {
         when(zepEmployeePort.fetchAll()).thenReturn(List.of(syncData("om", "om@example.com", "Om", "User", activeEmployment())));
-        when(userRepository.findByZepUsernames(anySet())).thenReturn(List.of());
-        when(personioEmployeePort.findPersonioIdByEmail(any())).thenReturn(Optional.empty());
 
         service(List.of("om@example.com")).sync();
 
@@ -109,7 +110,6 @@ class SyncUsersServiceTest {
 
         when(zepEmployeePort.fetchAll()).thenReturn(List.of(endedEmployment, missingEmail));
         when(userRepository.findByZepUsernames(Set.of(ZepUsername.of("former")))).thenReturn(List.of());
-        when(personioEmployeePort.findPersonioIdByEmail(any())).thenReturn(Optional.empty());
 
         UserSyncResult result = service(List.of()).sync();
 
@@ -122,7 +122,6 @@ class SyncUsersServiceTest {
     @Test
     void sync_linksMissingPersonioIdAndCountsSupplementalMetric() {
         when(zepEmployeePort.fetchAll()).thenReturn(List.of(syncData("jdoe")));
-        when(userRepository.findByZepUsernames(anySet())).thenReturn(List.of());
         when(personioEmployeePort.findPersonioIdByEmail(Email.of("jdoe@example.com"))).thenReturn(Optional.of(PersonioId.of(99)));
 
         UserSyncResult result = service(List.of()).sync();
@@ -175,6 +174,29 @@ class SyncUsersServiceTest {
         assertThat(result.unchanged()).isEqualTo(1);
         assertThat(result.skippedNoEmail()).isEqualTo(1);
         assertThat(result.personioLinked()).isEqualTo(1);
+    }
+
+    @Test
+    void sync_updatesExistingUserWhenMatchedByEmail() {
+        User existing = user("jdoe-old", "old@example.com", "John", "Old", Set.of(Role.EMPLOYEE), null);
+        ZepEmployeeSyncData returningEmployee = syncData("jdoe-new", "old@example.com", "Jane", "Updated", activeEmployment());
+
+        when(zepEmployeePort.fetchAll()).thenReturn(List.of(returningEmployee));
+        when(userRepository.findByEmail(Email.of("old@example.com"))).thenReturn(Optional.of(existing));
+
+        UserSyncResult result = service(List.of()).sync();
+
+        verify(userRepository).saveAll(argThat(users -> {
+            assertThat(users).hasSize(1);
+            User updatedUser = users.getFirst();
+            assertThat(updatedUser.id()).isEqualTo(existing.id());
+            assertThat(updatedUser.zepUsername()).isEqualTo(ZepUsername.of("jdoe-new"));
+            assertThat(updatedUser.name()).isEqualTo(FullName.of("Jane", "Updated"));
+            assertThat(updatedUser.personioId()).isEqualTo(existing.personioId());
+            return true;
+        }));
+        assertThat(result.added()).isZero();
+        assertThat(result.updated()).isEqualTo(1);
     }
 
     private SyncUsersService service(List<String> omEmails) {

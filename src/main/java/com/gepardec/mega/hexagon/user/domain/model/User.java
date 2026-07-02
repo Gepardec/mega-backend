@@ -129,6 +129,10 @@ public record User(
         return personioId != null;
     }
 
+    public boolean isExternal() {
+        return zepUsername != null && zepUsername.isExternal();
+    }
+
     public boolean isSystemActor() {
         return isSystemActor(roles);
     }

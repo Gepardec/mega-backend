@@ -9,6 +9,7 @@ import com.gepardec.mega.hexagon.monthend.domain.model.SourceSystem;
 import com.gepardec.mega.hexagon.notification.application.port.outbound.NotificationMailPort;
 import com.gepardec.mega.hexagon.notification.domain.ClarificationNotificationType;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import com.gepardec.mega.hexagon.shared.domain.SystemActor;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import io.quarkus.logging.Log;
@@ -19,6 +20,7 @@ import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 @ApplicationScoped
 public class ClarificationLifecycleNotificationAdapter {
@@ -53,25 +55,33 @@ public class ClarificationLifecycleNotificationAdapter {
             return;
         }
 
-        User recipient = loadUser(event.subjectEmployeeId(), SUBJECT_EMPLOYEE);
         User creator = loadUser(event.creator(), CREATOR);
+        if (event.creator().equals(event.subjectEmployeeId())) {
+            fanOutToEligibleProjectLeads(
+                    ClarificationNotificationType.CLARIFICATION_CREATED,
+                    event.text(),
+                    creator,
+                    event.eligibleProjectLeadIds()
+            );
+            return;
+        }
 
-        notificationMailPort.send(
+        User recipient = loadUser(event.subjectEmployeeId(), SUBJECT_EMPLOYEE);
+        sendSingleClarificationMail(
                 ClarificationNotificationType.CLARIFICATION_CREATED,
-                recipient.email(),
-                recipient.name().firstname(),
-                DEFAULT_LOCALE,
-                Map.of(
-                        PARAM_CREATOR, creator.name().firstname(),
-                        PARAM_COMMENT, event.text()
-                ),
-                List.of(creator.name().firstname())
+                recipient,
+                creator.name().firstname(),
+                event.text()
         );
     }
 
     void onClarificationCompleted(@Observes ClarificationCompletedEvent event) {
         if (event.subjectEmployeeId() == null) {
             Log.infof("Skipping clarification-completed notification for project-level clarification %s", event.clarificationId().value());
+            return;
+        }
+        if (SystemActor.USER_ID.equals(event.creator())) {
+            Log.infof("Skipping clarification-completed notification for system-created clarification %s", event.clarificationId().value());
             return;
         }
 
@@ -97,19 +107,23 @@ public class ClarificationLifecycleNotificationAdapter {
             return;
         }
 
-        User recipient = loadUser(event.subjectEmployeeId(), SUBJECT_EMPLOYEE);
         User creator = loadUser(event.creator(), CREATOR);
+        if (event.creator().equals(event.subjectEmployeeId())) {
+            fanOutToEligibleProjectLeads(
+                    ClarificationNotificationType.CLARIFICATION_DELETED,
+                    event.text(),
+                    creator,
+                    event.eligibleProjectLeadIds()
+            );
+            return;
+        }
 
-        notificationMailPort.send(
+        User recipient = loadUser(event.subjectEmployeeId(), SUBJECT_EMPLOYEE);
+        sendSingleClarificationMail(
                 ClarificationNotificationType.CLARIFICATION_DELETED,
-                recipient.email(),
-                recipient.name().firstname(),
-                DEFAULT_LOCALE,
-                Map.of(
-                        PARAM_CREATOR, creator.name().firstname(),
-                        PARAM_COMMENT, event.text()
-                ),
-                List.of(creator.name().firstname())
+                recipient,
+                creator.name().firstname(),
+                event.text()
         );
     }
 
@@ -119,19 +133,23 @@ public class ClarificationLifecycleNotificationAdapter {
             return;
         }
 
-        User recipient = loadUser(event.subjectEmployeeId(), SUBJECT_EMPLOYEE);
         User actor = loadUser(event.actorId(), "actor");
+        if (event.actorId().equals(event.subjectEmployeeId())) {
+            fanOutToEligibleProjectLeads(
+                    ClarificationNotificationType.CLARIFICATION_UPDATED,
+                    event.text(),
+                    actor,
+                    event.eligibleProjectLeadIds()
+            );
+            return;
+        }
 
-        notificationMailPort.send(
+        User recipient = loadUser(event.subjectEmployeeId(), SUBJECT_EMPLOYEE);
+        sendSingleClarificationMail(
                 ClarificationNotificationType.CLARIFICATION_UPDATED,
-                recipient.email(),
-                recipient.name().firstname(),
-                DEFAULT_LOCALE,
-                Map.of(
-                        PARAM_CREATOR, actor.name().firstname(),
-                        PARAM_COMMENT, event.text()
-                ),
-                List.of(actor.name().firstname())
+                recipient,
+                actor.name().firstname(),
+                event.text()
         );
     }
 
@@ -160,6 +178,41 @@ public class ClarificationLifecycleNotificationAdapter {
     private User loadUser(UserId userId, String role) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Unable to resolve %s user %s".formatted(role, userId.value())));
+    }
+
+    private void sendSingleClarificationMail(
+            ClarificationNotificationType notificationType,
+            User recipient,
+            String creatorFirstName,
+            String comment
+    ) {
+        notificationMailPort.send(
+                notificationType,
+                recipient.email(),
+                recipient.name().firstname(),
+                DEFAULT_LOCALE,
+                Map.of(
+                        PARAM_CREATOR, creatorFirstName,
+                        PARAM_COMMENT, comment
+                ),
+                List.of(creatorFirstName)
+        );
+    }
+
+    private void fanOutToEligibleProjectLeads(
+            ClarificationNotificationType notificationType,
+            String comment,
+            User creator,
+            Set<UserId> eligibleProjectLeadIds
+    ) {
+        eligibleProjectLeadIds.stream()
+                .map(leadId -> loadUser(leadId, "eligible project lead"))
+                .forEach(recipient -> sendSingleClarificationMail(
+                        notificationType,
+                        recipient,
+                        creator.name().firstname(),
+                        comment
+                ));
     }
 
     private String resolveRecipientFirstName(ZepMailProcessingFailedEvent event) {

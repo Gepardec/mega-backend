@@ -22,6 +22,10 @@ The system SHALL run a scheduled job daily at 06:00 from the 15th to the end of 
 - **WHEN** the scheduler runs and no month-end tasks have been generated yet for the previous payroll month for a given employee
 - **THEN** the employee's release date is not updated
 
+#### Scenario: Release date already set to the target date — employee skipped
+- **WHEN** the scheduler runs and an active employee has all month-end tasks in `DONE` status but their release date is already set to the last calendar day of the payroll month
+- **THEN** the employee is skipped and no update is sent to ZEP
+
 #### Scenario: Employees are processed independently
 - **WHEN** the scheduler runs and employee A has all tasks in `DONE` status while employee B has a task in `OPEN` status
 - **THEN** employee A's release date is updated

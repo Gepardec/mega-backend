@@ -7,9 +7,9 @@ import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepos
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.instancio.Instancio;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -19,7 +19,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,42 +33,64 @@ class GetEmployeePayrollMonthServiceTest {
     @Mock
     private MonthEndTaskRepository monthEndTaskRepository;
 
+    @InjectMocks
     private GetEmployeePayrollMonthService service;
 
-    @BeforeEach
-    void setUp() {
-        service = new GetEmployeePayrollMonthService(monthEndTaskRepository);
+    @Test
+    void getPayrollMonth_shouldReturnCurrentMonth_whenOpenTasksExistForCurrentMonthAndPreviousMonth() {
+        YearMonth currentMonth = YearMonth.now();
+        YearMonth previousMonth = currentMonth.minusMonths(1);
+        MonthEndTask currentMonthTask = openTask(currentMonth);
+        MonthEndTask previousMonthTask = openTask(previousMonth);
+        when(monthEndTaskRepository.findOpenSubjectTasks(actorId, currentMonth)).thenReturn(List.of(currentMonthTask));
+        lenient().when(monthEndTaskRepository.findOpenSubjectTasks(actorId, previousMonth)).thenReturn(List.of(previousMonthTask));
+
+        YearMonth payrollMonth = service.getPayrollMonth(actorId);
+
+        assertThat(payrollMonth).isEqualTo(currentMonth);
+        verify(monthEndTaskRepository).findOpenSubjectTasks(actorId, currentMonth);
+        verifyNoMoreInteractions(monthEndTaskRepository);
     }
 
     @Test
-    void getPayrollMonth_shouldReturnPreviousMonth_whenOpenTasksExistForPreviousMonth() {
+    void getPayrollMonth_shouldReturnPreviousMonth_whenOpenTasksExistForPreviousMonthAndCurrentMonthIsEmpty() {
         YearMonth currentMonth = YearMonth.now();
         YearMonth previousMonth = currentMonth.minusMonths(1);
-        MonthEndTask openTask = MonthEndTask.create(
-                MonthEndTaskId.generate(),
-                previousMonth,
-                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                projectId,
-                actorId,
-                Set.of(actorId)
-        );
+        MonthEndTask openTask = openTask(previousMonth);
+        when(monthEndTaskRepository.findOpenSubjectTasks(actorId, currentMonth)).thenReturn(List.of());
         when(monthEndTaskRepository.findOpenSubjectTasks(actorId, previousMonth)).thenReturn(List.of(openTask));
 
         YearMonth payrollMonth = service.getPayrollMonth(actorId);
 
         assertThat(payrollMonth).isEqualTo(previousMonth);
+        verify(monthEndTaskRepository).findOpenSubjectTasks(actorId, currentMonth);
         verify(monthEndTaskRepository).findOpenSubjectTasks(actorId, previousMonth);
+        verifyNoMoreInteractions(monthEndTaskRepository);
     }
 
     @Test
     void getPayrollMonth_shouldReturnCurrentMonth_whenNoOpenTasksExistForPreviousMonth() {
         YearMonth currentMonth = YearMonth.now();
         YearMonth previousMonth = currentMonth.minusMonths(1);
+        when(monthEndTaskRepository.findOpenSubjectTasks(actorId, currentMonth)).thenReturn(List.of());
         when(monthEndTaskRepository.findOpenSubjectTasks(actorId, previousMonth)).thenReturn(List.of());
 
         YearMonth payrollMonth = service.getPayrollMonth(actorId);
 
         assertThat(payrollMonth).isEqualTo(currentMonth);
+        verify(monthEndTaskRepository).findOpenSubjectTasks(actorId, currentMonth);
         verify(monthEndTaskRepository).findOpenSubjectTasks(actorId, previousMonth);
+        verifyNoMoreInteractions(monthEndTaskRepository);
+    }
+
+    private MonthEndTask openTask(YearMonth month) {
+        return MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectId,
+                actorId,
+                Set.of(actorId)
+        );
     }
 }

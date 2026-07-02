@@ -31,6 +31,7 @@ public interface UserRestMapper {
     @Mapping(target = "fullName", source = "name")
     @Mapping(target = "zepUsername", source = "zepUsername")
     @Mapping(target = "personioId", source = "personioId")
+    @Mapping(target = "isExternal", source = "external")
     UserDto toUserDto(User user);
 
     UpdateReleaseDateCommand toCommand(UpdateReleaseDateEntryDto entry);

@@ -51,7 +51,8 @@ public class DeleteMonthEndClarificationService implements DeleteMonthEndClarifi
                 clarification.id(),
                 clarification.createdBy(),
                 clarification.subjectEmployeeId(),
-                clarification.text()
+                clarification.text(),
+                clarification.eligibleProjectLeadIds()
         ));
         Log.infof("Deleted month-end clarification %s by actor %s", id.value(), actorId.value());
     }

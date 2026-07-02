@@ -69,7 +69,7 @@ class WorkTimeAbsenceZepAdapterTest {
         return ZepAbsence.builder()
                 .startDate(startDate)
                 .endDate(endDate)
-                .absenceReason(ZepAbsenceReason.builder().name(reason).build())
+                .absenceReason(reason)
                 .build();
     }
 }

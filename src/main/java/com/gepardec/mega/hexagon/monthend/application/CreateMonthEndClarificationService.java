@@ -83,7 +83,8 @@ public class CreateMonthEndClarificationService implements CreateMonthEndClarifi
                 clarification.sourceSystem(),
                 clarification.createdBy(),
                 clarification.subjectEmployeeId(),
-                clarification.text()
+                clarification.text(),
+                clarification.eligibleProjectLeadIds()
         ));
 
         Log.infof(

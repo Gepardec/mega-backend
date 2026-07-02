@@ -28,9 +28,9 @@ class UserRestMapperTest {
         UUID rawUserId = Instancio.create(UUID.class);
         User user = new User(
                 UserId.of(rawUserId),
-                Email.of("employee@example.com"),
+                Email.of("eworker@example.com"),
                 FullName.of("Ada", "Lovelace"),
-                ZepUsername.of("adal"),
+                ZepUsername.of("eworker"),
                 PersonioId.of(42),
                 EmploymentPeriods.empty(),
                 Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD),
@@ -40,12 +40,13 @@ class UserRestMapperTest {
         UserDto dto = mapper.toUserDto(user);
 
         assertThat(dto.getId()).isEqualTo(rawUserId);
-        assertThat(dto.getEmail()).isEqualTo("employee@example.com");
+        assertThat(dto.getEmail()).isEqualTo("eworker@example.com");
         assertThat(dto.getFullName()).isEqualTo("Ada Lovelace");
-        assertThat(dto.getZepUsername()).isEqualTo("adal");
+        assertThat(dto.getZepUsername()).isEqualTo("eworker");
         assertThat(dto.getReleaseDate()).isEqualTo(LocalDate.of(2026, 4, 30));
         assertThat(dto.getRoles()).containsExactlyInAnyOrder("EMPLOYEE", "PROJECT_LEAD");
         assertThat(dto.getPersonioId()).isEqualTo(42);
+        assertThat(dto.getIsExternal()).isTrue();
     }
 
     @Test
@@ -53,9 +54,9 @@ class UserRestMapperTest {
         UUID rawUserId = Instancio.create(UUID.class);
         User user = new User(
                 UserId.of(rawUserId),
-                Email.of("employee@example.com"),
+                Email.of("worker@example.com"),
                 FullName.of("Ada", "Lovelace"),
-                ZepUsername.of("adal"),
+                ZepUsername.of("worker"),
                 null,
                 EmploymentPeriods.empty(),
                 Set.of(Role.EMPLOYEE),
@@ -66,5 +67,6 @@ class UserRestMapperTest {
 
         assertThat(dto.getReleaseDate()).isNull();
         assertThat(dto.getPersonioId()).isNull();
+        assertThat(dto.getIsExternal()).isFalse();
     }
 }

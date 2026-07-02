@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-user-email-unique-001
+      author: mega
+      changes:
+        - addUniqueConstraint:
+            columnNames: email
+            constraintName: uidx_users_email
+            tableName: users

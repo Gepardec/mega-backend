@@ -85,6 +85,7 @@ class CreateMonthEndClarificationServiceTest {
                 event.creator().equals(employeeId)
                         && event.subjectEmployeeId().equals(employeeId)
                         && event.sourceSystem() == SourceSystem.MEGA
+                        && event.eligibleProjectLeadIds().equals(Set.of(leadA, leadB))
         ));
     }
 
@@ -123,6 +124,11 @@ class CreateMonthEndClarificationServiceTest {
         assertThat(result.createdBy()).isEqualTo(leadA);
         assertThat(result.eligibleProjectLeadIds()).containsExactlyInAnyOrder(leadA, leadB);
         verify(clarificationRepository).save(any(MonthEndClarification.class));
+        verify(clarificationCreatedEvent).fire(argThat(event ->
+                event.creator().equals(leadA)
+                        && event.subjectEmployeeId() == null
+                        && event.eligibleProjectLeadIds().equals(Set.of(leadA, leadB))
+        ));
     }
 
     @Test
