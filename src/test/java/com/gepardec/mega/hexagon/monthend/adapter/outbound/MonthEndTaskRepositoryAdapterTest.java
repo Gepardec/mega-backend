@@ -236,9 +236,53 @@ class MonthEndTaskRepositoryAdapterTest {
         assertThat(result).containsExactlyInAnyOrder(etcTask, plrTask, abrechnungTask);
     }
 
+    @Test
+    void findOpenLeistungsnachweisTasks_shouldReturnOnlyOpenLeistungsnachweisTasksForProjectAndMonth() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User employee = user("employee", Set.of(Role.EMPLOYEE));
+        User lead = user("lead", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        userRepositoryAdapter.saveAll(List.of(employee, lead));
+
+        Project project = project(42, true);
+        Project otherProject = project(43, true);
+        projectRepositoryAdapter.saveAll(List.of(project, otherProject));
+
+        MonthEndTask openLnTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                project.id(), employee.id(), Set.of(lead.id())
+        );
+        MonthEndTask doneLnTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                project.id(), employee.id(), Set.of(lead.id())
+        ).complete(lead.id());
+        MonthEndTask otherProjectLnTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                otherProject.id(), employee.id(), Set.of(lead.id())
+        );
+        MonthEndTask otherMonthLnTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month.plusMonths(1),
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                project.id(), employee.id(), Set.of(lead.id())
+        );
+        MonthEndTask etcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(), employee.id(), Set.of(employee.id())
+        );
+        monthEndTaskRepositoryAdapter.saveAll(
+                List.of(openLnTask, doneLnTask, otherProjectLnTask, otherMonthLnTask, etcTask));
+
+        List<MonthEndTask> result = monthEndTaskRepositoryAdapter.findOpenLeistungsnachweisTasks(month, project.id());
+
+        assertThat(result).containsExactly(openLnTask);
+    }
+
     private User user(String username, Set<Role> roles) {
         return new User(
-                UserId.generate(),
+            UserId.generate(),
                 Email.of(username + "@example.com"),
                 FullName.of("Test", "User"),
                 ZepUsername.of(username),

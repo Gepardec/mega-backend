@@ -91,7 +91,7 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
                                 ")",
                         toMonthValue(month),
                         leadId.value(),
-                        taskTypesFor(MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR)
+                        leadTaskTypes()
                 )
                 .list().stream()
                 .map(mapper::toDomain)
@@ -112,6 +112,34 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
+    public List<MonthEndTask> findOpenLeistungsnachweisTasks(YearMonth month, ProjectId projectId) {
+        return panache.find(
+                        "monthValue = ?1 and projectId = ?2 and type = ?3 and status = ?4",
+                        toMonthValue(month),
+                        projectId.value(),
+                        MonthEndTaskType.LEISTUNGSNACHWEIS,
+                        MonthEndTaskStatus.OPEN
+                )
+                .list().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<MonthEndTask> findClosedLeistungsnachweisTasks(YearMonth month, ProjectId projectId) {
+        return panache.find(
+                        "monthValue = ?1 and projectId = ?2 and type = ?3 and status = ?4",
+                        toMonthValue(month),
+                        projectId.value(),
+                        MonthEndTaskType.LEISTUNGSNACHWEIS,
+                        MonthEndTaskStatus.CLOSED
+                )
+                .list().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public void save(MonthEndTask task) {
         upsert(task);
     }
@@ -123,9 +151,9 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
         }
     }
 
-    private List<MonthEndTaskType> taskTypesFor(MonthEndCompletionPolicy policy) {
+    private List<MonthEndTaskType> leadTaskTypes() {
         return Stream.of(MonthEndTaskType.values())
-                .filter(type -> type.completionPolicy() == policy)
+                .filter(type -> type.completionPolicy() == MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR)
                 .toList();
     }
 

@@ -61,7 +61,7 @@ class SyncProjectsServiceTest {
     void sync_updatesExistingProjectByZepId() {
         ProjectId existingId = ProjectId.generate();
         Project existing = new Project(existingId, 42, "Old Name",
-                LocalDate.of(2023, 1, 1), null, false, Set.of());
+                LocalDate.of(2023, 1, 1), null, false, true, Set.of());
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(42, "New Name")));
         when(projectRepository.findAll()).thenReturn(List.of(existing));
@@ -80,7 +80,7 @@ class SyncProjectsServiceTest {
     @Test
     void sync_preservesProjectIdOnUpdate() {
         ProjectId existingId = ProjectId.of(UUID.fromString(Instancio.gen().text().uuid().get()));
-        Project existing = new Project(existingId, 7, "X", LocalDate.now(), null, false, Set.of());
+        Project existing = new Project(existingId, 7, "X", LocalDate.now(), null, false, true, Set.of());
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(7, "X Updated")));
         when(projectRepository.findAll()).thenReturn(List.of(existing));
@@ -97,7 +97,7 @@ class SyncProjectsServiceTest {
     void sync_doesNotModifyLeads() {
         UserId leadId = UserId.of(UUID.randomUUID());
         Project existing = new Project(ProjectId.generate(), 5, "Y",
-                LocalDate.now(), null, false, Set.of(leadId));
+                LocalDate.now(), null, false, true, Set.of(leadId));
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(5, "Y Updated")));
         when(projectRepository.findAll()).thenReturn(List.of(existing));
@@ -147,8 +147,8 @@ class SyncProjectsServiceTest {
 
     @Test
     void sync_result_countsUpdatedProjects() {
-        Project existing1 = new Project(ProjectId.generate(), 1, "A", LocalDate.now(), null, false, Set.of());
-        Project existing2 = new Project(ProjectId.generate(), 2, "B", LocalDate.now(), null, false, Set.of());
+        Project existing1 = new Project(ProjectId.generate(), 1, "A", LocalDate.now(), null, false, true, Set.of());
+        Project existing2 = new Project(ProjectId.generate(), 2, "B", LocalDate.now(), null, false, true, Set.of());
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(1, "A Updated"), profile(2, "B Updated")));
         when(projectRepository.findAll()).thenReturn(List.of(existing1, existing2));
@@ -162,7 +162,7 @@ class SyncProjectsServiceTest {
 
     @Test
     void sync_result_countsMixedOperations() {
-        Project existing = new Project(ProjectId.generate(), 1, "A", LocalDate.now(), null, false, Set.of());
+        Project existing = new Project(ProjectId.generate(), 1, "A", LocalDate.now(), null, false, true, Set.of());
 
         when(zepProjectPort.fetchAll()).thenReturn(List.of(profile(1, "A Updated"), profile(2, "New")));
         when(projectRepository.findAll()).thenReturn(List.of(existing));
@@ -183,6 +183,7 @@ class SyncProjectsServiceTest {
                 LocalDate.of(2024, 1, 1),
                 LocalDate.of(2024, 12, 31),
                 false,
+                true,
                 Set.of()
         );
 

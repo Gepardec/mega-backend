@@ -49,7 +49,7 @@ class ProjectTest {
         LocalDate start = LocalDate.of(2023, 6, 1);
         LocalDate end = LocalDate.of(2024, 6, 1);
 
-        Project project = new Project(id, 99, "Beta", start, end, false, Set.of(leadId));
+        Project project = new Project(id, 99, "Beta", start, end, false, true, Set.of(leadId));
 
         assertThat(project.id()).isEqualTo(id);
         assertThat(project.zepId()).isEqualTo(99);
@@ -99,7 +99,7 @@ class ProjectTest {
     void withLeads_replacesExistingLeads() {
         UserId oldLead = UserId.of(UUID.randomUUID());
         Project project = new Project(ProjectId.generate(), 5, "Delta",
-                LocalDate.now(), null, false, Set.of(oldLead));
+                LocalDate.now(), null, false, true, Set.of(oldLead));
         UserId newLead = UserId.of(UUID.randomUUID());
 
         Project updatedProject = project.withLeads(Set.of(newLead));
@@ -120,9 +120,9 @@ class ProjectTest {
     @Test
     void constructor_setBillableFromParameter() {
         Project billable = new Project(ProjectId.generate(), 1, "Billable",
-                LocalDate.now(), null, true, Set.of());
+                LocalDate.now(), null, true, true, Set.of());
         Project notBillable = new Project(ProjectId.generate(), 2, "Internal",
-                LocalDate.now(), null, false, Set.of());
+                LocalDate.now(), null, false, true, Set.of());
 
         assertThat(billable.billable()).isTrue();
         assertThat(notBillable.billable()).isFalse();
@@ -136,6 +136,48 @@ class ProjectTest {
         Project synchronizedProject = project.withSyncedZepData(billableProfile(10, "Project"));
 
         assertThat(synchronizedProject.billable()).isTrue();
+    }
+    @Test
+    void create_leistungsnachweisEnabledDefaultsToTrue() {
+        Project project = Project.create(ProjectId.generate(), profile(1, "X"));
+        assertThat(project.leistungsnachweisEnabled()).isTrue();
+    }
+
+    @Test
+    void constructor_canSetLeistungsnachweisEnabled() {
+        Project enabled = new Project(ProjectId.generate(), 1, "X", LocalDate.now(), null, false, true, Set.of());
+        Project disabled = new Project(ProjectId.generate(), 1, "Y", LocalDate.now(), null, false, false, Set.of());
+
+        assertThat(enabled.leistungsnachweisEnabled()).isTrue();
+        assertThat(disabled.leistungsnachweisEnabled()).isFalse();
+    }
+
+    @Test
+    void withSyncedZepData_preservesLeistungsnachweisEnabled() {
+        Project project = new Project(ProjectId.generate(), 1, "X", LocalDate.now(), null, false, false, Set.of());
+        Project synced = project.withSyncedZepData(new ZepProjectProfile(1, "Y", LocalDate.now(), null, false));
+
+        assertThat(synced.leistungsnachweisEnabled()).isFalse();
+    }
+
+    @Test
+    void withLeads_preservesLeistungsnachweisEnabled() {
+        Project project = new Project(ProjectId.generate(),1,"X", LocalDate.now(),null, false,false, Set.of());
+
+        Project updated = project.withLeads(Set.of(UserId.of(UUID.randomUUID())));
+        assertThat(updated.leistungsnachweisEnabled()).isFalse();
+    }
+
+    @Test
+    void withLeistungsnachweisEnabled_returnsNewInstanceWithToggledFlag() {
+        Project project = Project.create(ProjectId.generate(), profile(1, "X"));
+
+        Project disabled = project.withLeistungsnachweisEnabled(false);
+        Project reEnabled = disabled.withLeistungsnachweisEnabled(true);
+
+        assertThat(disabled.leistungsnachweisEnabled()).isFalse();
+        assertThat(reEnabled.leistungsnachweisEnabled()).isTrue();
+        assertThat(project.leistungsnachweisEnabled()).isTrue();
     }
 
     @Test
@@ -156,6 +198,7 @@ class ProjectTest {
                 LocalDate.of(2024, 3, 15),
                 LocalDate.of(2024, 4, 15),
                 false,
+                true,
                 Set.of()
         );
 

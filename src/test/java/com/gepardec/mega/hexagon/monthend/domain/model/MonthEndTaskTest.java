@@ -199,6 +199,107 @@ class MonthEndTaskTest {
     }
 
     @Test
+    void closeBySystem_shouldMarkTaskClosedAndStoreSystemActor() {
+        MonthEndTask task = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                projectId,
+                employeeId,
+                Set.of(leadA, leadB)
+        );
+
+        MonthEndTask closedTask = task.closeBySystem();
+
+        assertThat(closedTask.status()).isEqualTo(MonthEndTaskStatus.CLOSED);
+        assertThat(closedTask.completedBy()).isEqualTo(SystemActor.USER_ID);
+    }
+
+    @Test
+    void closeBySystem_shouldRemainIdempotent_whenTaskAlreadyClosedOrDone() {
+        MonthEndTask task = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                projectId,
+                employeeId,
+                Set.of(leadA, leadB)
+        );
+
+        MonthEndTask closed = task.closeBySystem();
+        MonthEndTask closedTwice = closed.closeBySystem();
+        MonthEndTask done = task.complete(leadA);
+
+        assertThat(closedTwice.status()).isEqualTo(MonthEndTaskStatus.CLOSED);
+        assertThat(done.closeBySystem().status()).isEqualTo(MonthEndTaskStatus.DONE);
+    }
+
+    @Test
+    void reopen_shouldRestoreOpenTaskWithoutCompletingActor_whenTaskClosed() {
+        MonthEndTask task = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                projectId,
+                employeeId,
+                Set.of(leadA, leadB)
+        ).closeBySystem();
+
+        MonthEndTask reopenedTask = task.reopen();
+
+        assertThat(reopenedTask.status()).isEqualTo(MonthEndTaskStatus.OPEN);
+        assertThat(reopenedTask.completedBy()).isNull();
+    }
+
+    @Test
+    void reopen_shouldBeNoop_whenTaskNotClosed() {
+        MonthEndTask task = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                projectId,
+                employeeId,
+                Set.of(leadA, leadB)
+        );
+
+        assertThat(task.reopen()).isEqualTo(task);
+        assertThat(task.complete(leadA).reopen().status()).isEqualTo(MonthEndTaskStatus.DONE);
+    }
+
+    @Test
+    void complete_shouldRejectClosedTaskUntilReopened() {
+        MonthEndTask task = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                projectId,
+                employeeId,
+                Set.of(leadA, leadB)
+        ).closeBySystem();
+
+        assertThatThrownBy(() -> task.complete(leadA))
+                .isInstanceOf(MonthEndValidationException.class)
+                .hasMessageContaining("reopened");
+    }
+
+    @Test
+    void create_shouldRejectClosedTaskWithoutSystemActor() {
+        ThrowableAssert.ThrowingCallable throwingCallable = () -> new MonthEndTask(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                projectId,
+                employeeId,
+                Set.of(leadA, leadB),
+                MonthEndTaskStatus.CLOSED,
+                leadA
+        );
+
+        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class)
+                .hasMessageContaining("system");
+    }
+
+    @Test
     void businessKey_shouldDifferentiateEmployeeOwnedTasksByEligibleActor() {
         MonthEndTask firstTask = MonthEndTask.create(
                 MonthEndTaskId.generate(),

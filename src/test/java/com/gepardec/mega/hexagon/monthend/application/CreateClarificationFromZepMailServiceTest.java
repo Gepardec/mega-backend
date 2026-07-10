@@ -232,7 +232,7 @@ class CreateClarificationFromZepMailServiceTest {
     }
 
     private MonthEndProjectSnapshot projectSnapshot() {
-        return new MonthEndProjectSnapshot(projectId, 77, "Gepardec", true, Set.of(creatorId));
+        return new MonthEndProjectSnapshot(projectId, 77, "Gepardec", true, true, Set.of(creatorId));
     }
 
     private MonthEndEmployeeProjectContext employeeContext(
