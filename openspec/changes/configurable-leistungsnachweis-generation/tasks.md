@@ -1,10 +1,10 @@
 ## 1. Domain: flag on the Project aggregate
 
-- [ ] 1.1 Add `boolean leistungsnachweisEnabled` field to the `Project` record; update the canonical constructor and null/validation checks
-- [ ] 1.2 Set `leistungsnachweisEnabled = true` in `Project.create(ProjectId, ZepProjectProfile)`
-- [ ] 1.3 Preserve the flag in `withSyncedZepData(...)` and `withLeads(...)`
-- [ ] 1.4 Add `withLeistungsnachweisEnabled(boolean)` returning a new instance with all other fields preserved
-- [ ] 1.5 Unit-test create default (true), resync preservation, lead-sync preservation, and toggle transition
+- [x] 1.1 Add `boolean leistungsnachweisEnabled` field to the `Project` record; update the canonical constructor and null/validation checks
+- [x] 1.2 Set `leistungsnachweisEnabled = true` in `Project.create(ProjectId, ZepProjectProfile)`
+- [x] 1.3 Preserve the flag in `withSyncedZepData(...)` and `withLeads(...)`
+- [x] 1.4 Add `withLeistungsnachweisEnabled(boolean)` returning a new instance with all other fields preserved
+- [x] 1.5 Unit-test create default (true), resync preservation, lead-sync preservation, and toggle transition
 
 ## 2. Persistence
 
