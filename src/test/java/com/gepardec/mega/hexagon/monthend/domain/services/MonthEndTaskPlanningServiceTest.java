@@ -12,6 +12,7 @@ import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Month;
 import java.time.YearMonth;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,7 +35,7 @@ class MonthEndTaskPlanningServiceTest {
     @Test
     void planEmployeeOwnedTasks_shouldCreateOnlyTimeCheck_whenProjectIsNonBillable() {
         UserRef employee = activeUser("employee");
-        MonthEndProjectSnapshot project = activeProject(false, Set.of());
+        MonthEndProjectSnapshot project = activeProject(false, true, Set.of());
 
         List<MonthEndTask> tasks = service.planEmployeeOwnedTasks(month, project, employee);
 
@@ -49,7 +50,7 @@ class MonthEndTaskPlanningServiceTest {
     @Test
     void planEmployeeOwnedTasks_shouldCreateOnlyTimeCheck_whenProjectIsBillable() {
         UserRef employee = activeUser("employee");
-        MonthEndProjectSnapshot project = activeProject(true, Set.of());
+        MonthEndProjectSnapshot project = activeProject(true, true, Set.of());
 
         List<MonthEndTask> tasks = service.planEmployeeOwnedTasks(month, project, employee);
 
@@ -67,7 +68,7 @@ class MonthEndTaskPlanningServiceTest {
         UserRef employeeB = activeUser("employee-b");
         UserId leadA = UserId.of(Instancio.create(UUID.class));
         UserId leadB = UserId.of(Instancio.create(UUID.class));
-        MonthEndProjectSnapshot project = activeProject(true, Set.of(leadA, leadB));
+        MonthEndProjectSnapshot project = activeProject(true, true, Set.of(leadA, leadB));
 
         List<MonthEndTask> tasks = service.planProjectTasks(
                 month,
@@ -102,7 +103,7 @@ class MonthEndTaskPlanningServiceTest {
     @Test
     void planProjectTasks_shouldSkipLeadOwnedTasks_whenNoActiveLeadsExist() {
         UserRef employee = activeUser("employee");
-        MonthEndProjectSnapshot project = activeProject(true, Set.of());
+        MonthEndProjectSnapshot project = activeProject(true, true, Set.of());
 
         List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(), Set.of(employee));
 
@@ -114,7 +115,7 @@ class MonthEndTaskPlanningServiceTest {
     void planProjectTasks_shouldNotCreateLeistungsnachweis_whenProjectIsNonBillable() {
         UserRef employee = activeUser("employee");
         UserId lead = UserId.of(Instancio.create(UUID.class));
-        MonthEndProjectSnapshot project = activeProject(false, Set.of(lead));
+        MonthEndProjectSnapshot project = activeProject(false, true, Set.of(lead));
 
         List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(lead), Set.of(employee));
 
@@ -125,6 +126,40 @@ class MonthEndTaskPlanningServiceTest {
                 );
     }
 
+    @Test
+    void flagFalse_supressesLeistungsnachweis() {
+        UserRef employee = activeUser("employee");
+        UserId lead = UserId.of(Instancio.create(UUID.class));
+        MonthEndProjectSnapshot project = activeProject(true, false, Set.of(lead));
+
+        List<MonthEndTask> tasks = service.planProjectTasks(month,project,Set.of(lead),Set.of(employee));
+
+        assertThat(tasks).extracting(MonthEndTask::type)
+                .doesNotContain(MonthEndTaskType.LEISTUNGSNACHWEIS);
+        assertThat(tasks).extracting(MonthEndTask::type)
+                .contains(
+                        MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        MonthEndTaskType.ABRECHNUNG
+                );
+
+    }
+
+
+    @Test
+    void flagTrue_containsLeistungsnachweis() {
+        UserRef employee = activeUser("employee");
+        UserId lead = UserId.of(Instancio.create(UUID.class));
+        MonthEndProjectSnapshot project = activeProject(true, true, Set.of(lead));
+
+        List<MonthEndTask> tasks = service.planProjectTasks(month,project,Set.of(lead),Set.of(employee));
+
+        assertThat(tasks).extracting(MonthEndTask::type)
+                .contains(
+                        MonthEndTaskType.LEISTUNGSNACHWEIS
+                );
+
+    }
+
     private UserRef activeUser(String username) {
         return new UserRef(
                 UserId.of(Instancio.create(UUID.class)),
@@ -133,13 +168,13 @@ class MonthEndTaskPlanningServiceTest {
         );
     }
 
-    private MonthEndProjectSnapshot activeProject(boolean billable, Set<UserId> leadIds) {
+    private MonthEndProjectSnapshot activeProject(boolean billable, boolean leistungsnachweisEnabled, Set<UserId> leadIds) {
         return new MonthEndProjectSnapshot(
                 ProjectId.of(Instancio.create(UUID.class)),
                 91,
                 "Project-91",
                 billable,
-                true,
+                leistungsnachweisEnabled,
                 leadIds
         );
     }

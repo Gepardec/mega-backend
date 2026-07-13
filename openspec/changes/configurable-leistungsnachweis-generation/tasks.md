@@ -15,10 +15,10 @@
 
 ## 3. Month-end snapshot + generation gating
 
-- [ ] 3.1 Add `boolean leistungsnachweisEnabled` to `MonthEndProjectSnapshot`
-- [ ] 3.2 Update `MonthEndProjectSnapshotMapper` to map the flag from `Project`
-- [ ] 3.3 Gate `LEISTUNGSNACHWEIS` creation in `MonthEndTaskPlanningService.planProjectTasks` on `project.leistungsnachweisEnabled()` (in addition to billable + active leads)
-- [ ] 3.4 Unit-test planning: flag=true generates Leistungsnachweis; flag=false suppresses it while `PROJECT_LEAD_REVIEW` and `ABRECHNUNG` are still generated
+- [x] 3.1 Add `boolean leistungsnachweisEnabled` to `MonthEndProjectSnapshot`
+- [x] 3.2 Update `MonthEndProjectSnapshotMapper` to map the flag from `Project`
+- [x] 3.3 Gate `LEISTUNGSNACHWEIS` creation in `MonthEndTaskPlanningService.planProjectTasks` on `project.leistungsnachweisEnabled()` (in addition to billable + active leads)
+- [x] 3.4 Unit-test planning: flag=true generates Leistungsnachweis; flag=false suppresses it while `PROJECT_LEAD_REVIEW` and `ABRECHNUNG` are still generated
 - [ ] 3.5 Verify (test) that disabling the flag does not affect already-generated tasks and only the next run is affected
 
 ## 4. Application: use cases (project BC)
