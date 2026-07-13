@@ -748,7 +748,7 @@ class MonthEndResourceTest {
     }
 
     private MonthEndProjectSnapshot projectSnapshot() {
-        return new MonthEndProjectSnapshot(PROJECT_ID, 77, PROJECT_NAME, true, Set.of(PROJECT_LEAD_ID));
+        return new MonthEndProjectSnapshot(PROJECT_ID, 77, PROJECT_NAME, true, true,Set.of(PROJECT_LEAD_ID));
     }
 
     private UserRef employeeRef() {

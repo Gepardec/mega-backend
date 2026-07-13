@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-disable-leistungsnachweis-001
+      author: mega
+      changes:
+        - addColumn:
+            tableName: projects
+            columns:
+              - column:
+                  name: leistungsnachweis_enabled
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValueBoolean: true
+

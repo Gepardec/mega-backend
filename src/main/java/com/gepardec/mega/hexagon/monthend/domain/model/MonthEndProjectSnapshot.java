@@ -11,6 +11,7 @@ public record MonthEndProjectSnapshot(
         int zepId,
         String name,
         boolean billable,
+        boolean leistungsnachweisEnabled,
         Set<UserId> leadIds
 ) {
 

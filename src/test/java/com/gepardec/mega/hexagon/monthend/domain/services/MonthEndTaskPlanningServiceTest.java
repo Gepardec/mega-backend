@@ -139,6 +139,7 @@ class MonthEndTaskPlanningServiceTest {
                 91,
                 "Project-91",
                 billable,
+                true,
                 leadIds
         );
     }
