@@ -19,12 +19,12 @@
 - [x] 3.2 Update `MonthEndProjectSnapshotMapper` to map the flag from `Project`
 - [x] 3.3 Gate `LEISTUNGSNACHWEIS` creation in `MonthEndTaskPlanningService.planProjectTasks` on `project.leistungsnachweisEnabled()` (in addition to billable + active leads)
 - [x] 3.4 Unit-test planning: flag=true generates Leistungsnachweis; flag=false suppresses it while `PROJECT_LEAD_REVIEW` and `ABRECHNUNG` are still generated
-- [ ] 3.5 Verify (test) that disabling the flag does not affect already-generated tasks and only the next run is affected
+- [x] 3.5 Verify (test) that disabling the flag does not affect already-generated tasks and only the next run is affected
 
 ## 4. Application: use cases (project BC)
 
-- [ ] 4.1 Add inbound port `GetLeadProjectsUseCase` returning the caller's led projects; implement service using `ProjectRepository.findAllByLead(actorId)`
-- [ ] 4.2 Add inbound port `SetLeistungsnachweisEnabledUseCase(projectId, enabled, actorId)`; implement service: load project (not-found error if absent), assert `project.leads().contains(actorId)` else authorization error, apply `withLeistungsnachweisEnabled`, save
+- [x] 4.1 Add inbound port `GetLeadProjectsUseCase` returning the caller's led projects; implement service using `ProjectRepository.findAllByLead(actorId)`
+- [x] 4.2 Add inbound port `SetLeistungsnachweisEnabledUseCase(projectId, enabled, actorId)`; implement service: load project (not-found error if absent), assert `project.leads().contains(actorId)` else authorization error, apply `withLeistungsnachweisEnabled`, save
 - [ ] 4.3 Unit-test the toggle service: success path, non-lead rejection (flag unchanged), unknown project
 
 ## 5. Inbound REST adapter (project BC)
