@@ -1,0 +1,24 @@
+<p>Hallo {recipientFirstName},</p>
+{#if hasNoEntries}
+    <p><strong>Diese Woche wurden keine neuen Anerkennungen eingereicht. Bis nächste Woche!</strong></p>
+{#else}
+    <p>Hier ist der aktuelle Inhalt des Anerkennung-Briefkastens. Wenn du der Moderator des Tipi-JFX bist, übertrage
+        bitte den Inhalt des Briefkastens in das Tipi-Protokoll.</p>
+{/if}
+{#if ! appreciationEntries.isEmpty}
+    <h2>Lob &amp; Wertschätzung</h2>
+    <ul>
+        {#for entry in appreciationEntries}
+            <li>{entry.message} <small>(Eingereicht von: {entry.submitterName})</small></li>
+        {/for}
+    </ul>
+{/if}
+{#if ! courageEntries.isEmpty}
+    <h2>Mut</h2>
+    <ul>
+        {#for entry in courageEntries}
+            <li>{entry.message} <small>(Eingereicht von: {entry.submitterName})</small></li>
+        {/for}
+    </ul>
+{/if}
+<img alt="LogoMEGADash" src="cid:LogoMEGAdash@gepardec.com"/>
