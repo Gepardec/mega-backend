@@ -12,6 +12,8 @@ tags:
     description: Employee-scoped work time endpoints
   - name: WorkTimeProjectLead
     description: Project-lead-scoped work time endpoints
+  - name: Project
+    description: Project endpoints for leistungsnachweis
 paths:
   /monthend/payroll-month/employee:
     $ref: './paths/monthend.yaml#/~1monthend~1payroll-month~1employee'
@@ -49,6 +51,10 @@ paths:
     $ref: './paths/worktime.yaml#/~1worktime~1employee~1{payrollMonth}'
   /worktime/projects/{payrollMonth}:
     $ref: './paths/worktime.yaml#/~1worktime~1projects~1{payrollMonth}'
+  /projects:
+    $ref: './paths/projects.yaml#/~1projects'
+  /projects/{projectId}/leistungsnachweis-enabled:
+    $ref: './paths/projects.yaml#/~1projects~1{projectId}~1leistungsnachweis-enabled'
 components:
   schemas:
     ActiveUser:
@@ -63,6 +69,10 @@ components:
       $ref: './schemas/user.yaml#/UpdateReleaseDatesResponse'
     InternalRateUploadError:
       $ref: './schemas/user.yaml#/InternalRateUploadError'
+    ProjectItem:
+      $ref: './schemas/projects.yaml#/ProjectItem'
+    LeistungsnachweisToggleRequest:
+      $ref: './schemas/projects.yaml#/LeistungsnachweisToggleRequest'
   securitySchemes:
     bearerAuth:
       type: oauth2

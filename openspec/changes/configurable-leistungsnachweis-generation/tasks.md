@@ -25,15 +25,15 @@
 
 - [x] 4.1 Add inbound port `GetLeadProjectsUseCase` returning the caller's led projects; implement service using `ProjectRepository.findAllByLead(actorId)`
 - [x] 4.2 Add inbound port `SetLeistungsnachweisEnabledUseCase(projectId, enabled, actorId)`; implement service: load project (not-found error if absent), assert `project.leads().contains(actorId)` else authorization error, apply `withLeistungsnachweisEnabled`, save
-- [ ] 4.3 Unit-test the toggle service: success path, non-lead rejection (flag unchanged), unknown project
+- [x] 4.3 Unit-test the toggle service: success path, non-lead rejection (flag unchanged), unknown project
 
 ## 5. Inbound REST adapter (project BC)
 
-- [ ] 5.1 Add OpenAPI paths file for projects (`GET /projects`, `PUT /projects/{projectId}/leistungsnachweis-enabled`) and register it in `openapi.yaml`
-- [ ] 5.2 Add OpenAPI schemas: project list item (`id`, `zepId`, `name`, `billable`, `leistungsnachweisEnabled`) and toggle request (`enabled`)
-- [ ] 5.3 Implement `ProjectResource` (first inbound adapter in the project BC) against the generated `ProjectApi`, with `@MegaRolesAllowed(Role.PROJECT_LEAD)` and actor from `AuthenticatedActorContext`
-- [ ] 5.4 Add REST mapper (domain → project list DTO) via MapStruct
-- [ ] 5.5 Map the not-found and authorization domain errors to appropriate HTTP responses (`404` / `403`)
+- [x] 5.1 Add OpenAPI paths file for projects (`GET /projects`, `PUT /projects/{projectId}/leistungsnachweis-enabled`) and register it in `openapi.yaml`
+- [x] 5.2 Add OpenAPI schemas: project list item (`id`, `zepId`, `name`, `billable`, `leistungsnachweisEnabled`) and toggle request (`enabled`)
+- [x] 5.3 Implement `ProjectResource` (first inbound adapter in the project BC) against the generated `ProjectApi`, with `@MegaRolesAllowed(Role.PROJECT_LEAD)` and actor from `AuthenticatedActorContext`
+- [x] 5.4 Add REST mapper (domain → project list DTO) via MapStruct
+- [x] 5.5 Map the not-found and authorization domain errors to appropriate HTTP responses (`404` / `403`)
 
 ## 6. Verification
 

@@ -1,0 +1,27 @@
+ProjectItem:
+  type: object
+  required:
+    - id
+    - zepId
+    - name
+    - billable
+    - leistungsnachweisEnabled
+  properties:
+    id:
+      type: string
+      format: uuid
+    zepId:
+      type: integer
+    name:
+      type: string
+    billable:
+      type: boolean
+    leistungsnachweisEnabled:
+      type: boolean
+LeistungsnachweisToggleRequest:
+  type: object
+  required:
+    - enabled
+  properties:
+    enabled:
+      type: boolean
