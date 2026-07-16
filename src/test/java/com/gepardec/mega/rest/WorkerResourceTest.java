@@ -7,7 +7,6 @@ import com.gepardec.mega.domain.model.MonthlyAbsences;
 import com.gepardec.mega.domain.model.MonthlyBillInfo;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
-import com.gepardec.mega.domain.model.WorkTimeBookingWarning;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyDirection;
 import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
@@ -25,15 +24,12 @@ import com.gepardec.mega.personio.employees.PersonioEmployeesService;
 import com.gepardec.mega.rest.api.WorkerResource;
 import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
 import com.gepardec.mega.rest.mapper.MonthlyBillInfoMapper;
-import com.gepardec.mega.rest.mapper.WorkTimeBookingWarningMapper;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
-import com.gepardec.mega.rest.model.WorkTimeBookingWarningDto;
 import com.gepardec.mega.service.api.AbsenceService;
 import com.gepardec.mega.service.api.DateHelperService;
-import com.gepardec.mega.service.api.TimeWarningService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
 import io.quarkus.test.InjectMock;
@@ -75,9 +71,6 @@ class WorkerResourceTest {
     AbsenceService absenceService;
 
     @InjectMock
-    TimeWarningService timeWarningService;
-
-    @InjectMock
     MonthlyBillInfoMapper monthlyBillInfoMapper;
 
     @InjectMock
@@ -94,9 +87,6 @@ class WorkerResourceTest {
 
     @InjectMock
     MonthlyAbsencesMapper monthlyAbsencesMapper;
-
-    @Inject
-    WorkTimeBookingWarningMapper workTimeBookingWarningMapper;
 
     @InjectMock
     DateHelperService dateHelperService;
@@ -404,56 +394,6 @@ class WorkerResourceTest {
         assertThat(actual.getFridaysAtTheOffice()).isEqualTo(4);
     }
 
-    @Test
-    void getAllWarningsForEmployeeAndMonth_whenHasWarnings_thenReturnListOfMonthlyWarningDtos() {
-        final Employee userAsEmployee = createEmployeeForUser(userForRole);
-
-        when(zepService.getEmployee(anyString()))
-                .thenReturn(userAsEmployee);
-
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(createAbsenceTimeListForRequest(userAsEmployee.getUserId()));
-
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(createProjectEntryListForRequest());
-
-        when(timeWarningService.getAllTimeWarningsForEmployeeAndMonth(any(), any(), any(Employee.class)))
-                .thenReturn(createMonthlyWarningListForRequest());
-
-        List<WorkTimeBookingWarningDto> mappedWarnings = createMonthlyWarningListForRequest().stream()
-                .map(workTimeBookingWarningMapper::mapToDto)
-                .toList();
-
-        List<WorkTimeBookingWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
-
-        assertThat(actual)
-                .isNotEmpty()
-                .hasSameSizeAs(mappedWarnings);
-        assertThat(actual.getFirst().getName()).isEqualTo(mappedWarnings.getFirst().getName());
-    }
-
-    @Test
-    void getAllWarningsForEmployeeAndMonth_whenHasNoWarnings_thenReturnEmptyList() {
-        final Employee userAsEmployee = createEmployeeForUser(userForRole);
-
-        when(zepService.getEmployee(anyString()))
-                .thenReturn(userAsEmployee);
-
-        when(zepService.getAbsenceForEmployee(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(new ArrayList<>());
-
-        when(zepService.getProjectTimes(any(Employee.class), any(YearMonth.class)))
-                .thenReturn(createProjectEntryListForMonth());
-
-        when(timeWarningService.getAllTimeWarningsForEmployeeAndMonth(any(), any(), any(Employee.class)))
-                .thenReturn(new ArrayList<>());
-
-
-        List<WorkTimeBookingWarningDto> actual = workerResource.getAllWarningsForEmployeeAndMonth(YearMonth.now());
-
-        assertThat(actual).isEmpty();
-    }
-
 
     private List<ProjectEntry> createProjectEntryListForRequest() {
         List<ProjectEntry> projectEntries = new ArrayList<>();
@@ -586,29 +526,6 @@ class WorkerResourceTest {
                 LocalDateTime.of(2024, 6, 28, 14, 0)));
 
         return projectEntries;
-    }
-
-    private List<WorkTimeBookingWarning> createMonthlyWarningListForRequest() {
-        return List.of(
-                createMonthlyWarning("Zeit-Buchung außerhalb der Kernarbeitszeit", List.of("2024-05-03", "2024-05-22", "2024-05-29")),
-                createMonthlyWarning("Keine Zeit-Buchung vorhanden",
-                        List.of("2024-05-06", "2024-05-07", "2024-05-08", "2024-05-10", "2024-05-13", "2024-05-14", "2024-05-15", "2024-05-16", "2024-05-17," +
-                                "2024-05-24", "2024-05-31")),
-                createMonthlyWarning("Zeit-Buchung an einem Feiertag", List.of("2024-05-01")),
-                createMonthlyWarning("Zeit-Buchung am Wochenende", List.of("2024-05-18")),
-                createMonthlyWarning("Zu wenig Pausenzeit eingetragen", List.of("2024-05-03", "2024-05-27")),
-                createMonthlyWarning("Ruhezeit wurde nicht eingehalten", List.of("2024-05-22", "2024-05-29")),
-                createMonthlyWarning("Zu viel Arbeitszeit gebucht", List.of("2024-05-03", "2024-05-28")),
-                createMonthlyWarning("Rückreise fehlt oder ist nach dem Zeitraum", List.of("2024-05-23")),
-                createMonthlyWarning("Ungültiger Arbeitsort während einer Reise", List.of("2024-05-23"))
-        );
-    }
-
-    private WorkTimeBookingWarning createMonthlyWarning(String name, List<String> dates) {
-        return WorkTimeBookingWarning.builder()
-                .name(name)
-                .warningDates(dates.stream().map(date -> new WorkTimeBookingWarning.WarningDate(date, null)).toList())
-                .build();
     }
 
     private ProjectEntry createProjectTimeEntry(LocalDateTime from, LocalDateTime to) {

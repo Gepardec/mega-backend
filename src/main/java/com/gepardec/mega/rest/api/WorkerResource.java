@@ -6,7 +6,6 @@ import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
-import com.gepardec.mega.rest.model.WorkTimeBookingWarningDto;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -100,24 +99,6 @@ public interface WorkerResource {
     @Path("/officedays")
     @GET
     MonthlyOfficeDaysDto getOfficeDaysForMonthAndEmployee(@QueryParam("payrollMonth") YearMonth payrollMonth);
-
-    @Operation(operationId = "getAllWarningsForEmployeeAndMonth", description = "Get all warnings (no matter if time or journey warning) for an employee and for current month.")
-    @APIResponse(responseCode = "200",
-            description = "Successfully retrieved all warnings for employee.",
-            content = {
-                    @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = WorkTimeBookingWarningDto[].class))
-            }
-    )
-    @Parameter(name = "payrollMonth",
-            description = "If not given uses the whole current month. <br> " +
-                    "If given uses the whole month of the parameter-date. <br>" +
-                    "For example if 2024-03 is given it retrieves all warnings from 2024-03-01 to 2024-03-31.",
-            in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
-    @Path("/warnings")
-    @GET
-    List<WorkTimeBookingWarningDto> getAllWarningsForEmployeeAndMonth(@QueryParam("payrollMonth") YearMonth payrollMonth);
 
     @Path("/leaders")
     @GET

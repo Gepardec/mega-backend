@@ -129,13 +129,14 @@ class HexagonalArchitectureTest {
     }
 
     @Test
-    void domainModelsMustBeRecordsOrEnums() {
+    void domainModelsMustBeRecordsEnumsOrInterfaces() {
         classes()
                 .that().resideInAPackage("..hexagon..domain..model..")
                 .and().areNotEnums()
+                .and().areNotInterfaces()
                 .and().areNotAnonymousClasses()
                 .should().beAssignableTo(Record.class)
-                .because("hexagon domain models should be immutable records unless they are enums")
+                .because("hexagon domain models should be immutable records unless they are enums or closed interfaces")
                 .check(allClasses);
     }
 

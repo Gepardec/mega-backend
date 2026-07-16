@@ -49,6 +49,8 @@ paths:
     $ref: './paths/worktime.yaml#/~1worktime~1employee~1{payrollMonth}'
   /worktime/projects/{payrollMonth}:
     $ref: './paths/worktime.yaml#/~1worktime~1projects~1{payrollMonth}'
+  /worktime/warnings/{payrollMonth}:
+    $ref: './paths/worktime.yaml#/~1worktime~1warnings~1{payrollMonth}'
 components:
   schemas:
     ActiveUser:
