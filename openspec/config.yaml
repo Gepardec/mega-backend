@@ -14,5 +14,6 @@ rules:
     - Before finalising Modified Capabilities, review all specs in openspec/specs/ that share a bounded-context prefix with any BC this change touches (specs follow the "<bounded-context>-<purpose>" naming pattern, e.g. "user-aggregate", "user-rest-api"). Include any whose requirements are affected.
   specs:
     - Name spec folders "<bounded-context>-<purpose>" (e.g. "user-aggregate", "monthend-rest-api"). Cross-cutting specs with no single BC owner may omit the prefix (e.g. "system-actor").
+    - Write scenarios as observable behaviour that survives a reasonable implementation change: state the outcome a caller or downstream system can observe — HTTP status, response body fields, persisted state change, or emitted event/notification — not the internal mechanism (which class, port, repository, or mapper does the work; the ORM/SQL call; the framework or library used). E.g. "the API rejects the request with 400 Bad Request", not "the Bean Validation constraint on the request DTO fails". Endpoints, status codes, domain concepts, and JSON field names are fine; implementation mechanics belong in design.md or tasks.md.
   tasks:
     - Do not include spec sync or spec archive steps (e.g. "sync delta spec to main spec"). Spec syncing is handled by the opsx:sync or archive workflow, not by implementation tasks.
