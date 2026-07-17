@@ -54,7 +54,7 @@ public class ProjectResource implements ProjectApi {
             LeistungsnachweisToggleRequestDto leistungsnachweisToggleRequestDto) {
 
         Boolean enabled = leistungsnachweisToggleRequestDto.getEnabled();
-        if(!enabled) {
+        if (enabled == null) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(new ApiErrorDto().message("'enabled' field is required"))
                     .build();
@@ -63,7 +63,7 @@ public class ProjectResource implements ProjectApi {
             setLeistungsnachweisEnabledUseCase.setLeistungsnachweisEnabled(
                     ProjectId.of(projectId),
                     authenticatedActorContext.userId(),
-                    true
+                    enabled
             );
             return Response.noContent().build();
         } catch (IllegalArgumentException exception) {
