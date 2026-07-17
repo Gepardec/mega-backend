@@ -11,7 +11,7 @@
 - [x] 2.1 Add `leistungsnachweis_enabled` boolean column (not null) to `ProjectEntity`
 - [x] 2.2 Add a Liquibase changelog adding the column with `defaultValueBoolean: true`; register it in `changelog-master.xml`
 - [x] 2.3 Update the Project entity↔domain MapStruct mapper to carry the flag both ways
-- [ ] 2.4 Integration-test round-trip persistence and that existing rows backfill to `true`
+- [x] 2.4 Integration-test round-trip persistence and that existing rows backfill to `true`
 
 ## 3. Month-end snapshot + generation gating
 
@@ -37,6 +37,6 @@
 
 ## 6. Verification
 
-- [ ] 6.1 REST test `GET /projects`: returns only the caller's led projects; empty list; `403` for non-lead role
-- [ ] 6.2 REST test `PUT .../leistungsnachweis-enabled`: lead toggles own project; `403` for wrong-project lead; not-found for unknown project
-- [ ] 6.3 Run `mvn clean package` (ArchUnit + full suite) and confirm green
+- [x] 6.1 REST test `GET /projects`: returns only the caller's led projects; empty list; `403` for non-lead role
+- [x] 6.2 REST test `PUT .../leistungsnachweis-enabled`: lead toggles own project; `403` for wrong-project lead; not-found for unknown project
+- [x] 6.3 Run `mvn clean package` (ArchUnit + full suite) and confirm green
