@@ -87,7 +87,7 @@ class SyncProjectLeadsServiceTest {
     void sync_replacesFullLeadsSet() {
         UserId oldLead = UserId.of(UUID.randomUUID());
         UserId newLead = UserId.of(UUID.randomUUID());
-        Project project = new Project(ProjectId.generate(), 3, "P3", LocalDate.now(), null, false, Set.of(oldLead));
+        Project project = new Project(ProjectId.generate(), 3, "P3", LocalDate.now(), null, false, true, Set.of(oldLead));
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(3)).thenReturn(List.of("newguy"));
@@ -105,7 +105,7 @@ class SyncProjectLeadsServiceTest {
     @Test
     void sync_doesNotPersistWhenLeadsAndRolesAreAlreadyUpToDate() {
         UserId leadId = UserId.of(UUID.randomUUID());
-        Project project = new Project(ProjectId.generate(), 6, "P6", LocalDate.now(), null, false, Set.of(leadId));
+        Project project = new Project(ProjectId.generate(), 6, "P6", LocalDate.now(), null, false, true, Set.of(leadId));
 
         when(projectRepository.findAll()).thenReturn(List.of(project));
         when(zepProjectPort.fetchLeadUsernames(6)).thenReturn(List.of("stable"));
