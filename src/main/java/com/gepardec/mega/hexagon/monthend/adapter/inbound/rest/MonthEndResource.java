@@ -2,11 +2,7 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.application.configuration.ZepConfig;
 import com.gepardec.mega.hexagon.generated.api.MonthEndApi;
-import com.gepardec.mega.hexagon.generated.model.CreateClarificationRequestDto;
-import com.gepardec.mega.hexagon.generated.model.GenerateMonthEndPrematurelyRequestDto;
-import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
-import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequestDto;
-import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequestDto;
+import com.gepardec.mega.hexagon.generated.model.*;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndTaskUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
@@ -202,6 +198,11 @@ public class MonthEndResource implements MonthEndApi {
         );
 
         return Response.ok(monthEndRestMapper.toDto(task)).build();
+    }
+
+    @Override
+    public Response completeMonthEndTasks(UUID clarificationId, BulkCompleteTasksRequestDto bulkCompleteTasksRequestDto) {
+        return null;
     }
 
     @Override
