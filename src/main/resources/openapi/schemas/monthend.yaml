@@ -205,3 +205,28 @@ MonthEndTaskGeneration:
     skipped:
       type: integer
       format: int32
+BulkCompleteTasksRequest:
+  type: object
+  additionalProperties: false
+  required:
+    - month
+    - projectId
+    - type
+  properties:
+    month:
+      $ref: './shared.yaml#/MonthValue'
+    projectId:
+      type: string
+      format: uuid
+    type:
+      $ref: '#/MonthEndTaskType'
+BulkCompleteTasksResponse:
+  type: object
+  additionalProperties: false
+  required:
+    - completed
+  properties:
+    completed:
+      type: array
+      items:
+        $ref: '#/MonthEndTask'

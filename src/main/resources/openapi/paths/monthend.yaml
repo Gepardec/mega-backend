@@ -276,3 +276,32 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
+'/monthend/tasks/complete':
+  post:
+    tags:
+      - MonthEnd
+    operationId: completeMonthEndTasks
+    summary: Bulk complete monthend tasks
+    security:
+      - bearerAuth: [ ]
+    parameters:
+      - $ref: '../parameters/common.yaml#/ClarificationIdPathParameter'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/monthend.yaml#/BulkCompleteTasksRequest'
+    responses:
+      '200':
+        description: Monthend tasks bulk completed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/monthend.yaml#/BulkCompleteTasksResponse'
+      '400':
+        $ref: '../responses/common.yaml#/BadRequest'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'

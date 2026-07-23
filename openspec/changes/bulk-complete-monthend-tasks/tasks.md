@@ -1,14 +1,14 @@
 ## 1. API contract (OpenAPI)
 
-- [ ] 1.1 Add a `BulkCompleteTasksRequest` schema to `openapi/schemas/monthend.yaml` with required `month` (`MonthValue`), `projectId` (uuid), and `type` (`MonthEndTaskType`).
-- [ ] 1.2 Add a `BulkCompleteTasksResponse` schema to `openapi/schemas/monthend.yaml` with a required `completed` array of `MonthEndTask`.
-- [ ] 1.3 Add the `POST /monthend/tasks/complete` path to `openapi/paths/monthend.yaml` (operationId `completeMonthEndTasks`, request body `BulkCompleteTasksRequest`, `200` → `BulkCompleteTasksResponse`, plus `400`/`403`/`500`) and register the path in `openapi/openapi.yaml`.
-- [ ] 1.4 Build to regenerate the `MonthEndApi` interface and DTOs; confirm the new operation method and request/response models are generated.
+- [x] 1.1 Add a `BulkCompleteTasksRequest` schema to `openapi/schemas/monthend.yaml` with required `month` (`MonthValue`), `projectId` (uuid), and `type` (`MonthEndTaskType`).
+- [x] 1.2 Add a `BulkCompleteTasksResponse` schema to `openapi/schemas/monthend.yaml` with a required `completed` array of `MonthEndTask`.
+- [x] 1.3 Add the `POST /monthend/tasks/complete` path to `openapi/paths/monthend.yaml` (operationId `completeMonthEndTasks`, request body `BulkCompleteTasksRequest`, `200` → `BulkCompleteTasksResponse`, plus `400`/`403`/`500`) and register the path in `openapi/openapi.yaml`.
+- [x] 1.4 Build to regenerate the `MonthEndApi` interface and DTOs; confirm the new operation method and request/response models are generated.
 
 ## 2. Persistence — scoped query
 
-- [ ] 2.1 Add `findByProjectMonthAndType(YearMonth month, ProjectId projectId, MonthEndTaskType type)` returning `List<MonthEndTask>` to the `MonthEndTaskRepository` outbound port.
-- [ ] 2.2 Implement it in `MonthEndTaskRepositoryAdapter` as a Panache query on `monthValue`, `projectId`, and `type`, mapping entities to domain via `MonthEndTaskMapper`.
+- [x] 2.1 Add `findByProjectMonthAndType(YearMonth month, ProjectId projectId, MonthEndTaskType type)` returning `List<MonthEndTask>` to the `MonthEndTaskRepository` outbound port.
+- [x] 2.2 Implement it in `MonthEndTaskRepositoryAdapter` as a Panache query on `monthValue`, `projectId`, and `type`, mapping entities to domain via `MonthEndTaskMapper`.
 
 ## 3. Application — scoped bulk completion use case
 
