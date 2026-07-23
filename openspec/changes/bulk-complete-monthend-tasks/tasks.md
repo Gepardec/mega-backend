@@ -12,10 +12,10 @@
 
 ## 3. Application — scoped bulk completion use case
 
-- [ ] 3.1 Add inbound port `CompleteMonthEndTasksForProjectUseCase` with a method taking `(YearMonth month, ProjectId projectId, MonthEndTaskType type, UserId actorId)` and returning the `List<MonthEndTask>` newly completed.
-- [ ] 3.2 Implement `CompleteMonthEndTasksForProjectService` (`@ApplicationScoped @Transactional`): resolve the project context via `MonthEndProjectContextService.resolve(month, projectId)`; if `actorId` is not in `eligibleProjectLeadIds`, throw `MonthEndActorNotAuthorizedException`.
-- [ ] 3.3 In the same service, query the scope via `findByProjectMonthAndType`, filter to tasks that are `isOpen()` and `canBeCompletedBy(actorId)`, call `task.complete(actorId)` on each, `saveAll(...)` the transitioned tasks, and return them.
-- [ ] 3.4 Log an INFO summary of the outcome (project, type, month, completed count) on completion.
+- [x] 3.1 Add inbound port `CompleteMonthEndTasksForProjectUseCase` with a method taking `(YearMonth month, ProjectId projectId, MonthEndTaskType type, UserId actorId)` and returning the `List<MonthEndTask>` newly completed.
+- [x] 3.2 Implement `CompleteMonthEndTasksForProjectService` (`@ApplicationScoped @Transactional`): resolve the project context via `MonthEndProjectContextService.resolve(month, projectId)`; if `actorId` is not in `eligibleProjectLeadIds`, throw `MonthEndActorNotAuthorizedException`.
+- [x] 3.3 In the same service, query the scope via `findByProjectMonthAndType`, filter to tasks that are `isOpen()` and `canBeCompletedBy(actorId)`, call `task.complete(actorId)` on each, `saveAll(...)` the transitioned tasks, and return them.
+- [x] 3.4 Log an INFO summary of the outcome (project, type, month, completed count) on completion.
 
 ## 4. REST adapter
 
