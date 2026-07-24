@@ -284,8 +284,6 @@
     summary: Bulk complete monthend tasks
     security:
       - bearerAuth: [ ]
-    parameters:
-      - $ref: '../parameters/common.yaml#/ClarificationIdPathParameter'
     requestBody:
       required: true
       content:

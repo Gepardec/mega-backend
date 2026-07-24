@@ -19,9 +19,9 @@
 
 ## 4. REST adapter
 
-- [ ] 4.1 Implement the generated bulk-complete method in `MonthEndResource`, secured with `@MegaRolesAllowed(Role.PROJECT_LEAD)`.
-- [ ] 4.2 In the adapter, reject any `type` other than `LEISTUNGSNACHWEIS` or `PROJECT_LEAD_REVIEW` with `MonthEndRequestValidationException` (→ `400`) before invoking the use case; parse `month` via the existing transport helper.
-- [ ] 4.3 Invoke `CompleteMonthEndTasksForProjectUseCase` with the authenticated actor from `AuthenticatedActorContext`, map each completed task with `MonthEndRestMapper.toDto(MonthEndTask)`, and return `200` with `{ "completed": [ ... ] }`.
+- [x] 4.1 Implement the generated bulk-complete method in `MonthEndResource`, secured with `@MegaRolesAllowed(Role.PROJECT_LEAD)`.
+- [x] 4.2 In the adapter, reject any `type` other than `LEISTUNGSNACHWEIS` or `PROJECT_LEAD_REVIEW` with `MonthEndRequestValidationException` (→ `400`) before invoking the use case; parse `month` via the existing transport helper.
+- [x] 4.3 Invoke `CompleteMonthEndTasksForProjectUseCase` with the authenticated actor from `AuthenticatedActorContext`, map each completed task with `MonthEndRestMapper.toDto(MonthEndTask)`, and return `200` with `{ "completed": [ ... ] }`.
 
 ## 5. Tests
 
