@@ -216,7 +216,6 @@ public class MonthEndResource implements MonthEndApi {
         return Response.ok(bulkCompleteTasksResponseDto).build();
     }
 
-
     @Override
     @MegaRolesAllowed({Role.EMPLOYEE, Role.PROJECT_LEAD})
     public Response resolveMonthEndClarification(UUID clarificationId, ResolveClarificationRequestDto request) {

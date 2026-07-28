@@ -44,7 +44,10 @@ public class CompleteMonthEndTasksForProjectService implements CompleteMonthEndT
                 .filter(task -> task.isOpen() && task.canBeCompletedBy(actorId) )
                 .toList();
 
-        tasksToUpdate.forEach(task -> task.complete(actorId));
+        tasksToUpdate = tasksToUpdate.stream()
+                .map(task -> task.complete(actorId))
+                .toList();
+
         monthEndTaskRepository.saveAll(tasksToUpdate);
 
         Log.infof("Completed %i month-end tasks for month %s, project %s, type %s by actor %s",

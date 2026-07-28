@@ -25,6 +25,6 @@
 
 ## 5. Tests
 
-- [ ] 5.1 Domain/application unit tests for `CompleteMonthEndTasksForProjectService`: all open eligible tasks completed; already-done tasks skipped and omitted; empty result when re-run; non-eligible-lead actor rejected (`403` exception); unknown/inactive project rejected (context-not-found exception).
-- [ ] 5.2 Adapter/REST tests in `MonthEndResourceTest`: happy-path `200` with `completed` shape; `EMPLOYEE_TIME_CHECK` and `ABRECHNUNG` → `400`; non-lead caller → `403`; unknown project → `400`; role security (`PROJECT_LEAD` required).
-- [ ] 5.3 Repository test for `findByProjectMonthAndType` covering type/project/month scoping.
+- [x] 5.1 Domain/application unit tests for `CompleteMonthEndTasksForProjectService`: all open eligible tasks completed; already-done tasks skipped and omitted; empty result when re-run; non-eligible-lead actor rejected (`403` exception); unknown/inactive project rejected (context-not-found exception).
+- [x] 5.2 Adapter/REST tests in `MonthEndResourceTest`: happy-path `200` with `completed` shape; `EMPLOYEE_TIME_CHECK` and `ABRECHNUNG` → `400`; non-lead caller → `403`; unknown project → `400`; role security (`PROJECT_LEAD` required).
+- [x] 5.3 Repository test for `findByProjectMonthAndType` covering type/project/month scoping.
