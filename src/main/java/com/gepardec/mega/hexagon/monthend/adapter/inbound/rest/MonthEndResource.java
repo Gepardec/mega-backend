@@ -258,20 +258,6 @@ public class MonthEndResource implements MonthEndApi {
         return Response.ok(monthEndRestMapper.toDto(result)).build();
     }
 
-    private Map<ProjectId, ProjectRef> resolveProjectRefs(List<MonthEndTask> tasks, YearMonth month) {
-        if (tasks.isEmpty()) {
-            return Map.of();
-        }
-        Set<ProjectId> projectIds = tasks.stream()
-                .map(MonthEndTask::projectId)
-                .collect(Collectors.toSet());
-        return projectSnapshotPort.findByIds(projectIds, month).stream()
-                .collect(Collectors.toMap(
-                        MonthEndProjectSnapshot::id,
-                        snapshot -> new ProjectRef(snapshot.id(), snapshot.zepId(), snapshot.name())
-                ));
-    }
-
     private Map<UserId, UserRef> resolveUserRefs(Set<UserId> ids, YearMonth month) {
         if (ids.isEmpty()) {
             return Map.of();
@@ -284,9 +270,48 @@ public class MonthEndResource implements MonthEndApi {
             MonthEndStatusOverview overview,
             UserId actorId
     ) {
-        Map<ProjectId, ProjectRef> projectRefs = resolveProjectRefs(overview.tasks(), overview.month());
+        List<MonthEndTask> tasks = overview.tasks();
+        Map<ProjectId, MonthEndProjectSnapshot> snapshotsById = resolveProjectSnapshots(tasks, overview.month());
+        Map<ProjectId, ProjectRef> projectRefs = toProjectRefs(snapshotsById);
+        Map<ProjectId, Boolean> leistungsnachweisEnabledByProject = toLeistungsnachweisEnabled(snapshotsById);
         Map<UserId, UserRef> userRefs = resolveUserRefs(overviewUserIds(overview), overview.month());
-        return monthEndRestMapper.toDto(overview, projectRefs, userRefs, actorId, zepConfig);
+        return monthEndRestMapper.toDto(
+                overview, projectRefs, userRefs, leistungsnachweisEnabledByProject, actorId, zepConfig
+        );
+    }
+
+    private Map<ProjectId, MonthEndProjectSnapshot> resolveProjectSnapshots(
+            List<MonthEndTask> tasks,
+            YearMonth month
+    ) {
+        if (tasks.isEmpty()) {
+            return Map.of();
+        }
+        Set<ProjectId> projectIds = tasks.stream()
+                .map(MonthEndTask::projectId)
+                .collect(Collectors.toSet());
+        return projectSnapshotPort.findByIds(projectIds, month).stream()
+                .collect(Collectors.toMap(MonthEndProjectSnapshot::id, Function.identity()));
+    }
+
+    private static Map<ProjectId, ProjectRef> toProjectRefs(
+            Map<ProjectId, MonthEndProjectSnapshot> snapshots
+    ) {
+        return snapshots.values().stream()
+                .collect(Collectors.toMap(
+                        MonthEndProjectSnapshot::id,
+                        snapshot -> new ProjectRef(snapshot.id(), snapshot.zepId(), snapshot.name())
+                ));
+    }
+
+    private static Map<ProjectId, Boolean> toLeistungsnachweisEnabled(
+            Map<ProjectId, MonthEndProjectSnapshot> snapshots
+    ) {
+        return snapshots.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().leistungsnachweisEnabled()
+                ));
     }
 
     private static Set<UserId> overviewUserIds(MonthEndStatusOverview overview) {

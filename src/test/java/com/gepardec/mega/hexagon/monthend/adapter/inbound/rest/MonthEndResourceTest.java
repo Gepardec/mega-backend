@@ -223,6 +223,7 @@ class MonthEndResourceTest {
             assertThat(entry.getProject().getId()).isEqualTo(PROJECT_ID.value());
             assertThat(entry.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
             assertThat(entry.getCanComplete()).isTrue();
+            assertThat(entry.getLeistungsnachweisEnabled()).isTrue();
         });
         assertThat(response.getClarifications()).singleElement().satisfies(clarificationEntry -> {
             assertThat(clarificationEntry.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
@@ -312,6 +313,7 @@ class MonthEndResourceTest {
             assertThat(entry.getProject().getId()).isEqualTo(PROJECT_ID.value());
             assertThat(entry.getSubjectEmployee()).isNull();
             assertThat(entry.getCanComplete()).isTrue();
+            assertThat(entry.getLeistungsnachweisEnabled()).isTrue();
         });
         assertThat(response.getClarifications()).singleElement().satisfies(clarificationEntry -> {
             assertThat(clarificationEntry.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
