@@ -1,12 +1,15 @@
 package com.gepardec.mega.hexagon.project.application;
 
+import com.gepardec.mega.hexagon.project.domain.event.LeistungsnachweisDisabledEvent;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import jakarta.enterprise.event.Event;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,12 +21,15 @@ import static org.assertj.core.api.Assertions.*;
 
 public class ProjectSettingsServiceTest {
     private ProjectRepository projectRepository;
+    private Event<LeistungsnachweisDisabledEvent> leistungsnachweisDisabledEvent;
     private ProjectSettingsService projectSettingsService;
 
     @BeforeEach
+    @SuppressWarnings("unchecked")
     void setUp() {
         projectRepository = mock(ProjectRepository.class);
-        projectSettingsService = new ProjectSettingsService(projectRepository);
+        leistungsnachweisDisabledEvent = mock(Event.class);
+        projectSettingsService = new ProjectSettingsService(projectRepository, leistungsnachweisDisabledEvent);
     }
 
     @Test
@@ -39,6 +45,20 @@ public class ProjectSettingsServiceTest {
             return !savedProject.leistungsnachweisEnabled();
         }));
 
+        ArgumentCaptor<LeistungsnachweisDisabledEvent> eventCaptor = ArgumentCaptor.forClass(LeistungsnachweisDisabledEvent.class);
+        verify(leistungsnachweisDisabledEvent).fire(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().projectId()).isEqualTo(project.id());
+    }
+
+    @Test
+    void setLeistungsnachweisEnabled_shouldNotFireDisabledEvent_whenEnabling() {
+        UserId leadId = UserId.of(UUID.randomUUID());
+        Project project = new Project(ProjectId.generate(),1,"X", LocalDate.now(),null, true,false, Set.of(leadId));
+
+        when(projectRepository.findAllByIds(Set.of(project.id()))).thenReturn(List.of(project));
+        projectSettingsService.setLeistungsnachweisEnabled(project.id(), leadId, true);
+
+        verify(leistungsnachweisDisabledEvent, never()).fire(any(LeistungsnachweisDisabledEvent.class));
     }
 
     @Test
