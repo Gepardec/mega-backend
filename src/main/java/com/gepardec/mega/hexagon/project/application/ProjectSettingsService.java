@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.project.application;
 
+import com.gepardec.mega.hexagon.project.domain.event.LeistungsnachweisDisabledEvent;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.application.port.inbound.GetLeadProjectsUseCase;
 import com.gepardec.mega.hexagon.project.application.port.inbound.SetLeistungsnachweisEnabledUseCase;
@@ -8,6 +9,7 @@ import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
@@ -18,10 +20,15 @@ import java.util.Set;
 @Transactional
 public class ProjectSettingsService implements GetLeadProjectsUseCase, SetLeistungsnachweisEnabledUseCase {
     private final ProjectRepository projectRepository;
+    private final Event<LeistungsnachweisDisabledEvent> leistungsnachweisDisabledEvent;
 
     @Inject
-    public ProjectSettingsService(ProjectRepository projectRepository) {
+    public ProjectSettingsService(
+            ProjectRepository projectRepository,
+            Event<LeistungsnachweisDisabledEvent> leistungsnachweisDisabledEvent
+    ) {
         this.projectRepository = projectRepository;
+        this.leistungsnachweisDisabledEvent = leistungsnachweisDisabledEvent;
     }
 
     @Override
@@ -39,5 +46,9 @@ public class ProjectSettingsService implements GetLeadProjectsUseCase, SetLeistu
 
         Project updated = project.withLeistungsnachweisEnabled(enabled);
         projectRepository.saveAll(List.of(updated));
+
+        if(!enabled) {
+            leistungsnachweisDisabledEvent.fire(new LeistungsnachweisDisabledEvent(projectId));
+        }
     }
 }
