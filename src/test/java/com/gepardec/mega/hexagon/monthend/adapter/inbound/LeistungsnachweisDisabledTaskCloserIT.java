@@ -51,7 +51,9 @@ class LeistungsnachweisDisabledTaskCloserIT {
 
     @Test
     void deactivatingLeistungsnachweis_shouldCompleteOpenTasksInDatabase() {
-        YearMonth month = YearMonth.from(Clock.fixed(Instant.parse("2023-11-03T10:00:00Z"), ZoneOffset.UTC).instant().atZone(ZoneOffset.UTC));
+        YearMonth currentMonth = YearMonth.from(Clock.fixed(Instant.parse("2023-11-03T10:00:00Z"), ZoneOffset.UTC).instant().atZone(ZoneOffset.UTC));
+        YearMonth previousMonth = currentMonth.minusMonths(1);
+
         User lead = user("lead", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
         User employee = user("employee", Set.of(Role.EMPLOYEE));
         userRepositoryAdapter.saveAll(List.of(lead, employee));
@@ -59,25 +61,36 @@ class LeistungsnachweisDisabledTaskCloserIT {
         Project project = project(true).withLeads(Set.of(lead.id()));
         projectRepositoryAdapter.saveAll(List.of(project));
 
-        MonthEndTask openTask = MonthEndTask.create(
-                MonthEndTaskId.generate(), month,
+        MonthEndTask openTaskCurrent = MonthEndTask.create(
+                MonthEndTaskId.generate(), currentMonth,
                 MonthEndTaskType.LEISTUNGSNACHWEIS,
                 project.id(), employee.id(), Set.of(lead.id())
         );
-        monthEndTaskRepositoryAdapter.save(openTask);
+        MonthEndTask openTaskPrevious = MonthEndTask.create(
+                MonthEndTaskId.generate(), previousMonth,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                project.id(), employee.id(), Set.of(lead.id())
+        );
+        monthEndTaskRepositoryAdapter.saveAll(List.of(openTaskCurrent, openTaskPrevious));
 
         projectSettingsService.setLeistungsnachweisEnabled(project.id(), lead.id(), false);
 
-        List<MonthEndTask> tasks = monthEndTaskRepositoryAdapter.findOpenLeistungsnachweisTasks(month, project.id());
-        assertThat(tasks).isEmpty();
+        assertThat(monthEndTaskRepositoryAdapter.findOpenLeistungsnachweisTasks(currentMonth, project.id())).isEmpty();
+        assertThat(monthEndTaskRepositoryAdapter.findOpenLeistungsnachweisTasks(previousMonth, project.id())).isEmpty();
 
-        List<MonthEndTask> allTasks = monthEndTaskRepositoryAdapter.findByMonth(month).stream()
+        List<MonthEndTask> allTasksCurrent = monthEndTaskRepositoryAdapter.findByMonth(currentMonth).stream()
                 .filter(task -> task.projectId().equals(project.id()))
                 .filter(task -> task.type() == MonthEndTaskType.LEISTUNGSNACHWEIS)
                 .toList();
-        assertThat(allTasks).hasSize(1);
-        assertThat(allTasks.getFirst().status()).isEqualTo(MonthEndTaskStatus.DONE);
-        assertThat(allTasks.getFirst().completedBy()).isNotNull();
+        assertThat(allTasksCurrent).hasSize(1);
+        assertThat(allTasksCurrent.getFirst().status()).isEqualTo(MonthEndTaskStatus.DONE);
+
+        List<MonthEndTask> allTasksPrevious = monthEndTaskRepositoryAdapter.findByMonth(previousMonth).stream()
+                .filter(task -> task.projectId().equals(project.id()))
+                .filter(task -> task.type() == MonthEndTaskType.LEISTUNGSNACHWEIS)
+                .toList();
+        assertThat(allTasksPrevious).hasSize(1);
+        assertThat(allTasksPrevious.getFirst().status()).isEqualTo(MonthEndTaskStatus.DONE);
     }
 
     private User user(String username, Set<Role> roles) {

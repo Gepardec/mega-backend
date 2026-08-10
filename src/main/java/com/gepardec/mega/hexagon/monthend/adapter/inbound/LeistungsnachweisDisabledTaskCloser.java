@@ -27,8 +27,12 @@ public class LeistungsnachweisDisabledTaskCloser {
 
     void onLeistungsnachweisDisabled(@Observes LeistungsnachweisDisabledEvent event) {
         YearMonth currentMonth = YearMonth.from(clock.instant().atZone(clock.getZone()));
-        Log.infof("Closing open LEISTUNGSNACHWEIS tasks for project %s in %s",
-                event.projectId().value(), currentMonth);
+        YearMonth previousMonth = currentMonth.minusMonths(1);
+
+        Log.infof("Closing open LEISTUNGSNACHWEIS tasks for project %s in current month %s and previous month %s",
+                event.projectId().value(), currentMonth, previousMonth);
+
         closeLeistungsnachweisTasksForProjectUseCase.closeOpenTasks(event.projectId(), currentMonth);
+        closeLeistungsnachweisTasksForProjectUseCase.closeOpenTasks(event.projectId(), previousMonth);
     }
 }
