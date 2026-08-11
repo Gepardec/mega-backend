@@ -1,37 +1,12 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
-import com.gepardec.mega.hexagon.generated.model.CreateClarificationRequestDto;
-import com.gepardec.mega.hexagon.generated.model.GenerateMonthEndPrematurelyRequestDto;
-import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntryDto;
-import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
-import com.gepardec.mega.hexagon.generated.model.MonthEndTaskGenerationDto;
-import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequestDto;
-import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequestDto;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndClarificationUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndTaskUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.DeleteMonthEndClarificationUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GenerateMonthEndTasksUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndStatusOverviewUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeePayrollMonthUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndStatusOverviewUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadPayrollMonthUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
+import com.gepardec.mega.hexagon.generated.model.*;
+import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.error.MonthEndRequestValidationException;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.*;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndUserSnapshotPort;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndTaskNotFoundException;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
+import com.gepardec.mega.hexagon.monthend.domain.error.*;
+import com.gepardec.mega.hexagon.monthend.domain.model.*;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -49,12 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.YearMonth;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.post;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -100,6 +73,9 @@ class MonthEndResourceTest {
 
     @InjectMock
     CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase;
+
+    @InjectMock
+    CompleteMonthEndTasksForProjectUseCase completeMonthEndTasksForProjectUseCase;
 
     @InjectMock
     UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase;
@@ -571,6 +547,122 @@ class MonthEndResourceTest {
     }
 
     @Test
+    void completeMonthEndTasks_shouldReturn_shouldReturnCompletedTasks() {
+        allowRoles(Role.PROJECT_LEAD);
+        List<MonthEndTask> tasks = new ArrayList<>();
+        for(int i = 0; i < 5; i++) {
+            tasks.add(
+                    new MonthEndTask(
+                            MonthEndTaskId.of(Instancio.create(UUID.class)),
+                            MONTH,
+                            MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                            PROJECT_ID,
+                            EMPLOYEE_ID,
+                            Set.of(PROJECT_LEAD_ID),
+                            MonthEndTaskStatus.DONE,
+                            PROJECT_LEAD_ID));
+        }
+
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
+        when(completeMonthEndTasksForProjectUseCase.complete(MONTH,PROJECT_ID,MonthEndTaskType.PROJECT_LEAD_REVIEW, PROJECT_LEAD_ID))
+                .thenReturn(tasks);
+
+        BulkCompleteTasksResponseDto response = given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(new BulkCompleteTasksRequestDto()
+                        .month(MONTH.toString())
+                        .projectId(PROJECT_ID.value())
+                        .type(MonthEndTaskTypeDto.PROJECT_LEAD_REVIEW))
+                .post("/monthend/tasks/complete")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(BulkCompleteTasksResponseDto.class);
+
+        assertThat(response.getCompleted()).hasSize(5).allSatisfy(task -> {
+            assertThat(task.getMonth()).isEqualTo(MONTH.toString());
+            assertThat(task.getType()).isEqualTo(MonthEndTaskTypeDto.PROJECT_LEAD_REVIEW);
+            assertThat(task.getProjectId()).isEqualTo(PROJECT_ID.value());
+            assertThat(task.getStatus()).isEqualTo(MonthEndTaskStatusDto.DONE);
+        });
+
+        verify(completeMonthEndTasksForProjectUseCase).complete(MONTH,PROJECT_ID,MonthEndTaskType.PROJECT_LEAD_REVIEW, PROJECT_LEAD_ID);
+
+    }
+
+    @Test
+    void completeMonthEndTasks_shouldReject_whenTypeIs_EmployeeTimeCheck() {
+        allowRoles(Role.PROJECT_LEAD);
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(new BulkCompleteTasksRequestDto()
+                        .month(MONTH.toString())
+                        .projectId(PROJECT_ID.value())
+                        .type(MonthEndTaskTypeDto.EMPLOYEE_TIME_CHECK))
+                .post("/monthend/tasks/complete")
+                .then()
+                .statusCode(400);
+
+        verifyNoInteractions(completeMonthEndTasksForProjectUseCase);
+    }
+    @Test
+    void completeMonthEndTasks_shouldReject_whenTypeIs_Abrechnung() {
+        allowRoles(Role.PROJECT_LEAD);
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(new BulkCompleteTasksRequestDto()
+                        .month(MONTH.toString())
+                        .projectId(PROJECT_ID.value())
+                        .type(MonthEndTaskTypeDto.ABRECHNUNG))
+                .post("/monthend/tasks/complete")
+                .then()
+                .statusCode(400);
+
+        verifyNoInteractions(completeMonthEndTasksForProjectUseCase);
+    }
+
+    @Test
+    void completeMonthEndTasks_shouldReturnBadRequest_whenProjectIsUnknown() {
+        allowRoles(Role.PROJECT_LEAD);
+        ProjectId testId = ProjectId.of(Instancio.create(UUID.class));
+
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
+        doThrow(new MonthEndProjectContextNotFoundException("Project is unknown: " + testId))
+                .when(completeMonthEndTasksForProjectUseCase)
+                .complete(MONTH, testId, MonthEndTaskType.PROJECT_LEAD_REVIEW, PROJECT_LEAD_ID);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(new BulkCompleteTasksRequestDto()
+                        .month(MONTH.toString())
+                        .projectId(testId.value())
+                        .type(MonthEndTaskTypeDto.PROJECT_LEAD_REVIEW))
+                .post("/monthend/tasks/complete")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    void completeMonthEndTasks_shouldRejectUser_whenUserIsNotProjectLead() {
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(new BulkCompleteTasksRequestDto()
+                        .month(MONTH.toString())
+                        .projectId(PROJECT_ID.value())
+                        .type(MonthEndTaskTypeDto.PROJECT_LEAD_REVIEW))
+                .post("/monthend/tasks/complete")
+                .then()
+                .statusCode(403);
+
+        verifyNoInteractions(completeMonthEndTasksForProjectUseCase);
+    }
+
+    @Test
     void updateMonthEndClarificationText_shouldReturnUpdatedClarification() {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
@@ -753,6 +845,7 @@ class MonthEndResourceTest {
         return new MonthEndProjectSnapshot(PROJECT_ID, 77, PROJECT_NAME, true, true,Set.of(PROJECT_LEAD_ID));
     }
 
+
     private UserRef employeeRef() {
         return new UserRef(EMPLOYEE_ID, FullName.of("Test", "Employee"), ZepUsername.of("test.employee"));
     }
@@ -760,4 +853,5 @@ class MonthEndResourceTest {
     private UserRef projectLeadRef() {
         return new UserRef(PROJECT_LEAD_ID, FullName.of("Test", "Project Lead"), ZepUsername.of("test.projectlead"));
     }
+
 }

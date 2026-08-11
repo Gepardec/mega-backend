@@ -126,6 +126,19 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
+    public List<MonthEndTask> findByProjectMonthAndType(YearMonth month, ProjectId projectId, MonthEndTaskType type) {
+        return panache.find(
+                        "monthValue = ?1 and projectId = ?2 and type = ?3",
+                        toMonthValue(month),
+                        projectId.value(),
+                        type
+                )
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public void save(MonthEndTask task) {
         upsert(task);
     }
