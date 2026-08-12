@@ -34,7 +34,7 @@ public class CloseLeistungsnachweisTasksForProjectService implements CloseLeistu
         }
 
         List<MonthEndTask> completedTasks = openTasks.stream()
-                .map(MonthEndTask::completeBySystem)
+                .map(MonthEndTask::closeBySystem)
                 .toList();
         monthEndTaskRepository.saveAll(completedTasks);
     }

@@ -67,6 +67,10 @@ public record MonthEndTask(
             return this;
         }
 
+        if (status == MonthEndTaskStatus.CLOSED) {
+            throw new MonthEndValidationException("closed tasks must be reopened before they can be completed");
+        }
+
         return new MonthEndTask(
                 id,
                 month,
@@ -93,6 +97,40 @@ public record MonthEndTask(
                 eligibleActorIds,
                 MonthEndTaskStatus.DONE,
                 SystemActor.USER_ID
+        );
+    }
+
+    public MonthEndTask closeBySystem() {
+        if (status == MonthEndTaskStatus.CLOSED || status == MonthEndTaskStatus.DONE) {
+            return this;
+        }
+
+        return new MonthEndTask(
+                id,
+                month,
+                type,
+                projectId,
+                subjectEmployeeId,
+                eligibleActorIds,
+                MonthEndTaskStatus.CLOSED,
+                SystemActor.USER_ID
+        );
+    }
+
+    public MonthEndTask reopen() {
+        if (status != MonthEndTaskStatus.CLOSED) {
+            return this;
+        }
+
+        return new MonthEndTask(
+                id,
+                month,
+                type,
+                projectId,
+                subjectEmployeeId,
+                eligibleActorIds,
+                MonthEndTaskStatus.OPEN,
+                null
         );
     }
 
@@ -172,6 +210,12 @@ public record MonthEndTask(
             }
             if (!SystemActor.USER_ID.equals(completedBy) && !eligibleActorIds.contains(completedBy)) {
                 throw new MonthEndValidationException("completedBy must be part of the eligible actor set");
+            }
+        }
+
+        if (status == MonthEndTaskStatus.CLOSED) {
+            if (!SystemActor.USER_ID.equals(completedBy)) {
+                throw new MonthEndValidationException("system-closed tasks must record the system as completing actor");
             }
         }
     }

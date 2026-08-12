@@ -50,7 +50,7 @@ class LeistungsnachweisDisabledTaskCloserIT {
     UserRepositoryAdapter userRepositoryAdapter;
 
     @Test
-    void deactivatingLeistungsnachweis_shouldCompleteOpenTasksInDatabase() {
+    void deactivatingLeistungsnachweis_shouldCloseOpenTasksInDatabase() {
         YearMonth currentMonth = YearMonth.from(Clock.fixed(Instant.parse("2023-11-03T10:00:00Z"), ZoneOffset.UTC).instant().atZone(ZoneOffset.UTC));
         YearMonth previousMonth = currentMonth.minusMonths(1);
 
@@ -83,14 +83,14 @@ class LeistungsnachweisDisabledTaskCloserIT {
                 .filter(task -> task.type() == MonthEndTaskType.LEISTUNGSNACHWEIS)
                 .toList();
         assertThat(allTasksCurrent).hasSize(1);
-        assertThat(allTasksCurrent.getFirst().status()).isEqualTo(MonthEndTaskStatus.DONE);
+        assertThat(allTasksCurrent.getFirst().status()).isEqualTo(MonthEndTaskStatus.CLOSED);
 
         List<MonthEndTask> allTasksPrevious = monthEndTaskRepositoryAdapter.findByMonth(previousMonth).stream()
                 .filter(task -> task.projectId().equals(project.id()))
                 .filter(task -> task.type() == MonthEndTaskType.LEISTUNGSNACHWEIS)
                 .toList();
         assertThat(allTasksPrevious).hasSize(1);
-        assertThat(allTasksPrevious.getFirst().status()).isEqualTo(MonthEndTaskStatus.DONE);
+        assertThat(allTasksPrevious.getFirst().status()).isEqualTo(MonthEndTaskStatus.CLOSED);
     }
 
     private User user(String username, Set<Role> roles) {

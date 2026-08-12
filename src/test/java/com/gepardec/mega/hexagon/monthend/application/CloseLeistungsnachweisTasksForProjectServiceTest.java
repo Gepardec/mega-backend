@@ -46,7 +46,7 @@ class CloseLeistungsnachweisTasksForProjectServiceTest {
 
         verify(monthEndTaskRepository).saveAll(org.mockito.ArgumentMatchers.argThat(tasks -> {
             MonthEndTask saved = tasks.getFirst();
-            return saved.status() == MonthEndTaskStatus.DONE
+            return saved.status() == MonthEndTaskStatus.CLOSED
                     && saved.completedBy().equals(SystemActor.USER_ID)
                     && saved.type() == MonthEndTaskType.LEISTUNGSNACHWEIS;
         }));

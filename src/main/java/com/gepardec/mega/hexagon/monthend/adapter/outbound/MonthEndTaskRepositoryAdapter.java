@@ -126,6 +126,20 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
+    public List<MonthEndTask> findClosedLeistungsnachweisTasks(YearMonth month, ProjectId projectId) {
+        return panache.find(
+                        "monthValue = ?1 and projectId = ?2 and type = ?3 and status = ?4",
+                        toMonthValue(month),
+                        projectId.value(),
+                        MonthEndTaskType.LEISTUNGSNACHWEIS,
+                        MonthEndTaskStatus.CLOSED
+                )
+                .list().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public List<MonthEndTask> findByProjectMonthAndType(YearMonth month, ProjectId projectId, MonthEndTaskType type) {
         return panache.find(
                         "monthValue = ?1 and projectId = ?2 and type = ?3",

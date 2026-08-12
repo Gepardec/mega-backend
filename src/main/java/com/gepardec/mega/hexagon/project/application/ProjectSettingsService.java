@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.project.application;
 
 import com.gepardec.mega.hexagon.project.domain.event.LeistungsnachweisDisabledEvent;
+import com.gepardec.mega.hexagon.project.domain.event.LeistungsnachweisEnabledEvent;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.application.port.inbound.GetLeadProjectsUseCase;
 import com.gepardec.mega.hexagon.project.application.port.inbound.SetLeistungsnachweisEnabledUseCase;
@@ -21,14 +22,17 @@ import java.util.Set;
 public class ProjectSettingsService implements GetLeadProjectsUseCase, SetLeistungsnachweisEnabledUseCase {
     private final ProjectRepository projectRepository;
     private final Event<LeistungsnachweisDisabledEvent> leistungsnachweisDisabledEvent;
+    private final Event<LeistungsnachweisEnabledEvent> leistungsnachweisEnabledEvent;
 
     @Inject
     public ProjectSettingsService(
             ProjectRepository projectRepository,
-            Event<LeistungsnachweisDisabledEvent> leistungsnachweisDisabledEvent
+            Event<LeistungsnachweisDisabledEvent> leistungsnachweisDisabledEvent,
+            Event<LeistungsnachweisEnabledEvent> leistungsnachweisEnabledEvent
     ) {
         this.projectRepository = projectRepository;
         this.leistungsnachweisDisabledEvent = leistungsnachweisDisabledEvent;
+        this.leistungsnachweisEnabledEvent = leistungsnachweisEnabledEvent;
     }
 
     @Override
@@ -49,6 +53,8 @@ public class ProjectSettingsService implements GetLeadProjectsUseCase, SetLeistu
 
         if(!enabled) {
             leistungsnachweisDisabledEvent.fire(new LeistungsnachweisDisabledEvent(projectId));
+        } else {
+            leistungsnachweisEnabledEvent.fire(new LeistungsnachweisEnabledEvent(projectId));
         }
     }
 }
