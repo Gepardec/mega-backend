@@ -91,7 +91,7 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
                                 ")",
                         toMonthValue(month),
                         leadId.value(),
-                        taskTypesFor(MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR)
+                        leadTaskTypes()
                 )
                 .list().stream()
                 .map(mapper::toDomain)
@@ -164,9 +164,9 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
         }
     }
 
-    private List<MonthEndTaskType> taskTypesFor(MonthEndCompletionPolicy policy) {
+    private List<MonthEndTaskType> leadTaskTypes() {
         return Stream.of(MonthEndTaskType.values())
-                .filter(type -> type.completionPolicy() == policy)
+                .filter(type -> type.completionPolicy() == MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR)
                 .toList();
     }
 
