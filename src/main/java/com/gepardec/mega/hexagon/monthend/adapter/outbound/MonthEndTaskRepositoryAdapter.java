@@ -112,6 +112,34 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
+    public List<MonthEndTask> findOpenEmployeeTimeCheckTasks(UserId employeeId, YearMonth month, ProjectId projectId) {
+        if (projectId == null) {
+            return panache.find(
+                            "monthValue = ?1 and subjectEmployeeId = ?2 and type = ?3 and status = ?4",
+                            toMonthValue(month),
+                            employeeId.value(),
+                            MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                            MonthEndTaskStatus.OPEN
+                    )
+                    .list().stream()
+                    .map(mapper::toDomain)
+                    .toList();
+        }
+
+        return panache.find(
+                        "monthValue = ?1 and subjectEmployeeId = ?2 and projectId = ?3 and type = ?4 and status = ?5",
+                        toMonthValue(month),
+                        employeeId.value(),
+                        projectId.value(),
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        MonthEndTaskStatus.OPEN
+                )
+                .list().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public List<MonthEndTask> findOpenLeistungsnachweisTasks(YearMonth month, ProjectId projectId) {
         return panache.find(
                         "monthValue = ?1 and projectId = ?2 and type = ?3 and status = ?4",

@@ -26,6 +26,8 @@ public interface MonthEndTaskRepository {
 
     List<MonthEndTask> findOpenSubjectTasks(UserId subjectId, YearMonth month);
 
+    List<MonthEndTask> findOpenEmployeeTimeCheckTasks(UserId employeeId, YearMonth month, ProjectId projectId);
+
     List<MonthEndTask> findOpenLeistungsnachweisTasks(YearMonth month, ProjectId projectId);
 
     List<MonthEndTask> findClosedLeistungsnachweisTasks(YearMonth month, ProjectId projectId);
