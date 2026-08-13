@@ -234,3 +234,15 @@ BulkCompleteTasksResponse:
       type: array
       items:
         $ref: '#/MonthEndTask'
+CompleteMyTimeCheckTasksRequest:
+  type: object
+  additionalProperties: false
+  required:
+    - month
+  properties:
+    month:
+      $ref: './shared.yaml#/MonthValue'
+    projectId:
+      type: string
+      format: uuid
+      nullable: true

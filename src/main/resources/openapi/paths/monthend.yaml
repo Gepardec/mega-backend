@@ -303,3 +303,30 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
+'/monthend/tasks/complete-my-time-checks':
+  post:
+    tags:
+      - MonthEnd
+    operationId: completeMyTimeCheckTasks
+    summary: Bulk complete own time-check tasks
+    security:
+      - bearerAuth: [ ]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/monthend.yaml#/CompleteMyTimeCheckTasksRequest'
+    responses:
+      '200':
+        description: Own time-check tasks bulk completed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/monthend.yaml#/BulkCompleteTasksResponse'
+      '400':
+        $ref: '../responses/common.yaml#/BadRequest'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'

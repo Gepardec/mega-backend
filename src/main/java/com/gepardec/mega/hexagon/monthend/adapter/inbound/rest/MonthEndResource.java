@@ -44,6 +44,7 @@ public class MonthEndResource implements MonthEndApi {
     private final CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
     private final CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase;
     private final CompleteMonthEndTasksForProjectUseCase completeMonthEndTasksForProjectUseCase;
+    private final CompleteOwnTimeCheckTasksForProjectUseCase completeOwnTimeCheckTasksForProjectUseCase;
     private final UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase;
     private final CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase;
     private final DeleteMonthEndClarificationUseCase deleteMonthEndClarificationUseCase;
@@ -64,6 +65,7 @@ public class MonthEndResource implements MonthEndApi {
             PrematureMonthEndPreparationUseCase prematureMonthEndPreparationUseCase,
             CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase,
             CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase, CompleteMonthEndTasksForProjectUseCase completeMonthEndTasksForProjectUseCase,
+            CompleteOwnTimeCheckTasksForProjectUseCase completeOwnTimeCheckTasksForProjectUseCase,
             UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase,
             CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase,
             DeleteMonthEndClarificationUseCase deleteMonthEndClarificationUseCase,
@@ -83,6 +85,7 @@ public class MonthEndResource implements MonthEndApi {
         this.createMonthEndClarificationUseCase = createMonthEndClarificationUseCase;
         this.completeMonthEndTaskUseCase = completeMonthEndTaskUseCase;
         this.completeMonthEndTasksForProjectUseCase = completeMonthEndTasksForProjectUseCase;
+        this.completeOwnTimeCheckTasksForProjectUseCase = completeOwnTimeCheckTasksForProjectUseCase;
         this.updateMonthEndClarificationUseCase = updateMonthEndClarificationUseCase;
         this.completeMonthEndClarificationUseCase = completeMonthEndClarificationUseCase;
         this.deleteMonthEndClarificationUseCase = deleteMonthEndClarificationUseCase;
@@ -214,6 +217,28 @@ public class MonthEndResource implements MonthEndApi {
         BulkCompleteTasksResponseDto bulkCompleteTasksResponseDto = new BulkCompleteTasksResponseDto(taskDtos);
 
         return Response.ok(bulkCompleteTasksResponseDto).build();
+    }
+
+    @Override
+    @MegaRolesAllowed(Role.EMPLOYEE)
+    public Response completeMyTimeCheckTasks(CompleteMyTimeCheckTasksRequestDto request) {
+        UserId actorId = authenticatedActorContext.userId();
+        YearMonth month = transportHelper.parseMonth(request.getMonth());
+        ProjectId projectId = request.getProjectId() != null
+                ? transportHelper.toProjectId(request.getProjectId())
+                : null;
+
+        List<MonthEndTask> tasks = completeOwnTimeCheckTasksForProjectUseCase.completeOwnTimeCheckTasks(
+                actorId,
+                month,
+                projectId
+        );
+
+        List<MonthEndTaskDto> taskDtos = tasks.stream()
+                .map(monthEndRestMapper::toDto)
+                .toList();
+
+        return Response.ok(new BulkCompleteTasksResponseDto(taskDtos)).build();
     }
 
     @Override

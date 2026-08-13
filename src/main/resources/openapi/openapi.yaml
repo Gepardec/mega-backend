@@ -31,6 +31,8 @@ paths:
     $ref: './paths/monthend.yaml#/~1monthend~1tasks~1{taskId}~1complete'
   /monthend/tasks/complete:
     $ref: './paths/monthend.yaml#/~1monthend~1tasks~1complete'
+  /monthend/tasks/complete-my-time-checks:
+    $ref: './paths/monthend.yaml#/~1monthend~1tasks~1complete-my-time-checks'
   /monthend/clarifications/{clarificationId}/text:
     $ref: './paths/monthend.yaml#/~1monthend~1clarifications~1{clarificationId}~1text'
   /monthend/clarifications/{clarificationId}:
