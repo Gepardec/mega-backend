@@ -113,6 +113,7 @@ class MonthEndEmployeeProjectContextServiceTest {
                 77,
                 "Project-77",
                 true,
+                true,
                 leadIds
         );
     }

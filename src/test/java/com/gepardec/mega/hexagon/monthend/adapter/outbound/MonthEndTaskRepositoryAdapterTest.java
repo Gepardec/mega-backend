@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 @QuarkusTest
 @TestTransaction
@@ -236,9 +237,180 @@ class MonthEndTaskRepositoryAdapterTest {
         assertThat(result).containsExactlyInAnyOrder(etcTask, plrTask, abrechnungTask);
     }
 
+    @Test
+    void findOpenLeistungsnachweisTasks_shouldReturnOnlyOpenLeistungsnachweisTasksForProjectAndMonth() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User employee = user("employee", Set.of(Role.EMPLOYEE));
+        User lead = user("lead", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        userRepositoryAdapter.saveAll(List.of(employee, lead));
+
+        Project project = project(42, true);
+        Project otherProject = project(43, true);
+        projectRepositoryAdapter.saveAll(List.of(project, otherProject));
+
+        MonthEndTask openLnTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                project.id(), employee.id(), Set.of(lead.id())
+        );
+        MonthEndTask doneLnTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                project.id(), employee.id(), Set.of(lead.id())
+        ).complete(lead.id());
+        MonthEndTask otherProjectLnTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                otherProject.id(), employee.id(), Set.of(lead.id())
+        );
+        MonthEndTask otherMonthLnTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month.plusMonths(1),
+                MonthEndTaskType.LEISTUNGSNACHWEIS,
+                project.id(), employee.id(), Set.of(lead.id())
+        );
+        MonthEndTask etcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(), employee.id(), Set.of(employee.id())
+        );
+        monthEndTaskRepositoryAdapter.saveAll(
+                List.of(openLnTask, doneLnTask, otherProjectLnTask, otherMonthLnTask, etcTask));
+
+        List<MonthEndTask> result = monthEndTaskRepositoryAdapter.findOpenLeistungsnachweisTasks(month, project.id());
+
+        assertThat(result).containsExactly(openLnTask);
+    }
+
+    @Test
+    void findOpenEmployeeTimeCheckTasks_shouldReturnOnlyOpenEmployeeTimeCheckTasksForEmployeeMonthAndProject() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User employee = user("employee-etc", Set.of(Role.EMPLOYEE));
+        User otherEmployee = user("other-etc", Set.of(Role.EMPLOYEE));
+        userRepositoryAdapter.saveAll(List.of(employee, otherEmployee));
+
+        Project project = project(401, true);
+        Project otherProject = project(402, true);
+        projectRepositoryAdapter.saveAll(List.of(project, otherProject));
+
+        MonthEndTask openEtcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(), employee.id(), Set.of(employee.id())
+        );
+        MonthEndTask doneEtcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(), employee.id(), Set.of(employee.id())
+        ).complete(employee.id());
+        MonthEndTask otherProjectEtcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                otherProject.id(), employee.id(), Set.of(employee.id())
+        );
+        MonthEndTask otherMonthEtcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month.plusMonths(1),
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(), employee.id(), Set.of(employee.id())
+        );
+        MonthEndTask otherSubjectEtcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(), otherEmployee.id(), Set.of(otherEmployee.id())
+        );
+        MonthEndTask reviewTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                project.id(), employee.id(), Set.of(employee.id())
+        );
+        monthEndTaskRepositoryAdapter.saveAll(
+                List.of(openEtcTask, doneEtcTask, otherProjectEtcTask, otherMonthEtcTask, otherSubjectEtcTask, reviewTask));
+
+        List<MonthEndTask> result = monthEndTaskRepositoryAdapter.findOpenEmployeeTimeCheckTasks(employee.id(), month, project.id());
+
+        assertThat(result).containsExactly(openEtcTask);
+    }
+
+    @Test
+    void findOpenEmployeeTimeCheckTasks_shouldReturnOpenEmployeeTimeCheckTasksAcrossAllProjects_whenProjectIdIsNull() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User employee = user("employee-etc-all", Set.of(Role.EMPLOYEE));
+        userRepositoryAdapter.saveAll(List.of(employee));
+
+        Project projectA = project(411, true);
+        Project projectB = project(412, true);
+        projectRepositoryAdapter.saveAll(List.of(projectA, projectB));
+
+        MonthEndTask taskInProjectA = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectA.id(), employee.id(), Set.of(employee.id())
+        );
+        MonthEndTask taskInProjectB = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectB.id(), employee.id(), Set.of(employee.id())
+        );
+        MonthEndTask doneTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectA.id(), employee.id(), Set.of(employee.id())
+        ).complete(employee.id());
+        monthEndTaskRepositoryAdapter.saveAll(List.of(taskInProjectA, taskInProjectB, doneTask));
+
+        List<MonthEndTask> result = monthEndTaskRepositoryAdapter.findOpenEmployeeTimeCheckTasks(employee.id(), month, null);
+
+        assertThat(result).containsExactlyInAnyOrder(taskInProjectA, taskInProjectB);
+    }
+
+    @Test
+    void findByProjectMonthAndType_shouldReturnProjectForMonthWithCorrectType() {
+        YearMonth monthA = YearMonth.of(2026, 3);
+        YearMonth monthB = YearMonth.of(2026, 4);
+        User employee = user("emp-lead-proj", Set.of(Role.EMPLOYEE));
+        User lead = user("lead-proj", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        User otherLead = user("other-lead-proj", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        userRepositoryAdapter.saveAll(List.of(employee, lead, otherLead));
+
+        Project projectA = project(201, true);
+        Project projectB = project(202, true);
+        projectRepositoryAdapter.saveAll(List.of(projectA,projectB));
+
+        MonthEndTask matchTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), monthA, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectA.id(), employee.id(), Set.of(employee.id())
+        );
+
+        MonthEndTask diffTypeTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), monthA, MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                projectA.id(), employee.id(), Set.of(employee.id())
+        );
+
+        MonthEndTask diffProjectTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), monthA, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectB.id(), employee.id(), Set.of(employee.id())
+        );
+
+        MonthEndTask diffMonthTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), monthB, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectA.id(), employee.id(), Set.of(employee.id())
+        );
+
+        monthEndTaskRepositoryAdapter.saveAll(List.of(matchTask, diffTypeTask, diffProjectTask, diffMonthTask));
+
+        List<MonthEndTask> result1 = monthEndTaskRepositoryAdapter.findByProjectMonthAndType(monthA, projectA.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK);
+        List<MonthEndTask> result2 = monthEndTaskRepositoryAdapter.findByProjectMonthAndType(monthA, projectA.id(), MonthEndTaskType.PROJECT_LEAD_REVIEW);
+        List<MonthEndTask> result3 = monthEndTaskRepositoryAdapter.findByProjectMonthAndType(monthA, projectB.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK);
+        List<MonthEndTask> result4 = monthEndTaskRepositoryAdapter.findByProjectMonthAndType(monthB, projectA.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK);
+
+        assertThat(result1).hasSize(1).containsExactly(matchTask);
+        assertThat(result2).hasSize(1).containsExactly(diffTypeTask);
+        assertThat(result3).hasSize(1).containsExactly(diffProjectTask);
+        assertThat(result4).hasSize(1).containsExactly(diffMonthTask);
+    }
+
     private User user(String username, Set<Role> roles) {
         return new User(
-                UserId.generate(),
+            UserId.generate(),
                 Email.of(username + "@example.com"),
                 FullName.of("Test", "User"),
                 ZepUsername.of(username),

@@ -1,0 +1,60 @@
+package com.gepardec.mega.hexagon.project.application;
+
+import com.gepardec.mega.hexagon.project.domain.event.LeistungsnachweisDisabledEvent;
+import com.gepardec.mega.hexagon.project.domain.event.LeistungsnachweisEnabledEvent;
+import com.gepardec.mega.hexagon.project.domain.model.Project;
+import com.gepardec.mega.hexagon.project.application.port.inbound.GetLeadProjectsUseCase;
+import com.gepardec.mega.hexagon.project.application.port.inbound.SetLeistungsnachweisEnabledUseCase;
+import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
+import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+
+import java.util.List;
+import java.util.Set;
+
+@ApplicationScoped
+@Transactional
+public class ProjectSettingsService implements GetLeadProjectsUseCase, SetLeistungsnachweisEnabledUseCase {
+    private final ProjectRepository projectRepository;
+    private final Event<LeistungsnachweisDisabledEvent> leistungsnachweisDisabledEvent;
+    private final Event<LeistungsnachweisEnabledEvent> leistungsnachweisEnabledEvent;
+
+    @Inject
+    public ProjectSettingsService(
+            ProjectRepository projectRepository,
+            Event<LeistungsnachweisDisabledEvent> leistungsnachweisDisabledEvent,
+            Event<LeistungsnachweisEnabledEvent> leistungsnachweisEnabledEvent
+    ) {
+        this.projectRepository = projectRepository;
+        this.leistungsnachweisDisabledEvent = leistungsnachweisDisabledEvent;
+        this.leistungsnachweisEnabledEvent = leistungsnachweisEnabledEvent;
+    }
+
+    @Override
+    public List<Project> getLeadProjects(UserId actorId) {
+        return projectRepository.findAllByLead(actorId);
+    }
+
+    @Override
+    public void setLeistungsnachweisEnabled(ProjectId projectId, UserId actorId, boolean enabled) {
+        List<Project> projects = projectRepository.findAllByIds(Set.of(projectId));
+        if(projects.isEmpty()) throw new IllegalArgumentException("Project not found: " + projectId);
+
+        Project project = projects.getFirst();
+        if(!project.leads().contains(actorId)) throw new ForbiddenException("Actor is not a lead " + actorId);
+
+        Project updated = project.withLeistungsnachweisEnabled(enabled);
+        projectRepository.saveAll(List.of(updated));
+
+        if(!enabled) {
+            leistungsnachweisDisabledEvent.fire(new LeistungsnachweisDisabledEvent(projectId));
+        } else {
+            leistungsnachweisEnabledEvent.fire(new LeistungsnachweisEnabledEvent(projectId));
+        }
+    }
+}

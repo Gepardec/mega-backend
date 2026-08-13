@@ -10,6 +10,7 @@ MonthEndTaskStatus:
   enum:
     - OPEN
     - DONE
+    - CLOSED
 MonthEndClarificationStatus:
   type: string
   enum:
@@ -23,6 +24,7 @@ MonthEndStatusOverviewEntry:
     - type
     - status
     - project
+    - leistungsnachweisEnabled
     - canComplete
   properties:
     taskId:
@@ -34,6 +36,8 @@ MonthEndStatusOverviewEntry:
       $ref: '#/MonthEndTaskStatus'
     project:
       $ref: './shared.yaml#/ProjectRef'
+    leistungsnachweisEnabled:
+      type: boolean
     canComplete:
       type: boolean
     subjectEmployee:
@@ -205,3 +209,40 @@ MonthEndTaskGeneration:
     skipped:
       type: integer
       format: int32
+BulkCompleteTasksRequest:
+  type: object
+  additionalProperties: false
+  required:
+    - month
+    - projectId
+    - type
+  properties:
+    month:
+      $ref: './shared.yaml#/MonthValue'
+    projectId:
+      type: string
+      format: uuid
+    type:
+      $ref: '#/MonthEndTaskType'
+BulkCompleteTasksResponse:
+  type: object
+  additionalProperties: false
+  required:
+    - completed
+  properties:
+    completed:
+      type: array
+      items:
+        $ref: '#/MonthEndTask'
+CompleteMyTimeCheckTasksRequest:
+  type: object
+  additionalProperties: false
+  required:
+    - month
+  properties:
+    month:
+      $ref: './shared.yaml#/MonthValue'
+    projectId:
+      type: string
+      format: uuid
+      nullable: true

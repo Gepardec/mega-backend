@@ -15,6 +15,7 @@ public record Project(
         LocalDate startDate,
         LocalDate endDate,
         boolean billable,
+        boolean leistungsnachweisEnabled,
         Set<UserId> leads
 ) {
 
@@ -26,15 +27,19 @@ public record Project(
     }
 
     public static Project create(ProjectId id, ZepProjectProfile profile) {
-        return new Project(id, profile.zepId(), profile.name(), profile.startDate(), profile.endDate(), profile.billable(), Set.of());
+        return new Project(id, profile.zepId(), profile.name(), profile.startDate(), profile.endDate(), profile.billable(), true, Set.of());
     }
 
     public Project withSyncedZepData(ZepProjectProfile profile) {
-        return new Project(id, profile.zepId(), profile.name(), profile.startDate(), profile.endDate(), profile.billable(), leads);
+        return new Project(id, profile.zepId(), profile.name(), profile.startDate(), profile.endDate(), profile.billable(), leistungsnachweisEnabled ,leads);
     }
 
     public Project withLeads(Set<UserId> updatedLeads) {
-        return new Project(id, zepId, name, startDate, endDate, billable, updatedLeads);
+        return new Project(id, zepId, name, startDate, endDate, billable, leistungsnachweisEnabled, updatedLeads);
+    }
+
+    public Project withLeistungsnachweisEnabled(boolean enabled) {
+        return new Project(id, zepId, name, startDate, endDate, billable, enabled, leads);
     }
 
     public boolean isActiveIn(YearMonth month) {

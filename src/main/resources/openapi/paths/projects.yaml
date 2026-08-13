@@ -1,0 +1,43 @@
+'/projects':
+  get:
+    tags:
+      - Project
+    operationId: getLeadProjects
+    summary: Get projects led by user
+    security:
+      - bearerAuth: [ ]
+    responses:
+      '200':
+        description: List of projects
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/projects.yaml#/ProjectItem'
+      '403': { $ref: '../responses/common.yaml#/Forbidden'}
+'/projects/{projectId}/leistungsnachweis-enabled':
+  put:
+    tags:
+      - Project
+    operationId: setLeistungsnachweisEnabled
+    summary: Toggle leistungsnachweis flag
+    security:
+      - bearerAuth: [ ]
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/projects.yaml#/LeistungsnachweisToggleRequest'
+    responses:
+      '204': { description: Flag updated }
+      '403': { $ref: '../responses/common.yaml#/Forbidden' }
+      '404': { $ref: '../responses/common.yaml#/NotFound' }
+
+
