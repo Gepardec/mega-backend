@@ -282,6 +282,87 @@ class MonthEndTaskRepositoryAdapterTest {
     }
 
     @Test
+    void findOpenEmployeeTimeCheckTasks_shouldReturnOnlyOpenEmployeeTimeCheckTasksForEmployeeMonthAndProject() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User employee = user("employee-etc", Set.of(Role.EMPLOYEE));
+        User otherEmployee = user("other-etc", Set.of(Role.EMPLOYEE));
+        userRepositoryAdapter.saveAll(List.of(employee, otherEmployee));
+
+        Project project = project(401, true);
+        Project otherProject = project(402, true);
+        projectRepositoryAdapter.saveAll(List.of(project, otherProject));
+
+        MonthEndTask openEtcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(), employee.id(), Set.of(employee.id())
+        );
+        MonthEndTask doneEtcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(), employee.id(), Set.of(employee.id())
+        ).complete(employee.id());
+        MonthEndTask otherProjectEtcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                otherProject.id(), employee.id(), Set.of(employee.id())
+        );
+        MonthEndTask otherMonthEtcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month.plusMonths(1),
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(), employee.id(), Set.of(employee.id())
+        );
+        MonthEndTask otherSubjectEtcTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(), otherEmployee.id(), Set.of(otherEmployee.id())
+        );
+        MonthEndTask reviewTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                project.id(), employee.id(), Set.of(employee.id())
+        );
+        monthEndTaskRepositoryAdapter.saveAll(
+                List.of(openEtcTask, doneEtcTask, otherProjectEtcTask, otherMonthEtcTask, otherSubjectEtcTask, reviewTask));
+
+        List<MonthEndTask> result = monthEndTaskRepositoryAdapter.findOpenEmployeeTimeCheckTasks(employee.id(), month, project.id());
+
+        assertThat(result).containsExactly(openEtcTask);
+    }
+
+    @Test
+    void findOpenEmployeeTimeCheckTasks_shouldReturnOpenEmployeeTimeCheckTasksAcrossAllProjects_whenProjectIdIsNull() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User employee = user("employee-etc-all", Set.of(Role.EMPLOYEE));
+        userRepositoryAdapter.saveAll(List.of(employee));
+
+        Project projectA = project(411, true);
+        Project projectB = project(412, true);
+        projectRepositoryAdapter.saveAll(List.of(projectA, projectB));
+
+        MonthEndTask taskInProjectA = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectA.id(), employee.id(), Set.of(employee.id())
+        );
+        MonthEndTask taskInProjectB = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectB.id(), employee.id(), Set.of(employee.id())
+        );
+        MonthEndTask doneTask = MonthEndTask.create(
+                MonthEndTaskId.generate(), month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectA.id(), employee.id(), Set.of(employee.id())
+        ).complete(employee.id());
+        monthEndTaskRepositoryAdapter.saveAll(List.of(taskInProjectA, taskInProjectB, doneTask));
+
+        List<MonthEndTask> result = monthEndTaskRepositoryAdapter.findOpenEmployeeTimeCheckTasks(employee.id(), month, null);
+
+        assertThat(result).containsExactlyInAnyOrder(taskInProjectA, taskInProjectB);
+    }
+
+    @Test
     void findByProjectMonthAndType_shouldReturnProjectForMonthWithCorrectType() {
         YearMonth monthA = YearMonth.of(2026, 3);
         YearMonth monthB = YearMonth.of(2026, 4);

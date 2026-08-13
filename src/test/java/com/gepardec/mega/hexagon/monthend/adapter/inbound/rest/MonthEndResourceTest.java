@@ -78,6 +78,9 @@ class MonthEndResourceTest {
     CompleteMonthEndTasksForProjectUseCase completeMonthEndTasksForProjectUseCase;
 
     @InjectMock
+    CompleteOwnTimeCheckTasksForProjectUseCase completeOwnTimeCheckTasksForProjectUseCase;
+
+    @InjectMock
     UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase;
 
     @InjectMock
@@ -660,6 +663,73 @@ class MonthEndResourceTest {
                 .statusCode(403);
 
         verifyNoInteractions(completeMonthEndTasksForProjectUseCase);
+    }
+
+    @Test
+    void completeMyTimeCheckTasks_shouldReturnCompletedTasksForEmployee() {
+        allowRoles(Role.EMPLOYEE);
+        List<MonthEndTask> tasks = List.of(
+                MonthEndTask.create(
+                        MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        MONTH,
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        PROJECT_ID,
+                        EMPLOYEE_ID,
+                        Set.of(EMPLOYEE_ID)
+                ).complete(EMPLOYEE_ID)
+        );
+        when(completeOwnTimeCheckTasksForProjectUseCase.completeOwnTimeCheckTasks(EMPLOYEE_ID, MONTH, PROJECT_ID))
+                .thenReturn(tasks);
+
+        BulkCompleteTasksResponseDto response = given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(new CompleteMyTimeCheckTasksRequestDto()
+                        .month(MONTH.toString())
+                        .projectId(PROJECT_ID.value()))
+                .post("/monthend/tasks/complete-my-time-checks")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(BulkCompleteTasksResponseDto.class);
+
+        assertThat(response.getCompleted()).singleElement().satisfies(task -> {
+            assertThat(task.getMonth()).isEqualTo(MONTH.toString());
+            assertThat(task.getType()).isEqualTo(MonthEndTaskTypeDto.EMPLOYEE_TIME_CHECK);
+            assertThat(task.getProjectId()).isEqualTo(PROJECT_ID.value());
+            assertThat(task.getStatus()).isEqualTo(MonthEndTaskStatusDto.DONE);
+        });
+        verify(completeOwnTimeCheckTasksForProjectUseCase).completeOwnTimeCheckTasks(EMPLOYEE_ID, MONTH, PROJECT_ID);
+    }
+
+    @Test
+    void completeMyTimeCheckTasks_shouldCompleteAllProjects_whenProjectIdIsOmitted() {
+        allowRoles(Role.EMPLOYEE);
+        when(completeOwnTimeCheckTasksForProjectUseCase.completeOwnTimeCheckTasks(EMPLOYEE_ID, MONTH, null))
+                .thenReturn(List.of());
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(new CompleteMyTimeCheckTasksRequestDto().month(MONTH.toString()))
+                .post("/monthend/tasks/complete-my-time-checks")
+                .then()
+                .statusCode(200);
+
+        verify(completeOwnTimeCheckTasksForProjectUseCase).completeOwnTimeCheckTasks(EMPLOYEE_ID, MONTH, null);
+    }
+
+    @Test
+    void completeMyTimeCheckTasks_shouldRejectCallerWithoutEmployeeRole() {
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(new CompleteMyTimeCheckTasksRequestDto().month(MONTH.toString()))
+                .post("/monthend/tasks/complete-my-time-checks")
+                .then()
+                .statusCode(403);
+
+        verifyNoInteractions(completeOwnTimeCheckTasksForProjectUseCase);
     }
 
     @Test
