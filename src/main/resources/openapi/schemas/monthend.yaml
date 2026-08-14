@@ -23,6 +23,7 @@ MonthEndStatusOverviewEntry:
     - type
     - status
     - project
+    - leistungsnachweisEnabled
     - canComplete
   properties:
     taskId:
@@ -34,6 +35,8 @@ MonthEndStatusOverviewEntry:
       $ref: '#/MonthEndTaskStatus'
     project:
       $ref: './shared.yaml#/ProjectRef'
+    leistungsnachweisEnabled:
+      type: boolean
     canComplete:
       type: boolean
     subjectEmployee:

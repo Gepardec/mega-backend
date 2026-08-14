@@ -77,7 +77,7 @@ class PersistZepClarificationServiceTest {
     private MonthEndEmployeeProjectContext employeeContext() {
         return new MonthEndEmployeeProjectContext(
                 month,
-                new MonthEndProjectSnapshot(projectId, 77, "Gepardec", true, Set.of(creatorId)),
+                new MonthEndProjectSnapshot(projectId, 77, "Gepardec", true, true, Set.of(creatorId)),
                 new UserRef(subjectEmployeeId, FullName.of("Max", "Mustermann"), ZepUsername.of("max.mustermann")),
                 Set.of(creatorId)
         );

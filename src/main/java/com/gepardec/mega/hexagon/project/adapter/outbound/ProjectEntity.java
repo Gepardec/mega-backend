@@ -37,6 +37,9 @@ public class ProjectEntity {
     @Column(name = "billable", nullable = false)
     private boolean billable;
 
+    @Column(name = "leistungsnachweis_enabled", nullable = false)
+    private boolean leistungsnachweisEnabled = true;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "project_leads",
@@ -91,6 +94,14 @@ public class ProjectEntity {
 
     public void setBillable(boolean billable) {
         this.billable = billable;
+    }
+
+    public boolean isLeistungsnachweisEnabled() {
+        return leistungsnachweisEnabled;
+    }
+
+    public void setLeistungsnachweisEnabled(boolean leistungsnachweisEnabled) {
+        this.leistungsnachweisEnabled = leistungsnachweisEnabled;
     }
 
     public Set<UUID> getLeads() {

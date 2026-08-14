@@ -151,6 +151,7 @@ class PrematureMonthEndPreparationServiceTest {
                 zepId,
                 "Project-" + zepId,
                 billable,
+                true,
                 Set.of(leadIds)
         );
     }
