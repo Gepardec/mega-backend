@@ -2,6 +2,7 @@ package com.gepardec.mega.hexagon.monthend.domain.port.outbound;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
@@ -28,4 +29,6 @@ public interface MonthEndTaskRepository {
     void save(MonthEndTask task);
 
     void saveAll(List<MonthEndTask> tasks);
+
+    List<MonthEndTask> findByProjectMonthAndType(YearMonth month, ProjectId projectId, MonthEndTaskType type);
 }
