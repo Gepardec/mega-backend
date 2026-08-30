@@ -1,0 +1,23 @@
+'/recognition/entries':
+  post:
+    tags:
+      - Recognition
+    operationId: submitRecognitionEntry
+    summary: Submit a recognition entry for the weekly leadership digest
+    security:
+      - bearerAuth: [ ]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/recognition.yaml#/RecognitionEntrySubmission'
+    responses:
+      '201':
+        description: Recognition entry submitted successfully.
+      '400':
+        $ref: '../responses/common.yaml#/BadRequest'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'

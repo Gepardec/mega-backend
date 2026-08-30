@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-recognition-entry-001
+      author: mega
+      changes:
+        - createTable:
+            tableName: recognition_entry
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: message
+                  type: varchar(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: category
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: submitted_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: submitted_by
+                  type: uuid
+                  constraints:
+                    nullable: true
+              - column:
+                  name: status
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+        - createIndex:
+            indexName: idx_recognition_entry_status
+            tableName: recognition_entry
+            columns:
+              - column:
+                  name: status
