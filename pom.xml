@@ -48,7 +48,7 @@
         <liquibase-hibernate6.version>5.0.3</liquibase-hibernate6.version>
         <spring-beans.version>7.0.8</spring-beans.version>
         <spring-data-jpa.version>4.1.0</spring-data-jpa.version>
-        <snakeyaml.version>2.6</snakeyaml.version>
+        <snakeyaml.version>2.7</snakeyaml.version>
 
         <!-- Plugins -->
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
