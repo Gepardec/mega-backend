@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndTasksForProjectUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteProjectTasksByTypeUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -18,12 +18,12 @@ import java.util.List;
 
 @ApplicationScoped
 @Transactional
-public class CompleteMonthEndTasksForProjectService implements CompleteMonthEndTasksForProjectUseCase {
+public class CompleteProjectTasksByTypeService implements CompleteProjectTasksByTypeUseCase {
     private final MonthEndTaskRepository monthEndTaskRepository;
     private final MonthEndProjectContextService monthEndProjectContextService;
 
     @Inject
-    public CompleteMonthEndTasksForProjectService(
+    public CompleteProjectTasksByTypeService(
             MonthEndTaskRepository monthEndTaskRepository,
             MonthEndProjectContextService monthEndProjectContextService
     ) {
@@ -39,7 +39,7 @@ public class CompleteMonthEndTasksForProjectService implements CompleteMonthEndT
             throw new MonthEndActorNotAuthorizedException("actor not authorized: " + actorId.value());
         }
 
-        List<MonthEndTask> tasksToUpdate = monthEndTaskRepository.findByProjectMonthAndType(month, projectId, type)
+        List<MonthEndTask> tasksToUpdate = monthEndTaskRepository.findByMonthProjectAndType(month, projectId, type)
                 .stream()
                 .filter(task -> task.isOpen() && task.canBeCompletedBy(actorId) )
                 .toList();
@@ -50,7 +50,7 @@ public class CompleteMonthEndTasksForProjectService implements CompleteMonthEndT
 
         monthEndTaskRepository.saveAll(tasksToUpdate);
 
-        Log.infof("Completed %i month-end tasks for month %s, project %s, type %s by actor %s",
+        Log.infof("Completed %d month-end tasks for month %s, project %s, type %s by actor %s",
                 tasksToUpdate.size(), month, projectId.value(), type.name(), actorId.value());
 
         return tasksToUpdate;

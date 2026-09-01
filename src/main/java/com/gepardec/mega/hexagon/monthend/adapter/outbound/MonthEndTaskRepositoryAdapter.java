@@ -168,7 +168,7 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
-    public List<MonthEndTask> findByProjectMonthAndType(YearMonth month, ProjectId projectId, MonthEndTaskType type) {
+    public List<MonthEndTask> findByMonthProjectAndType(YearMonth month, ProjectId projectId, MonthEndTaskType type) {
         return panache.find(
                         "monthValue = ?1 and projectId = ?2 and type = ?3",
                         toMonthValue(month),

@@ -363,7 +363,7 @@ class MonthEndTaskRepositoryAdapterTest {
     }
 
     @Test
-    void findByProjectMonthAndType_shouldReturnProjectForMonthWithCorrectType() {
+    void findByMonthProjectAndType_shouldReturnProjectForMonthWithCorrectType() {
         YearMonth monthA = YearMonth.of(2026, 3);
         YearMonth monthB = YearMonth.of(2026, 4);
         User employee = user("emp-lead-proj", Set.of(Role.EMPLOYEE));
@@ -397,10 +397,10 @@ class MonthEndTaskRepositoryAdapterTest {
 
         monthEndTaskRepositoryAdapter.saveAll(List.of(matchTask, diffTypeTask, diffProjectTask, diffMonthTask));
 
-        List<MonthEndTask> result1 = monthEndTaskRepositoryAdapter.findByProjectMonthAndType(monthA, projectA.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK);
-        List<MonthEndTask> result2 = monthEndTaskRepositoryAdapter.findByProjectMonthAndType(monthA, projectA.id(), MonthEndTaskType.PROJECT_LEAD_REVIEW);
-        List<MonthEndTask> result3 = monthEndTaskRepositoryAdapter.findByProjectMonthAndType(monthA, projectB.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK);
-        List<MonthEndTask> result4 = monthEndTaskRepositoryAdapter.findByProjectMonthAndType(monthB, projectA.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK);
+        List<MonthEndTask> result1 = monthEndTaskRepositoryAdapter.findByMonthProjectAndType(monthA, projectA.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK);
+        List<MonthEndTask> result2 = monthEndTaskRepositoryAdapter.findByMonthProjectAndType(monthA, projectA.id(), MonthEndTaskType.PROJECT_LEAD_REVIEW);
+        List<MonthEndTask> result3 = monthEndTaskRepositoryAdapter.findByMonthProjectAndType(monthA, projectB.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK);
+        List<MonthEndTask> result4 = monthEndTaskRepositoryAdapter.findByMonthProjectAndType(monthB, projectA.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK);
 
         assertThat(result1).hasSize(1).containsExactly(matchTask);
         assertThat(result2).hasSize(1).containsExactly(diffTypeTask);

@@ -19,21 +19,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class CompleteOwnTimeCheckTasksForProjectServiceTest {
+class CompleteOwnTimeCheckTasksServiceTest {
 
     private static final YearMonth MONTH = YearMonth.of(2026, 8);
 
     private MonthEndTaskRepository monthEndTaskRepository;
-    private CompleteOwnTimeCheckTasksForProjectService service;
+    private CompleteOwnTimeCheckTasksService service;
 
     @BeforeEach
     void setUp() {
         monthEndTaskRepository = mock(MonthEndTaskRepository.class);
-        service = new CompleteOwnTimeCheckTasksForProjectService(monthEndTaskRepository);
+        service = new CompleteOwnTimeCheckTasksService(monthEndTaskRepository);
     }
 
     @Test
-    void completeOwnTimeCheckTasks_shouldCompleteAllOpenTasks_forGivenProject() {
+    void complete_shouldCompleteAllOpenTasks_forGivenProject() {
         ProjectId projectId = ProjectId.generate();
         UserId employeeId = UserId.generate();
         MonthEndTask openTask = openTimeCheckTask(projectId, employeeId);
@@ -42,7 +42,7 @@ class CompleteOwnTimeCheckTasksForProjectServiceTest {
         when(monthEndTaskRepository.findOpenEmployeeTimeCheckTasks(employeeId, MONTH, projectId))
                 .thenReturn(List.of(openTask, alreadyDoneTask));
 
-        List<MonthEndTask> completedTasks = service.completeOwnTimeCheckTasks(employeeId, MONTH, projectId);
+        List<MonthEndTask> completedTasks = service.complete(employeeId, MONTH, projectId);
 
         assertThat(completedTasks).hasSize(1);
         assertThat(completedTasks.getFirst().status()).isEqualTo(MonthEndTaskStatus.DONE);
@@ -51,7 +51,7 @@ class CompleteOwnTimeCheckTasksForProjectServiceTest {
     }
 
     @Test
-    void completeOwnTimeCheckTasks_shouldCompleteTasksAcrossAllProjects_whenProjectIdIsNull() {
+    void complete_shouldCompleteTasksAcrossAllProjects_whenProjectIdIsNull() {
         UserId employeeId = UserId.generate();
         MonthEndTask taskInProjectA = openTimeCheckTask(ProjectId.generate(), employeeId);
         MonthEndTask taskInProjectB = openTimeCheckTask(ProjectId.generate(), employeeId);
@@ -59,7 +59,7 @@ class CompleteOwnTimeCheckTasksForProjectServiceTest {
         when(monthEndTaskRepository.findOpenEmployeeTimeCheckTasks(employeeId, MONTH, null))
                 .thenReturn(List.of(taskInProjectA, taskInProjectB));
 
-        List<MonthEndTask> completedTasks = service.completeOwnTimeCheckTasks(employeeId, MONTH, null);
+        List<MonthEndTask> completedTasks = service.complete(employeeId, MONTH, null);
 
         assertThat(completedTasks).hasSize(2);
         assertThat(completedTasks).allSatisfy(task -> {
@@ -70,12 +70,12 @@ class CompleteOwnTimeCheckTasksForProjectServiceTest {
     }
 
     @Test
-    void completeOwnTimeCheckTasks_shouldSaveNothing_whenNoOpenTasksExist() {
+    void complete_shouldSaveNothing_whenNoOpenTasksExist() {
         UserId employeeId = UserId.generate();
         when(monthEndTaskRepository.findOpenEmployeeTimeCheckTasks(employeeId, MONTH, null))
                 .thenReturn(List.of());
 
-        List<MonthEndTask> completedTasks = service.completeOwnTimeCheckTasks(employeeId, MONTH, null);
+        List<MonthEndTask> completedTasks = service.complete(employeeId, MONTH, null);
 
         assertThat(completedTasks).isEmpty();
         verify(monthEndTaskRepository).saveAll(completedTasks);

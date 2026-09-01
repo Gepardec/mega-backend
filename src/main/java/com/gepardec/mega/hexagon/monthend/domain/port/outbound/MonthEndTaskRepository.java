@@ -36,5 +36,5 @@ public interface MonthEndTaskRepository {
 
     void saveAll(List<MonthEndTask> tasks);
 
-    List<MonthEndTask> findByProjectMonthAndType(YearMonth month, ProjectId projectId, MonthEndTaskType type);
+    List<MonthEndTask> findByMonthProjectAndType(YearMonth month, ProjectId projectId, MonthEndTaskType type);
 }

@@ -75,10 +75,10 @@ class MonthEndResourceTest {
     CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase;
 
     @InjectMock
-    CompleteMonthEndTasksForProjectUseCase completeMonthEndTasksForProjectUseCase;
+    CompleteProjectTasksByTypeUseCase completeProjectTasksByTypeUseCase;
 
     @InjectMock
-    CompleteOwnTimeCheckTasksForProjectUseCase completeOwnTimeCheckTasksForProjectUseCase;
+    CompleteOwnTimeCheckTasksUseCase completeOwnTimeCheckTasksUseCase;
 
     @InjectMock
     UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase;
@@ -550,7 +550,7 @@ class MonthEndResourceTest {
     }
 
     @Test
-    void completeMonthEndTasks_shouldReturn_shouldReturnCompletedTasks() {
+    void completeProjectLeadMonthEndTasks_shouldReturn_shouldReturnCompletedTasks() {
         allowRoles(Role.PROJECT_LEAD);
         List<MonthEndTask> tasks = new ArrayList<>();
         for(int i = 0; i < 5; i++) {
@@ -567,21 +567,20 @@ class MonthEndResourceTest {
         }
 
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
-        when(completeMonthEndTasksForProjectUseCase.complete(MONTH,PROJECT_ID,MonthEndTaskType.PROJECT_LEAD_REVIEW, PROJECT_LEAD_ID))
+        when(completeProjectTasksByTypeUseCase.complete(MONTH,PROJECT_ID,MonthEndTaskType.PROJECT_LEAD_REVIEW, PROJECT_LEAD_ID))
                 .thenReturn(tasks);
 
-        BulkCompleteTasksResponseDto response = given()
+        CompletedTasksResponseDto response = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(new BulkCompleteTasksRequestDto()
-                        .month(MONTH.toString())
+                .body(new CompleteProjectTasksRequestDto()
                         .projectId(PROJECT_ID.value())
                         .type(MonthEndTaskTypeDto.PROJECT_LEAD_REVIEW))
-                .post("/monthend/tasks/complete")
+                .post("/monthend/{month}/tasks/complete/project-lead", MONTH.toString())
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(BulkCompleteTasksResponseDto.class);
+                .as(CompletedTasksResponseDto.class);
 
         assertThat(response.getCompleted()).hasSize(5).allSatisfy(task -> {
             assertThat(task.getMonth()).isEqualTo(MONTH.toString());
@@ -590,83 +589,99 @@ class MonthEndResourceTest {
             assertThat(task.getStatus()).isEqualTo(MonthEndTaskStatusDto.DONE);
         });
 
-        verify(completeMonthEndTasksForProjectUseCase).complete(MONTH,PROJECT_ID,MonthEndTaskType.PROJECT_LEAD_REVIEW, PROJECT_LEAD_ID);
+        verify(completeProjectTasksByTypeUseCase).complete(MONTH,PROJECT_ID,MonthEndTaskType.PROJECT_LEAD_REVIEW, PROJECT_LEAD_ID);
 
     }
 
     @Test
-    void completeMonthEndTasks_shouldReject_whenTypeIs_EmployeeTimeCheck() {
+    void completeProjectLeadMonthEndTasks_shouldReject_whenTypeIs_EmployeeTimeCheck() {
         allowRoles(Role.PROJECT_LEAD);
         given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(new BulkCompleteTasksRequestDto()
-                        .month(MONTH.toString())
+                .body(new CompleteProjectTasksRequestDto()
                         .projectId(PROJECT_ID.value())
                         .type(MonthEndTaskTypeDto.EMPLOYEE_TIME_CHECK))
-                .post("/monthend/tasks/complete")
+                .post("/monthend/{month}/tasks/complete/project-lead", MONTH.toString())
                 .then()
                 .statusCode(400);
 
-        verifyNoInteractions(completeMonthEndTasksForProjectUseCase);
+        verifyNoInteractions(completeProjectTasksByTypeUseCase);
     }
     @Test
-    void completeMonthEndTasks_shouldReject_whenTypeIs_Abrechnung() {
+    void completeProjectLeadMonthEndTasks_shouldReject_whenTypeIs_Abrechnung() {
         allowRoles(Role.PROJECT_LEAD);
         given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(new BulkCompleteTasksRequestDto()
-                        .month(MONTH.toString())
+                .body(new CompleteProjectTasksRequestDto()
                         .projectId(PROJECT_ID.value())
                         .type(MonthEndTaskTypeDto.ABRECHNUNG))
-                .post("/monthend/tasks/complete")
+                .post("/monthend/{month}/tasks/complete/project-lead", MONTH.toString())
                 .then()
                 .statusCode(400);
 
-        verifyNoInteractions(completeMonthEndTasksForProjectUseCase);
+        verifyNoInteractions(completeProjectTasksByTypeUseCase);
     }
 
     @Test
-    void completeMonthEndTasks_shouldReturnBadRequest_whenProjectIsUnknown() {
+    void completeProjectLeadMonthEndTasks_shouldReturnBadRequest_whenProjectIsUnknown() {
         allowRoles(Role.PROJECT_LEAD);
         ProjectId testId = ProjectId.of(Instancio.create(UUID.class));
 
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         doThrow(new MonthEndProjectContextNotFoundException("Project is unknown: " + testId))
-                .when(completeMonthEndTasksForProjectUseCase)
+                .when(completeProjectTasksByTypeUseCase)
                 .complete(MONTH, testId, MonthEndTaskType.PROJECT_LEAD_REVIEW, PROJECT_LEAD_ID);
 
         given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(new BulkCompleteTasksRequestDto()
-                        .month(MONTH.toString())
+                .body(new CompleteProjectTasksRequestDto()
                         .projectId(testId.value())
                         .type(MonthEndTaskTypeDto.PROJECT_LEAD_REVIEW))
-                .post("/monthend/tasks/complete")
+                .post("/monthend/{month}/tasks/complete/project-lead", MONTH.toString())
                 .then()
                 .statusCode(400);
     }
 
     @Test
-    void completeMonthEndTasks_shouldRejectUser_whenUserIsNotProjectLead() {
+    void completeProjectLeadMonthEndTasks_shouldReturnForbidden_whenActorIsNotEligibleLeadOfProject() {
+        allowRoles(Role.PROJECT_LEAD);
+
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
+        doThrow(new MonthEndActorNotAuthorizedException("actor not authorized: " + PROJECT_LEAD_ID.value()))
+                .when(completeProjectTasksByTypeUseCase)
+                .complete(MONTH, PROJECT_ID, MonthEndTaskType.PROJECT_LEAD_REVIEW, PROJECT_LEAD_ID);
+
         given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(new BulkCompleteTasksRequestDto()
-                        .month(MONTH.toString())
+                .body(new CompleteProjectTasksRequestDto()
                         .projectId(PROJECT_ID.value())
                         .type(MonthEndTaskTypeDto.PROJECT_LEAD_REVIEW))
-                .post("/monthend/tasks/complete")
+                .post("/monthend/{month}/tasks/complete/project-lead", MONTH.toString())
                 .then()
                 .statusCode(403);
-
-        verifyNoInteractions(completeMonthEndTasksForProjectUseCase);
     }
 
     @Test
-    void completeMyTimeCheckTasks_shouldReturnCompletedTasksForEmployee() {
+    void completeProjectLeadMonthEndTasks_shouldRejectUser_whenUserIsNotProjectLead() {
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(new CompleteProjectTasksRequestDto()
+                        .projectId(PROJECT_ID.value())
+                        .type(MonthEndTaskTypeDto.PROJECT_LEAD_REVIEW))
+                .post("/monthend/{month}/tasks/complete/project-lead", MONTH.toString())
+                .then()
+                .statusCode(403);
+
+        verifyNoInteractions(completeProjectTasksByTypeUseCase);
+    }
+
+    @Test
+    void completeEmployeeMonthEndTasks_shouldReturnCompletedTasksForEmployee() {
         allowRoles(Role.EMPLOYEE);
         List<MonthEndTask> tasks = List.of(
                 MonthEndTask.create(
@@ -678,20 +693,19 @@ class MonthEndResourceTest {
                         Set.of(EMPLOYEE_ID)
                 ).complete(EMPLOYEE_ID)
         );
-        when(completeOwnTimeCheckTasksForProjectUseCase.completeOwnTimeCheckTasks(EMPLOYEE_ID, MONTH, PROJECT_ID))
+        when(completeOwnTimeCheckTasksUseCase.complete(EMPLOYEE_ID, MONTH, PROJECT_ID))
                 .thenReturn(tasks);
 
-        BulkCompleteTasksResponseDto response = given()
+        CompletedTasksResponseDto response = given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(new CompleteMyTimeCheckTasksRequestDto()
-                        .month(MONTH.toString())
+                .body(new CompleteOwnTimeChecksRequestDto()
                         .projectId(PROJECT_ID.value()))
-                .post("/monthend/tasks/complete-my-time-checks")
+                .post("/monthend/{month}/tasks/complete/employee", MONTH.toString())
                 .then()
                 .statusCode(200)
                 .extract()
-                .as(BulkCompleteTasksResponseDto.class);
+                .as(CompletedTasksResponseDto.class);
 
         assertThat(response.getCompleted()).singleElement().satisfies(task -> {
             assertThat(task.getMonth()).isEqualTo(MONTH.toString());
@@ -699,37 +713,37 @@ class MonthEndResourceTest {
             assertThat(task.getProjectId()).isEqualTo(PROJECT_ID.value());
             assertThat(task.getStatus()).isEqualTo(MonthEndTaskStatusDto.DONE);
         });
-        verify(completeOwnTimeCheckTasksForProjectUseCase).completeOwnTimeCheckTasks(EMPLOYEE_ID, MONTH, PROJECT_ID);
+        verify(completeOwnTimeCheckTasksUseCase).complete(EMPLOYEE_ID, MONTH, PROJECT_ID);
     }
 
     @Test
-    void completeMyTimeCheckTasks_shouldCompleteAllProjects_whenProjectIdIsOmitted() {
+    void completeEmployeeMonthEndTasks_shouldCompleteAllProjects_whenProjectIdIsOmitted() {
         allowRoles(Role.EMPLOYEE);
-        when(completeOwnTimeCheckTasksForProjectUseCase.completeOwnTimeCheckTasks(EMPLOYEE_ID, MONTH, null))
+        when(completeOwnTimeCheckTasksUseCase.complete(EMPLOYEE_ID, MONTH, null))
                 .thenReturn(List.of());
 
         given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(new CompleteMyTimeCheckTasksRequestDto().month(MONTH.toString()))
-                .post("/monthend/tasks/complete-my-time-checks")
+                .body(new CompleteOwnTimeChecksRequestDto())
+                .post("/monthend/{month}/tasks/complete/employee", MONTH.toString())
                 .then()
                 .statusCode(200);
 
-        verify(completeOwnTimeCheckTasksForProjectUseCase).completeOwnTimeCheckTasks(EMPLOYEE_ID, MONTH, null);
+        verify(completeOwnTimeCheckTasksUseCase).complete(EMPLOYEE_ID, MONTH, null);
     }
 
     @Test
-    void completeMyTimeCheckTasks_shouldRejectCallerWithoutEmployeeRole() {
+    void completeEmployeeMonthEndTasks_shouldRejectCallerWithoutEmployeeRole() {
         given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .body(new CompleteMyTimeCheckTasksRequestDto().month(MONTH.toString()))
-                .post("/monthend/tasks/complete-my-time-checks")
+                .body(new CompleteOwnTimeChecksRequestDto())
+                .post("/monthend/{month}/tasks/complete/employee", MONTH.toString())
                 .then()
                 .statusCode(403);
 
-        verifyNoInteractions(completeOwnTimeCheckTasksForProjectUseCase);
+        verifyNoInteractions(completeOwnTimeCheckTasksUseCase);
     }
 
     @Test

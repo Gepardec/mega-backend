@@ -209,22 +209,19 @@ MonthEndTaskGeneration:
     skipped:
       type: integer
       format: int32
-BulkCompleteTasksRequest:
+CompleteProjectTasksRequest:
   type: object
   additionalProperties: false
   required:
-    - month
     - projectId
     - type
   properties:
-    month:
-      $ref: './shared.yaml#/MonthValue'
     projectId:
       type: string
       format: uuid
     type:
       $ref: '#/MonthEndTaskType'
-BulkCompleteTasksResponse:
+CompletedTasksResponse:
   type: object
   additionalProperties: false
   required:
@@ -234,14 +231,10 @@ BulkCompleteTasksResponse:
       type: array
       items:
         $ref: '#/MonthEndTask'
-CompleteMyTimeCheckTasksRequest:
+CompleteOwnTimeChecksRequest:
   type: object
   additionalProperties: false
-  required:
-    - month
   properties:
-    month:
-      $ref: './shared.yaml#/MonthValue'
     projectId:
       type: string
       format: uuid

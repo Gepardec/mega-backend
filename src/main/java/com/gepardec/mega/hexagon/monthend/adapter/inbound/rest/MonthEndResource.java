@@ -43,8 +43,8 @@ public class MonthEndResource implements MonthEndApi {
     private final PrematureMonthEndPreparationUseCase prematureMonthEndPreparationUseCase;
     private final CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
     private final CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase;
-    private final CompleteMonthEndTasksForProjectUseCase completeMonthEndTasksForProjectUseCase;
-    private final CompleteOwnTimeCheckTasksForProjectUseCase completeOwnTimeCheckTasksForProjectUseCase;
+    private final CompleteProjectTasksByTypeUseCase completeProjectTasksByTypeUseCase;
+    private final CompleteOwnTimeCheckTasksUseCase completeOwnTimeCheckTasksUseCase;
     private final UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase;
     private final CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase;
     private final DeleteMonthEndClarificationUseCase deleteMonthEndClarificationUseCase;
@@ -64,8 +64,8 @@ public class MonthEndResource implements MonthEndApi {
             GetProjectLeadMonthEndStatusOverviewUseCase getProjectLeadMonthEndStatusOverviewUseCase,
             PrematureMonthEndPreparationUseCase prematureMonthEndPreparationUseCase,
             CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase,
-            CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase, CompleteMonthEndTasksForProjectUseCase completeMonthEndTasksForProjectUseCase,
-            CompleteOwnTimeCheckTasksForProjectUseCase completeOwnTimeCheckTasksForProjectUseCase,
+            CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase, CompleteProjectTasksByTypeUseCase completeProjectTasksByTypeUseCase,
+            CompleteOwnTimeCheckTasksUseCase completeOwnTimeCheckTasksUseCase,
             UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase,
             CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase,
             DeleteMonthEndClarificationUseCase deleteMonthEndClarificationUseCase,
@@ -84,8 +84,8 @@ public class MonthEndResource implements MonthEndApi {
         this.prematureMonthEndPreparationUseCase = prematureMonthEndPreparationUseCase;
         this.createMonthEndClarificationUseCase = createMonthEndClarificationUseCase;
         this.completeMonthEndTaskUseCase = completeMonthEndTaskUseCase;
-        this.completeMonthEndTasksForProjectUseCase = completeMonthEndTasksForProjectUseCase;
-        this.completeOwnTimeCheckTasksForProjectUseCase = completeOwnTimeCheckTasksForProjectUseCase;
+        this.completeProjectTasksByTypeUseCase = completeProjectTasksByTypeUseCase;
+        this.completeOwnTimeCheckTasksUseCase = completeOwnTimeCheckTasksUseCase;
         this.updateMonthEndClarificationUseCase = updateMonthEndClarificationUseCase;
         this.completeMonthEndClarificationUseCase = completeMonthEndClarificationUseCase;
         this.deleteMonthEndClarificationUseCase = deleteMonthEndClarificationUseCase;
@@ -194,17 +194,17 @@ public class MonthEndResource implements MonthEndApi {
 
     @Override
     @MegaRolesAllowed(Role.PROJECT_LEAD)
-    public Response completeMonthEndTasks(BulkCompleteTasksRequestDto bulkCompleteTasksRequestDto) {
+    public Response completeProjectLeadMonthEndTasks(String month, CompleteProjectTasksRequestDto request) {
         UserId actorId = authenticatedActorContext.userId();
-        MonthEndTaskType type = MonthEndTaskType.valueOf(bulkCompleteTasksRequestDto.getType().toString());
+        MonthEndTaskType type = MonthEndTaskType.valueOf(request.getType().toString());
 
         if(!type.equals(MonthEndTaskType.LEISTUNGSNACHWEIS) && !type.equals(MonthEndTaskType.PROJECT_LEAD_REVIEW)) {
             throw new MonthEndRequestValidationException("Bulk completion is only supported for LEISTUNGSNACHWEIS and PROJECT_LEAD_REVIEW", null);
         }
 
-        List<MonthEndTask> tasks = completeMonthEndTasksForProjectUseCase.complete(
-                transportHelper.parseMonth(bulkCompleteTasksRequestDto.getMonth()),
-                transportHelper.toProjectId(bulkCompleteTasksRequestDto.getProjectId()),
+        List<MonthEndTask> tasks = completeProjectTasksByTypeUseCase.complete(
+                transportHelper.parseMonth(month),
+                transportHelper.toProjectId(request.getProjectId()),
                 type,
                 actorId
         );
@@ -213,24 +213,21 @@ public class MonthEndResource implements MonthEndApi {
                 .map(monthEndRestMapper::toDto)
                 .toList();
 
-
-        BulkCompleteTasksResponseDto bulkCompleteTasksResponseDto = new BulkCompleteTasksResponseDto(taskDtos);
-
-        return Response.ok(bulkCompleteTasksResponseDto).build();
+        return Response.ok(new CompletedTasksResponseDto(taskDtos)).build();
     }
 
     @Override
     @MegaRolesAllowed(Role.EMPLOYEE)
-    public Response completeMyTimeCheckTasks(CompleteMyTimeCheckTasksRequestDto request) {
+    public Response completeEmployeeMonthEndTasks(String month, CompleteOwnTimeChecksRequestDto request) {
         UserId actorId = authenticatedActorContext.userId();
-        YearMonth month = transportHelper.parseMonth(request.getMonth());
+        YearMonth parsedMonth = transportHelper.parseMonth(month);
         ProjectId projectId = request.getProjectId() != null
                 ? transportHelper.toProjectId(request.getProjectId())
                 : null;
 
-        List<MonthEndTask> tasks = completeOwnTimeCheckTasksForProjectUseCase.completeOwnTimeCheckTasks(
+        List<MonthEndTask> tasks = completeOwnTimeCheckTasksUseCase.complete(
                 actorId,
-                month,
+                parsedMonth,
                 projectId
         );
 
@@ -238,7 +235,7 @@ public class MonthEndResource implements MonthEndApi {
                 .map(monthEndRestMapper::toDto)
                 .toList();
 
-        return Response.ok(new BulkCompleteTasksResponseDto(taskDtos)).build();
+        return Response.ok(new CompletedTasksResponseDto(taskDtos)).build();
     }
 
     @Override

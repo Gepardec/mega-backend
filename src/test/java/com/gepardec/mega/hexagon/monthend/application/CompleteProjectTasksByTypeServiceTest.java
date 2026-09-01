@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-public class CompleteMonthEndTasksForProjectServiceTest {
+public class CompleteProjectTasksByTypeServiceTest {
     private final YearMonth month = YearMonth.of(2026, 3);
     private final ProjectId projectId = ProjectId.of(UUID.fromString(Instancio.gen().text().uuid().get()));
     private final UserId employeeId = UserId.of(UUID.fromString(Instancio.gen().text().uuid().get()));
@@ -29,13 +29,13 @@ public class CompleteMonthEndTasksForProjectServiceTest {
 
     private MonthEndTaskRepository monthEndTaskRepository;
     private MonthEndProjectContextService monthEndProjectContextService;
-    private CompleteMonthEndTasksForProjectService service;
+    private CompleteProjectTasksByTypeService service;
 
     @BeforeEach
     void setUp() {
         monthEndTaskRepository = mock(MonthEndTaskRepository.class);
         monthEndProjectContextService = mock(MonthEndProjectContextService.class);
-        service = new CompleteMonthEndTasksForProjectService(monthEndTaskRepository, monthEndProjectContextService);
+        service = new CompleteProjectTasksByTypeService(monthEndTaskRepository, monthEndProjectContextService);
     }
 
     @Test
@@ -45,7 +45,7 @@ public class CompleteMonthEndTasksForProjectServiceTest {
         MonthEndTask task3 = openLeadReviewTask().complete(leadA);
 
         when(monthEndProjectContextService.resolve(month, projectId)).thenReturn(new MonthEndProjectContext(month, new MonthEndProjectSnapshot(projectId, 77, "Project", true, true, Set.of(leadA)), Set.of(leadA)));
-        when(monthEndTaskRepository.findByProjectMonthAndType(month,projectId,task1.type())).thenReturn(List.of(task1, task2, task3));
+        when(monthEndTaskRepository.findByMonthProjectAndType(month,projectId,task1.type())).thenReturn(List.of(task1, task2, task3));
 
         List<MonthEndTask> completedTasks = service.complete(month, projectId, task1.type(), leadA);
 
@@ -69,13 +69,30 @@ public class CompleteMonthEndTasksForProjectServiceTest {
         MonthEndTask task3 = openLeadReviewTask();
 
         when(monthEndProjectContextService.resolve(month, projectId)).thenReturn(new MonthEndProjectContext(month, new MonthEndProjectSnapshot(projectId, 77, "Project", true, true, Set.of(leadA)), Set.of(leadA)));
-        when(monthEndTaskRepository.findByProjectMonthAndType(month,projectId,task1.type())).thenReturn(List.of(task1.complete(leadA), task2.complete(leadA), task3.complete(leadA)));
+        when(monthEndTaskRepository.findByMonthProjectAndType(month,projectId,task1.type())).thenReturn(List.of(task1.complete(leadA), task2.complete(leadA), task3.complete(leadA)));
 
         List<MonthEndTask> completedTasks = service.complete(month, projectId, task1.type(), leadA);
 
         assertThat(completedTasks).hasSize(0);
         verify(monthEndTaskRepository).saveAll(completedTasks);
 
+    }
+
+    @Test
+    void complete_shouldSkipTask_whenActorIsNotInTasksEligibleActors() {
+        MonthEndTask eligibleTask = openLeadReviewTask();
+        MonthEndTask notEligibleTask = openLeadReviewTask(Set.of(leadB));
+
+        when(monthEndProjectContextService.resolve(month, projectId)).thenReturn(new MonthEndProjectContext(month, new MonthEndProjectSnapshot(projectId, 77, "Project", true, true, Set.of(leadA)), Set.of(leadA)));
+        when(monthEndTaskRepository.findByMonthProjectAndType(month, projectId, eligibleTask.type())).thenReturn(List.of(eligibleTask, notEligibleTask));
+
+        List<MonthEndTask> completedTasks = service.complete(month, projectId, eligibleTask.type(), leadA);
+
+        assertThat(completedTasks)
+                .extracting(MonthEndTask::id)
+                .containsExactly(eligibleTask.id());
+        assertThat(notEligibleTask.status()).isEqualTo(MonthEndTaskStatus.OPEN);
+        verify(monthEndTaskRepository).saveAll(completedTasks);
     }
 
     @Test
@@ -100,17 +117,21 @@ public class CompleteMonthEndTasksForProjectServiceTest {
                 .isInstanceOf(MonthEndProjectContextNotFoundException.class)
                 .hasMessageContaining("month-end project context not found for project");
 
-        verify(monthEndTaskRepository, never()).findByProjectMonthAndType(any(), any(),  any());
+        verify(monthEndTaskRepository, never()).findByMonthProjectAndType(any(), any(),  any());
     }
 
     private MonthEndTask openLeadReviewTask() {
+        return openLeadReviewTask(Set.of(leadA, leadB));
+    }
+
+    private MonthEndTask openLeadReviewTask(Set<UserId> eligibleActorIds) {
         return MonthEndTask.create(
                 MonthEndTaskId.generate(),
                 month,
                 MonthEndTaskType.PROJECT_LEAD_REVIEW,
                 projectId,
                 employeeId,
-                Set.of(leadA, leadB)
+                eligibleActorIds
         );
     }
 }
