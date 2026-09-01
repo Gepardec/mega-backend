@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteOwnTimeCheckTasksForProjectUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteOwnTimeCheckTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -15,17 +15,17 @@ import java.util.List;
 
 @ApplicationScoped
 @Transactional
-public class CompleteOwnTimeCheckTasksForProjectService implements CompleteOwnTimeCheckTasksForProjectUseCase {
+public class CompleteOwnTimeCheckTasksService implements CompleteOwnTimeCheckTasksUseCase {
 
     private final MonthEndTaskRepository monthEndTaskRepository;
 
     @Inject
-    public CompleteOwnTimeCheckTasksForProjectService(MonthEndTaskRepository monthEndTaskRepository) {
+    public CompleteOwnTimeCheckTasksService(MonthEndTaskRepository monthEndTaskRepository) {
         this.monthEndTaskRepository = monthEndTaskRepository;
     }
 
     @Override
-    public List<MonthEndTask> completeOwnTimeCheckTasks(UserId actorId, YearMonth month, ProjectId projectId) {
+    public List<MonthEndTask> complete(UserId actorId, YearMonth month, ProjectId projectId) {
         List<MonthEndTask> openTasks = monthEndTaskRepository
                 .findOpenEmployeeTimeCheckTasks(actorId, month, projectId)
                 .stream()

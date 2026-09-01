@@ -4,7 +4,7 @@ Month-end tasks live in the `com.gepardec.mega.hexagon.monthend` bounded context
 
 Completion today goes through `POST /monthend/tasks/{taskId}/complete` → `CompleteMonthEndTaskUseCase` → `MonthEndTask.complete(actor)`. The aggregate's `complete(actor)` enforces exactly two rules: the actor must be in `eligibleActorIds` (else `MonthEndActorNotAuthorizedException` → `403`), and an already-`DONE` task is a no-op returning itself. There is **no dependency/readiness gate** in the domain — a lead-eligible task is completable by any active lead from the moment it is generated. Consequently the `canComplete` flag exposed on overview entries is defined as pure eligibility: `task.canBeCompletedBy(actor) == eligibleActorIds.contains(actor)`.
 
-The controlling page wants to complete an entire task column for a project in one action instead of issuing one request per employee. The request carries intent — `{ month, projectId, type }` — and the backend decides which tasks are actually completed.
+The controlling page wants to complete an entire task column for a project in one action instead of issuing one request per employee. The request carries intent — the month in the path plus `{ projectId, type }` in the body — and the backend decides which tasks are actually completed.
 
 ## Goals / Non-Goals
 
@@ -22,7 +22,7 @@ The controlling page wants to complete an entire task column for a project in on
 
 ## Decisions
 
-### Endpoint carries intent `{ month, projectId, type }`, not task IDs
+### Endpoint carries intent (month + project + type), not task IDs
 The backend is authoritative on completability, so the client sends scope, not a resolved list. **Alternative considered:** an ID-list body. Rejected for the primary UI (the chip acts on a whole column); an ID-list variant remains possible later as a separate endpoint.
 
 ### Accepted `type` restricted to `LEISTUNGSNACHWEIS` and `PROJECT_LEAD_REVIEW`
@@ -35,7 +35,7 @@ The new application service resolves the project context with the existing `Mont
 `MonthEndProjectContextService.resolve` throws `MonthEndProjectContextNotFoundException`, which the existing `MonthEndDomainExceptionMapper` maps to `400`. "Unknown project" and "no month-end context for the month" are a single failure mode here, so both surface as `400`. **Alternative considered:** map project-context-not-found to `404`. Deferred — it would change the mapper's behavior for an existing exception; `400` is consistent with the current contract and the proposal's "unknown projectId → 400" line.
 
 ### New outbound query; completion stays in the aggregate
-Add `MonthEndTaskRepository.findByProjectMonthAndType(month, projectId, type)` returning all in-scope tasks. The new application service filters `isOpen() && canBeCompletedBy(actor)`, calls `task.complete(actor)` on each, and `saveAll(...)` the transitioned tasks. **Alternative considered:** filter open/eligible in the SQL query. Rejected — keeping the eligibility and open-state predicates on the aggregate keeps the rule in one place and unit-testable without the DB.
+Add `MonthEndTaskRepository.findByMonthProjectAndType(month, projectId, type)` returning all in-scope tasks. The new application service filters `isOpen() && canBeCompletedBy(actor)`, calls `task.complete(actor)` on each, and `saveAll(...)` the transitioned tasks. **Alternative considered:** filter open/eligible in the SQL query. Rejected — keeping the eligibility and open-state predicates on the aggregate keeps the rule in one place and unit-testable without the DB.
 
 ### Per-request transaction; skip ≠ error
 The new service is `@ApplicationScoped @Transactional`, matching `CompleteMonthEndTaskService`. A not-completable task is a filtered-out element (no exception), so it never rolls back; an unexpected error while saving does roll the whole request back. This gives the atomicity the proposal asked for while treating partial success as a normal business outcome.
