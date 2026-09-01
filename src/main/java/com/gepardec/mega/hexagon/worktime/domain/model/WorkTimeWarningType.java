@@ -1,0 +1,18 @@
+package com.gepardec.mega.hexagon.worktime.domain.model;
+
+public enum WorkTimeWarningType {
+    OUTSIDE_CORE_WORKING_TIME,
+    TIME_OVERLAP,
+    NO_TIME_ENTRY,
+    EMPTY_ENTRY_LIST,
+    HOLIDAY,
+    WEEKEND,
+    WRONG_DOCTOR_APPOINTMENT,
+    EXCESS_WORKING_TIME_PRESENT,
+    MISSING_REST_TIME,
+    MISSING_BREAK_TIME,
+    BACK_MISSING,
+    TO_MISSING,
+    INVALID_WORKING_LOCATION,
+    LOCATION_RELEVANT_SET
+}

@@ -44,3 +44,28 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
+'/worktime/warnings/{payrollMonth}':
+  get:
+    tags:
+      - WorkTimeEmployee
+    operationId: getEmployeeWarnings
+    summary: Get the authenticated employee's work time warnings for a payroll month
+    security:
+      - bearerAuth: [ ]
+    parameters:
+      - $ref: '../parameters/common.yaml#/PayrollMonthPathParameter'
+    responses:
+      '200':
+        description: Employee work time warnings
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/worktime.yaml#/WorkTimeWarning'
+      '400':
+        $ref: '../responses/common.yaml#/BadRequest'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'

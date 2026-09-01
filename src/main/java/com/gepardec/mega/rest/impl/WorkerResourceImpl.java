@@ -7,7 +7,6 @@ import com.gepardec.mega.domain.model.MonthlyAbsences;
 import com.gepardec.mega.domain.model.MonthlyOfficeDays;
 import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
-import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
@@ -18,18 +17,15 @@ import com.gepardec.mega.rest.mapper.MonthlyAbsencesMapper;
 import com.gepardec.mega.rest.mapper.MonthlyBillInfoMapper;
 import com.gepardec.mega.rest.mapper.MonthlyOfficeDaysMapper;
 import com.gepardec.mega.rest.mapper.ProjectHoursSummaryMapper;
-import com.gepardec.mega.rest.mapper.WorkTimeBookingWarningMapper;
 import com.gepardec.mega.rest.model.AttendancesDto;
 import com.gepardec.mega.rest.model.LeadersDto;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
-import com.gepardec.mega.rest.model.WorkTimeBookingWarningDto;
 import com.gepardec.mega.service.api.AbsenceService;
 import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.service.api.MonthlyReportService;
-import com.gepardec.mega.service.api.TimeWarningService;
 import com.gepardec.mega.service.helper.WorkingTimeUtil;
 import com.gepardec.mega.zep.ZepService;
 import io.quarkus.security.Authenticated;
@@ -50,12 +46,6 @@ public class WorkerResourceImpl implements WorkerResource {
 
     @Inject
     DateHelperService dateHelperService;
-
-    @Inject
-    TimeWarningService timeWarningService;
-
-    @Inject
-    WorkTimeBookingWarningMapper workTimeBookingWarningMapper;
 
     @Inject
     AbsenceService absenceService;
@@ -124,18 +114,6 @@ public class WorkerResourceImpl implements WorkerResource {
         List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee, payrollMonth);
 
         return monthlyOfficeDaysMapper.mapToDto(createMonthlyOfficeDays(absences, payrollMonth));
-    }
-
-    @Override
-    public List<WorkTimeBookingWarningDto> getAllWarningsForEmployeeAndMonth(YearMonth payrollMonth) {
-        Employee employee = employeeService.getEmployee(userContext.user().zepUsername().value());
-        List<AbsenceTime> absences = zepService.getAbsenceForEmployee(employee, payrollMonth);
-        List<ProjectEntry> projectEntries = zepService.getProjectTimes(employee, payrollMonth);
-
-        return timeWarningService.getAllTimeWarningsForEmployeeAndMonth(absences, projectEntries, employee)
-                .stream()
-                .map(workTimeBookingWarningMapper::mapToDto)
-                .toList();
     }
 
     @Override
