@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.project.adapter.inbound.rest;
 import com.gepardec.mega.hexagon.generated.model.LeistungsnachweisToggleRequestDto;
 import com.gepardec.mega.hexagon.project.application.port.inbound.GetLeadProjectsUseCase;
 import com.gepardec.mega.hexagon.project.application.port.inbound.SetLeistungsnachweisEnabledUseCase;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectNotFoundException;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
@@ -129,7 +130,7 @@ class ProjectResourceTest {
     void setLeistungsnachweisEnabled_shoudlReturnNotFound_whenProjectIsUnknown() {
         allowRoles(Role.PROJECT_LEAD);
         var request = new LeistungsnachweisToggleRequestDto().enabled(false);
-        doThrow(new IllegalArgumentException("Project not found"))
+        doThrow(new ProjectNotFoundException("Project not found"))
                 .when(setLeistungsnachweisEnabledUseCase)
                 .setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, false);
 

@@ -9,7 +9,7 @@ The `leistungsnachweisEnabled` flag SHALL be read from the project snapshot at g
 - **WHEN** an active project has active assigned employees and at least one active lead
 - **THEN** the system creates one `PROJECT_LEAD_REVIEW` task per active assigned employee with all active project leads as eligible actors
 
-#### Scenario: Leistungsnachweis is generated once per employee on an enabled billable project
+#### Scenario: Leistungsnachweis is generated once per employee on a billable project
 - **WHEN** an active billable project has active assigned employees, at least one active lead, and `leistungsnachweisEnabled` is true
 - **THEN** the system creates one `LEISTUNGSNACHWEIS` task per active assigned employee with all active project leads as eligible actors
 
