@@ -50,14 +50,12 @@ public interface MonthEndRestMapper {
     @Mapping(target = "taskId", source = "id")
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "subjectEmployee", ignore = true)
-    @Mapping(target = "leistungsnachweisEnabled", ignore = true)
     @Mapping(target = "canComplete", ignore = true)
     @Mapping(target = "completedBy", ignore = true)
     MonthEndStatusOverviewEntryDto toEntry(
             MonthEndTask task,
             @Context Map<ProjectId, ProjectRef> projectRefs,
             @Context Map<UserId, UserRef> userRefs,
-            @Context Map<ProjectId, Boolean> leistungsnachweisEnabledByProject,
             @Context UserId actorId,
             @Context ZepConfig zepConfig
     );
@@ -68,7 +66,6 @@ public interface MonthEndRestMapper {
             @MappingTarget MonthEndStatusOverviewEntryDto entry,
             @Context Map<ProjectId, ProjectRef> projectRefs,
             @Context Map<UserId, UserRef> userRefs,
-            @Context Map<ProjectId, Boolean> leistungsnachweisEnabledByProject,
             @Context UserId actorId,
             @Context ZepConfig zepConfig
     ) {
@@ -82,7 +79,6 @@ public interface MonthEndRestMapper {
                 : null;
         entry.project(toDto(project, zepConfig))
                 .subjectEmployee(subjectUser != null ? toDto(subjectUser, zepConfig) : null)
-                .leistungsnachweisEnabled(leistungsnachweisEnabledByProject.get(task.projectId()))
                 .canComplete(task.canBeCompletedBy(actorId))
                 .completedBy(map(task.completedBy()));
     }
@@ -91,7 +87,6 @@ public interface MonthEndRestMapper {
             MonthEndStatusOverview overview,
             @Context Map<ProjectId, ProjectRef> projectRefs,
             @Context Map<UserId, UserRef> userRefs,
-            @Context Map<ProjectId, Boolean> leistungsnachweisEnabledByProject,
             @Context UserId actorId,
             @Context ZepConfig zepConfig
     );

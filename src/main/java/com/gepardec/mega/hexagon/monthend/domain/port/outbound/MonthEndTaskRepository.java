@@ -28,10 +28,6 @@ public interface MonthEndTaskRepository {
 
     List<MonthEndTask> findOpenEmployeeTimeCheckTasks(UserId employeeId, YearMonth month, ProjectId projectId);
 
-    List<MonthEndTask> findOpenLeistungsnachweisTasks(YearMonth month, ProjectId projectId);
-
-    List<MonthEndTask> findClosedLeistungsnachweisTasks(YearMonth month, ProjectId projectId);
-
     void save(MonthEndTask task);
 
     void saveAll(List<MonthEndTask> tasks);

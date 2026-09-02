@@ -307,10 +307,9 @@ public class MonthEndResource implements MonthEndApi {
         List<MonthEndTask> tasks = overview.tasks();
         Map<ProjectId, MonthEndProjectSnapshot> snapshotsById = resolveProjectSnapshots(tasks, overview.month());
         Map<ProjectId, ProjectRef> projectRefs = toProjectRefs(snapshotsById);
-        Map<ProjectId, Boolean> leistungsnachweisEnabledByProject = toLeistungsnachweisEnabled(snapshotsById);
         Map<UserId, UserRef> userRefs = resolveUserRefs(overviewUserIds(overview), overview.month());
         return monthEndRestMapper.toDto(
-                overview, projectRefs, userRefs, leistungsnachweisEnabledByProject, actorId, zepConfig
+                overview, projectRefs, userRefs, actorId, zepConfig
         );
     }
 
@@ -335,16 +334,6 @@ public class MonthEndResource implements MonthEndApi {
                 .collect(Collectors.toMap(
                         MonthEndProjectSnapshot::id,
                         snapshot -> new ProjectRef(snapshot.id(), snapshot.zepId(), snapshot.name())
-                ));
-    }
-
-    private static Map<ProjectId, Boolean> toLeistungsnachweisEnabled(
-            Map<ProjectId, MonthEndProjectSnapshot> snapshots
-    ) {
-        return snapshots.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        entry -> entry.getValue().leistungsnachweisEnabled()
                 ));
     }
 

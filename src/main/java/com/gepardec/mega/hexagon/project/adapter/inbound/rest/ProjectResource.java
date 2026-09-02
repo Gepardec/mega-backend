@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.project.adapter.inbound.rest;
 
-
 import com.gepardec.mega.hexagon.generated.api.ProjectApi;
 import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
 import com.gepardec.mega.hexagon.generated.model.LeistungsnachweisToggleRequestDto;
@@ -8,10 +7,11 @@ import com.gepardec.mega.hexagon.generated.model.ProjectItemDto;
 import com.gepardec.mega.hexagon.project.application.port.inbound.GetLeadProjectsUseCase;
 import com.gepardec.mega.hexagon.project.application.port.inbound.SetLeistungsnachweisEnabledUseCase;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
-import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
+import io.quarkus.security.Authenticated;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
@@ -19,8 +19,11 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.UUID;
 
-
+@RequestScoped
+@Authenticated
+@MegaRolesAllowed(Role.PROJECT_LEAD)
 public class ProjectResource implements ProjectApi {
+
     private final GetLeadProjectsUseCase getLeadProjectsUseCase;
     private final SetLeistungsnachweisEnabledUseCase setLeistungsnachweisEnabledUseCase;
     private final AuthenticatedActorContext authenticatedActorContext;
@@ -38,17 +41,15 @@ public class ProjectResource implements ProjectApi {
     }
 
     @Override
-    @MegaRolesAllowed(Role.PROJECT_LEAD)
     public Response getLeadProjects() {
-        var actorId = authenticatedActorContext.userId();
-        var projects = getLeadProjectsUseCase.getLeadProjects(actorId);
-        List<ProjectItemDto> dtos = projectRestMapper.toDtoList(projects);
+        List<ProjectItemDto> projects = projectRestMapper.toDtoList(
+                getLeadProjectsUseCase.getLeadProjects(authenticatedActorContext.userId())
+        );
 
-        return Response.ok(dtos).build();
+        return Response.ok(projects).build();
     }
 
     @Override
-    @MegaRolesAllowed(Role.PROJECT_LEAD)
     public Response setLeistungsnachweisEnabled(
             @PathParam("projectId") UUID projectId,
             LeistungsnachweisToggleRequestDto leistungsnachweisToggleRequestDto) {
@@ -59,21 +60,13 @@ public class ProjectResource implements ProjectApi {
                     .entity(new ApiErrorDto().message("'enabled' field is required"))
                     .build();
         }
-        try {
-            setLeistungsnachweisEnabledUseCase.setLeistungsnachweisEnabled(
-                    ProjectId.of(projectId),
-                    authenticatedActorContext.userId(),
-                    enabled
-            );
-            return Response.noContent().build();
-        } catch (IllegalArgumentException exception) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(new ApiErrorDto().message(exception.getMessage()))
-                    .build();
-        } catch (ForbiddenException exception) {
-            return Response.status(Response.Status.FORBIDDEN)
-                    .entity(new ApiErrorDto().message(exception.getMessage()))
-                    .build();
-        }
+
+        setLeistungsnachweisEnabledUseCase.setLeistungsnachweisEnabled(
+                ProjectId.of(projectId),
+                authenticatedActorContext.userId(),
+                enabled
+        );
+
+        return Response.noContent().build();
     }
 }

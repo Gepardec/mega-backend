@@ -126,7 +126,6 @@ class MonthEndRestMapperTest {
                 overview,
                 Map.of(projectId, projectRef()),
                 userRefs,
-                Map.of(projectId, true),
                 employeeId,
                 zepConfig
         );
@@ -139,7 +138,6 @@ class MonthEndRestMapperTest {
             assertThat(entry.getSubjectEmployee().getId()).isEqualTo(employeeId.value());
             assertThat(entry.getSubjectEmployee().getFullName()).isEqualTo(employeeName);
             assertThat(entry.getCanComplete()).isTrue();
-            assertThat(entry.getLeistungsnachweisEnabled()).isTrue();
         });
         assertThat(response.getClarifications()).singleElement().satisfies(c -> {
             assertThat(c.getProjectId()).isEqualTo(projectId.value());
@@ -174,42 +172,12 @@ class MonthEndRestMapperTest {
                 overview,
                 Map.of(projectId, projectRef()),
                 Map.of(),
-                Map.of(projectId, false),
                 employeeId,
                 zepConfig
         );
 
         assertThat(response.getTasks()).singleElement()
                 .satisfies(entry -> assertThat(entry.getCanComplete()).isFalse());
-    }
-
-    @Test
-    void toDto_shouldMapStatusOverviewLeistungsnachweisEnabledFalseForDisabledProject() {
-        MonthEndStatusOverview overview = new MonthEndStatusOverview(
-                employeeId,
-                month,
-                List.of(MonthEndTask.create(
-                        MonthEndTaskId.of(Instancio.create(UUID.class)),
-                        month,
-                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                        projectId,
-                        employeeId,
-                        Set.of(employeeId)
-                )),
-                List.of()
-        );
-
-        MonthEndStatusOverviewDto response = mapper.toDto(
-                overview,
-                Map.of(projectId, projectRef()),
-                Map.of(),
-                Map.of(projectId, false),
-                employeeId,
-                zepConfig
-        );
-
-        assertThat(response.getTasks()).singleElement()
-                .satisfies(entry -> assertThat(entry.getLeistungsnachweisEnabled()).isFalse());
     }
 
     @Test
@@ -232,7 +200,6 @@ class MonthEndRestMapperTest {
                 overview,
                 Map.of(projectId, projectRef()),
                 Map.of(),
-                Map.of(projectId, true),
                 employeeId,
                 zepConfig
         );

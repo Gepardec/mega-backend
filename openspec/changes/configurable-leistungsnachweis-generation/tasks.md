@@ -11,7 +11,8 @@
 - [x] 2.1 Add `leistungsnachweis_enabled` boolean column (not null) to `ProjectEntity`
 - [x] 2.2 Add a Liquibase changelog adding the column with `defaultValueBoolean: true`; register it in `changelog-master.xml`
 - [x] 2.3 Update the Project entity↔domain MapStruct mapper to carry the flag both ways
-- [x] 2.4 Integration-test round-trip persistence and that existing rows backfill to `true`
+- [x] 2.4 Integration-test round-trip persistence
+- [x] 2.5 Verify the backfill by changelog review: `addColumn` with `defaultValueBoolean: true` and `nullable: false` populates existing rows. Not covered by an automated test — the `%test` profile uses `hibernate-orm.schema-management.strategy: drop-and-create`, so the test schema is derived from the JPA entities and Liquibase DDL is never observable from the suite
 
 ## 3. Month-end snapshot + generation gating
 
@@ -19,7 +20,7 @@
 - [x] 3.2 Update `MonthEndProjectSnapshotMapper` to map the flag from `Project`
 - [x] 3.3 Gate `LEISTUNGSNACHWEIS` creation in `MonthEndTaskPlanningService.planProjectTasks` on `project.leistungsnachweisEnabled()` (in addition to billable + active leads)
 - [x] 3.4 Unit-test planning: flag=true generates Leistungsnachweis; flag=false suppresses it while `PROJECT_LEAD_REVIEW` and `ABRECHNUNG` are still generated
-- [x] 3.5 Verify (test) that disabling the flag does not affect already-generated tasks and only the next run is affected
+- [x] 3.5 Unit-test that toggling the flag leaves already-generated tasks untouched and only the next generation run is affected (asserted nowhere today)
 
 ## 4. Application: use cases (project BC)
 
@@ -35,8 +36,27 @@
 - [x] 5.4 Add REST mapper (domain → project list DTO) via MapStruct
 - [x] 5.5 Map the not-found and authorization domain errors to appropriate HTTP responses (`404` / `403`)
 
-## 6. Verification
+## 6. Remove the retroactive reconciliation flow
 
-- [x] 6.1 REST test `GET /projects`: returns only the caller's led projects; empty list; `403` for non-lead role
-- [x] 6.2 REST test `PUT .../leistungsnachweis-enabled`: lead toggles own project; `403` for wrong-project lead; not-found for unknown project
-- [x] 6.3 Run `mvn clean package` (ArchUnit + full suite) and confirm green
+Built during development, then rejected: it contradicts the generation-time snapshot rule (see `design.md`). A lead clears the current month with the existing bulk completion endpoint instead.
+
+- [x] 6.1 Delete `LeistungsnachweisDisabledTaskCloser` and `LeistungsnachweisEnabledTaskReopener` (month-end event-observer adapters) and their integration tests
+- [x] 6.2 Delete `CloseLeistungsnachweisTasksForProjectUseCase` / `ReopenLeistungsnachweisTasksForProjectUseCase`, their services, and their unit tests
+- [x] 6.3 Delete `LeistungsnachweisEnabledEvent` / `LeistungsnachweisDisabledEvent` and stop publishing them from `ProjectSettingsService`; drop the `Event<...>` injections and their assertions in `ProjectSettingsServiceTest`
+- [x] 6.4 Remove `findOpenLeistungsnachweisTasks` / `findClosedLeistungsnachweisTasks` from `MonthEndTaskRepository` and its adapter
+- [x] 6.5 Remove `MonthEndTask.closeBySystem()` and `reopen()`, the closed-task guard in `complete()`, and the closed-task branch of the invariant check
+- [x] 6.6 Remove `CLOSED` from `MonthEndTaskStatus` and from the OpenAPI task status enum, returning the model to `OPEN`/`DONE`
+- [x] 6.7 Remove `leistungsnachweisEnabled` from `MonthEndStatusOverviewEntry` (OpenAPI schema, `MonthEndRestMapper`, and the resolution helper in `MonthEndResource`)
+- [x] 6.8 Confirmed with Oliver: branch is local-dev only, never deployed, so no `CLOSED` rows exist and no migration is needed
+
+## 7. Hardening
+
+- [x] 7.1 Signal not-found with a domain error handled by an `ExceptionMapper` rather than catching `IllegalArgumentException` in `ProjectResource`, matching `MonthEndDomainExceptionMapper`
+- [x] 7.2 Add `@RequestScoped` / `@Authenticated` to `ProjectResource` as every other hexagon resource carries, so unauthenticated calls answer `401` instead of `403`
+- [x] 7.3 Declare the `400` response (missing `enabled` value) in the OpenAPI paths file
+
+## 8. Verification
+
+- [x] 8.1 REST test `GET /projects`: returns only the caller's led projects; empty list; `403` for non-lead role
+- [x] 8.2 REST test `PUT .../leistungsnachweis-enabled`: lead toggles own project; `403` for wrong-project lead; not-found for unknown project
+- [x] 8.3 Run `mvn clean package` (ArchUnit + full suite) and confirm green
