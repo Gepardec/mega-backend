@@ -38,7 +38,7 @@
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss</maven.build.timestamp.format>
 
         <!-- 3rd-party version properties -->
-        <google-api-client-bom.version>2.9.0</google-api-client-bom.version>
+        <google-api-client-bom.version>2.9.1</google-api-client-bom.version>
         <google-api-services-gmail.version>v1-rev20260525-2.0.0</google-api-services-gmail.version>
         <google-auth-library-oauth2-http.version>1.48.0</google-auth-library-oauth2-http.version>
         <postgresql.version>42.7.8</postgresql.version>
