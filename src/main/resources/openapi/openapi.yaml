@@ -5,7 +5,11 @@ info:
   description: Spec-first REST API for month-end and worktime flows.
 tags:
   - name: MonthEnd
-    description: Month-end endpoints for employees, project leads, and operational callers
+    description: Month-end endpoints for employees and project leads
+  - name: Cron
+    description: >-
+      Machine-to-machine endpoints secured by the mega-cron client-credentials scheme.
+      Never callable from a browser session - no user-facing client should be generated for them.
   - name: User
     description: Office management user endpoints
   - name: WorkTimeEmployee

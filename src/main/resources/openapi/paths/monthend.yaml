@@ -251,7 +251,7 @@
 '/monthend/{month}/generate':
   post:
     tags:
-      - MonthEnd
+      - Cron
     operationId: generateMonthEndTasks
     summary: Generate month-end tasks for a month
     security:
