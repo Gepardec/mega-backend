@@ -1,12 +1,43 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.*;
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.error.MonthEndRequestValidationException;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.*;
+import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
+import com.gepardec.mega.hexagon.generated.model.CompleteOwnTimeChecksRequestDto;
+import com.gepardec.mega.hexagon.generated.model.CompleteProjectTasksRequestDto;
+import com.gepardec.mega.hexagon.generated.model.CompletedTasksResponseDto;
+import com.gepardec.mega.hexagon.generated.model.CreateClarificationRequestDto;
+import com.gepardec.mega.hexagon.generated.model.GenerateMonthEndPrematurelyRequestDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndOverviewClarificationEntryDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndTaskStatusDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndTaskTypeDto;
+import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequestDto;
+import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequestDto;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndClarificationUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndTaskUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteOwnTimeCheckTasksUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteProjectTasksByTypeUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.DeleteMonthEndClarificationUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndStatusOverviewUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeePayrollMonthUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndStatusOverviewUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadPayrollMonthUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndUserSnapshotPort;
-import com.gepardec.mega.hexagon.monthend.domain.error.*;
-import com.gepardec.mega.hexagon.monthend.domain.model.*;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndProjectContextNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndTaskNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -24,10 +55,13 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.YearMonth;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.post;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -88,9 +122,6 @@ class MonthEndResourceTest {
 
     @InjectMock
     DeleteMonthEndClarificationUseCase deleteMonthEndClarificationUseCase;
-
-    @InjectMock
-    GenerateMonthEndTasksUseCase generateMonthEndTasksUseCase;
 
     @InjectMock
     MonthEndUserSnapshotPort userSnapshotPort;
@@ -833,38 +864,6 @@ class MonthEndResourceTest {
                 .delete("/monthend/clarifications/{clarificationId}", CLARIFICATION_ID.value())
                 .then()
                 .statusCode(404);
-    }
-
-    @Test
-    @TestSecurity(user = "cron", roles = "mega-cron:sync")
-    void generateMonthEndTasks_shouldReturnGenerationResultForCronRole() {
-        MonthEndTaskGenerationResult result = new MonthEndTaskGenerationResult(MONTH, 4, 2);
-        when(generateMonthEndTasksUseCase.generate(MONTH)).thenReturn(result);
-
-        MonthEndTaskGenerationDto response = given()
-                .accept(ContentType.JSON)
-                .post("/monthend/{month}/generate", MONTH.toString())
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(MonthEndTaskGenerationDto.class);
-
-        assertThat(response.getMonth()).isEqualTo(MONTH.toString());
-        assertThat(response.getCreated()).isEqualTo(4);
-        assertThat(response.getSkipped()).isEqualTo(2);
-        verify(generateMonthEndTasksUseCase).generate(MONTH);
-    }
-
-    @Test
-    @TestSecurity(user = "cron")
-    void generateMonthEndTasks_shouldRejectMissingCronRole() {
-        given()
-                .accept(ContentType.JSON)
-                .post("/monthend/{month}/generate", MONTH.toString())
-                .then()
-                .statusCode(403);
-
-        verifyNoInteractions(generateMonthEndTasksUseCase);
     }
 
     private void allowRoles(Role... roles) {

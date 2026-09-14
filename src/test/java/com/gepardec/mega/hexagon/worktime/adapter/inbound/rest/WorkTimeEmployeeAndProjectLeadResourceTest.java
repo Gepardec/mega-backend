@@ -2,6 +2,7 @@ package com.gepardec.mega.hexagon.worktime.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
 import com.gepardec.mega.hexagon.generated.model.WorkTimeReportDto;
+import com.gepardec.mega.hexagon.generated.model.WorkTimeWarningDto;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -11,10 +12,13 @@ import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWorkTimeUseCase;
+import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWarningsUseCase;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetProjectLeadWorkTimeUseCase;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEntry;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -24,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.YearMonth;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -49,6 +54,9 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
 
     @InjectMock
     GetEmployeeWorkTimeUseCase getEmployeeWorkTimeUseCase;
+
+    @InjectMock
+    GetEmployeeWarningsUseCase getEmployeeWarningsUseCase;
 
     @InjectMock
     GetProjectLeadWorkTimeUseCase getProjectLeadWorkTimeUseCase;
@@ -135,6 +143,38 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
                 .statusCode(403);
 
         verifyNoInteractions(getEmployeeWorkTimeUseCase);
+    }
+
+    @Test
+    void getEmployeeWarnings_shouldReturnFlatWarningsForEmployeeRole() {
+        allowRoles(Role.EMPLOYEE);
+        LocalDate date = LocalDate.of(2026, 3, 2);
+        when(getEmployeeWarningsUseCase.getWarnings(EMPLOYEE_ID, MONTH)).thenReturn(List.of(
+                new WorkTimeWarning(date, WorkTimeWarningType.MISSING_BREAK_TIME, 0.5d)));
+
+        WorkTimeWarningDto[] response = given().accept(ContentType.JSON)
+                .get("/worktime/warnings/" + MONTH)
+                .then().statusCode(200).extract().as(WorkTimeWarningDto[].class);
+
+        assertThat(response).singleElement().satisfies(warning -> {
+            assertThat(warning.getType()).isEqualTo("MISSING_BREAK_TIME");
+            assertThat(warning.getDate()).isEqualTo(date);
+            assertThat(warning.getHours()).isEqualTo(0.5d);
+        });
+    }
+
+    @Test
+    void getEmployeeWarnings_shouldRejectProjectLeadRole() {
+        allowRoles(Role.PROJECT_LEAD);
+        given().accept(ContentType.JSON).get("/worktime/warnings/" + MONTH).then().statusCode(403);
+        verifyNoInteractions(getEmployeeWarningsUseCase);
+    }
+
+    @Test
+    void getEmployeeWarnings_shouldRejectMalformedMonth() {
+        allowRoles(Role.EMPLOYEE);
+        given().accept(ContentType.JSON).get("/worktime/warnings/not-a-month").then().statusCode(400);
+        verifyNoInteractions(getEmployeeWarningsUseCase);
     }
 
     @Test

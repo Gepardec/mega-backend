@@ -34,3 +34,17 @@ WorkTimeReport:
       type: array
       items:
         $ref: '#/WorkTimeEntry'
+WorkTimeWarning:
+  type: object
+  additionalProperties: false
+  required:
+    - type
+  properties:
+    type:
+      type: string
+    date:
+      type: string
+      format: date
+    hours:
+      type: number
+      format: double

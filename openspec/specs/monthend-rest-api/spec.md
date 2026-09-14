@@ -215,6 +215,19 @@ The system SHALL provide an internal monthend generation endpoint in the same Op
 - **THEN** the API triggers monthend task generation for that month
 - **THEN** the API returns the generation result including created and skipped counts
 
+### Requirement: Machine-to-machine monthend endpoints are grouped under a distinct contract tag
+The contract SHALL group monthend endpoints secured by the internal client-credentials scheme under the `Cron` tag, distinct from every tag carried by actor-facing monthend endpoints, so that consumers can exclude them by tag without enumerating their paths. No endpoint reachable by an authenticated employee or project-lead session SHALL carry the `Cron` tag.
+
+#### Scenario: Generation endpoint does not share a tag with actor-facing endpoints
+- **WHEN** the contract is inspected for the tags carried by `POST /monthend/{month}/generate`
+- **THEN** the endpoint carries the `Cron` tag
+- **THEN** the endpoint carries no tag that any employee-facing or project-lead-facing monthend endpoint also carries
+
+#### Scenario: A further client-credentials endpoint is added to the contract
+- **WHEN** a monthend endpoint secured by the internal client-credentials scheme is added
+- **THEN** the endpoint carries the `Cron` tag
+- **THEN** the endpoint carries no tag that any employee-facing or project-lead-facing monthend endpoint also carries
+
 ### Requirement: Scoped bulk task completion is available via a single endpoint
 The system SHALL provide `POST /monthend/{month}/tasks/complete/project-lead`, where `month` is a `YearMonth` in `yyyy-MM` format carried in the path, accepting a request body with required fields `projectId` and `type`. The endpoint SHALL complete all month-end tasks of the given `type` for the given project and month that the authenticated actor is eligible to complete and that are currently open, and SHALL return `200` with a body `{ "completed": [ ... ] }` where each entry uses the same task shape returned by single-task completion (`POST /monthend/tasks/{taskId}/complete`). The `completed` array SHALL contain only tasks newly transitioned to `DONE`; tasks already done or not completable by the actor SHALL be omitted. The endpoint SHALL accept only the `type` values `LEISTUNGSNACHWEIS` and `PROJECT_LEAD_REVIEW`; any other value — including `EMPLOYEE_TIME_CHECK` and `ABRECHNUNG` — SHALL be rejected with `400`. The endpoint SHALL require the project-lead role, SHALL reject a caller who is not an eligible project lead of the referenced project with `403`, and SHALL reject a `month`/`projectId` pair with no active month-end project context with `400`.
 
