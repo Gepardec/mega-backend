@@ -6,7 +6,9 @@ User:
     - email
     - fullName
     - zepUsername
+    - releaseDate
     - roles
+    - personioId
     - isExternal
   properties:
     id:
@@ -26,7 +28,7 @@ User:
     roles:
       type: array
       items:
-        type: string
+        $ref: './shared.yaml#/Role'
     personioId:
       type: integer
       format: int32
@@ -40,6 +42,7 @@ ActiveUser:
     - userId
     - fullName
     - email
+    - releaseDate
   properties:
     userId:
       type: string

@@ -247,6 +247,38 @@ class MonthEndResourceTest {
     }
 
     @Test
+    void getEmployeeMonthEndStatusOverview_shouldSendExplicitNullCompletedByForOpenTask() {
+        allowRoles(Role.EMPLOYEE);
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                EMPLOYEE_ID,
+                MONTH,
+                List.of(MonthEndTask.create(
+                        TASK_ID,
+                        MONTH,
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        PROJECT_ID,
+                        EMPLOYEE_ID,
+                        Set.of(EMPLOYEE_ID)
+                )),
+                List.of()
+        );
+        when(getEmployeeMonthEndStatusOverviewUseCase.getOverview(EMPLOYEE_ID, MONTH)).thenReturn(overview);
+
+        Map<String, Object> entry = given()
+                .accept(ContentType.JSON)
+                .get("/monthend/{month}/status-overview/employee", MONTH.toString())
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getMap("tasks[0]");
+
+        assertThat(entry)
+                .containsEntry("status", "OPEN")
+                .containsEntry("completedBy", null);
+    }
+
+    @Test
     void getEmployeeMonthEndStatusOverview_shouldReturnEmployeeViewForProjectLead() {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);

@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.user.adapter.inbound.rest;
 
+import com.gepardec.mega.hexagon.generated.model.RoleDto;
 import com.gepardec.mega.hexagon.generated.model.ActiveUserDto;
 import com.gepardec.mega.hexagon.generated.model.InternalRateUploadErrorDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDateEntryDto;
@@ -81,7 +82,7 @@ class UserResourceTest {
         assertThat(response.getFullName()).isEqualTo("Test User");
         assertThat(response.getZepUsername()).isEqualTo("worker");
         assertThat(response.getReleaseDate()).isEqualTo(LocalDate.of(2026, 4, 30));
-        assertThat(response.getRoles()).containsExactlyInAnyOrder("EMPLOYEE");
+        assertThat(response.getRoles()).containsExactlyInAnyOrder(RoleDto.EMPLOYEE);
         assertThat(response.getPersonioId()).isEqualTo(4242);
         assertThat(response.getIsExternal()).isFalse();
     }

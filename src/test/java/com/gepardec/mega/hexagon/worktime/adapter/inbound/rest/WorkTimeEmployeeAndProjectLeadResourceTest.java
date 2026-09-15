@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import java.time.YearMonth;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -164,6 +165,36 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
     }
 
     @Test
+    void getEmployeeWarnings_shouldSendExplicitNullHoursForWarningWithoutQuantity() {
+        allowRoles(Role.EMPLOYEE);
+        when(getEmployeeWarningsUseCase.getWarnings(EMPLOYEE_ID, MONTH)).thenReturn(List.of(
+                new WorkTimeWarning(LocalDate.of(2026, 3, 2), WorkTimeWarningType.NO_TIME_ENTRY, null)));
+
+        Map<String, Object> warning = firstWarningPayload();
+
+        assertThat(warning)
+                .containsOnlyKeys("type", "date", "hours")
+                .containsEntry("type", "NO_TIME_ENTRY")
+                .containsEntry("date", "2026-03-02")
+                .containsEntry("hours", null);
+    }
+
+    @Test
+    void getEmployeeWarnings_shouldSendExplicitNullDateForMonthLevelWarning() {
+        allowRoles(Role.EMPLOYEE);
+        when(getEmployeeWarningsUseCase.getWarnings(EMPLOYEE_ID, MONTH)).thenReturn(List.of(
+                new WorkTimeWarning(null, WorkTimeWarningType.EMPTY_ENTRY_LIST, null)));
+
+        Map<String, Object> warning = firstWarningPayload();
+
+        assertThat(warning)
+                .containsOnlyKeys("type", "date", "hours")
+                .containsEntry("type", "EMPTY_ENTRY_LIST")
+                .containsEntry("date", null)
+                .containsEntry("hours", null);
+    }
+
+    @Test
     void getEmployeeWarnings_shouldRejectProjectLeadRole() {
         allowRoles(Role.PROJECT_LEAD);
         given().accept(ContentType.JSON).get("/worktime/warnings/" + MONTH).then().statusCode(403);
@@ -205,6 +236,17 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
                 .as(ApiErrorDto.class);
 
         assertThat(response.getMessage()).isEqualTo("user not found: " + EMPLOYEE_ID.value());
+    }
+
+    private Map<String, Object> firstWarningPayload() {
+        return given()
+                .accept(ContentType.JSON)
+                .get("/worktime/warnings/" + MONTH)
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getMap("[0]");
     }
 
     private void allowRoles(Role... roles) {

@@ -39,12 +39,16 @@ WorkTimeWarning:
   additionalProperties: false
   required:
     - type
+    - date
+    - hours
   properties:
     type:
       type: string
     date:
       type: string
       format: date
+      nullable: true
     hours:
       type: number
       format: double
+      nullable: true

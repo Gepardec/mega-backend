@@ -2,12 +2,25 @@ MonthValue:
   type: string
   pattern: '^\d{4}-(0[1-9]|1[0-2])$'
   example: '2026-03'
+Role:
+  type: string
+  description: >-
+    A role a user can hold. Mirrors the shared domain `Role` enum, including the
+    `SYSTEM` role held by the seeded system actor.
+  enum:
+    - EMPLOYEE
+    - OFFICE_MANAGEMENT
+    - PROJECT_LEAD
+    - SYSTEM
 ApiError:
   type: object
   additionalProperties: false
+  required:
+    - message
   properties:
     message:
       type: string
+      nullable: true
       description: Human-readable error message when available.
 ProjectRef:
   type: object
@@ -15,6 +28,7 @@ ProjectRef:
   required:
     - id
     - name
+    - zepUrl
   properties:
     id:
       type: string
@@ -30,6 +44,7 @@ UserRef:
   required:
     - id
     - fullName
+    - zepUrl
   properties:
     id:
       type: string
