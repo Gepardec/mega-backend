@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.user.adapter.inbound.rest;
 
+import com.gepardec.mega.hexagon.generated.model.RoleDto;
 import com.gepardec.mega.hexagon.generated.model.UserDto;
 import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
@@ -44,7 +45,7 @@ class UserRestMapperTest {
         assertThat(dto.getFullName()).isEqualTo("Ada Lovelace");
         assertThat(dto.getZepUsername()).isEqualTo("eworker");
         assertThat(dto.getReleaseDate()).isEqualTo(LocalDate.of(2026, 4, 30));
-        assertThat(dto.getRoles()).containsExactlyInAnyOrder("EMPLOYEE", "PROJECT_LEAD");
+        assertThat(dto.getRoles()).containsExactlyInAnyOrder(RoleDto.EMPLOYEE, RoleDto.PROJECT_LEAD);
         assertThat(dto.getPersonioId()).isEqualTo(42);
         assertThat(dto.getIsExternal()).isTrue();
     }
