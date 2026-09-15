@@ -117,6 +117,7 @@
           text/csv:
             schema:
               type: string
+              format: binary
       '403':
         $ref: '../responses/common.yaml#/Forbidden'
       '500':

@@ -24,6 +24,8 @@ MonthEndStatusOverviewEntry:
     - status
     - project
     - canComplete
+    - subjectEmployee
+    - completedBy
   properties:
     taskId:
       type: string
@@ -37,7 +39,8 @@ MonthEndStatusOverviewEntry:
     canComplete:
       type: boolean
     subjectEmployee:
-      $ref: './shared.yaml#/UserRef'
+      allOf:
+        - $ref: './shared.yaml#/UserRef'
       nullable: true
     completedBy:
       type: string
@@ -57,6 +60,10 @@ MonthEndOverviewClarificationEntry:
     - canDelete
     - createdAt
     - lastModifiedAt
+    - subjectEmployee
+    - resolutionNote
+    - resolvedBy
+    - resolvedAt
   properties:
     clarificationId:
       type: string
@@ -65,7 +72,8 @@ MonthEndOverviewClarificationEntry:
       type: string
       format: uuid
     subjectEmployee:
-      $ref: './shared.yaml#/UserRef'
+      allOf:
+        - $ref: './shared.yaml#/UserRef'
       nullable: true
     createdBy:
       $ref: './shared.yaml#/UserRef'
@@ -83,7 +91,8 @@ MonthEndOverviewClarificationEntry:
       type: string
       nullable: true
     resolvedBy:
-      $ref: './shared.yaml#/UserRef'
+      allOf:
+        - $ref: './shared.yaml#/UserRef'
       nullable: true
     resolvedAt:
       type: string
@@ -168,6 +177,8 @@ MonthEndTask:
     - type
     - projectId
     - status
+    - subjectEmployeeId
+    - completedBy
   properties:
     taskId:
       type: string
