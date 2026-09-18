@@ -5,6 +5,6 @@ import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
 import java.util.List;
 
-public interface GetLeadProjectsUseCase {
+public interface GetProjectSettingsUseCase {
     List<Project> getLeadProjects(UserId actorId);
 }

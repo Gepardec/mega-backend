@@ -1,10 +1,9 @@
-# Project REST API
+## RENAMED Requirements
 
-## Purpose
+- FROM: `### Requirement: Project lead can list their own projects`
+- TO: `### Requirement: Project lead can list their project settings`
 
-Defines the HTTP endpoints exposed by the Project bounded context. Covers the project lead reading the projects they lead and toggling per-project `LEISTUNGSNACHWEIS` month-end task generation, restricted to the `PROJECT_LEAD` role and additionally authorized per target project.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Project lead can list their project settings
 The system SHALL expose a `GET /projects/settings` endpoint that returns the Leistungsnachweis settings of the projects for which the authenticated user is a lead. The endpoint SHALL be restricted to the `PROJECT_LEAD` role. Because the result set is scoped to the caller's own led projects, the role restriction alone is sufficient authorization for reading.

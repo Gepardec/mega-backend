@@ -1,21 +1,12 @@
-ProjectItem:
+ProjectSettings:
   type: object
+  additionalProperties: false
   required:
-    - id
-    - zepId
-    - name
-    - billable
+    - project
     - leistungsnachweisEnabled
   properties:
-    id:
-      type: string
-      format: uuid
-    zepId:
-      type: integer
-    name:
-      type: string
-    billable:
-      type: boolean
+    project:
+      $ref: 'shared.yaml#/ProjectRef'
     leistungsnachweisEnabled:
       type: boolean
 LeistungsnachweisToggleRequest:

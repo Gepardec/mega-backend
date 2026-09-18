@@ -1,10 +1,9 @@
 package com.gepardec.mega.hexagon.project.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.api.ProjectApi;
-import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
 import com.gepardec.mega.hexagon.generated.model.LeistungsnachweisToggleRequestDto;
-import com.gepardec.mega.hexagon.generated.model.ProjectItemDto;
-import com.gepardec.mega.hexagon.project.application.port.inbound.GetLeadProjectsUseCase;
+import com.gepardec.mega.hexagon.generated.model.ProjectSettingsDto;
+import com.gepardec.mega.hexagon.project.application.port.inbound.GetProjectSettingsUseCase;
 import com.gepardec.mega.hexagon.project.application.port.inbound.SetLeistungsnachweisEnabledUseCase;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
@@ -24,26 +23,26 @@ import java.util.UUID;
 @MegaRolesAllowed(Role.PROJECT_LEAD)
 public class ProjectResource implements ProjectApi {
 
-    private final GetLeadProjectsUseCase getLeadProjectsUseCase;
+    private final GetProjectSettingsUseCase getProjectSettingsUseCase;
     private final SetLeistungsnachweisEnabledUseCase setLeistungsnachweisEnabledUseCase;
     private final AuthenticatedActorContext authenticatedActorContext;
     private final ProjectRestMapper projectRestMapper;
 
     @Inject
-    public ProjectResource(GetLeadProjectsUseCase getLeadProjectsUseCase,
+    public ProjectResource(GetProjectSettingsUseCase getProjectSettingsUseCase,
                            SetLeistungsnachweisEnabledUseCase setLeistungsnachweisEnabledUseCase,
                            AuthenticatedActorContext authenticatedActorContext,
                            ProjectRestMapper projectRestMapper) {
-        this.getLeadProjectsUseCase = getLeadProjectsUseCase;
+        this.getProjectSettingsUseCase = getProjectSettingsUseCase;
         this.setLeistungsnachweisEnabledUseCase = setLeistungsnachweisEnabledUseCase;
         this.authenticatedActorContext = authenticatedActorContext;
         this.projectRestMapper = projectRestMapper;
     }
 
     @Override
-    public Response getLeadProjects() {
-        List<ProjectItemDto> projects = projectRestMapper.toDtoList(
-                getLeadProjectsUseCase.getLeadProjects(authenticatedActorContext.userId())
+    public Response getProjectSettings() {
+        List<ProjectSettingsDto> projects = projectRestMapper.toDtoList(
+                getProjectSettingsUseCase.getLeadProjects(authenticatedActorContext.userId())
         );
 
         return Response.ok(projects).build();
@@ -54,17 +53,10 @@ public class ProjectResource implements ProjectApi {
             @PathParam("projectId") UUID projectId,
             LeistungsnachweisToggleRequestDto leistungsnachweisToggleRequestDto) {
 
-        Boolean enabled = leistungsnachweisToggleRequestDto.getEnabled();
-        if (enabled == null) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new ApiErrorDto().message("'enabled' field is required"))
-                    .build();
-        }
-
         setLeistungsnachweisEnabledUseCase.setLeistungsnachweisEnabled(
                 ProjectId.of(projectId),
                 authenticatedActorContext.userId(),
-                enabled
+                leistungsnachweisToggleRequestDto.getEnabled()
         );
 
         return Response.noContent().build();

@@ -12,6 +12,8 @@ public interface ProjectRepository {
 
     Optional<Project> findByZepId(int zepId);
 
+    Optional<Project> findById(ProjectId id);
+
     List<Project> findAll();
 
     List<Project> findAllByLead(UserId leadId);

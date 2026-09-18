@@ -12,4 +12,19 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                   defaultValueBoolean: true
-
+  - changeSet:
+      id: hexagon-disable-leistungsnachweis-002
+      author: mega
+      changes:
+        - update:
+            tableName: projects
+            columns:
+              - column:
+                  name: leistungsnachweis_enabled
+                  valueBoolean: false
+            where: billable = false
+        - sql:
+            sql: |
+              alter table projects
+              add constraint chk_projects_leistungsnachweis_requires_billable
+              check (billable or not leistungsnachweis_enabled)

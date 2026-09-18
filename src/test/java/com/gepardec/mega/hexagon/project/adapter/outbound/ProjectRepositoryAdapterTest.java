@@ -9,13 +9,14 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 @TestTransaction
-public class ProjectRepositoryAdapterTest {
+class ProjectRepositoryAdapterTest {
 
     @Inject
     ProjectRepositoryAdapter projectRepositoryAdapter;
@@ -30,5 +31,36 @@ public class ProjectRepositoryAdapterTest {
         List<Project> loaded = projectRepositoryAdapter.findAllByIds(Set.of(id));
         assertThat(loaded).hasSize(1);
         assertThat(loaded.getFirst().leistungsnachweisEnabled()).isFalse();
+    }
+
+    @Test
+    void saveAll_andFindAllByIds_shouldPersistAndLoadBillableProjectWithFlagEnabled() {
+        ProjectId id = ProjectId.generate();
+        Project project = new Project(id, 89, "Billable", LocalDate.now(), null, true, true, Set.of());
+
+        projectRepositoryAdapter.saveAll(List.of(project));
+
+        List<Project> loaded = projectRepositoryAdapter.findAllByIds(Set.of(id));
+        assertThat(loaded).hasSize(1);
+        assertThat(loaded.getFirst().leistungsnachweisEnabled()).isTrue();
+    }
+
+    @Test
+    void findById_shouldReturnProject_whenExists() {
+        ProjectId id = ProjectId.generate();
+        Project project = new Project(id, 90, "Findable", LocalDate.now(), null, true, true, Set.of());
+
+        projectRepositoryAdapter.saveAll(List.of(project));
+
+        Optional<Project> found = projectRepositoryAdapter.findById(id);
+        assertThat(found).isPresent();
+        assertThat(found.get().id()).isEqualTo(id);
+    }
+
+    @Test
+    void findById_shouldReturnEmpty_whenUnknown() {
+        Optional<Project> found = projectRepositoryAdapter.findById(ProjectId.generate());
+
+        assertThat(found).isEmpty();
     }
 }

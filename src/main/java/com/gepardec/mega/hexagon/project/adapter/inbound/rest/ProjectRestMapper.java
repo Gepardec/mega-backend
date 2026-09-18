@@ -1,23 +1,29 @@
 package com.gepardec.mega.hexagon.project.adapter.inbound.rest;
 
+import com.gepardec.mega.hexagon.generated.model.ProjectSettingsDto;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
-import com.gepardec.mega.hexagon.generated.model.ProjectItemDto;
+import com.gepardec.mega.hexagon.shared.adapter.inbound.rest.SharedRefRestMapper;
+import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.JAKARTA)
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.JAKARTA,
+        uses = SharedRefRestMapper.class,
+        injectionStrategy = InjectionStrategy.CONSTRUCTOR
+)
 public interface ProjectRestMapper {
 
-    ProjectRestMapper INSTANCE = Mappers.getMapper(ProjectRestMapper.class);
+    @Mapping(target = "project", source = ".")
+    ProjectSettingsDto toDto(Project project);
 
-    @Mapping(target = "id", source = "id.value")
-    ProjectItemDto toDto(Project project);
+    ProjectRef toProjectRef(Project project);
 
-    default List<ProjectItemDto> toDtoList(List<Project> projects) {
+    default List<ProjectSettingsDto> toDtoList(List<Project> projects) {
         return projects == null ? List.of()
                 : projects.stream().map(this::toDto).toList();
     }

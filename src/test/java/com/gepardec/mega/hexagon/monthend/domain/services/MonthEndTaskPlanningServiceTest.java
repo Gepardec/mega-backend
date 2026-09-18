@@ -12,7 +12,6 @@ import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Month;
 import java.time.YearMonth;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -115,7 +114,7 @@ class MonthEndTaskPlanningServiceTest {
     void planProjectTasks_shouldNotCreateLeistungsnachweis_whenProjectIsNonBillable() {
         UserRef employee = activeUser("employee");
         UserId lead = UserId.of(Instancio.create(UUID.class));
-        MonthEndProjectSnapshot project = activeProject(false, true, Set.of(lead));
+        MonthEndProjectSnapshot project = activeProject(false, false, Set.of(lead));
 
         List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(lead), Set.of(employee));
 
@@ -127,12 +126,12 @@ class MonthEndTaskPlanningServiceTest {
     }
 
     @Test
-    void flagFalse_supressesLeistungsnachweis() {
+    void flagFalse_suppressesLeistungsnachweis() {
         UserRef employee = activeUser("employee");
         UserId lead = UserId.of(Instancio.create(UUID.class));
         MonthEndProjectSnapshot project = activeProject(true, false, Set.of(lead));
 
-        List<MonthEndTask> tasks = service.planProjectTasks(month,project,Set.of(lead),Set.of(employee));
+        List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(lead), Set.of(employee));
 
         assertThat(tasks).extracting(MonthEndTask::type)
                 .doesNotContain(MonthEndTaskType.LEISTUNGSNACHWEIS);
@@ -151,7 +150,7 @@ class MonthEndTaskPlanningServiceTest {
         UserId lead = UserId.of(Instancio.create(UUID.class));
         MonthEndProjectSnapshot project = activeProject(true, true, Set.of(lead));
 
-        List<MonthEndTask> tasks = service.planProjectTasks(month,project,Set.of(lead),Set.of(employee));
+        List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(lead), Set.of(employee));
 
         assertThat(tasks).extracting(MonthEndTask::type)
                 .contains(
