@@ -7,7 +7,7 @@ Defines shared-kernel reference types used across hexagon modules when only stab
 ## Requirements
 
 ### Requirement: UserRef is the canonical cross-module user reference
-The shared kernel SHALL provide a `UserRef` record in `shared/domain/model/` with fields `UserId id`, `FullName fullName`, and `ZepUsername zepUsername`. `UserRef` SHALL be the only type used to reference a user from outside the `user` module's domain layer. No module outside `user` SHALL declare its own projection or snapshot type for basic user identity data. The REST representation of `UserRef` SHALL include a `zepUrl` field containing a pre-assembled URL pointing to the employee's page in the ZEP web interface. `zepUrl` SHALL be assembled server-side by the REST adapter and SHALL be `null` when `zepUsername` is unavailable.
+The shared kernel SHALL provide a `UserRef` record in `shared/domain/model/` with fields `UserId id`, `FullName fullName`, and `ZepUsername zepUsername`. `UserRef` SHALL be the only type used to reference a user from outside the `user` module's domain layer. No module outside `user` SHALL declare its own projection or snapshot type for basic user identity data. The REST representation of `UserRef` SHALL include a `zepUrl` field containing a pre-assembled URL pointing to the employee's page in the ZEP web interface. `zepUrl` SHALL be assembled server-side by the REST adapter and SHALL be `null` when `zepUsername` is unavailable. Every REST response that carries a user reference SHALL fill in `zepUrl` according to this rule, regardless of which module produces the response.
 
 #### Scenario: Monthend REST adapter enriches task entries with UserRef
 - **WHEN** the monthend REST adapter maps a `MonthEndTask` to a status overview entry
@@ -23,13 +23,19 @@ The shared kernel SHALL provide a `UserRef` record in `shared/domain/model/` wit
 - **WHEN** a `UserRef` with a null `zepUsername` is mapped to its REST DTO
 - **THEN** the `zepUrl` field in the DTO is `null`
 
+#### Scenario: Work time report entries carry the employee's ZEP URL
+- **WHEN** an authenticated caller retrieves an employee or project-lead work time report and an entry references an employee who has a ZEP username
+- **THEN** that entry's `employee` object contains a `zepUrl` pointing to the employee's page in ZEP
+
 #### Scenario: Worktime module references a user via UserRef
 - **WHEN** a `WorkTimeEntry` carries a reference to an employee
 - **THEN** the reference type is `UserRef` from `shared/domain/model/`
 - **THEN** no `WorkTimeEmployee` or `WorkTimeUserSnapshot` type exists in the worktime module
 
 ### Requirement: ProjectRef is the canonical cross-module project reference
-The shared kernel SHALL provide a `ProjectRef` record in `shared/domain/model/` with fields `ProjectId id`, `int zepId`, and `String name`. `ProjectRef` SHALL be the only type used to reference a project from outside the `project` module's domain layer when only identity and display data is needed. No module outside `project` SHALL declare its own minimal project reference or snapshot type carrying only `{ id, name }` or `{ id, zepId, name }`. The REST representation of `ProjectRef` SHALL include a `zepUrl` field containing a pre-assembled URL pointing to the project's page in the ZEP web interface. `zepUrl` SHALL be assembled server-side by the REST adapter and SHALL be `null` when the ZEP identifier is unavailable.
+The shared kernel SHALL provide a `ProjectRef` record in `shared/domain/model/` with fields `ProjectId id`, `int zepId`, and `String name`. `ProjectRef` SHALL be the only type used to reference a project from outside the `project` module's domain layer when only identity and display data is needed. No module outside `project` SHALL declare its own minimal project reference or snapshot type carrying only `{ id, name }` or `{ id, zepId, name }`.
+
+The REST representation of `ProjectRef` SHALL include a `zepUrl` field containing a pre-assembled URL pointing to the project's page in the ZEP web interface. `zepUrl` SHALL be assembled server-side by the REST adapter. Every project has a ZEP identifier, so `zepUrl` SHALL always be present and SHALL never be `null`. The REST contract SHALL declare it as required and non-nullable. Every REST response that carries a project reference SHALL fill in `zepUrl`, regardless of which module produces the response.
 
 #### Scenario: Monthend REST adapter enriches task entries with ProjectRef
 - **WHEN** the monthend REST adapter maps a `MonthEndTask` to a status overview entry
@@ -40,6 +46,15 @@ The shared kernel SHALL provide a `ProjectRef` record in `shared/domain/model/` 
 - **WHEN** a `ProjectRef` is mapped to its REST DTO
 - **THEN** the DTO includes a `zepUrl` field containing the full URL to the project's page in ZEP
 - **THEN** the URL is assembled from the configured ZEP origin and the project's `zepId`
+
+#### Scenario: Project reference ZEP URL is never null
+- **WHEN** any REST response contains a project reference
+- **THEN** its `zepUrl` field is present and contains the URL of the project's page in ZEP
+- **THEN** its `zepUrl` field is never `null`
+
+#### Scenario: Work time report entries carry the project's ZEP URL
+- **WHEN** an authenticated caller retrieves an employee or project-lead work time report
+- **THEN** the `project` object of each entry contains a non-null `zepUrl` pointing to the project's page in ZEP
 
 #### Scenario: Worktime module references a project via ProjectRef
 - **WHEN** a `WorkTimeEntry` carries a reference to a project
