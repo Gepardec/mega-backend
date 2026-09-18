@@ -16,6 +16,8 @@ tags:
     description: Employee-scoped work time endpoints
   - name: WorkTimeProjectLead
     description: Project-lead-scoped work time endpoints
+  - name: Project
+    description: Project endpoints for leistungsnachweis
 paths:
   /monthend/payroll-month/employee:
     $ref: './paths/monthend.yaml#/~1monthend~1payroll-month~1employee'
@@ -31,6 +33,10 @@ paths:
     $ref: './paths/monthend.yaml#/~1monthend~1clarifications'
   /monthend/tasks/{taskId}/complete:
     $ref: './paths/monthend.yaml#/~1monthend~1tasks~1{taskId}~1complete'
+  /monthend/{month}/tasks/complete/project-lead:
+    $ref: './paths/monthend.yaml#/~1monthend~1{month}~1tasks~1complete~1project-lead'
+  /monthend/{month}/tasks/complete/employee:
+    $ref: './paths/monthend.yaml#/~1monthend~1{month}~1tasks~1complete~1employee'
   /monthend/clarifications/{clarificationId}/text:
     $ref: './paths/monthend.yaml#/~1monthend~1clarifications~1{clarificationId}~1text'
   /monthend/clarifications/{clarificationId}:
@@ -55,6 +61,10 @@ paths:
     $ref: './paths/worktime.yaml#/~1worktime~1projects~1{payrollMonth}'
   /worktime/warnings/{payrollMonth}:
     $ref: './paths/worktime.yaml#/~1worktime~1warnings~1{payrollMonth}'
+  /projects/settings:
+    $ref: './paths/projects.yaml#/~1projects~1settings'
+  /projects/{projectId}/leistungsnachweis-enabled:
+    $ref: './paths/projects.yaml#/~1projects~1{projectId}~1leistungsnachweis-enabled'
 components:
   schemas:
     ActiveUser:
@@ -69,6 +79,10 @@ components:
       $ref: './schemas/user.yaml#/UpdateReleaseDatesResponse'
     InternalRateUploadError:
       $ref: './schemas/user.yaml#/InternalRateUploadError'
+    ProjectSettings:
+      $ref: './schemas/projects.yaml#/ProjectSettings'
+    LeistungsnachweisToggleRequest:
+      $ref: './schemas/projects.yaml#/LeistungsnachweisToggleRequest'
   securitySchemes:
     bearerAuth:
       type: oauth2

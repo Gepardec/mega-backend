@@ -276,3 +276,71 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
+'/monthend/{month}/tasks/complete/project-lead':
+  post:
+    tags:
+      - MonthEnd
+    operationId: completeProjectLeadMonthEndTasks
+    summary: Complete all tasks of one type for a project as a project lead
+    security:
+      - bearerAuth: [ ]
+    parameters:
+      - name: month
+        in: path
+        required: true
+        description: Month-end context in yyyy-MM format.
+        schema:
+          $ref: '../schemas/shared.yaml#/MonthValue'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/monthend.yaml#/CompleteProjectTasksRequest'
+    responses:
+      '200':
+        description: Monthend tasks bulk completed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/monthend.yaml#/CompletedTasksResponse'
+      '400':
+        $ref: '../responses/common.yaml#/BadRequest'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'
+'/monthend/{month}/tasks/complete/employee':
+  post:
+    tags:
+      - MonthEnd
+    operationId: completeEmployeeMonthEndTasks
+    summary: Complete own open time-check tasks as an employee
+    security:
+      - bearerAuth: [ ]
+    parameters:
+      - name: month
+        in: path
+        required: true
+        description: Month-end context in yyyy-MM format.
+        schema:
+          $ref: '../schemas/shared.yaml#/MonthValue'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/monthend.yaml#/CompleteOwnTimeChecksRequest'
+    responses:
+      '200':
+        description: Own time-check tasks bulk completed
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/monthend.yaml#/CompletedTasksResponse'
+      '400':
+        $ref: '../responses/common.yaml#/BadRequest'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'

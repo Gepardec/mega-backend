@@ -1,14 +1,20 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.application.configuration.ZepConfig;
 import com.gepardec.mega.hexagon.generated.api.MonthEndApi;
+import com.gepardec.mega.hexagon.generated.model.CompleteOwnTimeChecksRequestDto;
+import com.gepardec.mega.hexagon.generated.model.CompleteProjectTasksRequestDto;
+import com.gepardec.mega.hexagon.generated.model.CompletedTasksResponseDto;
 import com.gepardec.mega.hexagon.generated.model.CreateClarificationRequestDto;
 import com.gepardec.mega.hexagon.generated.model.GenerateMonthEndPrematurelyRequestDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndTaskDto;
 import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequestDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequestDto;
+import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.error.MonthEndRequestValidationException;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndTaskUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteOwnTimeCheckTasksUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteProjectTasksByTypeUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.DeleteMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndStatusOverviewUseCase;
@@ -23,6 +29,7 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -56,6 +63,8 @@ public class MonthEndResource implements MonthEndApi {
     private final PrematureMonthEndPreparationUseCase prematureMonthEndPreparationUseCase;
     private final CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
     private final CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase;
+    private final CompleteProjectTasksByTypeUseCase completeProjectTasksByTypeUseCase;
+    private final CompleteOwnTimeCheckTasksUseCase completeOwnTimeCheckTasksUseCase;
     private final UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase;
     private final CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase;
     private final DeleteMonthEndClarificationUseCase deleteMonthEndClarificationUseCase;
@@ -64,7 +73,6 @@ public class MonthEndResource implements MonthEndApi {
     private final AuthenticatedActorContext authenticatedActorContext;
     private final MonthEndRestTransportHelper transportHelper;
     private final MonthEndRestMapper monthEndRestMapper;
-    private final ZepConfig zepConfig;
 
     @Inject
     public MonthEndResource(
@@ -74,7 +82,8 @@ public class MonthEndResource implements MonthEndApi {
             GetProjectLeadMonthEndStatusOverviewUseCase getProjectLeadMonthEndStatusOverviewUseCase,
             PrematureMonthEndPreparationUseCase prematureMonthEndPreparationUseCase,
             CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase,
-            CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase,
+            CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase, CompleteProjectTasksByTypeUseCase completeProjectTasksByTypeUseCase,
+            CompleteOwnTimeCheckTasksUseCase completeOwnTimeCheckTasksUseCase,
             UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase,
             CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase,
             DeleteMonthEndClarificationUseCase deleteMonthEndClarificationUseCase,
@@ -82,8 +91,7 @@ public class MonthEndResource implements MonthEndApi {
             MonthEndUserSnapshotPort userSnapshotPort,
             AuthenticatedActorContext authenticatedActorContext,
             MonthEndRestTransportHelper transportHelper,
-            MonthEndRestMapper monthEndRestMapper,
-            ZepConfig zepConfig
+            MonthEndRestMapper monthEndRestMapper
     ) {
         this.getEmployeePayrollMonthUseCase = getEmployeePayrollMonthUseCase;
         this.getProjectLeadPayrollMonthUseCase = getProjectLeadPayrollMonthUseCase;
@@ -92,6 +100,8 @@ public class MonthEndResource implements MonthEndApi {
         this.prematureMonthEndPreparationUseCase = prematureMonthEndPreparationUseCase;
         this.createMonthEndClarificationUseCase = createMonthEndClarificationUseCase;
         this.completeMonthEndTaskUseCase = completeMonthEndTaskUseCase;
+        this.completeProjectTasksByTypeUseCase = completeProjectTasksByTypeUseCase;
+        this.completeOwnTimeCheckTasksUseCase = completeOwnTimeCheckTasksUseCase;
         this.updateMonthEndClarificationUseCase = updateMonthEndClarificationUseCase;
         this.completeMonthEndClarificationUseCase = completeMonthEndClarificationUseCase;
         this.deleteMonthEndClarificationUseCase = deleteMonthEndClarificationUseCase;
@@ -100,7 +110,6 @@ public class MonthEndResource implements MonthEndApi {
         this.authenticatedActorContext = authenticatedActorContext;
         this.transportHelper = transportHelper;
         this.monthEndRestMapper = monthEndRestMapper;
-        this.zepConfig = zepConfig;
     }
 
     @Override
@@ -165,7 +174,7 @@ public class MonthEndResource implements MonthEndApi {
 
         Map<UserId, UserRef> userRefs = resolveUserRefs(clarification.referencedUserIds(), clarification.month());
         return Response.status(Response.Status.CREATED)
-                .entity(monthEndRestMapper.toClarificationEntry(clarification, userRefs, actorId, zepConfig))
+                .entity(monthEndRestMapper.toClarificationEntry(clarification, userRefs, actorId))
                 .build();
     }
 
@@ -198,6 +207,52 @@ public class MonthEndResource implements MonthEndApi {
     }
 
     @Override
+    @MegaRolesAllowed(Role.PROJECT_LEAD)
+    public Response completeProjectLeadMonthEndTasks(String month, CompleteProjectTasksRequestDto request) {
+        UserId actorId = authenticatedActorContext.userId();
+        MonthEndTaskType type = MonthEndTaskType.valueOf(request.getType().toString());
+
+        if (!type.equals(MonthEndTaskType.LEISTUNGSNACHWEIS) && !type.equals(MonthEndTaskType.PROJECT_LEAD_REVIEW)) {
+            throw new MonthEndRequestValidationException("Bulk completion is only supported for LEISTUNGSNACHWEIS and PROJECT_LEAD_REVIEW", null);
+        }
+
+        List<MonthEndTask> tasks = completeProjectTasksByTypeUseCase.complete(
+                transportHelper.parseMonth(month),
+                transportHelper.toProjectId(request.getProjectId()),
+                type,
+                actorId
+        );
+
+        List<MonthEndTaskDto> taskDtos = tasks.stream()
+                .map(monthEndRestMapper::toDto)
+                .toList();
+
+        return Response.ok(new CompletedTasksResponseDto(taskDtos)).build();
+    }
+
+    @Override
+    @MegaRolesAllowed(Role.EMPLOYEE)
+    public Response completeEmployeeMonthEndTasks(String month, CompleteOwnTimeChecksRequestDto request) {
+        UserId actorId = authenticatedActorContext.userId();
+        YearMonth parsedMonth = transportHelper.parseMonth(month);
+        ProjectId projectId = request.getProjectId() != null
+                ? transportHelper.toProjectId(request.getProjectId())
+                : null;
+
+        List<MonthEndTask> tasks = completeOwnTimeCheckTasksUseCase.complete(
+                actorId,
+                parsedMonth,
+                projectId
+        );
+
+        List<MonthEndTaskDto> taskDtos = tasks.stream()
+                .map(monthEndRestMapper::toDto)
+                .toList();
+
+        return Response.ok(new CompletedTasksResponseDto(taskDtos)).build();
+    }
+
+    @Override
     @MegaRolesAllowed({Role.EMPLOYEE, Role.PROJECT_LEAD})
     public Response resolveMonthEndClarification(UUID clarificationId, ResolveClarificationRequestDto request) {
         UserId actorId = authenticatedActorContext.userId();
@@ -209,7 +264,7 @@ public class MonthEndResource implements MonthEndApi {
         );
 
         Map<UserId, UserRef> userRefs = resolveUserRefs(clarification.referencedUserIds(), clarification.month());
-        return Response.ok(monthEndRestMapper.toClarificationEntry(clarification, userRefs, actorId, zepConfig)).build();
+        return Response.ok(monthEndRestMapper.toClarificationEntry(clarification, userRefs, actorId)).build();
     }
 
     @Override
@@ -237,21 +292,7 @@ public class MonthEndResource implements MonthEndApi {
         );
 
         Map<UserId, UserRef> userRefs = resolveUserRefs(clarification.referencedUserIds(), clarification.month());
-        return Response.ok(monthEndRestMapper.toClarificationEntry(clarification, userRefs, actorId, zepConfig)).build();
-    }
-
-    private Map<ProjectId, ProjectRef> resolveProjectRefs(List<MonthEndTask> tasks, YearMonth month) {
-        if (tasks.isEmpty()) {
-            return Map.of();
-        }
-        Set<ProjectId> projectIds = tasks.stream()
-                .map(MonthEndTask::projectId)
-                .collect(Collectors.toSet());
-        return projectSnapshotPort.findByIds(projectIds, month).stream()
-                .collect(Collectors.toMap(
-                        MonthEndProjectSnapshot::id,
-                        snapshot -> new ProjectRef(snapshot.id(), snapshot.zepId(), snapshot.name())
-                ));
+        return Response.ok(monthEndRestMapper.toClarificationEntry(clarification, userRefs, actorId)).build();
     }
 
     private Map<UserId, UserRef> resolveUserRefs(Set<UserId> ids, YearMonth month) {
@@ -266,9 +307,37 @@ public class MonthEndResource implements MonthEndApi {
             MonthEndStatusOverview overview,
             UserId actorId
     ) {
-        Map<ProjectId, ProjectRef> projectRefs = resolveProjectRefs(overview.tasks(), overview.month());
+        List<MonthEndTask> tasks = overview.tasks();
+        Map<ProjectId, MonthEndProjectSnapshot> snapshotsById = resolveProjectSnapshots(tasks, overview.month());
+        Map<ProjectId, ProjectRef> projectRefs = toProjectRefs(snapshotsById);
         Map<UserId, UserRef> userRefs = resolveUserRefs(overviewUserIds(overview), overview.month());
-        return monthEndRestMapper.toDto(overview, projectRefs, userRefs, actorId, zepConfig);
+        return monthEndRestMapper.toDto(
+                overview, projectRefs, userRefs, actorId
+        );
+    }
+
+    private Map<ProjectId, MonthEndProjectSnapshot> resolveProjectSnapshots(
+            List<MonthEndTask> tasks,
+            YearMonth month
+    ) {
+        if (tasks.isEmpty()) {
+            return Map.of();
+        }
+        Set<ProjectId> projectIds = tasks.stream()
+                .map(MonthEndTask::projectId)
+                .collect(Collectors.toSet());
+        return projectSnapshotPort.findByIds(projectIds, month).stream()
+                .collect(Collectors.toMap(MonthEndProjectSnapshot::id, Function.identity()));
+    }
+
+    private static Map<ProjectId, ProjectRef> toProjectRefs(
+            Map<ProjectId, MonthEndProjectSnapshot> snapshots
+    ) {
+        return snapshots.values().stream()
+                .collect(Collectors.toMap(
+                        MonthEndProjectSnapshot::id,
+                        snapshot -> new ProjectRef(snapshot.id(), snapshot.zepId(), snapshot.name())
+                ));
     }
 
     private static Set<UserId> overviewUserIds(MonthEndStatusOverview overview) {

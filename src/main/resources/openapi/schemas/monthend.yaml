@@ -216,3 +216,33 @@ MonthEndTaskGeneration:
     skipped:
       type: integer
       format: int32
+CompleteProjectTasksRequest:
+  type: object
+  additionalProperties: false
+  required:
+    - projectId
+    - type
+  properties:
+    projectId:
+      type: string
+      format: uuid
+    type:
+      $ref: '#/MonthEndTaskType'
+CompletedTasksResponse:
+  type: object
+  additionalProperties: false
+  required:
+    - completed
+  properties:
+    completed:
+      type: array
+      items:
+        $ref: '#/MonthEndTask'
+CompleteOwnTimeChecksRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    projectId:
+      type: string
+      format: uuid
+      nullable: true
