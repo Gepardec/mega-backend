@@ -12,4 +12,11 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                   defaultValueBoolean: true
+        - update:
+            tableName: projects
+            columns:
+              - column:
+                  name: leistungsnachweis_enabled
+                  valueBoolean: false
+            where: billable = false
 

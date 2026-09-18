@@ -298,7 +298,7 @@ class GenerateMonthEndTasksServiceTest {
                 zepId,
                 "Project-" + zepId,
                 billable,
-                true,
+                billable,
                 leadIds
         );
     }

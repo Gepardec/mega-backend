@@ -38,7 +38,7 @@ public class ProjectEntity {
     private boolean billable;
 
     @Column(name = "leistungsnachweis_enabled", nullable = false)
-    private boolean leistungsnachweisEnabled = true;
+    private boolean leistungsnachweisEnabled;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(

@@ -1,8 +1,9 @@
 package com.gepardec.mega.hexagon.project.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.model.LeistungsnachweisToggleRequestDto;
-import com.gepardec.mega.hexagon.project.application.port.inbound.GetLeadProjectsUseCase;
+import com.gepardec.mega.hexagon.project.application.port.inbound.GetProjectSettingsUseCase;
 import com.gepardec.mega.hexagon.project.application.port.inbound.SetLeistungsnachweisEnabledUseCase;
+import com.gepardec.mega.hexagon.project.domain.error.LeistungsnachweisNotApplicableException;
 import com.gepardec.mega.hexagon.project.domain.error.ProjectNotFoundException;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
@@ -25,7 +26,10 @@ import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestSecurity(user = "test")
@@ -33,7 +37,7 @@ class ProjectResourceTest {
 
 
     @InjectMock
-    GetLeadProjectsUseCase getLeadProjectsUseCase;
+    GetProjectSettingsUseCase getProjectSettingsUseCase;
     @InjectMock
     SetLeistungsnachweisEnabledUseCase setLeistungsnachweisEnabledUseCase;
     @InjectMock
@@ -53,41 +57,42 @@ class ProjectResourceTest {
     }
 
     @Test
-    void getLeadProjects_shouldReturnMappedProjects_whenUserIsLead() {
+    void getProjectSettings_shouldReturnMappedProjects_whenUserIsLead() {
         allowRoles(Role.PROJECT_LEAD);
-        Project project = new Project(PROJECT_ID,123,"X", LocalDate.now(),null,true, true, Set.of(LEAD_ID));
-        when(getLeadProjectsUseCase.getLeadProjects(LEAD_ID)).thenReturn(List.of(project));
+        Project project = new Project(PROJECT_ID, 123, "X", LocalDate.now(), null, true, true, Set.of(LEAD_ID));
+        when(getProjectSettingsUseCase.getLeadProjects(LEAD_ID)).thenReturn(List.of(project));
 
         given()
                 .accept(ContentType.JSON)
-                .get("/projects")
+                .get("/projects/settings")
                 .then()
                 .statusCode(HttpStatus.SC_OK)
-                .body("[0].id",is(PROJECT_ID.value().toString()))
-                .body("[0].name", is("X"));
+                .body("[0].project.id", is(PROJECT_ID.value().toString()))
+                .body("[0].project.name", is("X"))
+                .body("[0].leistungsnachweisEnabled", is(true));
 
     }
 
     @Test
-    void getLeadProjects_shouldReturnEmptyList_whenLeadUserHasNoProjects() {
+    void getProjectSettings_shouldReturnEmptyList_whenLeadUserHasNoProjects() {
         allowRoles(Role.PROJECT_LEAD);
-        when(getLeadProjectsUseCase.getLeadProjects(LEAD_ID)).thenReturn(List.of());
+        when(getProjectSettingsUseCase.getLeadProjects(LEAD_ID)).thenReturn(List.of());
 
         given()
                 .accept(ContentType.JSON)
-                .get("/projects")
+                .get("/projects/settings")
                 .then()
                 .statusCode(HttpStatus.SC_OK)
                 .body("size()", is(0));
     }
 
     @Test
-    void getLeadProjects_shouldRejectWithForbidden_whenUserIsNotLead() {
+    void getProjectSettings_shouldRejectWithForbidden_whenUserIsNotLead() {
         allowRoles(Role.EMPLOYEE);
 
         given()
                 .accept(ContentType.JSON)
-                .get("/projects")
+                .get("/projects/settings")
                 .then()
                 .statusCode(HttpStatus.SC_FORBIDDEN);
     }
@@ -141,5 +146,52 @@ class ProjectResourceTest {
                 .put("/projects/" + PROJECT_ID.value() + "/leistungsnachweis-enabled")
                 .then()
                 .statusCode(HttpStatus.SC_NOT_FOUND);
+    }
+
+    @Test
+    void setLeistungsnachweisEnabled_shouldReturnBadRequest_whenEnabledIsNull() {
+        allowRoles(Role.PROJECT_LEAD);
+
+        given()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(new LeistungsnachweisToggleRequestDto().enabled(null))
+                .put("/projects/" + PROJECT_ID.value() + "/leistungsnachweis-enabled")
+                .then()
+                .statusCode(HttpStatus.SC_BAD_REQUEST);
+
+        verifyNoInteractions(setLeistungsnachweisEnabledUseCase);
+    }
+
+    @Test
+    void setLeistungsnachweisEnabled_shouldReturnBadRequest_whenBodyIsEmpty() {
+        allowRoles(Role.PROJECT_LEAD);
+
+        given()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body("{}")
+                .put("/projects/" + PROJECT_ID.value() + "/leistungsnachweis-enabled")
+                .then()
+                .statusCode(HttpStatus.SC_BAD_REQUEST);
+
+        verifyNoInteractions(setLeistungsnachweisEnabledUseCase);
+    }
+
+    @Test
+    void setLeistungsnachweisEnabled_shouldReturnBadRequest_whenUseCaseThrowsNotApplicable() {
+        allowRoles(Role.PROJECT_LEAD);
+        var request = new LeistungsnachweisToggleRequestDto().enabled(true);
+        doThrow(new LeistungsnachweisNotApplicableException("not applicable"))
+                .when(setLeistungsnachweisEnabledUseCase)
+                .setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, true);
+
+        given()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(request)
+                .put("/projects/" + PROJECT_ID.value() + "/leistungsnachweis-enabled")
+                .then()
+                .statusCode(HttpStatus.SC_BAD_REQUEST);
     }
 }

@@ -39,7 +39,7 @@ public class MonthEndTaskPlanningService {
             }
 
 
-            if (project.leistungsnachweisEnabled() && project.billable() && !activeLeadIds.isEmpty()) {
+            if (project.leistungsnachweisEnabled() && !activeLeadIds.isEmpty()) {
                 tasks.add(MonthEndTask.create(
                         MonthEndTaskId.generate(),
                         month,
