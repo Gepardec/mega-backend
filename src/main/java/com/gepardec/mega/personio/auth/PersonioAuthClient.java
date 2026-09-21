@@ -7,7 +7,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Path("/auth")
@@ -18,5 +17,5 @@ public interface PersonioAuthClient {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    AuthResponse authenticate(@RequestBody PersonioClientToken personioClientToken);
+    AuthResponse authenticate(PersonioClientToken personioClientToken);
 }
