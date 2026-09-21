@@ -1,13 +1,18 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.api.MonthEndApi;
+import com.gepardec.mega.hexagon.generated.model.CompleteProjectLeadMonthEndTasksRequestDto;
 import com.gepardec.mega.hexagon.generated.model.CreateClarificationRequestDto;
 import com.gepardec.mega.hexagon.generated.model.GenerateMonthEndPrematurelyRequestDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndTaskCompletionDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndTaskDto;
 import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequestDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequestDto;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteEmployeeMonthEndTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndTaskUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteProjectLeadMonthEndTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.DeleteMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndStatusOverviewUseCase;
@@ -55,6 +60,8 @@ public class MonthEndResource implements MonthEndApi {
     private final PrematureMonthEndPreparationUseCase prematureMonthEndPreparationUseCase;
     private final CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase;
     private final CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase;
+    private final CompleteProjectLeadMonthEndTasksUseCase completeProjectLeadMonthEndTasksUseCase;
+    private final CompleteEmployeeMonthEndTasksUseCase completeEmployeeMonthEndTasksUseCase;
     private final UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase;
     private final CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase;
     private final DeleteMonthEndClarificationUseCase deleteMonthEndClarificationUseCase;
@@ -73,6 +80,8 @@ public class MonthEndResource implements MonthEndApi {
             PrematureMonthEndPreparationUseCase prematureMonthEndPreparationUseCase,
             CreateMonthEndClarificationUseCase createMonthEndClarificationUseCase,
             CompleteMonthEndTaskUseCase completeMonthEndTaskUseCase,
+            CompleteProjectLeadMonthEndTasksUseCase completeProjectLeadMonthEndTasksUseCase,
+            CompleteEmployeeMonthEndTasksUseCase completeEmployeeMonthEndTasksUseCase,
             UpdateMonthEndClarificationUseCase updateMonthEndClarificationUseCase,
             CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase,
             DeleteMonthEndClarificationUseCase deleteMonthEndClarificationUseCase,
@@ -89,6 +98,8 @@ public class MonthEndResource implements MonthEndApi {
         this.prematureMonthEndPreparationUseCase = prematureMonthEndPreparationUseCase;
         this.createMonthEndClarificationUseCase = createMonthEndClarificationUseCase;
         this.completeMonthEndTaskUseCase = completeMonthEndTaskUseCase;
+        this.completeProjectLeadMonthEndTasksUseCase = completeProjectLeadMonthEndTasksUseCase;
+        this.completeEmployeeMonthEndTasksUseCase = completeEmployeeMonthEndTasksUseCase;
         this.updateMonthEndClarificationUseCase = updateMonthEndClarificationUseCase;
         this.completeMonthEndClarificationUseCase = completeMonthEndClarificationUseCase;
         this.deleteMonthEndClarificationUseCase = deleteMonthEndClarificationUseCase;
@@ -194,6 +205,34 @@ public class MonthEndResource implements MonthEndApi {
     }
 
     @Override
+    @MegaRolesAllowed(Role.PROJECT_LEAD)
+    public Response completeProjectLeadMonthEndTasks(String month, CompleteProjectLeadMonthEndTasksRequestDto request) {
+        UserId actorId = authenticatedActorContext.userId();
+
+        List<MonthEndTask> tasks = completeProjectLeadMonthEndTasksUseCase.complete(
+                transportHelper.parseMonth(month),
+                transportHelper.toProjectId(request.getProjectId()),
+                monthEndRestMapper.toDomain(request.getType()),
+                actorId
+        );
+
+        return Response.ok(toCompletionResponse(tasks)).build();
+    }
+
+    @Override
+    @MegaRolesAllowed(Role.EMPLOYEE)
+    public Response completeEmployeeMonthEndTasks(String month) {
+        UserId actorId = authenticatedActorContext.userId();
+
+        List<MonthEndTask> tasks = completeEmployeeMonthEndTasksUseCase.complete(
+                transportHelper.parseMonth(month),
+                actorId
+        );
+
+        return Response.ok(toCompletionResponse(tasks)).build();
+    }
+
+    @Override
     @MegaRolesAllowed({Role.EMPLOYEE, Role.PROJECT_LEAD})
     public Response resolveMonthEndClarification(UUID clarificationId, ResolveClarificationRequestDto request) {
         UserId actorId = authenticatedActorContext.userId();
@@ -256,6 +295,13 @@ public class MonthEndResource implements MonthEndApi {
         }
         return userSnapshotPort.findByIds(ids, month).stream()
                 .collect(Collectors.toMap(UserRef::id, Function.identity()));
+    }
+
+    private MonthEndTaskCompletionDto toCompletionResponse(List<MonthEndTask> tasks) {
+        List<MonthEndTaskDto> taskDtos = tasks.stream()
+                .map(monthEndRestMapper::toDto)
+                .toList();
+        return new MonthEndTaskCompletionDto(taskDtos);
     }
 
     private MonthEndStatusOverviewDto toOverviewResponse(

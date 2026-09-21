@@ -216,3 +216,37 @@ MonthEndTaskGeneration:
     skipped:
       type: integer
       format: int32
+CompleteProjectLeadMonthEndTasksRequest:
+  type: object
+  additionalProperties: false
+  required:
+    - projectId
+    - type
+  properties:
+    projectId:
+      type: string
+      format: uuid
+    type:
+      $ref: '#/MonthEndTaskType'
+  example:
+    projectId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+    type: PROJECT_LEAD_REVIEW
+MonthEndTaskCompletion:
+  type: object
+  additionalProperties: false
+  required:
+    - completed
+  example:
+    completed:
+      - taskId: 3f2b8c1e-7d4a-4e5b-9c6f-1a2b3c4d5e6f
+        month: '2026-03'
+        type: PROJECT_LEAD_REVIEW
+        projectId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        subjectEmployeeId: 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d
+        status: DONE
+        completedBy: 5c4d3e2f-1a0b-4c9d-8e7f-6a5b4c3d2e1f
+  properties:
+    completed:
+      type: array
+      items:
+        $ref: '#/MonthEndTask'

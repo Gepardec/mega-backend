@@ -5,12 +5,14 @@ import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewEntryDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndTaskDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndTaskGenerationDto;
+import com.gepardec.mega.hexagon.generated.model.MonthEndTaskTypeDto;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.shared.adapter.inbound.rest.SharedRefRestMapper;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -43,6 +45,8 @@ public interface MonthEndRestMapper {
 
     @Mapping(target = "taskId", source = "id")
     MonthEndTaskDto toDto(MonthEndTask task);
+
+    MonthEndTaskType toDomain(MonthEndTaskTypeDto type);
 
     @Mapping(target = "taskId", source = "id")
     @Mapping(target = "project", source = "projectId")

@@ -15,4 +15,8 @@ public enum MonthEndTaskType {
     public MonthEndCompletionPolicy completionPolicy() {
         return completionPolicy;
     }
+
+    public boolean isProjectLeadBulkCompletable() {
+        return this == LEISTUNGSNACHWEIS || this == PROJECT_LEAD_REVIEW;
+    }
 }

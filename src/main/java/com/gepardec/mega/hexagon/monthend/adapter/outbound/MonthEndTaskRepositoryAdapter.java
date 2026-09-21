@@ -112,6 +112,36 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
+    public List<MonthEndTask> findOpenProjectTasksOfType(YearMonth month, ProjectId projectId, MonthEndTaskType type) {
+        return panache.find(
+                        "monthValue = ?1 and projectId = ?2 and type = ?3 and status = ?4",
+                        toMonthValue(month),
+                        projectId.value(),
+                        type,
+                        MonthEndTaskStatus.OPEN
+                )
+                .list().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public boolean existsLeadTask(YearMonth month, ProjectId projectId, UserId leadId) {
+        return panache.count(
+                "from MonthEndTaskEntity task " +
+                        "join task.eligibleActorIds actor " +
+                        "where task.monthValue = ?1 " +
+                        "and task.projectId = ?2 " +
+                        "and actor = ?3 " +
+                        "and task.type in ?4",
+                toMonthValue(month),
+                projectId.value(),
+                leadId.value(),
+                leadTaskTypes()
+        ) > 0;
+    }
+
+    @Override
     public void save(MonthEndTask task) {
         upsert(task);
     }
