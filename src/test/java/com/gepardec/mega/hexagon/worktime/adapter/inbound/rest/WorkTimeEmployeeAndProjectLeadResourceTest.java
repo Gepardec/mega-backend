@@ -11,8 +11,8 @@ import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
-import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWorkTimeUseCase;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWarningsUseCase;
+import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWorkTimeUseCase;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetProjectLeadWorkTimeUseCase;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEntry;
@@ -27,8 +27,8 @@ import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.YearMonth;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,7 +93,9 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
         assertThat(response.getPayrollMonth()).isEqualTo(MONTH.toString());
         assertThat(response.getEntries()).singleElement().satisfies(entry -> {
             assertThat(entry.getEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
+            assertThat(entry.getEmployee().getZepUrl()).isNotNull();
             assertThat(entry.getProject().getId()).isEqualTo(PROJECT_ID.value());
+            assertThat(entry.getProject().getZepUrl()).isNotNull();
             assertThat(entry.getEmployeeMonthTotalHours()).isEqualTo(20.0d);
         });
         verify(getEmployeeWorkTimeUseCase).getWorkTime(EMPLOYEE_ID, MONTH);

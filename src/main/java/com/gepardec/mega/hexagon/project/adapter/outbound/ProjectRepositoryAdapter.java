@@ -28,6 +28,13 @@ public class ProjectRepositoryAdapter implements ProjectRepository {
     }
 
     @Override
+    public Optional<Project> findById(ProjectId id) {
+        return panache.find("id", id.value())
+                .firstResultOptional()
+                .map(mapper::toDomain);
+    }
+
+    @Override
     public List<Project> findAll() {
         return panache.listAll().stream()
                 .map(mapper::toDomain)

@@ -37,7 +37,6 @@ ProjectRef:
       type: string
     zepUrl:
       type: string
-      nullable: true
 UserRef:
   type: object
   additionalProperties: false

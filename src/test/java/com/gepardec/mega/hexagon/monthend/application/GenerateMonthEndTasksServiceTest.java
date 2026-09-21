@@ -8,6 +8,7 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
 import com.gepardec.mega.hexagon.monthend.domain.services.MonthEndTaskPlanningService;
@@ -242,6 +243,47 @@ class GenerateMonthEndTasksServiceTest {
         }));
     }
 
+    @Test
+    void generate_shouldLeaveAlreadyGeneratedTasksUntouchedAndSkipLeistungsnachweisForNewcomers_whenFlagDisabledAfterGeneration() {
+        UserRef employee = activeUser("employee", "00000000-0000-0000-0000-000000000060");
+        UserRef newcomer = activeUser("newcomer", "00000000-0000-0000-0000-000000000062");
+        UserRef lead = activeUser("lead", "00000000-0000-0000-0000-000000000061");
+        ProjectId projectId = ProjectId.generate();
+        MonthEndProjectSnapshot project = projectWithLeistungsnachweisDisabled(projectId, 91, Set.of(lead.id()));
+
+        MonthEndTask existingLeistungsnachweis = MonthEndTask.create(
+                MonthEndTaskId.generate(), month, MonthEndTaskType.LEISTUNGSNACHWEIS,
+                projectId, employee.id(), Set.of(lead.id()));
+        List<MonthEndTask> alreadyGenerated = List.of(
+                MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        projectId, employee.id(), Set.of(employee.id())),
+                MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        projectId, employee.id(), Set.of(lead.id())),
+                existingLeistungsnachweis,
+                MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.ABRECHNUNG,
+                        projectId, null, Set.of(lead.id()))
+        );
+
+        when(monthEndTaskRepository.findByMonth(month)).thenReturn(alreadyGenerated);
+        when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
+        when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(employee, newcomer, lead));
+        when(monthEndProjectAssignmentPort.findAssignedUsernames(91, month))
+                .thenReturn(Set.of("employee", "newcomer"));
+
+        service.generate(month);
+
+        // the newcomer gets the ungated task types, but no LEISTUNGSNACHWEIS while the flag is off
+        verify(monthEndTaskRepository).saveAll(argThat(tasks -> tasks.stream()
+                .noneMatch(task -> task.type() == MonthEndTaskType.LEISTUNGSNACHWEIS)));
+        verify(monthEndTaskRepository).saveAll(argThat(tasks -> tasks.stream()
+                .filter(task -> task.subjectEmployeeId() != null)
+                .allMatch(task -> task.subjectEmployeeId().equals(newcomer.id()))));
+
+        // the task generated before the flag was flipped is neither removed nor modified
+        verify(monthEndTaskRepository).saveAll(argThat(tasks -> !tasks.contains(existingLeistungsnachweis)));
+        assertThat(existingLeistungsnachweis.status()).isEqualTo(MonthEndTaskStatus.OPEN);
+    }
+
     private UserRef activeUser(String username, String userId) {
         return new UserRef(
                 UserId.of(UUID.fromString(userId)),
@@ -256,6 +298,22 @@ class GenerateMonthEndTasksServiceTest {
                 zepId,
                 "Project-" + zepId,
                 billable,
+                billable,
+                leadIds
+        );
+    }
+
+    private MonthEndProjectSnapshot projectWithLeistungsnachweisDisabled(
+            ProjectId projectId,
+            int zepId,
+            Set<UserId> leadIds
+    ) {
+        return new MonthEndProjectSnapshot(
+                projectId,
+                zepId,
+                "Project-" + zepId,
+                true,
+                false,
                 leadIds
         );
     }

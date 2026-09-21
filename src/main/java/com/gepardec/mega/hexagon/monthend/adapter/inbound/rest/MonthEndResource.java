@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.application.configuration.ZepConfig;
 import com.gepardec.mega.hexagon.generated.api.MonthEndApi;
 import com.gepardec.mega.hexagon.generated.model.CreateClarificationRequestDto;
 import com.gepardec.mega.hexagon.generated.model.GenerateMonthEndPrematurelyRequestDto;
@@ -64,7 +63,6 @@ public class MonthEndResource implements MonthEndApi {
     private final AuthenticatedActorContext authenticatedActorContext;
     private final MonthEndRestTransportHelper transportHelper;
     private final MonthEndRestMapper monthEndRestMapper;
-    private final ZepConfig zepConfig;
 
     @Inject
     public MonthEndResource(
@@ -82,8 +80,7 @@ public class MonthEndResource implements MonthEndApi {
             MonthEndUserSnapshotPort userSnapshotPort,
             AuthenticatedActorContext authenticatedActorContext,
             MonthEndRestTransportHelper transportHelper,
-            MonthEndRestMapper monthEndRestMapper,
-            ZepConfig zepConfig
+            MonthEndRestMapper monthEndRestMapper
     ) {
         this.getEmployeePayrollMonthUseCase = getEmployeePayrollMonthUseCase;
         this.getProjectLeadPayrollMonthUseCase = getProjectLeadPayrollMonthUseCase;
@@ -100,7 +97,6 @@ public class MonthEndResource implements MonthEndApi {
         this.authenticatedActorContext = authenticatedActorContext;
         this.transportHelper = transportHelper;
         this.monthEndRestMapper = monthEndRestMapper;
-        this.zepConfig = zepConfig;
     }
 
     @Override
@@ -165,7 +161,7 @@ public class MonthEndResource implements MonthEndApi {
 
         Map<UserId, UserRef> userRefs = resolveUserRefs(clarification.referencedUserIds(), clarification.month());
         return Response.status(Response.Status.CREATED)
-                .entity(monthEndRestMapper.toClarificationEntry(clarification, userRefs, actorId, zepConfig))
+                .entity(monthEndRestMapper.toClarificationEntry(clarification, userRefs, actorId))
                 .build();
     }
 
@@ -209,7 +205,7 @@ public class MonthEndResource implements MonthEndApi {
         );
 
         Map<UserId, UserRef> userRefs = resolveUserRefs(clarification.referencedUserIds(), clarification.month());
-        return Response.ok(monthEndRestMapper.toClarificationEntry(clarification, userRefs, actorId, zepConfig)).build();
+        return Response.ok(monthEndRestMapper.toClarificationEntry(clarification, userRefs, actorId)).build();
     }
 
     @Override
@@ -237,7 +233,7 @@ public class MonthEndResource implements MonthEndApi {
         );
 
         Map<UserId, UserRef> userRefs = resolveUserRefs(clarification.referencedUserIds(), clarification.month());
-        return Response.ok(monthEndRestMapper.toClarificationEntry(clarification, userRefs, actorId, zepConfig)).build();
+        return Response.ok(monthEndRestMapper.toClarificationEntry(clarification, userRefs, actorId)).build();
     }
 
     private Map<ProjectId, ProjectRef> resolveProjectRefs(List<MonthEndTask> tasks, YearMonth month) {
@@ -268,7 +264,7 @@ public class MonthEndResource implements MonthEndApi {
     ) {
         Map<ProjectId, ProjectRef> projectRefs = resolveProjectRefs(overview.tasks(), overview.month());
         Map<UserId, UserRef> userRefs = resolveUserRefs(overviewUserIds(overview), overview.month());
-        return monthEndRestMapper.toDto(overview, projectRefs, userRefs, actorId, zepConfig);
+        return monthEndRestMapper.toDto(overview, projectRefs, userRefs, actorId);
     }
 
     private static Set<UserId> overviewUserIds(MonthEndStatusOverview overview) {

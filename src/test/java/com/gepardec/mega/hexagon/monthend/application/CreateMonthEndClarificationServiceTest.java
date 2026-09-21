@@ -155,6 +155,7 @@ class CreateMonthEndClarificationServiceTest {
                         77,
                         "Project-77",
                         true,
+                        true,
                         eligibleLeadIds
                 ),
                 new UserRef(
@@ -173,6 +174,7 @@ class CreateMonthEndClarificationServiceTest {
                         projectId,
                         77,
                         "Project-77",
+                        true,
                         true,
                         eligibleLeadIds
                 ),

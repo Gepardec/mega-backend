@@ -238,7 +238,7 @@ class MonthEndTaskRepositoryAdapterTest {
 
     private User user(String username, Set<Role> roles) {
         return new User(
-                UserId.generate(),
+            UserId.generate(),
                 Email.of(username + "@example.com"),
                 FullName.of("Test", "User"),
                 ZepUsername.of(username),
