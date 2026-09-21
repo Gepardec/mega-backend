@@ -26,11 +26,11 @@ public interface MonthEndTaskRepository {
 
     List<MonthEndTask> findOpenSubjectTasks(UserId subjectId, YearMonth month);
 
-    List<MonthEndTask> findOpenEmployeeTimeCheckTasks(UserId employeeId, YearMonth month, ProjectId projectId);
+    List<MonthEndTask> findOpenProjectTasksOfType(YearMonth month, ProjectId projectId, MonthEndTaskType type);
+
+    boolean existsLeadTask(YearMonth month, ProjectId projectId, UserId leadId);
 
     void save(MonthEndTask task);
 
     void saveAll(List<MonthEndTask> tasks);
-
-    List<MonthEndTask> findByMonthProjectAndType(YearMonth month, ProjectId projectId, MonthEndTaskType type);
 }

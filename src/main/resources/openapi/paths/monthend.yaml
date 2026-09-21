@@ -296,14 +296,14 @@
       content:
         application/json:
           schema:
-            $ref: '../schemas/monthend.yaml#/CompleteProjectTasksRequest'
+            $ref: '../schemas/monthend.yaml#/CompleteProjectLeadMonthEndTasksRequest'
     responses:
       '200':
         description: Monthend tasks bulk completed
         content:
           application/json:
             schema:
-              $ref: '../schemas/monthend.yaml#/CompletedTasksResponse'
+              $ref: '../schemas/monthend.yaml#/MonthEndTaskCompletion'
       '400':
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
@@ -325,19 +325,13 @@
         description: Month-end context in yyyy-MM format.
         schema:
           $ref: '../schemas/shared.yaml#/MonthValue'
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '../schemas/monthend.yaml#/CompleteOwnTimeChecksRequest'
     responses:
       '200':
         description: Own time-check tasks bulk completed
         content:
           application/json:
             schema:
-              $ref: '../schemas/monthend.yaml#/CompletedTasksResponse'
+              $ref: '../schemas/monthend.yaml#/MonthEndTaskCompletion'
       '400':
         $ref: '../responses/common.yaml#/BadRequest'
       '403':

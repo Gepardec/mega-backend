@@ -59,7 +59,7 @@ public record MonthEndTask(
     public MonthEndTask complete(UserId actorId) {
         Objects.requireNonNull(actorId, "actorId must not be null");
 
-        if (!eligibleActorIds.contains(actorId)) {
+        if (!canBeCompletedBy(actorId)) {
             throw new MonthEndActorNotAuthorizedException("actor is not eligible to complete the task");
         }
 

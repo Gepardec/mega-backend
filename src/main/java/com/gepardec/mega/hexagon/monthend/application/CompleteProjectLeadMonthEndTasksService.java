@@ -1,8 +1,8 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteProjectTasksByTypeUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteProjectLeadMonthEndTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
-import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectContext;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
@@ -18,41 +18,35 @@ import java.util.List;
 
 @ApplicationScoped
 @Transactional
-public class CompleteProjectTasksByTypeService implements CompleteProjectTasksByTypeUseCase {
+public class CompleteProjectLeadMonthEndTasksService implements CompleteProjectLeadMonthEndTasksUseCase {
+
     private final MonthEndTaskRepository monthEndTaskRepository;
-    private final MonthEndProjectContextService monthEndProjectContextService;
 
     @Inject
-    public CompleteProjectTasksByTypeService(
-            MonthEndTaskRepository monthEndTaskRepository,
-            MonthEndProjectContextService monthEndProjectContextService
-    ) {
+    public CompleteProjectLeadMonthEndTasksService(MonthEndTaskRepository monthEndTaskRepository) {
         this.monthEndTaskRepository = monthEndTaskRepository;
-        this.monthEndProjectContextService = monthEndProjectContextService;
     }
-
 
     @Override
     public List<MonthEndTask> complete(YearMonth month, ProjectId projectId, MonthEndTaskType type, UserId actorId) {
-        MonthEndProjectContext monthEndProjectContext = monthEndProjectContextService.resolve(month, projectId);
-        if(!monthEndProjectContext.eligibleProjectLeadIds().contains(actorId)) {
+        if (!type.isProjectLeadBulkCompletable()) {
+            throw new MonthEndValidationException("task type %s cannot be bulk completed by a project lead".formatted(type.name()));
+        }
+        if (!monthEndTaskRepository.existsLeadTask(month, projectId, actorId)) {
             throw new MonthEndActorNotAuthorizedException("actor not authorized: " + actorId.value());
         }
 
-        List<MonthEndTask> tasksToUpdate = monthEndTaskRepository.findByMonthProjectAndType(month, projectId, type)
+        List<MonthEndTask> completedTasks = monthEndTaskRepository.findOpenProjectTasksOfType(month, projectId, type)
                 .stream()
-                .filter(task -> task.isOpen() && task.canBeCompletedBy(actorId) )
-                .toList();
-
-        tasksToUpdate = tasksToUpdate.stream()
+                .filter(task -> task.isOpen() && task.canBeCompletedBy(actorId))
                 .map(task -> task.complete(actorId))
                 .toList();
 
-        monthEndTaskRepository.saveAll(tasksToUpdate);
+        monthEndTaskRepository.saveAll(completedTasks);
 
         Log.infof("Completed %d month-end tasks for month %s, project %s, type %s by actor %s",
-                tasksToUpdate.size(), month, projectId.value(), type.name(), actorId.value());
+                completedTasks.size(), month, projectId.value(), type.name(), actorId.value());
 
-        return tasksToUpdate;
+        return completedTasks;
     }
 }

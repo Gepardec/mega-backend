@@ -8,7 +8,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import java.time.YearMonth;
 import java.util.List;
 
-public interface CompleteProjectTasksByTypeUseCase {
+public interface CompleteProjectLeadMonthEndTasksUseCase {
+
     List<MonthEndTask> complete(YearMonth month, ProjectId projectId, MonthEndTaskType type, UserId actorId);
 }
-

@@ -112,31 +112,33 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
-    public List<MonthEndTask> findOpenEmployeeTimeCheckTasks(UserId employeeId, YearMonth month, ProjectId projectId) {
-        if (projectId == null) {
-            return panache.find(
-                            "monthValue = ?1 and subjectEmployeeId = ?2 and type = ?3 and status = ?4",
-                            toMonthValue(month),
-                            employeeId.value(),
-                            MonthEndTaskType.EMPLOYEE_TIME_CHECK,
-                            MonthEndTaskStatus.OPEN
-                    )
-                    .list().stream()
-                    .map(mapper::toDomain)
-                    .toList();
-        }
-
+    public List<MonthEndTask> findOpenProjectTasksOfType(YearMonth month, ProjectId projectId, MonthEndTaskType type) {
         return panache.find(
-                        "monthValue = ?1 and subjectEmployeeId = ?2 and projectId = ?3 and type = ?4 and status = ?5",
+                        "monthValue = ?1 and projectId = ?2 and type = ?3 and status = ?4",
                         toMonthValue(month),
-                        employeeId.value(),
                         projectId.value(),
-                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        type,
                         MonthEndTaskStatus.OPEN
                 )
                 .list().stream()
                 .map(mapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public boolean existsLeadTask(YearMonth month, ProjectId projectId, UserId leadId) {
+        return panache.count(
+                "from MonthEndTaskEntity task " +
+                        "join task.eligibleActorIds actor " +
+                        "where task.monthValue = ?1 " +
+                        "and task.projectId = ?2 " +
+                        "and actor = ?3 " +
+                        "and task.type in ?4",
+                toMonthValue(month),
+                projectId.value(),
+                leadId.value(),
+                leadTaskTypes()
+        ) > 0;
     }
 
     @Override
@@ -149,19 +151,6 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
         for (MonthEndTask task : tasks) {
             upsert(task);
         }
-    }
-
-    @Override
-    public List<MonthEndTask> findByMonthProjectAndType(YearMonth month, ProjectId projectId, MonthEndTaskType type) {
-        return panache.find(
-                        "monthValue = ?1 and projectId = ?2 and type = ?3",
-                        toMonthValue(month),
-                        projectId.value(),
-                        type
-                )
-                .stream()
-                .map(mapper::toDomain)
-                .toList();
     }
 
     private List<MonthEndTaskType> leadTaskTypes() {

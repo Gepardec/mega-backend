@@ -1,9 +1,9 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteOwnTimeCheckTasksUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteEmployeeMonthEndTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
-import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,24 +15,21 @@ import java.util.List;
 
 @ApplicationScoped
 @Transactional
-public class CompleteOwnTimeCheckTasksService implements CompleteOwnTimeCheckTasksUseCase {
+public class CompleteEmployeeMonthEndTasksService implements CompleteEmployeeMonthEndTasksUseCase {
 
     private final MonthEndTaskRepository monthEndTaskRepository;
 
     @Inject
-    public CompleteOwnTimeCheckTasksService(MonthEndTaskRepository monthEndTaskRepository) {
+    public CompleteEmployeeMonthEndTasksService(MonthEndTaskRepository monthEndTaskRepository) {
         this.monthEndTaskRepository = monthEndTaskRepository;
     }
 
     @Override
-    public List<MonthEndTask> complete(UserId actorId, YearMonth month, ProjectId projectId) {
-        List<MonthEndTask> openTasks = monthEndTaskRepository
-                .findOpenEmployeeTimeCheckTasks(actorId, month, projectId)
+    public List<MonthEndTask> complete(YearMonth month, UserId actorId) {
+        List<MonthEndTask> completedTasks = monthEndTaskRepository.findOpenSubjectTasks(actorId, month)
                 .stream()
+                .filter(task -> task.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .filter(task -> task.isOpen() && task.canBeCompletedBy(actorId))
-                .toList();
-
-        List<MonthEndTask> completedTasks = openTasks.stream()
                 .map(task -> task.complete(actorId))
                 .toList();
 
