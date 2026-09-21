@@ -5,6 +5,7 @@ import com.gepardec.mega.hexagon.generated.model.LeistungsnachweisToggleRequestD
 import com.gepardec.mega.hexagon.generated.model.ProjectSettingsDto;
 import com.gepardec.mega.hexagon.project.application.port.inbound.GetProjectSettingsUseCase;
 import com.gepardec.mega.hexagon.project.application.port.inbound.SetLeistungsnachweisEnabledUseCase;
+import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -53,12 +54,12 @@ public class ProjectResource implements ProjectApi {
             @PathParam("projectId") UUID projectId,
             LeistungsnachweisToggleRequestDto leistungsnachweisToggleRequestDto) {
 
-        setLeistungsnachweisEnabledUseCase.setLeistungsnachweisEnabled(
+        Project updated = setLeistungsnachweisEnabledUseCase.setLeistungsnachweisEnabled(
                 ProjectId.of(projectId),
                 authenticatedActorContext.userId(),
                 leistungsnachweisToggleRequestDto.getEnabled()
         );
 
-        return Response.noContent().build();
+        return Response.ok(projectRestMapper.toDto(updated)).build();
     }
 }

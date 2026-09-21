@@ -36,7 +36,12 @@
           schema:
             $ref: '../schemas/projects.yaml#/LeistungsnachweisToggleRequest'
     responses:
-      '204': { description: Flag updated }
+      '200':
+        description: Updated project settings
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/projects.yaml#/ProjectSettings'
       '400': { $ref: '../responses/common.yaml#/BadRequest' }
       '403': { $ref: '../responses/common.yaml#/Forbidden' }
       '404': { $ref: '../responses/common.yaml#/NotFound' }

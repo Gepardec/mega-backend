@@ -26,7 +26,7 @@ public class SetLeistungsnachweisEnabledService implements SetLeistungsnachweisE
     }
 
     @Override
-    public void setLeistungsnachweisEnabled(ProjectId projectId, UserId actorId, boolean enabled) {
+    public Project setLeistungsnachweisEnabled(ProjectId projectId, UserId actorId, boolean enabled) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
 
@@ -40,5 +40,7 @@ public class SetLeistungsnachweisEnabledService implements SetLeistungsnachweisE
 
         Log.infof("Leistungsnachweis for project %s changed by %s: %s -> %s",
                 projectId, actorId, previousValue, enabled);
+
+        return updated;
     }
 }

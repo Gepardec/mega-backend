@@ -69,8 +69,10 @@ class SetLeistungsnachweisEnabledServiceTest {
         Project project = new Project(ProjectId.generate(), 1, "X", LocalDate.now(), null, true, false, Set.of(LEAD_ID));
         when(projectRepository.findById(project.id())).thenReturn(Optional.of(project));
 
-        service.setLeistungsnachweisEnabled(project.id(), LEAD_ID, true);
+        Project returned = service.setLeistungsnachweisEnabled(project.id(), LEAD_ID, true);
 
+        assertThat(returned.id()).isEqualTo(project.id());
+        assertThat(returned.leistungsnachweisEnabled()).isTrue();
         verify(projectRepository).saveAll(argThat(projects -> {
             assertThat(projects.getFirst().leistungsnachweisEnabled()).isTrue();
             return true;
@@ -95,8 +97,10 @@ class SetLeistungsnachweisEnabledServiceTest {
         Project project = new Project(ProjectId.generate(), 1, "X", LocalDate.now(), null, false, false, Set.of(LEAD_ID));
         when(projectRepository.findById(project.id())).thenReturn(Optional.of(project));
 
-        service.setLeistungsnachweisEnabled(project.id(), LEAD_ID, false);
+        Project returned = service.setLeistungsnachweisEnabled(project.id(), LEAD_ID, false);
 
+        assertThat(returned.id()).isEqualTo(project.id());
+        assertThat(returned.leistungsnachweisEnabled()).isFalse();
         verify(projectRepository).saveAll(List.of(project));
     }
 }

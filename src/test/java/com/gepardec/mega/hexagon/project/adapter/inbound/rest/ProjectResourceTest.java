@@ -26,6 +26,7 @@ import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -54,6 +55,10 @@ class ProjectResourceTest {
 
     private void allowRoles(Role... roles) {
         when(authenticatedActorContext.roles()).thenReturn(Set.of(roles));
+    }
+
+    private Project project(boolean billable, boolean leistungsnachweisEnabled) {
+        return new Project(PROJECT_ID, 123, "X", LocalDate.now(), null, billable, leistungsnachweisEnabled, Set.of(LEAD_ID));
     }
 
     @Test
@@ -101,6 +106,8 @@ class ProjectResourceTest {
     void setLeistungsnachweisEnabled_shoudlToggleOwnProject() {
         allowRoles(Role.PROJECT_LEAD);
         var request = new LeistungsnachweisToggleRequestDto().enabled(false);
+        when(setLeistungsnachweisEnabledUseCase.setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, false))
+                .thenReturn(project(true, false));
 
         given()
                 .accept(ContentType.JSON)
@@ -108,9 +115,48 @@ class ProjectResourceTest {
                 .contentType(ContentType.JSON)
                 .put("/projects/" + PROJECT_ID.value() + "/leistungsnachweis-enabled")
                 .then()
-                .statusCode(HttpStatus.SC_NO_CONTENT);
+                .statusCode(HttpStatus.SC_OK)
+                .body("project.id", is(PROJECT_ID.value().toString()))
+                .body("project.name", is("X"))
+                .body("project.zepUrl", notNullValue())
+                .body("leistungsnachweisEnabled", is(false));
 
         verify(setLeistungsnachweisEnabledUseCase).setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, false);
+    }
+
+    @Test
+    void setLeistungsnachweisEnabled_shouldReturnUpdatedSettings_whenEnabling() {
+        allowRoles(Role.PROJECT_LEAD);
+        var request = new LeistungsnachweisToggleRequestDto().enabled(true);
+        when(setLeistungsnachweisEnabledUseCase.setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, true))
+                .thenReturn(project(true, true));
+
+        given()
+                .accept(ContentType.JSON)
+                .body(request)
+                .contentType(ContentType.JSON)
+                .put("/projects/" + PROJECT_ID.value() + "/leistungsnachweis-enabled")
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("project.id", is(PROJECT_ID.value().toString()))
+                .body("leistungsnachweisEnabled", is(true));
+    }
+
+    @Test
+    void setLeistungsnachweisEnabled_shouldReturnDisabledSettings_whenProjectIsNonBillable() {
+        allowRoles(Role.PROJECT_LEAD);
+        var request = new LeistungsnachweisToggleRequestDto().enabled(false);
+        when(setLeistungsnachweisEnabledUseCase.setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, false))
+                .thenReturn(project(false, false));
+
+        given()
+                .accept(ContentType.JSON)
+                .body(request)
+                .contentType(ContentType.JSON)
+                .put("/projects/" + PROJECT_ID.value() + "/leistungsnachweis-enabled")
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .body("leistungsnachweisEnabled", is(false));
     }
 
     @Test
