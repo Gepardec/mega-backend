@@ -111,6 +111,15 @@ class HexagonalArchitectureTest {
     }
 
     @Test
+    void domainAndApplicationMustNotDependOnHttpTransportTypes() {
+        noClasses()
+                .that().resideInAnyPackage("..hexagon..domain..", "..hexagon..application..")
+                .should().dependOnClassesThat().resideInAnyPackage("jakarta.ws.rs..", "io.quarkiverse.httpproblem..")
+                .because("HTTP statuses, responses and problem documents are inbound-adapter concerns")
+                .check(allClasses);
+    }
+
+    @Test
     void inboundAdaptersMustNotDependOnOutboundAdapters() {
         noClasses()
                 .that().resideInAPackage("..hexagon..adapter..inbound..")

@@ -3,8 +3,8 @@ package com.gepardec.mega.hexagon.project.adapter.inbound.rest;
 import com.gepardec.mega.hexagon.generated.model.LeistungsnachweisToggleRequestDto;
 import com.gepardec.mega.hexagon.project.application.port.inbound.GetProjectSettingsUseCase;
 import com.gepardec.mega.hexagon.project.application.port.inbound.SetLeistungsnachweisEnabledUseCase;
-import com.gepardec.mega.hexagon.project.domain.error.LeistungsnachweisNotApplicableException;
-import com.gepardec.mega.hexagon.project.domain.error.ProjectNotFoundException;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectErrorCode;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectException;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -179,7 +179,7 @@ class ProjectResourceTest {
     void setLeistungsnachweisEnabled_shoudlReturnNotFound_whenProjectIsUnknown() {
         allowRoles(Role.PROJECT_COORDINATOR);
         var request = new LeistungsnachweisToggleRequestDto().enabled(false);
-        doThrow(new ProjectNotFoundException("Project not found"))
+        doThrow(new ProjectException(ProjectErrorCode.NOT_FOUND, "Project not found"))
                 .when(setLeistungsnachweisEnabledUseCase)
                 .setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, false);
 
@@ -226,7 +226,7 @@ class ProjectResourceTest {
     void setLeistungsnachweisEnabled_shouldReturnBadRequest_whenUseCaseThrowsNotApplicable() {
         allowRoles(Role.PROJECT_COORDINATOR);
         var request = new LeistungsnachweisToggleRequestDto().enabled(true);
-        doThrow(new LeistungsnachweisNotApplicableException("not applicable"))
+        doThrow(new ProjectException(ProjectErrorCode.LEISTUNGSNACHWEIS_NOT_APPLICABLE, "not applicable"))
                 .when(setLeistungsnachweisEnabledUseCase)
                 .setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, true);
 

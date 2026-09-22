@@ -52,6 +52,12 @@ The shared `ForbiddenException` (still in `shared/application/security`) also ex
 - *Why in the shared kernel:* the category is a stable concept shared across contexts, which is exactly what the shared-kernel requirement allows.
 - *Alternative:* keep per-BC `instanceof` mapping. That's rejected because it's the duplication we're removing.
 
+**Per-context error-code enums.** Each bounded context declares its codes in one enum in its `domain/error` package (`MonthEndErrorCode`, `ProjectErrorCode`, `WorkTimeErrorCode`, `UserErrorCode`), and each constant carries its `ErrorCategory`. The enums implement the shared `ErrorCode` interface, whose default `code()` derives the wire code as `<boundedContext>_<constant name>`, so the context prefix holds by construction. The shared `FORBIDDEN` lives in `SharedErrorCode`, which overrides `code()` to drop the prefix. `DomainException` takes an `ErrorCode`, and each context's base exception accepts only that context's enum. `ErrorCodeTest` finds every `ErrorCode` enum in the hexagon, checks that codes are unique and well-formed, and pins the full list of codes. Because a renamed constant changes the wire code, the pinned list makes such a rename fail the build until it's deliberately updated, and it gives an overview of all codes in one place.
+- *Alternatives:* one global enum or constants class, rejected because every context would then depend on a shared list of all failures; explicit code strings per constant, rejected because they duplicate the constant name and leave the prefix to convention.
+
+**One exception type per context.** Because the enum constant already names the failure and carries its category, each context has one concrete exception (`MonthEndException`, `ProjectException`, `WorkTimeException`, `UserException`) that takes its own enum constant, for example `new MonthEndException(MonthEndErrorCode.TASK_NOT_FOUND, message)`. A dedicated subclass exists only when the failure carries structured data or code must catch exactly that failure. Today that's `UnknownUsersException`, which `UserResource` catches to turn usernames into CSV line numbers. The shared `ForbiddenException` stays as it is. Tests assert on `errorCode()` instead of the exception class.
+- *Alternative:* one subclass per failure. Rejected because the subclasses repeated the enum constants without adding behaviour, and nothing caught them by type.
+
 **Code catalogue.** These are the stable values; the frontend switches on them. The status column must match today's behaviour.
 
 | Exception | Category | Status | Code |
@@ -95,10 +101,10 @@ Inbound adapters are HTTP-aware by definition, so they use the extension's docum
 
 ### D7: The contract owns `Problem`; the extension's OpenAPI additions are ignored
 In `openapi/schemas/shared.yaml`, `ApiError` is replaced by:
-- `Problem`: `title` (string), `status` (int32), `instance` (string), `detail` (string, optional), `code` (string, optional; its description lists the catalogue and states that framework-produced problems don't carry it), `violations` (array of `Violation`, optional); `additionalProperties: true`. Required fields are `title` and `status`.
-- `Violation`: `field` (string), `in` (enum `path|query|header|form|body|unknown`), `message` (string), all required.
+- `Problem`: `title` (string), `status` (int32), `instance` (string), `detail` (string, optional), `code` (string, optional; its description states the naming rule and that framework-produced problems don't carry it, but doesn't list individual codes, because such a list goes stale as codes are added), `violations` (array of `Violation`, optional), `field` (string, optional; set by the extension on malformed-body problems, D13). `additionalProperties` is left unset: OpenAPI then still allows extra members such as `lines`, while `additionalProperties: true` would make `jaxrs-spec` generate `ProblemDto extends HashMap`, which Jackson deserializes as a plain map with empty getters. Required fields are `title` and `status`.
+- `Violation`: `field` (string), `in` (enum `path|query|header|form|body|?`), `message` (string), all required. `?` is the extension's token for a location it can't determine (D12).
 
-In `openapi/schemas/user.yaml`, `InternalRateUploadError` becomes `InternalRateUploadProblem` = `allOf[Problem, {lines: int[]}]`. Every entry in `responses/common.yaml` and the CSV `400` switches to `application/problem+json`. As verified with generator 7.12.0, `jaxrs-spec` then generates `@Produces({"application/json", "application/problem+json"})`, which is harmless because success responses are still negotiated as JSON. The generated `ProblemDto` and `ViolationDto` exist only for the frontend and tests; the backend never builds them. The extension's own `HttpProblem` and `HttpValidationProblem` schemas in `/q/openapi` stay as served-doc noise and are not configured.
+In `openapi/schemas/user.yaml`, `InternalRateUploadError` becomes `InternalRateUploadProblem` = `allOf[Problem, {lines: int[]}]`. Every entry in `responses/common.yaml` and the CSV `400` switches to `application/problem+json`. As verified with generator 7.12.0, `jaxrs-spec` then generates `@Produces({"application/json", "application/problem+json"})`, which is harmless because success responses are still negotiated as JSON. Operations without a JSON success body (`POST /monthend/generate-prematurely`, `DELETE /monthend/clarifications/{clarificationId}`, `POST /users/internal-rates`) now produce only `application/problem+json`, so a client that sends a strict `Accept: application/json` to them gets `406`. We accept this as part of the breaking change: clients generated from the contract send the matching `Accept`, and browser defaults include `*/*`. The generated `ProblemDto` and `ViolationDto` exist only for the frontend and tests; the backend never builds them. The extension's own `HttpProblem` and `HttpValidationProblem` schemas in `/q/openapi` stay as served-doc noise and are not configured.
 - *Alternative:* let the extension own the schema (error responses without content). Rejected because the frontend generates from the bundle, which would then contain no error schema.
 
 ### D8: Remove all legacy mappers
@@ -106,6 +112,18 @@ The whole `application/exception/mapper` package, `application/exception/Unautho
 
 ### D9: Logging
 We rely on the extension: 4xx logged at INFO, 5xx at ERROR with the stack trace, under log category `http-problem`. No MDC properties for now. `quarkus.http-problem.include-details` stays `false`, so built-in mappers don't copy exception messages into `detail`. Only `DomainProblemMapper` sets `detail`, from domain messages we control.
+
+### D11: The Quarkus-managed `ObjectMapper` serializes all responses
+The legacy `JacksonObjectMapperContextResolver` returns its own `new ObjectMapper()`, which skips every `ObjectMapperCustomizer`, including the one that registers the extension's `HttpProblem` serializer. With it in place, problems are rendered as plain bean dumps that contain `stackTrace`, `cause` and a nested `parameters` object. We delete the resolver and rely on the Quarkus-managed `ObjectMapper`, which already registers `JavaTimeModule` and writes dates as ISO strings. We set `quarkus.jackson.fail-on-unknown-properties: true` to keep the resolver's strict deserialization (Jackson's default, which Quarkus turns off).
+- *Alternative:* register the extension's module inside the resolver by hand. Rejected because it depends on extension internals and the resolver would keep ignoring every other Quarkus customizer.
+
+### D12: Bean-validation violation locations
+The extension resolves a body violation to `in: "body"` only when the resource method's parameter name matches the generated interface's. Otherwise it reports `in: "?"` and prefixes `field` with the parameter name. We rename the `MonthEndResource` body parameters to the generated names, so body violations resolve to `body`. The contract lists `?` as a valid `in` value, because that's the extension's actual token for an unknown location.
+- *Alternatives:* a `ProblemPostProcessor` that rewrites `?` to `unknown`, which is one more hook to maintain; or dropping the unknown value from the contract, which the extension can't guarantee.
+
+### D13: Missing body fields go through bean validation; malformed bodies keep the extension's shape
+With `jaxrs-spec`'s default `generateJsonCreator=true`, request DTOs get a `@JsonCreator` with `@JsonProperty(required = true)`. A missing required field then fails inside Jackson before bean validation runs, and the extension's `MismatchedInputExceptionMapper` answers with `detail: "Malformed request body"` and a top-level `field` (often `?`) in place of `violations`. We set `generateJsonCreator=false`: a missing field deserializes to `null`, and the generated `@NotNull` reports it as a `violations` entry with `in: "body"`. Malformed JSON and values of the wrong JSON type still reach the extension's Jackson mappers. We accept their shape (`400`, no `code`, no `violations`, optional `field`), and the `Problem` schema declares `field` as optional.
+- *Alternatives:* a `ProblemPostProcessor` that turns the Jackson `field` problems into `violations`, which adds a hook for a case clients can't fix at runtime anyway; or keeping the creators and post-processing everything, where missing fields would only get `field: "?"`.
 
 ### D10: Tests
 - A REST-Assured contract test class in `shared/adapter/inbound/rest` covering:
@@ -115,7 +133,7 @@ We rely on the extension: 4xx logged at INFO, 5xx at ERROR with the stack trace,
   - a `401` without `code`, and a `403` (role check) with `code: FORBIDDEN`;
   - a `500` without `detail` or `code`;
   - success responses still using `application/json`.
-- Deserialize problems into the generated `ProblemDto`, so drift between schema and wire fails the test. `additionalProperties: true` means unknown extras don't fail, which is intended.
+- Deserialize problems into the generated `ProblemDto`, so drift between schema and wire fails the test. REST-Assured's mapper rejects unknown members, so an unexpected extra member on a generic problem fails the test too.
 - Existing REST tests that read `ApiErrorDto` (`MonthEndResourceTest`, `WorkTimeEmployeeAndProjectLeadResourceTest`) and `errorCode` (`UserResourceTest`) assert on `code` instead.
 - `HexagonalArchitectureTest` gets the JAX-RS / problem-library rule for `..domain..` and `..application..`.
 

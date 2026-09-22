@@ -1,5 +1,7 @@
 package com.gepardec.mega.hexagon.worktime.application;
 
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeException;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeErrorCode;
 import com.gepardec.mega.hexagon.shared.domain.model.Capacity;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -10,8 +12,6 @@ import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeZepPort;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeValidationException;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
 import io.smallrye.mutiny.Uni;
@@ -137,7 +137,8 @@ class GetWorkTimeReportServiceTest {
             ThrowableAssert.ThrowingCallable throwingCallable = () -> service.getWorkTime(employeeId, MONTH, Capacity.EMPLOYEE);
 
             assertThatThrownBy(throwingCallable)
-                    .isInstanceOf(WorkTimeUserNotFoundException.class)
+                    .isInstanceOfSatisfying(WorkTimeException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(WorkTimeErrorCode.USER_NOT_FOUND))
                     .hasMessage("user not found: " + employeeId.value());
         }
 
@@ -149,7 +150,8 @@ class GetWorkTimeReportServiceTest {
             ThrowableAssert.ThrowingCallable throwingCallable = () -> service.getWorkTime(employeeId, MONTH, Capacity.EMPLOYEE);
 
             assertThatThrownBy(throwingCallable)
-                    .isInstanceOf(WorkTimeValidationException.class)
+                    .isInstanceOfSatisfying(WorkTimeException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(WorkTimeErrorCode.VALIDATION_FAILED))
                     .hasMessage("zep username missing for user: " + employeeId.value());
         }
     }

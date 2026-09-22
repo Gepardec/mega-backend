@@ -3,7 +3,8 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectAssignmentPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndUserSnapshotPort;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -134,7 +135,8 @@ class PrematureMonthEndPreparationServiceTest {
         when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(userRef(leadAId, "lead-a")));
 
         assertThatThrownBy(() -> service.prepare(month, employeeId, "Vacation."))
-                .isInstanceOf(MonthEndEmployeeContextNotFoundException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.EMPLOYEE_CONTEXT_NOT_FOUND))
                 .hasMessageContaining(employeeId.value().toString());
 
         verifyNoInteractions(

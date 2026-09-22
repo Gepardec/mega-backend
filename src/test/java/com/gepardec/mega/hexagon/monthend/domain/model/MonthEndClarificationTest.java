@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.domain.model;
 
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
 import com.gepardec.mega.hexagon.shared.domain.SystemActor;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
@@ -97,7 +97,8 @@ class MonthEndClarificationTest {
                 createdAt
         );
 
-        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndActorNotAuthorizedException.class);
+        assertThatThrownBy(throwingCallable).isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED));
     }
 
     @Test
@@ -149,7 +150,8 @@ class MonthEndClarificationTest {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> clarification.editText(leadB, "Edited by non-creator", createdAt.plusSeconds(120));
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED))
                 .hasMessageContaining("not allowed");
     }
 
@@ -160,7 +162,8 @@ class MonthEndClarificationTest {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> clarification.editText(leadA, "Trying to edit", createdAt.plusSeconds(1));
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED))
                 .hasMessageContaining("not allowed");
     }
 
@@ -194,7 +197,8 @@ class MonthEndClarificationTest {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> clarification.resolve(leadA, null, createdAt.plusSeconds(1));
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED))
                 .hasMessageContaining("not allowed");
     }
 
@@ -231,7 +235,8 @@ class MonthEndClarificationTest {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> clarification.editText(leadA, "Edited", createdAt.plusSeconds(1));
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED))
                 .hasMessageContaining("not allowed");
     }
 
@@ -243,7 +248,8 @@ class MonthEndClarificationTest {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> clarification.editText(employeeId, "No longer editable", createdAt.plusSeconds(20));
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(MonthEndClarificationClosedException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.CLARIFICATION_CLOSED))
                 .hasMessageContaining("cannot be edited");
     }
 

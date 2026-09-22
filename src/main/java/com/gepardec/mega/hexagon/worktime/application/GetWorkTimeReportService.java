@@ -9,8 +9,8 @@ import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetWorkTimeRe
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeZepPort;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeValidationException;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeErrorCode;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeException;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
 import io.quarkus.logging.Log;
@@ -63,7 +63,7 @@ public class GetWorkTimeReportService implements GetWorkTimeReportUseCase {
 
     private WorkTimeScope employeeScope(UserId actorId, YearMonth month) {
         UserRef employee = workTimeUserSnapshotPort.findById(actorId, month)
-                .orElseThrow(() -> new WorkTimeUserNotFoundException("user not found: " + actorId.value()));
+                .orElseThrow(() -> new WorkTimeException(WorkTimeErrorCode.USER_NOT_FOUND, "user not found: " + actorId.value()));
         String zepUsername = requireZepUsername(employee);
 
         return new WorkTimeScope(
@@ -154,7 +154,7 @@ public class GetWorkTimeReportService implements GetWorkTimeReportUseCase {
 
     private String requireZepUsername(UserRef user) {
         if (user.zepUsername() == null || user.zepUsername().value().isBlank()) {
-            throw new WorkTimeValidationException("zep username missing for user: " + user.id().value());
+            throw new WorkTimeException(WorkTimeErrorCode.VALIDATION_FAILED, "zep username missing for user: " + user.id().value());
         }
         return user.zepUsername().value();
     }

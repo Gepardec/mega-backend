@@ -4,8 +4,8 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMont
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectAssignmentPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndUserSnapshotPort;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNotFoundException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
@@ -79,7 +79,7 @@ public class PrematureMonthEndPreparationService implements PrematureMonthEndPre
 
         UserRef actor = activeUsersById.get(actorId);
         if (actor == null) {
-            throw new MonthEndEmployeeContextNotFoundException(
+            throw new MonthEndException(MonthEndErrorCode.EMPLOYEE_CONTEXT_NOT_FOUND,
                     "month-end employee context not found for employee %s in %s".formatted(actorId.value(), month)
             );
         }
@@ -130,7 +130,7 @@ public class PrematureMonthEndPreparationService implements PrematureMonthEndPre
 
     private String requireNonBlank(String value) {
         if (value == null || value.isBlank()) {
-            throw new MonthEndValidationException("clarificationText must not be blank");
+            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "clarificationText must not be blank");
         }
         return value;
     }

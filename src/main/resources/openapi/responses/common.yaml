@@ -1,24 +1,24 @@
 BadRequest:
   description: Request is invalid.
   content:
-    application/json:
+    application/problem+json:
       schema:
-        $ref: '../schemas/shared.yaml#/ApiError'
+        $ref: '../schemas/shared.yaml#/Problem'
 Forbidden:
   description: Caller is not allowed to perform this action.
   content:
-    application/json:
+    application/problem+json:
       schema:
-        $ref: '../schemas/shared.yaml#/ApiError'
+        $ref: '../schemas/shared.yaml#/Problem'
 NotFound:
   description: Requested resource was not found.
   content:
-    application/json:
+    application/problem+json:
       schema:
-        $ref: '../schemas/shared.yaml#/ApiError'
+        $ref: '../schemas/shared.yaml#/Problem'
 InternalServerError:
   description: Server could not process the request.
   content:
-    application/json:
+    application/problem+json:
       schema:
-        $ref: '../schemas/shared.yaml#/ApiError'
+        $ref: '../schemas/shared.yaml#/Problem'

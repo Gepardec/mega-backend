@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.domain.model;
 
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.shared.domain.SystemActor;
 import com.gepardec.mega.hexagon.shared.domain.model.Capacity;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -37,7 +37,9 @@ class MonthEndTaskTest {
                 Set.of(leadA)
         );
 
-        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class)
+        assertThatThrownBy(throwingCallable)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.VALIDATION_FAILED))
                 .hasMessageContaining("subject employee");
     }
 
@@ -52,7 +54,9 @@ class MonthEndTaskTest {
                 Set.of(leadA)
         );
 
-        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class)
+        assertThatThrownBy(throwingCallable)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.VALIDATION_FAILED))
                 .hasMessageContaining("must not reference a subject employee");
     }
 
@@ -81,7 +85,9 @@ class MonthEndTaskTest {
                 Set.of(employeeId, leadA)
         );
 
-        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class)
+        assertThatThrownBy(throwingCallable)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.VALIDATION_FAILED))
                 .hasMessageContaining("exactly one eligible actor");
     }
 
@@ -96,7 +102,9 @@ class MonthEndTaskTest {
                 Set.of(employeeId)
         );
 
-        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class)
+        assertThatThrownBy(throwingCallable)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.VALIDATION_FAILED))
                 .hasMessageContaining("require a subject employee");
     }
 
@@ -111,7 +119,9 @@ class MonthEndTaskTest {
                 Set.of(leadA)
         );
 
-        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class)
+        assertThatThrownBy(throwingCallable)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.VALIDATION_FAILED))
                 .hasMessageContaining("eligible employee actor");
     }
 
@@ -178,7 +188,8 @@ class MonthEndTaskTest {
         );
 
         assertThatThrownBy(() -> task.complete(outsider))
-                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED))
                 .hasMessageContaining("not eligible");
     }
 

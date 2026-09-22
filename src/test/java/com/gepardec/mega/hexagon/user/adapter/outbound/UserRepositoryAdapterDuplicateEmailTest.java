@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.user.adapter.outbound;
 
-import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
 import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
@@ -34,8 +33,8 @@ class UserRepositoryAdapterDuplicateEmailTest {
 
         // Then
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(ForbiddenException.class)
+                .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("authenticated actor resolution is ambiguous")
-                .hasMessageContaining(email);
+                .hasMessageNotContaining(email);
     }
 }

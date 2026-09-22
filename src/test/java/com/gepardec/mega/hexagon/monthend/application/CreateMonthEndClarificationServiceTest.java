@@ -1,8 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndProjectContextNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
 import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationCreatedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
@@ -147,7 +146,8 @@ class CreateMonthEndClarificationServiceTest {
                 .thenReturn(projectContext(Set.of(leadA, leadB)));
 
         assertThatThrownBy(() -> service.create(month, projectId, null, employeeId, "Need support."))
-                .isInstanceOf(MonthEndActorNotAuthorizedException.class);
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED));
 
         verifyNoInteractions(clarificationRepository, clarificationCreatedEvent);
     }
@@ -159,7 +159,8 @@ class CreateMonthEndClarificationServiceTest {
                 .thenReturn(projectContext(Set.of(leadA, leadB)));
 
         assertThatThrownBy(() -> service.create(month, projectId, null, otherProjectLead, "Need support."))
-                .isInstanceOf(MonthEndActorNotAuthorizedException.class);
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED));
 
         verifyNoInteractions(clarificationRepository, clarificationCreatedEvent);
     }
@@ -184,7 +185,8 @@ class CreateMonthEndClarificationServiceTest {
                 .thenReturn(projectContext(Set.of(leadA, leadB)));
 
         assertThatThrownBy(() -> service.create(month, projectId, otherEmployee, employeeId, "Not allowed."))
-                .isInstanceOf(MonthEndActorNotAuthorizedException.class);
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED));
 
         verifyNoInteractions(employeeContextService, clarificationRepository, clarificationCreatedEvent);
     }
@@ -192,10 +194,11 @@ class CreateMonthEndClarificationServiceTest {
     @Test
     void create_shouldThrowProjectContextNotFound_whenProjectIsUnknown() {
         when(projectContextService.resolve(month, projectId))
-                .thenThrow(new MonthEndProjectContextNotFoundException("month-end project context not found"));
+                .thenThrow(new MonthEndException(MonthEndErrorCode.PROJECT_CONTEXT_NOT_FOUND, "month-end project context not found"));
 
         assertThatThrownBy(() -> service.create(month, projectId, employeeId, employeeId, "Please check this."))
-                .isInstanceOf(MonthEndProjectContextNotFoundException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.PROJECT_CONTEXT_NOT_FOUND))
                 .hasMessageContaining("context not found");
 
         verifyNoInteractions(employeeContextService, clarificationRepository, clarificationCreatedEvent);
@@ -206,10 +209,11 @@ class CreateMonthEndClarificationServiceTest {
         when(projectContextService.resolve(month, projectId))
                 .thenReturn(projectContext(Set.of(leadA, leadB)));
         when(employeeContextService.resolve(any(MonthEndProjectContext.class), eq(employeeId)))
-                .thenThrow(new MonthEndEmployeeNotAssignedToProjectException("not assigned"));
+                .thenThrow(new MonthEndException(MonthEndErrorCode.EMPLOYEE_NOT_ASSIGNED_TO_PROJECT, "not assigned"));
 
         assertThatThrownBy(() -> service.create(month, projectId, employeeId, leadA, "Not assigned."))
-                .isInstanceOf(MonthEndEmployeeNotAssignedToProjectException.class);
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.EMPLOYEE_NOT_ASSIGNED_TO_PROJECT));
 
         verifyNoInteractions(clarificationRepository, clarificationCreatedEvent);
     }

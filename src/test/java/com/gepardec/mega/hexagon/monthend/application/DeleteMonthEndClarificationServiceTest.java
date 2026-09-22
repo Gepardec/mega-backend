@@ -1,8 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationDeletedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
@@ -21,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -71,7 +71,8 @@ class DeleteMonthEndClarificationServiceTest {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> service.delete(clarification.id(), leadId);
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED))
                 .hasMessageContaining("not allowed");
 
         verify(clarificationRepository, never()).delete(clarification.id());
@@ -86,7 +87,8 @@ class DeleteMonthEndClarificationServiceTest {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> service.delete(done.id(), creatorId);
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(MonthEndClarificationClosedException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.CLARIFICATION_CLOSED))
                 .hasMessageContaining("cannot be deleted");
 
         verify(clarificationRepository, never()).delete(done.id());
@@ -98,7 +100,8 @@ class DeleteMonthEndClarificationServiceTest {
         when(clarificationRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.delete(id, creatorId))
-                .isInstanceOf(MonthEndClarificationNotFoundException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.CLARIFICATION_NOT_FOUND))
                 .hasMessageContaining("not found");
     }
 
