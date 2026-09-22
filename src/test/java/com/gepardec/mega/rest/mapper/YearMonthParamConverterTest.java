@@ -1,11 +1,13 @@
 package com.gepardec.mega.rest.mapper;
 
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.ws.rs.BadRequestException;
 import org.junit.jupiter.api.Test;
 
 import java.time.YearMonth;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @QuarkusTest
 class YearMonthParamConverterTest {
@@ -22,6 +24,19 @@ class YearMonthParamConverterTest {
     void fromString_NullInput_IsNull() {
         YearMonth result = converter.fromString(null);
         assertThat(result).isNull();
+    }
+
+    @Test
+    void fromString_BlankInput_IsNull() {
+        YearMonth result = converter.fromString("  ");
+        assertThat(result).isNull();
+    }
+
+    @Test
+    void fromString_MalformedInput_ThrowsBadRequest() {
+        assertThatThrownBy(() -> converter.fromString("2026-13"))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("2026-13");
     }
 
     @Test

@@ -3,12 +3,13 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 import com.gepardec.mega.hexagon.generated.api.CronApi;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GenerateMonthEndTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
-import io.quarkiverse.httpproblem.validation.Violation;
 import io.quarkus.oidc.Tenant;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
+
+import java.time.YearMonth;
 
 /**
  * Machine-to-machine month-end endpoints, secured by the {@code mega-cron}
@@ -22,25 +23,20 @@ import jakarta.ws.rs.core.Response;
 public class MonthEndCronResource implements CronApi {
 
     private final GenerateMonthEndTasksUseCase generateMonthEndTasksUseCase;
-    private final MonthEndRestTransportHelper transportHelper;
     private final MonthEndRestMapper monthEndRestMapper;
 
     @Inject
     public MonthEndCronResource(
             GenerateMonthEndTasksUseCase generateMonthEndTasksUseCase,
-            MonthEndRestTransportHelper transportHelper,
             MonthEndRestMapper monthEndRestMapper
     ) {
         this.generateMonthEndTasksUseCase = generateMonthEndTasksUseCase;
-        this.transportHelper = transportHelper;
         this.monthEndRestMapper = monthEndRestMapper;
     }
 
     @Override
-    public Response generateMonthEndTasks(String month) {
-        MonthEndTaskGenerationResult result = generateMonthEndTasksUseCase.generate(
-                transportHelper.parseMonth(month, Violation.In.path)
-        );
+    public Response generateMonthEndTasks(YearMonth month) {
+        MonthEndTaskGenerationResult result = generateMonthEndTasksUseCase.generate(month);
 
         return Response.ok(monthEndRestMapper.toDto(result)).build();
     }

@@ -383,7 +383,7 @@ class MonthEndResourceTest {
     void generateMonthEndPrematurely_shouldReturnNoContent() {
         allowRoles(Role.EMPLOYEE);
         GenerateMonthEndPrematurelyRequestDto request = new GenerateMonthEndPrematurelyRequestDto()
-                .month(MONTH.toString())
+                .month(MONTH)
                 .clarificationText("Leaving early.");
 
         given()
@@ -397,7 +397,7 @@ class MonthEndResourceTest {
     }
 
     @Test
-    void getEmployeeMonthEndStatusOverview_shouldRejectInvalidMonthAsPathViolation() {
+    void getEmployeeMonthEndStatusOverview_shouldRejectInvalidMonth() {
         allowRoles(Role.EMPLOYEE);
 
         given()
@@ -406,9 +406,7 @@ class MonthEndResourceTest {
                 .then()
                 .statusCode(400)
                 .contentType("application/problem+json")
-                .body("code", nullValue())
-                .body("violations[0].field", is("month"))
-                .body("violations[0].in", is("path"));
+                .body("code", nullValue());
 
         verifyNoInteractions(getEmployeeMonthEndStatusOverviewUseCase);
     }
@@ -451,7 +449,7 @@ class MonthEndResourceTest {
     void createMonthEndClarification_shouldReturnCreatedClarificationForEmployee() {
         allowRoles(Role.EMPLOYEE);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
-                .month(MONTH.toString())
+                .month(MONTH)
                 .projectId(PROJECT_ID.value())
                 .text("Need support.");
         MonthEndClarification clarification = employeeClarification("Need support.");
@@ -495,7 +493,7 @@ class MonthEndResourceTest {
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         when(authenticatedActorContext.hasRole(Role.PROJECT_LEAD)).thenReturn(true);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
-                .month(MONTH.toString())
+                .month(MONTH)
                 .projectId(PROJECT_ID.value())
                 .subjectEmployeeId(EMPLOYEE_ID.value())
                 .text("Please fix the evidence.");
@@ -537,7 +535,7 @@ class MonthEndResourceTest {
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         when(authenticatedActorContext.hasRole(Role.PROJECT_LEAD)).thenReturn(true);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
-                .month(MONTH.toString())
+                .month(MONTH)
                 .projectId(PROJECT_ID.value())
                 .text("Project-level follow-up.");
         MonthEndClarification clarification = leadProjectLevelClarification("Project-level follow-up.");
@@ -575,7 +573,7 @@ class MonthEndResourceTest {
     void createMonthEndClarification_shouldIgnoreProvidedSubjectEmployeeForEmployeeCaller() {
         allowRoles(Role.EMPLOYEE);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
-                .month(MONTH.toString())
+                .month(MONTH)
                 .projectId(PROJECT_ID.value())
                 .subjectEmployeeId(PROJECT_LEAD_ID.value())
                 .text("Still my own clarification.");

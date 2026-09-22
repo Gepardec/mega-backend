@@ -73,7 +73,7 @@ class ProblemContractTest {
 
     @Test
     @TestSecurity(user = "test")
-    void adapterValidation_shouldBeProblemWithPathViolationAndNoCode() {
+    void malformedPathValue_shouldBeProblemWithoutCodeOrViolations() {
         allowRoles(Role.EMPLOYEE);
 
         Response response = given()
@@ -82,9 +82,7 @@ class ProblemContractTest {
 
         ProblemDto problem = problemOf(response, 400);
         assertThat(problem.getCode()).isNull();
-        assertThat(problem.getViolations())
-                .extracting(ViolationDto::getField, ViolationDto::getIn)
-                .containsExactly(tuple("month", ViolationDto.InEnum.PATH));
+        assertThat(problem.getViolations()).isEmpty();
     }
 
     @Test
