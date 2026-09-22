@@ -412,6 +412,14 @@
                             <generateApiDocumentation>true</generateApiDocumentation>
                             <addCompileSourceRoot>true</addCompileSourceRoot>
                             <modelNameSuffix>Dto</modelNameSuffix>
+                            <typeMappings>
+                                <typeMapping>string+year-month=YearMonth</typeMapping>
+                                <!-- identity mapping keeps modelNameSuffix from turning YearMonth into YearMonthDto -->
+                                <typeMapping>YearMonth=YearMonth</typeMapping>
+                            </typeMappings>
+                            <importMappings>
+                                <importMapping>YearMonth=java.time.YearMonth</importMapping>
+                            </importMappings>
                             <configOptions>
                                 <interfaceOnly>true</interfaceOnly>
                                 <useJakartaEe>true</useJakartaEe>

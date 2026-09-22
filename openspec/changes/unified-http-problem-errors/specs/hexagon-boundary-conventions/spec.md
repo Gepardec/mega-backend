@@ -21,9 +21,9 @@ Every failure that hexagon domain or application code raises to reject a request
 - **WHEN** resolving the authenticated actor finds more than one user with the same email
 - **THEN** the failure surfaces as an unexpected server error, not as "forbidden"
 
-### Requirement: Inbound adapters report their own input errors directly
-Hexagon inbound adapters that reject a request because it can't be translated into a use-case call (for example an unparsable identifier or month) SHALL report that as an input validation error at the adapter, without defining bounded-context-specific adapter exception hierarchies. Such rejections SHALL use the API-wide validation-error shape.
+### Requirement: Inbound adapters leave input parsing to the contract
+Hexagon inbound adapters SHALL receive path, query and body values already converted to the types declared in the API contract, such as months and identifiers, and SHALL NOT parse or re-validate them by hand. Values that can't be converted SHALL be rejected before the adapter runs, using the API-wide problem format. Adapters SHALL NOT define bounded-context-specific adapter exception hierarchies.
 
-#### Scenario: Unparsable identifier is rejected at the adapter
-- **WHEN** a hexagon REST adapter receives a path parameter that isn't a valid identifier
-- **THEN** the adapter rejects the request as an input validation error naming the offending parameter, and no use case is invoked
+#### Scenario: Unparsable month is rejected before the adapter
+- **WHEN** a hexagon REST endpoint receives a month path parameter that isn't a valid year-month
+- **THEN** the request is rejected with a problem response without `code`, and no use case is invoked

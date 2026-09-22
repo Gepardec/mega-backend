@@ -62,4 +62,22 @@ class WorkerResourceProblemTest {
                 .body("detail", nullValue())
                 .body(not(containsString("test@gepardec.com")));
     }
+
+    @Test
+    void getBillInfoForEmployee_shouldReturnBadRequest_whenPayrollMonthIsMalformed() {
+        User employee = Instancio.of(User.class)
+                .set(field(User::email), Email.of("test@gepardec.com"))
+                .set(field(User::roles), Set.of(Role.EMPLOYEE))
+                .create();
+        when(userRepository.findByEmail(Email.of("test@gepardec.com"))).thenReturn(Optional.of(employee));
+
+        given()
+                .accept(ContentType.JSON)
+                .queryParam("payrollMonth", "2026-13")
+                .get("/worker/bills")
+                .then()
+                .statusCode(400)
+                .contentType("application/problem+json")
+                .body("code", nullValue());
+    }
 }

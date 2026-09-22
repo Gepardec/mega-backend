@@ -40,7 +40,6 @@ import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -363,9 +362,7 @@ class WorkTimeResourceTest {
                 .then()
                 .statusCode(400)
                 .contentType("application/problem+json")
-                .body("code", nullValue())
-                .body("violations[0].field", is("payrollMonth"))
-                .body("violations[0].in", is("path"));
+                .body("code", nullValue());
         verifyNoInteractions(getEmployeeWarningsUseCase);
     }
 

@@ -62,7 +62,9 @@ import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -482,8 +484,7 @@ class MonthEndResourceTest {
                 .statusCode(400)
                 .contentType("application/problem+json")
                 .body("code", nullValue())
-                .body("violations[0].field", is("month"))
-                .body("violations[0].in", is("path"));
+                .body("$", not(hasKey("violations")));
 
         verifyNoInteractions(getMonthEndStatusOverviewUseCase);
     }
@@ -515,7 +516,7 @@ class MonthEndResourceTest {
     void generateMonthEndPrematurely_shouldReturnNoContent() {
         allowRoles(Role.EMPLOYEE);
         GenerateMonthEndPrematurelyRequestDto request = new GenerateMonthEndPrematurelyRequestDto()
-                .month(MONTH.toString())
+                .month(MONTH)
                 .clarificationText("Leaving early.");
 
         given()
@@ -566,7 +567,7 @@ class MonthEndResourceTest {
     void createMonthEndClarification_shouldReturnCreatedClarificationForEmployee() {
         allowRoles(Role.EMPLOYEE);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
-                .month(MONTH.toString())
+                .month(MONTH)
                 .projectId(PROJECT_ID.value())
                 .subjectEmployeeId(EMPLOYEE_ID.value())
                 .text("Need support.");
@@ -609,7 +610,7 @@ class MonthEndResourceTest {
     void createMonthEndClarification_shouldReturnForbidden_whenUseCaseRejectsNonLeadOmittedSubject() {
         allowRoles(Role.EMPLOYEE);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
-                .month(MONTH.toString())
+                .month(MONTH)
                 .projectId(PROJECT_ID.value())
                 .text("Project-level attempt.");
         when(createMonthEndClarificationUseCase.create(
@@ -634,7 +635,7 @@ class MonthEndResourceTest {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
-                .month(MONTH.toString())
+                .month(MONTH)
                 .projectId(PROJECT_ID.value())
                 .subjectEmployeeId(EMPLOYEE_ID.value())
                 .text("Please fix the evidence.");
@@ -675,7 +676,7 @@ class MonthEndResourceTest {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
-                .month(MONTH.toString())
+                .month(MONTH)
                 .projectId(PROJECT_ID.value())
                 .text("Project-level follow-up.");
         MonthEndClarification clarification = leadProjectLevelClarification("Project-level follow-up.");
@@ -713,7 +714,7 @@ class MonthEndResourceTest {
     void createMonthEndClarification_shouldPassProvidedSubjectEmployeeThroughUnchanged() {
         allowRoles(Role.EMPLOYEE);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
-                .month(MONTH.toString())
+                .month(MONTH)
                 .projectId(PROJECT_ID.value())
                 .subjectEmployeeId(PROJECT_LEAD_ID.value())
                 .text("Foreign subject.");
@@ -746,7 +747,7 @@ class MonthEndResourceTest {
     void createMonthEndClarification_shouldReturnForbidden_whenUseCaseRejectsActor() {
         allowRoles(Role.EMPLOYEE);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
-                .month(MONTH.toString())
+                .month(MONTH)
                 .projectId(PROJECT_ID.value())
                 .subjectEmployeeId(PROJECT_LEAD_ID.value())
                 .text("Not allowed.");

@@ -19,7 +19,9 @@
         content:
           application/json:
             schema:
-              $ref: '../schemas/shared.yaml#/MonthValue'
+              type: string
+              format: year-month
+              example: "2026-09"
       '400':
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
@@ -40,7 +42,9 @@
         required: true
         description: Month-end context in yyyy-MM format.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          type: string
+          format: year-month
+          example: "2026-09"
       - name: capacity
         in: query
         required: true
@@ -235,7 +239,9 @@
         required: true
         description: Month-end context in yyyy-MM format.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          type: string
+          format: year-month
+          example: "2026-09"
     responses:
       '200':
         description: Month-end generation result
@@ -263,7 +269,9 @@
         required: true
         description: Month-end context in yyyy-MM format.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          type: string
+          format: year-month
+          example: "2026-09"
       - name: projectId
         in: path
         required: true
@@ -304,7 +312,9 @@
         required: true
         description: Month-end context in yyyy-MM format.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          type: string
+          format: year-month
+          example: "2026-09"
     responses:
       '200':
         description: Own time-check tasks bulk completed

@@ -29,7 +29,9 @@ WorkTimeReport:
     - entries
   properties:
     payrollMonth:
-      $ref: './shared.yaml#/MonthValue'
+      type: string
+      format: year-month
+      example: "2026-09"
     entries:
       type: array
       items:
