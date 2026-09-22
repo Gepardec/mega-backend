@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 import com.gepardec.mega.hexagon.generated.api.CronApi;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GenerateMonthEndTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationResult;
+import io.quarkiverse.httpproblem.validation.Violation;
 import io.quarkus.oidc.Tenant;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
@@ -38,7 +39,7 @@ public class MonthEndCronResource implements CronApi {
     @Override
     public Response generateMonthEndTasks(String month) {
         MonthEndTaskGenerationResult result = generateMonthEndTasksUseCase.generate(
-                transportHelper.parseMonth(month)
+                transportHelper.parseMonth(month, Violation.In.path)
         );
 
         return Response.ok(monthEndRestMapper.toDto(result)).build();

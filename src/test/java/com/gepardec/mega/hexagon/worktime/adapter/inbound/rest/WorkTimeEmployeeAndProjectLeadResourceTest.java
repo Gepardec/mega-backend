@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
+import com.gepardec.mega.hexagon.generated.model.ProblemDto;
 import com.gepardec.mega.hexagon.generated.model.WorkTimeReportDto;
 import com.gepardec.mega.hexagon.generated.model.WorkTimeWarningDto;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
@@ -14,7 +14,8 @@ import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWarningsUseCase;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWorkTimeUseCase;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetProjectLeadWorkTimeUseCase;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeErrorCode;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeException;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEntry;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
@@ -36,6 +37,8 @@ import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -206,7 +209,13 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
     @Test
     void getEmployeeWarnings_shouldRejectMalformedMonth() {
         allowRoles(Role.EMPLOYEE);
-        given().accept(ContentType.JSON).get("/worktime/warnings/not-a-month").then().statusCode(400);
+        given().accept(ContentType.JSON).get("/worktime/warnings/not-a-month")
+                .then()
+                .statusCode(400)
+                .contentType("application/problem+json")
+                .body("code", nullValue())
+                .body("violations[0].field", is("payrollMonth"))
+                .body("violations[0].in", is("path"));
         verifyNoInteractions(getEmployeeWarningsUseCase);
     }
 
@@ -226,18 +235,19 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
     @Test
     void getEmployeeWorkTimeReport_shouldMapDomainNotFoundExceptionTo404() {
         allowRoles(Role.EMPLOYEE);
-        doThrow(new WorkTimeUserNotFoundException("user not found: " + EMPLOYEE_ID.value()))
+        doThrow(new WorkTimeException(WorkTimeErrorCode.USER_NOT_FOUND, "user not found: " + EMPLOYEE_ID.value()))
                 .when(getEmployeeWorkTimeUseCase).getWorkTime(EMPLOYEE_ID, MONTH);
 
-        ApiErrorDto response = given()
+        ProblemDto response = given()
                 .accept(ContentType.JSON)
                 .get("/worktime/employee/" + MONTH)
                 .then()
                 .statusCode(404)
                 .extract()
-                .as(ApiErrorDto.class);
+                .as(ProblemDto.class);
 
-        assertThat(response.getMessage()).isEqualTo("user not found: " + EMPLOYEE_ID.value());
+        assertThat(response.getStatus()).isEqualTo(404);
+        assertThat(response.getCode()).isEqualTo("WORKTIME_USER_NOT_FOUND");
     }
 
     private Map<String, Object> firstWarningPayload() {

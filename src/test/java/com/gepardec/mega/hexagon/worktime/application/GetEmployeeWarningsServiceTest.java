@@ -8,7 +8,8 @@ import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeAbse
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeBookingZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeExpectedWorkingDaysPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeErrorCode;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeException;
 import com.gepardec.mega.hexagon.worktime.domain.model.Absence;
 import com.gepardec.mega.hexagon.worktime.domain.model.AbsenceType;
 import com.gepardec.mega.hexagon.worktime.domain.model.ProjectBooking;
@@ -109,7 +110,9 @@ class GetEmployeeWarningsServiceTest {
     @Test
     void getWarnings_unknownEmployeeThrowsNotFound() {
         when(userPort.findById(USER_ID, MONTH)).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> service.getWarnings(USER_ID, MONTH)).isInstanceOf(WorkTimeUserNotFoundException.class);
+        assertThatThrownBy(() -> service.getWarnings(USER_ID, MONTH))
+                .isInstanceOfSatisfying(WorkTimeException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(WorkTimeErrorCode.USER_NOT_FOUND));
     }
 
     @Test

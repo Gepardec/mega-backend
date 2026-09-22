@@ -3,9 +3,8 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectAssignmentPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndUserSnapshotPort;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNotFoundException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndProjectContextNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
@@ -75,7 +74,8 @@ class MonthEndEmployeeProjectContextServiceTest {
         when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of());
 
         assertThatThrownBy(() -> service.resolve(month, projectId, employeeId))
-                .isInstanceOf(MonthEndProjectContextNotFoundException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.PROJECT_CONTEXT_NOT_FOUND))
                 .hasMessageContaining("project context not found");
     }
 
@@ -87,7 +87,8 @@ class MonthEndEmployeeProjectContextServiceTest {
         when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of());
 
         assertThatThrownBy(() -> service.resolve(month, projectId, employeeId))
-                .isInstanceOf(MonthEndEmployeeContextNotFoundException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.EMPLOYEE_CONTEXT_NOT_FOUND))
                 .hasMessageContaining("employee context not found");
     }
 
@@ -103,7 +104,8 @@ class MonthEndEmployeeProjectContextServiceTest {
                 .thenReturn(Set.of("someone-else"));
 
         assertThatThrownBy(() -> service.resolve(month, projectId, employeeId))
-                .isInstanceOf(MonthEndEmployeeNotAssignedToProjectException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.EMPLOYEE_NOT_ASSIGNED_TO_PROJECT))
                 .hasMessageContaining("not assigned");
     }
 

@@ -6,7 +6,8 @@ import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeAbsenceZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeErrorCode;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeException;
 import com.gepardec.mega.hexagon.worktime.domain.model.Absence;
 import com.gepardec.mega.hexagon.worktime.domain.model.AbsenceType;
 import org.instancio.Instancio;
@@ -64,7 +65,8 @@ class GetEmployeeAbsencesServiceTest {
         when(workTimeUserSnapshotPort.findById(employeeId, month)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getAbsences(employeeId, month))
-                .isInstanceOf(WorkTimeUserNotFoundException.class)
+                .isInstanceOfSatisfying(WorkTimeException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(WorkTimeErrorCode.USER_NOT_FOUND))
                 .hasMessage("user not found: " + employeeId.value());
     }
 }

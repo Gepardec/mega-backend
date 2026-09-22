@@ -1,10 +1,11 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.monthend.adapter.inbound.rest.error.MonthEndRequestValidationException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
+import io.quarkiverse.httpproblem.validation.HttpValidationProblem;
+import io.quarkiverse.httpproblem.validation.Violation;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 
@@ -20,16 +21,33 @@ class MonthEndRestTransportHelperTest {
 
     @Test
     void parseMonth_shouldParseIsoYearMonth() {
-        YearMonth month = helper.parseMonth("2026-03");
+        YearMonth month = helper.parseMonth("2026-03", Violation.In.path);
 
         assertThat(month).isEqualTo(YearMonth.of(2026, 3));
     }
 
     @Test
-    void parseProjectId_shouldRejectInvalidUuid() {
-        assertThatThrownBy(() -> helper.parseProjectId("not-a-uuid"))
-                .isInstanceOf(MonthEndRequestValidationException.class)
-                .hasMessageContaining("invalid projectId");
+    void parseMonth_shouldRejectInvalidMonthAsValidationProblem() {
+        assertThatThrownBy(() -> helper.parseMonth("2026-13", Violation.In.path))
+                .isInstanceOfSatisfying(HttpValidationProblem.class, problem -> {
+                    assertThat(problem.getStatusCode()).isEqualTo(400);
+                    assertThat(problem.getParameters()).doesNotContainKey("code");
+                    assertThat(problem.getViolations()).singleElement().satisfies(violation -> {
+                        assertThat(violation.field).isEqualTo("month");
+                        assertThat(violation.in).isEqualTo("path");
+                        assertThat(violation.message).contains("2026-13");
+                    });
+                });
+    }
+
+    @Test
+    void toProjectId_shouldRejectMissingBodyValue() {
+        assertThatThrownBy(() -> helper.toProjectId(null))
+                .isInstanceOfSatisfying(HttpValidationProblem.class, problem ->
+                        assertThat(problem.getViolations()).singleElement().satisfies(violation -> {
+                            assertThat(violation.field).isEqualTo("projectId");
+                            assertThat(violation.in).isEqualTo("body");
+                        }));
     }
 
     @Test
@@ -40,7 +58,7 @@ class MonthEndRestTransportHelperTest {
         UUID clarificationUuid = Instancio.create(UUID.class);
 
         ProjectId projectId = helper.toProjectId(projectUuid);
-        UserId userId = helper.toUserId(userUuid);
+        UserId userId = helper.toUserId(userUuid, "subjectEmployeeId");
         MonthEndTaskId taskId = helper.toTaskId(taskUuid);
         MonthEndClarificationId clarificationId = helper.toClarificationId(clarificationUuid);
 

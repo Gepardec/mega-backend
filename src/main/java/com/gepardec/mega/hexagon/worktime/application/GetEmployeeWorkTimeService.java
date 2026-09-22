@@ -6,8 +6,8 @@ import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWo
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeZepPort;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeValidationException;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeErrorCode;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeException;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEntry;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
@@ -48,7 +48,7 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
     @Override
     public WorkTimeReport getWorkTime(UserId employeeId, YearMonth month) {
         UserRef employee = workTimeUserSnapshotPort.findById(employeeId, month)
-                .orElseThrow(() -> new WorkTimeUserNotFoundException("user not found: " + employeeId.value()));
+                .orElseThrow(() -> new WorkTimeException(WorkTimeErrorCode.USER_NOT_FOUND, "user not found: " + employeeId.value()));
 
         List<WorkTimeAttendance> attendances = workTimeZepPort.fetchAttendancesForEmployee(requireZepUsername(employee), month)
                 .await().indefinitely();
@@ -90,7 +90,7 @@ public class GetEmployeeWorkTimeService implements GetEmployeeWorkTimeUseCase {
 
     private String requireZepUsername(UserRef user) {
         if (user.zepUsername() == null || user.zepUsername().value().isBlank()) {
-            throw new WorkTimeValidationException("zep username missing for user: " + user.id().value());
+            throw new WorkTimeException(WorkTimeErrorCode.VALIDATION_FAILED, "zep username missing for user: " + user.id().value());
         }
         return user.zepUsername().value();
     }

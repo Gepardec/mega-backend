@@ -1,8 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.domain.model;
 
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.shared.domain.SystemActor;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
@@ -135,11 +134,11 @@ public record MonthEndClarification(
         Objects.requireNonNull(modifiedAt, "modifiedAt must not be null");
 
         if (status == MonthEndClarificationStatus.DONE) {
-            throw new MonthEndClarificationClosedException("done clarifications cannot be edited");
+            throw new MonthEndException(MonthEndErrorCode.CLARIFICATION_CLOSED, "done clarifications cannot be edited");
         }
 
         if (!canEditText(actorId)) {
-            throw new MonthEndActorNotAuthorizedException("actor is not allowed to edit clarification text");
+            throw new MonthEndException(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED, "actor is not allowed to edit clarification text");
         }
 
         return new MonthEndClarification(
@@ -169,7 +168,7 @@ public record MonthEndClarification(
         }
 
         if (!canBeResolvedBy(actorId)) {
-            throw new MonthEndActorNotAuthorizedException("actor is not allowed to resolve clarification");
+            throw new MonthEndException(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED, "actor is not allowed to resolve clarification");
         }
 
         return new MonthEndClarification(
@@ -235,7 +234,7 @@ public record MonthEndClarification(
 
     private static void validateEligibleLeads(Set<UserId> eligibleProjectLeadIds) {
         if (eligibleProjectLeadIds.isEmpty()) {
-            throw new MonthEndValidationException("eligibleProjectLeadIds must not be empty");
+            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "eligibleProjectLeadIds must not be empty");
         }
     }
 
@@ -248,17 +247,17 @@ public record MonthEndClarification(
         boolean creatorIsLead = eligibleProjectLeadIds.contains(createdBy);
         boolean creatorIsSystem = SystemActor.USER_ID.equals(createdBy);
         if (!creatorIsSystem && !creatorIsEmployee && !creatorIsLead) {
-            throw new MonthEndValidationException("clarification creator must be the subject employee or an eligible lead");
+            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "clarification creator must be the subject employee or an eligible lead");
         }
     }
 
     private static void validateTimestamps(Instant createdAt, Instant resolvedAt, Instant lastModifiedAt) {
         if (lastModifiedAt.isBefore(createdAt)) {
-            throw new MonthEndValidationException("lastModifiedAt must not be before createdAt");
+            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "lastModifiedAt must not be before createdAt");
         }
 
         if (resolvedAt != null && resolvedAt.isBefore(createdAt)) {
-            throw new MonthEndValidationException("resolvedAt must not be before createdAt");
+            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "resolvedAt must not be before createdAt");
         }
     }
 
@@ -270,19 +269,19 @@ public record MonthEndClarification(
     ) {
         if (status == MonthEndClarificationStatus.OPEN) {
             if (resolutionNote != null || resolvedBy != null || resolvedAt != null) {
-                throw new MonthEndValidationException("open clarifications must not have resolution metadata");
+                throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "open clarifications must not have resolution metadata");
             }
             return;
         }
 
         if (resolvedBy == null || resolvedAt == null) {
-            throw new MonthEndValidationException("done clarifications must have resolver and resolvedAt");
+            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "done clarifications must have resolver and resolvedAt");
         }
     }
 
     private static String requireNonBlank(String value, String message) {
         if (value == null || value.isBlank()) {
-            throw new MonthEndValidationException(message);
+            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, message);
         }
         return value;
     }

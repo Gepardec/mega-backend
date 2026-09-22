@@ -56,15 +56,19 @@ When a bounded context rejects a request, the HTTP status SHALL reflect the kind
 ### Requirement: Input validation errors list each violation
 When a request is rejected because its input is invalid — a missing or malformed path parameter, query parameter, header or body field — the API SHALL respond with `400`. The problem body SHALL NOT contain `code` and SHALL contain a `violations` array with at least one entry. Each entry SHALL have:
 - `field`: the name of the offending parameter or the path to the offending body property
-- `in`: one of `path`, `query`, `header`, `form`, `body` or `unknown`
+- `in`: one of `path`, `query`, `header`, `form`, `body`, or `?` when the location can't be determined
 - `message`: a human-readable explanation
 
-This SHALL apply equally to constraint violations and to values that cannot be parsed into the expected type.
+This SHALL apply equally to constraint violations, to missing mandatory body fields, and to path or query values that cannot be parsed into the expected type. A request body that isn't well-formed JSON, or that has a value of the wrong JSON type, SHALL be rejected with `400` and a problem body without `code` and without `violations`; that body MAY contain a `field` member naming the offending property.
 
 #### Scenario: Unparsable path parameter
 - **WHEN** a client calls a month-end endpoint with the month path parameter `2026-13`
 - **THEN** the API responds with `400` and a problem body without `code`
 - **THEN** `violations` contains an entry with `field: "month"` and `in: "path"`
+
+#### Scenario: Body value of the wrong type
+- **WHEN** a client calls `PUT /projects/{projectId}/leistungsnachweis-enabled` with `enabled` set to a string that isn't a boolean
+- **THEN** the API responds with `400` and a problem body without `code` and without `violations`
 
 #### Scenario: Missing mandatory body field
 - **WHEN** a client calls `PUT /projects/{projectId}/leistungsnachweis-enabled` with a body lacking `enabled`

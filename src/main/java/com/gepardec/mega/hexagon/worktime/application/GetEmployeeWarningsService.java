@@ -7,8 +7,8 @@ import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeAbse
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeBookingZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeExpectedWorkingDaysPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeValidationException;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeErrorCode;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeException;
 import com.gepardec.mega.hexagon.worktime.domain.model.Absence;
 import com.gepardec.mega.hexagon.worktime.domain.model.AbsenceType;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
@@ -58,9 +58,9 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
         Objects.requireNonNull(employeeId, "employeeId must not be null");
         Objects.requireNonNull(month, "month must not be null");
         UserRef employee = userSnapshotPort.findById(employeeId, month)
-                .orElseThrow(() -> new WorkTimeUserNotFoundException("user not found: " + employeeId.value()));
+                .orElseThrow(() -> new WorkTimeException(WorkTimeErrorCode.USER_NOT_FOUND, "user not found: " + employeeId.value()));
         if (employee.zepUsername() == null || employee.zepUsername().value().isBlank()) {
-            throw new WorkTimeValidationException("zep username missing for user: " + employeeId.value());
+            throw new WorkTimeException(WorkTimeErrorCode.VALIDATION_FAILED, "zep username missing for user: " + employeeId.value());
         }
 
         WorkTimeBookings bookings = new WorkTimeBookings(

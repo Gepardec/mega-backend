@@ -3,9 +3,8 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectAssignmentPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndUserSnapshotPort;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNotFoundException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndProjectContextNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -41,7 +40,7 @@ public class MonthEndEmployeeProjectContextService {
         MonthEndProjectSnapshot project = monthEndProjectSnapshotPort.findActiveIn(month).stream()
                 .filter(candidate -> candidate.id().equals(projectId))
                 .findFirst()
-                .orElseThrow(() -> new MonthEndProjectContextNotFoundException(
+                .orElseThrow(() -> new MonthEndException(MonthEndErrorCode.PROJECT_CONTEXT_NOT_FOUND,
                         "month-end project context not found for project %s in %s".formatted(projectId.value(), month)
                 ));
 
@@ -54,14 +53,14 @@ public class MonthEndEmployeeProjectContextService {
 
         UserRef subjectEmployee = activeUsersById.get(subjectEmployeeId);
         if (subjectEmployee == null) {
-            throw new MonthEndEmployeeContextNotFoundException(
+            throw new MonthEndException(MonthEndErrorCode.EMPLOYEE_CONTEXT_NOT_FOUND,
                     "month-end employee context not found for employee %s in %s".formatted(subjectEmployeeId.value(), month)
             );
         }
 
         if (!monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month)
                 .contains(subjectEmployee.zepUsername().value())) {
-            throw new MonthEndEmployeeNotAssignedToProjectException(
+            throw new MonthEndException(MonthEndErrorCode.EMPLOYEE_NOT_ASSIGNED_TO_PROJECT,
                     "employee %s is not assigned to project %s in %s"
                             .formatted(subjectEmployeeId.value(), projectId.value(), month)
             );

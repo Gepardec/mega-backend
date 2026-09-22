@@ -91,9 +91,9 @@
       '400':
         description: CSV validation failed
         content:
-          application/json:
+          application/problem+json:
             schema:
-              $ref: '../schemas/user.yaml#/InternalRateUploadError'
+              $ref: '../schemas/user.yaml#/InternalRateUploadProblem'
       '403':
         $ref: '../responses/common.yaml#/Forbidden'
       '500':

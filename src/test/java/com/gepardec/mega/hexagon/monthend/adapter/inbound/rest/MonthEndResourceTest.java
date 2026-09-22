@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.monthend.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
 import com.gepardec.mega.hexagon.generated.model.CompleteProjectLeadMonthEndTasksRequestDto;
 import com.gepardec.mega.hexagon.generated.model.CreateClarificationRequestDto;
 import com.gepardec.mega.hexagon.generated.model.GenerateMonthEndPrematurelyRequestDto;
@@ -9,6 +8,7 @@ import com.gepardec.mega.hexagon.generated.model.MonthEndStatusOverviewDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndTaskCompletionDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndTaskStatusDto;
 import com.gepardec.mega.hexagon.generated.model.MonthEndTaskTypeDto;
+import com.gepardec.mega.hexagon.generated.model.ProblemDto;
 import com.gepardec.mega.hexagon.generated.model.ResolveClarificationRequestDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateClarificationTextRequestDto;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteEmployeeMonthEndTasksUseCase;
@@ -25,10 +25,8 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMont
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndUserSnapshotPort;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndTaskNotFoundException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
@@ -62,6 +60,8 @@ import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -388,7 +388,6 @@ class MonthEndResourceTest {
 
         given()
                 .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
                 .body(request)
                 .post("/monthend/generate-prematurely")
                 .then()
@@ -398,12 +397,28 @@ class MonthEndResourceTest {
     }
 
     @Test
+    void getEmployeeMonthEndStatusOverview_shouldRejectInvalidMonthAsPathViolation() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .accept(ContentType.JSON)
+                .get("/monthend/{month}/status-overview/employee", "2026-13")
+                .then()
+                .statusCode(400)
+                .contentType("application/problem+json")
+                .body("code", nullValue())
+                .body("violations[0].field", is("month"))
+                .body("violations[0].in", is("path"));
+
+        verifyNoInteractions(getEmployeeMonthEndStatusOverviewUseCase);
+    }
+
+    @Test
     void generateMonthEndPrematurely_shouldRejectMissingClarificationText() {
         allowRoles(Role.EMPLOYEE);
 
         given()
                 .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
                 .body(Map.of("month", MONTH.toString()))
                 .post("/monthend/generate-prematurely")
                 .then()
@@ -418,14 +433,16 @@ class MonthEndResourceTest {
 
         given()
                 .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
                 .body(Map.of(
                         "month", MONTH.toString(),
                         "clarificationText", " "
                 ))
                 .post("/monthend/generate-prematurely")
                 .then()
-                .statusCode(400);
+                .statusCode(400)
+                .body("code", nullValue())
+                .body("violations[0].field", is("clarificationText"))
+                .body("violations[0].in", is("body"));
 
         verifyNoInteractions(prematureMonthEndPreparationUseCase);
     }
@@ -596,17 +613,18 @@ class MonthEndResourceTest {
     void completeMonthEndTask_shouldReturnNotFoundErrorBodyWhenUseCaseSignalsMissingTask() {
         allowRoles(Role.EMPLOYEE);
         when(completeMonthEndTaskUseCase.complete(TASK_ID, EMPLOYEE_ID))
-                .thenThrow(new MonthEndTaskNotFoundException("month-end task not found"));
+                .thenThrow(new MonthEndException(MonthEndErrorCode.TASK_NOT_FOUND, "month-end task not found"));
 
-        ApiErrorDto response = given()
+        ProblemDto response = given()
                 .accept(ContentType.JSON)
                 .post("/monthend/tasks/{taskId}/complete", TASK_ID.value())
                 .then()
                 .statusCode(404)
                 .extract()
-                .as(ApiErrorDto.class);
+                .as(ProblemDto.class);
 
-        assertThat(response.getMessage()).isEqualTo("month-end task not found");
+        assertThat(response.getStatus()).isEqualTo(404);
+        assertThat(response.getCode()).isEqualTo("MONTHEND_TASK_NOT_FOUND");
     }
 
     @Test
@@ -678,7 +696,7 @@ class MonthEndResourceTest {
     void completeProjectLeadMonthEndTasks_shouldReturnBadRequest_whenTypeIsEmployeeTimeCheck() {
         allowRoles(Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
-        doThrow(new MonthEndValidationException("task type EMPLOYEE_TIME_CHECK cannot be bulk completed by a project lead"))
+        doThrow(new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "task type EMPLOYEE_TIME_CHECK cannot be bulk completed by a project lead"))
                 .when(completeProjectLeadMonthEndTasksUseCase)
                 .complete(MONTH, PROJECT_ID, MonthEndTaskType.EMPLOYEE_TIME_CHECK, PROJECT_LEAD_ID);
 
@@ -697,7 +715,7 @@ class MonthEndResourceTest {
     void completeProjectLeadMonthEndTasks_shouldReturnBadRequest_whenTypeIsAbrechnung() {
         allowRoles(Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
-        doThrow(new MonthEndValidationException("task type ABRECHNUNG cannot be bulk completed by a project lead"))
+        doThrow(new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "task type ABRECHNUNG cannot be bulk completed by a project lead"))
                 .when(completeProjectLeadMonthEndTasksUseCase)
                 .complete(MONTH, PROJECT_ID, MonthEndTaskType.ABRECHNUNG, PROJECT_LEAD_ID);
 
@@ -718,7 +736,7 @@ class MonthEndResourceTest {
         ProjectId unknownProjectId = ProjectId.of(Instancio.create(UUID.class));
 
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
-        doThrow(new MonthEndActorNotAuthorizedException("actor not authorized: " + PROJECT_LEAD_ID.value()))
+        doThrow(new MonthEndException(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED, "actor not authorized: " + PROJECT_LEAD_ID.value()))
                 .when(completeProjectLeadMonthEndTasksUseCase)
                 .complete(MONTH, unknownProjectId, MonthEndTaskType.PROJECT_LEAD_REVIEW, PROJECT_LEAD_ID);
 
@@ -738,7 +756,7 @@ class MonthEndResourceTest {
         allowRoles(Role.PROJECT_LEAD);
 
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
-        doThrow(new MonthEndActorNotAuthorizedException("actor not authorized: " + PROJECT_LEAD_ID.value()))
+        doThrow(new MonthEndException(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED, "actor not authorized: " + PROJECT_LEAD_ID.value()))
                 .when(completeProjectLeadMonthEndTasksUseCase)
                 .complete(MONTH, PROJECT_ID, MonthEndTaskType.PROJECT_LEAD_REVIEW, PROJECT_LEAD_ID);
 
@@ -899,7 +917,7 @@ class MonthEndResourceTest {
     @Test
     void deleteMonthEndClarification_shouldReturn403WhenNonCreatorAttemptsDelete() {
         allowRoles(Role.EMPLOYEE);
-        doThrow(new MonthEndActorNotAuthorizedException("actor is not allowed to delete this clarification"))
+        doThrow(new MonthEndException(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED, "actor is not allowed to delete this clarification"))
                 .when(deleteMonthEndClarificationUseCase).delete(CLARIFICATION_ID, EMPLOYEE_ID);
 
         given()
@@ -911,7 +929,7 @@ class MonthEndResourceTest {
     @Test
     void deleteMonthEndClarification_shouldReturn404WhenClarificationNotFound() {
         allowRoles(Role.EMPLOYEE);
-        doThrow(new MonthEndClarificationNotFoundException("clarification not found: " + CLARIFICATION_ID.value()))
+        doThrow(new MonthEndException(MonthEndErrorCode.CLARIFICATION_NOT_FOUND, "clarification not found: " + CLARIFICATION_ID.value()))
                 .when(deleteMonthEndClarificationUseCase).delete(CLARIFICATION_ID, EMPLOYEE_ID);
 
         given()
