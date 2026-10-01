@@ -10,6 +10,7 @@ import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkingLocation;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -66,6 +67,20 @@ class InsufficientRestCalculatorTest {
         assertThat(warning.date()).isNotNull();
         assertThat(warning.type()).isEqualTo(WorkTimeWarningType.MISSING_REST_TIME);
         assertThat(warning.hours()).isEqualTo(1d);
+    }
+
+    @Test
+    void whenPreviousDayEndsAtMidnight_thenMissingRestTimeMeasuredFromMidnight() {
+        ProjectBooking timeEntryOne = projectTimeEntryFor(1, 12, 45, 2, 0, 0);
+        ProjectBooking timeEntryTwo = projectTimeEntryFor(2, 7, 0, 2, 10, 0);
+
+        List<WorkTimeWarning> warnings = calculator.calculate(bookings(timeEntryOne, timeEntryTwo));
+
+        assertThat(warnings).singleElement().satisfies(warning -> {
+            assertThat(warning.date()).isEqualTo(LocalDate.of(2020, 1, 2));
+            assertThat(warning.type()).isEqualTo(WorkTimeWarningType.MISSING_REST_TIME);
+            assertThat(warning.hours()).isEqualTo(4d);
+        });
     }
 
     @Test

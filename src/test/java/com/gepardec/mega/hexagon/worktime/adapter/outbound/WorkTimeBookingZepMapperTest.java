@@ -56,6 +56,16 @@ class WorkTimeBookingZepMapperTest {
     }
 
     @Test
+    void toDomain_mapsBookingEndingAtMidnightToStartOfNextDay() {
+        var booking = mapper.toDomain(base().activity("BEARBEITEN").projectTaskId(233)
+                .from(LocalTime.of(18, 0)).to(LocalTime.MIDNIGHT).build());
+
+        assertThat(booking.to()).isEqualTo(LocalDate.of(2026, 5, 5).atStartOfDay());
+        assertThat(booking.date()).isEqualTo(LocalDate.of(2026, 5, 4));
+        assertThat(booking.durationInHours()).isEqualTo(6d);
+    }
+
+    @Test
     void toDomain_rejectsUnknownRequiredValues() {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> mapper.toDomain(base().activity("UNKNOWN").build());
         assertThatThrownBy(throwingCallable)

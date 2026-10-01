@@ -16,7 +16,9 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.JAKARTA, unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface WorkTimeBookingZepMapper {
@@ -60,7 +62,11 @@ public interface WorkTimeBookingZepMapper {
 
     @Named("toTo")
     default LocalDateTime toTo(ZepAttendance attendance) {
-        return LocalDateTime.of(attendance.date(), attendance.to());
+        // ZEP returns bookings ending at 24:00 as 00:00 of the same date
+        LocalDate toDate = LocalTime.MIDNIGHT.equals(attendance.to())
+                ? attendance.date().plusDays(1)
+                : attendance.date();
+        return LocalDateTime.of(toDate, attendance.to());
     }
 
     @Named("toWorkingLocation")

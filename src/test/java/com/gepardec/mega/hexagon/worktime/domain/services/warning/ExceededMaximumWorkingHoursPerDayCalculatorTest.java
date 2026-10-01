@@ -11,6 +11,7 @@ import com.gepardec.mega.hexagon.worktime.domain.model.WorkingLocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -52,6 +53,24 @@ class ExceededMaximumWorkingHoursPerDayCalculatorTest {
                 .journeyDirection(JourneyDirection.TO)
                 .vehicle(vehicle)
                 .build();
+    }
+
+    @Test
+    void whenBookingEndsAtMidnight_thenWarningOnBookingStartDate() {
+        ProjectBooking timeEntry = WarningTestBookingBuilder.projectBookingBuilder()
+                .fromTime(LocalDateTime.of(2020, 1, 7, 12, 45))
+                .toTime(LocalDateTime.of(2020, 1, 8, 0, 0))
+                .task(Task.BEARBEITEN)
+                .workingLocation(WorkingLocation.MAIN)
+                .build();
+
+        List<WorkTimeWarning> warnings = calculator.calculate(bookings(timeEntry));
+
+        assertThat(warnings).singleElement().satisfies(warning -> {
+            assertThat(warning.date()).isEqualTo(LocalDate.of(2020, 1, 7));
+            assertThat(warning.type()).isEqualTo(WorkTimeWarningType.EXCESS_WORKING_TIME_PRESENT);
+            assertThat(warning.hours()).isEqualTo(1.25d);
+        });
     }
 
     @Test
