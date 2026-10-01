@@ -38,6 +38,6 @@ public class CoreWorkingHoursCalculator implements WorkTimeWarningCalculator {
     }
 
     private boolean finishesTooLate(WorkTimeBooking booking) {
-        return booking.to().getHour() > LATEST_HOUR;
+        return booking.to().isAfter(booking.date().atTime(LATEST_HOUR, 0));
     }
 }

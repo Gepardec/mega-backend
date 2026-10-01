@@ -16,6 +16,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
@@ -149,6 +150,43 @@ class CoreWorkingHoursCalculatorTest {
         List<WorkTimeWarning> result = calculator.calculate(bookings(start, end));
 
         assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void whenStoppedAt22_thenNoWarning() {
+        ProjectBooking start = projectTimeEntryFor(6, 12);
+        ProjectBooking end = projectTimeEntryFor(18, 22);
+
+        List<WorkTimeWarning> result = calculator.calculate(bookings(start, end));
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void whenStoppedTooLateWithinHour22_thenWarning() {
+        ProjectBooking start = projectTimeEntryFor(6, 12);
+        ProjectBooking end = projectTimeEntryFor(18, 0, 22, 30);
+
+        List<WorkTimeWarning> result = calculator.calculate(bookings(start, end));
+
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void whenStoppedAtMidnight_thenWarningOnBookingStartDate() {
+        ProjectBooking start = projectTimeEntryFor(6, 12);
+        ProjectBooking end = WarningTestBookingBuilder.projectBookingBuilder()
+                .fromTime(LocalDateTime.of(2020, 1, 7, 18, 0))
+                .toTime(LocalDateTime.of(2020, 1, 8, 0, 0))
+                .task(Task.BEARBEITEN)
+                .workingLocation(WorkingLocation.MAIN).build();
+
+        List<WorkTimeWarning> result = calculator.calculate(bookings(start, end));
+
+        assertThat(result).singleElement().satisfies(warning -> {
+            assertThat(warning.date()).isEqualTo(LocalDate.of(2020, 1, 7));
+            assertThat(warning.type()).isEqualTo(WorkTimeWarningType.OUTSIDE_CORE_WORKING_TIME);
+        });
     }
 
     @Test
