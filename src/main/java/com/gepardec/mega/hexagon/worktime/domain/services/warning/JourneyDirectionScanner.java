@@ -39,8 +39,8 @@ class JourneyDirectionScanner {
         if (current == JourneyDirection.TO) {
             return JourneyState.OPEN;
         }
-        if (state == JourneyState.NONE) {
-            return JourneyState.NONE;
+        if (state != JourneyState.OPEN) {
+            return state;
         }
         return current == JourneyDirection.BACK ? JourneyState.CLOSED : JourneyState.OPEN;
     }

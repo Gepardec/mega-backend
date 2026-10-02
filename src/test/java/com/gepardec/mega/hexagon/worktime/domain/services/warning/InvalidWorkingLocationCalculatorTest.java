@@ -12,6 +12,7 @@ import com.gepardec.mega.hexagon.worktime.domain.model.WorkingLocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +20,13 @@ import java.util.List;
 import static com.gepardec.mega.hexagon.worktime.domain.services.warning.WarningTestBookingBuilder.bookings;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class InvalidWorkingLocationInJourneyCalculatorTest {
+class InvalidWorkingLocationCalculatorTest {
 
-    private InvalidWorkingLocationInJourneyCalculator calculator;
+    private InvalidWorkingLocationCalculator calculator;
 
     @BeforeEach
     void setUp() {
-        calculator = new InvalidWorkingLocationInJourneyCalculator();
+        calculator = new InvalidWorkingLocationCalculator();
     }
 
     @Test
@@ -215,7 +216,7 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
     }
 
     @Test
-    void whenProjectBookingWithWorkingLocationAAfterJourneyBackWithWorkingLocationA_thenNoWarning() {
+    void whenProjectBookingWithWorkingLocationAAfterJourneyBackWithWorkingLocationA_thenWarning() {
         JourneyBooking journeyTimeEntryOne = journeyTimeEntryFor(8, 10, JourneyDirection.TO, WorkingLocation.A);
         ProjectBooking projectTimeEntryTwo = projectTimeEntryFor(10, 11, WorkingLocation.A);
         JourneyBooking journeyTimeEntryThree = journeyTimeEntryFor(12, 13, JourneyDirection.BACK, WorkingLocation.A);
@@ -263,6 +264,28 @@ class InvalidWorkingLocationInJourneyCalculatorTest {
         List<WorkTimeWarning> warnings = calculator
                 .calculate(bookings(journeyTimeEntryOne, projectEntryTwo, journeyTimeEntryThree, journeyTimeEntryFour, projectEntryFive,
                         journeyTimeEntrySix));
+
+        assertThat(warnings).isEmpty();
+    }
+
+    @Test
+    void whenNoJourneyAndProjectBookingAwayFromMainLocation_thenWarning() {
+        ProjectBooking projectEntry = projectTimeEntryFor(8, 12, WorkingLocation.A);
+
+        List<WorkTimeWarning> warnings = calculator.calculate(bookings(projectEntry));
+
+        assertThat(warnings).singleElement().satisfies(warning -> {
+            assertThat(warning.type()).isEqualTo(WorkTimeWarningType.INVALID_WORKING_LOCATION);
+            assertThat(warning.date()).isEqualTo(LocalDate.of(2020, 1, 7));
+        });
+    }
+
+    @Test
+    void whenNoJourneyAndAllProjectBookingsAtMainLocation_thenNoWarning() {
+        ProjectBooking morning = projectTimeEntryFor(8, 12, WorkingLocation.MAIN);
+        ProjectBooking afternoon = projectTimeEntryFor(13, 17, WorkingLocation.MAIN);
+
+        List<WorkTimeWarning> warnings = calculator.calculate(bookings(morning, afternoon));
 
         assertThat(warnings).isEmpty();
     }

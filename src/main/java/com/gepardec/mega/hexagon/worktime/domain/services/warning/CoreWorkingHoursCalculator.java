@@ -1,7 +1,5 @@
 package com.gepardec.mega.hexagon.worktime.domain.services.warning;
 
-import com.gepardec.mega.hexagon.worktime.domain.model.JourneyBooking;
-import com.gepardec.mega.hexagon.worktime.domain.model.ProjectBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
@@ -18,19 +16,20 @@ public class CoreWorkingHoursCalculator implements WorkTimeWarningCalculator {
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeBookings bookings) {
         List<WorkTimeWarning> warnings = new ArrayList<>();
-        bookings.contributingToWorkingTime().byDate().forEach((date, dayBookings) -> {
+        withNonZeroDuration(bookings.contributingToWorkingTime()).byDate().forEach((date, dayBookings) -> {
             WorkTimeBooking first = dayBookings.values().getFirst();
             WorkTimeBooking last = dayBookings.values().getLast();
-            if ((startsTooEarly(first) || finishesTooLate(last)) && !isZeroDurationJourneyBoundary(first, last)) {
+            if (startsTooEarly(first) || finishesTooLate(last)) {
                 warnings.add(new WorkTimeWarning(date, OUTSIDE_CORE_WORKING_TIME, null));
             }
         });
         return warnings;
     }
 
-    private boolean isZeroDurationJourneyBoundary(WorkTimeBooking first, WorkTimeBooking last) {
-        return first instanceof JourneyBooking && first.durationInHours() == 0
-                || last instanceof ProjectBooking && last.durationInHours() == 0;
+    private WorkTimeBookings withNonZeroDuration(WorkTimeBookings bookings) {
+        return new WorkTimeBookings(bookings.values().stream()
+                .filter(booking -> booking.durationInHours() != 0)
+                .toList());
     }
 
     private boolean startsTooEarly(WorkTimeBooking booking) {

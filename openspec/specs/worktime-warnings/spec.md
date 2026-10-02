@@ -43,39 +43,23 @@ The system SHALL define the warning-type vocabulary covering the time-related ty
 - **WHEN** a calculator produces a warning
 - **THEN** the warning's type is one of the preserved identifiers, spelled exactly as in the legacy feature
 
-### Requirement: Calculators preserve legacy behaviour and run as pure functions
-The migrated calculators SHALL produce the same warnings as the legacy calculators for equivalent inputs; each calculator's decision logic SHALL remain unchanged, with only its inputs, outputs, and warning construction adapted. Calculators SHALL NOT read the wall clock, employee master data, or external systems directly — every such input SHALL be supplied by the application layer. The current date, where a rule needs it, SHALL be supplied from an injected clock.
-
-#### Scenario: Equivalent inputs yield the legacy result
-- **WHEN** a calculator is run over bookings (and, where relevant, expected working days, absences, and a current date) equivalent to a legacy scenario
-- **THEN** the produced set of warnings equals the warnings the legacy calculator produced for that scenario
-
-#### Scenario: The current date comes from the injected clock
-- **WHEN** the no-time-entry rule excludes future days
-- **THEN** it excludes the current date and later days using the current date supplied by the injected clock, not the process wall-clock time
-
-### Requirement: No-time-entry warnings are a set difference over expected working days
-The system SHALL determine no-time-entry warnings as the employee's expected working days for the month, minus days that carry any booking, minus days excused by an absence, minus the current date and later days. Expected working days SHALL be the office-calendar working days of the month that fall on or after the active employment-period start and on weekdays where the employee has non-zero regular working hours. Home-office absences SHALL NOT excuse a missing entry. This rule SHALL only run when the employee has at least one booking in the month; an empty month yields the single `EMPTY_ENTRY_LIST` warning instead.
-
-#### Scenario: A past working day with no booking and no absence is flagged
-- **WHEN** an expected working day before the current date has neither a booking nor an excusing absence
-- **THEN** a `NO_TIME_ENTRY` warning is produced for that day
-
-#### Scenario: A day excused by an absence is not flagged
-- **WHEN** an expected working day is covered by a vacation, sick-leave, or other non-home-office absence
-- **THEN** no no-time-entry warning is produced for that day
-
-#### Scenario: A future working day is not flagged
-- **WHEN** an expected working day falls after the current date
-- **THEN** no no-time-entry warning is produced for that day
-
-#### Scenario: Days outside the expected working set are not flagged
-- **WHEN** a day is a holiday, a weekend, a zero-regular-hours weekday, or before the employment-period start
-- **THEN** it is not part of the expected working days and yields no no-time-entry warning
-
 ### Requirement: Warnings from all calculators are assembled into one flat result
 The system SHALL combine the outputs of all calculators into a single flat collection of warnings for the employee and month. Assembly SHALL NOT bake localized text and SHALL NOT collapse warnings of different types that fall on the same date. Grouping warnings by type for display is a client concern.
 
 #### Scenario: Different warning types on the same date remain separate
 - **WHEN** two calculators produce warnings of different types for the same date
 - **THEN** the assembled result contains both warnings as separate entries
+
+### Requirement: Warning rules run as pure functions
+Each warning rule SHALL be defined by its own `worktime-warning-*` capability. Warning rules SHALL NOT read the wall clock, employee master data, or external systems directly — every such input SHALL be supplied by the application layer. The current date, where a rule needs it, SHALL be supplied from an injected clock.
+
+#### Scenario: The current date comes from the injected clock
+- **WHEN** the no-time-entry rule excludes future days
+- **THEN** it excludes the current date and later days using the current date supplied by the injected clock, not the process wall-clock time
+
+### Requirement: At most one warning per type and date
+The assembled result SHALL contain at most one warning per combination of warning type and date, even when a rule finds several offending bookings on the same date.
+
+#### Scenario: Several violations of one rule on a day yield one warning
+- **WHEN** a rule finds two offending bookings on the same date
+- **THEN** the result contains exactly one warning of that rule's type for that date

@@ -4,6 +4,7 @@ import com.gepardec.mega.hexagon.worktime.domain.model.ProjectBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.Task;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkingLocation;
 import org.junit.jupiter.api.Test;
 
@@ -28,8 +29,28 @@ class TimeOverlapCalculatorTest {
     }
 
     @Test
-    void calculate_whenProjectEntriesStartAndEndOverlap_thenNoWarning() {
-        List<WorkTimeBooking> projectEntries = generateProjectEntriesListWhereEndAndStartOverlap();
+    void calculate_whenBookingsPartiallyOverlap_thenWarning() {
+        WorkTimeBooking first = projectTimeEntry(7, 8, 0, 10, 0);
+        WorkTimeBooking second = projectTimeEntry(7, 9, 30, 11, 0);
+
+        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings(List.of(first, second)));
+
+        assertThat(warnings).containsExactly(new WorkTimeWarning(LocalDate.of(2020, 1, 7), WorkTimeWarningType.TIME_OVERLAP, null));
+    }
+
+    @Test
+    void calculate_whenBookingIsNestedInsideAnother_thenWarning() {
+        WorkTimeBooking outer = projectTimeEntry(7, 8, 0, 12, 0);
+        WorkTimeBooking nested = projectTimeEntry(7, 9, 0, 10, 0);
+
+        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings(List.of(outer, nested)));
+
+        assertThat(warnings).containsExactly(new WorkTimeWarning(LocalDate.of(2020, 1, 7), WorkTimeWarningType.TIME_OVERLAP, null));
+    }
+
+    @Test
+    void calculate_whenProjectEntriesAreAdjacent_thenNoWarning() {
+        List<WorkTimeBooking> projectEntries = generateAdjacentProjectEntries();
 
         List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings(projectEntries));
 
@@ -93,7 +114,7 @@ class TimeOverlapCalculatorTest {
         return projectEntries;
     }
 
-    private List<WorkTimeBooking> generateProjectEntriesListWhereEndAndStartOverlap() {
+    private List<WorkTimeBooking> generateAdjacentProjectEntries() {
         List<WorkTimeBooking> projectEntries = new ArrayList<>();
         projectEntries.add(projectTimeEntry(7, 8, 0, 11, 30));
         projectEntries.add(projectTimeEntry(7, 11, 30, 16, 30));

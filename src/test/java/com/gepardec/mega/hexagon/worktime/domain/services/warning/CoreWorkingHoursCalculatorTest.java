@@ -119,6 +119,26 @@ class CoreWorkingHoursCalculatorTest {
     }
 
     @Test
+    void whenStartedTooEarlyWithinHour5_thenWarning() {
+        ProjectBooking start = projectTimeEntryFor(5, 30, 12, 0);
+        ProjectBooking end = projectTimeEntryFor(13, 16);
+
+        List<WorkTimeWarning> result = calculator.calculate(bookings(start, end));
+
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void whenStartedAt6_thenNoWarning() {
+        ProjectBooking start = projectTimeEntryFor(6, 12);
+        ProjectBooking end = projectTimeEntryFor(13, 16);
+
+        List<WorkTimeWarning> result = calculator.calculate(bookings(start, end));
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
     void whenInactiveTravelerOnJourneyAndStartedToEarly_thenWarning() {
         JourneyBooking start = journeyTimeEntryFor(3, 4, Vehicle.OTHER_INACTIVE);
         ProjectBooking end = projectTimeEntryFor(5, 8);
@@ -233,6 +253,49 @@ class CoreWorkingHoursCalculatorTest {
 
         // When
         var result = calculator.calculate(bookings(entry));
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void calculate_ZeroDurationJourneyBeforeCoreWorkingTimeAndWorkEndingAfter22_Warning() {
+        // Given
+        var zeroDurationJourney = journeyTimeEntryFor(5, 5, Vehicle.CAR_ACTIVE);
+        var work = projectTimeEntryFor(8, 23);
+
+        // When
+        var result = calculator.calculate(bookings(zeroDurationJourney, work));
+
+        // Then
+        assertThat(result).singleElement()
+                .extracting(WorkTimeWarning::type)
+                .isEqualTo(WorkTimeWarningType.OUTSIDE_CORE_WORKING_TIME);
+    }
+
+    @Test
+    void calculate_ZeroDurationProjectBookingAfterCoreWorkingTimeAndWorkStartingBefore6_Warning() {
+        // Given
+        var work = projectTimeEntryFor(5, 12);
+        var zeroDurationBooking = projectTimeEntryFor(23, 23);
+
+        // When
+        var result = calculator.calculate(bookings(work, zeroDurationBooking));
+
+        // Then
+        assertThat(result).singleElement()
+                .extracting(WorkTimeWarning::type)
+                .isEqualTo(WorkTimeWarningType.OUTSIDE_CORE_WORKING_TIME);
+    }
+
+    @Test
+    void calculate_OnlyBookingOutsideCoreWorkingTimeHasZeroDuration_NoWarning() {
+        // Given
+        var work = projectTimeEntryFor(8, 16);
+        var zeroDurationBooking = projectTimeEntryFor(23, 23);
+
+        // When
+        var result = calculator.calculate(bookings(work, zeroDurationBooking));
 
         // Then
         assertThat(result).isEmpty();

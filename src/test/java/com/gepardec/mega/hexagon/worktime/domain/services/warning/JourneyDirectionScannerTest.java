@@ -106,6 +106,15 @@ class JourneyDirectionScannerTest {
     }
 
     @Test
+    void whenFurtherFollowsFinishedJourney_thenFurtherDoesNotReopenJourney() {
+        assertAll(
+                () -> assertThat(scanner.advance(TO, BACK)).isNull(),
+                () -> assertThat(scanner.advance(BACK, FURTHER)).isNull(),
+                () -> assertThat(scanner.advance(FURTHER, BACK)).isEqualTo(WorkTimeWarningType.TO_MISSING),
+                () -> assertThat(scanner.advance(BACK, null)).isEqualTo(WorkTimeWarningType.TO_MISSING));
+    }
+
+    @Test
     void whenFirstJourneyIsRunningAndSecondJourneyIsStarted_thenOnSecondJourneyReturnsJourneyBackMissingWarning() {
         assertAll(
                 () -> assertThat(scanner.advance(TO, FURTHER)).isNull(),

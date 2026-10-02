@@ -55,20 +55,16 @@ The worktime domain SHALL provide a `WorkTimeBookings` value object for a collec
 - **WHEN** `WorkTimeBookings` contains no bookings
 - **THEN** it reports empty booking and date views, empty groups, and zero total duration
 
-### Requirement: Warning calculators consume the canonical collection value object
-Every detailed-booking warning calculator SHALL accept `WorkTimeBookings` instead of a raw booking list. The warning application flow SHALL construct the value object once after fetching detailed bookings and SHALL pass that same canonical collection through warning assembly to every booking-based calculator. Warning decisions, types, dates, quantities, and multiplicity SHALL remain equivalent to the pre-refactoring behaviour for equivalent booking content.
-
-#### Scenario: Unordered provider input is canonicalised once
-- **WHEN** the outbound provider returns detailed bookings in a non-chronological order
-- **THEN** the warning application flow constructs one canonical `WorkTimeBookings` value and all booking-based calculators consume its chronological views
-
-#### Scenario: Warning content remains behaviourally equivalent
-- **WHEN** the migrated calculator parity scenarios are executed through `WorkTimeBookings`
-- **THEN** every calculator produces the same warning types, dates, quantities, and occurrence counts as before the refactoring
-
 ### Requirement: The collection value object remains free of warning decisions
 `WorkTimeBookings` SHALL provide collection facts and reusable worktime views without determining warning outcomes. Warning-specific validation and threshold logic SHALL remain outside the value object.
 
 #### Scenario: Warning rules remain outside the collection value object
 - **WHEN** `WorkTimeBookings` is inspected
 - **THEN** it contains no warning types, warning thresholds, calendar rules, journey validation outcomes, or break/rest compliance decisions
+
+### Requirement: Warning calculators consume one canonical booking collection
+Every detailed-booking warning calculator SHALL accept `WorkTimeBookings` instead of a raw booking list. The warning application flow SHALL construct the value object once after fetching detailed bookings and SHALL pass that same canonical collection through warning assembly to every booking-based calculator.
+
+#### Scenario: Unordered provider input is canonicalised once
+- **WHEN** the outbound provider returns detailed bookings in a non-chronological order
+- **THEN** the warning application flow constructs one canonical `WorkTimeBookings` value and all booking-based calculators consume its chronological views
