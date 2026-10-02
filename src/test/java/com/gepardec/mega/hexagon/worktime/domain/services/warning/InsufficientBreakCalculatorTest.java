@@ -180,7 +180,7 @@ class InsufficientBreakCalculatorTest {
     }
 
     @Test
-    void when3EntriesAndTwo20MinutesBreak_thenWarning() {
+    void when3EntriesAndTwo10MinutesBreak_thenWarningRoundedAfterSummingBreaks() {
         final ProjectBooking timeEntryOne = projectTimeEntryFor(7, 10);
         final ProjectBooking timeEntryTwo = projectTimeEntryFor(10, 10, 12, 10);
         final ProjectBooking timeEntryThree = projectTimeEntryFor(12, 20, 15, 20);
@@ -188,7 +188,7 @@ class InsufficientBreakCalculatorTest {
         final List<WorkTimeWarning> warnings = calculator.calculate(bookings(timeEntryOne, timeEntryTwo, timeEntryThree));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.getFirst().hours()).isEqualTo(0.16);
+        assertThat(warnings.getFirst().hours()).isEqualTo(0.17);
     }
 
     @Test
@@ -204,7 +204,7 @@ class InsufficientBreakCalculatorTest {
     }
 
     @Test
-    @DisplayName("Tests for false positives which have been observed before a fix was introduced")
+    @DisplayName("Overlapping entries with a sufficient break before exceeding 6 hours are not flagged")
     void calculate_whenOverlappingEntriesWithBreaks_thenNoBreakWarnings() {
         final ProjectBooking timeEntryOne = projectTimeEntryFor(8, 0, 11, 0);
         final ProjectBooking timeEntryTwo = projectTimeEntryFor(11, 30, 13, 0);

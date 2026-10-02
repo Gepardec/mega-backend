@@ -12,6 +12,7 @@ import com.gepardec.mega.hexagon.worktime.domain.model.WorkingLocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,6 +40,22 @@ class LocationRelevantSetJourneyCalculatorTest {
         assertThat(warnings).hasSize(1);
         assertThat(warnings.getFirst().type()).isNotNull();
         assertThat(warnings.getFirst().type()).isEqualTo(WorkTimeWarningType.LOCATION_RELEVANT_SET);
+    }
+
+    @Test
+    void calculate_whenBookingAtMainWorkingLocationIsProjectRelevant_thenWarning() {
+        ProjectBooking projectEntry = WarningTestBookingBuilder.projectBookingBuilder()
+                .fromTime(LocalDateTime.of(2020, 1, 7, 8, 0))
+                .toTime(LocalDateTime.of(2020, 1, 7, 9, 0))
+                .task(Task.BEARBEITEN)
+                .workingLocation(WorkingLocation.MAIN)
+                .workLocationIsProjectRelevant(true)
+                .build();
+
+        List<WorkTimeWarning> warnings = calculator.calculate(bookings(projectEntry));
+
+        assertThat(warnings).containsExactly(
+                new WorkTimeWarning(LocalDate.of(2020, 1, 7), WorkTimeWarningType.LOCATION_RELEVANT_SET, null));
     }
 
     @Test

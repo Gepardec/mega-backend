@@ -44,27 +44,26 @@ public class InsufficientBreakCalculator implements WorkTimeWarningCalculator {
         return Optional.empty();
     }
 
-    private record BreakProgress(Duration worked, BigDecimal breakHours) {
+    private record BreakProgress(Duration worked, Duration breakTime) {
         private BreakProgress {
             Objects.requireNonNull(worked, "worked must not be null");
-            Objects.requireNonNull(breakHours, "breakHours must not be null");
+            Objects.requireNonNull(breakTime, "breakTime must not be null");
         }
 
         private static BreakProgress empty() {
-            return new BreakProgress(Duration.ZERO, BigDecimal.ZERO);
+            return new BreakProgress(Duration.ZERO, Duration.ZERO);
         }
 
         private BreakProgress addWork(WorkTimeBooking booking) {
             long workedMinutes = Duration.between(booking.from(), booking.to()).toMinutes();
-            return new BreakProgress(worked.plusMinutes(workedMinutes), breakHours);
+            return new BreakProgress(worked.plusMinutes(workedMinutes), breakTime);
         }
 
         private BreakProgress addBreakBetween(WorkTimeBooking current, WorkTimeBooking next) {
             if (!current.to().isBefore(next.from())) {
                 return this;
             }
-            Duration breakDuration = Duration.between(current.to(), next.from());
-            return new BreakProgress(worked, breakHours.add(toRoundedHours(breakDuration)));
+            return new BreakProgress(worked, breakTime.plus(Duration.between(current.to(), next.from())));
         }
 
         private boolean exceedsWorkLimit() {
@@ -72,19 +71,13 @@ public class InsufficientBreakCalculator implements WorkTimeWarningCalculator {
         }
 
         private Optional<Double> missingBreakHours() {
-            BigDecimal requiredBreakHours = toRoundedHours(MIN_REQUIRED_BREAK_TIME);
-            if (breakHours.compareTo(requiredBreakHours) >= 0) {
+            if (breakTime.compareTo(MIN_REQUIRED_BREAK_TIME) >= 0) {
                 return Optional.empty();
             }
-            return Optional.of(requiredBreakHours.subtract(breakHours)
-                    .setScale(2, RoundingMode.HALF_EVEN)
+            long missingMinutes = MIN_REQUIRED_BREAK_TIME.minus(breakTime).toMinutes();
+            return Optional.of(BigDecimal.valueOf(missingMinutes)
+                    .divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_EVEN)
                     .doubleValue());
-        }
-
-        private static BigDecimal toRoundedHours(Duration duration) {
-            return BigDecimal.valueOf(duration.toMinutes())
-                    .setScale(2, RoundingMode.HALF_EVEN)
-                    .divide(BigDecimal.valueOf(60), RoundingMode.HALF_EVEN);
         }
     }
 }

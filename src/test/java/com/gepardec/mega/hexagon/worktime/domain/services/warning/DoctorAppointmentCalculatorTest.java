@@ -49,7 +49,9 @@ class DoctorAppointmentCalculatorTest {
             "11:00, 12:15",
             "12:15, 13:00",
             "16:00, 17:30",
-            "11:00, 13:00"
+            "11:00, 13:00",
+            "12:00, 12:30",
+            "11:00, 12:30"
     })
     void calculate_whenAppointmentOutsideTheAllowedWindows_thenWarning(LocalTime from, LocalTime to) {
         List<WorkTimeWarning> warnings = calculator.calculate(
@@ -63,9 +65,27 @@ class DoctorAppointmentCalculatorTest {
     }
 
     @Test
+    void calculate_whenAppointmentEndsAtMidnight_thenWarningOnStartDate() {
+        ProjectBooking untilMidnight = WarningTestBookingBuilder.projectBookingBuilder()
+                .fromTime(LocalDateTime.of(DATE, LocalTime.of(18, 0)))
+                .toTime(DATE.plusDays(1).atStartOfDay())
+                .task(Task.BEARBEITEN)
+                .workingLocation(WorkingLocation.MAIN)
+                .process(DOCTOR_APPOINTMENT_PROCESS)
+                .build();
+
+        List<WorkTimeWarning> warnings = calculator.calculate(bookings(untilMidnight));
+
+        assertThat(warnings).singleElement().satisfies(warning -> {
+            assertThat(warning.type()).isEqualTo(WorkTimeWarningType.WRONG_DOCTOR_APPOINTMENT);
+            assertThat(warning.date()).isEqualTo(DATE);
+        });
+    }
+
+    @Test
     void calculate_whenBookingOutsideTheAllowedWindowsIsNotADoctorAppointment_thenNoWarning() {
         List<WorkTimeWarning> warnings = calculator.calculate(
-                bookings(projectBooking(LocalTime.of(6, 0), LocalTime.of(7, 0), OTHER_PROCESS)));
+                bookings(projectBooking(LocalTime.of(18, 0), LocalTime.of(20, 0), OTHER_PROCESS)));
 
         assertThat(warnings).isEmpty();
     }
@@ -78,7 +98,7 @@ class DoctorAppointmentCalculatorTest {
     }
 
     @Test
-    void calculate_whenSeveralAppointmentsOnDifferentDates_thenOneWarningPerOffendingAppointment() {
+    void calculate_whenSeveralAppointmentsOnDifferentDates_thenWarningForEachOffendingDate() {
         ProjectBooking tooEarly = doctorAppointment(LocalTime.of(8, 0), LocalTime.of(9, 0));
         ProjectBooking allowed = doctorAppointment(LocalTime.of(13, 0), LocalTime.of(14, 0));
         ProjectBooking tooLateOnNextDay = doctorAppointmentOn(

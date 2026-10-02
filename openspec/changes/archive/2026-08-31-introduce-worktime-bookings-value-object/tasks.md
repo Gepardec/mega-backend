@@ -15,7 +15,7 @@
 ## 3. Calculator Refactoring
 
 - [x] 3.1 Refactor `CoreWorkingHoursCalculator`, `ExceededMaximumWorkingHoursPerDayCalculator`, and `InsufficientBreakCalculator` to use chronological daily groups and collection duration operations
-- [x] 3.2 Refactor `InsufficientRestCalculator`, `InvalidJourneyCalculator`, and `InvalidWorkingLocationInJourneyCalculator` to use canonical working-time, journey, and chronological views without local sorting
+- [x] 3.2 Refactor `InsufficientRestCalculator`, `InvalidJourneyCalculator`, and `InvalidWorkingLocationCalculator` to use canonical working-time, journey, and chronological views without local sorting
 - [x] 3.3 Refactor `DoctorAppointmentCalculator`, `HolidayCalculator`, `WeekendCalculator`, `LocationRelevantSetJourneyCalculator`, and `TimeOverlapCalculator` to consume canonical collection traversal and typed/date views while preserving warning content and multiplicity
 - [x] 3.4 Delete `AbstractTimeWarningCalculationStrategy` and verify no warning calculator extends a shared collection-utility base class
 
