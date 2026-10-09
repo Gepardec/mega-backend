@@ -1,10 +1,9 @@
 package com.gepardec.mega.hexagon.project.application;
 
-import com.gepardec.mega.hexagon.project.domain.error.LeistungsnachweisNotApplicableException;
-import com.gepardec.mega.hexagon.project.domain.error.ProjectNotFoundException;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectErrorCode;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectException;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
-import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.assertj.core.api.ThrowableAssert;
@@ -46,20 +45,22 @@ class SetLeistungsnachweisEnabledServiceTest {
         when(projectRepository.findById(projectId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.setLeistungsnachweisEnabled(projectId, LEAD_ID, true))
-                .isInstanceOf(ProjectNotFoundException.class);
+                .isInstanceOfSatisfying(ProjectException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(ProjectErrorCode.NOT_FOUND));
 
         verify(projectRepository, never()).saveAll(anyList());
     }
 
     @Test
-    void setLeistungsnachweisEnabled_nonLead_throwsForbiddenWithoutSaving() {
+    void setLeistungsnachweisEnabled_nonLead_throwsActorNotLeadWithoutSaving() {
         Project project = new Project(ProjectId.generate(), 1, "X", LocalDate.now(), null, true, true, Set.of(LEAD_ID));
         when(projectRepository.findById(project.id())).thenReturn(Optional.of(project));
 
         ThrowableAssert.ThrowingCallable throwingCallable = () -> service.setLeistungsnachweisEnabled(project.id(), OTHER_USER_ID, false);
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(ForbiddenException.class);
+                .isInstanceOfSatisfying(ProjectException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(ProjectErrorCode.ACTOR_NOT_LEAD));
 
         verify(projectRepository, never()).saveAll(anyList());
     }
@@ -87,7 +88,8 @@ class SetLeistungsnachweisEnabledServiceTest {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> service.setLeistungsnachweisEnabled(project.id(), LEAD_ID, true);
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(LeistungsnachweisNotApplicableException.class);
+                .isInstanceOfSatisfying(ProjectException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(ProjectErrorCode.LEISTUNGSNACHWEIS_NOT_APPLICABLE));
 
         verify(projectRepository, never()).saveAll(anyList());
     }

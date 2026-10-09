@@ -2,7 +2,6 @@ package com.gepardec.mega.hexagon.user.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.model.RoleDto;
 import com.gepardec.mega.hexagon.generated.model.ActiveUserDto;
-import com.gepardec.mega.hexagon.generated.model.InternalRateUploadErrorDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDateEntryDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDatesRequestDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDatesResponseDto;
@@ -39,6 +38,11 @@ import java.util.Set;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -261,16 +265,15 @@ class UserResourceTest {
                 #comment
                 """;
 
-        InternalRateUploadErrorDto response = given()
+        given()
                 .multiPart(buildCsvPart(csv))
                 .post("/users/internal-rates")
                 .then()
                 .statusCode(400)
-                .extract()
-                .as(InternalRateUploadErrorDto.class);
-
-        assertThat(response.getErrorCode()).isEqualTo("EMPTY_FILE");
-        assertThat(response.getLines()).isEmpty();
+                .contentType("application/problem+json")
+                .body("code", is("USER_INTERNAL_RATES_EMPTY_FILE"))
+                .body("lines", empty())
+                .body("$", not(hasKey("errorCode")));
         verifyNoInteractions(updateInternalRatesUseCase);
     }
 
@@ -285,16 +288,15 @@ class UserResourceTest {
                 gamma,12
                 """;
 
-        InternalRateUploadErrorDto response = given()
+        given()
                 .multiPart(buildCsvPart(csv))
                 .post("/users/internal-rates")
                 .then()
                 .statusCode(400)
-                .extract()
-                .as(InternalRateUploadErrorDto.class);
-
-        assertThat(response.getErrorCode()).isEqualTo("BAD_FORMAT");
-        assertThat(response.getLines()).containsExactly(4, 5);
+                .contentType("application/problem+json")
+                .body("code", is("USER_INTERNAL_RATES_BAD_FORMAT"))
+                .body("lines", contains(4, 5))
+                .body("$", not(hasKey("errorCode")));
         verifyNoInteractions(updateInternalRatesUseCase);
     }
 
@@ -311,16 +313,15 @@ class UserResourceTest {
         doThrow(new UnknownUsersException(Set.of(ZepUsername.of("missing"))))
                 .when(updateInternalRatesUseCase).update(anyList());
 
-        InternalRateUploadErrorDto response = given()
+        given()
                 .multiPart(buildCsvPart(csv))
                 .post("/users/internal-rates")
                 .then()
                 .statusCode(400)
-                .extract()
-                .as(InternalRateUploadErrorDto.class);
-
-        assertThat(response.getErrorCode()).isEqualTo("UNKNOWN_USERS");
-        assertThat(response.getLines()).containsExactly(3, 4);
+                .contentType("application/problem+json")
+                .body("code", is("USER_INTERNAL_RATES_UNKNOWN_USERS"))
+                .body("lines", contains(3, 4))
+                .body("$", not(hasKey("errorCode")));
     }
 
     @Test

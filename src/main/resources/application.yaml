@@ -13,6 +13,9 @@ quarkus:
     auth:
       proactive: false
 
+  jackson:
+    fail-on-unknown-properties: true
+
   liquibase:
     change-log: "db/changelog-master.xml"
 
@@ -107,6 +110,12 @@ quarkus:
 mp:
   openapi:
     filter: com.gepardec.mega.application.filter.MegaCronSecuritySchemaOASFilter
+    # the served document is scanned from Java types; without this, YearMonth is documented as a bean.
+    # nested keys on purpose: a dotted YAML key becomes one quoted segment and the mapping is ignored
+    schema:
+      java:
+        time:
+          YearMonth: '{"name": "YearMonth", "type": "string", "format": "year-month", "example": "2026-09"}'
 
 # disables response sanitizing which caused payload to be removed from response in case of an error.
 # Personio includes a payload in error responses. When the status code is e.g. 404 we need to read the response for accurate error handling.

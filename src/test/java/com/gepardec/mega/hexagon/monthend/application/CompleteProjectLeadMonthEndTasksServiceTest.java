@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
@@ -137,7 +137,8 @@ class CompleteProjectLeadMonthEndTasksServiceTest {
         when(monthEndTaskRepository.existsLeadTask(month, projectId, leadB)).thenReturn(false);
 
         assertThatThrownBy(() -> service.complete(month, projectId, MonthEndTaskType.PROJECT_LEAD_REVIEW, leadB))
-                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED))
                 .hasMessageContaining("actor not authorized: ");
 
         verify(monthEndTaskRepository, never()).findOpenProjectTasksOfType(any(), any(), any());
@@ -150,7 +151,8 @@ class CompleteProjectLeadMonthEndTasksServiceTest {
         when(monthEndTaskRepository.existsLeadTask(month, unknownProjectId, leadA)).thenReturn(false);
 
         assertThatThrownBy(() -> service.complete(month, unknownProjectId, MonthEndTaskType.PROJECT_LEAD_REVIEW, leadA))
-                .isInstanceOf(MonthEndActorNotAuthorizedException.class);
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED));
 
         verify(monthEndTaskRepository, never()).findOpenProjectTasksOfType(any(), any(), any());
         verify(monthEndTaskRepository, never()).saveAll(any());
@@ -160,7 +162,8 @@ class CompleteProjectLeadMonthEndTasksServiceTest {
     @EnumSource(value = MonthEndTaskType.class, names = {"EMPLOYEE_TIME_CHECK", "ABRECHNUNG"})
     void complete_shouldRejectType_whenTypeIsNotProjectLeadBulkCompletable(MonthEndTaskType type) {
         assertThatThrownBy(() -> service.complete(month, projectId, type, leadA))
-                .isInstanceOf(MonthEndValidationException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.VALIDATION_FAILED))
                 .hasMessageContaining(type.name());
 
         verifyNoInteractions(monthEndTaskRepository);

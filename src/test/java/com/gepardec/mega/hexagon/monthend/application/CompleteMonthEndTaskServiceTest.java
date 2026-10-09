@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndTaskNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
@@ -70,7 +71,8 @@ class CompleteMonthEndTaskServiceTest {
         when(monthEndTaskRepository.findById(taskId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.complete(taskId, leadA))
-                .isInstanceOf(MonthEndTaskNotFoundException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.TASK_NOT_FOUND))
                 .hasMessageContaining("not found");
     }
 

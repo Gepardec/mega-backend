@@ -1,12 +1,14 @@
 package com.gepardec.mega.hexagon.monthend.domain.error;
 
-public abstract class MonthEndException extends RuntimeException {
+import com.gepardec.mega.hexagon.shared.domain.error.DomainException;
 
-    protected MonthEndException(String message) {
-        super(message);
+public class MonthEndException extends DomainException {
+
+    public MonthEndException(MonthEndErrorCode errorCode, String message) {
+        super(errorCode, message);
     }
 
-    protected MonthEndException(String message, Throwable cause) {
-        super(message, cause);
+    public MonthEndException(MonthEndErrorCode errorCode, String message, Throwable cause) {
+        super(errorCode, message, cause);
     }
 }

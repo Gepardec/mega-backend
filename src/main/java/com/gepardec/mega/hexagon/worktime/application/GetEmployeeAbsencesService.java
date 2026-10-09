@@ -5,8 +5,8 @@ import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeAbsencesUseCase;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeAbsenceZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeValidationException;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeErrorCode;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeException;
 import com.gepardec.mega.hexagon.worktime.domain.model.Absence;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -38,10 +38,10 @@ public class GetEmployeeAbsencesService implements GetEmployeeAbsencesUseCase {
         Objects.requireNonNull(month, "month must not be null");
 
         UserRef employee = workTimeUserSnapshotPort.findById(employeeId, month)
-                .orElseThrow(() -> new WorkTimeUserNotFoundException("user not found: " + employeeId.value()));
+                .orElseThrow(() -> new WorkTimeException(WorkTimeErrorCode.USER_NOT_FOUND, "user not found: " + employeeId.value()));
 
         if (employee.zepUsername() == null || employee.zepUsername().value().isBlank()) {
-            throw new WorkTimeValidationException("zep username missing for user: " + employee.id().value());
+            throw new WorkTimeException(WorkTimeErrorCode.VALIDATION_FAILED, "zep username missing for user: " + employee.id().value());
         }
 
         return workTimeAbsenceZepPort.fetchAbsencesForEmployee(employee.zepUsername(), month);
