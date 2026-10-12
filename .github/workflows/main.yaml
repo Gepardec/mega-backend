@@ -1,10 +1,23 @@
-name: Release Containerimage
+name: Build, Test and Release Containerimage
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
+
+# cancel outdated runs when new commits are pushed to the same PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  packages: write # push container image to ghcr.io
+  checks: write # publish test report
 
 jobs:
   build-test-push:
@@ -23,30 +36,44 @@ jobs:
       - name: Build (and test) project with Maven
         run: mvn -B package --file pom.xml
 
-      # set the env.BRANCH_NAME variable
-      - uses: nelonoel/branch-name@v1.0.1
+      # annotate failing tests on the PR / commit
+      - name: Publish test report
+        if: ${{ !cancelled() }}
+        uses: mikepenz/action-junit-report@a9170d5795813c01ab4901ffb045b52bab4ab09d # v6.5.0
+        with:
+          report_paths: 'target/surefire-reports/TEST-*.xml'
 
-      - name: Set outputs
-        id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Upload surefire reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/
+          retention-days: 7
 
-      # set the env.COMMIT variable
-      - run: echo "COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
-      # push the code coverage report to codacy
+      # push the code coverage report to codacy (secrets are not available for PRs from forks)
       - name: generate coverage report
+        if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.head.repo.fork }}
+        env:
+          # report PR coverage against the head commit instead of the generated merge commit
+          COMMIT_UUID: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           export CODACY_PROJECT_TOKEN=${{secrets.CODACY_PROJECT_TOKEN}}
-          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r target/jacoco-report/jacoco.xml
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r target/jacoco-report/jacoco.xml --commit-uuid "$COMMIT_UUID"
+
+      # set the env.COMMIT variable
+      - if: github.event_name != 'pull_request'
+        run: echo "COMMIT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       # build the container image and release it as a package in this repository
       - uses: mr-smithers-excellent/docker-build-push@v7
         name: push-container-image
+        if: github.event_name != 'pull_request'
         with:
           image: mega-backend
           registry: ghcr.io
           dockerfile: Containerfile
-          buildArgs: COMMIT=${{ env.COMMIT}}, BRANCH=${{ env.BRANCH_NAME}}, VERSION=${{ env.VERSION}}
+          buildArgs: COMMIT=${{ env.COMMIT }}, BRANCH=${{ github.ref_name }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           # if the branch is main, add the latest tag

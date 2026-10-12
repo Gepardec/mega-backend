@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-clarification-source-system-001
+      author: mega
+      comment: Track the source system of month-end clarifications
+      changes:
+        - addColumn:
+            tableName: monthend_clarification
+            columns:
+              - column:
+                  name: source_system
+                  type: varchar(32)
+                  defaultValue: MEGA
+                  constraints:
+                    nullable: false

@@ -4,6 +4,7 @@ import com.gepardec.mega.zep.rest.client.ZepAttendanceRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
 import com.gepardec.mega.zep.rest.dto.ZepResponse;
 import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -29,6 +30,11 @@ public class AttendanceService {
 
     //Return the attendances for a user for a given month. The month in which the date is located determines the month to be queried.
     public List<ZepAttendance> getAttendanceForUserAndMonth(String username, YearMonth payrollMonth) {
+        return getAttendanceForUserAndMonthAsync(username, payrollMonth)
+                .await().indefinitely();
+    }
+
+    public Uni<List<ZepAttendance>> getAttendanceForUserAndMonthAsync(String username, YearMonth payrollMonth) {
         String startDate = payrollMonth.atDay(1).toString();
         String endDate = payrollMonth.atEndOfMonth().toString();
 
@@ -40,11 +46,15 @@ public class AttendanceService {
                 .whilst(ZepResponse::hasNext)
                 .map(ZepResponse::data)
                 .onItem().<ZepAttendance>disjoint()
-                .collect().asList()
-                .await().indefinitely();
+                .collect().asList();
     }
 
     public List<ZepAttendance> getAttendanceForUserProjectAndMonth(String username, YearMonth payrollMonth, Integer projectId) {
+        return getAttendanceForUserProjectAndMonthAsync(username, payrollMonth, projectId)
+                .await().indefinitely();
+    }
+
+    public Uni<List<ZepAttendance>> getAttendanceForUserProjectAndMonthAsync(String username, YearMonth payrollMonth, Integer projectId) {
         String startDate = payrollMonth.atDay(1).toString();
         String endDate = payrollMonth.atEndOfMonth().toString();
 
@@ -56,8 +66,6 @@ public class AttendanceService {
                 .whilst(ZepResponse::hasNext)
                 .map(ZepResponse::data)
                 .onItem().<ZepAttendance>disjoint()
-                .collect().asList()
-                .await().indefinitely();
+                .collect().asList();
     }
 }
-

@@ -27,13 +27,12 @@ class AbsenceMapperTest {
 
     @Test
     void mapZepAbsenceToAbsenceTime() {
-        ZepAbsenceReason zepAbsenceReason = ZepAbsenceReason.builder().name("KR").build();
         ZepAbsence zepAbsence = ZepAbsence.builder()
                 .id(1)
                 .employeeId("001")
                 .startDate(LocalDate.of(2019, 1, 2))
                 .endDate(LocalDate.of(2019, 1, 5))
-                .absenceReason(zepAbsenceReason)
+                .absenceReason("KR")
                 .approved(true)
                 .build();
 
@@ -42,7 +41,7 @@ class AbsenceMapperTest {
         assertThat(absence.userId()).isEqualTo(zepAbsence.employeeId());
         assertThat(absence.fromDate()).isEqualTo(zepAbsence.startDate());
         assertThat(absence.toDate()).isEqualTo(zepAbsence.endDate());
-        assertThat(absence.reason()).isEqualTo(zepAbsence.absenceReason().name());
+        assertThat(absence.reason()).isEqualTo(zepAbsence.absenceReason());
         assertThat(absence.accepted()).isEqualTo(zepAbsence.approved());
     }
 
@@ -81,19 +80,19 @@ class AbsenceMapperTest {
         ZepAbsence[] zepAbsencesArr = {
                 ZepAbsence.builder()
                         .id(1)
-                        .absenceReason(ZepAbsenceReason.builder().name("KR").build())
+                        .absenceReason("KR")
                         .startDate(LocalDate.of(2019, 1, 2))
                         .employeeId("1")
                         .build(),
                 ZepAbsence.builder()
                         .id(2)
-                        .absenceReason(ZepAbsenceReason.builder().name("FA").build())
+                        .absenceReason("FA")
                         .startDate(LocalDate.of(2019, 1, 2))
                         .employeeId("2")
                         .build(),
                 ZepAbsence.builder()
                         .id(2)
-                        .absenceReason(ZepAbsenceReason.builder().name("UB").build())
+                        .absenceReason("UB")
                         .startDate(LocalDate.of(2019, 1, 2))
                         .employeeId("3")
                         .build()
@@ -105,7 +104,7 @@ class AbsenceMapperTest {
         Iterator<ZepAbsence> zepAbsencesIterator = zepAbsences.iterator();
         absences.forEach(absence -> {
             ZepAbsence zepAbsence = zepAbsencesIterator.next();
-            assertThat(zepAbsence.absenceReason().name()).isEqualTo(absence.reason());
+            assertThat(zepAbsence.absenceReason()).isEqualTo(absence.reason());
             assertThat(zepAbsence.employeeId()).isEqualTo(absence.userId());
             assertThat(zepAbsence.startDate()).isEqualTo(absence.fromDate());
         });

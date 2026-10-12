@@ -1,20 +1,16 @@
 package com.gepardec.mega.rest.api;
 
 import com.gepardec.mega.rest.model.AttendancesDto;
-import com.gepardec.mega.rest.model.EmployeeCheckDto;
 import com.gepardec.mega.rest.model.LeadersDto;
 import com.gepardec.mega.rest.model.MonthlyAbsencesDto;
 import com.gepardec.mega.rest.model.MonthlyBillInfoDto;
 import com.gepardec.mega.rest.model.MonthlyOfficeDaysDto;
 import com.gepardec.mega.rest.model.ProjectHoursSummaryDto;
-import com.gepardec.mega.rest.model.WorkTimeBookingWarningDto;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -31,14 +27,6 @@ import java.util.List;
 @Tag(name = "WorkerResource")
 @Produces(MediaType.APPLICATION_JSON)
 public interface WorkerResource {
-
-    @GET
-    @Path("/payrollMonth")
-    YearMonth payrollMonth();
-
-    @GET
-    @Path("/employeeCheck")
-    EmployeeCheckDto employeeCheck(@QueryParam("payrollMonth") YearMonth payrollMonth);
 
     @Operation(operationId = "getBillInformationForEmployee", description = "Get total sum of bills (and if every bill has an attachment), get sum of private and company bills and info about credit card that the user uploaded for current month.")
     @APIResponse(responseCode = "200",
@@ -111,24 +99,6 @@ public interface WorkerResource {
     @Path("/officedays")
     @GET
     MonthlyOfficeDaysDto getOfficeDaysForMonthAndEmployee(@QueryParam("payrollMonth") YearMonth payrollMonth);
-
-    @Operation(operationId = "getAllWarningsForEmployeeAndMonth", description = "Get all warnings (no matter if time or journey warning) for an employee and for current month.")
-    @APIResponse(responseCode = "200",
-            description = "Successfully retrieved all warnings for employee.",
-            content = {
-                    @Content(mediaType = MediaType.APPLICATION_JSON,
-                            schema = @Schema(implementation = WorkTimeBookingWarningDto[].class))
-            }
-    )
-    @Parameter(name = "payrollMonth",
-            description = "If not given uses the whole current month. <br> " +
-                    "If given uses the whole month of the parameter-date. <br>" +
-                    "For example if 2024-03 is given it retrieves all warnings from 2024-03-01 to 2024-03-31.",
-            in = ParameterIn.QUERY,
-            schema = @Schema(type = SchemaType.STRING, examples = "yyyy-MM"))
-    @Path("/warnings")
-    @GET
-    List<WorkTimeBookingWarningDto> getAllWarningsForEmployeeAndMonth(@QueryParam("payrollMonth") YearMonth payrollMonth);
 
     @Path("/leaders")
     @GET

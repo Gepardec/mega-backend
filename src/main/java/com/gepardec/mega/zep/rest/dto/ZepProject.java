@@ -43,7 +43,7 @@ public record ZepProject(
 
         @JsonProperty("end_date")
         private LocalDateTime endDate;
-        @JsonProperty("billing_type")
+        @JsonProperty("default_billability")
         private ZepBillingType billingType;
 
         @JsonProperty("customer_id")

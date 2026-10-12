@@ -1,0 +1,51 @@
+# Project REST API
+
+## MODIFIED Requirements
+
+### Requirement: Project lead can toggle Leistungsnachweis generation for a project they lead
+The system SHALL expose a `PUT /projects/{projectId}/leistungsnachweis-enabled` endpoint. It sets the project's `leistungsnachweisEnabled` flag from a request body carrying an `enabled` boolean. The `enabled` field is mandatory: a request body without it, or with `enabled` set to `null`, SHALL be rejected with `400 Bad Request`.
+
+The endpoint SHALL be restricted to the `PROJECT_LEAD` role. In addition to the role restriction, the system SHALL verify that the authenticated user is a lead of the specific target project. A user who is not a lead of that project SHALL be rejected even if they hold the `PROJECT_LEAD` role.
+
+Enabling Leistungsnachweis on a non-billable project SHALL be rejected with `400 Bad Request`, and the flag SHALL stay disabled. Disabling it on a non-billable project SHALL succeed and leave the flag disabled.
+
+On success the flag is persisted and takes effect from the next month-end generation run. The system SHALL return `200 OK` carrying that project's settings entry in the same shape an entry of `GET /projects/settings` has: a `project` object with `id`, `name` and `zepUrl`, and a `leistungsnachweisEnabled` boolean. The returned flag SHALL be the persisted value, so that a caller can render the stored result rather than assume its request was stored verbatim.
+
+#### Scenario: Lead disables Leistungsnachweis for their project
+- **WHEN** an authenticated `PROJECT_LEAD` user who is a lead of the target project calls `PUT /projects/{projectId}/leistungsnachweis-enabled` with `enabled=false`
+- **THEN** the system persists `leistungsnachweisEnabled=false` for that project
+- **THEN** the system returns `200 OK` with that project's settings entry, whose `leistungsnachweisEnabled` is `false`
+- **THEN** the returned `project` object carries the target project's `id`, `name` and a non-null `zepUrl`
+
+#### Scenario: Lead re-enables Leistungsnachweis for their project
+- **WHEN** an authenticated `PROJECT_LEAD` user who is a lead of the target billable project calls the endpoint with `enabled=true`
+- **THEN** the system persists `leistungsnachweisEnabled=true` for that project
+- **THEN** the system returns `200 OK` with that project's settings entry, whose `leistungsnachweisEnabled` is `true`
+
+#### Scenario: Enabling Leistungsnachweis on a non-billable project is rejected
+- **WHEN** a lead of a non-billable project calls the endpoint with `enabled=true`
+- **THEN** the system returns `400 Bad Request`
+- **THEN** the project's `leistungsnachweisEnabled` flag remains `false`
+
+#### Scenario: Disabling Leistungsnachweis on a non-billable project succeeds
+- **WHEN** a lead of a non-billable project calls the endpoint with `enabled=false`
+- **THEN** the system returns `200 OK` with that project's settings entry, whose `leistungsnachweisEnabled` is `false`
+- **THEN** the project's `leistungsnachweisEnabled` flag remains `false`
+
+#### Scenario: Missing enabled value is rejected
+- **WHEN** a lead of the target project calls the endpoint with a request body that has no `enabled` field or has `enabled` set to `null`
+- **THEN** the system returns `400 Bad Request`
+- **THEN** the project's `leistungsnachweisEnabled` flag is unchanged
+
+#### Scenario: Lead of a different project is rejected
+- **WHEN** an authenticated `PROJECT_LEAD` user who is NOT a lead of the target project calls the endpoint
+- **THEN** the system rejects the request with an authorization error
+- **THEN** the project's `leistungsnachweisEnabled` flag is unchanged
+
+#### Scenario: Non-project-lead user is rejected
+- **WHEN** an authenticated user without the `PROJECT_LEAD` role calls the endpoint
+- **THEN** the system returns `403 Forbidden`
+
+#### Scenario: Unknown project identifier
+- **WHEN** the `projectId` does not correspond to an existing project
+- **THEN** the system returns a not-found error

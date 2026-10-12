@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-unify-clarification-model-001
+      author: mega
+      comment: Make subject_employee_id nullable to support project-level clarifications
+      changes:
+        - dropNotNullConstraint:
+            tableName: monthend_clarification
+            columnName: subject_employee_id
+            columnDataType: uuid
+
+  - changeSet:
+      id: hexagon-unify-clarification-model-002
+      author: mega
+      comment: Drop creator_side column — authorization is now derived from createdBy identity
+      changes:
+        - dropColumn:
+            tableName: monthend_clarification
+            columnName: creator_side

@@ -10,11 +10,11 @@ import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
-import com.gepardec.mega.service.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.ZepService;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.ZepSoapProvider;
 import com.gepardec.mega.zep.mapper.AbsenceTimeMapper;
+import com.gepardec.mega.zep.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
 import com.gepardec.mega.zep.mapper.ProjectTimeMapper;
 import de.provantis.zep.FehlzeitType;
@@ -111,8 +111,6 @@ class ZepSoapServiceImpl implements ZepService {
     @CacheInvalidate(cacheName = "employee")
     @Override
     public void updateEmployeesReleaseDate(final String userId, final String releaseDate) {
-        logger.info("start update user {} with releaseDate {}", userId, releaseDate);
-
         final UpdateMitarbeiterRequestType umrt = new UpdateMitarbeiterRequestType();
         umrt.setRequestHeader(zepSoapProvider.createRequestHeaderType());
 
@@ -127,8 +125,6 @@ class ZepSoapServiceImpl implements ZepService {
                 .flatMap(response -> Optional.ofNullable(response.getResponseHeader()))
                 .map(ResponseHeaderType::getReturnCode)
                 .orElse(null);
-
-        logger.info("finish update user {} with response {}", userId, returnCode);
 
         if (StringUtils.isNotBlank(returnCode) && Integer.parseInt(returnCode) != 0) {
             throw new ZepServiceException("updateEmployeeReleaseDate failed with code: " + returnCode);

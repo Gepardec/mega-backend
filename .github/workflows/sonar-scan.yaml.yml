@@ -1,0 +1,13 @@
+name: sonar-scan.yaml
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  sonarqube:
+    name: SonarQube Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: echo "test"

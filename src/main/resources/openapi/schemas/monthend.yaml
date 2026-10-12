@@ -1,0 +1,252 @@
+MonthEndTaskType:
+  type: string
+  enum:
+    - EMPLOYEE_TIME_CHECK
+    - LEISTUNGSNACHWEIS
+    - PROJECT_LEAD_REVIEW
+    - ABRECHNUNG
+MonthEndTaskStatus:
+  type: string
+  enum:
+    - OPEN
+    - DONE
+MonthEndClarificationStatus:
+  type: string
+  enum:
+    - OPEN
+    - DONE
+MonthEndStatusOverviewEntry:
+  type: object
+  additionalProperties: false
+  required:
+    - taskId
+    - type
+    - status
+    - project
+    - canComplete
+    - subjectEmployee
+    - completedBy
+  properties:
+    taskId:
+      type: string
+      format: uuid
+    type:
+      $ref: '#/MonthEndTaskType'
+    status:
+      $ref: '#/MonthEndTaskStatus'
+    project:
+      $ref: './shared.yaml#/ProjectRef'
+    canComplete:
+      type: boolean
+    subjectEmployee:
+      allOf:
+        - $ref: './shared.yaml#/UserRef'
+      nullable: true
+    completedBy:
+      type: string
+      format: uuid
+      nullable: true
+MonthEndOverviewClarificationEntry:
+  type: object
+  additionalProperties: false
+  required:
+    - clarificationId
+    - projectId
+    - createdBy
+    - status
+    - text
+    - canResolve
+    - canEditText
+    - canDelete
+    - createdAt
+    - lastModifiedAt
+    - subjectEmployee
+    - resolutionNote
+    - resolvedBy
+    - resolvedAt
+  properties:
+    clarificationId:
+      type: string
+      format: uuid
+    projectId:
+      type: string
+      format: uuid
+    subjectEmployee:
+      allOf:
+        - $ref: './shared.yaml#/UserRef'
+      nullable: true
+    createdBy:
+      $ref: './shared.yaml#/UserRef'
+    status:
+      $ref: '#/MonthEndClarificationStatus'
+    text:
+      type: string
+    canResolve:
+      type: boolean
+    canEditText:
+      type: boolean
+    canDelete:
+      type: boolean
+    resolutionNote:
+      type: string
+      nullable: true
+    resolvedBy:
+      allOf:
+        - $ref: './shared.yaml#/UserRef'
+      nullable: true
+    resolvedAt:
+      type: string
+      format: date-time
+      nullable: true
+    createdAt:
+      type: string
+      format: date-time
+    lastModifiedAt:
+      type: string
+      format: date-time
+MonthEndStatusOverview:
+  type: object
+  additionalProperties: false
+  required:
+    - month
+    - tasks
+    - clarifications
+  properties:
+    month:
+      $ref: './shared.yaml#/MonthValue'
+    tasks:
+      type: array
+      items:
+        $ref: '#/MonthEndStatusOverviewEntry'
+    clarifications:
+      type: array
+      items:
+        $ref: '#/MonthEndOverviewClarificationEntry'
+GenerateMonthEndPrematurelyRequest:
+  type: object
+  additionalProperties: false
+  required:
+    - month
+    - clarificationText
+  properties:
+    month:
+      $ref: './shared.yaml#/MonthValue'
+    clarificationText:
+      type: string
+      x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
+CreateClarificationRequest:
+  type: object
+  additionalProperties: false
+  required:
+    - month
+    - projectId
+    - text
+  properties:
+    month:
+      $ref: './shared.yaml#/MonthValue'
+    projectId:
+      type: string
+      format: uuid
+    subjectEmployeeId:
+      type: string
+      format: uuid
+      nullable: true
+    text:
+      type: string
+UpdateClarificationTextRequest:
+  type: object
+  additionalProperties: false
+  required:
+    - text
+  properties:
+    text:
+      type: string
+ResolveClarificationRequest:
+  type: object
+  additionalProperties: false
+  properties:
+    resolutionNote:
+      type: string
+      nullable: true
+MonthEndTask:
+  type: object
+  additionalProperties: false
+  required:
+    - taskId
+    - month
+    - type
+    - projectId
+    - status
+    - subjectEmployeeId
+    - completedBy
+  properties:
+    taskId:
+      type: string
+      format: uuid
+    month:
+      $ref: './shared.yaml#/MonthValue'
+    type:
+      $ref: '#/MonthEndTaskType'
+    projectId:
+      type: string
+      format: uuid
+    subjectEmployeeId:
+      type: string
+      format: uuid
+      nullable: true
+    status:
+      $ref: '#/MonthEndTaskStatus'
+    completedBy:
+      type: string
+      format: uuid
+      nullable: true
+MonthEndTaskGeneration:
+  type: object
+  additionalProperties: false
+  required:
+    - month
+    - created
+    - skipped
+  properties:
+    month:
+      $ref: './shared.yaml#/MonthValue'
+    created:
+      type: integer
+      format: int32
+    skipped:
+      type: integer
+      format: int32
+CompleteProjectLeadMonthEndTasksRequest:
+  type: object
+  additionalProperties: false
+  required:
+    - projectId
+    - type
+  properties:
+    projectId:
+      type: string
+      format: uuid
+    type:
+      $ref: '#/MonthEndTaskType'
+  example:
+    projectId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+    type: PROJECT_LEAD_REVIEW
+MonthEndTaskCompletion:
+  type: object
+  additionalProperties: false
+  required:
+    - completed
+  example:
+    completed:
+      - taskId: 3f2b8c1e-7d4a-4e5b-9c6f-1a2b3c4d5e6f
+        month: '2026-03'
+        type: PROJECT_LEAD_REVIEW
+        projectId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        subjectEmployeeId: 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d
+        status: DONE
+        completedBy: 5c4d3e2f-1a0b-4c9d-8e7f-6a5b4c3d2e1f
+  properties:
+    completed:
+      type: array
+      items:
+        $ref: '#/MonthEndTask'

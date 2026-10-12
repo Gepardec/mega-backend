@@ -1,0 +1,22 @@
+package com.gepardec.mega.hexagon.monthend.domain.model;
+
+public enum MonthEndTaskType {
+    EMPLOYEE_TIME_CHECK(MonthEndCompletionPolicy.INDIVIDUAL_ACTOR),
+    LEISTUNGSNACHWEIS(MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR),
+    PROJECT_LEAD_REVIEW(MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR),
+    ABRECHNUNG(MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR);
+
+    private final MonthEndCompletionPolicy completionPolicy;
+
+    MonthEndTaskType(MonthEndCompletionPolicy completionPolicy) {
+        this.completionPolicy = completionPolicy;
+    }
+
+    public MonthEndCompletionPolicy completionPolicy() {
+        return completionPolicy;
+    }
+
+    public boolean isProjectLeadBulkCompletable() {
+        return this == LEISTUNGSNACHWEIS || this == PROJECT_LEAD_REVIEW;
+    }
+}

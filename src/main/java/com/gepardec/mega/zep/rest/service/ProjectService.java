@@ -6,6 +6,7 @@ import com.gepardec.mega.zep.rest.dto.ZepProjectDetail;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
 import com.gepardec.mega.zep.rest.dto.ZepResponse;
 import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
@@ -24,6 +25,19 @@ public class ProjectService {
 
     @Inject
     Logger logger;
+
+    public List<ZepProject> getAllProjects() {
+        return Multi.createBy().repeating()
+                .uni(AtomicInteger::new, page ->
+                        zepProjectRestClient.getProjectByStartEnd(null, null, page.incrementAndGet())
+                                .onFailure().invoke(ex -> logger.warn("Error retrieving projects from ZEP", ex))
+                )
+                .whilst(ZepResponse::hasNext)
+                .map(ZepResponse::data)
+                .onItem().<ZepProject>disjoint()
+                .collect().asList()
+                .await().indefinitely();
+    }
 
     public List<ZepProject> getProjectsForMonthYear(YearMonth payrollMonth) {
         String startDate = payrollMonth.atDay(1).toString();
@@ -68,6 +82,11 @@ public class ProjectService {
 
 
     public List<ZepProjectEmployee> getProjectEmployeesForId(int projectId, YearMonth payrollMonth) {
+        return getProjectEmployeesForIdAsync(projectId, payrollMonth)
+                .await().indefinitely();
+    }
+
+    public Uni<List<ZepProjectEmployee>> getProjectEmployeesForIdAsync(int projectId, YearMonth payrollMonth) {
         return Multi.createBy().repeating()
                 .uni(AtomicInteger::new, page ->
                         zepProjectRestClient.getProjectEmployees(projectId, page.incrementAndGet())
@@ -77,7 +96,6 @@ public class ProjectService {
                 .map(ZepResponse::data)
                 .onItem().<ZepProjectEmployee>disjoint()
                 .filter(projectEmployee -> payrollMonth == null || projectEmployee.isActive(payrollMonth))
-                .collect().asList()
-                .await().indefinitely();
+                .collect().asList();
     }
 }

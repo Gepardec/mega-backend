@@ -9,8 +9,6 @@ import com.gepardec.mega.domain.model.PersonioEmployee;
 import com.gepardec.mega.domain.model.Project;
 import com.gepardec.mega.domain.model.ProjectHoursSummary;
 import com.gepardec.mega.domain.model.ProjectTime;
-import com.gepardec.mega.domain.model.User;
-import com.gepardec.mega.domain.model.UserContext;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
 import com.gepardec.mega.zep.impl.Rest;
@@ -102,9 +100,6 @@ class ZepRestServiceImplTest {
 
     @InjectMock
     AbsenceMapper absenceMapper;
-
-    @InjectMock
-    UserContext userContext;
 
     @Test
     void getDoctorsVisitingTimeForMonthAndEmployee_whenUserHadDoctorsAppointments_thenReturnHours() {
@@ -211,8 +206,6 @@ class ZepRestServiceImplTest {
         when(projectService.getProjectById(anyInt()))
                 .thenReturn(Optional.of(zepProjectDetail));
 
-        when(userContext.getUser()).thenReturn(User.builder().personioId(123).build());
-
         List<ProjectHoursSummary> result = zepRestService.getAllProjectsForMonthAndEmployee(employee, YearMonth.of(2024, 6));
 
         assertThat(result).isNotNull();
@@ -271,9 +264,6 @@ class ZepRestServiceImplTest {
         when(regularWorkingTimesService.getRegularWorkingTimesByUsername(anyString()))
                 .thenReturn(List.of(regularWorkingTimes));
 
-        when(userContext.getUser()).thenReturn(User.builder().personioId(123).build());
-
-
         Employee actual = zepRestService.getEmployee("007-jbond");
 
         assertThat(actual).isNotNull();
@@ -288,8 +278,6 @@ class ZepRestServiceImplTest {
 
         when(employmentPeriodService.getZepEmploymentPeriodsByUsername(anyString()))
                 .thenReturn(createZepEmploymentPeriodList());
-
-        when(userContext.getUser()).thenReturn(User.builder().personioId(123).build());
 
         List<Employee> actual = zepRestService.getEmployees();
 

@@ -1,0 +1,75 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-user-sync-reshape-001
+      author: mega
+      changes:
+        - addColumn:
+            tableName: hexagon_users
+            columns:
+              - column:
+                  name: personio_id
+                  type: integer
+        - createTable:
+            tableName: hexagon_user_roles
+            columns:
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_hexagon_user_roles_user
+                    references: hexagon_users(id)
+              - column:
+                  name: role
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: hexagon_user_roles
+            columnNames: user_id, role
+            constraintName: pk_hexagon_user_roles
+        - createIndex:
+            indexName: idx_hexagon_user_roles_user
+            tableName: hexagon_user_roles
+            columns:
+              - column:
+                  name: user_id
+        - createTable:
+            tableName: hexagon_user_employment_periods
+            columns:
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_hexagon_user_employment_periods_user
+                    references: hexagon_users(id)
+              - column:
+                  name: start_date
+                  type: date
+              - column:
+                  name: end_date
+                  type: date
+        - createIndex:
+            indexName: idx_hexagon_user_employment_periods_user
+            tableName: hexagon_user_employment_periods
+            columns:
+              - column:
+                  name: user_id
+
+  - changeSet:
+      id: hexagon-user-sync-reshape-002
+      author: mega
+      changes:
+        - dropColumn:
+            tableName: hexagon_users
+            columnName: status
+        - dropColumn:
+            tableName: hexagon_users
+            columnName: roles
+        - dropColumn:
+            tableName: hexagon_users
+            columnName: zep_profile
+        - dropColumn:
+            tableName: hexagon_users
+            columnName: personio_profile

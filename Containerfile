@@ -10,12 +10,10 @@ COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
 
 ARG BRANCH
 ARG COMMIT
-ARG VERSION
 # ARG TIMESTAMP
 ENV BRANCH=$BRANCH
 # ENV TIMESTAMP=$TIMESTAMP
 ENV COMMIT=$COMMIT
-ENV VERSION=$VERSION
 
 EXPOSE 8080
 ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"

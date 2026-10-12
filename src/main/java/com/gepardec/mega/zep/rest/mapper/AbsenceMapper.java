@@ -23,7 +23,7 @@ public class AbsenceMapper implements Mapper<AbsenceTime, ZepAbsence> {
 
         try {
 
-            String reason = zepAbsence.absenceReason() == null ? "" : zepAbsence.absenceReason().name();
+            String reason = zepAbsence.absenceReason() == null ? "" : zepAbsence.absenceReason();
 
             AbsenceTime absenceTime = AbsenceTime.builder()
                     .userId(zepAbsence.employeeId())
