@@ -607,6 +607,7 @@
                 <configuration>
                     <projectType>application</projectType>
                     <outputName>${artifactId}</outputName>
+                    <skipNotDeployed>false</skipNotDeployed>
                 </configuration>
             </plugin>
         </plugins>
