@@ -100,10 +100,6 @@ quarkus:
       token:
         verify-access-token-with-user-info: false
 
-  fault-tolerance:
-    metrics:
-      enabled: false
-
 mp:
   openapi:
     filter: com.gepardec.mega.application.filter.MegaCronSecuritySchemaOASFilter
@@ -133,6 +129,7 @@ mega:
     soap-path: "/sync/soap.php?v=${SOAP_PATH_VERSION:7}"
     rest-token: "${ZEP_REST_TOKEN:default}"
     origin: "https://www.zep-online.de/zepgepardecservices_test"
+    page-size: 200
 
   oauth:
     client-id: "mega"
