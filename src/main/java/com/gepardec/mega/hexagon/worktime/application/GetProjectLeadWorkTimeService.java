@@ -29,7 +29,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-@Transactional
+// No transaction: ZEP calls fan out via Mutiny, and a propagated JTA context races with commit.
+@Transactional(Transactional.TxType.NEVER)
 public class GetProjectLeadWorkTimeService implements GetProjectLeadWorkTimeUseCase {
 
     private final WorkTimeProjectSnapshotPort workTimeProjectSnapshotPort;

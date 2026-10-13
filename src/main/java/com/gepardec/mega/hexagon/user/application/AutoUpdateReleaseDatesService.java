@@ -23,12 +23,14 @@ import java.util.List;
 import java.util.Set;
 
 @ApplicationScoped
-@Transactional
+// No transaction: ZEP calls fan out via Mutiny, and a propagated JTA context races with commit.
+@Transactional(Transactional.TxType.NEVER)
 public class AutoUpdateReleaseDatesService implements AutoUpdateReleaseDatesUseCase {
 
     private final UserRepository userRepository;
     private final ZepEmployeePort zepEmployeePort;
     private final PayrollMonthCompletionPort payrollMonthCompletionPort;
+    private final ReleaseDatePersister releaseDatePersister;
     private final Clock clock;
 
     @Inject
@@ -36,11 +38,13 @@ public class AutoUpdateReleaseDatesService implements AutoUpdateReleaseDatesUseC
             UserRepository userRepository,
             ZepEmployeePort zepEmployeePort,
             PayrollMonthCompletionPort payrollMonthCompletionPort,
+            ReleaseDatePersister releaseDatePersister,
             Clock clock
     ) {
         this.userRepository = userRepository;
         this.zepEmployeePort = zepEmployeePort;
         this.payrollMonthCompletionPort = payrollMonthCompletionPort;
+        this.releaseDatePersister = releaseDatePersister;
         this.clock = clock;
     }
 
@@ -116,7 +120,7 @@ public class AutoUpdateReleaseDatesService implements AutoUpdateReleaseDatesUseC
 
     private boolean persistReleaseDate(User user) {
         try {
-            userRepository.saveAll(List.of(user));
+            releaseDatePersister.save(user);
             return true;
         } catch (RuntimeException exception) {
             Log.errorf(

@@ -23,14 +23,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,11 +42,14 @@ class UpdateReleaseDatesServiceTest {
     @Mock
     ZepEmployeePort zepEmployeePort;
 
+    @Mock
+    ReleaseDatePersister releaseDatePersister;
+
     UpdateReleaseDatesService service;
 
     @BeforeEach
     void setUp() {
-        service = new UpdateReleaseDatesService(userRepository, zepEmployeePort);
+        service = new UpdateReleaseDatesService(userRepository, zepEmployeePort, releaseDatePersister);
     }
 
     @Test
@@ -60,13 +61,11 @@ class UpdateReleaseDatesServiceTest {
         UpdateReleaseDateCommand firstCommand = new UpdateReleaseDateCommand(firstUser.id(), releaseDate);
         UpdateReleaseDateCommand secondCommand = new UpdateReleaseDateCommand(secondUser.id(), releaseDate);
 
-        when(userRepository.findById(firstUser.id())).thenReturn(Optional.of(firstUser));
-        when(userRepository.findById(secondUser.id())).thenReturn(Optional.of(secondUser));
+        when(userRepository.findByIds(Set.of(firstUser.id(), secondUser.id()))).thenReturn(List.of(firstUser, secondUser));
         when(zepEmployeePort.updateReleaseDate(firstUser.zepUsername(), releaseDate))
                 .thenReturn(Uni.createFrom().voidItem().onItem().delayIt().by(Duration.ofMillis(300)));
         when(zepEmployeePort.updateReleaseDate(secondUser.zepUsername(), releaseDate))
                 .thenReturn(Uni.createFrom().voidItem().onItem().delayIt().by(Duration.ofMillis(300)));
-        doNothing().when(userRepository).saveAll(anyList());
 
         long startNanos = System.nanoTime();
         UpdateReleaseDatesResult result = service.update(List.of(firstCommand, secondCommand));
@@ -75,8 +74,10 @@ class UpdateReleaseDatesServiceTest {
         assertThat(result.failedUserIds()).isEmpty();
         assertThat(elapsedMillis).isLessThan(550);
 
-        verify(userRepository).saveAll(List.of(firstUser.withReleaseDate(releaseDate)));
-        verify(userRepository).saveAll(List.of(secondUser.withReleaseDate(releaseDate)));
+        verify(userRepository).findByIds(Set.of(firstUser.id(), secondUser.id()));
+        verify(userRepository, never()).findById(any());
+        verify(releaseDatePersister).save(firstUser.withReleaseDate(releaseDate));
+        verify(releaseDatePersister).save(secondUser.withReleaseDate(releaseDate));
     }
 
     @Test
@@ -92,10 +93,8 @@ class UpdateReleaseDatesServiceTest {
         UpdateReleaseDateCommand localFailCommand = new UpdateReleaseDateCommand(localFailUser.id(), releaseDate);
         UpdateReleaseDateCommand unknownCommand = new UpdateReleaseDateCommand(unknownUserId, releaseDate);
 
-        when(userRepository.findById(successfulUser.id())).thenReturn(Optional.of(successfulUser));
-        when(userRepository.findById(zepFailUser.id())).thenReturn(Optional.of(zepFailUser));
-        when(userRepository.findById(localFailUser.id())).thenReturn(Optional.of(localFailUser));
-        when(userRepository.findById(unknownUserId)).thenReturn(Optional.empty());
+        when(userRepository.findByIds(Set.of(successfulUser.id(), zepFailUser.id(), localFailUser.id(), unknownUserId)))
+                .thenReturn(List.of(successfulUser, zepFailUser, localFailUser));
 
         when(zepEmployeePort.updateReleaseDate(successfulUser.zepUsername(), releaseDate)).thenReturn(Uni.createFrom().voidItem());
         when(zepEmployeePort.updateReleaseDate(zepFailUser.zepUsername(), releaseDate))
@@ -103,18 +102,18 @@ class UpdateReleaseDatesServiceTest {
         when(zepEmployeePort.updateReleaseDate(localFailUser.zepUsername(), releaseDate)).thenReturn(Uni.createFrom().voidItem());
 
         doAnswer(invocation -> {
-            List<User> users = invocation.getArgument(0);
-            if (users.getFirst().id().equals(localFailUser.id())) {
+            User user = invocation.getArgument(0);
+            if (user.id().equals(localFailUser.id())) {
                 throw new RuntimeException("db write failed");
             }
             return null;
-        }).when(userRepository).saveAll(anyList());
+        }).when(releaseDatePersister).save(any());
 
         UpdateReleaseDatesResult result = service.update(List.of(successCommand, zepFailCommand, localFailCommand, unknownCommand));
 
         assertThat(result.failedUserIds()).containsExactlyInAnyOrder(unknownUserId, zepFailUser.id(), localFailUser.id());
         verify(zepEmployeePort, never()).updateReleaseDate(ZepUsername.of("unknown"), releaseDate);
-        verify(userRepository).saveAll(List.of(successfulUser.withReleaseDate(releaseDate)));
+        verify(releaseDatePersister).save(successfulUser.withReleaseDate(releaseDate));
     }
 
     private User user(String username) {

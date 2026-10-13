@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -46,6 +46,9 @@ class AutoUpdateReleaseDatesServiceTest {
     @Mock
     PayrollMonthCompletionPort payrollMonthCompletionPort;
 
+    @Mock
+    ReleaseDatePersister releaseDatePersister;
+
     AutoUpdateReleaseDatesService service;
 
     @BeforeEach
@@ -55,6 +58,7 @@ class AutoUpdateReleaseDatesServiceTest {
                 userRepository,
                 zepEmployeePort,
                 payrollMonthCompletionPort,
+                releaseDatePersister,
                 clock
         );
     }
@@ -83,7 +87,7 @@ class AutoUpdateReleaseDatesServiceTest {
         assertThat(result.updatedUserIds()).containsExactly(successfulUser.id());
         assertThat(result.failedUserIds()).containsExactly(failingUser.id());
 
-        verify(userRepository).saveAll(List.of(successfulUser.withReleaseDate(releaseDate)));
+        verify(releaseDatePersister).save(successfulUser.withReleaseDate(releaseDate));
     }
 
     @Test
@@ -103,12 +107,12 @@ class AutoUpdateReleaseDatesServiceTest {
                 .thenReturn(Uni.createFrom().voidItem());
 
         doAnswer(invocation -> {
-            List<User> users = invocation.getArgument(0);
-            if (users.getFirst().id().equals(localFailUser.id())) {
+            User user = invocation.getArgument(0);
+            if (user.id().equals(localFailUser.id())) {
                 throw new RuntimeException("db error");
             }
             return null;
-        }).when(userRepository).saveAll(anyList());
+        }).when(releaseDatePersister).save(any());
 
         AutoUpdateReleaseDatesResult result = service.autoUpdate();
 
