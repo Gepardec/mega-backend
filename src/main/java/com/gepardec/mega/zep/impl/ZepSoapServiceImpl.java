@@ -11,7 +11,6 @@ import com.gepardec.mega.domain.model.ProjectTime;
 import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
 import com.gepardec.mega.domain.utils.DateUtils;
 import com.gepardec.mega.zep.ZepService;
-import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.ZepSoapProvider;
 import com.gepardec.mega.zep.mapper.AbsenceTimeMapper;
 import com.gepardec.mega.zep.mapper.EmployeeMapper;
@@ -45,13 +44,11 @@ import de.provantis.zep.UpdateMitarbeiterRequestType;
 import de.provantis.zep.UpdateMitarbeiterResponseType;
 import de.provantis.zep.UserIdListeType;
 import de.provantis.zep.ZepSoapPortType;
-import io.quarkus.cache.CacheInvalidate;
 import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.Range;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import java.time.LocalDate;
@@ -106,29 +103,6 @@ class ZepSoapServiceImpl implements ZepService {
     @Override
     public List<Employee> getEmployees() {
         return getEmployeeInternal(null);
-    }
-
-    @CacheInvalidate(cacheName = "employee")
-    @Override
-    public void updateEmployeesReleaseDate(final String userId, final String releaseDate) {
-        final UpdateMitarbeiterRequestType umrt = new UpdateMitarbeiterRequestType();
-        umrt.setRequestHeader(zepSoapProvider.createRequestHeaderType());
-
-        final MitarbeiterType mitarbeiter = new MitarbeiterType();
-        mitarbeiter.setUserId(userId);
-        mitarbeiter.setFreigabedatum(releaseDate);
-        umrt.setMitarbeiter(mitarbeiter);
-
-        final UpdateMitarbeiterResponseType updateMitarbeiterResponseType = zepSoapPortType.updateMitarbeiter(umrt);
-
-        String returnCode = Optional.ofNullable(updateMitarbeiterResponseType)
-                .flatMap(response -> Optional.ofNullable(response.getResponseHeader()))
-                .map(ResponseHeaderType::getReturnCode)
-                .orElse(null);
-
-        if (StringUtils.isNotBlank(returnCode) && Integer.parseInt(returnCode) != 0) {
-            throw new ZepServiceException("updateEmployeeReleaseDate failed with code: " + returnCode);
-        }
     }
 
     public void updateEmployeeHourlyRate(final String userId, final Double newRate, final String dateFrom) {

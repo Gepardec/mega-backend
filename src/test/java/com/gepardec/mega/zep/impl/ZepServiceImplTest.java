@@ -2,7 +2,6 @@ package com.gepardec.mega.zep.impl;
 
 import com.gepardec.mega.domain.model.Employee;
 import com.gepardec.mega.domain.model.Project;
-import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.ZepSoapProvider;
 import com.gepardec.mega.zep.mapper.EmployeeMapper;
 import com.gepardec.mega.zep.mapper.ProjectEntryMapper;
@@ -18,9 +17,7 @@ import de.provantis.zep.ReadMitarbeiterRequestType;
 import de.provantis.zep.ReadMitarbeiterResponseType;
 import de.provantis.zep.ReadProjekteRequestType;
 import de.provantis.zep.ReadProjekteResponseType;
-import de.provantis.zep.ResponseHeaderType;
 import de.provantis.zep.UpdateMitarbeiterRequestType;
-import de.provantis.zep.UpdateMitarbeiterResponseType;
 import de.provantis.zep.ZepSoapPortType;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -42,7 +39,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
@@ -189,54 +185,6 @@ class ZepServiceImplTest {
         ));
     }
 
-    @Test
-    void updateEmployeesReleaseDateException() {
-        Mockito.when(zepSoapPortType.updateMitarbeiter(Mockito.any(UpdateMitarbeiterRequestType.class)))
-                .thenReturn(createUpaUpdateMitarbeiterResponseType(createResponseHeaderType("1337")));
-
-        assertThatThrownBy(() -> zepService.updateEmployeesReleaseDate("0", "2020-01-01"))
-                .isInstanceOf(ZepServiceException.class)
-                .hasMessage("updateEmployeeReleaseDate failed with code: 1337");
-
-        verify(zepSoapPortType).updateMitarbeiter(Mockito.argThat(
-                argument -> argument.getMitarbeiter().getUserId().equals("0") && argument.getMitarbeiter().getFreigabedatum().equals("2020-01-01")
-        ));
-    }
-
-    @Test
-    void updateEmployeesReleaseDateResponseNull() {
-        Mockito.when(zepSoapPortType.updateMitarbeiter(Mockito.any(UpdateMitarbeiterRequestType.class))).thenReturn(null);
-
-        zepService.updateEmployeesReleaseDate("0", "2020-01-01");
-
-        verify(zepSoapPortType).updateMitarbeiter(Mockito.argThat(
-                argument -> argument.getMitarbeiter().getUserId().equals("0") && argument.getMitarbeiter().getFreigabedatum().equals("2020-01-01")
-        ));
-    }
-
-    @Test
-    void updateEmployeesReleaseDateResponseHeaderNull() {
-        Mockito.when(zepSoapPortType.updateMitarbeiter(Mockito.any(UpdateMitarbeiterRequestType.class))).thenReturn(createUpaUpdateMitarbeiterResponseType(null));
-
-        zepService.updateEmployeesReleaseDate("0", "2020-01-01");
-
-        verify(zepSoapPortType).updateMitarbeiter(Mockito.argThat(
-                argument -> argument.getMitarbeiter().getUserId().equals("0") && argument.getMitarbeiter().getFreigabedatum().equals("2020-01-01")
-        ));
-    }
-
-    @Test
-    void updateEmployeesReleaseDate() {
-        Mockito.when(zepSoapPortType.updateMitarbeiter(Mockito.any(UpdateMitarbeiterRequestType.class)))
-                .thenReturn(createUpaUpdateMitarbeiterResponseType(createResponseHeaderType("0")));
-
-        zepService.updateEmployeesReleaseDate("0", "2020-01-01");
-
-        verify(zepSoapPortType).updateMitarbeiter(Mockito.argThat(
-                argument -> argument.getMitarbeiter().getUserId().equals("0") && argument.getMitarbeiter().getFreigabedatum().equals("2020-01-01")
-        ));
-    }
-
     private MitarbeiterType createMitarbeiterType(final int userId) {
         final MitarbeiterType mitarbeiter = new MitarbeiterType();
         final String name = "Max_" + userId;
@@ -268,18 +216,6 @@ class ZepServiceImplTest {
         readMitarbeiterResponseType.setMitarbeiterListe(new MitarbeiterListeType());
         readMitarbeiterResponseType.getMitarbeiterListe().getMitarbeiter().addAll(mitarbeiterType);
         return readMitarbeiterResponseType;
-    }
-
-    private ResponseHeaderType createResponseHeaderType(final String returnCode) {
-        final ResponseHeaderType responseHeaderType = new ResponseHeaderType();
-        responseHeaderType.setReturnCode(returnCode);
-        return responseHeaderType;
-    }
-
-    private UpdateMitarbeiterResponseType createUpaUpdateMitarbeiterResponseType(final ResponseHeaderType responseHeaderType) {
-        final UpdateMitarbeiterResponseType updateMitarbeiterResponseType = new UpdateMitarbeiterResponseType();
-        updateMitarbeiterResponseType.setResponseHeader(responseHeaderType);
-        return updateMitarbeiterResponseType;
     }
 
     @ParameterizedTest

@@ -140,11 +140,6 @@ class ZepRestServiceImpl implements ZepService {
     }
 
     @Override
-    public void updateEmployeesReleaseDate(String userId, String releaseDate) {
-        throw new NotImplementedException("This method is not provided in REST, use SOAP instead.");         // Currently not supported by REST - use SOAP instead
-    }
-
-    @Override
     public List<ProjectEntry> getProjectTimes(Employee employee, YearMonth payrollMonth) {
         logger.debug("Retrieving project times from ZEP of {}", employee.getUserId());
         return projectEntryMapper.mapList(

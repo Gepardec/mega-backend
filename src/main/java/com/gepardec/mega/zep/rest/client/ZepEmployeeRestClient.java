@@ -2,16 +2,20 @@ package com.gepardec.mega.zep.rest.client;
 
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
 import com.gepardec.mega.zep.rest.dto.ZepEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepEmployeeReleaseDateUpdate;
 import com.gepardec.mega.zep.rest.dto.ZepEmploymentPeriod;
 import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
 import com.gepardec.mega.zep.rest.dto.ZepResponse;
 import io.quarkus.rest.client.reactive.ClientQueryParam;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.annotation.RegisterClientHeaders;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
@@ -28,6 +32,11 @@ public interface ZepEmployeeRestClient {
     @GET
     @Path("/{username}")
     Uni<ZepResponse<ZepEmployee>> getByUsername(@PathParam("username") String username);
+
+    @PATCH
+    @Path("/{username}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    Uni<Void> updateReleaseDate(@PathParam("username") String username, ZepEmployeeReleaseDateUpdate body);
 
     @GET
     @Path("/{username}/employment-periods")

@@ -19,8 +19,6 @@ public interface ZepService {
 
     List<Employee> getEmployees();
 
-    void updateEmployeesReleaseDate(String userId, String releaseDate);
-
     List<ProjectEntry> getProjectTimes(Employee employee, YearMonth payrollMonth);
 
     List<ProjectTime> getProjectTimesForEmployeePerProject(String project, YearMonth payrollMonth);

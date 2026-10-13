@@ -35,11 +35,6 @@ public class ZepServiceImpl implements ZepService {
     }
 
     @Override
-    public void updateEmployeesReleaseDate(String userId, String releaseDate) {
-        zepServiceSoap.updateEmployeesReleaseDate(userId, releaseDate);
-    }
-
-    @Override
     public List<ProjectEntry> getProjectTimes(Employee employee, YearMonth payrollMonth) {
         return zepServiceRest.getProjectTimes(employee, payrollMonth);
     }

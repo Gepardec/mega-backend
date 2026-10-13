@@ -7,12 +7,16 @@ import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.HourlyRate;
 import com.gepardec.mega.hexagon.user.domain.model.ZepEmployeeSyncData;
 import com.gepardec.mega.zep.ZepService;
+import com.gepardec.mega.zep.rest.client.ZepEmployeeRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepEmployeeReleaseDateUpdate;
 import com.gepardec.mega.zep.rest.service.EmployeeService;
 import com.gepardec.mega.zep.rest.service.EmploymentPeriodService;
+import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -32,6 +36,9 @@ public class ZepEmployeeAdapter implements ZepEmployeePort {
     @Inject
     ZepService zepService;
 
+    @RestClient
+    ZepEmployeeRestClient zepEmployeeRestClient;
+
     @Override
     public List<ZepEmployeeSyncData> fetchAll() {
         return employeeService.getZepEmployees().stream()
@@ -41,10 +48,11 @@ public class ZepEmployeeAdapter implements ZepEmployeePort {
 
     @Override
     public Uni<Void> updateReleaseDate(ZepUsername username, LocalDate releaseDate) {
-        return Uni.createFrom().item(() -> {
-            zepService.updateEmployeesReleaseDate(username.value(), releaseDate.toString());
-            return null;
-        }).replaceWithVoid();
+        Log.infof("Updating release date in ZEP for %s", username.value());
+        return zepEmployeeRestClient.updateReleaseDate(
+                username.value(),
+                new ZepEmployeeReleaseDateUpdate(username.value(), releaseDate)
+        );
     }
 
     @Override
