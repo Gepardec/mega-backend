@@ -19,7 +19,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-@Transactional
+// No transaction: ZEP calls fan out via Mutiny, and a propagated JTA context races with commit.
+@Transactional(Transactional.TxType.NEVER)
 public class UpdateInternalRatesService implements UpdateInternalRatesUseCase {
 
     private final UserRepository userRepository;

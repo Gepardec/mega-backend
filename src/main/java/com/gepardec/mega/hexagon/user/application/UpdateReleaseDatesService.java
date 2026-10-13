@@ -19,20 +19,30 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
-@Transactional
+// No transaction: ZEP calls fan out via Mutiny, and a propagated JTA context races with commit.
+@Transactional(Transactional.TxType.NEVER)
 public class UpdateReleaseDatesService implements UpdateReleaseDatesUseCase {
 
     private final UserRepository userRepository;
     private final ZepEmployeePort zepEmployeePort;
+    private final ReleaseDatePersister releaseDatePersister;
 
     @Inject
-    public UpdateReleaseDatesService(UserRepository userRepository, ZepEmployeePort zepEmployeePort) {
+    public UpdateReleaseDatesService(
+            UserRepository userRepository,
+            ZepEmployeePort zepEmployeePort,
+            ReleaseDatePersister releaseDatePersister
+    ) {
         this.userRepository = userRepository;
         this.zepEmployeePort = zepEmployeePort;
+        this.releaseDatePersister = releaseDatePersister;
     }
 
     @Override
@@ -41,12 +51,34 @@ public class UpdateReleaseDatesService implements UpdateReleaseDatesUseCase {
             return new UpdateReleaseDatesResult(List.of());
         }
 
-        List<ZepUpdateOutcome> outcomes = Multi.createFrom().iterable(commands)
-                .onItem().transformToUniAndMerge(this::updateInZep)
+        LinkedHashSet<UserId> failedUserIds = new LinkedHashSet<>();
+
+        // Resolve users on the calling thread: the fan-out below may run its mapper on I/O threads.
+        Set<UserId> commandUserIds = commands.stream()
+                .map(command -> Objects.requireNonNull(command, "command must not be null").userId())
+                .collect(Collectors.toSet());
+        Map<UserId, User> usersById = userRepository.findByIds(commandUserIds).stream()
+                .collect(Collectors.toMap(User::id, Function.identity(), (first, second) -> first));
+
+        List<UpdateReleaseDateCommand> commandsToSend = new ArrayList<>();
+        for (UpdateReleaseDateCommand command : commands) {
+            User user = usersById.get(command.userId());
+            if (user == null) {
+                Log.warnf("Skipping release-date update for unknown userId=%s", command.userId().value());
+                failedUserIds.add(command.userId());
+            } else if (user.zepUsername() == null || user.zepUsername().value().isBlank()) {
+                Log.errorf("Skipping release-date update because zepUsername is missing for userId=%s", user.id().value());
+                failedUserIds.add(command.userId());
+            } else {
+                commandsToSend.add(command);
+            }
+        }
+
+        List<ZepUpdateOutcome> outcomes = Multi.createFrom().iterable(commandsToSend)
+                .onItem().transformToUniAndMerge(command -> updateInZep(command, usersById.get(command.userId())))
                 .collect().asList()
                 .await().indefinitely();
 
-        LinkedHashSet<UserId> failedUserIds = new LinkedHashSet<>();
         List<User> usersToPersist = new ArrayList<>();
 
         for (ZepUpdateOutcome outcome : outcomes) {
@@ -65,21 +97,8 @@ public class UpdateReleaseDatesService implements UpdateReleaseDatesUseCase {
         return new UpdateReleaseDatesResult(List.copyOf(failedUserIds));
     }
 
-    private Uni<ZepUpdateOutcome> updateInZep(UpdateReleaseDateCommand command) {
-        Objects.requireNonNull(command, "command must not be null");
-
-        Optional<User> maybeUser = userRepository.findById(command.userId());
-        if (maybeUser.isEmpty()) {
-            Log.warnf("Skipping release-date update for unknown userId=%s", command.userId().value());
-            return Uni.createFrom().item(ZepUpdateOutcome.failed(command));
-        }
-
-        User user = maybeUser.get();
+    private Uni<ZepUpdateOutcome> updateInZep(UpdateReleaseDateCommand command, User user) {
         ZepUsername zepUsername = user.zepUsername();
-        if (zepUsername == null || zepUsername.value().isBlank()) {
-            Log.errorf("Skipping release-date update because zepUsername is missing for userId=%s", user.id().value());
-            return Uni.createFrom().item(ZepUpdateOutcome.failed(command));
-        }
 
         LocalDate releaseDate = command.releaseDate();
         return zepEmployeePort.updateReleaseDate(zepUsername, releaseDate)
@@ -98,7 +117,7 @@ public class UpdateReleaseDatesService implements UpdateReleaseDatesUseCase {
 
     private void persistReleaseDate(User user, LinkedHashSet<UserId> failedUserIds) {
         try {
-            userRepository.saveAll(List.of(user));
+            releaseDatePersister.save(user);
         } catch (RuntimeException exception) {
             Log.errorf(
                     exception,
