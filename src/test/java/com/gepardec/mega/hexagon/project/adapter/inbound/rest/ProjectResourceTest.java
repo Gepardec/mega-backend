@@ -3,11 +3,10 @@ package com.gepardec.mega.hexagon.project.adapter.inbound.rest;
 import com.gepardec.mega.hexagon.generated.model.LeistungsnachweisToggleRequestDto;
 import com.gepardec.mega.hexagon.project.application.port.inbound.GetProjectSettingsUseCase;
 import com.gepardec.mega.hexagon.project.application.port.inbound.SetLeistungsnachweisEnabledUseCase;
-import com.gepardec.mega.hexagon.project.domain.error.LeistungsnachweisNotApplicableException;
-import com.gepardec.mega.hexagon.project.domain.error.ProjectNotFoundException;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectErrorCode;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectException;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
-import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
@@ -163,7 +162,7 @@ class ProjectResourceTest {
     void setLeistungsnachweisEnabled_shouldReturnForbidden_whenUserIsNotLead() {
         allowRoles(Role.PROJECT_LEAD);
         var request = new LeistungsnachweisToggleRequestDto().enabled(false);
-        doThrow(new ForbiddenException("user is not lead"))
+        doThrow(new ProjectException(ProjectErrorCode.ACTOR_NOT_LEAD, "user is not lead"))
                 .when(setLeistungsnachweisEnabledUseCase)
                 .setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, false);
 
@@ -173,7 +172,8 @@ class ProjectResourceTest {
                 .body(request)
                 .put("/projects/" + PROJECT_ID.value() + "/leistungsnachweis-enabled")
                 .then()
-                .statusCode(HttpStatus.SC_FORBIDDEN);
+                .statusCode(HttpStatus.SC_FORBIDDEN)
+                .body("code", is("PROJECT_ACTOR_NOT_LEAD"));
 
     }
 
@@ -181,7 +181,7 @@ class ProjectResourceTest {
     void setLeistungsnachweisEnabled_shoudlReturnNotFound_whenProjectIsUnknown() {
         allowRoles(Role.PROJECT_LEAD);
         var request = new LeistungsnachweisToggleRequestDto().enabled(false);
-        doThrow(new ProjectNotFoundException("Project not found"))
+        doThrow(new ProjectException(ProjectErrorCode.NOT_FOUND, "Project not found"))
                 .when(setLeistungsnachweisEnabledUseCase)
                 .setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, false);
 
@@ -228,7 +228,7 @@ class ProjectResourceTest {
     void setLeistungsnachweisEnabled_shouldReturnBadRequest_whenUseCaseThrowsNotApplicable() {
         allowRoles(Role.PROJECT_LEAD);
         var request = new LeistungsnachweisToggleRequestDto().enabled(true);
-        doThrow(new LeistungsnachweisNotApplicableException("not applicable"))
+        doThrow(new ProjectException(ProjectErrorCode.LEISTUNGSNACHWEIS_NOT_APPLICABLE, "not applicable"))
                 .when(setLeistungsnachweisEnabledUseCase)
                 .setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, true);
 

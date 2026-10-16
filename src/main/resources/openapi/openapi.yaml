@@ -77,8 +77,12 @@ components:
       $ref: './schemas/user.yaml#/UpdateReleaseDatesRequest'
     UpdateReleaseDatesResponse:
       $ref: './schemas/user.yaml#/UpdateReleaseDatesResponse'
-    InternalRateUploadError:
-      $ref: './schemas/user.yaml#/InternalRateUploadError'
+    InternalRateUploadProblem:
+      $ref: './schemas/user.yaml#/InternalRateUploadProblem'
+    Problem:
+      $ref: './schemas/shared.yaml#/Problem'
+    Violation:
+      $ref: './schemas/shared.yaml#/Violation'
     ProjectSettings:
       $ref: './schemas/projects.yaml#/ProjectSettings'
     LeistungsnachweisToggleRequest:

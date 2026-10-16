@@ -1,9 +1,8 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.DeleteMonthEndClarificationUseCase;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationDeletedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
@@ -34,16 +33,16 @@ public class DeleteMonthEndClarificationService implements DeleteMonthEndClarifi
     @Override
     public void delete(MonthEndClarificationId id, UserId actorId) {
         MonthEndClarification clarification = monthEndClarificationRepository.findById(id)
-                .orElseThrow(() -> new MonthEndClarificationNotFoundException(
+                .orElseThrow(() -> new MonthEndException(MonthEndErrorCode.CLARIFICATION_NOT_FOUND,
                         "month-end clarification not found: " + id.value()
                 ));
 
         if (!actorId.equals(clarification.createdBy())) {
-            throw new MonthEndActorNotAuthorizedException("actor is not allowed to delete this clarification");
+            throw new MonthEndException(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED, "actor is not allowed to delete this clarification");
         }
 
         if (!clarification.isOpen()) {
-            throw new MonthEndClarificationClosedException("done clarifications cannot be deleted");
+            throw new MonthEndException(MonthEndErrorCode.CLARIFICATION_CLOSED, "done clarifications cannot be deleted");
         }
 
         monthEndClarificationRepository.delete(id);

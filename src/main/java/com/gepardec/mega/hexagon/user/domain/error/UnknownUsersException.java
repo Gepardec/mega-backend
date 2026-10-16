@@ -6,12 +6,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class UnknownUsersException extends RuntimeException {
+public class UnknownUsersException extends UserException {
 
     private final transient Set<ZepUsername> unknownUsers;
 
     public UnknownUsersException(Set<ZepUsername> unknownUsers) {
-        super("Unknown users: " + toMessage(Objects.requireNonNull(unknownUsers, "unknownUsers must not be null")));
+        super(UserErrorCode.UNKNOWN_USERS, "Unknown users: " + toMessage(Objects.requireNonNull(unknownUsers, "unknownUsers must not be null")));
         this.unknownUsers = Set.copyOf(unknownUsers);
     }
 

@@ -12,7 +12,9 @@
         content:
           application/json:
             schema:
-              $ref: '../schemas/shared.yaml#/MonthValue'
+              type: string
+              format: year-month
+              example: "2026-09"
       '403':
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
@@ -31,7 +33,9 @@
         content:
           application/json:
             schema:
-              $ref: '../schemas/shared.yaml#/MonthValue'
+              type: string
+              format: year-month
+              example: "2026-09"
       '403':
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
@@ -50,7 +54,9 @@
         required: true
         description: Month-end context in yyyy-MM format.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          type: string
+          format: year-month
+          example: "2026-09"
     responses:
       '200':
         description: Employee month-end status overview
@@ -78,7 +84,9 @@
         required: true
         description: Month-end context in yyyy-MM format.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          type: string
+          format: year-month
+          example: "2026-09"
     responses:
       '200':
         description: Project-lead month-end status overview
@@ -262,7 +270,9 @@
         required: true
         description: Month-end context in yyyy-MM format.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          type: string
+          format: year-month
+          example: "2026-09"
     responses:
       '200':
         description: Month-end generation result
@@ -290,7 +300,9 @@
         required: true
         description: Month-end context in yyyy-MM format.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          type: string
+          format: year-month
+          example: "2026-09"
     requestBody:
       required: true
       content:
@@ -324,7 +336,9 @@
         required: true
         description: Month-end context in yyyy-MM format.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          type: string
+          format: year-month
+          example: "2026-09"
     responses:
       '200':
         description: Own time-check tasks bulk completed

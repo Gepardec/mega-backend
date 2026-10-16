@@ -10,7 +10,6 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 
-import java.time.YearMonth;
 import java.util.UUID;
 
 @Mapper(
@@ -21,10 +20,6 @@ import java.util.UUID;
 public interface WorkTimeRestMapper {
 
     WorkTimeReportDto toDto(WorkTimeReport report);
-
-    default String map(YearMonth month) {
-        return month == null ? null : month.toString();
-    }
 
     default UUID map(UserId userId) {
         return userId == null ? null : userId.value();

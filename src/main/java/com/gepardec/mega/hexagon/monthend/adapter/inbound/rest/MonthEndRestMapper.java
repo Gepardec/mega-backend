@@ -29,7 +29,6 @@ import org.mapstruct.MappingTarget;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.UUID;
@@ -110,10 +109,6 @@ public interface MonthEndRestMapper {
 
     default UserRef resolveUserRef(UserId userId, @Context Map<UserId, UserRef> userRefs) {
         return userId == null ? null : userRefs.get(userId);
-    }
-
-    default String map(YearMonth month) {
-        return month == null ? null : month.toString();
     }
 
     default UUID map(ProjectId projectId) {
