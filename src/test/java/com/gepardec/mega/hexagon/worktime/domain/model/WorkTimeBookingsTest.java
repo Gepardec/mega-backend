@@ -76,6 +76,8 @@ class WorkTimeBookingsTest {
                 .set(field(ProjectBooking::from), from)
                 .set(field(ProjectBooking::to), to)
                 .set(field(ProjectBooking::task), Task.BEARBEITEN)
+                .set(field(ProjectBooking::billable), true)
+                .set(field(ProjectBooking::note), "Test")
                 .create();
     }
 
@@ -85,6 +87,8 @@ class WorkTimeBookingsTest {
                 .set(field(JourneyBooking::to), to)
                 .set(field(JourneyBooking::task), Task.REISEN)
                 .set(field(JourneyBooking::vehicle), vehicle)
+                .set(field(JourneyBooking::billable), true)
+                .set(field(JourneyBooking::note), "Test")
                 .create();
     }
 }

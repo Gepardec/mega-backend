@@ -30,7 +30,8 @@ public class WorkTimeWarningAssembler {
                 new InsufficientBreakCalculator(),
                 new InvalidJourneyCalculator(),
                 new InvalidWorkingLocationCalculator(),
-                new LocationRelevantSetJourneyCalculator()), new NoEntryWarningCalculator());
+                new LocationRelevantSetJourneyCalculator(),
+                new InternalNoteConventionCalculator()), new NoEntryWarningCalculator());
     }
 
     WorkTimeWarningAssembler(List<WorkTimeWarningCalculator> calculators, NoEntryWarningCalculator noEntryCalculator) {

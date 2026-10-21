@@ -66,6 +66,37 @@ class WorkTimeBookingZepMapperTest {
     }
 
     @Test
+    void toDomain_carriesOverBillableFlagAndNote() {
+        var project = mapper.toDomain(base().activity("BEARBEITEN").projectTaskId(233)
+                .billable(true).note("Intern - JFX").build());
+        var journey = mapper.toDomain(base().activity("REISEN").vehicle("Auto")
+                .billable(true).note("Intern - JFX").build());
+
+        assertThat(project.billable()).isTrue();
+        assertThat(project.note()).isEqualTo("Intern - JFX");
+        assertThat(journey.billable()).isTrue();
+        assertThat(journey.note()).isEqualTo("Intern - JFX");
+    }
+
+    @Test
+    void toDomain_treatsMissingBillableFlagAsNotBillable() {
+        var project = mapper.toDomain(base().activity("BEARBEITEN").projectTaskId(233).build());
+        var journey = mapper.toDomain(base().activity("REISEN").vehicle("Auto").build());
+
+        assertThat(project.billable()).isFalse();
+        assertThat(journey.billable()).isFalse();
+    }
+
+    @Test
+    void toDomain_yieldsBookingWithoutNoteWhenNoteIsMissing() {
+        var project = mapper.toDomain(base().activity("BEARBEITEN").projectTaskId(233).build());
+        var journey = mapper.toDomain(base().activity("REISEN").vehicle("Auto").build());
+
+        assertThat(project.note()).isNull();
+        assertThat(journey.note()).isNull();
+    }
+
+    @Test
     void toDomain_rejectsUnknownRequiredValues() {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> mapper.toDomain(base().activity("UNKNOWN").build());
         assertThatThrownBy(throwingCallable)

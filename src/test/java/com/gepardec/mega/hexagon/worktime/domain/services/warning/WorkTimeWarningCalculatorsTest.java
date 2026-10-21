@@ -68,6 +68,8 @@ class WorkTimeWarningCalculatorsTest {
                 .set(field(ProjectBooking::task), Task.BEARBEITEN)
                 .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
                 .set(field(ProjectBooking::process), "233")
+                .set(field(ProjectBooking::billable), true)
+                .set(field(ProjectBooking::note), "Test")
                 .create();
         assertType(new DoctorAppointmentCalculator(), List.of(booking), WorkTimeWarningType.WRONG_DOCTOR_APPOINTMENT);
     }
@@ -227,6 +229,8 @@ class WorkTimeWarningCalculatorsTest {
                 .set(field(ProjectBooking::task), Task.BEARBEITEN)
                 .set(field(ProjectBooking::workingLocation), location)
                 .set(field(ProjectBooking::workLocationProjectRelevant), relevant)
+                .set(field(ProjectBooking::billable), true)
+                .set(field(ProjectBooking::note), "Test")
                 .create();
     }
 
@@ -238,6 +242,8 @@ class WorkTimeWarningCalculatorsTest {
                 .set(field(JourneyBooking::workingLocation), WorkingLocation.A)
                 .set(field(JourneyBooking::direction), direction)
                 .set(field(JourneyBooking::vehicle), Vehicle.CAR_ACTIVE)
+                .set(field(JourneyBooking::billable), true)
+                .set(field(JourneyBooking::note), "Test")
                 .create();
     }
 }

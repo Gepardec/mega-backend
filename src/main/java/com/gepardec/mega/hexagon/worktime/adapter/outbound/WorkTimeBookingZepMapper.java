@@ -38,6 +38,8 @@ public interface WorkTimeBookingZepMapper {
     @Mapping(target = "task", source = "task")
     @Mapping(target = "workingLocation", source = "attendance.workLocation", qualifiedByName = "toWorkingLocation")
     @Mapping(target = "workLocationProjectRelevant", source = "attendance.workLocationIsProjectRelevant")
+    @Mapping(target = "billable", source = "attendance.billable", qualifiedByName = "toBillable")
+    @Mapping(target = "note", source = "attendance.note")
     @Mapping(target = "process", source = "attendance.projectTaskId")
     ProjectBooking toProjectBooking(ZepAttendance attendance, Task task);
 
@@ -46,6 +48,8 @@ public interface WorkTimeBookingZepMapper {
     @Mapping(target = "task", source = "task")
     @Mapping(target = "workingLocation", source = "attendance.workLocation", qualifiedByName = "toWorkingLocation")
     @Mapping(target = "workLocationProjectRelevant", source = "attendance.workLocationIsProjectRelevant")
+    @Mapping(target = "billable", source = "attendance.billable", qualifiedByName = "toBillable")
+    @Mapping(target = "note", source = "attendance.note")
     @Mapping(target = "direction", source = "attendance.directionOfTravel", qualifiedByName = "toJourneyDirection")
     @Mapping(target = "vehicle", source = "attendance.vehicle", qualifiedByName = "toVehicle")
     JourneyBooking toJourneyBooking(ZepAttendance attendance, Task task);
@@ -73,6 +77,11 @@ public interface WorkTimeBookingZepMapper {
     default WorkingLocation toWorkingLocation(String workLocation) {
         return WorkingLocation.fromZepOrt(
                 workLocation == null ? WorkingLocation.MAIN.getZepOrt() : workLocation);
+    }
+
+    @Named("toBillable")
+    default boolean toBillable(Boolean billable) {
+        return Boolean.TRUE.equals(billable);
     }
 
     @Named("toJourneyDirection")

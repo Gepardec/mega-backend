@@ -3,43 +3,46 @@ package com.gepardec.mega.zep.rest.dto;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public record ZepAttendance (
-    Integer id,
-    LocalDate date,
-    LocalTime from,
-    LocalTime to,
-    String employeeId,
-    Integer projectId,
-    Integer projectTaskId,
-    Double duration,
-    Boolean billable,
-    String workLocation,
-    Boolean workLocationIsProjectRelevant,
-    String activity,
-    String vehicle,
-    ZepAttendanceDirectionOfTravel directionOfTravel
+public record ZepAttendance(
+        Integer id,
+        LocalDate date,
+        LocalTime from,
+        LocalTime to,
+        String employeeId,
+        Integer projectId,
+        Integer projectTaskId,
+        Double duration,
+        Boolean billable,
+        String workLocation,
+        Boolean workLocationIsProjectRelevant,
+        String activity,
+        String vehicle,
+        ZepAttendanceDirectionOfTravel directionOfTravel,
+        String note
 ) {
 
 
     @JsonCreator
     public ZepAttendance(Builder builder) {
         this(builder.id,
-             builder.date,
-             builder.from,
-             builder.to,
-             builder.employeeId,
-             builder.projectId,
-             builder.projectTaskId,
-             builder.duration,
-             builder.billable,
-             builder.workLocation,
-             builder.workLocationIsProjectRelevant,
-             builder.activity,
-             builder.vehicle,
-             builder.directionOfTravel
+                builder.date,
+                builder.from,
+                builder.to,
+                builder.employeeId,
+                builder.projectId,
+                builder.projectTaskId,
+                builder.duration,
+                builder.billable,
+                builder.workLocation,
+                builder.workLocationIsProjectRelevant,
+                builder.activity,
+                builder.vehicle,
+                builder.directionOfTravel,
+                builder.note
         );
     }
 
@@ -82,6 +85,9 @@ public record ZepAttendance (
 
         @JsonProperty("direction_of_travel")
         private ZepAttendanceDirectionOfTravel directionOfTravel;
+
+        @JsonProperty("note")
+        private String note;
 
         public Builder id(Integer id) {
             this.id = id;
@@ -139,7 +145,6 @@ public record ZepAttendance (
         }
 
 
-
         public Builder activity(String activity) {
             this.activity = activity;
             return this;
@@ -153,6 +158,11 @@ public record ZepAttendance (
 
         public Builder directionOfTravel(ZepAttendanceDirectionOfTravel directionOfTravel) {
             this.directionOfTravel = directionOfTravel;
+            return this;
+        }
+
+        public Builder note(String note) {
+            this.note = note;
             return this;
         }
 

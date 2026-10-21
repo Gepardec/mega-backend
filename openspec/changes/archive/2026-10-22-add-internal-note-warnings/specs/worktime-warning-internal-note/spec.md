@@ -1,0 +1,87 @@
+# Spec Delta
+
+## Purpose
+
+Checks the "Intern - " booking convention against a booking's billability. This way, billable bookings with an internal marker and non-billable bookings without a marker stand out before the manual review.
+
+## ADDED Requirements
+
+### Requirement: A note counts as internally marked when it starts with "Intern" and a dash
+A note SHALL count as internally marked if, after optional leading spaces, it starts with the word "Intern", regardless of upper or lower case, followed by optional spaces and a hyphen (`-`) or an en dash (`–`). An empty or missing note SHALL NOT count as internally marked, nor SHALL a note that contains "Intern - " only elsewhere.
+
+#### Scenario: A note following the convention is marked
+- **WHEN** a booking carries the note "Intern - Jenkins aufräumen"
+- **THEN** the note counts as internally marked
+
+#### Scenario: Deviating spellings are marked
+- **WHEN** a booking carries one of the notes "intern - JFX", "Intern -JFX", "Intern– JFX" or "  Intern - JFX"
+- **THEN** the note counts as internally marked
+
+#### Scenario: A marker in the middle of the text does not count
+- **WHEN** a booking carries the note "JFX (Intern - Vorbereitung)"
+- **THEN** the note does not count as internally marked
+
+#### Scenario: "Intern" without a dash does not count
+- **WHEN** a booking carries the note "Internes Meeting" or "Intern JFX"
+- **THEN** the note does not count as internally marked
+
+#### Scenario: An empty note is not marked
+- **WHEN** a booking carries no note or an empty note
+- **THEN** the note does not count as internally marked
+
+### Requirement: Billable bookings with an internal marker are reported per day
+The system SHALL produce an `INTERNAL_NOTE_BILLABLE` warning for every date on which at least one billable booking carries an internally marked note. The rule SHALL apply to project and journey bookings. The warning SHALL carry the date and no hours.
+
+#### Scenario: A billable project booking with a marker is reported
+- **WHEN** a billable project booking on 2026-10-05 carries the note "Intern - JFX"
+- **THEN** an `INTERNAL_NOTE_BILLABLE` warning for 2026-10-05 without hours is produced
+
+#### Scenario: A billable journey booking with a marker is reported
+- **WHEN** a billable journey booking on 2026-10-05 carries the note "Intern - Fahrt zum Office"
+- **THEN** an `INTERNAL_NOTE_BILLABLE` warning for 2026-10-05 is produced
+
+#### Scenario: Several affected bookings on one day yield one warning
+- **WHEN** two billable bookings on the same day carry internally marked notes
+- **THEN** exactly one `INTERNAL_NOTE_BILLABLE` warning is produced for that day
+
+#### Scenario: A billable booking without a marker is not reported
+- **WHEN** a billable booking carries the note "Heapdump analysiert"
+- **THEN** no `INTERNAL_NOTE_BILLABLE` warning is produced for that booking
+
+### Requirement: Non-billable bookings without an internal marker are reported per day
+The system SHALL produce an `INTERNAL_NOTE_MISSING` warning for every date on which at least one non-billable booking carries no internally marked note. This also applies to bookings without a note. The rule SHALL apply to project and journey bookings. The warning SHALL carry the date and no hours.
+
+#### Scenario: A non-billable booking without a marker is reported
+- **WHEN** a non-billable project booking on 2026-10-06 carries the note "JFX"
+- **THEN** an `INTERNAL_NOTE_MISSING` warning for 2026-10-06 without hours is produced
+
+#### Scenario: A non-billable booking without a note is reported
+- **WHEN** a non-billable booking on 2026-10-06 carries no note
+- **THEN** an `INTERNAL_NOTE_MISSING` warning for 2026-10-06 is produced
+
+#### Scenario: A non-billable journey booking without a marker is reported
+- **WHEN** a non-billable journey booking on 2026-10-06 carries the note "Nach Linz"
+- **THEN** an `INTERNAL_NOTE_MISSING` warning for 2026-10-06 is produced
+
+#### Scenario: A non-billable booking with a marker is not reported
+- **WHEN** a non-billable booking carries the note "Intern - JFX"
+- **THEN** no `INTERNAL_NOTE_MISSING` warning is produced for that booking
+
+#### Scenario: Several affected bookings on one day yield one warning
+- **WHEN** two non-billable bookings on the same day carry no internally marked note
+- **THEN** exactly one `INTERNAL_NOTE_MISSING` warning is produced for that day
+
+### Requirement: The convention is only checked from 2026-10-01 onward
+Both rules SHALL only consider bookings whose date is on or after 2026-10-01. Earlier bookings SHALL trigger neither `INTERNAL_NOTE_BILLABLE` nor `INTERNAL_NOTE_MISSING`.
+
+#### Scenario: A booking before the cutoff date is not checked
+- **WHEN** a non-billable booking on 2026-09-30 carries no note
+- **THEN** no `INTERNAL_NOTE_MISSING` warning is produced for 2026-09-30
+
+#### Scenario: A booking on the cutoff date is checked
+- **WHEN** a non-billable booking on 2026-10-01 carries no note
+- **THEN** an `INTERNAL_NOTE_MISSING` warning is produced for 2026-10-01
+
+#### Scenario: A billable marked booking before the cutoff date is not reported
+- **WHEN** a billable booking on 2026-09-15 carries the note "Intern - JFX"
+- **THEN** no `INTERNAL_NOTE_BILLABLE` warning is produced for 2026-09-15

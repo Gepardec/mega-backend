@@ -43,12 +43,16 @@ The system SHALL secure work time REST endpoints by caller role. The employee wo
 - **THEN** the API rejects the request as forbidden
 
 ### Requirement: Employee warnings endpoint is defined in the work time contract
-The canonical work time REST contract SHALL define an endpoint that returns the authenticated employee's time-booking warnings for a payroll month at `GET /worktime/warnings/{payrollMonth}`. The endpoint MUST require the EMPLOYEE role and MUST resolve the acting employee from the authentication context, without accepting a caller-supplied employee identifier. The response SHALL be a flat array of warnings; each warning SHALL carry a `type` (the preserved warning-type identifier), a `date`, and an `hours` value. `date` and `hours` SHALL always be present on every warning and SHALL be `null` when the warning carries no date or no quantity. The endpoint SHALL reject an invalid payroll month as a bad request and a caller lacking the EMPLOYEE role as forbidden, consistent with the other work time endpoints. Grouping the returned warnings by type for display is a client concern.
+The canonical work time REST contract SHALL define an endpoint that returns the authenticated employee's time-booking warnings for a payroll month at `GET /worktime/warnings/{payrollMonth}`. The endpoint MUST require the EMPLOYEE role and MUST resolve the acting employee from the authentication context, without accepting a caller-supplied employee identifier. The response SHALL be a flat array of warnings; each warning SHALL carry a `type` (an identifier from the warning-type vocabulary), a `date`, and an `hours` value. `date` and `hours` SHALL always be present on every warning and SHALL be `null` when the warning carries no date or no quantity. The endpoint SHALL reject an invalid payroll month as a bad request and a caller lacking the EMPLOYEE role as forbidden, consistent with the other work time endpoints. Grouping the returned warnings by type for display is a client concern.
 
 #### Scenario: Authenticated employee retrieves their warnings for a month
 - **WHEN** an authenticated employee requests `GET /worktime/warnings/{payrollMonth}` for a valid month
 - **THEN** the API resolves the acting employee from the authentication context
 - **THEN** the response is a flat array of warnings, each carrying `type`, `date`, and `hours`
+
+#### Scenario: A booking-convention warning is returned with its type and date
+- **WHEN** the employee's month contains a billable booking whose note is marked as internal
+- **THEN** the response contains a warning with `type` `INTERNAL_NOTE_BILLABLE`, the booking's `date`, and `hours` `null`
 
 #### Scenario: A warning without a quantity reports null hours
 - **WHEN** the response contains a warning whose type carries no hours quantity
