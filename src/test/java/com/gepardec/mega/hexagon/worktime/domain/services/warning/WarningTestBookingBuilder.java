@@ -38,6 +38,8 @@ final class WarningTestBookingBuilder {
         private WorkingLocation workingLocation;
         private boolean projectRelevant;
         private String process;
+        private boolean billable = true;
+        private String note = "Test";
 
         ProjectBuilder fromTime(LocalDateTime value) {
             from = value;
@@ -69,6 +71,16 @@ final class WarningTestBookingBuilder {
             return this;
         }
 
+        ProjectBuilder billable(boolean value) {
+            billable = value;
+            return this;
+        }
+
+        ProjectBuilder note(String value) {
+            note = value;
+            return this;
+        }
+
         ProjectBooking build() {
             return Instancio.of(ProjectBooking.class)
                     .set(field(ProjectBooking::from), from)
@@ -77,6 +89,8 @@ final class WarningTestBookingBuilder {
                     .set(field(ProjectBooking::workingLocation), workingLocation)
                     .set(field(ProjectBooking::workLocationProjectRelevant), projectRelevant)
                     .set(field(ProjectBooking::process), process)
+                    .set(field(ProjectBooking::billable), billable)
+                    .set(field(ProjectBooking::note), note)
                     .create();
         }
     }
@@ -89,6 +103,8 @@ final class WarningTestBookingBuilder {
         private boolean projectRelevant;
         private JourneyDirection direction;
         private Vehicle vehicle;
+        private boolean billable = true;
+        private String note = "Test";
 
         JourneyBuilder fromTime(LocalDateTime value) {
             from = value;
@@ -125,6 +141,16 @@ final class WarningTestBookingBuilder {
             return this;
         }
 
+        JourneyBuilder billable(boolean value) {
+            billable = value;
+            return this;
+        }
+
+        JourneyBuilder note(String value) {
+            note = value;
+            return this;
+        }
+
         JourneyBooking build() {
             return Instancio.of(JourneyBooking.class)
                     .set(field(JourneyBooking::from), from)
@@ -134,6 +160,8 @@ final class WarningTestBookingBuilder {
                     .set(field(JourneyBooking::workLocationProjectRelevant), projectRelevant)
                     .set(field(JourneyBooking::direction), direction)
                     .set(field(JourneyBooking::vehicle), vehicle)
+                    .set(field(JourneyBooking::billable), billable)
+                    .set(field(JourneyBooking::note), note)
                     .create();
         }
     }

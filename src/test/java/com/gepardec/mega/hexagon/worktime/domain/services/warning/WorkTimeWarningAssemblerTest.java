@@ -31,6 +31,8 @@ class WorkTimeWarningAssemblerTest {
                 .set(field(ProjectBooking::to), date.atTime(12, 0))
                 .set(field(ProjectBooking::task), Task.BEARBEITEN)
                 .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
+                .set(field(ProjectBooking::billable), true)
+                .set(field(ProjectBooking::note), "Test")
                 .create();
 
         assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(booking)),
@@ -72,6 +74,23 @@ class WorkTimeWarningAssemblerTest {
     }
 
     @Test
+    void assemble_whenBillableBookingIsMarkedInternalFromOctober2026_thenInternalNoteBillableWarning() {
+        LocalDate date = LocalDate.of(2026, 10, 6);
+        var booking = Instancio.of(ProjectBooking.class)
+                .set(field(ProjectBooking::from), date.atTime(8, 0))
+                .set(field(ProjectBooking::to), date.atTime(9, 0))
+                .set(field(ProjectBooking::task), Task.BEARBEITEN)
+                .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
+                .set(field(ProjectBooking::billable), true)
+                .set(field(ProjectBooking::note), "Intern - JFX")
+                .create();
+
+        assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(booking)),
+                Set.of(date), Set.of(), date.plusDays(1)))
+                .contains(new WorkTimeWarning(date, WorkTimeWarningType.INTERNAL_NOTE_BILLABLE, null));
+    }
+
+    @Test
     void assemble_emptyBookingsReturnsSingleMonthWarning() {
         assertThat(new WorkTimeWarningAssembler().assemble(WorkTimeBookings.empty(), Set.of(), Set.of(), LocalDate.now()))
                 .containsExactly(new WorkTimeWarning(null, WorkTimeWarningType.EMPTY_ENTRY_LIST, null));
@@ -85,6 +104,8 @@ class WorkTimeWarningAssemblerTest {
         var booking = Instancio.of(ProjectBooking.class)
                 .set(field(ProjectBooking::from), bookedDate.atTime(8, 0))
                 .set(field(ProjectBooking::to), bookedDate.atTime(9, 0))
+                .set(field(ProjectBooking::billable), true)
+                .set(field(ProjectBooking::note), "Test")
                 .create();
         WorkTimeBookings bookings = new WorkTimeBookings(List.of(booking));
         WorkTimeWarning calculatorWarning = new WorkTimeWarning(bookedDate, WorkTimeWarningType.TIME_OVERLAP, null);
@@ -109,6 +130,8 @@ class WorkTimeWarningAssemblerTest {
                 .set(field(ProjectBooking::task), Task.BEARBEITEN)
                 .set(field(ProjectBooking::workingLocation), location)
                 .set(field(ProjectBooking::workLocationProjectRelevant), false)
+                .set(field(ProjectBooking::billable), true)
+                .set(field(ProjectBooking::note), "Test")
                 .create();
     }
 }

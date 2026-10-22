@@ -8,6 +8,8 @@ public record ProjectBooking(
         Task task,
         WorkingLocation workingLocation,
         boolean workLocationProjectRelevant,
+        boolean billable,
+        String note,
         String process
 ) implements WorkTimeBooking {
 }

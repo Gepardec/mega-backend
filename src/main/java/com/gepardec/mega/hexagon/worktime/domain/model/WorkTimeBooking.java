@@ -6,10 +6,18 @@ import java.time.LocalDateTime;
 
 public sealed interface WorkTimeBooking permits ProjectBooking, JourneyBooking {
     LocalDateTime from();
+
     LocalDateTime to();
+
     Task task();
+
     WorkingLocation workingLocation();
+
     boolean workLocationProjectRelevant();
+
+    boolean billable();
+
+    String note();
 
     default LocalDate date() {
         return from().toLocalDate();

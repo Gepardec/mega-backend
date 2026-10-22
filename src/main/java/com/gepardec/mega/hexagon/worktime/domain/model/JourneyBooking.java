@@ -8,6 +8,8 @@ public record JourneyBooking(
         Task task,
         WorkingLocation workingLocation,
         boolean workLocationProjectRelevant,
+        boolean billable,
+        String note,
         JourneyDirection direction,
         Vehicle vehicle
 ) implements WorkTimeBooking {

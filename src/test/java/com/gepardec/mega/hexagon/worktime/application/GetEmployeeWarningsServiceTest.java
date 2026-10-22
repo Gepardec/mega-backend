@@ -126,6 +126,8 @@ class GetEmployeeWarningsServiceTest {
                 .set(field(ProjectBooking::to), date.atTime(9, 0))
                 .set(field(ProjectBooking::task), Task.BEARBEITEN)
                 .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
+                .set(field(ProjectBooking::billable), true)
+                .set(field(ProjectBooking::note), "Test")
                 .create();
     }
 

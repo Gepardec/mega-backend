@@ -100,6 +100,7 @@ class AttendanceServiceTest {
                         .activity("besprechen")
                         .vehicle(null)
                         .directionOfTravel(null)
+                        .note("Kickoff")
                         .build(),
                 ZepAttendance.builder()
                         .id(2)
@@ -116,6 +117,7 @@ class AttendanceServiceTest {
                         .activity("bearbeiten")
                         .vehicle(null)
                         .directionOfTravel(null)
+                        .note("AttendanceServiceTest implementieren")
                         .build()
         );
 
