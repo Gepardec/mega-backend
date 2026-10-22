@@ -52,7 +52,7 @@
         <snakeyaml.version>2.7</snakeyaml.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <instancio-junit.version>6.1.0</instancio-junit.version>
-        <openapi-generator-maven-plugin.version>7.12.0</openapi-generator-maven-plugin.version>
+        <openapi-generator-maven-plugin.version>7.26.0</openapi-generator-maven-plugin.version>
         <build-helper-maven-plugin.version>3.6.2</build-helper-maven-plugin.version>
         <archunit.version>1.5.1</archunit.version>
 
