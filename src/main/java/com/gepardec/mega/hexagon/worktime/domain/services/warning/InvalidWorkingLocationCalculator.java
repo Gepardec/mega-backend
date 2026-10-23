@@ -12,7 +12,7 @@ import java.util.List;
 
 import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType.INVALID_WORKING_LOCATION;
 
-public class InvalidWorkingLocationCalculator implements WorkTimeWarningCalculator {
+public class InvalidWorkingLocationCalculator implements BookingsWarningCalculator {
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeBookings bookings) {
         List<WorkTimeWarning> warnings = new ArrayList<>();

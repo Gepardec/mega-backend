@@ -8,7 +8,7 @@ import java.util.List;
 
 import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType.HOLIDAY;
 
-public class HolidayCalculator implements WorkTimeWarningCalculator {
+public class HolidayCalculator implements BookingsWarningCalculator {
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeBookings bookings) {
         return bookings.bookedDates().stream()

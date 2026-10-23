@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 
 import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType.WEEKEND;
 
-public class WeekendCalculator implements WorkTimeWarningCalculator {
+public class WeekendCalculator implements BookingsWarningCalculator {
     private static final Predicate<LocalDate> IS_SATURDAY = date -> DayOfWeek.SATURDAY.equals(date.getDayOfWeek());
     private static final Predicate<LocalDate> IS_SUNDAY = date -> DayOfWeek.SUNDAY.equals(date.getDayOfWeek());
 

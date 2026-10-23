@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.domain.services.warning;
 
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEvaluation;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType;
 
@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -16,9 +15,6 @@ import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningTyp
 
 public class WorkTimeWarningAssembler {
     private final List<WorkTimeWarningCalculator> calculators;
-    private final NoEntryWarningCalculator noEntryCalculator;
-    private final NonBillableOnBillableProjectCalculator nonBillableOnBillableProjectCalculator;
-    private final TravelAllowanceCalculator travelAllowanceCalculator;
 
     public WorkTimeWarningAssembler() {
         this(List.of(
@@ -33,29 +29,23 @@ public class WorkTimeWarningAssembler {
                 new InvalidJourneyCalculator(),
                 new InvalidWorkingLocationCalculator(),
                 new LocationRelevantSetJourneyCalculator(),
-                new InternalNoteConventionCalculator()), new NoEntryWarningCalculator(), new NonBillableOnBillableProjectCalculator(),
-                new TravelAllowanceCalculator());
+                new InternalNoteConventionCalculator(),
+                new NoEntryWarningCalculator(),
+                new NonBillableOnBillableProjectCalculator(),
+                new TravelAllowanceCalculator(),
+                new MealEntryCalculator()));
     }
 
-    WorkTimeWarningAssembler(List<WorkTimeWarningCalculator> calculators, NoEntryWarningCalculator noEntryCalculator,
-                             NonBillableOnBillableProjectCalculator nonBillableOnBillableProjectCalculator,
-                             TravelAllowanceCalculator travelAllowanceCalculator) {
+    WorkTimeWarningAssembler(List<WorkTimeWarningCalculator> calculators) {
         this.calculators = List.copyOf(calculators);
-        this.noEntryCalculator = noEntryCalculator;
-        this.nonBillableOnBillableProjectCalculator = nonBillableOnBillableProjectCalculator;
-        this.travelAllowanceCalculator = travelAllowanceCalculator;
     }
 
-    public List<WorkTimeWarning> assemble(WorkTimeBookings bookings, Set<LocalDate> expectedWorkingDays,
-                                          Set<LocalDate> excusedDates, Set<Integer> billableProjectZepIds, LocalDate today) {
-        if (bookings.isEmpty()) {
+    public List<WorkTimeWarning> assemble(WorkTimeEvaluation evaluation) {
+        if (evaluation.bookings().isEmpty()) {
             return List.of(new WorkTimeWarning(null, EMPTY_ENTRY_LIST, null));
         }
         List<WorkTimeWarning> warnings = new ArrayList<>();
-        calculators.forEach(calculator -> warnings.addAll(calculator.calculate(bookings)));
-        warnings.addAll(noEntryCalculator.calculate(expectedWorkingDays, bookings.bookedDates(), excusedDates, today));
-        warnings.addAll(nonBillableOnBillableProjectCalculator.calculate(bookings, billableProjectZepIds));
-        warnings.addAll(travelAllowanceCalculator.calculate(bookings, billableProjectZepIds));
+        calculators.forEach(calculator -> warnings.addAll(calculator.calculate(evaluation)));
         return distinctPerTypeAndDate(warnings);
     }
 

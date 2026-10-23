@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "employee_id": "001-duser",
+      "date": "2026-09-30T00:00:00.000000Z",
+      "breakfast": true,
+      "lunch": false,
+      "dinner": false
+    },
+    {
+      "id": 2,
+      "employee_id": "001-duser",
+      "date": "2026-10-12T00:00:00.000000Z",
+      "breakfast": true,
+      "lunch": true,
+      "dinner": true
+    }
+  ],
+  "links": {
+    "prev": null,
+    "next": "http:\\/\\/www.zep-online.de\\/zepgepardecservices_test\\/next\\/api\\/v1\\/employees\\/001-duser\\/meals?page=2"
+  }
+}

@@ -4,12 +4,16 @@ import com.gepardec.mega.hexagon.worktime.domain.model.JourneyDirection;
 import com.gepardec.mega.hexagon.worktime.domain.model.Task;
 import com.gepardec.mega.hexagon.worktime.domain.model.Vehicle;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEvaluation;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkingLocation;
+import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType.TRAVEL_ALLOWANCE_EXCEEDED;
@@ -18,6 +22,7 @@ import static com.gepardec.mega.hexagon.worktime.domain.services.warning.Warning
 import static com.gepardec.mega.hexagon.worktime.domain.services.warning.WarningTestBookingBuilder.journeyBookingBuilder;
 import static com.gepardec.mega.hexagon.worktime.domain.services.warning.WarningTestBookingBuilder.projectBookingBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.instancio.Select.field;
 
 class TravelAllowanceCalculatorTest {
     private static final LocalDate DATE = LocalDate.of(2026, 10, 5);
@@ -34,34 +39,34 @@ class TravelAllowanceCalculatorTest {
 
     @Test
     void calculate_whenAllowanceWithinAllowedOfRoundTrip_thenNoWarning() {
-        assertThat(calculator.calculate(bookings(
+        assertThat(calculate(bookings(
                 passive(DATE, 6, "Wien", "Linz", INTERN), passive(DATE, 16, "Linz", "Wien", INTERN),
                 allowance(DATE, 60)), BILLABLE_PROJECTS)).isEmpty();
     }
 
     @Test
     void calculate_whenAllowanceExceedsShortRoute_thenExceededWithExcessHours() {
-        assertThat(calculator.calculate(bookings(
+        assertThat(calculate(bookings(
                 passive(DATE, 6, "St. Pölten", "Wien", INTERN), allowance(DATE, 30)), BILLABLE_PROJECTS))
                 .containsExactly(new WorkTimeWarning(DATE, TRAVEL_ALLOWANCE_EXCEEDED, 0.25));
     }
 
     @Test
     void calculate_whenNoJourney_thenExceededWithFullAllowance() {
-        assertThat(calculator.calculate(bookings(allowance(DATE, 30)), BILLABLE_PROJECTS))
+        assertThat(calculate(bookings(allowance(DATE, 30)), BILLABLE_PROJECTS))
                 .containsExactly(new WorkTimeWarning(DATE, TRAVEL_ALLOWANCE_EXCEEDED, 0.5));
     }
 
     @Test
     void calculate_whenOnlyActiveJourneys_thenExceeded() {
-        assertThat(calculator.calculate(bookings(
+        assertThat(calculate(bookings(
                 journey(DATE, 6, Vehicle.CAR_ACTIVE, "Wien", "Linz", INTERN), allowance(DATE, 30)), BILLABLE_PROJECTS))
                 .containsExactly(new WorkTimeWarning(DATE, TRAVEL_ALLOWANCE_EXCEEDED, 0.5));
     }
 
     @Test
     void calculate_whenActiveReturnJourney_thenOnlyPassiveJourneyCounts() {
-        assertThat(calculator.calculate(bookings(
+        assertThat(calculate(bookings(
                 passive(DATE, 6, "Wien", "Linz", INTERN),
                 journey(DATE, 16, Vehicle.CAR_ACTIVE, "Linz", "Wien", INTERN),
                 allowance(DATE, 30)), BILLABLE_PROJECTS)).isEmpty();
@@ -69,10 +74,10 @@ class TravelAllowanceCalculatorTest {
 
     @Test
     void calculate_whenOnwardJourney_thenAllowancesAdd() {
-        assertThat(calculator.calculate(bookings(
+        assertThat(calculate(bookings(
                 passive(DATE, 6, "Wien", "Linz", INTERN), passive(DATE, 10, "Linz", "St. Pölten", INTERN),
                 allowance(DATE, 45)), BILLABLE_PROJECTS)).isEmpty();
-        assertThat(calculator.calculate(bookings(
+        assertThat(calculate(bookings(
                 passive(DATE, 6, "Wien", "Linz", INTERN), passive(DATE, 10, "Linz", "St. Pölten", INTERN),
                 allowance(DATE, 60)), BILLABLE_PROJECTS))
                 .containsExactly(new WorkTimeWarning(DATE, TRAVEL_ALLOWANCE_EXCEEDED, 0.25));
@@ -81,7 +86,7 @@ class TravelAllowanceCalculatorTest {
     @Test
     void calculate_whenMultiDayTrip_thenEachDayIsJudgedOnItsOwn() {
         LocalDate back = DATE.plusDays(2);
-        assertThat(calculator.calculate(bookings(
+        assertThat(calculate(bookings(
                 passive(DATE, 6, "Wien", "Linz", INTERN), passive(back, 16, "Linz", "Wien", INTERN),
                 allowance(DATE, 30), allowance(DATE.plusDays(1), 30), allowance(back, 30)), BILLABLE_PROJECTS))
                 .containsExactly(new WorkTimeWarning(DATE.plusDays(1), TRAVEL_ALLOWANCE_EXCEEDED, 0.5));
@@ -89,34 +94,34 @@ class TravelAllowanceCalculatorTest {
 
     @Test
     void calculate_whenSeveralAllowanceBookings_thenTheyAddUp() {
-        assertThat(calculator.calculate(bookings(allowance(DATE, 15), allowance(DATE, 15)), BILLABLE_PROJECTS))
+        assertThat(calculate(bookings(allowance(DATE, 15), allowance(DATE, 15)), BILLABLE_PROJECTS))
                 .containsExactly(new WorkTimeWarning(DATE, TRAVEL_ALLOWANCE_EXCEEDED, 0.5));
     }
 
     @Test
     void calculate_whenBookingOnOtherProcess_thenNoWarning() {
-        assertThat(calculator.calculate(bookings(project(DATE, "233", 30, CUSTOMER)), BILLABLE_PROJECTS)).isEmpty();
+        assertThat(calculate(bookings(project(DATE, "233", 30, CUSTOMER)), BILLABLE_PROJECTS)).isEmpty();
     }
 
     @Test
     void calculate_whenJourneyOnUnknownProjectOrWithoutProject_thenInternalTrip() {
-        assertThat(calculator.calculate(bookings(
+        assertThat(calculate(bookings(
                 passive(DATE, 6, "Wien", "Linz", 99), allowance(DATE, 30)), BILLABLE_PROJECTS)).isEmpty();
-        assertThat(calculator.calculate(bookings(
+        assertThat(calculate(bookings(
                 passive(DATE, 6, "Wien", "Linz", null), allowance(DATE, 45)), BILLABLE_PROJECTS))
                 .containsExactly(new WorkTimeWarning(DATE, TRAVEL_ALLOWANCE_EXCEEDED, 0.25));
     }
 
     @Test
     void calculate_whenCustomerTripAndAllowanceOnIntern_thenWrongProjectOnly() {
-        assertThat(calculator.calculate(bookings(
+        assertThat(calculate(bookings(
                 passive(DATE, 6, "Wien", "Linz", CUSTOMER), allowance(DATE, 30)), BILLABLE_PROJECTS))
                 .containsExactly(new WorkTimeWarning(DATE, TRAVEL_ALLOWANCE_WRONG_PROJECT, null));
     }
 
     @Test
     void calculate_whenInternalAndCustomerTrip_thenCustomerTripDoesNotAddToAllowance() {
-        assertThat(calculator.calculate(bookings(
+        assertThat(calculate(bookings(
                 passive(DATE, 6, "Wien", "Linz", INTERN), passive(DATE, 16, "Linz", "Wien", CUSTOMER),
                 allowance(DATE, 60)), BILLABLE_PROJECTS))
                 .containsExactly(new WorkTimeWarning(DATE, TRAVEL_ALLOWANCE_EXCEEDED, 0.5));
@@ -124,19 +129,19 @@ class TravelAllowanceCalculatorTest {
 
     @Test
     void calculate_whenCustomerTripWithoutAllowanceBooking_thenNoWarning() {
-        assertThat(calculator.calculate(bookings(passive(DATE, 6, "Wien", "Linz", CUSTOMER)), BILLABLE_PROJECTS)).isEmpty();
+        assertThat(calculate(bookings(passive(DATE, 6, "Wien", "Linz", CUSTOMER)), BILLABLE_PROJECTS)).isEmpty();
     }
 
     @Test
     void calculate_whenDayBeforeRuleStart_thenNoWarning() {
-        assertThat(calculator.calculate(bookings(allowance(LocalDate.of(2026, 9, 30), 30)), BILLABLE_PROJECTS)).isEmpty();
+        assertThat(calculate(bookings(allowance(LocalDate.of(2026, 9, 30), 30)), BILLABLE_PROJECTS)).isEmpty();
     }
 
     @Test
     void calculate_whenDayIsRuleStart_thenWarning() {
         LocalDate start = LocalDate.of(2026, 10, 1);
 
-        assertThat(calculator.calculate(bookings(allowance(start, 30)), BILLABLE_PROJECTS))
+        assertThat(calculate(bookings(allowance(start, 30)), BILLABLE_PROJECTS))
                 .containsExactly(new WorkTimeWarning(start, TRAVEL_ALLOWANCE_EXCEEDED, 0.5));
     }
 
@@ -163,5 +168,12 @@ class TravelAllowanceCalculatorTest {
                 .journeyDirection(JourneyDirection.TO).vehicle(vehicle)
                 .start(start).destination(destination).projectZepId(projectZepId)
                 .build();
+    }
+
+    private List<WorkTimeWarning> calculate(WorkTimeBookings bookings, Set<Integer> billableProjectZepIds) {
+        return calculator.calculate(Instancio.of(WorkTimeEvaluation.class)
+                .set(field(WorkTimeEvaluation::bookings), bookings)
+                .set(field(WorkTimeEvaluation::billableProjectZepIds), billableProjectZepIds)
+                .create());
     }
 }

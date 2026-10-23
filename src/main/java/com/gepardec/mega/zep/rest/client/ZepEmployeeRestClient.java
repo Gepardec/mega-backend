@@ -4,6 +4,7 @@ import com.gepardec.mega.zep.rest.dto.ZepAbsence;
 import com.gepardec.mega.zep.rest.dto.ZepEmployee;
 import com.gepardec.mega.zep.rest.dto.ZepEmployeeReleaseDateUpdate;
 import com.gepardec.mega.zep.rest.dto.ZepEmploymentPeriod;
+import com.gepardec.mega.zep.rest.dto.ZepMeal;
 import com.gepardec.mega.zep.rest.dto.ZepRegularWorkingTimes;
 import com.gepardec.mega.zep.rest.dto.ZepResponse;
 import io.quarkus.rest.client.reactive.ClientQueryParam;
@@ -58,6 +59,13 @@ public interface ZepEmployeeRestClient {
     @GET
     @Path("/{username}/absences")
     Uni<ZepResponse<List<ZepAbsence>>> getAbsencesByUsername(
+            @PathParam("username") String username,
+            @QueryParam("page") int page
+    );
+
+    @GET
+    @Path("/{username}/meals")
+    Uni<ZepResponse<List<ZepMeal>>> getMealsByUsername(
             @PathParam("username") String username,
             @QueryParam("page") int page
     );

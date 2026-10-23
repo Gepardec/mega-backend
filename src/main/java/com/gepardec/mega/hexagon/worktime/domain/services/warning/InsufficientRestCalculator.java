@@ -15,7 +15,7 @@ import java.util.Optional;
 
 import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType.MISSING_REST_TIME;
 
-public class InsufficientRestCalculator implements WorkTimeWarningCalculator {
+public class InsufficientRestCalculator implements BookingsWarningCalculator {
     private static final Duration MIN_REQUIRED_REST_TIME = Duration.ofHours(11);
 
     @Override

@@ -15,7 +15,7 @@ import java.util.Optional;
 
 import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType.MISSING_BREAK_TIME;
 
-public class InsufficientBreakCalculator implements WorkTimeWarningCalculator {
+public class InsufficientBreakCalculator implements BookingsWarningCalculator {
     private static final Duration MIN_REQUIRED_BREAK_TIME = Duration.ofMinutes(30);
     private static final Duration MAX_WORK_WITHOUT_BREAK = Duration.ofHours(6);
 

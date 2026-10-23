@@ -10,7 +10,7 @@ import com.gepardec.mega.hexagon.worktime.domain.services.Sequences;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InvalidJourneyCalculator implements WorkTimeWarningCalculator {
+public class InvalidJourneyCalculator implements BookingsWarningCalculator {
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeBookings bookings) {
         List<JourneyBooking> journeys = bookings.journeys();

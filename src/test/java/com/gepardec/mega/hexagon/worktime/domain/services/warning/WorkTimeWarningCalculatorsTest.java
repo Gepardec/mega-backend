@@ -122,7 +122,7 @@ class WorkTimeWarningCalculatorsTest {
 
     @ParameterizedTest
     @MethodSource("bookingBasedCalculators")
-    void calculator_producesIdenticalWarningsRegardlessOfInputOrder(WorkTimeWarningCalculator calculator) {
+    void calculator_producesIdenticalWarningsRegardlessOfInputOrder(BookingsWarningCalculator calculator) {
         List<WorkTimeWarning> fromChronologicalInput = calculator.calculate(new WorkTimeBookings(chronologicalMonth()));
         List<WorkTimeWarning> fromScrambledInput = calculator.calculate(new WorkTimeBookings(scrambledMonth()));
 
@@ -139,7 +139,7 @@ class WorkTimeWarningCalculatorsTest {
         assertThat(warnings.stream().map(WorkTimeWarning::type).distinct().toList()).hasSizeGreaterThanOrEqualTo(6);
     }
 
-    private static Stream<WorkTimeWarningCalculator> bookingBasedCalculators() {
+    private static Stream<BookingsWarningCalculator> bookingBasedCalculators() {
         return Stream.of(
                 new CoreWorkingHoursCalculator(),
                 new TimeOverlapCalculator(),
@@ -213,7 +213,7 @@ class WorkTimeWarningCalculatorsTest {
                 .task(Task.BEARBEITEN).workingLocation(WorkingLocation.MAIN).process("1033").build();
     }
 
-    private void assertType(WorkTimeWarningCalculator calculator, List<WorkTimeBooking> bookings, WorkTimeWarningType type) {
+    private void assertType(BookingsWarningCalculator calculator, List<WorkTimeBooking> bookings, WorkTimeWarningType type) {
         assertThat(calculator.calculate(new WorkTimeBookings(bookings)))
                 .singleElement().extracting("type").isEqualTo(type);
     }
