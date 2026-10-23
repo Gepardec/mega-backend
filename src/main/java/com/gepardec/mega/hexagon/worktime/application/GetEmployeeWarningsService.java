@@ -6,6 +6,7 @@ import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWa
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeAbsenceZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeBookingZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeExpectedWorkingDaysPort;
+import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeMealEntryZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
@@ -36,24 +37,29 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
     private final WorkTimeAbsenceZepPort absencePort;
     private final WorkTimeExpectedWorkingDaysPort expectedWorkingDaysPort;
     private final WorkTimeProjectSnapshotPort projectSnapshotPort;
+    private final WorkTimeMealEntryZepPort mealEntryPort;
     private final WorkTimeWarningAssembler assembler;
     private final Clock clock;
 
     @Inject
     public GetEmployeeWarningsService(WorkTimeUserSnapshotPort userSnapshotPort, WorkTimeBookingZepPort bookingPort,
                                       WorkTimeAbsenceZepPort absencePort, WorkTimeExpectedWorkingDaysPort expectedWorkingDaysPort,
-                                      WorkTimeProjectSnapshotPort projectSnapshotPort, Clock clock) {
-        this(userSnapshotPort, bookingPort, absencePort, expectedWorkingDaysPort, projectSnapshotPort, new WorkTimeWarningAssembler(), clock);
+                                      WorkTimeProjectSnapshotPort projectSnapshotPort, WorkTimeMealEntryZepPort mealEntryPort,
+                                      Clock clock) {
+        this(userSnapshotPort, bookingPort, absencePort, expectedWorkingDaysPort, projectSnapshotPort, mealEntryPort,
+                new WorkTimeWarningAssembler(), clock);
     }
 
     GetEmployeeWarningsService(WorkTimeUserSnapshotPort userSnapshotPort, WorkTimeBookingZepPort bookingPort,
                                WorkTimeAbsenceZepPort absencePort, WorkTimeExpectedWorkingDaysPort expectedWorkingDaysPort,
-                               WorkTimeProjectSnapshotPort projectSnapshotPort, WorkTimeWarningAssembler assembler, Clock clock) {
+                               WorkTimeProjectSnapshotPort projectSnapshotPort, WorkTimeMealEntryZepPort mealEntryPort,
+                               WorkTimeWarningAssembler assembler, Clock clock) {
         this.userSnapshotPort = userSnapshotPort;
         this.bookingPort = bookingPort;
         this.absencePort = absencePort;
         this.expectedWorkingDaysPort = expectedWorkingDaysPort;
         this.projectSnapshotPort = projectSnapshotPort;
+        this.mealEntryPort = mealEntryPort;
         this.assembler = assembler;
         this.clock = clock;
     }
@@ -72,7 +78,7 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
                 bookingPort.fetchBookingsForEmployee(employee.zepUsername().value(), month)
         );
         if (bookings.isEmpty()) {
-            return assembler.assemble(bookings, Set.of(), Set.of(), Set.of(), LocalDate.now(clock));
+            return assembler.assemble(bookings, month, Set.of(), Set.of(), Set.of(), Set.of(), LocalDate.now(clock));
         }
         Set<LocalDate> excusedDates = absencePort.fetchAbsencesForEmployee(employee.zepUsername(), month).stream()
                 .filter(absence -> absence.type() != AbsenceType.HOME_OFFICE)
@@ -80,11 +86,20 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
                 .collect(Collectors.toUnmodifiableSet());
         return assembler.assemble(
                 bookings,
+                month,
                 expectedWorkingDaysPort.expectedWorkingDays(employeeId, month),
                 excusedDates,
                 billableProjectZepIds(bookings),
+                mealEntryDates(employee, bookings, month),
                 LocalDate.now(clock)
         );
+    }
+
+    private Set<LocalDate> mealEntryDates(UserRef employee, WorkTimeBookings bookings, YearMonth month) {
+        if (bookings.journeys().isEmpty()) {
+            return Set.of();
+        }
+        return mealEntryPort.fetchMealEntryDates(employee.zepUsername(), month);
     }
 
     private Set<Integer> billableProjectZepIds(WorkTimeBookings bookings) {
