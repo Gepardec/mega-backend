@@ -97,6 +97,24 @@ class WorkTimeBookingZepMapperTest {
     }
 
     @Test
+    void toDomain_carriesOverProjectIdAsProjectReference() {
+        var project = mapper.toDomain(base().activity("BEARBEITEN").projectTaskId(233).projectId(42).build());
+        var journey = mapper.toDomain(base().activity("REISEN").vehicle("Auto").projectId(42).build());
+
+        assertThat(project.projectZepId()).isEqualTo(42);
+        assertThat(journey.projectZepId()).isEqualTo(42);
+    }
+
+    @Test
+    void toDomain_yieldsBookingWithoutProjectReferenceWhenProjectIdIsMissing() {
+        var project = mapper.toDomain(base().activity("BEARBEITEN").projectTaskId(233).build());
+        var journey = mapper.toDomain(base().activity("REISEN").vehicle("Auto").build());
+
+        assertThat(project.projectZepId()).isNull();
+        assertThat(journey.projectZepId()).isNull();
+    }
+
+    @Test
     void toDomain_rejectsUnknownRequiredValues() {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> mapper.toDomain(base().activity("UNKNOWN").build());
         assertThatThrownBy(throwingCallable)

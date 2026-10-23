@@ -40,6 +40,7 @@ final class WarningTestBookingBuilder {
         private String process;
         private boolean billable = true;
         private String note = "Test";
+        private Integer projectZepId = 1;
 
         ProjectBuilder fromTime(LocalDateTime value) {
             from = value;
@@ -81,6 +82,11 @@ final class WarningTestBookingBuilder {
             return this;
         }
 
+        ProjectBuilder projectZepId(Integer value) {
+            projectZepId = value;
+            return this;
+        }
+
         ProjectBooking build() {
             return Instancio.of(ProjectBooking.class)
                     .set(field(ProjectBooking::from), from)
@@ -91,6 +97,7 @@ final class WarningTestBookingBuilder {
                     .set(field(ProjectBooking::process), process)
                     .set(field(ProjectBooking::billable), billable)
                     .set(field(ProjectBooking::note), note)
+                    .set(field(ProjectBooking::projectZepId), projectZepId)
                     .create();
         }
     }
@@ -105,6 +112,7 @@ final class WarningTestBookingBuilder {
         private Vehicle vehicle;
         private boolean billable = true;
         private String note = "Test";
+        private Integer projectZepId = 1;
 
         JourneyBuilder fromTime(LocalDateTime value) {
             from = value;
@@ -151,6 +159,11 @@ final class WarningTestBookingBuilder {
             return this;
         }
 
+        JourneyBuilder projectZepId(Integer value) {
+            projectZepId = value;
+            return this;
+        }
+
         JourneyBooking build() {
             return Instancio.of(JourneyBooking.class)
                     .set(field(JourneyBooking::from), from)
@@ -162,6 +175,7 @@ final class WarningTestBookingBuilder {
                     .set(field(JourneyBooking::vehicle), vehicle)
                     .set(field(JourneyBooking::billable), billable)
                     .set(field(JourneyBooking::note), note)
+                    .set(field(JourneyBooking::projectZepId), projectZepId)
                     .create();
         }
     }

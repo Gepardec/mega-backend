@@ -19,6 +19,8 @@ public sealed interface WorkTimeBooking permits ProjectBooking, JourneyBooking {
 
     String note();
 
+    Integer projectZepId();
+
     default LocalDate date() {
         return from().toLocalDate();
     }

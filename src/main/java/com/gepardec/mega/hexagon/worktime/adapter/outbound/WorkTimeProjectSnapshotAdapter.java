@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.adapter.outbound;
 
+import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
@@ -10,6 +11,8 @@ import jakarta.inject.Inject;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class WorkTimeProjectSnapshotAdapter implements WorkTimeProjectSnapshotPort {
@@ -36,5 +39,14 @@ public class WorkTimeProjectSnapshotAdapter implements WorkTimeProjectSnapshotPo
                 .filter(project -> project.isActiveIn(month))
                 .map(mapper::toSnapshot)
                 .toList();
+    }
+
+    @Override
+    public Set<Integer> findBillableZepIds(Set<Integer> zepIds) {
+        return zepIds.stream()
+                .filter(zepId -> projectRepository.findByZepId(zepId)
+                        .map(Project::billable)
+                        .orElse(false))
+                .collect(Collectors.toUnmodifiableSet());
     }
 }

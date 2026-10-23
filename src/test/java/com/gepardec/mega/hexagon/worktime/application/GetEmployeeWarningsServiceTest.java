@@ -7,6 +7,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeAbsenceZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeBookingZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeExpectedWorkingDaysPort;
+import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import com.gepardec.mega.hexagon.worktime.domain.model.Absence;
@@ -37,6 +38,9 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.instancio.Select.field;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,12 +57,14 @@ class GetEmployeeWarningsServiceTest {
     WorkTimeAbsenceZepPort absencePort;
     @Mock
     WorkTimeExpectedWorkingDaysPort expectedDaysPort;
+    @Mock
+    WorkTimeProjectSnapshotPort projectSnapshotPort;
     private GetEmployeeWarningsService service;
 
     @BeforeEach
     void setUp() {
         service = new GetEmployeeWarningsService(userPort, bookingPort, absencePort, expectedDaysPort,
-                new WorkTimeWarningAssembler(), Clock.fixed(Instant.parse("2026-05-10T00:00:00Z"), ZoneOffset.UTC));
+                projectSnapshotPort, new WorkTimeWarningAssembler(), Clock.fixed(Instant.parse("2026-05-10T00:00:00Z"), ZoneOffset.UTC));
     }
 
     @Test
@@ -118,6 +124,57 @@ class GetEmployeeWarningsServiceTest {
         when(bookingPort.fetchBookingsForEmployee("ada", MONTH)).thenReturn(List.of());
         assertThat(service.getWarnings(USER_ID, MONTH)).singleElement()
                 .extracting("type").isEqualTo(WorkTimeWarningType.EMPTY_ENTRY_LIST);
+    }
+
+    @Test
+    void getWarnings_emptyMonthDoesNotQueryProjectBillability() {
+        when(userPort.findById(USER_ID, MONTH)).thenReturn(Optional.of(user()));
+        when(bookingPort.fetchBookingsForEmployee("ada", MONTH)).thenReturn(List.of());
+
+        service.getWarnings(USER_ID, MONTH);
+
+        verify(projectSnapshotPort, never()).findBillableZepIds(anySet());
+    }
+
+    @Test
+    void getWarnings_passesBillableProjectIdsOfBookedProjectsToAssembler() {
+        YearMonth october = YearMonth.of(2026, 10);
+        var date = october.atDay(6);
+        when(userPort.findById(USER_ID, october)).thenReturn(Optional.of(user()));
+        when(bookingPort.fetchBookingsForEmployee("ada", october)).thenReturn(List.of(
+                nonBillableBookingOn(date, 42), nonBillableBookingOn(date, 42), nonBillableBookingOn(date, null)));
+        when(absencePort.fetchAbsencesForEmployee(USERNAME, october)).thenReturn(List.of());
+        when(expectedDaysPort.expectedWorkingDays(USER_ID, october)).thenReturn(Set.of(date));
+        when(projectSnapshotPort.findBillableZepIds(Set.of(42))).thenReturn(Set.of(42));
+
+        assertThat(service.getWarnings(USER_ID, october))
+                .contains(new WorkTimeWarning(date, WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT, null));
+    }
+
+    @Test
+    void getWarnings_bookingOnUnknownProjectDoesNotFailTheRequest() {
+        YearMonth october = YearMonth.of(2026, 10);
+        var date = october.atDay(6);
+        when(userPort.findById(USER_ID, october)).thenReturn(Optional.of(user()));
+        when(bookingPort.fetchBookingsForEmployee("ada", october)).thenReturn(List.of(nonBillableBookingOn(date, 99)));
+        when(absencePort.fetchAbsencesForEmployee(USERNAME, october)).thenReturn(List.of());
+        when(expectedDaysPort.expectedWorkingDays(USER_ID, october)).thenReturn(Set.of(date));
+        when(projectSnapshotPort.findBillableZepIds(Set.of(99))).thenReturn(Set.of());
+
+        assertThat(service.getWarnings(USER_ID, october)).extracting(WorkTimeWarning::type)
+                .doesNotContain(WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT);
+    }
+
+    private ProjectBooking nonBillableBookingOn(LocalDate date, Integer projectZepId) {
+        return Instancio.of(ProjectBooking.class)
+                .set(field(ProjectBooking::from), date.atTime(8, 0))
+                .set(field(ProjectBooking::to), date.atTime(9, 0))
+                .set(field(ProjectBooking::task), Task.BEARBEITEN)
+                .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
+                .set(field(ProjectBooking::billable), false)
+                .set(field(ProjectBooking::note), "Intern - Test")
+                .set(field(ProjectBooking::projectZepId), projectZepId)
+                .create();
     }
 
     private ProjectBooking bookingOn(LocalDate date) {

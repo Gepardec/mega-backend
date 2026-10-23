@@ -17,6 +17,7 @@ import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningTyp
 public class WorkTimeWarningAssembler {
     private final List<WorkTimeWarningCalculator> calculators;
     private final NoEntryWarningCalculator noEntryCalculator;
+    private final NonBillableOnBillableProjectCalculator nonBillableOnBillableProjectCalculator;
 
     public WorkTimeWarningAssembler() {
         this(List.of(
@@ -31,22 +32,25 @@ public class WorkTimeWarningAssembler {
                 new InvalidJourneyCalculator(),
                 new InvalidWorkingLocationCalculator(),
                 new LocationRelevantSetJourneyCalculator(),
-                new InternalNoteConventionCalculator()), new NoEntryWarningCalculator());
+                new InternalNoteConventionCalculator()), new NoEntryWarningCalculator(), new NonBillableOnBillableProjectCalculator());
     }
 
-    WorkTimeWarningAssembler(List<WorkTimeWarningCalculator> calculators, NoEntryWarningCalculator noEntryCalculator) {
+    WorkTimeWarningAssembler(List<WorkTimeWarningCalculator> calculators, NoEntryWarningCalculator noEntryCalculator,
+                             NonBillableOnBillableProjectCalculator nonBillableOnBillableProjectCalculator) {
         this.calculators = List.copyOf(calculators);
         this.noEntryCalculator = noEntryCalculator;
+        this.nonBillableOnBillableProjectCalculator = nonBillableOnBillableProjectCalculator;
     }
 
     public List<WorkTimeWarning> assemble(WorkTimeBookings bookings, Set<LocalDate> expectedWorkingDays,
-                                          Set<LocalDate> excusedDates, LocalDate today) {
+                                          Set<LocalDate> excusedDates, Set<Integer> billableProjectZepIds, LocalDate today) {
         if (bookings.isEmpty()) {
             return List.of(new WorkTimeWarning(null, EMPTY_ENTRY_LIST, null));
         }
         List<WorkTimeWarning> warnings = new ArrayList<>();
         calculators.forEach(calculator -> warnings.addAll(calculator.calculate(bookings)));
         warnings.addAll(noEntryCalculator.calculate(expectedWorkingDays, bookings.bookedDates(), excusedDates, today));
+        warnings.addAll(nonBillableOnBillableProjectCalculator.calculate(bookings, billableProjectZepIds));
         return distinctPerTypeAndDate(warnings);
     }
 
