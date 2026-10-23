@@ -25,4 +25,24 @@ class ZepAttendanceTest {
             assertThat(attendances.getFirst().note()).isEqualTo("Jenkins aufräumen weil Speicherplatz ausgegangen ist");
         }
     }
+
+    @Test
+    void deserialize_readsStartAndDestination() throws IOException {
+        String json = """
+                {"id": 1, "start": "Wien Hbf", "destination": "Linz"}
+                """;
+
+        ZepAttendance attendance = objectMapper.readValue(json, ZepAttendance.class);
+
+        assertThat(attendance.start()).isEqualTo("Wien Hbf");
+        assertThat(attendance.destination()).isEqualTo("Linz");
+    }
+
+    @Test
+    void deserialize_whenStartAndDestinationAbsent_thenNull() throws IOException {
+        ZepAttendance attendance = objectMapper.readValue("{\"id\": 1}", ZepAttendance.class);
+
+        assertThat(attendance.start()).isNull();
+        assertThat(attendance.destination()).isNull();
+    }
 }

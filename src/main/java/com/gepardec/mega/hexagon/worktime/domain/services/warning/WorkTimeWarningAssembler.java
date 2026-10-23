@@ -18,6 +18,7 @@ public class WorkTimeWarningAssembler {
     private final List<WorkTimeWarningCalculator> calculators;
     private final NoEntryWarningCalculator noEntryCalculator;
     private final NonBillableOnBillableProjectCalculator nonBillableOnBillableProjectCalculator;
+    private final TravelAllowanceCalculator travelAllowanceCalculator;
 
     public WorkTimeWarningAssembler() {
         this(List.of(
@@ -32,14 +33,17 @@ public class WorkTimeWarningAssembler {
                 new InvalidJourneyCalculator(),
                 new InvalidWorkingLocationCalculator(),
                 new LocationRelevantSetJourneyCalculator(),
-                new InternalNoteConventionCalculator()), new NoEntryWarningCalculator(), new NonBillableOnBillableProjectCalculator());
+                new InternalNoteConventionCalculator()), new NoEntryWarningCalculator(), new NonBillableOnBillableProjectCalculator(),
+                new TravelAllowanceCalculator());
     }
 
     WorkTimeWarningAssembler(List<WorkTimeWarningCalculator> calculators, NoEntryWarningCalculator noEntryCalculator,
-                             NonBillableOnBillableProjectCalculator nonBillableOnBillableProjectCalculator) {
+                             NonBillableOnBillableProjectCalculator nonBillableOnBillableProjectCalculator,
+                             TravelAllowanceCalculator travelAllowanceCalculator) {
         this.calculators = List.copyOf(calculators);
         this.noEntryCalculator = noEntryCalculator;
         this.nonBillableOnBillableProjectCalculator = nonBillableOnBillableProjectCalculator;
+        this.travelAllowanceCalculator = travelAllowanceCalculator;
     }
 
     public List<WorkTimeWarning> assemble(WorkTimeBookings bookings, Set<LocalDate> expectedWorkingDays,
@@ -51,6 +55,7 @@ public class WorkTimeWarningAssembler {
         calculators.forEach(calculator -> warnings.addAll(calculator.calculate(bookings)));
         warnings.addAll(noEntryCalculator.calculate(expectedWorkingDays, bookings.bookedDates(), excusedDates, today));
         warnings.addAll(nonBillableOnBillableProjectCalculator.calculate(bookings, billableProjectZepIds));
+        warnings.addAll(travelAllowanceCalculator.calculate(bookings, billableProjectZepIds));
         return distinctPerTypeAndDate(warnings);
     }
 

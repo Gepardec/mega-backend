@@ -12,6 +12,8 @@ public record JourneyBooking(
         String note,
         Integer projectZepId,
         JourneyDirection direction,
-        Vehicle vehicle
+        Vehicle vehicle,
+        String start,
+        String destination
 ) implements WorkTimeBooking {
 }

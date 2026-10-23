@@ -55,7 +55,7 @@ class WorkTimeWarningAssemblerTest {
         when(otherCalculator.calculate(same(bookings))).thenReturn(List.of(duplicate));
 
         assertThat(new WorkTimeWarningAssembler(List.of(calculator, otherCalculator), new NoEntryWarningCalculator(),
-                new NonBillableOnBillableProjectCalculator())
+                new NonBillableOnBillableProjectCalculator(), new TravelAllowanceCalculator())
                 .assemble(bookings, Set.of(), Set.of(), Set.of(), date))
                 .containsExactly(first, otherType, otherDate);
     }
@@ -112,6 +112,25 @@ class WorkTimeWarningAssemblerTest {
     }
 
     @Test
+    void assemble_whenTravelAllowanceBookedWithoutJourneyFromOctober2026_thenTravelAllowanceExceeded() {
+        LocalDate date = LocalDate.of(2026, 10, 6);
+        var booking = Instancio.of(ProjectBooking.class)
+                .set(field(ProjectBooking::from), date.atTime(8, 0))
+                .set(field(ProjectBooking::to), date.atTime(8, 30))
+                .set(field(ProjectBooking::task), Task.BEARBEITEN)
+                .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
+                .set(field(ProjectBooking::process), "873")
+                .set(field(ProjectBooking::billable), false)
+                .set(field(ProjectBooking::note), "Intern - Reisepauschale")
+                .set(field(ProjectBooking::projectZepId), 1)
+                .create();
+
+        assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(booking)),
+                Set.of(date), Set.of(), Set.of(), date.plusDays(1)))
+                .contains(new WorkTimeWarning(date, WorkTimeWarningType.TRAVEL_ALLOWANCE_EXCEEDED, 0.5));
+    }
+
+    @Test
     void assemble_emptyBookingsReturnsSingleMonthWarning() {
         assertThat(new WorkTimeWarningAssembler().assemble(WorkTimeBookings.empty(), Set.of(), Set.of(), Set.of(), LocalDate.now()))
                 .containsExactly(new WorkTimeWarning(null, WorkTimeWarningType.EMPTY_ENTRY_LIST, null));
@@ -138,7 +157,7 @@ class WorkTimeWarningAssemblerTest {
                 .thenReturn(List.of(noEntryWarning));
 
         assertThat(new WorkTimeWarningAssembler(List.of(calculator), noEntryCalculator,
-                new NonBillableOnBillableProjectCalculator())
+                new NonBillableOnBillableProjectCalculator(), new TravelAllowanceCalculator())
                 .assemble(bookings, Set.of(expectedDate), Set.of(), Set.of(), today))
                 .containsExactly(calculatorWarning, noEntryWarning);
         verify(calculator).calculate(same(bookings));

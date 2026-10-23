@@ -110,6 +110,8 @@ final class WarningTestBookingBuilder {
         private boolean projectRelevant;
         private JourneyDirection direction;
         private Vehicle vehicle;
+        private String start;
+        private String destination;
         private boolean billable = true;
         private String note = "Test";
         private Integer projectZepId = 1;
@@ -149,6 +151,16 @@ final class WarningTestBookingBuilder {
             return this;
         }
 
+        JourneyBuilder start(String value) {
+            start = value;
+            return this;
+        }
+
+        JourneyBuilder destination(String value) {
+            destination = value;
+            return this;
+        }
+
         JourneyBuilder billable(boolean value) {
             billable = value;
             return this;
@@ -173,6 +185,8 @@ final class WarningTestBookingBuilder {
                     .set(field(JourneyBooking::workLocationProjectRelevant), projectRelevant)
                     .set(field(JourneyBooking::direction), direction)
                     .set(field(JourneyBooking::vehicle), vehicle)
+                    .set(field(JourneyBooking::start), start)
+                    .set(field(JourneyBooking::destination), destination)
                     .set(field(JourneyBooking::billable), billable)
                     .set(field(JourneyBooking::note), note)
                     .set(field(JourneyBooking::projectZepId), projectZepId)
