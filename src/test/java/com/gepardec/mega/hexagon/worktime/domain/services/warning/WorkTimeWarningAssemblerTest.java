@@ -36,7 +36,7 @@ class WorkTimeWarningAssemblerTest {
                 .create();
 
         assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(booking)),
-                Set.of(date), Set.of(), date.plusDays(1)))
+                Set.of(date), Set.of(), Set.of(), date.plusDays(1)))
                 .extracting(WorkTimeWarning::type)
                 .contains(WorkTimeWarningType.OUTSIDE_CORE_WORKING_TIME, WorkTimeWarningType.WEEKEND);
     }
@@ -54,8 +54,9 @@ class WorkTimeWarningAssemblerTest {
         when(calculator.calculate(same(bookings))).thenReturn(List.of(first, otherType, duplicate, otherDate));
         when(otherCalculator.calculate(same(bookings))).thenReturn(List.of(duplicate));
 
-        assertThat(new WorkTimeWarningAssembler(List.of(calculator, otherCalculator), new NoEntryWarningCalculator())
-                .assemble(bookings, Set.of(), Set.of(), date))
+        assertThat(new WorkTimeWarningAssembler(List.of(calculator, otherCalculator), new NoEntryWarningCalculator(),
+                new NonBillableOnBillableProjectCalculator())
+                .assemble(bookings, Set.of(), Set.of(), Set.of(), date))
                 .containsExactly(first, otherType, otherDate);
     }
 
@@ -68,7 +69,7 @@ class WorkTimeWarningAssemblerTest {
                 projectAt(date.atTime(13, 0), date.atTime(16, 0), WorkingLocation.A));
 
         assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(bookingsAwayFromMain),
-                Set.of(date), Set.of(), date.plusDays(1)))
+                Set.of(date), Set.of(), Set.of(), date.plusDays(1)))
                 .filteredOn(warning -> warning.type() == WorkTimeWarningType.INVALID_WORKING_LOCATION)
                 .containsExactly(new WorkTimeWarning(date, WorkTimeWarningType.INVALID_WORKING_LOCATION, null));
     }
@@ -86,13 +87,33 @@ class WorkTimeWarningAssemblerTest {
                 .create();
 
         assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(booking)),
-                Set.of(date), Set.of(), date.plusDays(1)))
+                Set.of(date), Set.of(), Set.of(), date.plusDays(1)))
                 .contains(new WorkTimeWarning(date, WorkTimeWarningType.INTERNAL_NOTE_BILLABLE, null));
     }
 
     @Test
+    void assemble_whenNonBillableBookingWithoutMarkerIsOnBillableProjectFromOctober2026_thenBothConventionWarnings() {
+        LocalDate date = LocalDate.of(2026, 10, 6);
+        var booking = Instancio.of(ProjectBooking.class)
+                .set(field(ProjectBooking::from), date.atTime(8, 0))
+                .set(field(ProjectBooking::to), date.atTime(9, 0))
+                .set(field(ProjectBooking::task), Task.BEARBEITEN)
+                .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
+                .set(field(ProjectBooking::billable), false)
+                .set(field(ProjectBooking::note), "JFX")
+                .set(field(ProjectBooking::projectZepId), 42)
+                .create();
+
+        assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(booking)),
+                Set.of(date), Set.of(), Set.of(42), date.plusDays(1)))
+                .contains(
+                        new WorkTimeWarning(date, WorkTimeWarningType.INTERNAL_NOTE_MISSING, null),
+                        new WorkTimeWarning(date, WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT, null));
+    }
+
+    @Test
     void assemble_emptyBookingsReturnsSingleMonthWarning() {
-        assertThat(new WorkTimeWarningAssembler().assemble(WorkTimeBookings.empty(), Set.of(), Set.of(), LocalDate.now()))
+        assertThat(new WorkTimeWarningAssembler().assemble(WorkTimeBookings.empty(), Set.of(), Set.of(), Set.of(), LocalDate.now()))
                 .containsExactly(new WorkTimeWarning(null, WorkTimeWarningType.EMPTY_ENTRY_LIST, null));
     }
 
@@ -116,8 +137,9 @@ class WorkTimeWarningAssemblerTest {
         when(noEntryCalculator.calculate(Set.of(expectedDate), bookings.bookedDates(), Set.of(), today))
                 .thenReturn(List.of(noEntryWarning));
 
-        assertThat(new WorkTimeWarningAssembler(List.of(calculator), noEntryCalculator)
-                .assemble(bookings, Set.of(expectedDate), Set.of(), today))
+        assertThat(new WorkTimeWarningAssembler(List.of(calculator), noEntryCalculator,
+                new NonBillableOnBillableProjectCalculator())
+                .assemble(bookings, Set.of(expectedDate), Set.of(), Set.of(), today))
                 .containsExactly(calculatorWarning, noEntryWarning);
         verify(calculator).calculate(same(bookings));
         verify(noEntryCalculator).calculate(Set.of(expectedDate), Set.of(bookedDate), Set.of(), today);

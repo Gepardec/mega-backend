@@ -10,6 +10,7 @@ public record ProjectBooking(
         boolean workLocationProjectRelevant,
         boolean billable,
         String note,
+        Integer projectZepId,
         String process
 ) implements WorkTimeBooking {
 }

@@ -206,6 +206,30 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
     }
 
     @Test
+    void getEmployeeWarnings_shouldReturnNonBillableOnBillableProjectWarningWithTypeDateAndNullHours() {
+        allowRoles(Role.EMPLOYEE);
+        YearMonth october = YearMonth.of(2026, 10);
+        LocalDate date = LocalDate.of(2026, 10, 5);
+        when(getEmployeeWarningsUseCase.getWarnings(EMPLOYEE_ID, october)).thenReturn(List.of(
+                new WorkTimeWarning(date, WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT, null)));
+
+        Map<String, Object> warning = given()
+                .accept(ContentType.JSON)
+                .get("/worktime/warnings/" + october)
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getMap("[0]");
+
+        assertThat(warning)
+                .containsOnlyKeys("type", "date", "hours")
+                .containsEntry("type", "NON_BILLABLE_ON_BILLABLE_PROJECT")
+                .containsEntry("date", "2026-10-05")
+                .containsEntry("hours", null);
+    }
+
+    @Test
     void getEmployeeWarnings_shouldSendExplicitNullDateForMonthLevelWarning() {
         allowRoles(Role.EMPLOYEE);
         when(getEmployeeWarningsUseCase.getWarnings(EMPLOYEE_ID, MONTH)).thenReturn(List.of(

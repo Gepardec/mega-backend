@@ -10,6 +10,7 @@ public record JourneyBooking(
         boolean workLocationProjectRelevant,
         boolean billable,
         String note,
+        Integer projectZepId,
         JourneyDirection direction,
         Vehicle vehicle
 ) implements WorkTimeBooking {

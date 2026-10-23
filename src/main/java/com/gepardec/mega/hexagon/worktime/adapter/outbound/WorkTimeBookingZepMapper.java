@@ -40,6 +40,7 @@ public interface WorkTimeBookingZepMapper {
     @Mapping(target = "workLocationProjectRelevant", source = "attendance.workLocationIsProjectRelevant")
     @Mapping(target = "billable", source = "attendance.billable", qualifiedByName = "toBillable")
     @Mapping(target = "note", source = "attendance.note")
+    @Mapping(target = "projectZepId", source = "attendance.projectId")
     @Mapping(target = "process", source = "attendance.projectTaskId")
     ProjectBooking toProjectBooking(ZepAttendance attendance, Task task);
 
@@ -50,6 +51,7 @@ public interface WorkTimeBookingZepMapper {
     @Mapping(target = "workLocationProjectRelevant", source = "attendance.workLocationIsProjectRelevant")
     @Mapping(target = "billable", source = "attendance.billable", qualifiedByName = "toBillable")
     @Mapping(target = "note", source = "attendance.note")
+    @Mapping(target = "projectZepId", source = "attendance.projectId")
     @Mapping(target = "direction", source = "attendance.directionOfTravel", qualifiedByName = "toJourneyDirection")
     @Mapping(target = "vehicle", source = "attendance.vehicle", qualifiedByName = "toVehicle")
     JourneyBooking toJourneyBooking(ZepAttendance attendance, Task task);
