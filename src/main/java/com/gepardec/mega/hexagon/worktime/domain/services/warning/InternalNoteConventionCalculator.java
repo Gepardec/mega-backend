@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-public class InternalNoteConventionCalculator implements WorkTimeWarningCalculator {
+public class InternalNoteConventionCalculator implements BookingsWarningCalculator {
     private static final LocalDate CONVENTION_START = LocalDate.of(2026, 10, 1);
     private static final Pattern INTERNAL_MARKER = Pattern.compile("^\\s*intern\\s*[-–]", Pattern.CASE_INSENSITIVE);
 

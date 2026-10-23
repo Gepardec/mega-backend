@@ -10,7 +10,7 @@ import java.util.List;
 
 import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType.WRONG_DOCTOR_APPOINTMENT;
 
-public class DoctorAppointmentCalculator implements WorkTimeWarningCalculator {
+public class DoctorAppointmentCalculator implements BookingsWarningCalculator {
     private static final List<PermittedWindow> PERMITTED_WINDOWS = List.of(
             new PermittedWindow(LocalTime.of(8, 30), LocalTime.NOON),
             new PermittedWindow(LocalTime.of(12, 30), LocalTime.of(17, 0)));

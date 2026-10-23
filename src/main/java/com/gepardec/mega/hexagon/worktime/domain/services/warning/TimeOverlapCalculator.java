@@ -10,7 +10,7 @@ import java.util.List;
 
 import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType.TIME_OVERLAP;
 
-public class TimeOverlapCalculator implements WorkTimeWarningCalculator {
+public class TimeOverlapCalculator implements BookingsWarningCalculator {
 
     private static final int MINIMUM_BOOKINGS = 2;
 

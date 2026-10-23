@@ -6,6 +6,7 @@ import com.gepardec.mega.hexagon.worktime.domain.model.ProjectBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.Task;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEvaluation;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkingLocation;
@@ -38,7 +39,7 @@ class WorkTimeWarningAssemblerTest {
                 .set(field(ProjectBooking::note), "Test")
                 .create();
 
-        assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(booking)),
+        assertThat(assemble(new WorkTimeBookings(List.of(booking)),
                 YearMonth.from(date.plusDays(1)), Set.of(date), Set.of(), Set.of(), Set.of(), date.plusDays(1)))
                 .extracting(WorkTimeWarning::type)
                 .contains(WorkTimeWarningType.OUTSIDE_CORE_WORKING_TIME, WorkTimeWarningType.WEEKEND);
@@ -47,19 +48,18 @@ class WorkTimeWarningAssemblerTest {
     @Test
     void assemble_keepsFirstWarningPerTypeAndDateInOriginalOrder() {
         LocalDate date = LocalDate.of(2026, 5, 4);
-        WorkTimeBookings bookings = new WorkTimeBookings(List.of(Instancio.create(ProjectBooking.class)));
+        WorkTimeEvaluation evaluation = evaluation(new WorkTimeBookings(List.of(Instancio.create(ProjectBooking.class))),
+                YearMonth.from(date), Set.of(), Set.of(), Set.of(), Set.of(), date);
         WorkTimeWarning first = new WorkTimeWarning(date, WorkTimeWarningType.WRONG_DOCTOR_APPOINTMENT, null);
         WorkTimeWarning otherType = new WorkTimeWarning(date, WorkTimeWarningType.TIME_OVERLAP, null);
         WorkTimeWarning otherDate = new WorkTimeWarning(date.plusDays(1), WorkTimeWarningType.WRONG_DOCTOR_APPOINTMENT, null);
         WorkTimeWarning duplicate = new WorkTimeWarning(date, WorkTimeWarningType.WRONG_DOCTOR_APPOINTMENT, null);
         WorkTimeWarningCalculator calculator = mock(WorkTimeWarningCalculator.class);
         WorkTimeWarningCalculator otherCalculator = mock(WorkTimeWarningCalculator.class);
-        when(calculator.calculate(same(bookings))).thenReturn(List.of(first, otherType, duplicate, otherDate));
-        when(otherCalculator.calculate(same(bookings))).thenReturn(List.of(duplicate));
+        when(calculator.calculate(same(evaluation))).thenReturn(List.of(first, otherType, duplicate, otherDate));
+        when(otherCalculator.calculate(same(evaluation))).thenReturn(List.of(duplicate));
 
-        assertThat(new WorkTimeWarningAssembler(List.of(calculator, otherCalculator), new NoEntryWarningCalculator(),
-                new NonBillableOnBillableProjectCalculator(), new TravelAllowanceCalculator(), new MealEntryCalculator())
-                .assemble(bookings, YearMonth.from(date), Set.of(), Set.of(), Set.of(), Set.of(), date))
+        assertThat(new WorkTimeWarningAssembler(List.of(calculator, otherCalculator)).assemble(evaluation))
                 .containsExactly(first, otherType, otherDate);
     }
 
@@ -71,7 +71,7 @@ class WorkTimeWarningAssemblerTest {
                 projectAt(date.atTime(10, 0), date.atTime(12, 0), WorkingLocation.A),
                 projectAt(date.atTime(13, 0), date.atTime(16, 0), WorkingLocation.A));
 
-        assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(bookingsAwayFromMain), YearMonth.from(date.plusDays(1)), Set.of(date), Set.of(), Set.of(), Set.of(), date.plusDays(1)))
+        assertThat(assemble(new WorkTimeBookings(bookingsAwayFromMain), YearMonth.from(date.plusDays(1)), Set.of(date), Set.of(), Set.of(), Set.of(), date.plusDays(1)))
                 .filteredOn(warning -> warning.type() == WorkTimeWarningType.INVALID_WORKING_LOCATION)
                 .containsExactly(new WorkTimeWarning(date, WorkTimeWarningType.INVALID_WORKING_LOCATION, null));
     }
@@ -88,7 +88,7 @@ class WorkTimeWarningAssemblerTest {
                 .set(field(ProjectBooking::note), "Intern - JFX")
                 .create();
 
-        assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(booking)),
+        assertThat(assemble(new WorkTimeBookings(List.of(booking)),
                 YearMonth.from(date.plusDays(1)), Set.of(date), Set.of(), Set.of(), Set.of(), date.plusDays(1)))
                 .contains(new WorkTimeWarning(date, WorkTimeWarningType.INTERNAL_NOTE_BILLABLE, null));
     }
@@ -106,7 +106,7 @@ class WorkTimeWarningAssemblerTest {
                 .set(field(ProjectBooking::projectZepId), 42)
                 .create();
 
-        assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(booking)),
+        assertThat(assemble(new WorkTimeBookings(List.of(booking)),
                 YearMonth.from(date.plusDays(1)), Set.of(date), Set.of(), Set.of(42), Set.of(), date.plusDays(1)))
                 .contains(
                         new WorkTimeWarning(date, WorkTimeWarningType.INTERNAL_NOTE_MISSING, null),
@@ -127,7 +127,7 @@ class WorkTimeWarningAssemblerTest {
                 .set(field(ProjectBooking::projectZepId), 1)
                 .create();
 
-        assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(booking)),
+        assertThat(assemble(new WorkTimeBookings(List.of(booking)),
                 YearMonth.from(date.plusDays(1)), Set.of(date), Set.of(), Set.of(), Set.of(), date.plusDays(1)))
                 .contains(new WorkTimeWarning(date, WorkTimeWarningType.TRAVEL_ALLOWANCE_EXCEEDED, 0.5));
     }
@@ -138,7 +138,7 @@ class WorkTimeWarningAssemblerTest {
         var outbound = journeyAt(date.atTime(8, 0), date.atTime(9, 0), JourneyDirection.TO);
         var back = journeyAt(date.atTime(16, 0), date.atTime(17, 0), JourneyDirection.BACK);
 
-        assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(outbound, back)),
+        assertThat(assemble(new WorkTimeBookings(List.of(outbound, back)),
                 YearMonth.of(2026, 10), Set.of(date), Set.of(), Set.of(), Set.of(), date.plusDays(1)))
                 .contains(new WorkTimeWarning(date, WorkTimeWarningType.MEAL_ENTRY_MISSING, null));
     }
@@ -149,7 +149,7 @@ class WorkTimeWarningAssemblerTest {
         var outbound = journeyAt(date.atTime(8, 0), date.atTime(9, 0), JourneyDirection.TO);
         var back = journeyAt(date.atTime(16, 0), date.atTime(17, 0), JourneyDirection.BACK);
 
-        assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(outbound, back)),
+        assertThat(assemble(new WorkTimeBookings(List.of(outbound, back)),
                 YearMonth.of(2026, 10), Set.of(date), Set.of(), Set.of(), Set.of(date), date.plusDays(1)))
                 .extracting(WorkTimeWarning::type)
                 .doesNotContain(WorkTimeWarningType.MEAL_ENTRY_MISSING);
@@ -157,13 +157,13 @@ class WorkTimeWarningAssemblerTest {
 
     @Test
     void assemble_emptyBookingsReturnsSingleMonthWarning() {
-        assertThat(new WorkTimeWarningAssembler().assemble(WorkTimeBookings.empty(), YearMonth.now(),
+        assertThat(assemble(WorkTimeBookings.empty(), YearMonth.now(),
                 Set.of(), Set.of(), Set.of(), Set.of(), LocalDate.now()))
                 .containsExactly(new WorkTimeWarning(null, WorkTimeWarningType.EMPTY_ENTRY_LIST, null));
     }
 
     @Test
-    void assemble_forwardsSameBookingsAndBookedDatesAndKeepsFlatWarnings() {
+    void assemble_forwardsSameEvaluationToEveryCalculatorAndKeepsFlatWarnings() {
         LocalDate bookedDate = LocalDate.of(2026, 5, 4);
         LocalDate expectedDate = bookedDate.plusDays(1);
         LocalDate today = expectedDate.plusDays(1);
@@ -173,21 +173,33 @@ class WorkTimeWarningAssemblerTest {
                 .set(field(ProjectBooking::billable), true)
                 .set(field(ProjectBooking::note), "Test")
                 .create();
-        WorkTimeBookings bookings = new WorkTimeBookings(List.of(booking));
+        WorkTimeEvaluation evaluation = evaluation(new WorkTimeBookings(List.of(booking)),
+                YearMonth.from(today), Set.of(expectedDate), Set.of(), Set.of(), Set.of(), today);
         WorkTimeWarning calculatorWarning = new WorkTimeWarning(bookedDate, WorkTimeWarningType.TIME_OVERLAP, null);
         WorkTimeWarning noEntryWarning = new WorkTimeWarning(expectedDate, WorkTimeWarningType.NO_TIME_ENTRY, null);
         WorkTimeWarningCalculator calculator = mock(WorkTimeWarningCalculator.class);
         NoEntryWarningCalculator noEntryCalculator = mock(NoEntryWarningCalculator.class);
-        when(calculator.calculate(same(bookings))).thenReturn(List.of(calculatorWarning));
-        when(noEntryCalculator.calculate(Set.of(expectedDate), bookings.bookedDates(), Set.of(), today))
-                .thenReturn(List.of(noEntryWarning));
+        when(calculator.calculate(same(evaluation))).thenReturn(List.of(calculatorWarning));
+        when(noEntryCalculator.calculate(same(evaluation))).thenReturn(List.of(noEntryWarning));
 
-        assertThat(new WorkTimeWarningAssembler(List.of(calculator), noEntryCalculator,
-                new NonBillableOnBillableProjectCalculator(), new TravelAllowanceCalculator(), new MealEntryCalculator())
-                .assemble(bookings, YearMonth.from(today), Set.of(expectedDate), Set.of(), Set.of(), Set.of(), today))
+        assertThat(new WorkTimeWarningAssembler(List.of(calculator, noEntryCalculator)).assemble(evaluation))
                 .containsExactly(calculatorWarning, noEntryWarning);
-        verify(calculator).calculate(same(bookings));
-        verify(noEntryCalculator).calculate(Set.of(expectedDate), Set.of(bookedDate), Set.of(), today);
+        verify(calculator).calculate(same(evaluation));
+        verify(noEntryCalculator).calculate(same(evaluation));
+    }
+
+    private static List<WorkTimeWarning> assemble(WorkTimeBookings bookings, YearMonth month, Set<LocalDate> expectedWorkingDays,
+                                                  Set<LocalDate> excusedDates, Set<Integer> billableProjectZepIds,
+                                                  Set<LocalDate> mealEntryDates, LocalDate today) {
+        return new WorkTimeWarningAssembler().assemble(
+                evaluation(bookings, month, expectedWorkingDays, excusedDates, billableProjectZepIds, mealEntryDates, today));
+    }
+
+    private static WorkTimeEvaluation evaluation(WorkTimeBookings bookings, YearMonth month, Set<LocalDate> expectedWorkingDays,
+                                                 Set<LocalDate> excusedDates, Set<Integer> billableProjectZepIds,
+                                                 Set<LocalDate> mealEntryDates, LocalDate today) {
+        return new WorkTimeEvaluation(bookings, month, today, expectedWorkingDays, excusedDates, billableProjectZepIds,
+                mealEntryDates);
     }
 
     private static JourneyBooking journeyAt(LocalDateTime from, LocalDateTime to, JourneyDirection direction) {

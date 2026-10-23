@@ -9,7 +9,7 @@ import java.util.List;
 
 import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType.OUTSIDE_CORE_WORKING_TIME;
 
-public class CoreWorkingHoursCalculator implements WorkTimeWarningCalculator {
+public class CoreWorkingHoursCalculator implements BookingsWarningCalculator {
     static final int EARLIEST_HOUR = 6;
     static final int LATEST_HOUR = 22;
 

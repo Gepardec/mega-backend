@@ -8,7 +8,7 @@ import java.util.List;
 
 import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType.LOCATION_RELEVANT_SET;
 
-public class LocationRelevantSetJourneyCalculator implements WorkTimeWarningCalculator {
+public class LocationRelevantSetJourneyCalculator implements BookingsWarningCalculator {
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeBookings bookings) {
         return bookings.values().stream()

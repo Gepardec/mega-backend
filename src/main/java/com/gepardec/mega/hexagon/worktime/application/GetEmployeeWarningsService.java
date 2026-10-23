@@ -15,6 +15,7 @@ import com.gepardec.mega.hexagon.worktime.domain.model.Absence;
 import com.gepardec.mega.hexagon.worktime.domain.model.AbsenceType;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEvaluation;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 import com.gepardec.mega.hexagon.worktime.domain.services.warning.WorkTimeWarningAssembler;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -77,22 +78,23 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
         WorkTimeBookings bookings = new WorkTimeBookings(
                 bookingPort.fetchBookingsForEmployee(employee.zepUsername().value(), month)
         );
+        LocalDate today = LocalDate.now(clock);
         if (bookings.isEmpty()) {
-            return assembler.assemble(bookings, month, Set.of(), Set.of(), Set.of(), Set.of(), LocalDate.now(clock));
+            return assembler.assemble(
+                    new WorkTimeEvaluation(bookings, month, today, Set.of(), Set.of(), Set.of(), Set.of()));
         }
         Set<LocalDate> excusedDates = absencePort.fetchAbsencesForEmployee(employee.zepUsername(), month).stream()
                 .filter(absence -> absence.type() != AbsenceType.HOME_OFFICE)
                 .map(Absence::date)
                 .collect(Collectors.toUnmodifiableSet());
-        return assembler.assemble(
+        return assembler.assemble(new WorkTimeEvaluation(
                 bookings,
                 month,
+                today,
                 expectedWorkingDaysPort.expectedWorkingDays(employeeId, month),
                 excusedDates,
                 billableProjectZepIds(bookings),
-                mealEntryDates(employee, bookings, month),
-                LocalDate.now(clock)
-        );
+                mealEntryDates(employee, bookings, month)));
     }
 
     private Set<LocalDate> mealEntryDates(UserRef employee, WorkTimeBookings bookings, YearMonth month) {
