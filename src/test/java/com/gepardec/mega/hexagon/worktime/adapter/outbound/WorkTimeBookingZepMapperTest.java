@@ -115,6 +115,23 @@ class WorkTimeBookingZepMapperTest {
     }
 
     @Test
+    void toDomain_carriesOverStartAndDestinationUnchanged() {
+        var journey = (JourneyBooking) mapper.toDomain(base().activity("REISEN").vehicle("Auto")
+                .start("Wien Hbf").destination("Linz").build());
+
+        assertThat(journey.start()).isEqualTo("Wien Hbf");
+        assertThat(journey.destination()).isEqualTo("Linz");
+    }
+
+    @Test
+    void toDomain_yieldsJourneyWithoutStartAndDestinationWhenMissing() {
+        var journey = (JourneyBooking) mapper.toDomain(base().activity("REISEN").vehicle("Auto").build());
+
+        assertThat(journey.start()).isNull();
+        assertThat(journey.destination()).isNull();
+    }
+
+    @Test
     void toDomain_rejectsUnknownRequiredValues() {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> mapper.toDomain(base().activity("UNKNOWN").build());
         assertThatThrownBy(throwingCallable)

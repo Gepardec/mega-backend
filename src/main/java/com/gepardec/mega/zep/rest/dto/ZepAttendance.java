@@ -22,6 +22,8 @@ public record ZepAttendance(
         String activity,
         String vehicle,
         ZepAttendanceDirectionOfTravel directionOfTravel,
+        String start,
+        String destination,
         String note
 ) {
 
@@ -42,6 +44,8 @@ public record ZepAttendance(
                 builder.activity,
                 builder.vehicle,
                 builder.directionOfTravel,
+                builder.start,
+                builder.destination,
                 builder.note
         );
     }
@@ -85,6 +89,12 @@ public record ZepAttendance(
 
         @JsonProperty("direction_of_travel")
         private ZepAttendanceDirectionOfTravel directionOfTravel;
+
+        @JsonProperty("start")
+        private String start;
+
+        @JsonProperty("destination")
+        private String destination;
 
         @JsonProperty("note")
         private String note;
@@ -158,6 +168,16 @@ public record ZepAttendance(
 
         public Builder directionOfTravel(ZepAttendanceDirectionOfTravel directionOfTravel) {
             this.directionOfTravel = directionOfTravel;
+            return this;
+        }
+
+        public Builder start(String start) {
+            this.start = start;
+            return this;
+        }
+
+        public Builder destination(String destination) {
+            this.destination = destination;
             return this;
         }
 
