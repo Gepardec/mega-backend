@@ -1,19 +1,15 @@
 package com.gepardec.mega.hexagon.shared.application.security;
 
-public class ForbiddenException extends SecurityException {
+import com.gepardec.mega.hexagon.shared.domain.error.DomainException;
+import com.gepardec.mega.hexagon.shared.domain.error.SharedErrorCode;
 
-    public ForbiddenException() {
-    }
+public class ForbiddenException extends DomainException {
 
     public ForbiddenException(String message) {
-        super(message);
+        super(SharedErrorCode.FORBIDDEN, message);
     }
 
     public ForbiddenException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public ForbiddenException(Throwable cause) {
-        super(cause);
+        super(SharedErrorCode.FORBIDDEN, message, cause);
     }
 }

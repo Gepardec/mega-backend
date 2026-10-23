@@ -1,7 +1,8 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndTaskUseCase;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndTaskNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
@@ -25,7 +26,7 @@ public class CompleteMonthEndTaskService implements CompleteMonthEndTaskUseCase 
     @Override
     public MonthEndTask complete(MonthEndTaskId taskId, UserId actorId) {
         MonthEndTask task = monthEndTaskRepository.findById(taskId)
-                .orElseThrow(() -> new MonthEndTaskNotFoundException(
+                .orElseThrow(() -> new MonthEndException(MonthEndErrorCode.TASK_NOT_FOUND,
                         "month-end task not found: " + taskId.value()
                 ));
 

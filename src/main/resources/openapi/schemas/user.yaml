@@ -90,17 +90,18 @@ UpdateReleaseDatesResponse:
       items:
         type: string
         format: uuid
-InternalRateUploadError:
-  type: object
-  additionalProperties: false
-  required:
-    - errorCode
-    - lines
-  properties:
-    errorCode:
-      type: string
-    lines:
-      type: array
-      items:
-        type: integer
-        format: int32
+InternalRateUploadProblem:
+  description: >-
+    Problem returned when an internal-rate CSV upload is rejected; `code` identifies the reason.
+  allOf:
+    - $ref: './shared.yaml#/Problem'
+    - type: object
+      required:
+        - lines
+      properties:
+        lines:
+          type: array
+          description: 1-based line numbers of the offending CSV rows; empty when the failure concerns no specific row.
+          items:
+            type: integer
+            format: int32

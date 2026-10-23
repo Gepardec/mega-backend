@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationUpdatedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
@@ -89,7 +90,8 @@ class UpdateMonthEndClarificationServiceTest {
         when(clarificationRepository.findById(clarification.id())).thenReturn(Optional.of(clarification));
 
         assertThatThrownBy(() -> service.updateText(clarification.id(), leadId, "Lead trying to edit"))
-                .isInstanceOf(com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED))
                 .hasMessageContaining("not allowed");
     }
 
@@ -110,7 +112,8 @@ class UpdateMonthEndClarificationServiceTest {
         when(clarificationRepository.findById(clarification.id())).thenReturn(Optional.of(clarification));
 
         assertThatThrownBy(() -> service.updateText(clarification.id(), leadB, "Trying to edit"))
-                .isInstanceOf(com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED))
                 .hasMessageContaining("not allowed");
     }
 
@@ -120,7 +123,8 @@ class UpdateMonthEndClarificationServiceTest {
         when(clarificationRepository.findById(clarificationId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.updateText(clarificationId, employeeId, "Updated text"))
-                .isInstanceOf(MonthEndClarificationNotFoundException.class)
+                .isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.CLARIFICATION_NOT_FOUND))
                 .hasMessageContaining("not found");
     }
 }

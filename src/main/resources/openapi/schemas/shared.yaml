@@ -1,7 +1,3 @@
-MonthValue:
-  type: string
-  pattern: '^\d{4}-(0[1-9]|1[0-2])$'
-  example: '2026-03'
 Role:
   type: string
   description: >-
@@ -12,16 +8,73 @@ Role:
     - OFFICE_MANAGEMENT
     - PROJECT_LEAD
     - SYSTEM
-ApiError:
+Problem:
+  type: object
+  description: >-
+    Error response following RFC 9457 (Problem Details for HTTP APIs), served as
+    `application/problem+json`. The problem type is always `about:blank`, so no `type`
+    member is sent. Endpoint-specific problems may add further members, for example `lines`.
+  required:
+    - title
+    - status
+  properties:
+    title:
+      type: string
+      description: Standard reason phrase of the HTTP status, for example `Not Found`.
+    status:
+      type: integer
+      format: int32
+      description: HTTP status code of this response.
+    instance:
+      type: string
+      description: Path of the request that caused the problem.
+    detail:
+      type: string
+      description: >-
+        Human-readable explanation of this occurrence, meant for developers, not end users.
+        Never present on 5xx responses.
+    code:
+      type: string
+      description: >-
+        Stable identifier of a domain- or endpoint-specific reason, upper-case and prefixed with the
+        owning bounded context. Clients switch on this value, never on `detail`. A given reason
+        keeps its code across releases. Problems produced by the framework (authentication,
+        input validation, unknown routes, malformed request bodies, unexpected server errors)
+        don't carry a code; identify those by `status` and, for input validation, by `violations`.
+    field:
+      type: string
+      description: >-
+        Present on problems for a malformed request body; names the offending property when it
+        can be determined.
+    violations:
+      type: array
+      description: Present on input validation problems; lists each offending input.
+      items:
+        $ref: '#/Violation'
+Violation:
   type: object
   additionalProperties: false
   required:
+    - field
+    - in
     - message
   properties:
+    field:
+      type: string
+      description: Name of the offending parameter, or path to the offending body property.
+    in:
+      type: string
+      description: Part of the request the violation occurred in; `?` when it can't be determined.
+      enum:
+        - path
+        - query
+        - header
+        - form
+        - body
+        - '?'
     message:
       type: string
-      nullable: true
-      description: Human-readable error message when available.
+      description: Human-readable explanation of the violation.
 ProjectRef:
   type: object
   additionalProperties: false

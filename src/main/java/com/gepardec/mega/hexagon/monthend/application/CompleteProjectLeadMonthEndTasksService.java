@@ -1,8 +1,8 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteProjectLeadMonthEndTasksUseCase;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepository;
@@ -30,10 +30,10 @@ public class CompleteProjectLeadMonthEndTasksService implements CompleteProjectL
     @Override
     public List<MonthEndTask> complete(YearMonth month, ProjectId projectId, MonthEndTaskType type, UserId actorId) {
         if (!type.isProjectLeadBulkCompletable()) {
-            throw new MonthEndValidationException("task type %s cannot be bulk completed by a project lead".formatted(type.name()));
+            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "task type %s cannot be bulk completed by a project lead".formatted(type.name()));
         }
         if (!monthEndTaskRepository.existsLeadTask(month, projectId, actorId)) {
-            throw new MonthEndActorNotAuthorizedException("actor not authorized: " + actorId.value());
+            throw new MonthEndException(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED, "actor not authorized: " + actorId.value());
         }
 
         List<MonthEndTask> completedTasks = monthEndTaskRepository.findOpenProjectTasksOfType(month, projectId, type)

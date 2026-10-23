@@ -9,6 +9,8 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
+import java.time.YearMonth;
+
 /**
  * Machine-to-machine month-end endpoints, secured by the {@code mega-cron}
  * client-credentials scheme. Kept apart from {@link MonthEndResource} so the
@@ -21,25 +23,20 @@ import jakarta.ws.rs.core.Response;
 public class MonthEndCronResource implements CronApi {
 
     private final GenerateMonthEndTasksUseCase generateMonthEndTasksUseCase;
-    private final MonthEndRestTransportHelper transportHelper;
     private final MonthEndRestMapper monthEndRestMapper;
 
     @Inject
     public MonthEndCronResource(
             GenerateMonthEndTasksUseCase generateMonthEndTasksUseCase,
-            MonthEndRestTransportHelper transportHelper,
             MonthEndRestMapper monthEndRestMapper
     ) {
         this.generateMonthEndTasksUseCase = generateMonthEndTasksUseCase;
-        this.transportHelper = transportHelper;
         this.monthEndRestMapper = monthEndRestMapper;
     }
 
     @Override
-    public Response generateMonthEndTasks(String month) {
-        MonthEndTaskGenerationResult result = generateMonthEndTasksUseCase.generate(
-                transportHelper.parseMonth(month)
-        );
+    public Response generateMonthEndTasks(YearMonth month) {
+        MonthEndTaskGenerationResult result = generateMonthEndTasksUseCase.generate(month);
 
         return Response.ok(monthEndRestMapper.toDto(result)).build();
     }
