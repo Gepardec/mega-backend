@@ -1,6 +1,12 @@
 package com.gepardec.mega.zep.rest.mapper;
 
-import com.gepardec.mega.domain.model.monthlyreport.*;
+import com.gepardec.mega.domain.model.monthlyreport.JourneyDirection;
+import com.gepardec.mega.domain.model.monthlyreport.JourneyTimeEntry;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectEntry;
+import com.gepardec.mega.domain.model.monthlyreport.ProjectTimeEntry;
+import com.gepardec.mega.domain.model.monthlyreport.Task;
+import com.gepardec.mega.domain.model.monthlyreport.Vehicle;
+import com.gepardec.mega.domain.model.monthlyreport.WorkingLocation;
 import com.gepardec.mega.zep.ZepServiceException;
 import com.gepardec.mega.zep.rest.dto.ZepAttendance;
 import com.gepardec.mega.zep.rest.dto.ZepAttendanceDirectionOfTravel;
@@ -14,13 +20,13 @@ import java.util.List;
 import java.util.Objects;
 
 @ApplicationScoped
-public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry, ZepAttendance> {
+public class ProjectEntryMapper implements Mapper<ProjectEntry, ZepAttendance> {
 
     @Inject
     Logger logger;
 
     @Override
-    public com.gepardec.mega.domain.model.monthlyreport.ProjectEntry map(ZepAttendance zepAttendance) {
+    public ProjectEntry map(ZepAttendance zepAttendance) {
         if (zepAttendance == null) {
             logger.info("ZEP REST implementation -- While trying to map zepAttendance to ProjectEntry, zepAttendance was null");
             return null;
@@ -64,7 +70,7 @@ public class ProjectEntryMapper implements Mapper<com.gepardec.mega.domain.model
     }
 
     @Override
-    public List<com.gepardec.mega.domain.model.monthlyreport.ProjectEntry> mapList(List<ZepAttendance> zepAttendances) {
+    public List<ProjectEntry> mapList(List<ZepAttendance> zepAttendances) {
         if (zepAttendances == null) {
             return List.of();
         }

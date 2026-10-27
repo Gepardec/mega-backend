@@ -23,7 +23,7 @@ public final class MapperUtil {
         }
         return attributes.getAttribute().stream()
                 .filter(Objects::nonNull)
-                .collect(Collectors.toMap(de.provantis.zep.AttributeType::getName, AttributeType::getValue));
+                .collect(Collectors.toMap(AttributeType::getName, AttributeType::getValue));
     }
 
     public static LocalDate convertStringToDate(String dateString) {

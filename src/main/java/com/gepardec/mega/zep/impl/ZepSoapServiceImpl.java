@@ -72,7 +72,7 @@ class ZepSoapServiceImpl implements ZepService {
 
     private final Logger logger;
 
-    private final de.provantis.zep.ZepSoapPortType zepSoapPortType;
+    private final ZepSoapPortType zepSoapPortType;
 
     private final ZepSoapProvider zepSoapProvider;
 

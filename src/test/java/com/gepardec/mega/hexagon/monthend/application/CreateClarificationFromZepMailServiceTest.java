@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -139,7 +140,7 @@ class CreateClarificationFromZepMailServiceTest {
         when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(projectSnapshot));
         when(employeeContextService.resolve(month, projectId, subjectEmployeeId))
                 .thenReturn(employeeContext(projectSnapshot, Set.of(creatorId)));
-        org.mockito.Mockito.doThrow(new IllegalStateException("transaction rolled back"))
+        doThrow(new IllegalStateException("transaction rolled back"))
                 .when(persistZepClarificationService)
                 .persist(month, employeeContext(projectSnapshot, Set.of(creatorId)), creatorId, entry.message());
 
