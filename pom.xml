@@ -435,10 +435,11 @@
             </plugin>
 
             <!--
-                OpenRewrite: not bound to any phase, run on demand, e.g.
-                mvn rewrite:dryRun -Drewrite.activeRecipes=org.openrewrite.java.migrate.UpgradeToJava21
-                mvn rewrite:run    -Drewrite.activeRecipes=org.openrewrite.java.migrate.UpgradeToJava21
-                mvn rewrite:discover   (lists all available recipes)
+                OpenRewrite: com.gepardec.mega.CodeHygiene (rewrite.yml) is checked on every `mvn package`.
+                mvn rewrite:run                 (fix drift, applies CodeHygiene)
+                mvn package -Drewrite.skip      (skip the check)
+                mvn rewrite:dryRun -Drewrite.activeRecipes=<recipe>   (try any other recipe)
+                mvn rewrite:discover            (lists all available recipes)
             -->
             <plugin>
                 <groupId>org.openrewrite.maven</groupId>
@@ -446,6 +447,9 @@
                 <version>${rewrite-maven-plugin.version}</version>
                 <configuration>
                     <exportDatatables>true</exportDatatables>
+                    <activeRecipes>
+                        <recipe>com.gepardec.mega.CodeHygiene</recipe>
+                    </activeRecipes>
                     <activeStyles>
                         <style>com.gepardec.mega.Style</style>
                     </activeStyles>
@@ -453,6 +457,19 @@
                         <exclusion>target/**</exclusion>
                     </exclusions>
                 </configuration>
+                <executions>
+                    <!-- Fails `mvn package` when code drifts from com.gepardec.mega.CodeHygiene (see rewrite.yml) -->
+                    <execution>
+                        <id>check-code-hygiene</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>dryRunNoFork</goal>
+                        </goals>
+                        <configuration>
+                            <failOnDryRunResults>true</failOnDryRunResults>
+                        </configuration>
+                    </execution>
+                </executions>
                 <dependencies>
                     <dependency>
                         <groupId>org.openrewrite.recipe</groupId>

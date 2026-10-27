@@ -2,15 +2,13 @@ package com.gepardec.mega.zep.mapper;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
 import de.provantis.zep.FehlzeitType;
-import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-@ApplicationScoped
-public class AbsenceTimeMapper {
+public final class AbsenceTimeMapper {
 
     private AbsenceTimeMapper() {
     }

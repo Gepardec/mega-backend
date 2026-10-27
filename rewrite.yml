@@ -14,3 +14,79 @@ styleConfigs:
         - import java.*
         - <blank line>
         - import static all other imports
+---
+# Recipes enforced on every `mvn package` (the build fails if any of them would change code).
+# Fix drift locally with `mvn rewrite:run`, skip the check with `-Drewrite.skip`.
+#
+# Only code-level recipes belong here. Composites that also bump dependency or plugin versions
+# (e.g. UpgradeToJava21, MockitoBestPractices, JUnit5BestPractices) would fail the build whenever
+# a new version is released, so their code-level sub-recipes are listed individually instead.
+#
+# Deliberately left out:
+# - RemoveTestPrefix: renames test_x_whenY to xWhenY and loses the given/when/then underscores
+# - AssertJThrowingCallableRulesRecipes: turns assertThatNullPointerException().isThrownBy(...)
+#   into harder-to-read assertThatThrownBy(...).isInstanceOf(...) chains
+# - AddJaxwsRuntime (part of UpgradeToJava21): adds the javax jaxws-rt next to the jakarta runtime
+type: specs.openrewrite.org/v1beta/recipe
+name: com.gepardec.mega.CodeHygiene
+displayName: MEGA code hygiene
+description: Keeps imports, Java 21 idioms, static-analysis fixes and test conventions from drifting.
+recipeList:
+  # Imports and type references
+  - org.openrewrite.java.RemoveUnusedImports
+  - org.openrewrite.java.ShortenFullyQualifiedTypeReferences
+
+  # SonarQube-style fixes (includes OrderImports, which follows com.gepardec.mega.Style)
+  - org.openrewrite.staticanalysis.CommonStaticAnalysis
+
+  # Java 21 idioms
+  - org.openrewrite.java.migrate.util.SequencedCollection
+  - org.openrewrite.java.migrate.util.OptionalStreamRecipe
+  - org.openrewrite.staticanalysis.InstanceOfPatternMatch
+  - org.openrewrite.java.migrate.lang.SwitchCaseAssignmentsToSwitchExpression
+  - org.openrewrite.java.migrate.lang.SwitchCaseReturnsToSwitchExpression
+  - org.openrewrite.java.migrate.lang.SwitchExpressionYieldToArrow
+  - org.openrewrite.java.migrate.SwitchPatternMatching
+
+  # JUnit 5
+  - org.openrewrite.java.testing.junit5.CleanupAssertions
+  - org.openrewrite.java.testing.cleanup.SimplifyTestThrows
+  - org.openrewrite.java.testing.cleanup.TestsShouldNotBePublic
+  - org.openrewrite.java.testing.cleanup.TestMethodsShouldBeVoid
+  - org.openrewrite.java.testing.junit5.LifecycleNonPrivate
+  - org.openrewrite.java.testing.junit5.UseAssertSame
+
+  # AssertJ
+  - org.openrewrite.java.testing.assertj.JUnitToAssertj
+  - org.openrewrite.java.testing.assertj.AdoptAssertJDurationAssertions
+  - org.openrewrite.java.testing.assertj.SimplifyChainedAssertJAssertions
+  - org.openrewrite.java.testing.assertj.SimplifyAssertJAssertions
+  - org.openrewrite.java.testing.assertj.SimplifyAssertJInstanceOfAssertion
+  - org.openrewrite.java.testing.assertj.SimplifyAssertJEqualityAssertion
+  - org.openrewrite.java.testing.assertj.SimplifyHasSizeAssertion
+  - org.openrewrite.java.testing.assertj.SimplifyHasSizeFromIsEqualToAssertion
+  - org.openrewrite.java.testing.assertj.SimplifySequencedCollectionAssertions
+  - org.openrewrite.java.testing.assertj.SimplifyStreamMapToExtracting
+  - org.openrewrite.java.testing.assertj.AssertJDoubleRulesRecipes
+  - org.openrewrite.java.testing.assertj.AssertJIntegerRulesRecipes
+  - org.openrewrite.java.testing.assertj.AssertJLongRulesRecipes
+  - tech.picnic.errorprone.refasterrules.AssertJBooleanRulesRecipes
+  - tech.picnic.errorprone.refasterrules.AssertJCharSequenceRulesRecipes
+  - tech.picnic.errorprone.refasterrules.AssertJComparableRulesRecipes
+  - tech.picnic.errorprone.refasterrules.AssertJDurationRulesRecipes
+  - tech.picnic.errorprone.refasterrules.AssertJEnumerableRulesRecipes
+  - tech.picnic.errorprone.refasterrules.AssertJIterableRulesRecipes
+  - tech.picnic.errorprone.refasterrules.AssertJMapRulesRecipes
+  - tech.picnic.errorprone.refasterrules.AssertJNumberRulesRecipes
+  - tech.picnic.errorprone.refasterrules.AssertJObjectRulesRecipes
+  - tech.picnic.errorprone.refasterrules.AssertJOptionalRulesRecipes
+  - tech.picnic.errorprone.refasterrules.AssertJStringRulesRecipes
+  - org.openrewrite.java.testing.assertj.CollapseConsecutiveAssertThatStatements
+  - org.openrewrite.java.testing.assertj.SimplifyRedundantAssertJChains
+  - org.openrewrite.java.testing.assertj.MigrateAssertionsForClassAndInterfaceTypes
+  - org.openrewrite.java.testing.assertj.StaticImports
+
+  # Mockito
+  - org.openrewrite.java.testing.mockito.RemoveTimesZeroAndOne
+  - org.openrewrite.java.testing.mockito.RemoveDoNothingForDefaultMocks
+  - org.openrewrite.java.testing.mockito.SimplifyMockitoVerifyWhenGiven
