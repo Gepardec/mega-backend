@@ -69,3 +69,60 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
+/worktime/warning-rules:
+  get:
+    tags:
+      - WorkTimeAdmin
+    operationId: listWarningRuleSettings
+    summary: List the settings of all work time warning rules
+    security:
+      - bearerAuth: [ ]
+    responses:
+      '200':
+        description: One setting per warning rule
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/worktime.yaml#/WarningRuleSetting'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'
+'/worktime/warning-rules/{rule}':
+  put:
+    tags:
+      - WorkTimeAdmin
+    operationId: updateWarningRuleSetting
+    summary: Replace the setting of one work time warning rule
+    security:
+      - bearerAuth: [ ]
+    parameters:
+      - name: rule
+        in: path
+        required: true
+        description: Identifier of the warning rule.
+        schema:
+          $ref: '../schemas/worktime.yaml#/WarningRule'
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/worktime.yaml#/WarningRuleSettingUpdate'
+    responses:
+      '200':
+        description: Updated rule setting
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/worktime.yaml#/WarningRuleSetting'
+      '400':
+        $ref: '../responses/common.yaml#/BadRequest'
+      '403':
+        $ref: '../responses/common.yaml#/Forbidden'
+      '404':
+        $ref: '../responses/common.yaml#/NotFound'
+      '500':
+        $ref: '../responses/common.yaml#/InternalServerError'

@@ -91,22 +91,6 @@ class InternalNoteConventionCalculatorTest {
     }
 
     @Test
-    void calculate_whenBookingIsBeforeConventionStart_thenNoWarning() {
-        LocalDate beforeStart = LocalDate.of(2026, 9, 30);
-
-        assertThat(calculate(bookings(
-                project(beforeStart, false, null), project(beforeStart, true, "Intern - JFX")))).isEmpty();
-    }
-
-    @Test
-    void calculate_whenBookingIsOnConventionStart_thenWarning() {
-        LocalDate start = LocalDate.of(2026, 10, 1);
-
-        assertThat(calculate(bookings(project(start, false, null), billableWork())))
-                .containsExactly(new WorkTimeWarning(start, INTERNAL_NOTE_MISSING, null));
-    }
-
-    @Test
     void calculate_whenMonthHasOnlyNonBillableBookingsOnNonBillableProjects_thenNoMissingWarning() {
         assertThat(calculate(bookings(
                 project(DATE, false, null), journey(DATE.plusDays(1), false, "Nach Linz"))))

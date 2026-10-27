@@ -1,0 +1,178 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-worktime-warning-rule-settings-001
+      author: mega
+      changes:
+        - createTable:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  type: varchar(64)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active_from
+                  type: date
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: CORE_WORKING_TIME
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: TIME_OVERLAP
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: HOLIDAY
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: WEEKEND
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: DOCTOR_APPOINTMENT
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: MAX_DAILY_WORKING_TIME
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: REST_TIME
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: BREAK_TIME
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: JOURNEY_PAIRING
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: JOURNEY_WORKING_LOCATION
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: LOCATION_PROJECT_RELEVANCE
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: INTERNAL_NOTE
+              - column:
+                  name: enabled
+                  valueBoolean: true
+              - column:
+                  name: active_from
+                  valueDate: "2026-10-01"
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: NO_TIME_ENTRY
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: BILLABLE_PROJECT
+              - column:
+                  name: enabled
+                  valueBoolean: true
+              - column:
+                  name: active_from
+                  valueDate: "2026-10-01"
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: TRAVEL_ALLOWANCE
+              - column:
+                  name: enabled
+                  valueBoolean: true
+              - column:
+                  name: active_from
+                  valueDate: "2026-10-01"
+        - insert:
+            tableName: worktime_warning_rule_setting
+            columns:
+              - column:
+                  name: rule
+                  value: MEAL_ENTRY
+              - column:
+                  name: enabled
+                  valueBoolean: true
+              - column:
+                  name: active_from
+                  valueDate: "2026-10-01"

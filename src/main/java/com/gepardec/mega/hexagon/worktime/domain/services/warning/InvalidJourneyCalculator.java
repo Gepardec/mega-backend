@@ -2,6 +2,7 @@ package com.gepardec.mega.hexagon.worktime.domain.services.warning;
 
 import com.gepardec.mega.hexagon.worktime.domain.model.JourneyBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.JourneyDirection;
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType;
@@ -11,6 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InvalidJourneyCalculator implements BookingsWarningCalculator {
+    @Override
+    public WarningRule rule() {
+        return WarningRule.JOURNEY_PAIRING;
+    }
+
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeBookings bookings) {
         List<JourneyBooking> journeys = bookings.journeys();

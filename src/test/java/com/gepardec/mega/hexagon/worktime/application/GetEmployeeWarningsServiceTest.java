@@ -4,6 +4,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
+import com.gepardec.mega.hexagon.worktime.application.port.outbound.WarningRuleSettingsPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeAbsenceZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeBookingZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeExpectedWorkingDaysPort;
@@ -17,6 +18,8 @@ import com.gepardec.mega.hexagon.worktime.domain.model.JourneyBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.JourneyDirection;
 import com.gepardec.mega.hexagon.worktime.domain.model.ProjectBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.Task;
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRuleSetting;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkingLocation;
@@ -34,6 +37,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -44,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,12 +71,15 @@ class GetEmployeeWarningsServiceTest {
     WorkTimeProjectSnapshotPort projectSnapshotPort;
     @Mock
     WorkTimeMealEntryZepPort mealEntryPort;
+    @Mock
+    WarningRuleSettingsPort ruleSettingsPort;
     private GetEmployeeWarningsService service;
 
     @BeforeEach
     void setUp() {
+        lenient().when(ruleSettingsPort.findAll()).thenReturn(settings(Set.of()));
         service = new GetEmployeeWarningsService(userPort, bookingPort, absencePort, expectedDaysPort,
-                projectSnapshotPort, mealEntryPort, new WorkTimeWarningAssembler(), Clock.fixed(Instant.parse("2026-05-10T00:00:00Z"), ZoneOffset.UTC));
+                projectSnapshotPort, mealEntryPort, ruleSettingsPort, new WorkTimeWarningAssembler(), Clock.fixed(Instant.parse("2026-05-10T00:00:00Z"), ZoneOffset.UTC));
     }
 
     @Test
@@ -206,9 +214,70 @@ class GetEmployeeWarningsServiceTest {
         verify(mealEntryPort, never()).fetchMealEntryDates(any(), any());
     }
 
+    @Test
+    void getWarnings_disabledMealEntryRuleProducesNoWarningsAndSkipsMealEntryFetch() {
+        YearMonth october = YearMonth.of(2026, 10);
+        var date = october.atDay(6);
+        stubMonthWithDayTrip(october, date);
+        when(ruleSettingsPort.findAll()).thenReturn(settings(Set.of(), WarningRule.MEAL_ENTRY));
+
+        assertThat(serviceAt("2026-10-10T00:00:00Z").getWarnings(USER_ID, october)).extracting(WorkTimeWarning::type)
+                .doesNotContain(WorkTimeWarningType.MEAL_ENTRY_MISSING);
+        verify(mealEntryPort, never()).fetchMealEntryDates(any(), any());
+    }
+
+    @Test
+    void getWarnings_rulesNeedingBillabilityDisabled_skipsBillableProjectLookup() {
+        when(userPort.findById(USER_ID, MONTH)).thenReturn(Optional.of(user()));
+        when(bookingPort.fetchBookingsForEmployee("ada", MONTH)).thenReturn(List.of(nonBillableBookingOn(MONTH.atDay(5), 42)));
+        when(absencePort.fetchAbsencesForEmployee(USERNAME, MONTH)).thenReturn(List.of());
+        when(expectedDaysPort.expectedWorkingDays(USER_ID, MONTH)).thenReturn(Set.of());
+        when(ruleSettingsPort.findAll()).thenReturn(settings(Set.of(),
+                WarningRule.BILLABLE_PROJECT, WarningRule.INTERNAL_NOTE, WarningRule.TRAVEL_ALLOWANCE));
+
+        service.getWarnings(USER_ID, MONTH);
+
+        verify(projectSnapshotPort, never()).findBillableZepIds(anySet());
+    }
+
+    @Test
+    void getWarnings_emptyMonthDoesNotLoadRuleSettings() {
+        when(userPort.findById(USER_ID, MONTH)).thenReturn(Optional.of(user()));
+        when(bookingPort.fetchBookingsForEmployee("ada", MONTH)).thenReturn(List.of());
+
+        service.getWarnings(USER_ID, MONTH);
+
+        verify(ruleSettingsPort, never()).findAll();
+    }
+
+    @Test
+    void getWarnings_missingSettingTreatsRuleAsDisabledAndKeepsOtherWarnings() {
+        var missing = MONTH.atDay(4);
+        var booked = MONTH.atDay(5);
+        when(userPort.findById(USER_ID, MONTH)).thenReturn(Optional.of(user()));
+        when(bookingPort.fetchBookingsForEmployee("ada", MONTH)).thenReturn(List.of(bookingOn(booked)));
+        when(absencePort.fetchAbsencesForEmployee(USERNAME, MONTH)).thenReturn(List.of());
+        when(expectedDaysPort.expectedWorkingDays(USER_ID, MONTH)).thenReturn(Set.of(missing, booked));
+        when(ruleSettingsPort.findAll()).thenReturn(settings(Set.of(WarningRule.MEAL_ENTRY)));
+
+        assertThat(service.getWarnings(USER_ID, MONTH))
+                .contains(new WorkTimeWarning(missing, WorkTimeWarningType.NO_TIME_ENTRY, null));
+    }
+
+    private static List<WarningRuleSetting> settings(Set<WarningRule> withoutSetting, WarningRule... disabled) {
+        Set<WarningRule> disabledRules = Set.of(disabled);
+        Set<WarningRule> dated = Set.of(WarningRule.BILLABLE_PROJECT, WarningRule.INTERNAL_NOTE,
+                WarningRule.MEAL_ENTRY, WarningRule.TRAVEL_ALLOWANCE);
+        return Arrays.stream(WarningRule.values())
+                .filter(rule -> !withoutSetting.contains(rule))
+                .map(rule -> new WarningRuleSetting(rule, !disabledRules.contains(rule),
+                        dated.contains(rule) ? LocalDate.of(2026, 10, 1) : null))
+                .toList();
+    }
+
     private GetEmployeeWarningsService serviceAt(String instant) {
         return new GetEmployeeWarningsService(userPort, bookingPort, absencePort, expectedDaysPort,
-                projectSnapshotPort, mealEntryPort, new WorkTimeWarningAssembler(), Clock.fixed(Instant.parse(instant), ZoneOffset.UTC));
+                projectSnapshotPort, mealEntryPort, ruleSettingsPort, new WorkTimeWarningAssembler(), Clock.fixed(Instant.parse(instant), ZoneOffset.UTC));
     }
 
     private void stubMonthWithDayTrip(YearMonth month, LocalDate date) {

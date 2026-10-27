@@ -11,6 +11,7 @@ Role:
     - EMPLOYEE
     - OFFICE_MANAGEMENT
     - PROJECT_LEAD
+    - ADMIN
     - SYSTEM
 ApiError:
   type: object

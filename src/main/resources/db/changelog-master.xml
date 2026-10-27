@@ -32,5 +32,6 @@
     <include file="changelog/hexagon/013-rename-hexagon-tables.yaml" relativeToChangelogFile="true"/>
     <include file="changelog/hexagon/014-user-email-unique.yaml" relativeToChangelogFile="true"/>
     <include file="changelog/hexagon/015-disable-leistungsnachweis.yaml" relativeToChangelogFile="true"/>
+    <include file="changelog/hexagon/016-worktime-warning-rule-settings.yaml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

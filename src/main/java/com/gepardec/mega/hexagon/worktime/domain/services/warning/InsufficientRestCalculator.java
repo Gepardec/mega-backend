@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.domain.services.warning;
 
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
@@ -17,6 +18,11 @@ import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningTyp
 
 public class InsufficientRestCalculator implements BookingsWarningCalculator {
     private static final Duration MIN_REQUIRED_REST_TIME = Duration.ofHours(11);
+
+    @Override
+    public WarningRule rule() {
+        return WarningRule.REST_TIME;
+    }
 
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeBookings bookings) {

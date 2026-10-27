@@ -68,23 +68,6 @@ class MealEntryCalculatorTest {
     }
 
     @Test
-    void calculate_whenTripDayBeforeCutoff_thenNoWarning() {
-        YearMonth september = YearMonth.of(2026, 9);
-        var bookings = bookings(journey(september.atDay(30), TO), journey(september.atDay(30), BACK));
-
-        assertThat(calculate(bookings, september, Set.of(), END_OF_MONTH_TODAY)).isEmpty();
-    }
-
-    @Test
-    void calculate_whenTripDayOnCutoffDate_thenWarning() {
-        var bookings = bookings(journey(OCTOBER.atDay(1), TO), journey(OCTOBER.atDay(1), BACK));
-
-        List<WorkTimeWarning> warnings = calculate(bookings, OCTOBER, Set.of(), OCTOBER.atDay(2));
-
-        assertThat(warnings).containsExactly(new WorkTimeWarning(OCTOBER.atDay(1), MEAL_ENTRY_MISSING, null));
-    }
-
-    @Test
     void calculate_whenTripDayIsToday_thenNoWarning() {
         var bookings = bookings(journey(OCTOBER.atDay(14), TO), journey(OCTOBER.atDay(14), BACK));
 

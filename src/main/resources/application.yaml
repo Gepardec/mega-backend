@@ -121,6 +121,9 @@ mega:
       branch: "${BRANCH:local}"
       commit: "${COMMIT:local}"
 
+  admin:
+    emails: "${MEGA_ADMIN_EMAILS:}"
+
   wiki:
     eom-url: "https://sites.google.com/a/gepardec.com/internal/home/zeiterfassung-mit-zep/monatsende-kontrolle-von-arbeitszeiten"
 
@@ -247,6 +250,10 @@ mega:
 
   mega:
     dash-url: "http://localhost:8080/index.html"
+
+    admin:
+      emails:
+        - "admin@example.com"
 
     zep:
       origin: "https://www.zep-online.de/zepgepardecservices_test"
