@@ -66,6 +66,10 @@
         <native2ascii-maven-plugin.plugin.version>2.1.1</native2ascii-maven-plugin.plugin.version>
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
         <org-glassfish-jaxb.version>4.0.9</org-glassfish-jaxb.version>
+        <rewrite-maven-plugin.version>6.46.1</rewrite-maven-plugin.version>
+        <rewrite-migrate-java.version>3.42.1</rewrite-migrate-java.version>
+        <rewrite-testing-frameworks.version>3.44.0</rewrite-testing-frameworks.version>
+        <rewrite-static-analysis.version>2.41.1</rewrite-static-analysis.version>
     </properties>
 
     <dependencyManagement>
@@ -428,6 +432,41 @@
                 <artifactId>quarkus-maven-plugin</artifactId>
                 <version>${quarkus.version}</version>
                 <extensions>true</extensions>
+            </plugin>
+
+            <!--
+                OpenRewrite: not bound to any phase, run on demand, e.g.
+                mvn rewrite:dryRun -Drewrite.activeRecipes=org.openrewrite.java.migrate.UpgradeToJava21
+                mvn rewrite:run    -Drewrite.activeRecipes=org.openrewrite.java.migrate.UpgradeToJava21
+                mvn rewrite:discover   (lists all available recipes)
+            -->
+            <plugin>
+                <groupId>org.openrewrite.maven</groupId>
+                <artifactId>rewrite-maven-plugin</artifactId>
+                <version>${rewrite-maven-plugin.version}</version>
+                <configuration>
+                    <exportDatatables>true</exportDatatables>
+                    <exclusions>
+                        <exclusion>target/**</exclusion>
+                    </exclusions>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.openrewrite.recipe</groupId>
+                        <artifactId>rewrite-migrate-java</artifactId>
+                        <version>${rewrite-migrate-java.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.openrewrite.recipe</groupId>
+                        <artifactId>rewrite-testing-frameworks</artifactId>
+                        <version>${rewrite-testing-frameworks.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.openrewrite.recipe</groupId>
+                        <artifactId>rewrite-static-analysis</artifactId>
+                        <version>${rewrite-static-analysis.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <plugin>
