@@ -1,0 +1,16 @@
+---
+# Code style used by OpenRewrite when it adds or reorders imports.
+# Matches the project's IntelliJ layout and never collapses imports into wildcards.
+type: specs.openrewrite.org/v1beta/style
+name: com.gepardec.mega.Style
+styleConfigs:
+  - org.openrewrite.java.style.ImportLayoutStyle:
+      classCountToUseStarImport: 999
+      nameCountToUseStarImport: 999
+      layout:
+        - import all other imports
+        - <blank line>
+        - import javax.*
+        - import java.*
+        - <blank line>
+        - import static all other imports

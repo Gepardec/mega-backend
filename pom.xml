@@ -446,6 +446,9 @@
                 <version>${rewrite-maven-plugin.version}</version>
                 <configuration>
                     <exportDatatables>true</exportDatatables>
+                    <activeStyles>
+                        <style>com.gepardec.mega.Style</style>
+                    </activeStyles>
                     <exclusions>
                         <exclusion>target/**</exclusion>
                     </exclusions>
