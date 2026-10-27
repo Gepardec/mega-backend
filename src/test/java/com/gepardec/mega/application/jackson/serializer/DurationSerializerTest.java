@@ -12,8 +12,8 @@ import java.time.Duration;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 class DurationSerializerTest {
@@ -38,7 +38,7 @@ class DurationSerializerTest {
     void serialize_whenNull_thenDoesNotCallJsonGenerator() throws Exception {
         serializer.serialize(null, jsonGeneratorMock, serializerProviderMock);
 
-        verify(jsonGeneratorMock, times(0)).writeString(anyString());
+        verify(jsonGeneratorMock, never()).writeString(anyString());
     }
 
     @Test
@@ -48,6 +48,6 @@ class DurationSerializerTest {
 
         serializer.serialize(duration, jsonGeneratorMock, serializerProviderMock);
 
-        verify(jsonGeneratorMock, times(1)).writeString(expected);
+        verify(jsonGeneratorMock).writeString(expected);
     }
 }

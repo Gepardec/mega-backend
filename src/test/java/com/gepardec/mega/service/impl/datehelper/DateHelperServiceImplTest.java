@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.YearMonth;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 class DateHelperServiceImplTest {
@@ -17,19 +17,19 @@ class DateHelperServiceImplTest {
     DateHelperService dateHelperService;
 
     @Test
-    void testGetNumberOfFridaysInMonth_whenMonthIsNovember2024_thenReturnFour() {
+    void getNumberOfFridaysInMonth_whenMonthIsNovember2024_thenReturnFour() {
         int actual = dateHelperService.getNumberOfFridaysInMonth(YearMonth.of(2024, 11));
         assertThat(actual).isEqualTo(4);
     }
 
     @Test
-    void testGetNumberOfFridaysInRange_whenRangeContainsTwo_thenReturnTwo() {
+    void getNumberOfFridaysInRange_whenRangeContainsTwo_thenReturnTwo() {
         int actual = dateHelperService.getFridaysInRange(LocalDate.of(2024, 11, 7), LocalDate.of(2024, 11, 15));
         assertThat(actual).isEqualTo(2);
     }
 
     @Test
-    void testGetNumberOfWorkingDaysForMonthWithoutHolidays_whenMonthIsApril2024_thenReturnTwentyOne() {
+    void getNumberOfWorkingDaysForMonthWithoutHolidays_whenMonthIsApril2024_thenReturnTwentyOne() {
         int actual = dateHelperService.getNumberOfWorkingDaysForMonthWithoutHolidays(YearMonth.of(2024, 4));
         assertThat(actual).isEqualTo(21);
     }

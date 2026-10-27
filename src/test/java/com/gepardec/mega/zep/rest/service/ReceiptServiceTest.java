@@ -68,9 +68,8 @@ class ReceiptServiceTest {
 
         // Assert
         assertThat(result)
-                .isNotNull()
                 .hasSize(2);
-        assertThat(result.getFirst().id()).isEqualTo(1);
+        assertThat(result.getFirst().id()).isOne();
         assertThat(result.get(1).id()).isEqualTo(2);
     }
 

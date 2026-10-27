@@ -220,7 +220,6 @@ class WorkerResourceTest {
         List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(YearMonth.of(2024, 6));
 
         assertThat(actual)
-                .isNotNull()
                 .hasSize(4);
     }
 
@@ -238,7 +237,6 @@ class WorkerResourceTest {
         List<ProjectHoursSummaryDto> actual = workerResource.getAllProjectsForMonthAndEmployee(YearMonth.of(2024, 6));
 
         assertThat(actual)
-                .isNotNull()
                 .isEmpty();
     }
 

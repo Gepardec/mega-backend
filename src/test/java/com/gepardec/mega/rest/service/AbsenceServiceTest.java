@@ -65,7 +65,6 @@ class AbsenceServiceTest {
         List<ZepAbsence> result = absenceService.getZepAbsencesByEmployeeNameForDateRange(employeeName, payrollMonth);
 
         assertThat(result)
-                .isNotNull()
                 .hasSize(2);
     }
 

@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URL;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @QuarkusTest
 class ResourceFileServiceTests {
@@ -17,22 +16,22 @@ class ResourceFileServiceTests {
     ResourceFileService resourceFileService;
 
     @Test
-    void testEnv_thenReturnCorrectJsonRespPath() {
+    void env_thenReturnCorrectJsonRespPath() {
         URL resource = getClass().getResource("/zep/rest/testresponses");
-        assertNotNull(resource);
+        assertThat(resource).isNotNull();
         String expectedPath = resource.getPath();
         assertThat(resourceFileService.getFilesDir().getPath()).isEqualTo(expectedPath);
     }
 
     @Test
-    void testEnv_thenReturnCorrectFileContent() {
+    void env_thenReturnCorrectFileContent() {
         Optional<String> singleFile = resourceFileService.getSingleFile("_test");
         assertThat(singleFile).isPresent();
         assertThat(singleFile.get()).startsWith("ok");
     }
 
     @Test
-    void testEnv_thenReturnCorrectDirContents() {
+    void env_thenReturnCorrectDirContents() {
         resourceFileService.getDirContents("_dirtest").forEach(
                 content -> assertThat(content).startsWith("ok")
         );

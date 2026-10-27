@@ -63,7 +63,7 @@ class SyncUsersServiceTest {
             assertThat(users.getFirst().employmentPeriods().employmentPeriods()).hasSize(1);
             return true;
         }));
-        assertThat(result.added()).isEqualTo(1);
+        assertThat(result.added()).isOne();
         assertThat(result.updated()).isZero();
     }
 
@@ -115,8 +115,8 @@ class SyncUsersServiceTest {
 
         verify(userRepository).saveAll(argThat(users -> users.size() == 1
                 && users.getFirst().zepUsername().equals(ZepUsername.of("former"))));
-        assertThat(result.added()).isEqualTo(1);
-        assertThat(result.skippedNoEmail()).isEqualTo(1);
+        assertThat(result.added()).isOne();
+        assertThat(result.skippedNoEmail()).isOne();
     }
 
     @Test
@@ -130,8 +130,8 @@ class SyncUsersServiceTest {
             assertThat(users.getFirst().personioId()).isEqualTo(PersonioId.of(99));
             return true;
         }));
-        assertThat(result.personioLinked()).isEqualTo(1);
-        assertThat(result.added()).isEqualTo(1);
+        assertThat(result.personioLinked()).isOne();
+        assertThat(result.added()).isOne();
     }
 
     @Test
@@ -145,7 +145,7 @@ class SyncUsersServiceTest {
 
         verify(personioEmployeePort, never()).findPersonioIdByEmail(any());
         assertThat(result.updated()).isZero();
-        assertThat(result.unchanged()).isEqualTo(1);
+        assertThat(result.unchanged()).isOne();
     }
 
     @Test
@@ -169,11 +169,11 @@ class SyncUsersServiceTest {
 
         UserSyncResult result = service(List.of()).sync();
 
-        assertThat(result.added()).isEqualTo(1);
-        assertThat(result.updated()).isEqualTo(1);
-        assertThat(result.unchanged()).isEqualTo(1);
-        assertThat(result.skippedNoEmail()).isEqualTo(1);
-        assertThat(result.personioLinked()).isEqualTo(1);
+        assertThat(result.added()).isOne();
+        assertThat(result.updated()).isOne();
+        assertThat(result.unchanged()).isOne();
+        assertThat(result.skippedNoEmail()).isOne();
+        assertThat(result.personioLinked()).isOne();
     }
 
     @Test
@@ -196,7 +196,7 @@ class SyncUsersServiceTest {
             return true;
         }));
         assertThat(result.added()).isZero();
-        assertThat(result.updated()).isEqualTo(1);
+        assertThat(result.updated()).isOne();
     }
 
     private SyncUsersService service(List<String> omEmails) {

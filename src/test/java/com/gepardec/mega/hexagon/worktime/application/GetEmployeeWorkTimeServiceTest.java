@@ -85,7 +85,7 @@ class GetEmployeeWorkTimeServiceTest {
         assertThat(report.entries()).anySatisfy(entry -> {
             assertThat(entry.project().id()).isEqualTo(secondProjectId);
             assertThat(entry.billableHours()).isEqualTo(3.0d);
-            assertThat(entry.nonBillableHours()).isEqualTo(0.0d);
+            assertThat(entry.nonBillableHours()).isZero();
             assertThat(entry.employeeMonthTotalHours()).isEqualTo(7.0d);
         });
     }

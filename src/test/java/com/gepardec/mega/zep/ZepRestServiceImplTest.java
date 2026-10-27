@@ -123,7 +123,7 @@ class ZepRestServiceImplTest {
 
         double actual = zepRestService.getDoctorsVisitingTimeForMonthAndEmployee(createEmployee(), YearMonth.of(2024, 5));
 
-        assertThat(actual).isEqualTo(0.0);
+        assertThat(actual).isZero();
     }
 
     @Test
@@ -222,7 +222,7 @@ class ZepRestServiceImplTest {
 
         List<ProjectHoursSummary> result = zepRestService.getAllProjectsForMonthAndEmployee(employee, YearMonth.of(2024, 6));
 
-        assertThat(result).isNotNull()
+        assertThat(result)
                 .isEmpty();
     }
 
@@ -282,7 +282,6 @@ class ZepRestServiceImplTest {
         List<Employee> actual = zepRestService.getEmployees();
 
         assertThat(actual)
-                .isNotNull()
                 .hasSize(2);
     }
 
@@ -294,7 +293,6 @@ class ZepRestServiceImplTest {
         List<ProjectTime> actual = zepRestService.getProjectTimesForEmployeePerProject("ABC", YearMonth.now());
 
         assertThat(actual)
-                .isNotNull()
                 .isEmpty();
     }
 
@@ -317,7 +315,6 @@ class ZepRestServiceImplTest {
         List<ProjectTime> actual = zepRestService.getProjectTimesForEmployeePerProject("ABC", YearMonth.of(2024, 6));
 
         assertThat(actual)
-                .isNotNull()
                 .hasSize(6);
     }
 
@@ -341,8 +338,8 @@ class ZepRestServiceImplTest {
 
             List<ProjectEntry> result = zepRestService.getProjectTimes(employee, payrollMonth);
 
-            assertThat(result).isNotEmpty();
-            assertThat(result).isEqualTo(projectEntries);
+            assertThat(result)
+                    .containsExactlyElementsOf(projectEntries);
         } else {
             when(attendanceService.getAttendanceForUserAndMonth(userId, payrollMonth))
                     .thenReturn(Collections.emptyList());
@@ -386,7 +383,6 @@ class ZepRestServiceImplTest {
         List<AbsenceTime> actual = zepRestService.getAbsenceForEmployee(employee, YearMonth.of(2024, 5));
 
         assertThat(actual)
-                .isNotNull()
                 .hasSize(2);
     }
 

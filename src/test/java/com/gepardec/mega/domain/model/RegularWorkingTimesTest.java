@@ -39,7 +39,7 @@ class RegularWorkingTimesTest {
                     .isPresent()
                     .hasValueSatisfying(hours -> {
                         assertThat(hours.start()).isEqualTo(LocalDate.of(2023, 7, 1));
-                        assertThat(hours.workingHours()).isEqualTo(workingHours2);
+                assertThat(hours.workingHours()).containsExactlyInAnyOrderEntriesOf(workingHours2);
                     });
         }
 
@@ -94,7 +94,7 @@ class RegularWorkingTimesTest {
                     .isPresent()
                     .hasValueSatisfying(hours -> {
                         assertThat(hours.start()).isNull();
-                        assertThat(hours.workingHours()).isEqualTo(workingHours);
+                assertThat(hours.workingHours()).containsExactlyInAnyOrderEntriesOf(workingHours);
                     });
         }
 
@@ -117,7 +117,7 @@ class RegularWorkingTimesTest {
                     .isPresent()
                     .hasValueSatisfying(hours -> {
                         assertThat(hours.start()).isEqualTo(LocalDate.of(2023, 1, 1));
-                        assertThat(hours.workingHours()).isEqualTo(workingHours1);
+                assertThat(hours.workingHours()).containsExactlyInAnyOrderEntriesOf(workingHours1);
                     });
         }
 
@@ -140,7 +140,7 @@ class RegularWorkingTimesTest {
                     .isPresent()
                     .hasValueSatisfying(hours -> {
                         assertThat(hours.start()).isEqualTo(LocalDate.of(2023, 7, 1));
-                        assertThat(hours.workingHours()).isEqualTo(workingHours2);
+                assertThat(hours.workingHours()).containsExactlyInAnyOrderEntriesOf(workingHours2);
                     });
         }
 
@@ -161,7 +161,7 @@ class RegularWorkingTimesTest {
                     .isPresent()
                     .hasValueSatisfying(hours -> {
                         assertThat(hours.start()).isEqualTo(referenceDate);
-                        assertThat(hours.workingHours()).isEqualTo(workingHours);
+                assertThat(hours.workingHours()).containsExactlyInAnyOrderEntriesOf(workingHours);
                     });
         }
 
@@ -202,7 +202,7 @@ class RegularWorkingTimesTest {
                     .isPresent()
                     .hasValueSatisfying(hours -> {
                         assertThat(hours.start()).isEqualTo(LocalDate.of(2023, 7, 1));
-                        assertThat(hours.workingHours()).isEqualTo(workingHours2);
+                assertThat(hours.workingHours()).containsExactlyInAnyOrderEntriesOf(workingHours2);
                     });
         }
 
@@ -271,7 +271,7 @@ class RegularWorkingTimesTest {
                     .isPresent()
                     .hasValueSatisfying(hours -> {
                         assertThat(hours.start()).isEqualTo(LocalDate.of(2025, 10, 18));
-                        assertThat(hours.workingHours()).isEqualTo(workingHours2);
+                assertThat(hours.workingHours()).containsExactlyInAnyOrderEntriesOf(workingHours2);
                     });
         }
     }

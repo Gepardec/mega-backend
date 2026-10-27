@@ -18,7 +18,6 @@ import java.time.YearMonth;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -52,8 +51,8 @@ class MealServiceTest {
         List<ZepMeal> meals = mealService.getZepMealsByEmployeeNameForMonth("001-duser", YearMonth.of(2026, 10));
 
         // Then
-        verify(zepEmployeeRestClient, times(1)).getMealsByUsername("001-duser", 1);
-        verify(zepEmployeeRestClient, times(1)).getMealsByUsername("001-duser", 2);
+        verify(zepEmployeeRestClient).getMealsByUsername("001-duser", 1);
+        verify(zepEmployeeRestClient).getMealsByUsername("001-duser", 2);
         assertThat(meals).extracting(ZepMeal::id).containsExactly(2, 3);
     }
 

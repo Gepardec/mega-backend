@@ -48,7 +48,7 @@ class ZepMailMessageParserTest {
         var result = parser.parse(new ZepRawMail("Invalid subject", HTML_BODY));
 
         assertThat(result.entry()).isEmpty();
-        assertThat(result.creatorUsername()).contains(ZepUsername.of("001-mmustermann"));
+        assertThat(result.creatorUsername()).hasValue(ZepUsername.of("001-mmustermann"));
     }
 
     @Test

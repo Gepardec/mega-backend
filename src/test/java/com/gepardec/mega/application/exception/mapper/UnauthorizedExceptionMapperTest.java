@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +34,6 @@ class UnauthorizedExceptionMapperTest {
         final Response response = mapper.toResponse(new UnauthorizedException("exception-message"));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
-        verify(logger, times(1)).warn(anyString(), eq("/path/resource"), eq("exception-message"));
+        verify(logger).warn(anyString(), eq("/path/resource"), eq("exception-message"));
     }
 }

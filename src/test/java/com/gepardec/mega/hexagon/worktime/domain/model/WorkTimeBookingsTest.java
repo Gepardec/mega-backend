@@ -50,7 +50,7 @@ class WorkTimeBookingsTest {
         assertThat(empty.projects()).isEmpty();
         assertThat(empty.journeys()).isEmpty();
         assertThat(empty.contributingToWorkingTime().values()).isEmpty();
-        assertThat(empty.totalDuration()).isEqualTo(Duration.ZERO);
+        assertThat(empty.totalDuration()).isZero();
     }
 
     @Test

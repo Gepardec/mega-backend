@@ -104,7 +104,7 @@ class ProjectEntryMapperTest {
         List<ProjectEntry> mappedProjectEntryList = projectEntryMapper.mapList(zepList);
 
         assertThat(mappedProjectEntryList).hasSize(2);
-        assertThat(mappedProjectEntryList.getFirst()).isNotNull();
+        assertThat(mappedProjectEntryList).first().isNotNull();
         assertThat(mappedProjectEntryList.get(1)).isNotNull();
     }
 

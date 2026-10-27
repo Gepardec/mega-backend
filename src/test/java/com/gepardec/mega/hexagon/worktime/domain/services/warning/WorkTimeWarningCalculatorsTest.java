@@ -79,7 +79,7 @@ class WorkTimeWarningCalculatorsTest {
         var warning = new ExceededMaximumWorkingHoursPerDayCalculator()
                 .calculate(bookings(project(DATE.atTime(7, 0), DATE.atTime(18, 0)))).getFirst();
         assertThat(warning.type()).isEqualTo(WorkTimeWarningType.EXCESS_WORKING_TIME_PRESENT);
-        assertThat(warning.hours()).isEqualTo(1d);
+        assertThat(warning.hours()).isOne();
     }
 
     @Test
@@ -96,7 +96,7 @@ class WorkTimeWarningCalculatorsTest {
                 project(DATE.atTime(14, 0), DATE.atTime(22, 0)),
                 project(DATE.plusDays(1).atTime(8, 0), DATE.plusDays(1).atTime(9, 0)))).getFirst();
         assertThat(warning.type()).isEqualTo(WorkTimeWarningType.MISSING_REST_TIME);
-        assertThat(warning.hours()).isEqualTo(1d);
+        assertThat(warning.hours()).isOne();
     }
 
     @Test

@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +50,7 @@ class PersonioHeadersFactoryTest {
         var result = personioHeadersFactory.update(new MultivaluedHashMap<>(), new MultivaluedHashMap<>());
 
         //THEN
-        verify(personioAuthClient, times(0)).authenticate(any());
+        verify(personioAuthClient, never()).authenticate(any());
 
         assertThat(result)
                 .hasSize(2)

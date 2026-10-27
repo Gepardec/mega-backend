@@ -83,7 +83,7 @@ class CompleteTasksForAbsentEmployeeServiceTest {
 
         Optional<AbsentEmployeeAutoCompletion> result = service.complete(employeeId, MONTH);
 
-        assertThat(result).contains(new AbsentEmployeeAutoCompletion(employeeId, MONTH));
+        assertThat(result).hasValue(new AbsentEmployeeAutoCompletion(employeeId, MONTH));
         ArgumentCaptor<List<MonthEndTask>> tasksCaptor = ArgumentCaptor.forClass(List.class);
         verify(monthEndTaskRepository).saveAll(tasksCaptor.capture());
         assertThat(tasksCaptor.getValue()).hasSize(4)

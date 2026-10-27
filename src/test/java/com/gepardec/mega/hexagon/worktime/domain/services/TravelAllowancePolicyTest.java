@@ -40,8 +40,7 @@ class TravelAllowancePolicyTest {
     @ParameterizedTest
     @CsvSource({"St. Pölten, Wien", "Wien, Linz"})
     void allowanceFor_whenActive_thenZero(String start, String destination) {
-        assertThat(TravelAllowancePolicy.allowanceFor(journey(Vehicle.CAR_ACTIVE, start, destination)))
-                .isEqualTo(Duration.ZERO);
+        assertThat(TravelAllowancePolicy.allowanceFor(journey(Vehicle.CAR_ACTIVE, start, destination))).isZero();
     }
 
     private static JourneyBooking journey(Vehicle vehicle, String start, String destination) {

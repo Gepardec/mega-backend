@@ -60,7 +60,7 @@ class ZepMealTest {
         ZepMeal meal = objectMapper.readValue(json, ZepMeal.class);
 
         // Then
-        assertThat(meal.date().toLocalDate().toString()).isEqualTo("2026-10-23");
+        assertThat(meal.date().toLocalDate()).hasToString("2026-10-23");
         assertThat(meal.breakfast()).isFalse();
         assertThat(meal.lunch()).isFalse();
         assertThat(meal.dinner()).isFalse();

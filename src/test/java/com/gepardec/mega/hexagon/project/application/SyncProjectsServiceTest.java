@@ -173,8 +173,8 @@ class SyncProjectsServiceTest {
 
         ProjectSyncResult result = service.sync();
 
-        assertThat(result.created()).isEqualTo(1);
-        assertThat(result.updated()).isEqualTo(1);
+        assertThat(result.created()).isOne();
+        assertThat(result.updated()).isOne();
         assertThat(result.unchanged()).isZero();
     }
 
@@ -198,7 +198,7 @@ class SyncProjectsServiceTest {
 
         assertThat(result.created()).isZero();
         assertThat(result.updated()).isZero();
-        assertThat(result.unchanged()).isEqualTo(1);
+        assertThat(result.unchanged()).isOne();
         verify(projectRepository, never()).saveAll(anyList());
     }
 
@@ -211,7 +211,7 @@ class SyncProjectsServiceTest {
 
         ProjectSyncResult result = service.sync();
 
-        assertThat(result.updated()).isEqualTo(1);
+        assertThat(result.updated()).isOne();
         verify(projectRepository).saveAll(argThat(projects -> {
             Project saved = projects.getFirst();
             assertThat(saved.billable()).isFalse();
@@ -229,7 +229,7 @@ class SyncProjectsServiceTest {
 
         ProjectSyncResult result = service.sync();
 
-        assertThat(result.updated()).isEqualTo(1);
+        assertThat(result.updated()).isOne();
         verify(projectRepository).saveAll(argThat(projects -> {
             Project saved = projects.getFirst();
             assertThat(saved.billable()).isTrue();

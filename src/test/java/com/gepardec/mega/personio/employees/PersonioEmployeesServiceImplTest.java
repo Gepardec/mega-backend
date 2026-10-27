@@ -49,7 +49,7 @@ class PersonioEmployeesServiceImplTest {
         var result = personioEmployeesService.getPersonioEmployeeByEmail("mega.test@gepardec.com");
 
         //THEN
-        assertThat(result).isNotEmpty();
+        assertThat(result).isPresent();
         PersonioEmployee personioEmployee = result.get();
         assertThat(personioEmployee.getGuildLead()).isEqualTo("guildLead");
         assertThat(personioEmployee.getInternalProjectLead()).isEqualTo("internalProjectLead");
