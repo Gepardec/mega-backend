@@ -434,14 +434,7 @@
                 <extensions>true</extensions>
             </plugin>
 
-            <!--
-                OpenRewrite: com.gepardec.mega.CodeHygiene (see rewrite.yml) is the default recipe.
-                mvn rewrite:dryRun              (report drift, never fails)
-                mvn rewrite:run                 (fix drift)
-                mvn package -Prewrite-check     (fail the build on drift before tests run, e.g. in CI)
-                mvn rewrite:dryRun -Drewrite.activeRecipes=<recipe>   (try any other recipe)
-                mvn rewrite:discover            (lists all available recipes)
-            -->
+            <!-- OpenRewrite: see README.md (Code hygiene) and rewrite.yml -->
             <plugin>
                 <groupId>org.openrewrite.maven</groupId>
                 <artifactId>rewrite-maven-plugin</artifactId>

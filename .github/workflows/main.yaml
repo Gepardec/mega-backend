@@ -20,6 +20,24 @@ permissions:
   checks: write # publish test report
 
 jobs:
+  # fail on code drift from the OpenRewrite recipes in rewrite.yml (see README "Code hygiene")
+  rewrite-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        name: checkout
+
+      # JDK 21 (the project's target): OpenRewrite's Java parser must support the JDK running Maven
+      - name: Set up JDK 21
+        uses: actions/setup-java@v6
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Check code hygiene with OpenRewrite
+        run: mvn -B process-test-classes -Prewrite-check --file pom.xml
+
   build-test-push:
     runs-on: ubuntu-latest
     steps:
