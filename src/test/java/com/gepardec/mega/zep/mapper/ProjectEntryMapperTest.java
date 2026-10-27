@@ -184,7 +184,7 @@ class ProjectEntryMapperTest {
         List<ProjectEntry> actual = mapper.mapList(List.of(projektzeitType));
 
         assertThat(actual).hasSize(1);
-        assertThat(actual.getFirst()).isInstanceOf(ProjectTimeEntry.class);
+        assertThat(actual).first().isInstanceOf(ProjectTimeEntry.class);
     }
 
     @Test
@@ -195,6 +195,6 @@ class ProjectEntryMapperTest {
         List<ProjectEntry> actual = mapper.mapList(List.of(projektzeitType));
 
         assertThat(actual).hasSize(1);
-        assertThat(actual.getFirst()).isInstanceOf(JourneyTimeEntry.class);
+        assertThat(actual).first().isInstanceOf(JourneyTimeEntry.class);
     }
 }

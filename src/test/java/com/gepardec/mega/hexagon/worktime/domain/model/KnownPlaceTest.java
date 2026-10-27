@@ -26,7 +26,7 @@ class KnownPlaceTest {
             "St. Pölten Hbf, ST_POELTEN"
     })
     void recognise_whenTextNamesOneKnownPlace_thenPlace(String text, KnownPlace expected) {
-        assertThat(KnownPlace.recognise(text)).contains(expected);
+        assertThat(KnownPlace.recognise(text)).hasValue(expected);
     }
 
     @ParameterizedTest
@@ -50,6 +50,6 @@ class KnownPlaceTest {
 
     @Test
     void recognise_whenSameWordRepeated_thenStillMatches() {
-        assertThat(KnownPlace.recognise("Wien Wien")).contains(KnownPlace.WIEN);
+        assertThat(KnownPlace.recognise("Wien Wien")).hasValue(KnownPlace.WIEN);
     }
 }

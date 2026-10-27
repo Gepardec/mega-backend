@@ -38,7 +38,7 @@ class UserIdentityLookupAdapterTest {
 
         Optional<UserId> resolved = userIdentityLookupAdapter.findUserIdByZepUsername(ZepUsername.of("jdoe"));
 
-        assertThat(resolved).contains(user.id());
+        assertThat(resolved).hasValue(user.id());
     }
 
     @Test

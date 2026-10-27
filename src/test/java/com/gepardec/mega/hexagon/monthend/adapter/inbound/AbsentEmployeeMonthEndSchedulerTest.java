@@ -56,7 +56,7 @@ class AbsentEmployeeMonthEndSchedulerTest {
     }
 
     @Test
-    void completeTasksForAbsentEmployees_shouldRunAtSeventeenHundredOnLastDayOfMonth() throws NoSuchMethodException {
+    void completeTasksForAbsentEmployees_shouldRunAtSeventeenHundredOnLastDayOfMonth() throws Exception {
         Scheduled scheduled = AbsentEmployeeMonthEndScheduler.class
                 .getDeclaredMethod("completeTasksForAbsentEmployees")
                 .getAnnotation(Scheduled.class);

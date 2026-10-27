@@ -3,7 +3,7 @@ package com.gepardec.mega.domain.model;
 import java.time.LocalDate;
 import java.util.List;
 
-public class Project {
+public final class Project {
     private final Integer zepId;
 
     private final String projectId;

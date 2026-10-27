@@ -11,7 +11,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @QuarkusTest
@@ -34,6 +33,6 @@ class ApplicationExceptionMapperTest {
         final Response response = mapper.toResponse(new IllegalArgumentException());
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
-        verify(logger, times(1)).error(anyString(), any(IllegalArgumentException.class));
+        verify(logger).error(anyString(), any(IllegalArgumentException.class));
     }
 }

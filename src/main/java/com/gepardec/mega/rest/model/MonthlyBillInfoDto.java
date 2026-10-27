@@ -1,6 +1,6 @@
 package com.gepardec.mega.rest.model;
 
-public class MonthlyBillInfoDto {
+public final class MonthlyBillInfoDto {
     private final int sumBills;
     private final int sumPrivateBills;
     private final int sumCompanyBills;

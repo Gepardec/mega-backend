@@ -6,7 +6,7 @@ import java.util.Optional;
 /**
  * Employee model (mutable wegen employmentPeriods und regularWorkingTimes)
  */
-public class Employee {
+public final class Employee {
 
     private final String userId;
 
@@ -103,7 +103,9 @@ public class Employee {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         Employee employee = (Employee) o;
         return Objects.equals(getUserId(), employee.getUserId()) && Objects.equals(getEmail(), employee.getEmail()) && Objects.equals(getTitle(), employee.getTitle()) && Objects.equals(getFirstname(), employee.getFirstname()) && Objects.equals(getLastname(), employee.getLastname()) && Objects.equals(getSalutation(), employee.getSalutation()) && Objects.equals(getReleaseDate(), employee.getReleaseDate()) && Objects.equals(getWorkDescription(), employee.getWorkDescription()) && Objects.equals(getLanguage(), employee.getLanguage()) && Objects.equals(getEmploymentPeriods(), employee.getEmploymentPeriods()) && Objects.equals(getRegularWorkingTimes(), employee.getRegularWorkingTimes());
@@ -121,8 +123,7 @@ public class Employee {
         result = 31 * result + Objects.hashCode(getWorkDescription());
         result = 31 * result + Objects.hashCode(getLanguage());
         result = 31 * result + Objects.hashCode(getEmploymentPeriods());
-        result = 31 * result + Objects.hashCode(getRegularWorkingTimes());
-        return result;
+        return 31 * result + Objects.hashCode(getRegularWorkingTimes());
     }
 
     public static final class Builder {

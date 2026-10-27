@@ -1,7 +1,7 @@
 package com.gepardec.mega.domain.model;
 
 
-public class ProjectHoursSummary {
+public final class ProjectHoursSummary {
     private final String projectName;
     private final double billableHoursSum;
     private final double nonBillableHoursSum;

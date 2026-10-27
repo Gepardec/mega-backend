@@ -14,7 +14,6 @@ import java.sql.SQLException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @QuarkusTest
@@ -39,6 +38,6 @@ class HibernateConstraintValidationExceptionMapperTest {
                  Detail: Key (user_id, for_month)=(18, 2023-11-01) already exists.""", new SQLException(), "uc_premature_employee_check_userid_and_formonth"));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        verify(logger, times(1)).error(contains("PrematureEmployeeCheck"));
+        verify(logger).error(contains("PrematureEmployeeCheck"));
     }
 }

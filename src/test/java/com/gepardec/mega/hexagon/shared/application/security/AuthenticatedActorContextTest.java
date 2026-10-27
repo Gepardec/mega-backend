@@ -23,7 +23,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -70,7 +69,7 @@ class AuthenticatedActorContextTest {
         assertThat(authenticatedActorContext.hasRole(Role.EMPLOYEE)).isTrue();
         assertThat(authenticatedActorContext.hasRole(Role.PROJECT_LEAD)).isFalse();
 
-        verify(userRepository, times(1)).findByEmail(Email.of(EMAIL));
+        verify(userRepository).findByEmail(Email.of(EMAIL));
     }
 
     @Test
@@ -83,7 +82,7 @@ class AuthenticatedActorContextTest {
         User user = authenticatedActorContext.user();
 
         assertThat(user).isEqualTo(resolvedUser);
-        verify(userRepository, times(1)).findByEmail(Email.of(EMAIL));
+        verify(userRepository).findByEmail(Email.of(EMAIL));
     }
 
     @Test

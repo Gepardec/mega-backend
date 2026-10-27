@@ -68,7 +68,7 @@ class UserRepositoryAdapterTest {
 
         List<User> all = userRepositoryAdapter.findAll();
         assertThat(all).hasSize(2);
-        assertThat(all.stream().map(u -> u.zepUsername().value()))
+        assertThat(all).extracting(u -> u.zepUsername().value())
                 .containsExactlyInAnyOrder("user1", "user2");
     }
 

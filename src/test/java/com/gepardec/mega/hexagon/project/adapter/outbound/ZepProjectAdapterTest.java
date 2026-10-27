@@ -55,7 +55,7 @@ class ZepProjectAdapterTest {
         var profiles = adapter.fetchAll();
 
         assertThat(profiles).hasSize(1);
-        assertThat(profiles.getFirst().zepId()).isEqualTo(1);
+        assertThat(profiles.getFirst().zepId()).isOne();
         assertThat(profiles.getFirst().name()).isEqualTo("Alpha");
     }
 
@@ -90,8 +90,9 @@ class ZepProjectAdapterTest {
 
         List<String> leads = adapter.fetchLeadUsernames(42);
 
-        assertThat(leads).containsExactlyInAnyOrder("lead1", "lead2");
-        assertThat(leads).doesNotContain("regular");
+        assertThat(leads)
+                .containsExactlyInAnyOrder("lead1", "lead2")
+                .doesNotContain("regular");
     }
 
     @Test

@@ -265,7 +265,7 @@ class HexagonalArchitectureTest {
     }
 
     @Test
-    void testClassesMustResideInSamePackageAsTestedClass() {
+    void classesMustResideInSamePackageAsTestedClass() {
         JavaClasses testClasses = new ClassFileImporter()
                 .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_ARCHIVES)
                 .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_JARS)

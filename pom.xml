@@ -66,6 +66,10 @@
         <native2ascii-maven-plugin.plugin.version>2.1.1</native2ascii-maven-plugin.plugin.version>
         <cyclonedx-maven-plugin.version>2.9.3</cyclonedx-maven-plugin.version>
         <org-glassfish-jaxb.version>4.0.9</org-glassfish-jaxb.version>
+        <rewrite-maven-plugin.version>6.46.1</rewrite-maven-plugin.version>
+        <rewrite-migrate-java.version>3.42.1</rewrite-migrate-java.version>
+        <rewrite-testing-frameworks.version>3.44.0</rewrite-testing-frameworks.version>
+        <rewrite-static-analysis.version>2.41.1</rewrite-static-analysis.version>
     </properties>
 
     <dependencyManagement>
@@ -430,9 +434,45 @@
                 <extensions>true</extensions>
             </plugin>
 
+            <!-- OpenRewrite: see README.md (Code hygiene) and rewrite.yml -->
+            <plugin>
+                <groupId>org.openrewrite.maven</groupId>
+                <artifactId>rewrite-maven-plugin</artifactId>
+                <version>${rewrite-maven-plugin.version}</version>
+                <configuration>
+                    <exportDatatables>true</exportDatatables>
+                    <activeRecipes>
+                        <recipe>com.gepardec.mega.CodeHygiene</recipe>
+                    </activeRecipes>
+                    <activeStyles>
+                        <style>com.gepardec.mega.Style</style>
+                    </activeStyles>
+                    <exclusions>
+                        <exclusion>target/**</exclusion>
+                    </exclusions>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.openrewrite.recipe</groupId>
+                        <artifactId>rewrite-migrate-java</artifactId>
+                        <version>${rewrite-migrate-java.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.openrewrite.recipe</groupId>
+                        <artifactId>rewrite-testing-frameworks</artifactId>
+                        <version>${rewrite-testing-frameworks.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.openrewrite.recipe</groupId>
+                        <artifactId>rewrite-static-analysis</artifactId>
+                        <version>${rewrite-static-analysis.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.1</version>
+                <version>3.16.0</version>
                 <configuration>
                     <parameters>true</parameters>
                     <annotationProcessorPaths>
@@ -608,4 +648,31 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Fails the build when code drifts from com.gepardec.mega.CodeHygiene (see rewrite.yml) -->
+        <profile>
+            <id>rewrite-check</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.openrewrite.maven</groupId>
+                        <artifactId>rewrite-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>check-code-hygiene</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>dryRunNoFork</goal>
+                                </goals>
+                                <configuration>
+                                    <failOnDryRunResults>true</failOnDryRunResults>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

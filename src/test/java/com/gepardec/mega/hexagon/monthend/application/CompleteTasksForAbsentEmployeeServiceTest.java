@@ -32,7 +32,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -83,7 +85,7 @@ class CompleteTasksForAbsentEmployeeServiceTest {
 
         Optional<AbsentEmployeeAutoCompletion> result = service.complete(employeeId, MONTH);
 
-        assertThat(result).contains(new AbsentEmployeeAutoCompletion(employeeId, MONTH));
+        assertThat(result).hasValue(new AbsentEmployeeAutoCompletion(employeeId, MONTH));
         ArgumentCaptor<List<MonthEndTask>> tasksCaptor = ArgumentCaptor.forClass(List.class);
         verify(monthEndTaskRepository).saveAll(tasksCaptor.capture());
         assertThat(tasksCaptor.getValue()).hasSize(4)
@@ -94,7 +96,7 @@ class CompleteTasksForAbsentEmployeeServiceTest {
 
         ArgumentCaptor<MonthEndClarification> clarificationCaptor =
                 ArgumentCaptor.forClass(MonthEndClarification.class);
-        verify(monthEndClarificationRepository, org.mockito.Mockito.times(2)).save(clarificationCaptor.capture());
+        verify(monthEndClarificationRepository, times(2)).save(clarificationCaptor.capture());
         assertThat(clarificationCaptor.getAllValues())
                 .extracting(MonthEndClarification::projectId)
                 .containsExactlyInAnyOrder(projectA, projectB);
@@ -127,7 +129,7 @@ class CompleteTasksForAbsentEmployeeServiceTest {
         Optional<AbsentEmployeeAutoCompletion> result = service.complete(employeeId, MONTH);
 
         assertThat(result).isEmpty();
-        verify(monthEndTaskRepository, never()).saveAll(org.mockito.ArgumentMatchers.any());
+        verify(monthEndTaskRepository, never()).saveAll(any());
         verifyNoInteractions(monthEndClarificationRepository);
     }
 

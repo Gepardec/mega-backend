@@ -1,8 +1,8 @@
 package com.gepardec.mega.application.filter;
 
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.eclipse.microprofile.openapi.OASFilter;
 import org.eclipse.microprofile.openapi.OASFactory;
+import org.eclipse.microprofile.openapi.OASFilter;
 import org.eclipse.microprofile.openapi.models.security.OAuthFlow;
 import org.eclipse.microprofile.openapi.models.security.OAuthFlows;
 import org.eclipse.microprofile.openapi.models.security.SecurityScheme;

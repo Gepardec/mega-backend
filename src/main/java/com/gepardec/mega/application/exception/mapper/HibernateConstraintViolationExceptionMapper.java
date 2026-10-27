@@ -26,7 +26,7 @@ public class HibernateConstraintViolationExceptionMapper implements ExceptionMap
             return errorMessage;
         }
 
-        if (e.getConstraintName().equals("uc_premature_employee_check_userid_and_formonth")) {
+        if ("uc_premature_employee_check_userid_and_formonth".equals(e.getConstraintName())) {
             String prematureEmployeeDetails = e.getMessage()
                     .split("\\(user_id, for_month\\)=\\(")[1].split("\\) already exists.")[0];
             return "Tried to add a PrematureEmployeeCheck but there already exists one with following UserId and Month: %s".formatted(prematureEmployeeDetails);

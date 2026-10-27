@@ -123,7 +123,7 @@ class ZepServiceImplTest {
         assertThat(employee.getUserId()).isEqualTo("0");
 
         verify(zepSoapPortType).readMitarbeiter(Mockito.argThat(
-                argument -> argument.getReadMitarbeiterSearchCriteria() != null && argument.getReadMitarbeiterSearchCriteria().getUserId().equals("0")
+                argument -> argument.getReadMitarbeiterSearchCriteria() != null && "0".equals(argument.getReadMitarbeiterSearchCriteria().getUserId())
         ));
     }
 
@@ -330,7 +330,7 @@ class ZepServiceImplTest {
                 employee
                         .getInternersatzListe()
                         .getInternersatz()
-                        .get(0)
+                        .getFirst()
                         .getSatz())
                 .isEqualTo(12.34D);
 
@@ -338,7 +338,7 @@ class ZepServiceImplTest {
                 employee
                         .getInternersatzListe()
                         .getInternersatz()
-                        .get(0)
+                        .getFirst()
                         .getStartdatum())
                 .isEqualTo("2025-01-01");
     }

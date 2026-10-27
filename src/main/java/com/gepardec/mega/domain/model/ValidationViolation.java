@@ -1,6 +1,6 @@
 package com.gepardec.mega.domain.model;
 
-public class ValidationViolation {
+public final class ValidationViolation {
 
     private final String property;
 

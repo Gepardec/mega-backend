@@ -5,8 +5,8 @@ import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorC
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
-import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWorkTimeUseCase;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWarningsUseCase;
+import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWorkTimeUseCase;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 import io.quarkus.security.Authenticated;

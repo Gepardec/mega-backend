@@ -53,7 +53,7 @@ class SyncProjectLeadRolesServiceTest {
                     .satisfies(updatedUser -> assertThat(updatedUser.roles()).containsExactlyInAnyOrder(Role.EMPLOYEE, Role.PROJECT_LEAD));
             return true;
         }));
-        assertThat(result.rolesAdded()).isEqualTo(1);
+        assertThat(result.rolesAdded()).isOne();
         assertThat(result.rolesRevoked()).isZero();
     }
 
@@ -70,7 +70,7 @@ class SyncProjectLeadRolesServiceTest {
             return true;
         }));
         assertThat(result.rolesAdded()).isZero();
-        assertThat(result.rolesRevoked()).isEqualTo(1);
+        assertThat(result.rolesRevoked()).isOne();
     }
 
     @Test

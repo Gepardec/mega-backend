@@ -6,6 +6,7 @@ import com.gepardec.mega.hexagon.worktime.domain.model.ProjectBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.Task;
 import com.gepardec.mega.hexagon.worktime.domain.model.Vehicle;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkingLocation;
@@ -33,7 +34,7 @@ class InvalidWorkingLocationCalculatorTest {
     void getAllWarningsForEmployeeAndMonth_whenInvalidJourneyWorkingLocation_thenGetError() {
         List<WorkTimeBooking> projectEntries = createWorkTimeBookingListForRequestForJourney();
 
-        List<WorkTimeWarning> actual = calculator.calculate(new com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings(projectEntries));
+        List<WorkTimeWarning> actual = calculator.calculate(new WorkTimeBookings(projectEntries));
 
         assertThat(actual)
                 .hasSize(1)

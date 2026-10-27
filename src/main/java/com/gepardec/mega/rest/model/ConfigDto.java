@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDeserialize(builder = ConfigDto.Builder.class)
-public class ConfigDto {
+public final class ConfigDto {
 
     private final String excelUrl;
 
@@ -91,8 +91,12 @@ public class ConfigDto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ConfigDto configDto = (ConfigDto) o;
         return Objects.equals(getExcelUrl(), configDto.getExcelUrl()) && Objects.equals(getZepOrigin(), configDto.getZepOrigin()) && Objects.equals(getPersonioOrigin(), configDto.getPersonioOrigin()) && Objects.equals(getClientId(), configDto.getClientId()) && Objects.equals(getIssuer(), configDto.getIssuer()) && Objects.equals(getScope(), configDto.getScope()) && Objects.equals(getVersion(), configDto.getVersion()) && Objects.equals(getOmMailAddresses(), configDto.getOmMailAddresses()) && Objects.equals(getSubjectPrefix(), configDto.getSubjectPrefix()) && Objects.equals(getMegaDashUrl(), configDto.getMegaDashUrl());
     }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -15,7 +14,7 @@ class ZepAttendanceTest {
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Test
-    void deserialize_readsNote() throws IOException {
+    void deserialize_readsNote() throws Exception {
         try (InputStream json = getClass().getResourceAsStream("/zep/rest/testresponses/attendances/002-tuser/ZepAttendanceList.json")) {
             List<ZepAttendance> attendances = objectMapper.readValue(
                     objectMapper.readTree(json).get("data").traverse(),
@@ -27,7 +26,7 @@ class ZepAttendanceTest {
     }
 
     @Test
-    void deserialize_readsStartAndDestination() throws IOException {
+    void deserialize_readsStartAndDestination() throws Exception {
         String json = """
                 {"id": 1, "start": "Wien Hbf", "destination": "Linz"}
                 """;
@@ -39,7 +38,7 @@ class ZepAttendanceTest {
     }
 
     @Test
-    void deserialize_whenStartAndDestinationAbsent_thenNull() throws IOException {
+    void deserialize_whenStartAndDestinationAbsent_thenNull() throws Exception {
         ZepAttendance attendance = objectMapper.readValue("{\"id\": 1}", ZepAttendance.class);
 
         assertThat(attendance.start()).isNull();

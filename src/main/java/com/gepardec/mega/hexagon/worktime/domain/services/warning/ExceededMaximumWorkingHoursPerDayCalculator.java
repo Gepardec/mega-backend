@@ -9,7 +9,7 @@ import java.util.List;
 import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType.EXCESS_WORKING_TIME_PRESENT;
 
 public class ExceededMaximumWorkingHoursPerDayCalculator implements BookingsWarningCalculator {
-    static final double MAX_HOURS_A_DAY = 10d;
+    static final double MAX_HOURS_A_DAY = 10D;
 
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeBookings bookings) {

@@ -60,7 +60,7 @@ class MonthEndTaskGenerationSchedulerTest {
     }
 
     @Test
-    void generateMonthEndTasks_shouldRunDuringLastWeekOfMonth() throws NoSuchMethodException {
+    void generateMonthEndTasks_shouldRunDuringLastWeekOfMonth() throws Exception {
         Scheduled scheduled = MonthEndTaskGenerationScheduler.class
                 .getDeclaredMethod("generateMonthEndTasks")
                 .getAnnotation(Scheduled.class);

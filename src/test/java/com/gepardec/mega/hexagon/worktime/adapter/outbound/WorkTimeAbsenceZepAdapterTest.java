@@ -4,7 +4,6 @@ import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.domain.model.Absence;
 import com.gepardec.mega.hexagon.worktime.domain.model.AbsenceType;
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
-import com.gepardec.mega.zep.rest.dto.ZepAbsenceReason;
 import com.gepardec.mega.zep.rest.service.AbsenceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

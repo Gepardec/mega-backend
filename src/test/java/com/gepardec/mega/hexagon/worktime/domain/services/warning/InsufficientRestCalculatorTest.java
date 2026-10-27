@@ -66,7 +66,7 @@ class InsufficientRestCalculatorTest {
         WorkTimeWarning warning = warnings.getFirst();
         assertThat(warning.date()).isNotNull();
         assertThat(warning.type()).isEqualTo(WorkTimeWarningType.MISSING_REST_TIME);
-        assertThat(warning.hours()).isEqualTo(1d);
+        assertThat(warning.hours()).isOne();
     }
 
     @Test
@@ -91,7 +91,7 @@ class InsufficientRestCalculatorTest {
         List<WorkTimeWarning> warnings = calculator.calculate(bookings(timeEntryTwo, timeEntryOne));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.getFirst().hours()).isEqualTo(1);
+        assertThat(warnings.getFirst().hours()).isOne();
     }
 
     @Test
@@ -102,7 +102,7 @@ class InsufficientRestCalculatorTest {
         List<WorkTimeWarning> warnings = calculator.calculate(bookings(timeEntryOne, timeEntryTwo));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.getFirst().hours()).isEqualTo(1);
+        assertThat(warnings.getFirst().hours()).isOne();
     }
 
     @Test
@@ -114,7 +114,7 @@ class InsufficientRestCalculatorTest {
         List<WorkTimeWarning> warnings = calculator.calculate(bookings(timeEntryOne, timeEntryTwo, timeEntryThree));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.getFirst().hours()).isEqualTo(1);
+        assertThat(warnings.getFirst().hours()).isOne();
     }
 
     @Test
@@ -139,7 +139,7 @@ class InsufficientRestCalculatorTest {
         List<WorkTimeWarning> warnings = calculator.calculate(bookings(timeEntryOne, timeEntryTwo));
 
         assertThat(warnings).hasSize(1);
-        assertThat(warnings.getFirst().hours()).isEqualTo(1);
+        assertThat(warnings.getFirst().hours()).isOne();
     }
 
     @Test

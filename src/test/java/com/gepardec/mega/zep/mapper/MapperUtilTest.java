@@ -22,10 +22,10 @@ class MapperUtilTest {
 
     @Test
     void whenAttributes_thenReturnsAttributesMap() {
-        AttributeType attribute = new de.provantis.zep.AttributeType();
+        AttributeType attribute = new AttributeType();
         attribute.setName("gilde");
         attribute.setValue("cia");
-        AttributeType attribute2 = new de.provantis.zep.AttributeType();
+        AttributeType attribute2 = new AttributeType();
         attribute2.setName("office");
         attribute2.setValue("wien");
 
@@ -33,7 +33,7 @@ class MapperUtilTest {
         attributesList.add(attribute);
         attributesList.add(attribute2);
 
-        AttributesType attributes = new de.provantis.zep.AttributesType();
+        AttributesType attributes = new AttributesType();
         attributes.setAttribute(attributesList);
 
         Map<String, String> attributesMap = MapperUtil.convertAttributesToMap(attributes);

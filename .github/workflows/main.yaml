@@ -26,15 +26,18 @@ jobs:
       - uses: actions/checkout@v7
         name: checkout
 
+      # JDK 21 (the project's target): OpenRewrite's Java parser must support the JDK running Maven
       - name: Set up JDK 21
         uses: actions/setup-java@v6
         with:
-          java-version: '27'
+          java-version: '21'
           distribution: 'temurin'
           cache: maven
 
+      # rewrite-check fails on code drift from the OpenRewrite recipes in rewrite.yml before the tests run
+      # (see README "Code hygiene")
       - name: Build (and test) project with Maven
-        run: mvn -B package --file pom.xml
+        run: mvn -B package -Prewrite-check --file pom.xml
 
       # annotate failing tests on the PR / commit
       - name: Publish test report

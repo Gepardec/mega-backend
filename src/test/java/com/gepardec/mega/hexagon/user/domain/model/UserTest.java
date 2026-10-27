@@ -9,6 +9,7 @@ import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,7 +82,7 @@ class UserTest {
         assertThat(systemActor.email()).isNull();
         assertThat(systemActor.zepUsername()).isNull();
         assertThat(systemActor.isSystemActor()).isTrue();
-        assertThat(systemActor.isActiveIn(java.time.YearMonth.of(2026, 3))).isFalse();
+        assertThat(systemActor.isActiveIn(YearMonth.of(2026, 3))).isFalse();
     }
 
     @Test

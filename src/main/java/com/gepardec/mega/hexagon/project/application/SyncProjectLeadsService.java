@@ -12,6 +12,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -96,7 +97,7 @@ public class SyncProjectLeadsService implements SyncProjectLeadsUseCase {
 
     private static final class SyncAccumulator {
 
-        private final List<Project> projectsToSave = new java.util.ArrayList<>();
+        private final List<Project> projectsToSave = new ArrayList<>();
         private final Set<UserId> allLeadUserIds = new HashSet<>();
         private int resolved;
         private int skipped;

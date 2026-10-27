@@ -124,10 +124,10 @@ class MonthlyReportServiceImplTest {
 
             // Assert
             assertThat(result).isNotNull();
-            assertThat(result.totalWorkingTimeHours()).isEqualTo(0.0);
-            assertThat(result.overtimeHours()).isEqualTo(0.0);
-            assertThat(result.billableTimeHours()).isEqualTo(0.0);
-            assertThat(result.billablePercentage()).isEqualTo(0.0);
+            assertThat(result.totalWorkingTimeHours()).isZero();
+            assertThat(result.overtimeHours()).isZero();
+            assertThat(result.billableTimeHours()).isZero();
+            assertThat(result.billablePercentage()).isZero();
         }
 
         @Test

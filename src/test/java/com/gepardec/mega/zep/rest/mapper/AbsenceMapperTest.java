@@ -2,7 +2,6 @@ package com.gepardec.mega.zep.rest.mapper;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.zep.rest.dto.ZepAbsence;
-import com.gepardec.mega.zep.rest.dto.ZepAbsenceReason;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;

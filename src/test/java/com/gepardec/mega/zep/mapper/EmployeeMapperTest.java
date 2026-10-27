@@ -64,8 +64,8 @@ class EmployeeMapperTest {
 
     private BeschaeftigungszeitType createBeschaeftigungszeitType(final LocalDate start, final LocalDate end) {
         final BeschaeftigungszeitType beschaeftigung = new BeschaeftigungszeitType();
-        beschaeftigung.setStartdatum((start != null) ? DateUtils.formatDate(start) : null);
-        beschaeftigung.setEnddatum((end != null) ? DateUtils.formatDate(end) : null);
+        beschaeftigung.setStartdatum(start != null ? DateUtils.formatDate(start) : null);
+        beschaeftigung.setEnddatum(end != null ? DateUtils.formatDate(end) : null);
         return beschaeftigung;
     }
 

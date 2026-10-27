@@ -4,7 +4,7 @@ import jakarta.ws.rs.core.Response;
 import org.apache.http.HttpStatus;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
-public class HealthCheckUtil {
+public final class HealthCheckUtil {
 
     private HealthCheckUtil() {
     }

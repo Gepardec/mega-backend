@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationUpdatedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
@@ -69,7 +70,7 @@ class UpdateMonthEndClarificationServiceTest {
                 event.clarificationId().equals(result.id())
                         && event.actorId().equals(employeeId)
                         && event.subjectEmployeeId().equals(employeeId)
-                        && event.text().equals("Updated text")
+                        && "Updated text".equals(event.text())
                         && event.eligibleProjectLeadIds().equals(Set.of(leadId))
         ));
     }
@@ -89,7 +90,7 @@ class UpdateMonthEndClarificationServiceTest {
         when(clarificationRepository.findById(clarification.id())).thenReturn(Optional.of(clarification));
 
         assertThatThrownBy(() -> service.updateText(clarification.id(), leadId, "Lead trying to edit"))
-                .isInstanceOf(com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException.class)
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
                 .hasMessageContaining("not allowed");
     }
 
@@ -110,7 +111,7 @@ class UpdateMonthEndClarificationServiceTest {
         when(clarificationRepository.findById(clarification.id())).thenReturn(Optional.of(clarification));
 
         assertThatThrownBy(() -> service.updateText(clarification.id(), leadB, "Trying to edit"))
-                .isInstanceOf(com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException.class)
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class)
                 .hasMessageContaining("not allowed");
     }
 

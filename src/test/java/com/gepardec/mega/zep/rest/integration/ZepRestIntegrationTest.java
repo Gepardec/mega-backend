@@ -113,7 +113,7 @@ class ZepRestIntegrationTest {
     @Test
     void getProjectByName_valid() {
         Optional<Project> projectByName = zepService.getProjectByName("BVAEB-KAP-2021", YearMonth.of(2021, 1));
-        assertThat(projectByName).isNotEmpty();
+        assertThat(projectByName).isPresent();
         Project project = projectByName.get();
         assertThat(project.getZepId()).isEqualTo(158);
     }

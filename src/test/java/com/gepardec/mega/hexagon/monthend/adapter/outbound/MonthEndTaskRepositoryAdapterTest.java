@@ -276,10 +276,10 @@ class MonthEndTaskRepositoryAdapterTest {
         List<MonthEndTask> result3 = monthEndTaskRepositoryAdapter.findOpenProjectTasksOfType(monthA, projectB.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK);
         List<MonthEndTask> result4 = monthEndTaskRepositoryAdapter.findOpenProjectTasksOfType(monthB, projectA.id(), MonthEndTaskType.EMPLOYEE_TIME_CHECK);
 
-        assertThat(result1).hasSize(1).containsExactly(matchTask);
-        assertThat(result2).hasSize(1).containsExactly(diffTypeTask);
-        assertThat(result3).hasSize(1).containsExactly(diffProjectTask);
-        assertThat(result4).hasSize(1).containsExactly(diffMonthTask);
+        assertThat(result1).containsExactly(matchTask);
+        assertThat(result2).containsExactly(diffTypeTask);
+        assertThat(result3).containsExactly(diffProjectTask);
+        assertThat(result4).containsExactly(diffMonthTask);
     }
 
     @Test

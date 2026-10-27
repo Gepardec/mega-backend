@@ -53,8 +53,9 @@ class TripDaysTest {
         Set<LocalDate> result = TripDays.of(
                 List.of(journey(TO, 5), journey(BACK, 6), journey(TO, 8), journey(BACK, 9)), OCTOBER);
 
-        assertThat(result).containsExactly(date(OCTOBER, 5), date(OCTOBER, 6), date(OCTOBER, 8), date(OCTOBER, 9));
-        assertThat(result).doesNotContain(date(OCTOBER, 7));
+        assertThat(result)
+                .containsExactly(date(OCTOBER, 5), date(OCTOBER, 6), date(OCTOBER, 8), date(OCTOBER, 9))
+                .doesNotContain(date(OCTOBER, 7));
     }
 
     @Test

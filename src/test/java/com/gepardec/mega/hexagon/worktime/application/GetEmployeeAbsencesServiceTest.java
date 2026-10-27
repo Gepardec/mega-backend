@@ -54,7 +54,7 @@ class GetEmployeeAbsencesServiceTest {
 
         List<Absence> result = service.getAbsences(employeeId, month);
 
-        assertThat(result).isEqualTo(absences);
+        assertThat(result).containsExactlyElementsOf(absences);
     }
 
     @Test

@@ -1,9 +1,9 @@
 package com.gepardec.mega.hexagon.user.application;
 
+import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
-import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import com.gepardec.mega.hexagon.user.application.port.inbound.SyncUsersUseCase;
 import com.gepardec.mega.hexagon.user.application.port.inbound.UserSyncResult;
 import com.gepardec.mega.hexagon.user.application.port.outbound.PersonioEmployeePort;

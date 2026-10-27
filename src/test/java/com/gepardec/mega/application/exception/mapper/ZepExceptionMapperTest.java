@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +34,6 @@ class ZepExceptionMapperTest {
         final Response response = mapper.toResponse(new ZepServiceException("exception-message"));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
-        verify(logger, times(1)).error(anyString(), eq("/path/resource"), eq("exception-message"));
+        verify(logger).error(anyString(), eq("/path/resource"), eq("exception-message"));
     }
 }

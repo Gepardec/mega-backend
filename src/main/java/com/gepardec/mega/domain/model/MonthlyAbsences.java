@@ -1,6 +1,6 @@
 package com.gepardec.mega.domain.model;
 
-public class MonthlyAbsences {
+public final class MonthlyAbsences {
     private final int vacationDays;
     private final int compensatoryDays;
     private final int nursingDays;

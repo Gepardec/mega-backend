@@ -10,7 +10,8 @@ import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatObject;
 import static org.mockito.Mockito.when;
 
 @QuarkusTest
@@ -30,7 +31,7 @@ class HealthCheckUtilTest {
         HealthCheckResponse actual = HealthCheckUtil.checkApi("Personio", personioLivenessClient);
 
         assertThat(actual.getName()).isEqualTo("Personio");
-        assertThat(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.UP);
+        assertThatObject(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.UP);
     }
 
     @Test
@@ -39,7 +40,7 @@ class HealthCheckUtilTest {
         HealthCheckResponse actual = HealthCheckUtil.checkApi("Personio", personioLivenessClient);
 
         assertThat(actual.getName()).isEqualTo("Personio");
-        assertThat(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.DOWN);
+        assertThatObject(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.DOWN);
     }
 
     @Test
@@ -48,7 +49,7 @@ class HealthCheckUtilTest {
         HealthCheckResponse actual = HealthCheckUtil.checkApi("Zep", zepLivenessRestClient);
 
         assertThat(actual.getName()).isEqualTo("Zep");
-        assertThat(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.UP);
+        assertThatObject(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.UP);
     }
 
     @Test
@@ -57,7 +58,7 @@ class HealthCheckUtilTest {
         HealthCheckResponse actual = HealthCheckUtil.checkApi("Zep", zepLivenessRestClient);
 
         assertThat(actual.getName()).isEqualTo("Zep");
-        assertThat(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.DOWN);
+        assertThatObject(actual.getStatus()).isEqualTo(HealthCheckResponse.Status.DOWN);
     }
 
     private Response getOkResponse() {

@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDeserialize(builder = ProjectHoursSummaryDto.Builder.class)
-public class ProjectHoursSummaryDto {
+public final class ProjectHoursSummaryDto {
     private final String projectName;
     private final double billableHoursSum;
     private final double nonBillableHoursSum;
@@ -47,8 +47,12 @@ public class ProjectHoursSummaryDto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ProjectHoursSummaryDto that = (ProjectHoursSummaryDto) o;
         return Double.compare(billableHoursSum, that.billableHoursSum) == 0 && Double.compare(nonBillableHoursSum, that.nonBillableHoursSum) == 0 && Objects.equals(projectName, that.projectName);
     }

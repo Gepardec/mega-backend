@@ -223,7 +223,7 @@ class MonthEndIT {
         List<MonthEndTask> allTasks = monthEndTaskRepositoryAdapter.findByMonth(MONTH);
 
         assertThat(generationResult.created()).isEqualTo(3);
-        assertThat(generationResult.skipped()).isEqualTo(1);
+        assertThat(generationResult.skipped()).isOne();
         assertThat(allTasks)
                 .extracting(MonthEndTask::type)
                 .containsExactlyInAnyOrder(

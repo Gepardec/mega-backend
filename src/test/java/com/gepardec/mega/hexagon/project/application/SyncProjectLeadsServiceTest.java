@@ -79,7 +79,7 @@ class SyncProjectLeadsServiceTest {
 
         verify(projectRepository, never()).saveAll(anyList());
         assertThat(result.resolved()).isZero();
-        assertThat(result.skipped()).isEqualTo(1);
+        assertThat(result.skipped()).isOne();
         assertThat(result.leadUserIds()).isEmpty();
     }
 
@@ -147,7 +147,7 @@ class SyncProjectLeadsServiceTest {
 
         ProjectLeadSyncResult result = service.sync();
 
-        assertThat(result.resolved()).isEqualTo(1);
+        assertThat(result.resolved()).isOne();
         assertThat(result.skipped()).isEqualTo(2);
     }
 

@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.worktime.domain.services.warning;
 import com.gepardec.mega.hexagon.worktime.domain.model.ProjectBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.Task;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkingLocation;
@@ -23,7 +24,7 @@ class TimeOverlapCalculatorTest {
     void calculate_whenProjectEntriesWithoutOverlap_thenNoWarning() {
         List<WorkTimeBooking> projectEntries = generateProjectEntriesListWithoutOverlap();
 
-        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings(projectEntries));
+        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new WorkTimeBookings(projectEntries));
 
         assertThat(warnings).isEmpty();
     }
@@ -33,7 +34,7 @@ class TimeOverlapCalculatorTest {
         WorkTimeBooking first = projectTimeEntry(7, 8, 0, 10, 0);
         WorkTimeBooking second = projectTimeEntry(7, 9, 30, 11, 0);
 
-        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings(List.of(first, second)));
+        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new WorkTimeBookings(List.of(first, second)));
 
         assertThat(warnings).containsExactly(new WorkTimeWarning(LocalDate.of(2020, 1, 7), WorkTimeWarningType.TIME_OVERLAP, null));
     }
@@ -43,7 +44,7 @@ class TimeOverlapCalculatorTest {
         WorkTimeBooking outer = projectTimeEntry(7, 8, 0, 12, 0);
         WorkTimeBooking nested = projectTimeEntry(7, 9, 0, 10, 0);
 
-        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings(List.of(outer, nested)));
+        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new WorkTimeBookings(List.of(outer, nested)));
 
         assertThat(warnings).containsExactly(new WorkTimeWarning(LocalDate.of(2020, 1, 7), WorkTimeWarningType.TIME_OVERLAP, null));
     }
@@ -52,7 +53,7 @@ class TimeOverlapCalculatorTest {
     void calculate_whenProjectEntriesAreAdjacent_thenNoWarning() {
         List<WorkTimeBooking> projectEntries = generateAdjacentProjectEntries();
 
-        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings(projectEntries));
+        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new WorkTimeBookings(projectEntries));
 
         assertThat(warnings).isEmpty();
     }
@@ -61,7 +62,7 @@ class TimeOverlapCalculatorTest {
     void calculate_whenProjectEntriesOverlap_thenWarning() {
         List<WorkTimeBooking> projectEntries = generateProjectEntriesWithOverlap();
 
-        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings(projectEntries));
+        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new WorkTimeBookings(projectEntries));
 
         assertThat(warnings).isNotEmpty();
     }
@@ -70,7 +71,7 @@ class TimeOverlapCalculatorTest {
     void calculate_whenProjectEntriesOverlap_thenCorrectDate() {
         List<WorkTimeBooking> projectEntries = generateProjectEntriesWithOverlap();
 
-        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings(projectEntries));
+        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new WorkTimeBookings(projectEntries));
 
         assertThat(warnings.getFirst().date()).isEqualTo(LocalDate.of(2020, 1, 7));
     }
@@ -90,7 +91,7 @@ class TimeOverlapCalculatorTest {
         projectEntries.add(entryFour);
         projectEntries.add(entryFive);
 
-        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings(projectEntries));
+        List<WorkTimeWarning> warnings = timeOverlapCalculator.calculate(new WorkTimeBookings(projectEntries));
 
         assertThat(warnings).hasSize(2);
     }

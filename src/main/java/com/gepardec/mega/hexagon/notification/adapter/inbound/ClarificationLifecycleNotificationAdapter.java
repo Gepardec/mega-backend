@@ -8,8 +8,8 @@ import com.gepardec.mega.hexagon.monthend.domain.event.ZepMailProcessingFailedEv
 import com.gepardec.mega.hexagon.monthend.domain.model.SourceSystem;
 import com.gepardec.mega.hexagon.notification.application.port.outbound.NotificationMailPort;
 import com.gepardec.mega.hexagon.notification.domain.ClarificationNotificationType;
-import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.SystemActor;
+import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import io.quarkus.logging.Log;

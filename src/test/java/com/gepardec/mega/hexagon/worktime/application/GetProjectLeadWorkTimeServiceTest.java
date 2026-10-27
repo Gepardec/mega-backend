@@ -85,7 +85,7 @@ class GetProjectLeadWorkTimeServiceTest {
             assertThat(entry.employee().id()).isEqualTo(employeeId);
             assertThat(entry.project().id()).isEqualTo(alpha.id());
             assertThat(entry.billableHours()).isEqualTo(5.0d);
-            assertThat(entry.nonBillableHours()).isEqualTo(0.0d);
+            assertThat(entry.nonBillableHours()).isZero();
             assertThat(entry.employeeMonthTotalHours()).isEqualTo(9.0d);
         });
         assertThat(report.entries()).anySatisfy(entry -> {
@@ -98,7 +98,7 @@ class GetProjectLeadWorkTimeServiceTest {
         assertThat(report.entries()).anySatisfy(entry -> {
             assertThat(entry.employee().id()).isEqualTo(secondEmployeeId);
             assertThat(entry.project().id()).isEqualTo(alpha.id());
-            assertThat(entry.billableHours()).isEqualTo(0.0d);
+            assertThat(entry.billableHours()).isZero();
             assertThat(entry.nonBillableHours()).isEqualTo(3.5d);
             assertThat(entry.employeeMonthTotalHours()).isEqualTo(3.5d);
         });

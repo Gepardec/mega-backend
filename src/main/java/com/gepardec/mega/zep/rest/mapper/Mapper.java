@@ -9,8 +9,9 @@ public interface Mapper<D, T> {
     D map(T t);
 
     default List<D> mapList(List<T> tList) {
-        if (tList == null)
+        if (tList == null) {
             return Collections.emptyList();
+        }
 
         return tList.stream()
                 .map(this::map)

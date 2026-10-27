@@ -14,6 +14,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.JAKARTA)
@@ -38,7 +39,7 @@ public interface UserMapper {
                 toPersonioId(entity.getPersonioId()),
                 new EmploymentPeriods(
                         entity.getEmploymentPeriods() == null
-                                ? java.util.List.of()
+                                ? List.of()
                                 : entity.getEmploymentPeriods().stream().map(this::toDomain).toList()
                 ),
                 entity.getRoles() == null ? Set.of() : Set.copyOf(entity.getRoles()),
@@ -66,7 +67,7 @@ public interface UserMapper {
         return personioId == null ? null : PersonioId.of(personioId);
     }
 
-    default Set<UserEmploymentPeriodEmbeddable> fromEmploymentPeriods(java.util.List<EmploymentPeriod> employmentPeriods) {
+    default Set<UserEmploymentPeriodEmbeddable> fromEmploymentPeriods(List<EmploymentPeriod> employmentPeriods) {
         if (employmentPeriods == null) {
             return Set.of();
         }

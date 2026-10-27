@@ -156,7 +156,7 @@ class GenerateMonthEndTasksServiceTest {
 
         MonthEndTaskGenerationResult result = service.generate(month);
 
-        assertThat(result.created()).isEqualTo(1);
+        assertThat(result.created()).isOne();
         assertThat(result.skipped()).isZero();
         verify(monthEndTaskRepository).saveAll(argThat(tasks -> {
             assertThat(tasks).singleElement().satisfies(task -> {
