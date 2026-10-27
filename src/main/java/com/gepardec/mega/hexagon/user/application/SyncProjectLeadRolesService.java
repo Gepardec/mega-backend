@@ -34,8 +34,7 @@ public class SyncProjectLeadRolesService implements SyncProjectLeadRolesUseCase 
     public SyncProjectLeadRolesResult sync(Set<UserId> leadUserIds) {
         List<User> usersToUpdate = userRepository.findAll().stream()
                 .map(user -> userRolePolicyService.updateProjectLeadRoleIfNeeded(user, leadUserIds.contains(user.id())))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .flatMap(Optional::stream)
                 .toList();
 
         int rolesAdded = (int) usersToUpdate.stream()

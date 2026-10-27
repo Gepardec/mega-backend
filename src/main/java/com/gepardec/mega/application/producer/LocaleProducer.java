@@ -34,6 +34,6 @@ public class LocaleProducer {
 
     private Locale extractLocaleFromHeaders() {
         var langs = headers.getAcceptableLanguages();
-        return langs.isEmpty() ? null : langs.get(0);
+        return langs.isEmpty() ? null : langs.getFirst();
     }
 }

@@ -330,7 +330,7 @@ class ZepServiceImplTest {
                 employee
                         .getInternersatzListe()
                         .getInternersatz()
-                        .get(0)
+                        .getFirst()
                         .getSatz())
                 .isEqualTo(12.34D);
 
@@ -338,7 +338,7 @@ class ZepServiceImplTest {
                 employee
                         .getInternersatzListe()
                         .getInternersatz()
-                        .get(0)
+                        .getFirst()
                         .getStartdatum())
                 .isEqualTo("2025-01-01");
     }
