@@ -15,8 +15,8 @@ styleConfigs:
         - <blank line>
         - import static all other imports
 ---
-# Recipes enforced on every `mvn package` (the build fails if any of them would change code).
-# Fix drift locally with `mvn rewrite:run`, skip the check with `-Drewrite.skip`.
+# Recipes checked by the `rewrite-check` profile (`mvn package -Prewrite-check` fails on drift).
+# Report drift with `mvn rewrite:dryRun`, fix it with `mvn rewrite:run`.
 #
 # Only code-level recipes belong here. Composites that also bump dependency or plugin versions
 # (e.g. UpgradeToJava21, MockitoBestPractices, JUnit5BestPractices) would fail the build whenever

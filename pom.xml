@@ -435,9 +435,10 @@
             </plugin>
 
             <!--
-                OpenRewrite: com.gepardec.mega.CodeHygiene (rewrite.yml) is checked on every `mvn package`.
-                mvn rewrite:run                 (fix drift, applies CodeHygiene)
-                mvn package -Drewrite.skip      (skip the check)
+                OpenRewrite: com.gepardec.mega.CodeHygiene (see rewrite.yml) is the default recipe.
+                mvn rewrite:dryRun              (report drift, never fails)
+                mvn rewrite:run                 (fix drift)
+                mvn package -Prewrite-check     (fail the build on drift before tests run, e.g. in CI)
                 mvn rewrite:dryRun -Drewrite.activeRecipes=<recipe>   (try any other recipe)
                 mvn rewrite:discover            (lists all available recipes)
             -->
@@ -457,19 +458,6 @@
                         <exclusion>target/**</exclusion>
                     </exclusions>
                 </configuration>
-                <executions>
-                    <!-- Fails `mvn package` when code drifts from com.gepardec.mega.CodeHygiene (see rewrite.yml) -->
-                    <execution>
-                        <id>check-code-hygiene</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>dryRunNoFork</goal>
-                        </goals>
-                        <configuration>
-                            <failOnDryRunResults>true</failOnDryRunResults>
-                        </configuration>
-                    </execution>
-                </executions>
                 <dependencies>
                     <dependency>
                         <groupId>org.openrewrite.recipe</groupId>
@@ -667,4 +655,31 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Fails the build when code drifts from com.gepardec.mega.CodeHygiene (see rewrite.yml) -->
+        <profile>
+            <id>rewrite-check</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.openrewrite.maven</groupId>
+                        <artifactId>rewrite-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>check-code-hygiene</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>dryRunNoFork</goal>
+                                </goals>
+                                <configuration>
+                                    <failOnDryRunResults>true</failOnDryRunResults>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
