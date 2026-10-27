@@ -80,7 +80,9 @@ public class ZepMailMessageParser {
 
     private String extractTableHtml(String html) {
         int start = html.lastIndexOf("<table");
-        if (start < 0) return html;
+        if (start < 0) {
+            return html;
+        }
         int end = html.indexOf("</table>", start) + "</table>".length();
         if (end > start) {
             return html.substring(start, end);

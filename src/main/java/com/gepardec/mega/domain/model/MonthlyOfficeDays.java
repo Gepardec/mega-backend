@@ -1,6 +1,6 @@
 package com.gepardec.mega.domain.model;
 
-public class MonthlyOfficeDays {
+public final class MonthlyOfficeDays {
     private final int homeofficeDays;
     private final int fridaysAtTheOffice;
     private final int officeDays;
@@ -25,7 +25,7 @@ public class MonthlyOfficeDays {
         return officeDays;
     }
 
-    public static class Builder{
+    public static final class Builder{
         private int homeofficeDays;
         private int fridaysAtTheOffice;
         private int officeDays;

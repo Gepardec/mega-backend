@@ -1,8 +1,8 @@
 package com.gepardec.mega.hexagon.user.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.model.RoleDto;
 import com.gepardec.mega.hexagon.generated.model.ActiveUserDto;
 import com.gepardec.mega.hexagon.generated.model.InternalRateUploadErrorDto;
+import com.gepardec.mega.hexagon.generated.model.RoleDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDateEntryDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDatesRequestDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDatesResponseDto;

@@ -1,6 +1,6 @@
 package com.gepardec.mega.domain.model;
 
-public class MonthlyBillInfo {
+public final class MonthlyBillInfo {
     private final int sumBills;
     private final int sumPrivateBills;
     private final int sumCompanyBills;

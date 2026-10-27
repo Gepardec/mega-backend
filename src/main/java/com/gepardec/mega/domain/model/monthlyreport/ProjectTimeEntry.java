@@ -2,7 +2,7 @@ package com.gepardec.mega.domain.model.monthlyreport;
 
 import java.time.LocalDateTime;
 
-public class ProjectTimeEntry implements ProjectEntry {
+public final class ProjectTimeEntry implements ProjectEntry {
 
     private final LocalDateTime fromTime;
 

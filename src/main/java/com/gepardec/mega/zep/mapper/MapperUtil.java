@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 
-public class MapperUtil {
+public final class MapperUtil {
 
     private MapperUtil() {
         // nop

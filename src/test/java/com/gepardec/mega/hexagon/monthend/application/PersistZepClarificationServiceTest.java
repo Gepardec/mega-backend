@@ -3,10 +3,10 @@ package com.gepardec.mega.hexagon.monthend.application;
 import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationCreatedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
+import com.gepardec.mega.hexagon.monthend.domain.model.SourceSystem;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
-import com.gepardec.mega.hexagon.monthend.domain.model.SourceSystem;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
@@ -63,14 +63,14 @@ class PersistZepClarificationServiceTest {
                         && clarification.projectId().equals(projectId)
                         && clarification.subjectEmployeeId().equals(subjectEmployeeId)
                         && clarification.createdBy().equals(creatorId)
-                        && clarification.text().equals("<table>...</table>")
+                        && "<table>...</table>".equals(clarification.text())
                         && clarification.createdAt().equals(clock.instant())
         ));
         verify(clarificationCreatedEvent).fire(argThat(event ->
                 event.sourceSystem() == SourceSystem.ZEP
                         && event.creator().equals(creatorId)
                         && event.subjectEmployeeId().equals(subjectEmployeeId)
-                        && event.text().equals("<table>...</table>")
+                        && "<table>...</table>".equals(event.text())
         ));
     }
 

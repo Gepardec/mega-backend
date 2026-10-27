@@ -69,7 +69,7 @@ class UpdateMonthEndClarificationServiceTest {
                 event.clarificationId().equals(result.id())
                         && event.actorId().equals(employeeId)
                         && event.subjectEmployeeId().equals(employeeId)
-                        && event.text().equals("Updated text")
+                        && "Updated text".equals(event.text())
                         && event.eligibleProjectLeadIds().equals(Set.of(leadId))
         ));
     }

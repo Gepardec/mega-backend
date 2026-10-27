@@ -33,8 +33,8 @@ public record ZepProjectEmployee(
             return true;
         }
 
-        LocalDate employeeStart = (from != null) ? from.toLocalDate() : null;
-        LocalDate employeeEnd = (to != null) ? to.toLocalDate() : null;
+        LocalDate employeeStart = from != null ? from.toLocalDate() : null;
+        LocalDate employeeEnd = to != null ? to.toLocalDate() : null;
 
         // Employee starts after month ends
         if (employeeStart != null && employeeStart.isAfter(monthEnd)) {

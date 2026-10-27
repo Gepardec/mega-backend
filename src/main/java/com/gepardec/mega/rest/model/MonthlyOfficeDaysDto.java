@@ -1,6 +1,6 @@
 package com.gepardec.mega.rest.model;
 
-public class MonthlyOfficeDaysDto {
+public final class MonthlyOfficeDaysDto {
     private final int homeofficeDays;
     private final int fridaysAtTheOffice;
     private final int officeDays;
@@ -25,7 +25,7 @@ public class MonthlyOfficeDaysDto {
         return officeDays;
     }
 
-    public static class Builder{
+    public static final class Builder{
         private int homeofficeDays;
         private int fridaysAtTheOffice;
         private int officeDays;

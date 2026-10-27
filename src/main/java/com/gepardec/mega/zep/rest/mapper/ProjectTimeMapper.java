@@ -34,7 +34,7 @@ public class ProjectTimeMapper implements Mapper<ProjectTime, ZepAttendance> {
                 int minutes = bigDecimal
                         .subtract(BigDecimal.valueOf(hours))
                         .multiply(BigDecimal.valueOf(60)).intValue();
-                duration = "" + LocalTime.of(hours, minutes);
+                duration = String.valueOf(LocalTime.of(hours, minutes));
             }
 
             return ProjectTime.builder()

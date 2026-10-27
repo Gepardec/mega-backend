@@ -118,8 +118,8 @@ class CreateClarificationFromZepMailServiceTest {
         verify(zepMailProcessingFailedEvent).fire(argThat(event ->
                 event.creatorUserId().equals(creatorId)
                         && event.creatorEmail().equals(creator.email())
-                        && event.originalRecipient().equals("unknown")
-                        && event.errorMessage().equals("Subject or body of E-Mail is not parseable.")
+                        && "unknown".equals(event.originalRecipient())
+                        && "Subject or body of E-Mail is not parseable.".equals(event.errorMessage())
                         && event.rawMailContent().contains(RAW_MAIL.htmlBody())
         ));
         verifyNoInteractions(persistZepClarificationService);
@@ -148,7 +148,7 @@ class CreateClarificationFromZepMailServiceTest {
         verify(zepMailProcessingFailedEvent).fire(argThat(event ->
                 event.creatorUserId().equals(creatorId)
                         && event.creatorEmail().equals(creator.email())
-                        && event.originalRecipient().equals("Max Mustermann")
+                        && "Max Mustermann".equals(event.originalRecipient())
                         && event.errorMessage().contains("transaction rolled back")
         ));
     }
@@ -173,7 +173,7 @@ class CreateClarificationFromZepMailServiceTest {
         verify(zepMailProcessingFailedEvent).fire(argThat(event ->
                 event.creatorUserId().equals(creatorId)
                         && event.creatorEmail().equals(creator.email())
-                        && event.originalRecipient().equals("Max Mustermann")
+                        && "Max Mustermann".equals(event.originalRecipient())
                         && event.errorMessage().contains("context not found")
         ));
         verifyNoInteractions(persistZepClarificationService);
@@ -200,8 +200,8 @@ class CreateClarificationFromZepMailServiceTest {
 
         verify(zepMailProcessingFailedEvent).fire(argThat(event ->
                 event.creatorUserId() == null
-                        && event.originalRecipient().equals("unknown")
-                        && event.errorMessage().equals("parse failed")
+                        && "unknown".equals(event.originalRecipient())
+                        && "parse failed".equals(event.errorMessage())
         ));
         verify(persistZepClarificationService).persist(
                 month,

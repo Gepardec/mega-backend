@@ -98,7 +98,7 @@ class ProjectEntryMapperTest {
 
     @Test
     void mapListToProjektEntry_thenReturnList() {
-        List<ZepAttendance> zepList = new ArrayList<ZepAttendance>();
+        List<ZepAttendance> zepList = new ArrayList<>();
         zepList.add(generateZepAttendanceBuilder().build());
         zepList.add(generateZepAttendanceBuilder().build());
         List<ProjectEntry> mappedProjectEntryList = projectEntryMapper.mapList(zepList);

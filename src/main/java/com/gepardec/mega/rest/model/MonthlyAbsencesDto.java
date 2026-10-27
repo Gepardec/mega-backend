@@ -1,6 +1,6 @@
 package com.gepardec.mega.rest.model;
 
-public class MonthlyAbsencesDto {
+public final class MonthlyAbsencesDto {
     private final int vacationDays;
     private final int compensatoryDays;
     private final int nursingDays;

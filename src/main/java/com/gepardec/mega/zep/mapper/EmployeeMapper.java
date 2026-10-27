@@ -64,7 +64,7 @@ public class EmployeeMapper {
 
     private String getCorrectReleaseDate(MitarbeiterType mitarbeiterType) {
         boolean isReleaseDateNull = mitarbeiterType.getFreigabedatum() == null
-                || mitarbeiterType.getFreigabedatum().equalsIgnoreCase("null");
+                || "null".equalsIgnoreCase(mitarbeiterType.getFreigabedatum());
         boolean isCreatedDateNull = mitarbeiterType.getCreated() == null;
         if (isReleaseDateNull) {
             if (isCreatedDateNull) {

@@ -14,7 +14,7 @@ import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonDeserialize(builder = ApplicationInfoDto.Builder.class)
-public class ApplicationInfoDto {
+public final class ApplicationInfoDto {
     private final String version;
 
     @JsonFormat(pattern = DateTimeConstants.DATE_TIME_PATTERN)
@@ -76,8 +76,12 @@ public class ApplicationInfoDto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ApplicationInfoDto that = (ApplicationInfoDto) o;
         return Objects.equals(version, that.version) && Objects.equals(buildDate, that.buildDate) && Objects.equals(buildNumber, that.buildNumber) && Objects.equals(commit, that.commit) && Objects.equals(branch, that.branch) && Objects.equals(startedAt, that.startedAt) && Objects.equals(upTime, that.upTime);
     }

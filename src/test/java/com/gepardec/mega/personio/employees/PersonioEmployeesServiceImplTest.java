@@ -65,7 +65,7 @@ class PersonioEmployeesServiceImplTest {
         when(personioEmployeesClient.getByEmail(anyString())).thenReturn(employeesResponse);
 
         //WHEN
-        var result = personioEmployeesService.getPersonioEmployeeByEmail(("mega.test@gepardec.com"));
+        var result = personioEmployeesService.getPersonioEmployeeByEmail("mega.test@gepardec.com");
 
         //THEN
         assertThat(result).isEmpty();

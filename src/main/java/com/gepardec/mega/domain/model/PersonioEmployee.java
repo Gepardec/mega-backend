@@ -1,6 +1,6 @@
 package com.gepardec.mega.domain.model;
 
-public class PersonioEmployee {
+public final class PersonioEmployee {
 
     private final String email;
 
