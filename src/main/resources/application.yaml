@@ -3,6 +3,10 @@ quarkus:
   swagger-ui:
     always-include: true
 
+  smallrye-openapi:
+    # quarkus-oidc would otherwise add an openIdConnect scheme that swagger-ui expands into every Keycloak flow
+    auto-add-security: false
+
   http:
     cors:
       enabled: true
