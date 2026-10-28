@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestSecurity(user = "test")
-class WarningRuleSettingsIT {
+class WarningRuleSettingsFlowTest {
     private static final YearMonth MONTH = YearMonth.of(2023, 10);
     private static final UserId USER_ID = UserId.of(Instancio.create(UUID.class));
     private static final ZepUsername USERNAME = ZepUsername.of("ada");
