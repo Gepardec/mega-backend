@@ -100,7 +100,7 @@ class WorkTimeWarningAssemblerTest {
     }
 
     @Test
-    void assemble_whenNonBillableBookingWithoutMarkerIsOnBillableProjectFromOctober2026_thenBothConventionWarnings() {
+    void assemble_whenNonBillableBookingWithoutMarkerIsOnBillableProjectFromOctober2026_thenOnlyNonBillableOnBillableProjectWarning() {
         LocalDate date = LocalDate.of(2026, 10, 6);
         var booking = Instancio.of(ProjectBooking.class)
                 .set(field(ProjectBooking::from), date.atTime(8, 0))
@@ -114,9 +114,8 @@ class WorkTimeWarningAssemblerTest {
 
         assertThat(assemble(new WorkTimeBookings(List.of(booking)),
                 YearMonth.from(date.plusDays(1)), Set.of(date), Set.of(), Set.of(42), Set.of(), date.plusDays(1)))
-                .contains(
-                        new WorkTimeWarning(date, WorkTimeWarningType.INTERNAL_NOTE_MISSING, null),
-                        new WorkTimeWarning(date, WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT, null));
+                .contains(new WorkTimeWarning(date, WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT, null))
+                .doesNotContain(new WorkTimeWarning(date, WorkTimeWarningType.INTERNAL_NOTE_MISSING, null));
     }
 
     @Test
