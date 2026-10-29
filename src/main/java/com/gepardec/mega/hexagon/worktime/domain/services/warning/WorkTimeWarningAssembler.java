@@ -1,5 +1,7 @@
 package com.gepardec.mega.hexagon.worktime.domain.services.warning;
 
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRuleSettings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEvaluation;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType;
@@ -40,12 +42,20 @@ public class WorkTimeWarningAssembler {
         this.calculators = List.copyOf(calculators);
     }
 
-    public List<WorkTimeWarning> assemble(WorkTimeEvaluation evaluation) {
+    List<WarningRule> rules() {
+        return calculators.stream().map(WorkTimeWarningCalculator::rule).toList();
+    }
+
+    public List<WorkTimeWarning> assemble(WorkTimeEvaluation evaluation, WarningRuleSettings settings) {
         if (evaluation.bookings().isEmpty()) {
             return List.of(new WorkTimeWarning(null, EMPTY_ENTRY_LIST, null));
         }
         List<WorkTimeWarning> warnings = new ArrayList<>();
-        calculators.forEach(calculator -> warnings.addAll(calculator.calculate(evaluation)));
+        calculators.stream()
+                .filter(calculator -> settings.isActive(calculator.rule()))
+                .forEach(calculator -> calculator.calculate(evaluation).stream()
+                        .filter(warning -> settings.appliesOn(calculator.rule(), warning.date()))
+                        .forEach(warnings::add));
         return distinctPerTypeAndDate(warnings);
     }
 

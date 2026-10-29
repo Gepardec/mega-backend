@@ -52,3 +52,52 @@ WorkTimeWarning:
       type: number
       format: double
       nullable: true
+WarningRule:
+  type: string
+  description: Identifier of a work time warning rule.
+  enum:
+    - CORE_WORKING_TIME
+    - TIME_OVERLAP
+    - HOLIDAY
+    - WEEKEND
+    - DOCTOR_APPOINTMENT
+    - MAX_DAILY_WORKING_TIME
+    - REST_TIME
+    - BREAK_TIME
+    - JOURNEY_PAIRING
+    - JOURNEY_WORKING_LOCATION
+    - LOCATION_PROJECT_RELEVANCE
+    - INTERNAL_NOTE
+    - NO_TIME_ENTRY
+    - BILLABLE_PROJECT
+    - TRAVEL_ALLOWANCE
+    - MEAL_ENTRY
+WarningRuleSetting:
+  type: object
+  additionalProperties: false
+  required:
+    - rule
+    - enabled
+    - activeFrom
+  properties:
+    rule:
+      $ref: '#/WarningRule'
+    enabled:
+      type: boolean
+    activeFrom:
+      type: string
+      format: date
+      nullable: true
+      description: First date the rule applies to; null means it applies to every date.
+WarningRuleSettingUpdate:
+  type: object
+  additionalProperties: false
+  required:
+    - enabled
+  properties:
+    enabled:
+      type: boolean
+    activeFrom:
+      type: string
+      format: date
+      nullable: true

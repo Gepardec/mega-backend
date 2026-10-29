@@ -40,10 +40,6 @@ public class MegaCronSecuritySchemaOASFilter implements OASFilter {
             securityScheme.flows(flows);
         }
 
-        if (securityScheme.getType() == SecurityScheme.Type.OPENIDCONNECT) {
-            return null;
-        }
-
         return OASFilter.super.filterSecurityScheme(securityScheme);
     }
 

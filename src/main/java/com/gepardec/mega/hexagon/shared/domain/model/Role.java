@@ -4,5 +4,6 @@ public enum Role {
     EMPLOYEE,
     OFFICE_MANAGEMENT,
     PROJECT_LEAD,
+    ADMIN,
     SYSTEM
 }

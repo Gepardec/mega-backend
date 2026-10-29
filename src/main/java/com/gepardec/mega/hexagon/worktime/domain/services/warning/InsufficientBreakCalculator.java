@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.domain.services.warning;
 
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
@@ -18,6 +19,11 @@ import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningTyp
 public class InsufficientBreakCalculator implements BookingsWarningCalculator {
     private static final Duration MIN_REQUIRED_BREAK_TIME = Duration.ofMinutes(30);
     private static final Duration MAX_WORK_WITHOUT_BREAK = Duration.ofHours(6);
+
+    @Override
+    public WarningRule rule() {
+        return WarningRule.BREAK_TIME;
+    }
 
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeBookings bookings) {

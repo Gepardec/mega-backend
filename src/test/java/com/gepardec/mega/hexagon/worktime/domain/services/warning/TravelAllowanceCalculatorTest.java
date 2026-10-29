@@ -132,19 +132,6 @@ class TravelAllowanceCalculatorTest {
         assertThat(calculate(bookings(passive(DATE, 6, "Wien", "Linz", CUSTOMER)), BILLABLE_PROJECTS)).isEmpty();
     }
 
-    @Test
-    void calculate_whenDayBeforeRuleStart_thenNoWarning() {
-        assertThat(calculate(bookings(allowance(LocalDate.of(2026, 9, 30), 30)), BILLABLE_PROJECTS)).isEmpty();
-    }
-
-    @Test
-    void calculate_whenDayIsRuleStart_thenWarning() {
-        LocalDate start = LocalDate.of(2026, 10, 1);
-
-        assertThat(calculate(bookings(allowance(start, 30)), BILLABLE_PROJECTS))
-                .containsExactly(new WorkTimeWarning(start, TRAVEL_ALLOWANCE_EXCEEDED, 0.5));
-    }
-
     private static WorkTimeBooking allowance(LocalDate date, int minutes) {
         return project(date, "873", minutes, INTERN);
     }

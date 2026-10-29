@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.domain.services.warning;
 
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 
@@ -10,6 +11,11 @@ import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningTyp
 
 public class ExceededMaximumWorkingHoursPerDayCalculator implements BookingsWarningCalculator {
     static final double MAX_HOURS_A_DAY = 10D;
+
+    @Override
+    public WarningRule rule() {
+        return WarningRule.MAX_DAILY_WORKING_TIME;
+    }
 
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeBookings bookings) {

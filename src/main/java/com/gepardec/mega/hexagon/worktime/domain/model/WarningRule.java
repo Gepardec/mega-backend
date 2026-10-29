@@ -1,0 +1,20 @@
+package com.gepardec.mega.hexagon.worktime.domain.model;
+
+public enum WarningRule {
+    CORE_WORKING_TIME,
+    TIME_OVERLAP,
+    HOLIDAY,
+    WEEKEND,
+    DOCTOR_APPOINTMENT,
+    MAX_DAILY_WORKING_TIME,
+    REST_TIME,
+    BREAK_TIME,
+    JOURNEY_PAIRING,
+    JOURNEY_WORKING_LOCATION,
+    LOCATION_PROJECT_RELEVANCE,
+    INTERNAL_NOTE,
+    NO_TIME_ENTRY,
+    BILLABLE_PROJECT,
+    TRAVEL_ALLOWANCE,
+    MEAL_ENTRY
+}

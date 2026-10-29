@@ -8,6 +8,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.application.port.inbound.UserSyncResult;
 import com.gepardec.mega.hexagon.user.application.port.outbound.PersonioEmployeePort;
 import com.gepardec.mega.hexagon.user.application.port.outbound.ZepEmployeePort;
+import com.gepardec.mega.hexagon.user.domain.model.AdminEmails;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.OfficeManagementEmails;
@@ -204,7 +205,7 @@ class SyncUsersServiceTest {
                 zepEmployeePort,
                 personioEmployeePort,
                 userRepository,
-                new UserRolePolicyService(new OfficeManagementEmails(Set.copyOf(omEmails)))
+                new UserRolePolicyService(new OfficeManagementEmails(Set.copyOf(omEmails)), new AdminEmails(Set.of()))
         );
     }
 

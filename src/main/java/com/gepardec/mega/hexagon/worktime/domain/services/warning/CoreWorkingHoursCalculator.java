@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.domain.services.warning;
 
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
@@ -12,6 +13,11 @@ import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningTyp
 public class CoreWorkingHoursCalculator implements BookingsWarningCalculator {
     static final int EARLIEST_HOUR = 6;
     static final int LATEST_HOUR = 22;
+
+    @Override
+    public WarningRule rule() {
+        return WarningRule.CORE_WORKING_TIME;
+    }
 
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeBookings bookings) {

@@ -2,6 +2,7 @@ package com.gepardec.mega.hexagon.worktime.domain.services.warning;
 
 import com.gepardec.mega.hexagon.worktime.domain.model.JourneyBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.ProjectBooking;
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEvaluation;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
@@ -19,15 +20,18 @@ import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningTyp
 import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType.TRAVEL_ALLOWANCE_WRONG_PROJECT;
 
 public class TravelAllowanceCalculator implements WorkTimeWarningCalculator {
-    private static final LocalDate RULE_START = LocalDate.of(2026, 10, 1);
     /** ZEP process "Reisepauschale" of the project "Intern". */
     private static final String REISEPAUSCHALE_PROCESS = "873";
+
+    @Override
+    public WarningRule rule() {
+        return WarningRule.TRAVEL_ALLOWANCE;
+    }
 
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeEvaluation evaluation) {
         Set<Integer> billableProjectZepIds = evaluation.billableProjectZepIds();
         return evaluation.bookings().byDate().entrySet().stream()
-                .filter(day -> !day.getKey().isBefore(RULE_START))
                 .flatMap(day -> evaluate(day.getKey(), day.getValue(), billableProjectZepIds).stream())
                 .toList();
     }

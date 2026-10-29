@@ -4,6 +4,9 @@ import com.gepardec.mega.hexagon.worktime.domain.model.JourneyBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.JourneyDirection;
 import com.gepardec.mega.hexagon.worktime.domain.model.ProjectBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.Task;
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRuleSetting;
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRuleSettings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEvaluation;
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -56,10 +60,12 @@ class WorkTimeWarningAssemblerTest {
         WorkTimeWarning duplicate = new WorkTimeWarning(date, WorkTimeWarningType.WRONG_DOCTOR_APPOINTMENT, null);
         WorkTimeWarningCalculator calculator = mock(WorkTimeWarningCalculator.class);
         WorkTimeWarningCalculator otherCalculator = mock(WorkTimeWarningCalculator.class);
+        when(calculator.rule()).thenReturn(WarningRule.TIME_OVERLAP);
+        when(otherCalculator.rule()).thenReturn(WarningRule.WEEKEND);
         when(calculator.calculate(same(evaluation))).thenReturn(List.of(first, otherType, duplicate, otherDate));
         when(otherCalculator.calculate(same(evaluation))).thenReturn(List.of(duplicate));
 
-        assertThat(new WorkTimeWarningAssembler(List.of(calculator, otherCalculator)).assemble(evaluation))
+        assertThat(new WorkTimeWarningAssembler(List.of(calculator, otherCalculator)).assemble(evaluation, allEnabled()))
                 .containsExactly(first, otherType, otherDate);
     }
 
@@ -156,6 +162,93 @@ class WorkTimeWarningAssemblerTest {
     }
 
     @Test
+    void assemble_whenRuleIsDisabled_thenItsWarningsAreAbsent() {
+        LocalDate date = LocalDate.of(2026, 10, 6);
+        WorkTimeEvaluation evaluation = evaluation(new WorkTimeBookings(List.of(Instancio.create(ProjectBooking.class))),
+                YearMonth.from(date), Set.of(), Set.of(), Set.of(), Set.of(), date);
+        WorkTimeWarning warning = new WorkTimeWarning(date, WorkTimeWarningType.TIME_OVERLAP, null);
+        WorkTimeWarningCalculator calculator = mock(WorkTimeWarningCalculator.class);
+        when(calculator.rule()).thenReturn(WarningRule.TIME_OVERLAP);
+        when(calculator.calculate(same(evaluation))).thenReturn(List.of(warning));
+        WarningRuleSettings disabled = new WarningRuleSettings(
+                List.of(new WarningRuleSetting(WarningRule.TIME_OVERLAP, false, null)));
+
+        assertThat(new WorkTimeWarningAssembler(List.of(calculator)).assemble(evaluation, disabled)).isEmpty();
+    }
+
+    @Test
+    void assemble_whenRuleHasNoSetting_thenItsWarningsAreAbsent() {
+        LocalDate date = LocalDate.of(2026, 10, 6);
+        WorkTimeEvaluation evaluation = evaluation(new WorkTimeBookings(List.of(Instancio.create(ProjectBooking.class))),
+                YearMonth.from(date), Set.of(), Set.of(), Set.of(), Set.of(), date);
+        WorkTimeWarningCalculator calculator = mock(WorkTimeWarningCalculator.class);
+        when(calculator.rule()).thenReturn(WarningRule.TIME_OVERLAP);
+        when(calculator.calculate(same(evaluation)))
+                .thenReturn(List.of(new WorkTimeWarning(date, WorkTimeWarningType.TIME_OVERLAP, null)));
+
+        assertThat(new WorkTimeWarningAssembler(List.of(calculator))
+                .assemble(evaluation, new WarningRuleSettings(List.of()))).isEmpty();
+    }
+
+    @Test
+    void assemble_dropsDatedWarningsBeforeActiveFromAndKeepsOnesWithoutDate() {
+        LocalDate start = LocalDate.of(2026, 11, 1);
+        WorkTimeEvaluation evaluation = evaluation(new WorkTimeBookings(List.of(Instancio.create(ProjectBooking.class))),
+                YearMonth.from(start), Set.of(), Set.of(), Set.of(), Set.of(), start.plusDays(5));
+        WorkTimeWarning before = new WorkTimeWarning(start.minusDays(1), WorkTimeWarningType.TIME_OVERLAP, null);
+        WorkTimeWarning onStart = new WorkTimeWarning(start, WorkTimeWarningType.TIME_OVERLAP, null);
+        WorkTimeWarning undated = new WorkTimeWarning(null, WorkTimeWarningType.TIME_OVERLAP, null);
+        WorkTimeWarningCalculator calculator = mock(WorkTimeWarningCalculator.class);
+        when(calculator.rule()).thenReturn(WarningRule.TIME_OVERLAP);
+        when(calculator.calculate(same(evaluation))).thenReturn(List.of(before, onStart, undated));
+        WarningRuleSettings settings = new WarningRuleSettings(
+                List.of(new WarningRuleSetting(WarningRule.TIME_OVERLAP, true, start)));
+
+        assertThat(new WorkTimeWarningAssembler(List.of(calculator)).assemble(evaluation, settings))
+                .containsExactly(onStart, undated);
+    }
+
+    @Test
+    void assemble_whenAllRulesDisabledAndNoBookings_thenStillReportsEmptyEntryList() {
+        WorkTimeEvaluation evaluation = evaluation(WorkTimeBookings.empty(), YearMonth.of(2026, 10),
+                Set.of(), Set.of(), Set.of(), Set.of(), LocalDate.of(2026, 10, 20));
+
+        assertThat(new WorkTimeWarningAssembler().assemble(evaluation, new WarningRuleSettings(List.of())))
+                .containsExactly(new WorkTimeWarning(null, WorkTimeWarningType.EMPTY_ENTRY_LIST, null));
+    }
+
+    @Test
+    void defaultCalculators_coverEveryWarningRuleExactlyOnce() {
+        assertThat(new WorkTimeWarningAssembler().rules()).containsExactlyInAnyOrder(WarningRule.values());
+    }
+
+    @Test
+    void assemble_whenBillableProjectRuleStartsAfterBooking_thenNoWarning_andOnStartDayWarning() {
+        LocalDate before = LocalDate.of(2026, 9, 30);
+        LocalDate start = LocalDate.of(2026, 10, 1);
+
+        assertThat(billableProjectWarnings(before)).isEmpty();
+        assertThat(billableProjectWarnings(start))
+                .containsExactly(new WorkTimeWarning(start, WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT, null));
+    }
+
+    private static List<WorkTimeWarning> billableProjectWarnings(LocalDate date) {
+        var booking = Instancio.of(ProjectBooking.class)
+                .set(field(ProjectBooking::from), date.atTime(8, 0))
+                .set(field(ProjectBooking::to), date.atTime(9, 0))
+                .set(field(ProjectBooking::task), Task.BEARBEITEN)
+                .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
+                .set(field(ProjectBooking::billable), false)
+                .set(field(ProjectBooking::note), "Intern - JFX")
+                .set(field(ProjectBooking::projectZepId), 42)
+                .create();
+        return assemble(new WorkTimeBookings(List.of(booking)), YearMonth.from(date), Set.of(date), Set.of(),
+                Set.of(42), Set.of(), date.plusDays(1)).stream()
+                .filter(warning -> warning.type() == WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT)
+                .toList();
+    }
+
+    @Test
     void assemble_emptyBookingsReturnsSingleMonthWarning() {
         assertThat(assemble(WorkTimeBookings.empty(), YearMonth.now(),
                 Set.of(), Set.of(), Set.of(), Set.of(), LocalDate.now()))
@@ -179,10 +272,12 @@ class WorkTimeWarningAssemblerTest {
         WorkTimeWarning noEntryWarning = new WorkTimeWarning(expectedDate, WorkTimeWarningType.NO_TIME_ENTRY, null);
         WorkTimeWarningCalculator calculator = mock(WorkTimeWarningCalculator.class);
         NoEntryWarningCalculator noEntryCalculator = mock(NoEntryWarningCalculator.class);
+        when(calculator.rule()).thenReturn(WarningRule.TIME_OVERLAP);
+        when(noEntryCalculator.rule()).thenReturn(WarningRule.NO_TIME_ENTRY);
         when(calculator.calculate(same(evaluation))).thenReturn(List.of(calculatorWarning));
         when(noEntryCalculator.calculate(same(evaluation))).thenReturn(List.of(noEntryWarning));
 
-        assertThat(new WorkTimeWarningAssembler(List.of(calculator, noEntryCalculator)).assemble(evaluation))
+        assertThat(new WorkTimeWarningAssembler(List.of(calculator, noEntryCalculator)).assemble(evaluation, allEnabled()))
                 .containsExactly(calculatorWarning, noEntryWarning);
         verify(calculator).calculate(same(evaluation));
         verify(noEntryCalculator).calculate(same(evaluation));
@@ -192,7 +287,23 @@ class WorkTimeWarningAssemblerTest {
                                                   Set<LocalDate> excusedDates, Set<Integer> billableProjectZepIds,
                                                   Set<LocalDate> mealEntryDates, LocalDate today) {
         return new WorkTimeWarningAssembler().assemble(
-                evaluation(bookings, month, expectedWorkingDays, excusedDates, billableProjectZepIds, mealEntryDates, today));
+                evaluation(bookings, month, expectedWorkingDays, excusedDates, billableProjectZepIds, mealEntryDates, today),
+                initialSettings());
+    }
+
+    private static WarningRuleSettings allEnabled() {
+        return new WarningRuleSettings(Arrays.stream(WarningRule.values())
+                .map(rule -> new WarningRuleSetting(rule, true, null))
+                .toList());
+    }
+
+    /** Mirrors the seeded production values: the four newer rules start on 2026-10-01. */
+    private static WarningRuleSettings initialSettings() {
+        Set<WarningRule> dated = Set.of(WarningRule.BILLABLE_PROJECT, WarningRule.INTERNAL_NOTE,
+                WarningRule.MEAL_ENTRY, WarningRule.TRAVEL_ALLOWANCE);
+        return new WarningRuleSettings(Arrays.stream(WarningRule.values())
+                .map(rule -> new WarningRuleSetting(rule, true, dated.contains(rule) ? LocalDate.of(2026, 10, 1) : null))
+                .toList());
     }
 
     private static WorkTimeEvaluation evaluation(WorkTimeBookings bookings, YearMonth month, Set<LocalDate> expectedWorkingDays,

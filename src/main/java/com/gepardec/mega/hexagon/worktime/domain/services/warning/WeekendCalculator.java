@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.domain.services.warning;
 
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 
@@ -13,6 +14,11 @@ import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningTyp
 public class WeekendCalculator implements BookingsWarningCalculator {
     private static final Predicate<LocalDate> IS_SATURDAY = date -> DayOfWeek.SATURDAY.equals(date.getDayOfWeek());
     private static final Predicate<LocalDate> IS_SUNDAY = date -> DayOfWeek.SUNDAY.equals(date.getDayOfWeek());
+
+    @Override
+    public WarningRule rule() {
+        return WarningRule.WEEKEND;
+    }
 
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeBookings bookings) {

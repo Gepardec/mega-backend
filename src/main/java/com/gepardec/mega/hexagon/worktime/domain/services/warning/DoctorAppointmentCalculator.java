@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.worktime.domain.services.warning;
 
 import com.gepardec.mega.hexagon.worktime.domain.model.ProjectBooking;
+import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 
@@ -15,6 +16,11 @@ public class DoctorAppointmentCalculator implements BookingsWarningCalculator {
             new PermittedWindow(LocalTime.of(8, 30), LocalTime.NOON),
             new PermittedWindow(LocalTime.of(12, 30), LocalTime.of(17, 0)));
     private static final String DOCTOR_APPOINTMENT_PROCESS = "233";
+
+    @Override
+    public WarningRule rule() {
+        return WarningRule.DOCTOR_APPOINTMENT;
+    }
 
     @Override
     public List<WorkTimeWarning> calculate(WorkTimeBookings bookings) {

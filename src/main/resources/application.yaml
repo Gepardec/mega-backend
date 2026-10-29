@@ -3,6 +3,10 @@ quarkus:
   swagger-ui:
     always-include: true
 
+  smallrye-openapi:
+    # quarkus-oidc would otherwise add an openIdConnect scheme that swagger-ui expands into every Keycloak flow
+    auto-add-security: false
+
   http:
     cors:
       enabled: true
@@ -120,6 +124,9 @@ mega:
     git:
       branch: "${BRANCH:local}"
       commit: "${COMMIT:local}"
+
+  admin:
+    emails: "${MEGA_ADMIN_EMAILS:}"
 
   wiki:
     eom-url: "https://sites.google.com/a/gepardec.com/internal/home/zeiterfassung-mit-zep/monatsende-kontrolle-von-arbeitszeiten"
@@ -247,6 +254,10 @@ mega:
 
   mega:
     dash-url: "http://localhost:8080/index.html"
+
+    admin:
+      emails:
+        - "admin@example.com"
 
     zep:
       origin: "https://www.zep-online.de/zepgepardecservices_test"

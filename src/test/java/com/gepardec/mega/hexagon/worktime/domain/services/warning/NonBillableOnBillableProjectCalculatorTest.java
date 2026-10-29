@@ -72,21 +72,6 @@ class NonBillableOnBillableProjectCalculatorTest {
     }
 
     @Test
-    void calculate_whenBookingIsBeforeRuleStart_thenNoWarning() {
-        LocalDate beforeStart = LocalDate.of(2026, 9, 30);
-
-        assertThat(calculate(bookings(project(beforeStart, false, "JFX", BILLABLE_PROJECT)), BILLABLE_PROJECTS)).isEmpty();
-    }
-
-    @Test
-    void calculate_whenBookingIsOnRuleStart_thenWarning() {
-        LocalDate start = LocalDate.of(2026, 10, 1);
-
-        assertThat(calculate(bookings(project(start, false, "JFX", BILLABLE_PROJECT)), BILLABLE_PROJECTS))
-                .containsExactly(new WorkTimeWarning(start, NON_BILLABLE_ON_BILLABLE_PROJECT, null));
-    }
-
-    @Test
     void calculate_whenSeveralBookingsOnOneDayAreAffected_thenOneWarningPerDay() {
         assertThat(calculate(bookings(
                 project(DATE, false, "A", BILLABLE_PROJECT), journey(DATE, false, BILLABLE_PROJECT)), BILLABLE_PROJECTS))

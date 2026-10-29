@@ -79,15 +79,15 @@ The system SHALL produce a `MEAL_ENTRY_MISSING` warning for every checked trip d
 - **WHEN** the employee has a meal entry for a day without a trip and no journeys in the month
 - **THEN** no `MEAL_ENTRY_MISSING` warning is produced
 
-### Requirement: Only past trip days from 2026-10-01 onward are checked
-The meal-entry rule SHALL only check trip days on or after 2026-10-01 and before the current date. Trip days before the cutoff date, the current date and later days SHALL NOT trigger `MEAL_ENTRY_MISSING`.
+### Requirement: Only past trip days from the rule's configured start date are checked
+The meal-entry rule SHALL be the `MEAL_ENTRY` warning rule and SHALL be governed by its rule setting. It SHALL only check trip days before the current date. When the setting has an `activeFrom` date, trip days before it SHALL NOT trigger `MEAL_ENTRY_MISSING`. The current date and later days SHALL NOT trigger it. The initial `activeFrom` is 2026-10-01.
 
-#### Scenario: A trip day before the cutoff date is not checked
-- **WHEN** 2026-09-30 is a trip day without a meal entry
+#### Scenario: A trip day before the configured start date is not checked
+- **WHEN** the `MEAL_ENTRY` rule has `activeFrom` 2026-10-01 and 2026-09-30 is a trip day without a meal entry
 - **THEN** no `MEAL_ENTRY_MISSING` warning is produced for 2026-09-30
 
-#### Scenario: A trip day on the cutoff date is checked
-- **WHEN** 2026-10-01 is a trip day without a meal entry and the current date is later
+#### Scenario: A trip day on the configured start date is checked
+- **WHEN** the `MEAL_ENTRY` rule has `activeFrom` 2026-10-01, 2026-10-01 is a trip day without a meal entry, and the current date is later
 - **THEN** a `MEAL_ENTRY_MISSING` warning for 2026-10-01 is produced
 
 #### Scenario: The current date is not checked
@@ -97,3 +97,7 @@ The meal-entry rule SHALL only check trip days on or after 2026-10-01 and before
 #### Scenario: Future trip days are not checked
 - **WHEN** a trip open at the end of the month extends past the current date
 - **THEN** no `MEAL_ENTRY_MISSING` warning is produced for the days after the current date
+
+#### Scenario: A disabled rule checks no trip days
+- **WHEN** the `MEAL_ENTRY` rule is disabled and a past trip day on or after 2026-10-01 has no meal entry
+- **THEN** no `MEAL_ENTRY_MISSING` warning is produced

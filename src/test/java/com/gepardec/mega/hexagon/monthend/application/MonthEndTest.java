@@ -53,7 +53,7 @@ import static org.mockito.Mockito.when;
 @QuarkusTest
 @TestTransaction
 @Tag("IT")
-class MonthEndIT {
+class MonthEndTest {
 
     private static final YearMonth MONTH = YearMonth.of(2026, 3);
 
