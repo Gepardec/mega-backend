@@ -109,8 +109,29 @@ class InternalNoteConventionCalculatorTest {
     }
 
     @Test
-    void calculate_whenNonBillableBookingIsOnBillableProject_thenCountsAsBillableWork() {
-        assertThat(calculate(bookings(project(DATE, false, "JFX", BILLABLE_PROJECT)), Set.of(BILLABLE_PROJECT)))
+    void calculate_whenNonBillableBookingIsOnBillableProject_thenCountsAsBillableWorkButIsNotReported() {
+        assertThat(calculate(bookings(
+                project(DATE, false, "JFX", BILLABLE_PROJECT), project(OTHER_DATE, false, "JFX", null)),
+                Set.of(BILLABLE_PROJECT)))
+                .containsExactly(new WorkTimeWarning(OTHER_DATE, INTERNAL_NOTE_MISSING, null));
+    }
+
+    @Test
+    void calculate_whenUnmarkedNonBillableBookingIsOnBillableProject_thenNoMissingWarning() {
+        assertThat(calculate(bookings(project(DATE, false, "JFX", BILLABLE_PROJECT), billableWork()),
+                Set.of(BILLABLE_PROJECT)))
+                .isEmpty();
+    }
+
+    @Test
+    void calculate_whenUnmarkedBookingIsOnProjectNotInBillableSet_thenMissingWarning() {
+        assertThat(calculate(bookings(project(DATE, false, "JFX", 99), billableWork()), Set.of(BILLABLE_PROJECT)))
+                .containsExactly(new WorkTimeWarning(DATE, INTERNAL_NOTE_MISSING, null));
+    }
+
+    @Test
+    void calculate_whenUnmarkedBookingHasNoProjectReferenceAndMonthHasBillableWork_thenMissingWarning() {
+        assertThat(calculate(bookings(project(DATE, false, "JFX", null), billableWork()), Set.of(BILLABLE_PROJECT)))
                 .containsExactly(new WorkTimeWarning(DATE, INTERNAL_NOTE_MISSING, null));
     }
 

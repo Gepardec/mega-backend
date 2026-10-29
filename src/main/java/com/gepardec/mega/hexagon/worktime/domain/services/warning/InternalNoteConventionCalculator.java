@@ -27,7 +27,8 @@ public class InternalNoteConventionCalculator implements WorkTimeWarningCalculat
             boolean markedInternal = isMarkedInternal(booking.note());
             if (booking.billable() && markedInternal) {
                 warnings.add(new WorkTimeWarning(booking.date(), WorkTimeWarningType.INTERNAL_NOTE_BILLABLE, null));
-            } else if (containsBillableWork && !booking.billable() && !markedInternal) {
+            } else if (containsBillableWork && !booking.billable() && !markedInternal
+                    && !isOnBillableProject(booking, evaluation)) {
                 warnings.add(new WorkTimeWarning(booking.date(), WorkTimeWarningType.INTERNAL_NOTE_MISSING, null));
             }
         }
@@ -36,12 +37,15 @@ public class InternalNoteConventionCalculator implements WorkTimeWarningCalculat
 
     private static boolean containsBillableWork(WorkTimeEvaluation evaluation) {
         for (WorkTimeBooking booking : evaluation.bookings()) {
-            if (booking.billable()
-                    || (booking.projectZepId() != null && evaluation.billableProjectZepIds().contains(booking.projectZepId()))) {
+            if (booking.billable() || isOnBillableProject(booking, evaluation)) {
                 return true;
             }
         }
         return false;
+    }
+
+    private static boolean isOnBillableProject(WorkTimeBooking booking, WorkTimeEvaluation evaluation) {
+        return booking.projectZepId() != null && evaluation.billableProjectZepIds().contains(booking.projectZepId());
     }
 
     private static boolean isMarkedInternal(String note) {
