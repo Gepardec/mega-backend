@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 public class InternalNoteConventionCalculator implements WorkTimeWarningCalculator {
-    private static final Pattern INTERNAL_MARKER = Pattern.compile("^\\s*intern\\s*[-–]", Pattern.CASE_INSENSITIVE);
+    private static final Pattern INTERNAL_MARKER = Pattern.compile("^\\s*intern\\s*[-–:]", Pattern.CASE_INSENSITIVE);
 
     @Override
     public WarningRule rule() {

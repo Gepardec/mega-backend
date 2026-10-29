@@ -40,20 +40,22 @@ class InternalNoteConventionCalculatorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"Intern - Jenkins aufräumen", "intern - JFX", "Intern -JFX", "Intern– JFX", "  Intern - JFX", "INTERN-JFX"})
+    @ValueSource(strings = {"Intern - Jenkins aufräumen", "intern - JFX", "Intern -JFX", "Intern– JFX", "  Intern - JFX", "INTERN-JFX",
+            "Intern: JFX", "intern : JFX", "INTERN:JFX", "  Intern: JFX"})
     void calculate_whenBillableProjectBookingIsMarkedInternal_thenBillableWarning(String note) {
         assertThat(calculate(bookings(project(DATE, true, note))))
                 .containsExactly(new WorkTimeWarning(DATE, INTERNAL_NOTE_BILLABLE, null));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"Intern - Jenkins aufräumen", "intern - JFX", "Intern -JFX", "Intern– JFX", "  Intern - JFX", "INTERN-JFX"})
+    @ValueSource(strings = {"Intern - Jenkins aufräumen", "intern - JFX", "Intern -JFX", "Intern– JFX", "  Intern - JFX", "INTERN-JFX",
+            "Intern: JFX", "intern : JFX", "INTERN:JFX", "  Intern: JFX"})
     void calculate_whenNonBillableProjectBookingIsMarkedInternal_thenNoWarning(String note) {
         assertThat(calculate(bookings(project(DATE, false, note)))).isEmpty();
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"JFX (Intern - Vorbereitung)", "Internes Meeting", "Intern JFX", "Intern: JFX", "Heapdump analysiert"})
+    @ValueSource(strings = {"JFX (Intern - Vorbereitung)", "Internes Meeting", "Intern JFX", "JFX (Intern: Vorbereitung)", "Heapdump analysiert"})
     void calculate_whenNoteIsNotMarkedInternal_thenBillableBookingHasNoWarningAndNonBillableBookingIsMissing(String note) {
         assertThat(calculate(bookings(project(DATE, true, note)))).isEmpty();
         assertThat(calculate(bookings(project(DATE, false, note), billableWork())))
