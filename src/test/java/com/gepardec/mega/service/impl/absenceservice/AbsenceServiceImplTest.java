@@ -2,122 +2,88 @@ package com.gepardec.mega.service.impl.absenceservice;
 
 import com.gepardec.mega.db.entity.common.AbsenceType;
 import com.gepardec.mega.domain.model.AbsenceTime;
-import com.gepardec.mega.service.api.AbsenceService;
-import com.gepardec.mega.service.api.DateHelperService;
-import com.gepardec.mega.service.helper.OfficeCalendarUtil;
-import io.quarkus.test.InjectMock;
-import io.quarkus.test.junit.QuarkusTest;
-import jakarta.inject.Inject;
+import com.gepardec.mega.service.impl.AbsenceServiceImpl;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
-@QuarkusTest
 class AbsenceServiceImplTest {
 
-    @Inject
-    AbsenceService absenceService;
+    // October 2026: 1st is a Thursday, 26th (Nationalfeiertag) is a Monday holiday
+    private static final YearMonth OCTOBER_2026 = YearMonth.of(2026, 10);
 
-    @InjectMock
-    DateHelperService dateHelperService;
+    private final AbsenceServiceImpl absenceService = new AbsenceServiceImpl();
 
     @Test
-    void numberOfFridaysAbsent_whenFourFridaysAbsent_thenReturnThree() {
-        when(dateHelperService.getFridaysInRange(any(LocalDate.class), any(LocalDate.class)))
-                .thenReturn(1);
-
-        int actual = absenceService.numberOfFridaysAbsent(createAbsenceTimeList());
-        assertThat(actual).isEqualTo(3);
+    void getNumberOfDaysAbsent_whenNoAbsences_thenReturnZero() {
+        assertThat(absenceService.getNumberOfDaysAbsent(List.of(), OCTOBER_2026)).isZero();
     }
 
     @Test
-    void numberOfFridaysAbsent_whenNoFridaysAbsent_thenReturnZero() {
-        when(dateHelperService.getFridaysInRange(any(LocalDate.class), any(LocalDate.class)))
-                .thenReturn(0);
+    void getNumberOfDaysAbsent_whenAbsenceSpansWeekendAndHoliday_thenCountOnlyWorkingDays() {
+        List<AbsenceTime> absences = List.of(absence(AbsenceType.VACATION_DAYS, date(10, 23), date(10, 27)));
 
-        int actual = absenceService.numberOfFridaysAbsent(List.of());
-        assertThat(actual).isZero();
+        assertThat(absenceService.getNumberOfDaysAbsent(absences, OCTOBER_2026)).isEqualTo(2);
     }
 
     @Test
-    void getNumberOfDaysAbsent_whenThreeDaysAbsent_thenReturnThree() {
-        try (MockedStatic<OfficeCalendarUtil> officeCalendarUtilMock = Mockito.mockStatic(OfficeCalendarUtil.class)) {
+    void getNumberOfDaysAbsent_whenAbsenceExtendsIntoNextMonth_thenCountOnlyDaysInMonth() {
+        List<AbsenceTime> absences = List.of(absence(AbsenceType.VACATION_DAYS, date(10, 29), LocalDate.of(2026, 11, 6)));
 
-            officeCalendarUtilMock.when(() -> OfficeCalendarUtil.isWorkingDay(any(LocalDate.class)))
-                    .thenReturn(true);
-            officeCalendarUtilMock.when(() -> OfficeCalendarUtil.getHolidaysForMonth(any(YearMonth.class)))
-                    .thenReturn(Stream.empty());
-
-
-            int actual = absenceService.getNumberOfDaysAbsent(createAbsencesForDaysAbsent(), YearMonth.of(2024, 4));
-
-            assertThat(actual).isEqualTo(5);
-        }
+        assertThat(absenceService.getNumberOfDaysAbsent(absences, OCTOBER_2026)).isEqualTo(2);
     }
 
     @Test
-    void getNumberOfDaysAbsent_whenTwoDaysAreHoliday_thenReturnNumberOfDaysWithoutTheseDay() {
-        try (MockedStatic<OfficeCalendarUtil> officeCalendarUtilMock = Mockito.mockStatic(OfficeCalendarUtil.class)) {
+    void getNumberOfDaysAbsent_whenAbsenceStartsInPreviousMonth_thenCountOnlyDaysInMonth() {
+        List<AbsenceTime> absences = List.of(absence(AbsenceType.VACATION_DAYS, LocalDate.of(2026, 9, 28), date(10, 2)));
 
-            officeCalendarUtilMock.when(() -> OfficeCalendarUtil.isWorkingDay(any(LocalDate.class)))
-                    .thenReturn(true);
-            officeCalendarUtilMock.when(() -> OfficeCalendarUtil.getHolidaysForMonth(any(YearMonth.class)))
-                    .thenReturn(Stream.of(
-                            LocalDate.of(2024, 5, 6),
-                            LocalDate.of(2024, 5, 10)
-                    ));
-
-
-            int actual = absenceService.getNumberOfDaysAbsent(
-                    List.of(
-                            createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.of(2024, 5, 6), LocalDate.of(2024, 5, 6)),
-                            createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.of(2024, 5, 9), LocalDate.of(2024, 5, 12))
-                    ),
-                    YearMonth.of(2024, 4)
-            );
-
-            assertThat(actual).isEqualTo(3);
-        }
+        assertThat(absenceService.getNumberOfDaysAbsent(absences, OCTOBER_2026)).isEqualTo(2);
     }
 
-    private List<AbsenceTime> createAbsencesForDaysAbsent() {
-        LocalDate fromDate = LocalDate.now();
-        LocalDate toDate;
-
-        if (fromDate.getDayOfMonth() == 30 || fromDate.getDayOfMonth() == 31 || (fromDate.getMonthValue() == 2 && fromDate.getDayOfMonth() == 29)) {
-            toDate = fromDate;
-            fromDate = LocalDate.now().minusDays(2);
-        } else {
-            toDate = fromDate.plusDays(2);
-        }
-
-        return List.of(
-                createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.now(), LocalDate.now()),
-                createAbsenceTime(AbsenceType.VACATION_DAYS, fromDate, toDate),
-                createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.now(), LocalDate.now())
+    @Test
+    void getNumberOfDaysAbsent_whenAbsencesOverlap_thenCountEachDayOnce() {
+        List<AbsenceTime> absences = List.of(
+                absence(AbsenceType.HOME_OFFICE_DAYS, date(10, 5), date(10, 9)),
+                absence(AbsenceType.VACATION_DAYS, date(10, 7), date(10, 7))
         );
+
+        assertThat(absenceService.getNumberOfDaysAbsent(absences, OCTOBER_2026)).isEqualTo(5);
     }
 
-    private List<AbsenceTime> createAbsenceTimeList() {
-        return List.of(
-                createAbsenceTime(AbsenceType.VACATION_DAYS, LocalDate.now(), LocalDate.now()),
-                createAbsenceTime(AbsenceType.CONFERENCE_DAYS, LocalDate.now(), LocalDate.now()),
-                createAbsenceTime(AbsenceType.PAID_SICK_LEAVE, LocalDate.now(), LocalDate.now())
+    @Test
+    void numberOfFridaysAbsent_whenNoAbsences_thenReturnZero() {
+        assertThat(absenceService.numberOfFridaysAbsent(List.of(), OCTOBER_2026)).isZero();
+    }
+
+    @Test
+    void numberOfFridaysAbsent_whenAbsenceExtendsIntoNextMonth_thenCountOnlyFridaysInMonth() {
+        // Fridays: 30.10 (in month), 6.11 (outside)
+        List<AbsenceTime> absences = List.of(absence(AbsenceType.VACATION_DAYS, date(10, 29), LocalDate.of(2026, 11, 6)));
+
+        assertThat(absenceService.numberOfFridaysAbsent(absences, OCTOBER_2026)).isEqualTo(1);
+    }
+
+    @Test
+    void numberOfFridaysAbsent_whenAbsencesOverlapOnFriday_thenCountFridayOnce() {
+        List<AbsenceTime> absences = List.of(
+                absence(AbsenceType.HOME_OFFICE_DAYS, date(10, 5), date(10, 9)),
+                absence(AbsenceType.VACATION_DAYS, date(10, 9), date(10, 9))
         );
+
+        assertThat(absenceService.numberOfFridaysAbsent(absences, OCTOBER_2026)).isEqualTo(1);
     }
 
-    private AbsenceTime createAbsenceTime(AbsenceType absenceType, LocalDate from, LocalDate to) {
+    private static LocalDate date(int month, int day) {
+        return LocalDate.of(2026, month, day);
+    }
+
+    private static AbsenceTime absence(AbsenceType type, LocalDate from, LocalDate to) {
         return AbsenceTime.builder()
-                .reason(absenceType.getAbsenceName())
+                .reason(type.getAbsenceName())
                 .fromDate(from)
                 .toDate(to)
                 .accepted(true)

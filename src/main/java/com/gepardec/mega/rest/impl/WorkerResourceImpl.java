@@ -137,7 +137,7 @@ public class WorkerResourceImpl implements WorkerResource {
         return MonthlyOfficeDays.builder()
                 .homeOfficeDays(homeOfficeDaysCount)
                 .officeDays(numberOfWorkingDaysInMonth - numberOfDaysAbsent)
-                .fridaysAtTheOffice(numberOfFridaysInMonth - absenceService.numberOfFridaysAbsent(absences))
+                .fridaysAtTheOffice(numberOfFridaysInMonth - absenceService.numberOfFridaysAbsent(absences, payrollMonth))
                 .build();
     }
 

@@ -353,7 +353,7 @@ class WorkerResourceTest {
         when(absenceService.getNumberOfDaysAbsent(any(), any(YearMonth.class)))
                 .thenReturn(7);
 
-        when(absenceService.numberOfFridaysAbsent(any()))
+        when(absenceService.numberOfFridaysAbsent(any(), any(YearMonth.class)))
                 .thenReturn(1);
 
         MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(YearMonth.now());
@@ -382,7 +382,7 @@ class WorkerResourceTest {
         when(absenceService.getNumberOfDaysAbsent(any(), any(YearMonth.class)))
                 .thenReturn(0);
 
-        when(absenceService.numberOfFridaysAbsent(any()))
+        when(absenceService.numberOfFridaysAbsent(any(), any(YearMonth.class)))
                 .thenReturn(0);
 
         MonthlyOfficeDaysDto actual = workerResource.getOfficeDaysForMonthAndEmployee(YearMonth.now());
