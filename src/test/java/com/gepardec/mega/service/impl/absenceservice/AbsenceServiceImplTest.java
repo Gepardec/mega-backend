@@ -64,7 +64,7 @@ class AbsenceServiceImplTest {
         // Fridays: 30.10 (in month), 6.11 (outside)
         List<AbsenceTime> absences = List.of(absence(AbsenceType.VACATION_DAYS, date(10, 29), LocalDate.of(2026, 11, 6)));
 
-        assertThat(absenceService.numberOfFridaysAbsent(absences, OCTOBER_2026)).isEqualTo(1);
+        assertThat(absenceService.numberOfFridaysAbsent(absences, OCTOBER_2026)).isOne();
     }
 
     @Test
@@ -74,7 +74,7 @@ class AbsenceServiceImplTest {
                 absence(AbsenceType.VACATION_DAYS, date(10, 9), date(10, 9))
         );
 
-        assertThat(absenceService.numberOfFridaysAbsent(absences, OCTOBER_2026)).isEqualTo(1);
+        assertThat(absenceService.numberOfFridaysAbsent(absences, OCTOBER_2026)).isOne();
     }
 
     private static LocalDate date(int month, int day) {
