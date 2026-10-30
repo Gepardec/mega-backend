@@ -181,6 +181,35 @@ class WorkingTimeUtilTest {
         assertThat(absenceTimesForEmployee).isEqualTo(2);
     }
 
+    @Test
+    void getAbsenceTimesForEmployee_whenAbsenceExtendsFromDecemberIntoJanuary_thenCountOnlyDecemberDays() {
+        // 29.12.2025 (Mon) – 9.1.2026 (Fri): December working days are 29, 30 (31st counts as holiday)
+        List<AbsenceTime> absences = List.of(acceptedVacation(LocalDate.of(2025, 12, 29), LocalDate.of(2026, 1, 9)));
+
+        int actual = workingTimeUtil.getAbsenceTimesForEmployee(absences, "UB", YearMonth.of(2025, 12));
+
+        assertThat(actual).isEqualTo(2);
+    }
+
+    @Test
+    void getAbsenceTimesForEmployee_whenAbsenceStartsInDecember_thenCountOnlyJanuaryDays() {
+        // 29.12.2025 – 9.1.2026: January working days are 2, 5, 7, 8, 9 (1st and 6th are holidays)
+        List<AbsenceTime> absences = List.of(acceptedVacation(LocalDate.of(2025, 12, 29), LocalDate.of(2026, 1, 9)));
+
+        int actual = workingTimeUtil.getAbsenceTimesForEmployee(absences, "UB", YearMonth.of(2026, 1));
+
+        assertThat(actual).isEqualTo(5);
+    }
+
+    private static AbsenceTime acceptedVacation(LocalDate from, LocalDate to) {
+        return AbsenceTime.builder()
+                .reason("UB")
+                .fromDate(from)
+                .toDate(to)
+                .accepted(true)
+                .build();
+    }
+
     @ParameterizedTest
     @CsvSource({
             "01:30, PT1H30M",

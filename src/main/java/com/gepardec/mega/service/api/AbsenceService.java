@@ -6,7 +6,7 @@ import java.time.YearMonth;
 import java.util.List;
 
 public interface AbsenceService {
-    int numberOfFridaysAbsent(List<AbsenceTime> absences);
+    int numberOfFridaysAbsent(List<AbsenceTime> absences, YearMonth payrollMonth);
 
     int getNumberOfDaysAbsent(List<AbsenceTime> absences, YearMonth payrollMonth);
 }

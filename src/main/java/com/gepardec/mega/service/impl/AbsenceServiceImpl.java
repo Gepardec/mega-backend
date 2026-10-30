@@ -2,49 +2,45 @@ package com.gepardec.mega.service.impl;
 
 import com.gepardec.mega.domain.model.AbsenceTime;
 import com.gepardec.mega.service.api.AbsenceService;
-import com.gepardec.mega.service.api.DateHelperService;
 import com.gepardec.mega.service.helper.OfficeCalendarUtil;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 public class AbsenceServiceImpl implements AbsenceService {
 
-    @Inject
-    DateHelperService dateHelperService;
-
     @Override
-    public int numberOfFridaysAbsent(List<AbsenceTime> absences) {
-        return absences.stream()
-                .mapToInt(absence -> dateHelperService.getFridaysInRange(absence.fromDate(), absence.toDate()))
-                .sum();
+    public int numberOfFridaysAbsent(List<AbsenceTime> absences, YearMonth payrollMonth) {
+        return (int) absentWorkingDaysInMonth(absences, payrollMonth).stream()
+                .filter(OfficeCalendarUtil::isFriday)
+                .count();
     }
 
     @Override
     public int getNumberOfDaysAbsent(List<AbsenceTime> absences, YearMonth payrollMonth) {
-        List<LocalDate> holidays = OfficeCalendarUtil.getHolidaysForMonth(YearMonth.of(payrollMonth.getYear(), payrollMonth.getMonth())).toList();
+        return absentWorkingDaysInMonth(absences, payrollMonth).size();
+    }
 
-        int count = 0;
-        for (AbsenceTime a : absences) {
-            LocalDate fromDate = a.fromDate();
-            LocalDate toDate = a.toDate();
+    // Absences may extend beyond the month and may overlap each other, so trim them
+    // to the month and count each working day only once.
+    private Set<LocalDate> absentWorkingDaysInMonth(List<AbsenceTime> absences, YearMonth payrollMonth) {
+        LocalDate monthStart = payrollMonth.atDay(1);
+        LocalDate monthEnd = payrollMonth.atEndOfMonth();
 
-            if (fromDate.equals(toDate)) {
-                if (!holidays.contains(fromDate) && OfficeCalendarUtil.isWorkingDay(fromDate)) {
-                    count += 1;
-                }
-                continue;
-            }
-            for (LocalDate currentDate = fromDate; !currentDate.isAfter(toDate); currentDate = currentDate.plusDays(1)) {
-                if (!holidays.contains(currentDate) && OfficeCalendarUtil.isWorkingDay(currentDate)) {
-                    count += 1;
-                }
-            }
-        }
-        return count;
+        return absences.stream()
+                .flatMap(absence -> {
+                    LocalDate from = absence.fromDate().isBefore(monthStart) ? monthStart : absence.fromDate();
+                    LocalDate to = absence.toDate().isAfter(monthEnd) ? monthEnd : absence.toDate();
+                    return from.isAfter(to)
+                            ? Stream.empty()
+                            : OfficeCalendarUtil.getWorkingDaysBetween(from, to).stream();
+                })
+                .collect(Collectors.toSet());
     }
 }

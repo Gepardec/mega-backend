@@ -186,11 +186,11 @@ public class WorkingTimeUtil {
 
     private AbsenceTime trimDurationToCurrentMonth(AbsenceTime fehlzeit, YearMonth payrollMonth) {
         LocalDate toDate = fehlzeit.toDate();
-        if (toDate.getMonthValue() > payrollMonth.getMonthValue()) {
+        if (toDate.isAfter(payrollMonth.atEndOfMonth())) {
             toDate = payrollMonth.atEndOfMonth();
         }
         LocalDate fromDate = fehlzeit.fromDate();
-        if (fromDate.getMonthValue() < payrollMonth.getMonthValue()) {
+        if (fromDate.isBefore(payrollMonth.atDay(1))) {
             fromDate = payrollMonth.atDay(1);
         }
 
