@@ -41,7 +41,8 @@ class InternalNoteConventionCalculatorTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"Intern - Jenkins aufräumen", "intern - JFX", "Intern -JFX", "Intern– JFX", "  Intern - JFX", "INTERN-JFX",
-            "Intern: JFX", "intern : JFX", "INTERN:JFX", "  Intern: JFX"})
+            "Intern: JFX", "intern : JFX", "INTERN:JFX", "  Intern: JFX",
+            "Intern JFX", "Intern LF-Projekte - MEGA", "Intern-Jagdthemen - Workshop", "Intern-Weiterbildungen: Java Kurs"})
     void calculate_whenBillableProjectBookingIsMarkedInternal_thenBillableWarning(String note) {
         assertThat(calculate(bookings(project(DATE, true, note))))
                 .containsExactly(new WorkTimeWarning(DATE, INTERNAL_NOTE_BILLABLE, null));
@@ -49,13 +50,15 @@ class InternalNoteConventionCalculatorTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"Intern - Jenkins aufräumen", "intern - JFX", "Intern -JFX", "Intern– JFX", "  Intern - JFX", "INTERN-JFX",
-            "Intern: JFX", "intern : JFX", "INTERN:JFX", "  Intern: JFX"})
+            "Intern: JFX", "intern : JFX", "INTERN:JFX", "  Intern: JFX",
+            "Intern JFX", "Intern LF-Projekte - MEGA", "Intern-Jagdthemen - Workshop", "Intern-Weiterbildungen: Java Kurs"})
     void calculate_whenNonBillableProjectBookingIsMarkedInternal_thenNoWarning(String note) {
         assertThat(calculate(bookings(project(DATE, false, note)))).isEmpty();
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"JFX (Intern - Vorbereitung)", "Internes Meeting", "Intern JFX", "JFX (Intern: Vorbereitung)", "Heapdump analysiert"})
+    @ValueSource(strings = {"JFX (Intern - Vorbereitung)", "Internes Meeting", "JFX (Intern: Vorbereitung)", "Heapdump analysiert",
+            "Internal sync", "Intern/Extern abstimmen", "Intern.JFX", "Intern", "Intern -", "Intern: ", "intern  "})
     void calculate_whenNoteIsNotMarkedInternal_thenBillableBookingHasNoWarningAndNonBillableBookingIsMissing(String note) {
         assertThat(calculate(bookings(project(DATE, true, note)))).isEmpty();
         assertThat(calculate(bookings(project(DATE, false, note), billableWork())))
