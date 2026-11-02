@@ -5,33 +5,6 @@ Checks the "Intern - " booking convention against a booking's billability. This 
 
 ## Requirements
 
-### Requirement: A note counts as internally marked when it starts with "Intern" and a delimiter
-A note SHALL count as internally marked if, after optional leading spaces, it starts with the word "Intern", regardless of upper or lower case, followed by optional spaces and a delimiter. Accepted delimiters SHALL be a hyphen (`-`), an en dash (`–`) or a colon (`:`). An empty or missing note SHALL NOT count as internally marked, nor SHALL a note that contains the marker only elsewhere.
-
-#### Scenario: A note following the convention is marked
-- **WHEN** a booking carries the note "Intern - Jenkins aufräumen"
-- **THEN** the note counts as internally marked
-
-#### Scenario: Deviating spellings are marked
-- **WHEN** a booking carries one of the notes "intern - JFX", "Intern -JFX", "Intern– JFX" or "  Intern - JFX"
-- **THEN** the note counts as internally marked
-
-#### Scenario: A colon as delimiter is marked
-- **WHEN** a booking carries one of the notes "Intern: JFX", "intern : JFX", "INTERN:JFX" or "  Intern: JFX"
-- **THEN** the note counts as internally marked
-
-#### Scenario: A marker in the middle of the text does not count
-- **WHEN** a booking carries the note "JFX (Intern - Vorbereitung)" or "JFX (Intern: Vorbereitung)"
-- **THEN** the note does not count as internally marked
-
-#### Scenario: "Intern" without a dash does not count
-- **WHEN** a booking carries the note "Internes Meeting" or "Intern JFX"
-- **THEN** the note does not count as internally marked
-
-#### Scenario: An empty note is not marked
-- **WHEN** a booking carries no note or an empty note
-- **THEN** the note does not count as internally marked
-
 ### Requirement: Billable bookings with an internal marker are reported per day
 The system SHALL produce an `INTERNAL_NOTE_BILLABLE` warning for every date on which at least one billable booking carries an internally marked note. The rule SHALL apply to project and journey bookings. The warning SHALL carry the date and no hours.
 
@@ -124,3 +97,46 @@ Both convention checks SHALL form the `INTERNAL_NOTE` warning rule and SHALL be 
 #### Scenario: A disabled rule checks no bookings
 - **WHEN** the `INTERNAL_NOTE` rule is disabled and a billable booking on 2026-10-06 carries the note "Intern - JFX"
 - **THEN** no `INTERNAL_NOTE_BILLABLE` warning is produced
+
+### Requirement: A note counts as internally marked when it starts with the word "Intern"
+A note SHALL count as internally marked if, after optional leading spaces, it starts with the word "Intern", regardless of upper or lower case, directly followed by one or more separators: whitespace, a hyphen (`-`), an en dash (`–`) or a colon (`:`). After the separators, further text SHALL follow. An empty or missing note SHALL NOT count as internally marked, nor SHALL a note that contains the marker only elsewhere.
+
+#### Scenario: A note following the convention is marked
+- **WHEN** a booking carries the note "Intern - Jenkins aufräumen"
+- **THEN** the note counts as internally marked
+
+#### Scenario: Deviating spellings are marked
+- **WHEN** a booking carries one of the notes "intern - JFX", "Intern -JFX", "Intern– JFX", "INTERN-JFX" or "  Intern - JFX"
+- **THEN** the note counts as internally marked
+
+#### Scenario: A colon as delimiter is marked
+- **WHEN** a booking carries one of the notes "Intern: JFX", "intern : JFX", "INTERN:JFX" or "  Intern: JFX"
+- **THEN** the note counts as internally marked
+
+#### Scenario: "Intern" followed by a space without a delimiter is marked
+- **WHEN** a booking carries the note "Intern JFX"
+- **THEN** the note counts as internally marked
+
+#### Scenario: Internal project names as prefix are marked
+- **WHEN** a booking carries one of the notes "Intern LF-Projekte - MEGA", "Intern-Jagdthemen - Workshop" or "Intern-Weiterbildungen: Java Kurs"
+- **THEN** the note counts as internally marked
+
+#### Scenario: A marker in the middle of the text does not count
+- **WHEN** a booking carries the note "JFX (Intern - Vorbereitung)" or "JFX (Intern: Vorbereitung)"
+- **THEN** the note does not count as internally marked
+
+#### Scenario: A word that merely starts with "Intern" does not count
+- **WHEN** a booking carries the note "Internes Meeting" or "Internal sync"
+- **THEN** the note does not count as internally marked
+
+#### Scenario: "Intern" followed by another character does not count
+- **WHEN** a booking carries the note "Intern/Extern abstimmen" or "Intern.JFX"
+- **THEN** the note does not count as internally marked
+
+#### Scenario: "Intern" without further text does not count
+- **WHEN** a booking carries one of the notes "Intern", "Intern -", "Intern: " or "intern  "
+- **THEN** the note does not count as internally marked
+
+#### Scenario: An empty note is not marked
+- **WHEN** a booking carries no note or an empty note
+- **THEN** the note does not count as internally marked
