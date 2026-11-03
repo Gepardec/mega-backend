@@ -124,6 +124,45 @@ class MonthEndClarificationTest {
     }
 
     @Test
+    void create_shouldReportNoEligibleProjectLead_whenProjectHasNoActiveLead() {
+        ThrowableAssert.ThrowingCallable throwingCallable = () -> MonthEndClarification.create(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                employeeId,
+                employeeId,
+                Set.of(),
+                "Nobody can resolve this.",
+                createdAt
+        );
+
+        assertThatThrownBy(throwingCallable).isInstanceOfSatisfying(MonthEndException.class,
+                thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.NO_ELIGIBLE_PROJECT_LEAD));
+    }
+
+    @Test
+    void constructor_shouldFailAsDefect_whenStoredClarificationBreaksAnInvariant() {
+        ThrowableAssert.ThrowingCallable throwingCallable = () -> new MonthEndClarification(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                employeeId,
+                employeeId,
+                SourceSystem.MEGA,
+                Set.of(leadA),
+                MonthEndClarificationStatus.DONE,
+                "Stored as done without a resolver.",
+                null,
+                null,
+                createdAt,
+                null,
+                createdAt
+        );
+
+        assertThatThrownBy(throwingCallable).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void editText_shouldUpdateTextAndLastModifiedAt_whenEditedByCreator() {
         MonthEndClarification clarification = employeeCreatedClarification();
         Instant modifiedAt = createdAt.plusSeconds(60);

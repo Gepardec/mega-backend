@@ -51,3 +51,10 @@
 - [x] 8.1 Add `shared/adapter/inbound/rest/OutboundHttpFailureProblemMapper extends ExceptionMapperBase<ClientWebApplicationException>` that answers `502` without `detail` or `code` (D14). Verify with a unit test for the mapper and a case in the problem contract test where a use case throws a `ClientWebApplicationException` with status `404` and the API answers `502` without `detail` or `code`.
 - [x] 8.2 Rename the body parameter of `WorkTimeWarningRuleResource.updateWarningRuleSetting` to the generated name and add a unit test that checks every resource implementing a generated API interface uses the interface's parameter names (D15). Verify with a REST test that `PUT /worktime/warning-rules/{rule}` with `{}` reports `violations` with `field: "enabled"` and `in: "body"`.
 - [x] 8.3 Run `mvn clean package` and the OpenRewrite hygiene check (`rewrite-check` profile) on the rebased branch. Verify both pass.
+
+## 9. Structural invariants as server errors
+
+- [x] 9.1 Make the compact constructors of `MonthEndTask` and `MonthEndClarification` throw `IllegalArgumentException`, and make the missing-ZEP-username checks in the work-time services throw `IllegalStateException` (D16). Remove `MonthEndErrorCode.VALIDATION_FAILED` and `WorkTimeErrorCode.VALIDATION_FAILED`. Verify with domain tests that a stored clarification breaking an invariant fails with `IllegalArgumentException`.
+- [x] 9.2 Add `MonthEndErrorCode.TASK_TYPE_NOT_BULK_COMPLETABLE` for the bulk-completion type rule and `MonthEndErrorCode.NO_ELIGIBLE_PROJECT_LEAD`, checked by the clarification creation factory. Pin both in `ErrorCodeTest`. Verify with a domain test that creating a clarification without eligible leads yields `NO_ELIGIBLE_PROJECT_LEAD`.
+- [x] 9.3 Add `@NotBlank` to `text` in `CreateClarificationRequest` and `UpdateClarificationTextRequest`. Verify with REST tests that a blank text returns `400` with a `violations` entry `field: "text"`, `in: "body"`, and no `code`.
+- [x] 9.4 Run `mvn clean package -Prewrite-check`. Verify it passes.

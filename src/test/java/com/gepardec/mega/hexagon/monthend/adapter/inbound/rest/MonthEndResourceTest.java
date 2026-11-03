@@ -564,6 +564,44 @@ class MonthEndResourceTest {
     }
 
     @Test
+    void createMonthEndClarification_shouldRejectBlankText() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(Map.of(
+                        "month", MONTH.toString(),
+                        "projectId", PROJECT_ID.value().toString(),
+                        "text", " "
+                ))
+                .post("/monthend/clarifications")
+                .then()
+                .statusCode(400)
+                .body("code", nullValue())
+                .body("violations[0].field", is("text"))
+                .body("violations[0].in", is("body"));
+
+        verifyNoInteractions(createMonthEndClarificationUseCase);
+    }
+
+    @Test
+    void updateMonthEndClarificationText_shouldRejectBlankText() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(new UpdateClarificationTextRequestDto().text(" "))
+                .put("/monthend/clarifications/{clarificationId}/text", CLARIFICATION_ID.value())
+                .then()
+                .statusCode(400)
+                .body("code", nullValue())
+                .body("violations[0].field", is("text"))
+                .body("violations[0].in", is("body"));
+
+        verifyNoInteractions(updateMonthEndClarificationUseCase);
+    }
+
+    @Test
     void createMonthEndClarification_shouldReturnCreatedClarificationForEmployee() {
         allowRoles(Role.EMPLOYEE);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
@@ -872,7 +910,7 @@ class MonthEndResourceTest {
     void completeProjectLeadMonthEndTasks_shouldReturnBadRequest_whenTypeIsEmployeeTimeCheck() {
         allowRoles(Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
-        doThrow(new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "task type EMPLOYEE_TIME_CHECK cannot be bulk completed by a project lead"))
+        doThrow(new MonthEndException(MonthEndErrorCode.TASK_TYPE_NOT_BULK_COMPLETABLE, "task type EMPLOYEE_TIME_CHECK cannot be bulk completed by a project lead"))
                 .when(completeProjectLeadMonthEndTasksUseCase)
                 .complete(MONTH, PROJECT_ID, MonthEndTaskType.EMPLOYEE_TIME_CHECK, PROJECT_LEAD_ID);
 
@@ -890,7 +928,7 @@ class MonthEndResourceTest {
     void completeProjectLeadMonthEndTasks_shouldReturnBadRequest_whenTypeIsAbrechnung() {
         allowRoles(Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
-        doThrow(new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "task type ABRECHNUNG cannot be bulk completed by a project lead"))
+        doThrow(new MonthEndException(MonthEndErrorCode.TASK_TYPE_NOT_BULK_COMPLETABLE, "task type ABRECHNUNG cannot be bulk completed by a project lead"))
                 .when(completeProjectLeadMonthEndTasksUseCase)
                 .complete(MONTH, PROJECT_ID, MonthEndTaskType.ABRECHNUNG, PROJECT_LEAD_ID);
 

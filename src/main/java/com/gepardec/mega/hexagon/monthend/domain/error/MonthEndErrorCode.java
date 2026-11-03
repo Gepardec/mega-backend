@@ -11,7 +11,8 @@ public enum MonthEndErrorCode implements ErrorCode {
     EMPLOYEE_CONTEXT_NOT_FOUND(ErrorCategory.INVALID),
     EMPLOYEE_NOT_ASSIGNED_TO_PROJECT(ErrorCategory.INVALID),
     PROJECT_CONTEXT_NOT_FOUND(ErrorCategory.INVALID),
-    VALIDATION_FAILED(ErrorCategory.INVALID);
+    NO_ELIGIBLE_PROJECT_LEAD(ErrorCategory.INVALID),
+    TASK_TYPE_NOT_BULK_COMPLETABLE(ErrorCategory.INVALID);
 
     private final ErrorCategory category;
 

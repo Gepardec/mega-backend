@@ -130,7 +130,7 @@ public class PrematureMonthEndPreparationService implements PrematureMonthEndPre
 
     private String requireNonBlank(String value) {
         if (value == null || value.isBlank()) {
-            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "clarificationText must not be blank");
+            throw new IllegalArgumentException("clarificationText must not be blank");
         }
         return value;
     }

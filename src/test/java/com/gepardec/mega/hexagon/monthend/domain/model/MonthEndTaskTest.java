@@ -38,8 +38,7 @@ class MonthEndTaskTest {
         );
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOfSatisfying(MonthEndException.class,
-                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.VALIDATION_FAILED))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("subject employee");
     }
 
@@ -55,8 +54,7 @@ class MonthEndTaskTest {
         );
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOfSatisfying(MonthEndException.class,
-                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.VALIDATION_FAILED))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("must not reference a subject employee");
     }
 
@@ -86,8 +84,7 @@ class MonthEndTaskTest {
         );
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOfSatisfying(MonthEndException.class,
-                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.VALIDATION_FAILED))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("exactly one eligible actor");
     }
 
@@ -103,8 +100,7 @@ class MonthEndTaskTest {
         );
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOfSatisfying(MonthEndException.class,
-                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.VALIDATION_FAILED))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("require a subject employee");
     }
 
@@ -120,8 +116,7 @@ class MonthEndTaskTest {
         );
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOfSatisfying(MonthEndException.class,
-                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.VALIDATION_FAILED))
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("eligible employee actor");
     }
 

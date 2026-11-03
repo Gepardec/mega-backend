@@ -41,7 +41,7 @@ public class GetEmployeeAbsencesService implements GetEmployeeAbsencesUseCase {
                 .orElseThrow(() -> new WorkTimeException(WorkTimeErrorCode.USER_NOT_FOUND, "user not found: " + employeeId.value()));
 
         if (employee.zepUsername() == null || employee.zepUsername().value().isBlank()) {
-            throw new WorkTimeException(WorkTimeErrorCode.VALIDATION_FAILED, "zep username missing for user: " + employee.id().value());
+            throw new IllegalStateException("zep username missing for user: " + employee.id().value());
         }
 
         return workTimeAbsenceZepPort.fetchAbsencesForEmployee(employee.zepUsername(), month);

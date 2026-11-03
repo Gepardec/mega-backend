@@ -51,7 +51,22 @@ When a bounded context rejects a request, the HTTP status SHALL reflect the kind
 
 #### Scenario: Rule violation keeps 400
 - **WHEN** a project lead requests bulk completion for a task type that cannot be bulk-completed by a project lead
-- **THEN** the API responds with `400` and a bounded-context-prefixed `code`
+- **THEN** the API responds with `400` and the code `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE`
+
+#### Scenario: Clarification for a project without an active lead
+- **WHEN** an authenticated user creates a clarification, directly or through premature month-end preparation, for a project that has no active project lead in that month
+- **THEN** the API responds with `400` and the code `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD`
+
+### Requirement: Faults that the caller cannot fix are server errors
+A failure that no different request could have avoided SHALL NOT be reported as a `4xx`. It SHALL surface as `500` without `code` or `detail`, even where it was reported as `400` before. This covers stored data that breaks a structural rule of a domain object and a user without the ZEP username that a work-time read needs.
+
+#### Scenario: Stored data that breaks a structural rule
+- **WHEN** a request loads a month-end task or clarification whose stored state breaks a structural rule, for example a completed task without a completing actor
+- **THEN** the API responds with `500` and a problem body without `code` and without `detail`
+
+#### Scenario: User without ZEP username
+- **WHEN** a work-time read is requested for a user who has no ZEP username
+- **THEN** the API responds with `500` and a problem body without `code` and without `detail`
 
 ### Requirement: Input validation errors list each violation
 When a request is rejected because it violates a constraint declared in the contract — a missing mandatory parameter or body field, or a value outside its declared constraints — the API SHALL respond with `400`. The problem body SHALL NOT contain `code` and SHALL contain a `violations` array with at least one entry. Each entry SHALL have:
@@ -73,6 +88,10 @@ A path or query value that can't be parsed into its declared type (for example a
 - **WHEN** a client calls `PUT /projects/{projectId}/leistungsnachweis-enabled` with a body lacking `enabled`
 - **THEN** the API responds with `400` and a problem body without `code`
 - **THEN** `violations` contains an entry whose `field` names `enabled` and whose `in` is `body`
+
+#### Scenario: Blank clarification text
+- **WHEN** a client creates a clarification or edits its text with a value that is empty or contains only whitespace
+- **THEN** the API responds with `400`, a problem body without `code`, and a `violations` entry with `field: "text"` and `in: "body"`
 
 ### Requirement: Server errors do not disclose internals
 A problem with a 5xx status SHALL NOT contain exception messages, exception class names, stack traces, SQL, or personal data. It SHALL NOT contain a `detail` member. Problems with a 4xx status SHALL NOT contain stack traces or personal data such as email addresses.

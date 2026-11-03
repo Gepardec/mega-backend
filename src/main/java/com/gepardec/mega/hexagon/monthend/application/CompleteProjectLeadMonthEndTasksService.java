@@ -30,7 +30,7 @@ public class CompleteProjectLeadMonthEndTasksService implements CompleteProjectL
     @Override
     public List<MonthEndTask> complete(YearMonth month, ProjectId projectId, MonthEndTaskType type, UserId actorId) {
         if (!type.isProjectLeadBulkCompletable()) {
-            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "task type %s cannot be bulk completed by a project lead".formatted(type.name()));
+            throw new MonthEndException(MonthEndErrorCode.TASK_TYPE_NOT_BULK_COMPLETABLE, "task type %s cannot be bulk completed by a project lead".formatted(type.name()));
         }
         if (!monthEndTaskRepository.existsEligibleTaskOfType(month, projectId, type, actorId)) {
             throw new MonthEndException(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED, "actor not authorized: " + actorId.value());

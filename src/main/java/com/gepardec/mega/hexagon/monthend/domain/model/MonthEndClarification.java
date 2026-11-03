@@ -29,6 +29,9 @@ public record MonthEndClarification(
         Instant lastModifiedAt
 ) {
 
+    // Structural invariants. They also run when a clarification is loaded, so a violation is a
+    // defect (500), not a caller error. Rules a request can break are checked in the factories
+    // and behaviour methods with a MonthEndException.
     public MonthEndClarification {
         Objects.requireNonNull(id, "id must not be null");
         Objects.requireNonNull(month, "month must not be null");
@@ -110,6 +113,13 @@ public record MonthEndClarification(
             String text,
             Instant createdAt
     ) {
+        Objects.requireNonNull(eligibleProjectLeadIds, "eligibleProjectLeadIds must not be null");
+        // A project without an active lead this month is a business state a request can run into,
+        // so it is reported to the caller here rather than left to the structural invariant below.
+        if (eligibleProjectLeadIds.isEmpty()) {
+            throw new MonthEndException(MonthEndErrorCode.NO_ELIGIBLE_PROJECT_LEAD,
+                    "project %s has no active project lead in %s".formatted(projectId.value(), month));
+        }
         MonthEndClarification clarification = new MonthEndClarification(
                 id,
                 month,
@@ -236,7 +246,7 @@ public record MonthEndClarification(
 
     private static void validateEligibleLeads(Set<UserId> eligibleProjectLeadIds) {
         if (eligibleProjectLeadIds.isEmpty()) {
-            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "eligibleProjectLeadIds must not be empty");
+            throw new IllegalArgumentException("eligibleProjectLeadIds must not be empty");
         }
     }
 
@@ -248,11 +258,11 @@ public record MonthEndClarification(
 
     private static void validateTimestamps(Instant createdAt, Instant resolvedAt, Instant lastModifiedAt) {
         if (lastModifiedAt.isBefore(createdAt)) {
-            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "lastModifiedAt must not be before createdAt");
+            throw new IllegalArgumentException("lastModifiedAt must not be before createdAt");
         }
 
         if (resolvedAt != null && resolvedAt.isBefore(createdAt)) {
-            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "resolvedAt must not be before createdAt");
+            throw new IllegalArgumentException("resolvedAt must not be before createdAt");
         }
     }
 
@@ -264,19 +274,19 @@ public record MonthEndClarification(
     ) {
         if (status == MonthEndClarificationStatus.OPEN) {
             if (resolutionNote != null || resolvedBy != null || resolvedAt != null) {
-                throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "open clarifications must not have resolution metadata");
+                throw new IllegalArgumentException("open clarifications must not have resolution metadata");
             }
             return;
         }
 
         if (resolvedBy == null || resolvedAt == null) {
-            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, "done clarifications must have resolver and resolvedAt");
+            throw new IllegalArgumentException("done clarifications must have resolver and resolvedAt");
         }
     }
 
     private static String requireNonBlank(String value, String message) {
         if (value == null || value.isBlank()) {
-            throw new MonthEndException(MonthEndErrorCode.VALIDATION_FAILED, message);
+            throw new IllegalArgumentException(message);
         }
         return value;
     }

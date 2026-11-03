@@ -19,7 +19,8 @@ Error responses are inconsistent across the API, and clients can't reliably tell
 - Hexagon inbound adapters no longer parse input by hand. Months are typed as year-month in the contract and generated as a native year-month type. The transport helpers are removed, and resources wrap identifiers into domain types directly.
 - All six legacy exception mappers are removed, together with the legacy `UnauthorizedException`, which nothing throws.
 - A duplicate-email conflict when resolving the authenticated actor is now a 500 instead of a 403, because it is a data-integrity fault, not an authorization decision.
-- The HTTP status of every existing domain error stays the same.
+- The HTTP status of every existing business-rule rejection stays the same.
+- **BREAKING**: Failures that were never caller errors stop being reported as `400`. Stored month-end data that breaks a structural rule and a user without a ZEP username now give `500` without `code` or `detail`. The catch-all codes `MONTHEND_VALIDATION_FAILED` and `WORKTIME_VALIDATION_FAILED` are removed. The two rules a request can break that they also covered get their own codes, `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE` and `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD`, and blank clarification text is rejected by input validation.
 
 ## Capabilities
 

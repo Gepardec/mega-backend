@@ -164,6 +164,7 @@ CreateClarificationRequest:
         oneself, send your own id. A non-lead may name only themselves.
     text:
       type: string
+      x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
 UpdateClarificationTextRequest:
   type: object
   additionalProperties: false
@@ -172,6 +173,7 @@ UpdateClarificationTextRequest:
   properties:
     text:
       type: string
+      x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
 ResolveClarificationRequest:
   type: object
   additionalProperties: false

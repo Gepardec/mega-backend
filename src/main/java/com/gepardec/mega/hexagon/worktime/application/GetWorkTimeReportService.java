@@ -154,7 +154,7 @@ public class GetWorkTimeReportService implements GetWorkTimeReportUseCase {
 
     private String requireZepUsername(UserRef user) {
         if (user.zepUsername() == null || user.zepUsername().value().isBlank()) {
-            throw new WorkTimeException(WorkTimeErrorCode.VALIDATION_FAILED, "zep username missing for user: " + user.id().value());
+            throw new IllegalStateException("zep username missing for user: " + user.id().value());
         }
         return user.zepUsername().value();
     }

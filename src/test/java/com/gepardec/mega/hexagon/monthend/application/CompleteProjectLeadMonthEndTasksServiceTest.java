@@ -205,7 +205,7 @@ class CompleteProjectLeadMonthEndTasksServiceTest {
     void complete_shouldRejectType_whenTypeIsNotProjectLeadBulkCompletable(MonthEndTaskType type) {
         assertThatThrownBy(() -> service.complete(month, projectId, type, leadA))
                 .isInstanceOfSatisfying(MonthEndException.class,
-                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.VALIDATION_FAILED))
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.TASK_TYPE_NOT_BULK_COMPLETABLE))
                 .hasMessageContaining(type.name());
 
         verifyNoInteractions(monthEndTaskRepository);

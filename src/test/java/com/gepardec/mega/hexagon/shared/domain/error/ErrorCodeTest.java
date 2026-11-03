@@ -62,12 +62,12 @@ class ErrorCodeTest {
                         "MONTHEND_EMPLOYEE_CONTEXT_NOT_FOUND",
                         "MONTHEND_EMPLOYEE_NOT_ASSIGNED_TO_PROJECT",
                         "MONTHEND_PROJECT_CONTEXT_NOT_FOUND",
-                        "MONTHEND_VALIDATION_FAILED",
+                        "MONTHEND_NO_ELIGIBLE_PROJECT_LEAD",
+                        "MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE",
                         "PROJECT_NOT_FOUND",
                         "PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE",
                         "PROJECT_ACTOR_NOT_LEAD",
                         "WORKTIME_USER_NOT_FOUND",
-                        "WORKTIME_VALIDATION_FAILED",
                         "USER_UNKNOWN_USERS"
                 );
     }

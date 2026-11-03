@@ -143,15 +143,14 @@ class GetWorkTimeReportServiceTest {
         }
 
         @Test
-        void getWorkTime_shouldThrowWorkTimeValidationExceptionWhenZepUsernameIsMissing() {
+        void getWorkTime_shouldFailAsDefectWhenZepUsernameIsMissing() {
             UserId employeeId = UserId.of(Instancio.create(UUID.class));
             when(workTimeUserSnapshotPort.findById(employeeId, MONTH)).thenReturn(Optional.of(userWithoutZepUsername(employeeId)));
 
             ThrowableAssert.ThrowingCallable throwingCallable = () -> service.getWorkTime(employeeId, MONTH, Capacity.EMPLOYEE);
 
             assertThatThrownBy(throwingCallable)
-                    .isInstanceOfSatisfying(WorkTimeException.class,
-                        thrown -> assertThat(thrown.errorCode()).isEqualTo(WorkTimeErrorCode.VALIDATION_FAILED))
+                    .isInstanceOf(IllegalStateException.class)
                     .hasMessage("zep username missing for user: " + employeeId.value());
         }
     }

@@ -80,7 +80,7 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
         UserRef employee = userSnapshotPort.findById(employeeId, month)
                 .orElseThrow(() -> new WorkTimeException(WorkTimeErrorCode.USER_NOT_FOUND, "user not found: " + employeeId.value()));
         if (employee.zepUsername() == null || employee.zepUsername().value().isBlank()) {
-            throw new WorkTimeException(WorkTimeErrorCode.VALIDATION_FAILED, "zep username missing for user: " + employeeId.value());
+            throw new IllegalStateException("zep username missing for user: " + employeeId.value());
         }
 
         WorkTimeBookings bookings = new WorkTimeBookings(

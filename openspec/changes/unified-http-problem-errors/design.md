@@ -33,7 +33,7 @@ Constraints:
 
 **Non-Goals:**
 - Success-side messages or response envelopes.
-- Re-evaluating the HTTP status of existing domain failures, for example whether a closed clarification should be `409`. All current statuses are kept (spec: *Business-rule rejections keep their HTTP status*).
+- Re-evaluating the HTTP status of existing domain failures, for example whether a closed clarification should be `409`. All current statuses of business-rule rejections are kept (spec: *Business-rule rejections keep their HTTP status*). Failures that were wrongly reported as rejections are corrected (D16).
 - Documenting legacy endpoints in the OpenAPI contract.
 - Frontend changes, including the planned error interceptor.
 - Adding `type` URIs or a problem-type registry.
@@ -59,7 +59,7 @@ The shared `ForbiddenException` (still in `shared/application/security`) also ex
 **One exception type per context.** Because the enum constant already names the failure and carries its category, each context has one concrete exception (`MonthEndException`, `ProjectException`, `WorkTimeException`, `UserException`) that takes its own enum constant, for example `new MonthEndException(MonthEndErrorCode.TASK_NOT_FOUND, message)`. A dedicated subclass exists only when the failure carries structured data or code must catch exactly that failure. Today that's `UnknownUsersException`, which `UserResource` catches to turn usernames into CSV line numbers. The shared `ForbiddenException` stays as it is. Tests assert on `errorCode()` instead of the exception class.
 - *Alternative:* one subclass per failure. Rejected because the subclasses repeated the enum constants without adding behaviour, and nothing caught them by type.
 
-**Code catalogue.** These are the stable values; the frontend switches on them. The status column must match today's behaviour.
+**Code catalogue.** These are the stable values; the frontend switches on them. The status column matches the behaviour before this change, except where D16 reclassifies.
 
 | Enum constant | Category | Status | Code |
 |---|---|---|---|
@@ -70,12 +70,12 @@ The shared `ForbiddenException` (still in `shared/application/security`) also ex
 | `MonthEndErrorCode.EMPLOYEE_CONTEXT_NOT_FOUND` | INVALID | 400 | `MONTHEND_EMPLOYEE_CONTEXT_NOT_FOUND` |
 | `MonthEndErrorCode.EMPLOYEE_NOT_ASSIGNED_TO_PROJECT` | INVALID | 400 | `MONTHEND_EMPLOYEE_NOT_ASSIGNED_TO_PROJECT` |
 | `MonthEndErrorCode.PROJECT_CONTEXT_NOT_FOUND` | INVALID | 400 | `MONTHEND_PROJECT_CONTEXT_NOT_FOUND` |
-| `MonthEndErrorCode.VALIDATION_FAILED` | INVALID | 400 | `MONTHEND_VALIDATION_FAILED` |
+| `MonthEndErrorCode.NO_ELIGIBLE_PROJECT_LEAD` (new, D16) | INVALID | 400 | `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD` |
+| `MonthEndErrorCode.TASK_TYPE_NOT_BULK_COMPLETABLE` (new, D16) | INVALID | 400 | `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE` |
 | `ProjectErrorCode.NOT_FOUND` | NOT_FOUND | 404 | `PROJECT_NOT_FOUND` |
 | `ProjectErrorCode.LEISTUNGSNACHWEIS_NOT_APPLICABLE` | INVALID | 400 | `PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE` |
 | `ProjectErrorCode.ACTOR_NOT_LEAD` (new) | FORBIDDEN | 403 | `PROJECT_ACTOR_NOT_LEAD` |
 | `WorkTimeErrorCode.USER_NOT_FOUND` | NOT_FOUND | 404 | `WORKTIME_USER_NOT_FOUND` |
-| `WorkTimeErrorCode.VALIDATION_FAILED` | INVALID | 400 | `WORKTIME_VALIDATION_FAILED` |
 | `UserErrorCode.UNKNOWN_USERS` (`UnknownUsersException`) | INVALID | 400 | `USER_UNKNOWN_USERS` |
 | `SharedErrorCode.FORBIDDEN` (shared `ForbiddenException`) | FORBIDDEN | 403 | `FORBIDDEN` |
 
@@ -141,6 +141,15 @@ With `jaxrs-spec`'s default `generateJsonCreator=true`, request DTOs get a `@Jso
 ### D15: Resource parameter names match the generated interfaces
 D12 applies to every hexagon resource, not only `MonthEndResource`. A unit test reflects over every class implementing a generated `..hexagon.generated.api..` interface and checks that each implementing method uses the interface's parameter names. This catches resources added later, such as `WorkTimeWarningRuleResource`, whose body parameter `update` made violations report `in: "?"` and `field: "update.enabled"`. The build compiles with `-parameters`, so the names are available at runtime.
 
+### D16: Structural invariants are defects, not caller errors
+The compact constructors of `MonthEndTask` and `MonthEndClarification` throw `IllegalArgumentException` instead of a `MonthEndException`, so a violation becomes a `500` without `code` or `detail`. These constructors also run when MapStruct rebuilds an aggregate from the database, so a corrupt row used to reach the caller as a `400` with the invariant text in `detail`. The caller can't fix that, the frontend would call the request invalid, and no alert fires. The missing-ZEP-username check in the work-time services throws `IllegalStateException` for the same reason. `MONTHEND_VALIDATION_FAILED` and `WORKTIME_VALIDATION_FAILED` are removed.
+
+Rules a request can break are checked before construction and keep a `400` with their own code:
+- Bulk completion of a task type a project lead can't bulk-complete: `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE`, thrown by the use case. The type comes from the request body and the contract allows every task type.
+- A clarification for a project without an active lead this month: `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD`, thrown by the creation factory next to the creator check. It's a business state, not a bug. Strictly it's `409`, but INVALID keeps it consistent with `MONTHEND_PROJECT_CONTEXT_NOT_FOUND`.
+- Blank clarification text: `@NotBlank` on `text` in `CreateClarificationRequest` and `UpdateClarificationTextRequest`, the same as premature preparation, so it becomes a bean-validation `400` with a `violations` entry. The constructor check remains as a guard for the ZEP mail path, whose catch-all reports failures by mail.
+- *Rule of thumb:* if a different request could have succeeded, the failure is a domain exception with a code; if not, it's an unchecked JDK exception and a `500`. A guard that fires on the creation path means an earlier check is missing, which is also a defect.
+
 ### D10: Tests
 - A REST-Assured contract test class in `shared/adapter/inbound/rest` covering:
   - a domain `404` (status, media type, `title`, `instance`, `code`, `detail`, no `type`);
@@ -162,7 +171,7 @@ D12 applies to every hexagon resource, not only `MonthEndResource`. A unit test 
 - [Frontend breaks on every error-handling path at once] → This is accepted and the change is marked breaking. Deploy together with the frontend release that reads `code`. There's no transition mode.
 - [Legacy endpoints change error bodies without a contract] → They were empty or ad hoc before. The frontend's future interceptor reads `code` from any `application/problem+json` response.
 - [Domain messages end up in `detail` and might contain identifiers] → Current messages hold IDs and field names, not personal data. The `UserRepositoryAdapter` message that contained an email becomes a 500, which never gets `detail`. New domain messages must not include personal data.
-- [`WorkTimeValidationException` ("zep username missing for user") is a data problem reported as `400`] → Kept to preserve behaviour (non-goal). It's a follow-up candidate for reclassification as a server error.
+- [Reclassifying invariant failures as `500` (D16) raises the 5xx rate if stored data is already inconsistent] → Intended: those rows were hidden behind `400`s nobody alerted on. A `500` logs at ERROR with the stack trace that names the broken rule.
 - [A `WebApplicationException` carrying a `Response` entity bypasses every mapper (per the extension's TROUBLESHOOTING.md)] → We throw none ourselves. REST-client exceptions that reach the inbound side are handled by D14.
 - [The mapper in D14 depends on the REST client's exception type] → It's the documented type of the Quarkus REST client, and a REST test throws it end to end, so a change fails the build.
 
