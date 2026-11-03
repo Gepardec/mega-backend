@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndCompletionPolicy;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndScope;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
@@ -19,6 +20,20 @@ import java.util.stream.Stream;
 
 @ApplicationScoped
 public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
+
+    // Shared by findTasks and existsTasks so the two cannot drift apart.
+    private static final String SUBJECT_EMPLOYEE_QUERY = "monthValue = ?1 and subjectEmployeeId = ?2";
+    private static final String LED_PROJECTS_QUERY =
+            "from MonthEndTaskEntity task " +
+                    "where task.monthValue = ?1 " +
+                    "and exists (" +
+                    "    select 1 from MonthEndTaskEntity lead " +
+                    "    join lead.eligibleActorIds actor " +
+                    "    where lead.monthValue = task.monthValue " +
+                    "    and lead.projectId = task.projectId " +
+                    "    and actor = ?2 " +
+                    "    and lead.type in ?3" +
+                    ")";
 
     @Inject
     MonthEndTaskPanacheRepository panache;
@@ -65,9 +80,33 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
-    public List<MonthEndTask> findEmployeeVisibleTasks(UserId employeeId, YearMonth month) {
+    public List<MonthEndTask> findTasks(YearMonth month, MonthEndScope scope) {
+        return switch (scope) {
+            case MonthEndScope.SubjectEmployee subject -> findSubjectEmployeeTasks(subject.actorId(), month);
+            case MonthEndScope.LedProjects led -> findLedProjectsTasks(led.actorId(), month);
+        };
+    }
+
+    @Override
+    public boolean existsTasks(YearMonth month, MonthEndScope scope) {
+        return switch (scope) {
+            case MonthEndScope.SubjectEmployee subject -> panache.count(
+                    SUBJECT_EMPLOYEE_QUERY,
+                    toMonthValue(month),
+                    subject.actorId().value()
+            ) > 0;
+            case MonthEndScope.LedProjects led -> panache.count(
+                    LED_PROJECTS_QUERY,
+                    toMonthValue(month),
+                    led.actorId().value(),
+                    leadTaskTypes()
+            ) > 0;
+        };
+    }
+
+    private List<MonthEndTask> findSubjectEmployeeTasks(UserId employeeId, YearMonth month) {
         return panache.find(
-                        "monthValue = ?1 and subjectEmployeeId = ?2",
+                        SUBJECT_EMPLOYEE_QUERY,
                         toMonthValue(month),
                         employeeId.value()
                 )
@@ -76,19 +115,9 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
                 .toList();
     }
 
-    @Override
-    public List<MonthEndTask> findLeadProjectTasks(UserId leadId, YearMonth month) {
+    private List<MonthEndTask> findLedProjectsTasks(UserId leadId, YearMonth month) {
         return panache.find(
-                        "select task from MonthEndTaskEntity task " +
-                                "where task.monthValue = ?1 " +
-                                "and exists (" +
-                                "    select 1 from MonthEndTaskEntity lead " +
-                                "    join lead.eligibleActorIds actor " +
-                                "    where lead.monthValue = task.monthValue " +
-                                "    and lead.projectId = task.projectId " +
-                                "    and actor = ?2 " +
-                                "    and lead.type in ?3" +
-                                ")",
+                        LED_PROJECTS_QUERY,
                         toMonthValue(month),
                         leadId.value(),
                         leadTaskTypes()
@@ -126,18 +155,18 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
-    public boolean existsLeadTask(YearMonth month, ProjectId projectId, UserId leadId) {
+    public boolean existsEligibleTaskOfType(YearMonth month, ProjectId projectId, MonthEndTaskType type, UserId actorId) {
         return panache.count(
                 "from MonthEndTaskEntity task " +
                         "join task.eligibleActorIds actor " +
                         "where task.monthValue = ?1 " +
                         "and task.projectId = ?2 " +
                         "and actor = ?3 " +
-                        "and task.type in ?4",
+                        "and task.type = ?4",
                 toMonthValue(month),
                 projectId.value(),
-                leadId.value(),
-                leadTaskTypes()
+                actorId.value(),
+                type
         ) > 0;
     }
 

@@ -1,8 +1,10 @@
 package com.gepardec.mega.hexagon.shared.adapter.inbound.rest;
 
 import com.gepardec.mega.application.configuration.ZepConfig;
+import com.gepardec.mega.hexagon.generated.model.CapacityDto;
 import com.gepardec.mega.hexagon.generated.model.ProjectRefDto;
 import com.gepardec.mega.hexagon.generated.model.UserRefDto;
+import com.gepardec.mega.hexagon.shared.domain.model.Capacity;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
@@ -39,6 +41,8 @@ public abstract class SharedRefRestMapper {
     protected void enrichUserRef(UserRef user, @MappingTarget UserRefDto dto) {
         dto.setZepUrl(user.zepUsername() != null ? zepConfig.buildEmployeeUrl(user.zepUsername()) : null);
     }
+
+    public abstract Capacity toDomain(CapacityDto capacity);
 
     protected UUID map(ProjectId projectId) {
         return projectId == null ? null : projectId.value();

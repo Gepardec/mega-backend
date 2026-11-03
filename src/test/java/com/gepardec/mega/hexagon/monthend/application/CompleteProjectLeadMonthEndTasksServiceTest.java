@@ -52,7 +52,7 @@ class CompleteProjectLeadMonthEndTasksServiceTest {
         MonthEndTask task2 = openLeadReviewTask();
         MonthEndTask task3 = openLeadReviewTask().complete(leadA);
 
-        when(monthEndTaskRepository.existsLeadTask(month, projectId, leadA)).thenReturn(true);
+        when(monthEndTaskRepository.existsEligibleTaskOfType(month, projectId, MonthEndTaskType.PROJECT_LEAD_REVIEW, leadA)).thenReturn(true);
         when(monthEndTaskRepository.findOpenProjectTasksOfType(month, projectId, MonthEndTaskType.PROJECT_LEAD_REVIEW))
                 .thenReturn(List.of(task1, task2, task3));
 
@@ -75,7 +75,7 @@ class CompleteProjectLeadMonthEndTasksServiceTest {
         // eligibility recorded on the tasks at generation time is the only source of truth
         MonthEndTask task = openLeadReviewTask(Set.of(leadA));
 
-        when(monthEndTaskRepository.existsLeadTask(month, projectId, leadA)).thenReturn(true);
+        when(monthEndTaskRepository.existsEligibleTaskOfType(month, projectId, MonthEndTaskType.PROJECT_LEAD_REVIEW, leadA)).thenReturn(true);
         when(monthEndTaskRepository.findOpenProjectTasksOfType(month, projectId, MonthEndTaskType.PROJECT_LEAD_REVIEW))
                 .thenReturn(List.of(task));
 
@@ -92,7 +92,7 @@ class CompleteProjectLeadMonthEndTasksServiceTest {
         MonthEndTask task1 = openLeadReviewTask().complete(leadA);
         MonthEndTask task2 = openLeadReviewTask().complete(leadA);
 
-        when(monthEndTaskRepository.existsLeadTask(month, projectId, leadA)).thenReturn(true);
+        when(monthEndTaskRepository.existsEligibleTaskOfType(month, projectId, MonthEndTaskType.PROJECT_LEAD_REVIEW, leadA)).thenReturn(true);
         when(monthEndTaskRepository.findOpenProjectTasksOfType(month, projectId, MonthEndTaskType.PROJECT_LEAD_REVIEW))
                 .thenReturn(List.of(task1, task2));
 
@@ -104,7 +104,7 @@ class CompleteProjectLeadMonthEndTasksServiceTest {
 
     @Test
     void complete_shouldReturnEmptyResults_whenLeadHasNoTasksOfRequestedType() {
-        when(monthEndTaskRepository.existsLeadTask(month, projectId, leadA)).thenReturn(true);
+        when(monthEndTaskRepository.existsEligibleTaskOfType(month, projectId, MonthEndTaskType.LEISTUNGSNACHWEIS, leadA)).thenReturn(true);
         when(monthEndTaskRepository.findOpenProjectTasksOfType(month, projectId, MonthEndTaskType.LEISTUNGSNACHWEIS))
                 .thenReturn(List.of());
 
@@ -119,7 +119,7 @@ class CompleteProjectLeadMonthEndTasksServiceTest {
         MonthEndTask eligibleTask = openLeadReviewTask();
         MonthEndTask notEligibleTask = openLeadReviewTask(Set.of(leadB));
 
-        when(monthEndTaskRepository.existsLeadTask(month, projectId, leadA)).thenReturn(true);
+        when(monthEndTaskRepository.existsEligibleTaskOfType(month, projectId, MonthEndTaskType.PROJECT_LEAD_REVIEW, leadA)).thenReturn(true);
         when(monthEndTaskRepository.findOpenProjectTasksOfType(month, projectId, MonthEndTaskType.PROJECT_LEAD_REVIEW))
                 .thenReturn(List.of(eligibleTask, notEligibleTask));
 
@@ -134,7 +134,7 @@ class CompleteProjectLeadMonthEndTasksServiceTest {
 
     @Test
     void complete_shouldRejectActor_whenActorDoesNotLeadProject() {
-        when(monthEndTaskRepository.existsLeadTask(month, projectId, leadB)).thenReturn(false);
+        when(monthEndTaskRepository.existsEligibleTaskOfType(month, projectId, MonthEndTaskType.PROJECT_LEAD_REVIEW, leadB)).thenReturn(false);
 
         assertThatThrownBy(() -> service.complete(month, projectId, MonthEndTaskType.PROJECT_LEAD_REVIEW, leadB))
                 .isInstanceOf(MonthEndActorNotAuthorizedException.class)
@@ -147,13 +147,53 @@ class CompleteProjectLeadMonthEndTasksServiceTest {
     @Test
     void complete_shouldRejectActor_whenProjectIsUnknown() {
         ProjectId unknownProjectId = ProjectId.generate();
-        when(monthEndTaskRepository.existsLeadTask(month, unknownProjectId, leadA)).thenReturn(false);
+        when(monthEndTaskRepository.existsEligibleTaskOfType(month, unknownProjectId, MonthEndTaskType.PROJECT_LEAD_REVIEW, leadA)).thenReturn(false);
 
         assertThatThrownBy(() -> service.complete(month, unknownProjectId, MonthEndTaskType.PROJECT_LEAD_REVIEW, leadA))
                 .isInstanceOf(MonthEndActorNotAuthorizedException.class);
 
         verify(monthEndTaskRepository, never()).findOpenProjectTasksOfType(any(), any(), any());
         verify(monthEndTaskRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void complete_shouldLetCoordinatorCompleteLeistungsnachweis() {
+        UserId coordinator = UserId.generate();
+        MonthEndTask task = MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.LEISTUNGSNACHWEIS,
+                projectId, employeeId, Set.of(coordinator));
+
+        when(monthEndTaskRepository.existsEligibleTaskOfType(month, projectId, MonthEndTaskType.LEISTUNGSNACHWEIS, coordinator))
+                .thenReturn(true);
+        when(monthEndTaskRepository.findOpenProjectTasksOfType(month, projectId, MonthEndTaskType.LEISTUNGSNACHWEIS))
+                .thenReturn(List.of(task));
+
+        List<MonthEndTask> completedTasks = service.complete(month, projectId, MonthEndTaskType.LEISTUNGSNACHWEIS, coordinator);
+
+        assertThat(completedTasks).extracting(MonthEndTask::id).containsExactly(task.id());
+        assertThat(completedTasks).extracting(MonthEndTask::completedBy).containsOnly(coordinator);
+    }
+
+    @Test
+    void complete_shouldRejectLead_whenRequestingLeistungsnachweisTheyAreNotEligibleOn() {
+        when(monthEndTaskRepository.existsEligibleTaskOfType(month, projectId, MonthEndTaskType.LEISTUNGSNACHWEIS, leadA))
+                .thenReturn(false);
+
+        assertThatThrownBy(() -> service.complete(month, projectId, MonthEndTaskType.LEISTUNGSNACHWEIS, leadA))
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class);
+
+        verify(monthEndTaskRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void complete_shouldRejectCoordinator_whenRequestingReviewOnForeignProject() {
+        UserId coordinator = UserId.generate();
+        when(monthEndTaskRepository.existsEligibleTaskOfType(month, projectId, MonthEndTaskType.PROJECT_LEAD_REVIEW, coordinator))
+                .thenReturn(false);
+
+        assertThatThrownBy(() -> service.complete(month, projectId, MonthEndTaskType.PROJECT_LEAD_REVIEW, coordinator))
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class);
+
+        verify(monthEndTaskRepository, never()).findOpenProjectTasksOfType(any(), any(), any());
     }
 
     @ParameterizedTest

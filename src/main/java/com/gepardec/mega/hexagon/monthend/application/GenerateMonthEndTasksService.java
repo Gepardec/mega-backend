@@ -75,6 +75,11 @@ public class GenerateMonthEndTasksService implements GenerateMonthEndTasksUseCas
                 .map(UserRef::id)
                 .collect(Collectors.toCollection(HashSet::new));
 
+        Set<UserId> activeCoordinatorIds = monthEndUserSnapshotPort.findActiveCoordinatorIdsIn(month);
+        if (activeCoordinatorIds.isEmpty()) {
+            Log.errorf("No active project coordinator for %s; Leistungsnachweis tasks skipped", month);
+        }
+
         List<MonthEndTask> tasksToCreate = new ArrayList<>();
         int skipped = 0;
 
@@ -88,7 +93,8 @@ public class GenerateMonthEndTasksService implements GenerateMonthEndTasksUseCas
                     .filter(Objects::nonNull)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
-            for (MonthEndTask candidate : monthEndTaskPlanningService.planProjectTasks(month, project, activeLeadIds, assignedUsers)) {
+            for (MonthEndTask candidate : monthEndTaskPlanningService.planProjectTasks(
+                    month, project, activeLeadIds, activeCoordinatorIds, assignedUsers)) {
                 skipped += addTaskIfMissing(existingKeys, tasksToCreate, candidate);
             }
         }

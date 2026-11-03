@@ -124,6 +124,32 @@ class UserResourceTest {
     }
 
     @Test
+    void getCurrentUser_shouldReportProjectCoordinatorRole() {
+        allowRoles(Role.EMPLOYEE);
+        User user = new User(
+                UserId.generate(),
+                Email.of("coordinator@example.com"),
+                FullName.of("Test", "Coordinator"),
+                ZepUsername.of("coordinator"),
+                null,
+                EmploymentPeriods.empty(),
+                Set.of(Role.EMPLOYEE, Role.PROJECT_COORDINATOR),
+                null
+        );
+        when(authenticatedActorContext.user()).thenReturn(user);
+
+        UserDto response = given()
+                .accept(ContentType.JSON)
+                .get("/users/me")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(UserDto.class);
+
+        assertThat(response.getRoles()).containsExactlyInAnyOrder(RoleDto.EMPLOYEE, RoleDto.PROJECT_COORDINATOR);
+    }
+
+    @Test
     void getCurrentUser_shouldReturnForbiddenForNonEmployeeRole() {
         allowRoles(Role.OFFICE_MANAGEMENT);
 

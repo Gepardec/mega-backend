@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationStatus;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndScope;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -35,18 +36,16 @@ public class MonthEndClarificationRepositoryAdapter implements MonthEndClarifica
     }
 
     @Override
-    public List<MonthEndClarification> findAllEmployeeClarifications(UserId employeeId, YearMonth month) {
-        return findEmployeeClarifications(employeeId, month, null);
-    }
-
-    @Override
     public List<MonthEndClarification> findOpenProjectLeadClarifications(UserId projectLeadId, YearMonth month) {
         return findProjectLeadClarifications(projectLeadId, month, MonthEndClarificationStatus.OPEN);
     }
 
     @Override
-    public List<MonthEndClarification> findAllProjectLeadClarifications(UserId projectLeadId, YearMonth month) {
-        return findProjectLeadClarifications(projectLeadId, month, null);
+    public List<MonthEndClarification> findClarifications(YearMonth month, MonthEndScope scope) {
+        return switch (scope) {
+            case MonthEndScope.SubjectEmployee subject -> findEmployeeClarifications(subject.actorId(), month, null);
+            case MonthEndScope.LedProjects led -> findProjectLeadClarifications(led.actorId(), month, null);
+        };
     }
 
     @Override

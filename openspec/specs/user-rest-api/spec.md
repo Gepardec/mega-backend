@@ -52,7 +52,7 @@ The system SHALL process all release date updates in a single `PUT /users/releas
 - **THEN** the response reflects the partial outcome via `failedUserIds`
 
 ### Requirement: Authenticated employee can retrieve their own profile
-The system SHALL expose a `GET /users/me` endpoint that returns the profile of the currently authenticated user. The endpoint SHALL be restricted to the `EMPLOYEE` role. The response SHALL include the user's identifier (UUID), email address, full name, ZEP username, release date (nullable), roles, Personio ID (nullable), and a boolean `isExternal` flag indicating whether the user is an external employee. The `roles` array SHALL carry values drawn from a closed set of role identifiers — `EMPLOYEE`, `OFFICE_MANAGEMENT`, `PROJECT_LEAD`, and `SYSTEM` — and the contract SHALL declare that set, so callers can rely on no other role identifier appearing.
+The system SHALL expose a `GET /users/me` endpoint that returns the profile of the currently authenticated user. The endpoint SHALL be restricted to the `EMPLOYEE` role. The response SHALL include the user's identifier (UUID), email address, full name, ZEP username, release date (nullable), roles, Personio ID (nullable), and a boolean `isExternal` flag indicating whether the user is an external employee. The `roles` array SHALL carry values drawn from a closed set of role identifiers — `EMPLOYEE`, `OFFICE_MANAGEMENT`, `PROJECT_LEAD`, `PROJECT_COORDINATOR`, `ADMIN`, and `SYSTEM` — and the contract SHALL declare that set, so callers can rely on no other role identifier appearing.
 
 #### Scenario: Employee retrieves their own profile
 - **WHEN** an authenticated `EMPLOYEE` user calls `GET /users/me`
@@ -62,7 +62,11 @@ The system SHALL expose a `GET /users/me` endpoint that returns the profile of t
 #### Scenario: Roles are reported using the declared role identifiers
 - **WHEN** an authenticated `EMPLOYEE` user who also holds the project-lead role calls `GET /users/me`
 - **THEN** the `roles` array contains exactly `EMPLOYEE` and `PROJECT_LEAD`
-- **THEN** every entry in the array is one of `EMPLOYEE`, `OFFICE_MANAGEMENT`, `PROJECT_LEAD`, or `SYSTEM`
+- **THEN** every entry in the array is one of `EMPLOYEE`, `OFFICE_MANAGEMENT`, `PROJECT_LEAD`, `PROJECT_COORDINATOR`, `ADMIN`, or `SYSTEM`
+
+#### Scenario: Project coordinator role is reported
+- **WHEN** an authenticated `EMPLOYEE` user who also holds the project-lead and project coordinator roles calls `GET /users/me`
+- **THEN** the `roles` array contains exactly `EMPLOYEE`, `PROJECT_LEAD`, and `PROJECT_COORDINATOR`
 
 #### Scenario: Unauthenticated request is rejected
 - **WHEN** a request without a valid authentication token calls `GET /users/me`

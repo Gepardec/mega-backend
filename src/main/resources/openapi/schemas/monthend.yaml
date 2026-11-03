@@ -151,6 +151,11 @@ CreateClarificationRequest:
       type: string
       format: uuid
       nullable: true
+      description: >-
+        The employee the clarification is about. Omitting it (or sending null) creates a
+        project-level clarification, which only an eligible project lead of the project may
+        create; any other caller is rejected with 403. To create a clarification about
+        oneself, send your own id. A non-lead may name only themselves.
     text:
       type: string
 UpdateClarificationTextRequest:
@@ -220,16 +225,11 @@ CompleteProjectLeadMonthEndTasksRequest:
   type: object
   additionalProperties: false
   required:
-    - projectId
     - type
   properties:
-    projectId:
-      type: string
-      format: uuid
     type:
       $ref: '#/MonthEndTaskType'
   example:
-    projectId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
     type: PROJECT_LEAD_REVIEW
 MonthEndTaskCompletion:
   type: object

@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @RequestScoped
 @Authenticated
-@MegaRolesAllowed(Role.PROJECT_LEAD)
+@MegaRolesAllowed(Role.PROJECT_COORDINATOR)
 public class ProjectResource implements ProjectApi {
 
     private final GetProjectSettingsUseCase getProjectSettingsUseCase;
@@ -43,7 +43,7 @@ public class ProjectResource implements ProjectApi {
     @Override
     public Response getProjectSettings() {
         List<ProjectSettingsDto> projects = projectRestMapper.toDtoList(
-                getProjectSettingsUseCase.getLeadProjects(authenticatedActorContext.userId())
+                getProjectSettingsUseCase.getSettings()
         );
 
         return Response.ok(projects).build();

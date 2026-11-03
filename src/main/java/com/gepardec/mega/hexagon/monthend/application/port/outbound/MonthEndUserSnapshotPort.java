@@ -11,5 +11,7 @@ public interface MonthEndUserSnapshotPort {
 
     List<UserRef> findActiveIn(YearMonth month);
 
+    Set<UserId> findActiveCoordinatorIdsIn(YearMonth month);
+
     List<UserRef> findByIds(Set<UserId> userIds, YearMonth month);
 }

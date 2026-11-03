@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.monthend.domain.model;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
 import com.gepardec.mega.hexagon.shared.domain.SystemActor;
+import com.gepardec.mega.hexagon.shared.domain.model.Capacity;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.assertj.core.api.ThrowableAssert;
@@ -218,5 +219,68 @@ class MonthEndTaskTest {
         );
 
         assertThat(firstTask.businessKey()).isNotEqualTo(secondTask.businessKey());
+    }
+
+    @Test
+    void isCompletableIn_shouldOfferSelfReviewOnlyInControllingCapacity() {
+        MonthEndTask review = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                projectId,
+                leadA,
+                Set.of(leadA, leadB)
+        );
+
+        assertThat(review.isCompletableIn(Capacity.CONTROLLING, leadA)).isTrue();
+        assertThat(review.isCompletableIn(Capacity.EMPLOYEE, leadA)).isFalse();
+    }
+
+    @Test
+    void isCompletableIn_shouldOfferTimeCheckOnlyInEmployeeCapacity() {
+        MonthEndTask timeCheck = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                projectId,
+                employeeId,
+                Set.of(employeeId)
+        );
+
+        assertThat(timeCheck.isCompletableIn(Capacity.EMPLOYEE, employeeId)).isTrue();
+        assertThat(timeCheck.isCompletableIn(Capacity.CONTROLLING, employeeId)).isFalse();
+    }
+
+    @Test
+    void isCompletableIn_shouldRejectNonEligibleActorInEveryCapacity() {
+        MonthEndTask review = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                projectId,
+                employeeId,
+                Set.of(leadA)
+        );
+
+        assertThat(review.isCompletableIn(Capacity.EMPLOYEE, employeeId)).isFalse();
+        assertThat(review.isCompletableIn(Capacity.CONTROLLING, employeeId)).isFalse();
+    }
+
+    @Test
+    void complete_shouldSucceedForEligibleSubjectRegardlessOfCapacity() {
+        MonthEndTask review = MonthEndTask.create(
+                MonthEndTaskId.generate(),
+                month,
+                MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                projectId,
+                leadA,
+                Set.of(leadA)
+        );
+
+        assertThat(review.isCompletableIn(Capacity.EMPLOYEE, leadA)).isFalse();
+        MonthEndTask completed = review.complete(leadA);
+
+        assertThat(completed.status()).isEqualTo(MonthEndTaskStatus.DONE);
+        assertThat(completed.completedBy()).isEqualTo(leadA);
     }
 }

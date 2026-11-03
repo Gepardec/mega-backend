@@ -1,5 +1,8 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndProjectContextNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationCreatedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
@@ -28,8 +31,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 class CreateMonthEndClarificationServiceTest {
@@ -64,7 +70,9 @@ class CreateMonthEndClarificationServiceTest {
 
     @Test
     void create_shouldPersistClarification_whenEmployeeCreatesInValidContext() {
-        when(employeeContextService.resolve(month, projectId, employeeId))
+        when(projectContextService.resolve(month, projectId))
+                .thenReturn(projectContext(Set.of(leadA, leadB)));
+        when(employeeContextService.resolve(any(MonthEndProjectContext.class), eq(employeeId)))
                 .thenReturn(employeeContext(Set.of(leadA, leadB)));
 
         MonthEndClarification result = service.create(
@@ -91,7 +99,9 @@ class CreateMonthEndClarificationServiceTest {
 
     @Test
     void create_shouldPersistClarification_whenLeadCreatesForEmployee() {
-        when(employeeContextService.resolve(month, projectId, employeeId))
+        when(projectContextService.resolve(month, projectId))
+                .thenReturn(projectContext(Set.of(leadA, leadB)));
+        when(employeeContextService.resolve(any(MonthEndProjectContext.class), eq(employeeId)))
                 .thenReturn(employeeContext(Set.of(leadA, leadB)));
 
         MonthEndClarification result = service.create(
@@ -132,19 +142,90 @@ class CreateMonthEndClarificationServiceTest {
     }
 
     @Test
-    void create_shouldThrow_whenProjectContextIsMissing() {
-        when(employeeContextService.resolve(month, projectId, employeeId))
-                .thenThrow(new IllegalArgumentException("month-end project context not found"));
+    void create_shouldThrowNotAuthorized_whenNonLeadOmitsSubject() {
+        when(projectContextService.resolve(month, projectId))
+                .thenReturn(projectContext(Set.of(leadA, leadB)));
 
-        assertThatThrownBy(() -> service.create(
-                month,
-                projectId,
-                employeeId,
-                employeeId,
-                "Please check this."
-        ))
-                .isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> service.create(month, projectId, null, employeeId, "Need support."))
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class);
+
+        verifyNoInteractions(clarificationRepository, clarificationCreatedEvent);
+    }
+
+    @Test
+    void create_shouldThrowNotAuthorized_whenUserLeadsOnlyADifferentProjectAndOmitsSubject() {
+        UserId otherProjectLead = UserId.of(Instancio.create(UUID.class));
+        when(projectContextService.resolve(month, projectId))
+                .thenReturn(projectContext(Set.of(leadA, leadB)));
+
+        assertThatThrownBy(() -> service.create(month, projectId, null, otherProjectLead, "Need support."))
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class);
+
+        verifyNoInteractions(clarificationRepository, clarificationCreatedEvent);
+    }
+
+    @Test
+    void create_shouldUseLeadAsSubject_whenEligibleLeadNamesThemselves() {
+        when(projectContextService.resolve(month, projectId))
+                .thenReturn(projectContext(Set.of(leadA, leadB)));
+        when(employeeContextService.resolve(any(MonthEndProjectContext.class), eq(leadA)))
+                .thenReturn(employeeContext(Set.of(leadA, leadB)));
+
+        MonthEndClarification result = service.create(month, projectId, leadA, leadA, "Own entries.");
+
+        assertThat(result.subjectEmployeeId()).isEqualTo(leadA);
+        assertThat(result.createdBy()).isEqualTo(leadA);
+    }
+
+    @Test
+    void create_shouldThrowNotAuthorized_whenNonLeadNamesAnotherEmployee() {
+        UserId otherEmployee = UserId.of(Instancio.create(UUID.class));
+        when(projectContextService.resolve(month, projectId))
+                .thenReturn(projectContext(Set.of(leadA, leadB)));
+
+        assertThatThrownBy(() -> service.create(month, projectId, otherEmployee, employeeId, "Not allowed."))
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class);
+
+        verifyNoInteractions(employeeContextService, clarificationRepository, clarificationCreatedEvent);
+    }
+
+    @Test
+    void create_shouldThrowProjectContextNotFound_whenProjectIsUnknown() {
+        when(projectContextService.resolve(month, projectId))
+                .thenThrow(new MonthEndProjectContextNotFoundException("month-end project context not found"));
+
+        assertThatThrownBy(() -> service.create(month, projectId, employeeId, employeeId, "Please check this."))
+                .isInstanceOf(MonthEndProjectContextNotFoundException.class)
                 .hasMessageContaining("context not found");
+
+        verifyNoInteractions(employeeContextService, clarificationRepository, clarificationCreatedEvent);
+    }
+
+    @Test
+    void create_shouldThrowNotAssigned_whenLeadNamesUnassignedEmployee() {
+        when(projectContextService.resolve(month, projectId))
+                .thenReturn(projectContext(Set.of(leadA, leadB)));
+        when(employeeContextService.resolve(any(MonthEndProjectContext.class), eq(employeeId)))
+                .thenThrow(new MonthEndEmployeeNotAssignedToProjectException("not assigned"));
+
+        assertThatThrownBy(() -> service.create(month, projectId, employeeId, leadA, "Not assigned."))
+                .isInstanceOf(MonthEndEmployeeNotAssignedToProjectException.class);
+
+        verifyNoInteractions(clarificationRepository, clarificationCreatedEvent);
+    }
+
+    @Test
+    void create_shouldLoadProjectContextOnceAndReuseItForSubject() {
+        MonthEndProjectContext projectContext = projectContext(Set.of(leadA, leadB));
+        when(projectContextService.resolve(month, projectId)).thenReturn(projectContext);
+        when(employeeContextService.resolve(projectContext, employeeId))
+                .thenReturn(employeeContext(Set.of(leadA, leadB)));
+
+        service.create(month, projectId, employeeId, employeeId, "Please check this.");
+
+        verify(projectContextService).resolve(month, projectId);
+        verify(employeeContextService).resolve(projectContext, employeeId);
+        verifyNoMoreInteractions(employeeContextService);
     }
 
     private MonthEndEmployeeProjectContext employeeContext(Set<UserId> eligibleLeadIds) {

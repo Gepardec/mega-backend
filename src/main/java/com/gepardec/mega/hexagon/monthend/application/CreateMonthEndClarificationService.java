@@ -4,6 +4,7 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEn
 import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationCreatedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.SourceSystem;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -17,7 +18,6 @@ import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.time.YearMonth;
 import java.util.Objects;
-import java.util.Set;
 
 @ApplicationScoped
 @Transactional
@@ -58,14 +58,10 @@ public class CreateMonthEndClarificationService implements CreateMonthEndClarifi
         Objects.requireNonNull(actorId, "actorId must not be null");
         Objects.requireNonNull(sourceSystem, "sourceSystem must not be null");
 
-        Set<UserId> eligibleLeadIds;
+        MonthEndProjectContext projectContext = projectContextService.resolve(month, projectId);
 
-        if (subjectEmployeeId != null) {
-            eligibleLeadIds = employeeContextService.resolve(month, projectId, subjectEmployeeId).eligibleProjectLeadIds();
-        } else {
-            eligibleLeadIds = projectContextService.resolve(month, projectId).eligibleProjectLeadIds();
-        }
-
+        // The factory enforces who may create; it runs before the subject checks so a caller who
+        // is not allowed gets 403 even when the named employee is not assigned.
         MonthEndClarification clarification = MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
                 month,
@@ -73,10 +69,13 @@ public class CreateMonthEndClarificationService implements CreateMonthEndClarifi
                 subjectEmployeeId,
                 actorId,
                 sourceSystem,
-                eligibleLeadIds,
+                projectContext.eligibleProjectLeadIds(),
                 text,
                 clock.instant()
         );
+        if (subjectEmployeeId != null) {
+            employeeContextService.resolve(projectContext, subjectEmployeeId);
+        }
         monthEndClarificationRepository.save(clarification);
         clarificationCreatedEvent.fire(new ClarificationCreatedEvent(
                 clarification.id(),

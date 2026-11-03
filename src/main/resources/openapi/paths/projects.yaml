@@ -3,7 +3,7 @@
     tags:
       - Project
     operationId: getProjectSettings
-    summary: Get Leistungsnachweis settings of projects led by user
+    summary: Get Leistungsnachweis settings of all billable projects that have not ended (project coordinator only)
     security:
       - bearerAuth: [ ]
     responses:
@@ -21,7 +21,7 @@
     tags:
       - Project
     operationId: setLeistungsnachweisEnabled
-    summary: Toggle leistungsnachweis flag
+    summary: Toggle leistungsnachweis flag of a project (project coordinator only)
     security:
       - bearerAuth: [ ]
     parameters:

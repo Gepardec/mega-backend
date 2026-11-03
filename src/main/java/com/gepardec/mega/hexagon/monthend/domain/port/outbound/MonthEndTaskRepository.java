@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.domain.port.outbound;
 
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndScope;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
@@ -20,15 +21,15 @@ public interface MonthEndTaskRepository {
 
     Optional<MonthEndTask> findProjectLeadReviewTask(YearMonth month, ProjectId projectId, UserId subjectEmployeeId);
 
-    List<MonthEndTask> findEmployeeVisibleTasks(UserId employeeId, YearMonth month);
+    List<MonthEndTask> findTasks(YearMonth month, MonthEndScope scope);
 
-    List<MonthEndTask> findLeadProjectTasks(UserId leadId, YearMonth month);
+    boolean existsTasks(YearMonth month, MonthEndScope scope);
 
     List<MonthEndTask> findOpenSubjectTasks(UserId subjectId, YearMonth month);
 
     List<MonthEndTask> findOpenProjectTasksOfType(YearMonth month, ProjectId projectId, MonthEndTaskType type);
 
-    boolean existsLeadTask(YearMonth month, ProjectId projectId, UserId leadId);
+    boolean existsEligibleTaskOfType(YearMonth month, ProjectId projectId, MonthEndTaskType type, UserId actorId);
 
     void save(MonthEndTask task);
 

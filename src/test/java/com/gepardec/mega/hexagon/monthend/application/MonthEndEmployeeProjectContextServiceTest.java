@@ -7,7 +7,9 @@ import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNo
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndProjectContextNotFoundException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
+import com.gepardec.mega.hexagon.shared.domain.SystemActor;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
@@ -25,6 +27,9 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class MonthEndEmployeeProjectContextServiceTest {
@@ -46,7 +51,7 @@ class MonthEndEmployeeProjectContextServiceTest {
         monthEndUserSnapshotPort = mock(MonthEndUserSnapshotPort.class);
         monthEndProjectAssignmentPort = mock(MonthEndProjectAssignmentPort.class);
         service = new MonthEndEmployeeProjectContextService(
-                monthEndProjectSnapshotPort,
+                new MonthEndProjectContextService(monthEndProjectSnapshotPort, monthEndUserSnapshotPort),
                 monthEndUserSnapshotPort,
                 monthEndProjectAssignmentPort
         );
@@ -60,6 +65,7 @@ class MonthEndEmployeeProjectContextServiceTest {
 
         when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
         when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(employee, activeLead));
+        when(monthEndUserSnapshotPort.findByIds(Set.of(employeeId), month)).thenReturn(List.of(employee));
         when(monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month))
                 .thenReturn(Set.of(employee.zepUsername().value()));
 
@@ -85,6 +91,7 @@ class MonthEndEmployeeProjectContextServiceTest {
 
         when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
         when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of());
+        when(monthEndUserSnapshotPort.findByIds(Set.of(employeeId), month)).thenReturn(List.of());
 
         assertThatThrownBy(() -> service.resolve(month, projectId, employeeId))
                 .isInstanceOf(MonthEndEmployeeContextNotFoundException.class)
@@ -99,12 +106,61 @@ class MonthEndEmployeeProjectContextServiceTest {
 
         when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
         when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(employee, activeLead));
+        when(monthEndUserSnapshotPort.findByIds(Set.of(employeeId), month)).thenReturn(List.of(employee));
         when(monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month))
                 .thenReturn(Set.of("someone-else"));
 
         assertThatThrownBy(() -> service.resolve(month, projectId, employeeId))
                 .isInstanceOf(MonthEndEmployeeNotAssignedToProjectException.class)
                 .hasMessageContaining("not assigned");
+    }
+
+    @Test
+    void resolveWithProjectContext_shouldReuseProjectAndLeads_whenSubjectIsActiveAndAssigned() {
+        MonthEndProjectSnapshot project = activeProject(Set.of(activeLeadId));
+        UserRef employee = activeUser(employeeId, "employee");
+        MonthEndProjectContext projectContext = new MonthEndProjectContext(month, project, Set.of(activeLeadId));
+        when(monthEndUserSnapshotPort.findByIds(Set.of(employeeId), month)).thenReturn(List.of(employee));
+        when(monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month))
+                .thenReturn(Set.of("employee"));
+
+        MonthEndEmployeeProjectContext result = service.resolve(projectContext, employeeId);
+
+        assertThat(result.project()).isEqualTo(project);
+        assertThat(result.subjectEmployee()).isEqualTo(employee);
+        assertThat(result.eligibleProjectLeadIds()).containsExactly(activeLeadId);
+        verifyNoInteractions(monthEndProjectSnapshotPort);
+        verify(monthEndUserSnapshotPort, never()).findActiveIn(month);
+    }
+
+    @Test
+    void resolveWithProjectContext_shouldThrow_whenSubjectIsNotActiveInMonth() {
+        MonthEndProjectContext projectContext = new MonthEndProjectContext(month, activeProject(Set.of(activeLeadId)), Set.of(activeLeadId));
+        when(monthEndUserSnapshotPort.findByIds(Set.of(employeeId), month)).thenReturn(List.of());
+
+        assertThatThrownBy(() -> service.resolve(projectContext, employeeId))
+                .isInstanceOf(MonthEndEmployeeContextNotFoundException.class);
+    }
+
+    @Test
+    void resolveWithProjectContext_shouldThrow_whenSubjectIsSystemActor() {
+        MonthEndProjectContext projectContext = new MonthEndProjectContext(month, activeProject(Set.of(activeLeadId)), Set.of(activeLeadId));
+        UserRef systemActor = activeUser(SystemActor.USER_ID, "system");
+        when(monthEndUserSnapshotPort.findByIds(Set.of(SystemActor.USER_ID), month)).thenReturn(List.of(systemActor));
+
+        assertThatThrownBy(() -> service.resolve(projectContext, SystemActor.USER_ID))
+                .isInstanceOf(MonthEndEmployeeContextNotFoundException.class);
+    }
+
+    @Test
+    void resolveWithProjectContext_shouldThrow_whenSubjectIsNotAssignedToProject() {
+        MonthEndProjectSnapshot project = activeProject(Set.of(activeLeadId));
+        MonthEndProjectContext projectContext = new MonthEndProjectContext(month, project, Set.of(activeLeadId));
+        when(monthEndUserSnapshotPort.findByIds(Set.of(employeeId), month)).thenReturn(List.of(activeUser(employeeId, "employee")));
+        when(monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month)).thenReturn(Set.of("someone-else"));
+
+        assertThatThrownBy(() -> service.resolve(projectContext, employeeId))
+                .isInstanceOf(MonthEndEmployeeNotAssignedToProjectException.class);
     }
 
     private MonthEndProjectSnapshot activeProject(Set<UserId> leadIds) {

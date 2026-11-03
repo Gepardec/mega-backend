@@ -3,7 +3,6 @@ package com.gepardec.mega.hexagon.project.application;
 import com.gepardec.mega.hexagon.project.application.port.inbound.GetProjectSettingsUseCase;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
-import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -26,9 +25,9 @@ public class GetProjectSettingsService implements GetProjectSettingsUseCase {
     }
 
     @Override
-    public List<Project> getLeadProjects(UserId actorId) {
+    public List<Project> getSettings() {
         YearMonth currentMonth = YearMonth.now(clock);
-        return projectRepository.findAllByLead(actorId).stream()
+        return projectRepository.findAll().stream()
                 .filter(project -> project.isLeistungsnachweisConfigurableFrom(currentMonth))
                 .toList();
     }

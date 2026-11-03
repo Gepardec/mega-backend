@@ -46,7 +46,6 @@ public record MonthEndClarification(
         resolutionNote = normalizeOptionalText(resolutionNote);
 
         validateEligibleLeads(eligibleProjectLeadIds);
-        validateCreator(createdBy, subjectEmployeeId, eligibleProjectLeadIds);
         validateTimestamps(createdAt, resolvedAt, lastModifiedAt);
         validateResolutionState(status, resolutionNote, resolvedBy, resolvedAt);
     }
@@ -112,7 +111,7 @@ public record MonthEndClarification(
             String text,
             Instant createdAt
     ) {
-        return new MonthEndClarification(
+        MonthEndClarification clarification = new MonthEndClarification(
                 id,
                 month,
                 projectId,
@@ -128,6 +127,9 @@ public record MonthEndClarification(
                 null,
                 createdAt
         );
+        // Creation-time authorization, deliberately not a structural invariant of stored clarifications.
+        validateCreator(clarification);
+        return clarification;
     }
 
     public MonthEndClarification editText(UserId actorId, String updatedText, Instant modifiedAt) {
@@ -239,16 +241,9 @@ public record MonthEndClarification(
         }
     }
 
-    private static void validateCreator(
-            UserId createdBy,
-            UserId subjectEmployeeId,
-            Set<UserId> eligibleProjectLeadIds
-    ) {
-        boolean creatorIsEmployee = subjectEmployeeId != null && subjectEmployeeId.equals(createdBy);
-        boolean creatorIsLead = eligibleProjectLeadIds.contains(createdBy);
-        boolean creatorIsSystem = SystemActor.USER_ID.equals(createdBy);
-        if (!creatorIsSystem && !creatorIsEmployee && !creatorIsLead) {
-            throw new MonthEndValidationException("clarification creator must be the subject employee or an eligible lead");
+    private static void validateCreator(MonthEndClarification clarification) {
+        if (!clarification.isInvolved(clarification.createdBy())) {
+            throw new MonthEndActorNotAuthorizedException("clarification creator must be the subject employee or an eligible lead");
         }
     }
 

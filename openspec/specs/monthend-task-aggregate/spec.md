@@ -17,6 +17,11 @@ The system SHALL represent each month-end obligation as a `MonthEndTask` that be
 - **WHEN** the system creates a project lead review task for an employee on a project
 - **THEN** it creates one `MonthEndTask` with the fixed set of assigned project leads as eligible actors
 
+#### Scenario: Coordinator-eligible task is modeled as a month-end task
+- **WHEN** the system creates a Leistungsnachweis task for an employee on a project
+- **THEN** it creates one `MonthEndTask` with the fixed set of active project coordinators as eligible actors
+- **THEN** any one of those coordinators can complete it
+
 ### Requirement: Month-end tasks enforce type-specific invariants
 The system SHALL enforce task-type-specific invariants inside the `MonthEndTask` aggregate. `PROJECT_LEAD_REVIEW` tasks MUST reference a subject employee, `ABRECHNUNG` tasks MUST NOT reference a subject employee, and employee-owned tasks MUST reference the employee they are about while using that same single employee as their eligible actor.
 
@@ -38,3 +43,22 @@ The system SHALL treat the eligible actor set of a `MonthEndTask` as the snapsho
 #### Scenario: Lead changes after generation do not alter an open task
 - **WHEN** project lead assignments change after a month-end task has already been generated
 - **THEN** the existing task keeps its original eligible actor set
+
+#### Scenario: Coordinator changes after generation do not alter an open task
+- **WHEN** the set of users holding the project coordinator role changes after a `LEISTUNGSNACHWEIS` task has already been generated
+- **THEN** the existing task keeps its original eligible actor set
+
+### Requirement: Each month-end task type is the duty of one capacity
+Every month-end task type SHALL be the duty of exactly one capacity. `EMPLOYEE_TIME_CHECK` SHALL be a duty of the `EMPLOYEE` capacity. `LEISTUNGSNACHWEIS`, `PROJECT_LEAD_REVIEW`, and `ABRECHNUNG` SHALL be duties of the `CONTROLLING` capacity. The duty SHALL only decide where a task is offered as completable. It SHALL NOT change who may complete the task.
+
+#### Scenario: Time check is an employee duty
+- **WHEN** the duty of an `EMPLOYEE_TIME_CHECK` task is determined
+- **THEN** it is the `EMPLOYEE` capacity
+
+#### Scenario: Lead-eligible task types are controlling duties
+- **WHEN** the duty of a `LEISTUNGSNACHWEIS`, `PROJECT_LEAD_REVIEW`, or `ABRECHNUNG` task is determined
+- **THEN** it is the `CONTROLLING` capacity
+
+#### Scenario: Duty does not restrict completion eligibility
+- **WHEN** an actor in a task's eligible actor set completes that task
+- **THEN** the completion succeeds regardless of the task type's duty

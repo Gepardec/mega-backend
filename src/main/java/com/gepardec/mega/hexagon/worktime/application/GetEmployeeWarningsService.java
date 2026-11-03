@@ -20,7 +20,8 @@ import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEvaluation;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
-import com.gepardec.mega.hexagon.worktime.domain.services.warning.WorkTimeWarningAssembler;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarnings;
+import com.gepardec.mega.hexagon.worktime.domain.services.warning.WorkTimeWarningEvaluator;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -45,7 +46,7 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
     private final WorkTimeProjectSnapshotPort projectSnapshotPort;
     private final WorkTimeMealEntryZepPort mealEntryPort;
     private final WarningRuleSettingsPort ruleSettingsPort;
-    private final WorkTimeWarningAssembler assembler;
+    private final WorkTimeWarningEvaluator warningEvaluator;
     private final Clock clock;
 
     @Inject
@@ -54,13 +55,13 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
                                       WorkTimeProjectSnapshotPort projectSnapshotPort, WorkTimeMealEntryZepPort mealEntryPort,
                                       WarningRuleSettingsPort ruleSettingsPort, Clock clock) {
         this(userSnapshotPort, bookingPort, absencePort, expectedWorkingDaysPort, projectSnapshotPort, mealEntryPort,
-                ruleSettingsPort, new WorkTimeWarningAssembler(), clock);
+                ruleSettingsPort, new WorkTimeWarningEvaluator(), clock);
     }
 
     GetEmployeeWarningsService(WorkTimeUserSnapshotPort userSnapshotPort, WorkTimeBookingZepPort bookingPort,
                                WorkTimeAbsenceZepPort absencePort, WorkTimeExpectedWorkingDaysPort expectedWorkingDaysPort,
                                WorkTimeProjectSnapshotPort projectSnapshotPort, WorkTimeMealEntryZepPort mealEntryPort,
-                               WarningRuleSettingsPort ruleSettingsPort, WorkTimeWarningAssembler assembler, Clock clock) {
+                               WarningRuleSettingsPort ruleSettingsPort, WorkTimeWarningEvaluator warningEvaluator, Clock clock) {
         this.userSnapshotPort = userSnapshotPort;
         this.bookingPort = bookingPort;
         this.absencePort = absencePort;
@@ -68,7 +69,7 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
         this.projectSnapshotPort = projectSnapshotPort;
         this.mealEntryPort = mealEntryPort;
         this.ruleSettingsPort = ruleSettingsPort;
-        this.assembler = assembler;
+        this.warningEvaluator = warningEvaluator;
         this.clock = clock;
     }
 
@@ -87,23 +88,21 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
         );
         LocalDate today = LocalDate.now(clock);
         if (bookings.isEmpty()) {
-            return assembler.assemble(
-                    new WorkTimeEvaluation(bookings, month, today, Set.of(), Set.of(), Set.of(), Set.of()),
-                    new WarningRuleSettings(List.of()));
+            return WorkTimeWarnings.noEntries().values();
         }
         WarningRuleSettings settings = loadRuleSettings();
         Set<LocalDate> excusedDates = absencePort.fetchAbsencesForEmployee(employee.zepUsername(), month).stream()
                 .filter(absence -> absence.type() != AbsenceType.HOME_OFFICE)
                 .map(Absence::date)
                 .collect(Collectors.toUnmodifiableSet());
-        return assembler.assemble(new WorkTimeEvaluation(
+        return warningEvaluator.evaluate(new WorkTimeEvaluation(
                 bookings,
                 month,
                 today,
                 expectedWorkingDaysPort.expectedWorkingDays(employeeId, month),
                 excusedDates,
                 billableProjectZepIds(bookings, settings),
-                mealEntryDates(employee, bookings, month, settings)), settings);
+                mealEntryDates(employee, bookings, month, settings)), settings).values();
     }
 
     private WarningRuleSettings loadRuleSettings() {

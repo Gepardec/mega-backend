@@ -10,6 +10,7 @@ import com.gepardec.mega.hexagon.user.domain.model.AdminEmails;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriod;
 import com.gepardec.mega.hexagon.user.domain.model.EmploymentPeriods;
 import com.gepardec.mega.hexagon.user.domain.model.OfficeManagementEmails;
+import com.gepardec.mega.hexagon.user.domain.model.ProjectCoordinatorEmails;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import com.gepardec.mega.hexagon.user.domain.port.outbound.UserRepository;
 import com.gepardec.mega.hexagon.user.domain.services.UserRolePolicyService;
@@ -38,7 +39,7 @@ class SyncProjectLeadRolesServiceTest {
         userRepository = mock(UserRepository.class);
         service = new SyncProjectLeadRolesService(
                 userRepository,
-                new UserRolePolicyService(new OfficeManagementEmails(Set.of()), new AdminEmails(Set.of()))
+                new UserRolePolicyService(new OfficeManagementEmails(Set.of()), new AdminEmails(Set.of()), new ProjectCoordinatorEmails(Set.of()))
         );
     }
 

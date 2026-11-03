@@ -2,6 +2,7 @@ package com.gepardec.mega.hexagon.monthend.domain.port.outbound;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndScope;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
 import java.time.YearMonth;
@@ -14,11 +15,9 @@ public interface MonthEndClarificationRepository {
 
     List<MonthEndClarification> findOpenEmployeeClarifications(UserId employeeId, YearMonth month);
 
-    List<MonthEndClarification> findAllEmployeeClarifications(UserId employeeId, YearMonth month);
-
     List<MonthEndClarification> findOpenProjectLeadClarifications(UserId projectLeadId, YearMonth month);
 
-    List<MonthEndClarification> findAllProjectLeadClarifications(UserId projectLeadId, YearMonth month);
+    List<MonthEndClarification> findClarifications(YearMonth month, MonthEndScope scope);
 
     void save(MonthEndClarification clarification);
 

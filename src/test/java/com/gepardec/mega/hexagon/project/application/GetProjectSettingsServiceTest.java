@@ -38,42 +38,52 @@ class GetProjectSettingsServiceTest {
     }
 
     @Test
-    void getLeadProjects_excludesNonBillableProjects() {
+    void getSettings_excludesNonBillableProjects() {
         Project nonBillable = new Project(ProjectId.generate(), 1, "X", LocalDate.of(2024, 1, 1), null, false, false, Set.of(LEAD_ID));
-        when(projectRepository.findAllByLead(LEAD_ID)).thenReturn(List.of(nonBillable));
+        when(projectRepository.findAll()).thenReturn(List.of(nonBillable));
 
-        List<Project> result = service.getLeadProjects(LEAD_ID);
+        List<Project> result = service.getSettings();
 
         assertThat(result).isEmpty();
     }
 
     @Test
-    void getLeadProjects_excludesEndedProjects() {
+    void getSettings_excludesEndedProjects() {
         Project ended = billableProject(LocalDate.of(2024, 1, 1), LocalDate.of(2026, 8, 31), true);
-        when(projectRepository.findAllByLead(LEAD_ID)).thenReturn(List.of(ended));
+        when(projectRepository.findAll()).thenReturn(List.of(ended));
 
-        List<Project> result = service.getLeadProjects(LEAD_ID);
+        List<Project> result = service.getSettings();
 
         assertThat(result).isEmpty();
     }
 
     @Test
-    void getLeadProjects_includesBillableProjectWithFlagDisabled() {
+    void getSettings_includesBillableProjectWithFlagDisabled() {
         Project project = billableProject(LocalDate.of(2024, 1, 1), null, false);
-        when(projectRepository.findAllByLead(LEAD_ID)).thenReturn(List.of(project));
+        when(projectRepository.findAll()).thenReturn(List.of(project));
 
-        List<Project> result = service.getLeadProjects(LEAD_ID);
+        List<Project> result = service.getSettings();
 
         assertThat(result).containsExactly(project);
     }
 
     @Test
-    void getLeadProjects_includesFutureProject() {
+    void getSettings_includesFutureProject() {
         Project futureProject = billableProject(LocalDate.of(2026, 11, 1), null, true);
-        when(projectRepository.findAllByLead(LEAD_ID)).thenReturn(List.of(futureProject));
+        when(projectRepository.findAll()).thenReturn(List.of(futureProject));
 
-        List<Project> result = service.getLeadProjects(LEAD_ID);
+        List<Project> result = service.getSettings();
 
         assertThat(result).containsExactly(futureProject);
+    }
+
+    @Test
+    void getSettings_includesProjectsNotLedByAnyParticularCaller() {
+        Project foreignProject = new Project(ProjectId.generate(), 2, "Y", LocalDate.of(2024, 1, 1), null, true, true, Set.of(UserId.of(UUID.randomUUID())));
+        when(projectRepository.findAll()).thenReturn(List.of(foreignProject));
+
+        List<Project> result = service.getSettings();
+
+        assertThat(result).containsExactly(foreignProject);
     }
 }

@@ -1,39 +1,24 @@
-'/worktime/employee/{payrollMonth}':
+'/worktime/{payrollMonth}':
   get:
     tags:
-      - WorkTimeEmployee
-    operationId: getEmployeeWorkTimeReport
-    summary: Get the authenticated employee's work time report for a payroll month
+      - WorkTime
+    operationId: getWorkTimeReport
+    summary: Get the authenticated actor's work time report for a payroll month in the requested capacity
     security:
       - bearerAuth: [ ]
     parameters:
       - $ref: '../parameters/common.yaml#/PayrollMonthPathParameter'
+      - name: capacity
+        in: query
+        required: true
+        description: The capacity the report is read in.
+        schema:
+          $ref: '../schemas/shared.yaml#/Capacity'
     responses:
       '200':
-        description: Employee work time report
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/worktime.yaml#/WorkTimeReport'
-      '400':
-        $ref: '../responses/common.yaml#/BadRequest'
-      '403':
-        $ref: '../responses/common.yaml#/Forbidden'
-      '500':
-        $ref: '../responses/common.yaml#/InternalServerError'
-'/worktime/projects/{payrollMonth}':
-  get:
-    tags:
-      - WorkTimeProjectLead
-    operationId: getProjectLeadWorkTimeReport
-    summary: Get work time across all projects led by the authenticated project lead for a payroll month
-    security:
-      - bearerAuth: [ ]
-    parameters:
-      - $ref: '../parameters/common.yaml#/PayrollMonthPathParameter'
-    responses:
-      '200':
-        description: Project-lead work time report
+        description: >-
+          Work time report. Entries are ordered by employee name, then by
+          project name.
         content:
           application/json:
             schema:
@@ -47,7 +32,7 @@
 '/worktime/warnings/{payrollMonth}':
   get:
     tags:
-      - WorkTimeEmployee
+      - WorkTime
     operationId: getEmployeeWarnings
     summary: Get the authenticated employee's work time warnings for a payroll month
     security:
@@ -72,7 +57,7 @@
 /worktime/warning-rules:
   get:
     tags:
-      - WorkTimeAdmin
+      - WorkTimeWarningRules
     operationId: listWarningRuleSettings
     summary: List the settings of all work time warning rules
     security:
@@ -93,7 +78,7 @@
 '/worktime/warning-rules/{rule}':
   put:
     tags:
-      - WorkTimeAdmin
+      - WorkTimeWarningRules
     operationId: updateWarningRuleSetting
     summary: Replace the setting of one work time warning rule
     security:

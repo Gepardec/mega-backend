@@ -2,6 +2,7 @@ package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndScope;
 import com.gepardec.mega.hexagon.project.adapter.outbound.ProjectRepositoryAdapter;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
@@ -95,7 +96,7 @@ class MonthEndClarificationRepositoryAdapterTest {
     }
 
     @Test
-    void findAllEmployeeClarifications_shouldReturnOpenAndDoneClarificationsForSubjectEmployee() {
+    void findClarifications_subjectEmployeeScope_shouldReturnOpenAndDoneClarificationsForSubjectEmployee() {
         YearMonth month = YearMonth.of(2026, 3);
         User employee = user("employee-all", Set.of(Role.EMPLOYEE));
         User lead = user("lead-all", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
@@ -150,9 +151,9 @@ class MonthEndClarificationRepositoryAdapterTest {
         clarificationRepositoryAdapter.save(otherMonthClarification);
         clarificationRepositoryAdapter.save(otherEmployeeClarification);
 
-        List<MonthEndClarification> clarifications = clarificationRepositoryAdapter.findAllEmployeeClarifications(
-                employee.id(),
-                month
+        List<MonthEndClarification> clarifications = clarificationRepositoryAdapter.findClarifications(
+                month,
+                new MonthEndScope.SubjectEmployee(employee.id())
         );
 
         assertThat(clarifications).containsExactlyInAnyOrder(openClarification, doneClarification);
@@ -261,7 +262,7 @@ class MonthEndClarificationRepositoryAdapterTest {
     }
 
     @Test
-    void findAllProjectLeadClarifications_shouldReturnOpenAndDoneClarificationsForLedProjects() {
+    void findClarifications_ledProjectsScope_shouldReturnOpenAndDoneClarificationsForLedProjects() {
         YearMonth month = YearMonth.of(2026, 3);
         User employee = user("subject-all", Set.of(Role.EMPLOYEE));
         User leadA = user("lead-all-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
@@ -318,11 +319,11 @@ class MonthEndClarificationRepositoryAdapterTest {
         clarificationRepositoryAdapter.save(otherMonthClarification);
         clarificationRepositoryAdapter.save(outOfScopeClarification);
 
-        assertThat(clarificationRepositoryAdapter.findAllProjectLeadClarifications(leadA.id(), month))
+        assertThat(clarificationRepositoryAdapter.findClarifications(month, new MonthEndScope.LedProjects(leadA.id())))
                 .containsExactlyInAnyOrder(openClarification, doneClarification);
-        assertThat(clarificationRepositoryAdapter.findAllProjectLeadClarifications(leadB.id(), month))
+        assertThat(clarificationRepositoryAdapter.findClarifications(month, new MonthEndScope.LedProjects(leadB.id())))
                 .containsExactlyInAnyOrder(openClarification, doneClarification);
-        assertThat(clarificationRepositoryAdapter.findAllProjectLeadClarifications(leadC.id(), month))
+        assertThat(clarificationRepositoryAdapter.findClarifications(month, new MonthEndScope.LedProjects(leadC.id())))
                 .containsExactly(outOfScopeClarification);
     }
 

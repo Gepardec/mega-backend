@@ -25,6 +25,7 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -33,6 +34,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class GenerateMonthEndTasksServiceTest {
+
+    private static final UserId COORDINATOR_ID = UserId.of(UUID.fromString("00000000-0000-0000-0000-0000000000c0"));
 
     private final YearMonth month = YearMonth.of(2026, 3);
 
@@ -48,6 +51,7 @@ class GenerateMonthEndTasksServiceTest {
         monthEndProjectSnapshotPort = mock(MonthEndProjectSnapshotPort.class);
         monthEndUserSnapshotPort = mock(MonthEndUserSnapshotPort.class);
         monthEndProjectAssignmentPort = mock(MonthEndProjectAssignmentPort.class);
+        when(monthEndUserSnapshotPort.findActiveCoordinatorIdsIn(month)).thenReturn(Set.of(COORDINATOR_ID));
         service = new GenerateMonthEndTasksService(
                 monthEndTaskRepository,
                 monthEndProjectSnapshotPort,
@@ -97,7 +101,7 @@ class GenerateMonthEndTasksServiceTest {
                     .findFirst()
                     .orElseThrow();
             assertThat(leistungsnachweis.subjectEmployeeId()).isEqualTo(employee.id());
-            assertThat(leistungsnachweis.eligibleActorIds()).containsExactly(lead.id());
+            assertThat(leistungsnachweis.eligibleActorIds()).containsExactly(COORDINATOR_ID);
             assertThat(leistungsnachweis.completionPolicy()).isEqualTo(MonthEndCompletionPolicy.ANY_ELIGIBLE_ACTOR);
 
             MonthEndTask projectLeadReview = tasks.stream()
@@ -130,7 +134,7 @@ class GenerateMonthEndTasksServiceTest {
                 MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                         project.id(), employee.id(), Set.of(employee.id())),
                 MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.LEISTUNGSNACHWEIS,
-                        project.id(), employee.id(), Set.of(lead.id())),
+                        project.id(), employee.id(), Set.of(COORDINATOR_ID)),
                 MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.PROJECT_LEAD_REVIEW,
                         project.id(), employee.id(), Set.of(lead.id())),
                 MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.ABRECHNUNG,
@@ -201,7 +205,7 @@ class GenerateMonthEndTasksServiceTest {
                     .filter(task -> task.type() == MonthEndTaskType.LEISTUNGSNACHWEIS)
                     .map(MonthEndTask::eligibleActorIds)
                     .toList())
-                    .allSatisfy(eligibleActors -> assertThat(eligibleActors).containsExactly(lead.id()));
+                    .allSatisfy(eligibleActors -> assertThat(eligibleActors).containsExactly(COORDINATOR_ID));
             assertThat(tasks.stream()
                     .filter(task -> task.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
                     .map(MonthEndTask::subjectEmployeeId)
@@ -282,6 +286,57 @@ class GenerateMonthEndTasksServiceTest {
         // the task generated before the flag was flipped is neither removed nor modified
         verify(monthEndTaskRepository).saveAll(argThat(tasks -> !tasks.contains(existingLeistungsnachweis)));
         assertThat(existingLeistungsnachweis.status()).isEqualTo(MonthEndTaskStatus.OPEN);
+    }
+
+    @Test
+    void generate_shouldCreateOtherTasksAndSkipLeistungsnachweis_whenNoCoordinatorExists() {
+        UserRef employee = activeUser("employee", "00000000-0000-0000-0000-000000000070");
+        UserRef lead = activeUser("lead", "00000000-0000-0000-0000-000000000071");
+        MonthEndProjectSnapshot project = activeProject(102, true, Set.of(lead.id()));
+
+        when(monthEndUserSnapshotPort.findActiveCoordinatorIdsIn(month)).thenReturn(Set.of());
+        when(monthEndTaskRepository.findByMonth(month)).thenReturn(List.of());
+        when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
+        when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(employee, lead));
+        when(monthEndProjectAssignmentPort.findAssignedUsernames(102, month)).thenReturn(Set.of("employee"));
+
+        MonthEndTaskGenerationResult result = service.generate(month);
+
+        assertThat(result.created()).isEqualTo(3);
+        verify(monthEndTaskRepository).saveAll(argThat(tasks -> tasks.stream()
+                .map(MonthEndTask::type)
+                .collect(Collectors.toSet())
+                .equals(Set.of(
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        MonthEndTaskType.ABRECHNUNG))));
+    }
+
+    @Test
+    void generate_shouldAddOnlyMissingLeistungsnachweis_whenRerunWithCoordinator() {
+        UserRef employee = activeUser("employee", "00000000-0000-0000-0000-000000000080");
+        UserRef lead = activeUser("lead", "00000000-0000-0000-0000-000000000081");
+        MonthEndProjectSnapshot project = activeProject(103, true, Set.of(lead.id()));
+
+        when(monthEndTaskRepository.findByMonth(month)).thenReturn(List.of(
+                MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        project.id(), employee.id(), Set.of(employee.id())),
+                MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        project.id(), employee.id(), Set.of(lead.id())),
+                MonthEndTask.create(MonthEndTaskId.generate(), month, MonthEndTaskType.ABRECHNUNG,
+                        project.id(), null, Set.of(lead.id()))
+        ));
+        when(monthEndProjectSnapshotPort.findActiveIn(month)).thenReturn(List.of(project));
+        when(monthEndUserSnapshotPort.findActiveIn(month)).thenReturn(List.of(employee, lead));
+        when(monthEndProjectAssignmentPort.findAssignedUsernames(103, month)).thenReturn(Set.of("employee"));
+
+        MonthEndTaskGenerationResult result = service.generate(month);
+
+        assertThat(result.created()).isOne();
+        assertThat(result.skipped()).isEqualTo(3);
+        verify(monthEndTaskRepository).saveAll(argThat(tasks -> tasks.size() == 1
+                && tasks.getFirst().type() == MonthEndTaskType.LEISTUNGSNACHWEIS
+                && tasks.getFirst().eligibleActorIds().equals(Set.of(COORDINATOR_ID))));
     }
 
     private UserRef activeUser(String username, String userId) {
