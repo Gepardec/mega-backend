@@ -7,6 +7,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeAbsenceZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeBookingZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeExpectedWorkingDaysPort;
+import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import com.gepardec.mega.hexagon.worktime.domain.model.Absence;
@@ -30,6 +31,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -37,6 +39,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.instancio.Select.field;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,11 +56,13 @@ class GetEmployeeWarningsServiceTest {
     WorkTimeAbsenceZepPort absencePort;
     @Mock
     WorkTimeExpectedWorkingDaysPort expectedDaysPort;
+    @Mock
+    WorkTimeProjectSnapshotPort projectPort;
     private GetEmployeeWarningsService service;
 
     @BeforeEach
     void setUp() {
-        service = new GetEmployeeWarningsService(userPort, bookingPort, absencePort, expectedDaysPort,
+        service = new GetEmployeeWarningsService(userPort, bookingPort, absencePort, expectedDaysPort, projectPort,
                 new WorkTimeWarningAssembler(), Clock.fixed(Instant.parse("2026-05-10T00:00:00Z"), ZoneOffset.UTC));
     }
 
@@ -107,6 +112,39 @@ class GetEmployeeWarningsServiceTest {
     }
 
     @Test
+    void getWarnings_prefixedBookingOnBillableProjectIsFlagged() {
+        var date = MONTH.atDay(4);
+        stubMonthWith(bookingOn(date, 1, "Intern - Teammeeting"));
+        when(projectPort.findBillabilityByZepIds(Set.of(1))).thenReturn(Map.of(1, true));
+
+        assertThat(service.getWarnings(USER_ID, MONTH))
+                .contains(new WorkTimeWarning(date, WorkTimeWarningType.INTERNAL_PREFIX_ON_BILLABLE_PROJECT, null));
+    }
+
+    @Test
+    void getWarnings_unprefixedBookingOnInternalProjectIsFlagged() {
+        var date = MONTH.atDay(4);
+        stubMonthWith(bookingOn(date, 2, "Teammeeting"));
+        when(projectPort.findBillabilityByZepIds(Set.of(2))).thenReturn(Map.of(2, false));
+
+        assertThat(service.getWarnings(USER_ID, MONTH))
+                .contains(new WorkTimeWarning(date, WorkTimeWarningType.INTERNAL_PREFIX_MISSING, null));
+    }
+
+    @Test
+    void getWarnings_bookingOnUnknownProjectIsNotCheckedAndPortReceivesDistinctIds() {
+        var date = MONTH.atDay(4);
+        stubMonthWith(
+                bookingOn(date, 99, "Teammeeting"),
+                bookingOn(MONTH.atDay(5), 99, "Intern - Teammeeting"));
+        when(projectPort.findBillabilityByZepIds(Set.of(99))).thenReturn(Map.of());
+
+        assertThat(service.getWarnings(USER_ID, MONTH)).extracting(WorkTimeWarning::type)
+                .doesNotContain(WorkTimeWarningType.INTERNAL_PREFIX_MISSING, WorkTimeWarningType.INTERNAL_PREFIX_ON_BILLABLE_PROJECT);
+        verify(projectPort).findBillabilityByZepIds(Set.of(99));
+    }
+
+    @Test
     void getWarnings_unknownEmployeeThrowsNotFound() {
         when(userPort.findById(USER_ID, MONTH)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> service.getWarnings(USER_ID, MONTH)).isInstanceOf(WorkTimeUserNotFoundException.class);
@@ -126,6 +164,24 @@ class GetEmployeeWarningsServiceTest {
                 .set(field(ProjectBooking::to), date.atTime(9, 0))
                 .set(field(ProjectBooking::task), Task.BEARBEITEN)
                 .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
+                .create();
+    }
+
+    private void stubMonthWith(ProjectBooking... bookings) {
+        when(userPort.findById(USER_ID, MONTH)).thenReturn(Optional.of(user()));
+        when(bookingPort.fetchBookingsForEmployee("ada", MONTH)).thenReturn(List.of(bookings));
+        when(absencePort.fetchAbsencesForEmployee(USERNAME, MONTH)).thenReturn(List.of());
+        when(expectedDaysPort.expectedWorkingDays(USER_ID, MONTH)).thenReturn(Set.of());
+    }
+
+    private ProjectBooking bookingOn(LocalDate date, int projectZepId, String note) {
+        return Instancio.of(ProjectBooking.class)
+                .set(field(ProjectBooking::from), date.atTime(8, 0))
+                .set(field(ProjectBooking::to), date.atTime(9, 0))
+                .set(field(ProjectBooking::task), Task.BEARBEITEN)
+                .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
+                .set(field(ProjectBooking::projectZepId), projectZepId)
+                .set(field(ProjectBooking::note), note)
                 .create();
     }
 

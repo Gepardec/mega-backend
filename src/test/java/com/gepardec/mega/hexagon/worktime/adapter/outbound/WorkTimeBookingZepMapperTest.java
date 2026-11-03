@@ -56,6 +56,33 @@ class WorkTimeBookingZepMapperTest {
     }
 
     @Test
+    void toDomain_mapsProjectAndNoteOfProjectBooking() {
+        var booking = mapper.toDomain(base().activity("BEARBEITEN").projectTaskId(233)
+                .projectId(42).note("Intern - Teammeeting").build());
+
+        assertThat(booking).isInstanceOf(ProjectBooking.class);
+        assertThat(booking.projectZepId()).isEqualTo(42);
+        assertThat(booking.note()).isEqualTo("Intern - Teammeeting");
+    }
+
+    @Test
+    void toDomain_mapsProjectAndNoteOfJourneyBooking() {
+        var booking = mapper.toDomain(base().activity("REISEN").vehicle("Auto")
+                .projectId(42).note("Intern - Anreise").build());
+
+        assertThat(booking).isInstanceOf(JourneyBooking.class);
+        assertThat(booking.projectZepId()).isEqualTo(42);
+        assertThat(booking.note()).isEqualTo("Intern - Anreise");
+    }
+
+    @Test
+    void toDomain_mapsMissingNoteToAbsentNote() {
+        var booking = mapper.toDomain(base().activity("BEARBEITEN").projectTaskId(233).projectId(42).build());
+
+        assertThat(booking.note()).isNull();
+    }
+
+    @Test
     void toDomain_mapsBookingEndingAtMidnightToStartOfNextDay() {
         var booking = mapper.toDomain(base().activity("BEARBEITEN").projectTaskId(233)
                 .from(LocalTime.of(18, 0)).to(LocalTime.MIDNIGHT).build());

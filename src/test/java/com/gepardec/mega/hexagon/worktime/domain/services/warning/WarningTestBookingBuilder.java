@@ -37,6 +37,8 @@ final class WarningTestBookingBuilder {
         private Task task;
         private WorkingLocation workingLocation;
         private boolean projectRelevant;
+        private Integer projectZepId;
+        private String note;
         private String process;
 
         ProjectBuilder fromTime(LocalDateTime value) {
@@ -64,6 +66,16 @@ final class WarningTestBookingBuilder {
             return this;
         }
 
+        ProjectBuilder projectZepId(Integer value) {
+            projectZepId = value;
+            return this;
+        }
+
+        ProjectBuilder note(String value) {
+            note = value;
+            return this;
+        }
+
         ProjectBuilder process(String value) {
             process = value;
             return this;
@@ -76,6 +88,8 @@ final class WarningTestBookingBuilder {
                     .set(field(ProjectBooking::task), task)
                     .set(field(ProjectBooking::workingLocation), workingLocation)
                     .set(field(ProjectBooking::workLocationProjectRelevant), projectRelevant)
+                    .set(field(ProjectBooking::projectZepId), projectZepId)
+                    .set(field(ProjectBooking::note), note)
                     .set(field(ProjectBooking::process), process)
                     .create();
         }
@@ -87,6 +101,8 @@ final class WarningTestBookingBuilder {
         private Task task;
         private WorkingLocation workingLocation;
         private boolean projectRelevant;
+        private Integer projectZepId;
+        private String note;
         private JourneyDirection direction;
         private Vehicle vehicle;
 
@@ -115,6 +131,16 @@ final class WarningTestBookingBuilder {
             return this;
         }
 
+        JourneyBuilder projectZepId(Integer value) {
+            projectZepId = value;
+            return this;
+        }
+
+        JourneyBuilder note(String value) {
+            note = value;
+            return this;
+        }
+
         JourneyBuilder journeyDirection(JourneyDirection value) {
             direction = value;
             return this;
@@ -132,6 +158,8 @@ final class WarningTestBookingBuilder {
                     .set(field(JourneyBooking::task), task)
                     .set(field(JourneyBooking::workingLocation), workingLocation)
                     .set(field(JourneyBooking::workLocationProjectRelevant), projectRelevant)
+                    .set(field(JourneyBooking::projectZepId), projectZepId)
+                    .set(field(JourneyBooking::note), note)
                     .set(field(JourneyBooking::direction), direction)
                     .set(field(JourneyBooking::vehicle), vehicle)
                     .create();

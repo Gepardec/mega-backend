@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +35,7 @@ class WorkTimeWarningAssemblerTest {
                 .create();
 
         assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(booking)),
-                Set.of(date), Set.of(), date.plusDays(1)))
+                Set.of(date), Set.of(), date.plusDays(1), Map.of()))
                 .extracting(WorkTimeWarning::type)
                 .contains(WorkTimeWarningType.OUTSIDE_CORE_WORKING_TIME, WorkTimeWarningType.WEEKEND);
     }
@@ -52,8 +53,9 @@ class WorkTimeWarningAssemblerTest {
         when(calculator.calculate(same(bookings))).thenReturn(List.of(first, otherType, duplicate, otherDate));
         when(otherCalculator.calculate(same(bookings))).thenReturn(List.of(duplicate));
 
-        assertThat(new WorkTimeWarningAssembler(List.of(calculator, otherCalculator), new NoEntryWarningCalculator())
-                .assemble(bookings, Set.of(), Set.of(), date))
+        assertThat(new WorkTimeWarningAssembler(List.of(calculator, otherCalculator), new NoEntryWarningCalculator(),
+                new InternalNotePrefixCalculator())
+                .assemble(bookings, Set.of(), Set.of(), date, Map.of()))
                 .containsExactly(first, otherType, otherDate);
     }
 
@@ -66,14 +68,31 @@ class WorkTimeWarningAssemblerTest {
                 projectAt(date.atTime(13, 0), date.atTime(16, 0), WorkingLocation.A));
 
         assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(bookingsAwayFromMain),
-                Set.of(date), Set.of(), date.plusDays(1)))
+                Set.of(date), Set.of(), date.plusDays(1), Map.of()))
                 .filteredOn(warning -> warning.type() == WorkTimeWarningType.INVALID_WORKING_LOCATION)
                 .containsExactly(new WorkTimeWarning(date, WorkTimeWarningType.INVALID_WORKING_LOCATION, null));
     }
 
     @Test
+    void assemble_whenInternalProjectBookingLacksPrefix_thenIncludesInternalPrefixMissing() {
+        LocalDate date = LocalDate.of(2026, 5, 4);
+        var booking = Instancio.of(ProjectBooking.class)
+                .set(field(ProjectBooking::from), date.atTime(8, 0))
+                .set(field(ProjectBooking::to), date.atTime(9, 0))
+                .set(field(ProjectBooking::task), Task.BEARBEITEN)
+                .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
+                .set(field(ProjectBooking::projectZepId), 7)
+                .set(field(ProjectBooking::note), "Teammeeting")
+                .create();
+
+        assertThat(new WorkTimeWarningAssembler().assemble(new WorkTimeBookings(List.of(booking)),
+                Set.of(date), Set.of(), date.plusDays(1), Map.of(7, false)))
+                .contains(new WorkTimeWarning(date, WorkTimeWarningType.INTERNAL_PREFIX_MISSING, null));
+    }
+
+    @Test
     void assemble_emptyBookingsReturnsSingleMonthWarning() {
-        assertThat(new WorkTimeWarningAssembler().assemble(WorkTimeBookings.empty(), Set.of(), Set.of(), LocalDate.now()))
+        assertThat(new WorkTimeWarningAssembler().assemble(WorkTimeBookings.empty(), Set.of(), Set.of(), LocalDate.now(), Map.of()))
                 .containsExactly(new WorkTimeWarning(null, WorkTimeWarningType.EMPTY_ENTRY_LIST, null));
     }
 
@@ -91,15 +110,20 @@ class WorkTimeWarningAssemblerTest {
         WorkTimeWarning noEntryWarning = new WorkTimeWarning(expectedDate, WorkTimeWarningType.NO_TIME_ENTRY, null);
         WorkTimeWarningCalculator calculator = mock(WorkTimeWarningCalculator.class);
         NoEntryWarningCalculator noEntryCalculator = mock(NoEntryWarningCalculator.class);
+        InternalNotePrefixCalculator internalNotePrefixCalculator = mock(InternalNotePrefixCalculator.class);
+        Map<Integer, Boolean> billability = Map.of(1, false);
+        WorkTimeWarning prefixWarning = new WorkTimeWarning(bookedDate, WorkTimeWarningType.INTERNAL_PREFIX_MISSING, null);
         when(calculator.calculate(same(bookings))).thenReturn(List.of(calculatorWarning));
         when(noEntryCalculator.calculate(Set.of(expectedDate), bookings.bookedDates(), Set.of(), today))
                 .thenReturn(List.of(noEntryWarning));
+        when(internalNotePrefixCalculator.calculate(same(bookings), same(billability))).thenReturn(List.of(prefixWarning));
 
-        assertThat(new WorkTimeWarningAssembler(List.of(calculator), noEntryCalculator)
-                .assemble(bookings, Set.of(expectedDate), Set.of(), today))
-                .containsExactly(calculatorWarning, noEntryWarning);
+        assertThat(new WorkTimeWarningAssembler(List.of(calculator), noEntryCalculator, internalNotePrefixCalculator)
+                .assemble(bookings, Set.of(expectedDate), Set.of(), today, billability))
+                .containsExactly(calculatorWarning, noEntryWarning, prefixWarning);
         verify(calculator).calculate(same(bookings));
         verify(noEntryCalculator).calculate(Set.of(expectedDate), Set.of(bookedDate), Set.of(), today);
+        verify(internalNotePrefixCalculator).calculate(same(bookings), same(billability));
     }
 
     private static ProjectBooking projectAt(LocalDateTime from, LocalDateTime to, WorkingLocation location) {

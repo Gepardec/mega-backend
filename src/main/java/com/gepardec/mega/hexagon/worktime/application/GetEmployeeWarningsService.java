@@ -6,14 +6,17 @@ import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWa
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeAbsenceZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeBookingZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeExpectedWorkingDaysPort;
+import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeValidationException;
 import com.gepardec.mega.hexagon.worktime.domain.model.Absence;
 import com.gepardec.mega.hexagon.worktime.domain.model.AbsenceType;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBookings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 import com.gepardec.mega.hexagon.worktime.domain.services.warning.WorkTimeWarningAssembler;
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -22,6 +25,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,22 +37,26 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
     private final WorkTimeBookingZepPort bookingPort;
     private final WorkTimeAbsenceZepPort absencePort;
     private final WorkTimeExpectedWorkingDaysPort expectedWorkingDaysPort;
+    private final WorkTimeProjectSnapshotPort projectSnapshotPort;
     private final WorkTimeWarningAssembler assembler;
     private final Clock clock;
 
     @Inject
     public GetEmployeeWarningsService(WorkTimeUserSnapshotPort userSnapshotPort, WorkTimeBookingZepPort bookingPort,
-                                      WorkTimeAbsenceZepPort absencePort, WorkTimeExpectedWorkingDaysPort expectedWorkingDaysPort, Clock clock) {
-        this(userSnapshotPort, bookingPort, absencePort, expectedWorkingDaysPort, new WorkTimeWarningAssembler(), clock);
+                                      WorkTimeAbsenceZepPort absencePort, WorkTimeExpectedWorkingDaysPort expectedWorkingDaysPort,
+                                      WorkTimeProjectSnapshotPort projectSnapshotPort, Clock clock) {
+        this(userSnapshotPort, bookingPort, absencePort, expectedWorkingDaysPort, projectSnapshotPort,
+                new WorkTimeWarningAssembler(), clock);
     }
 
     GetEmployeeWarningsService(WorkTimeUserSnapshotPort userSnapshotPort, WorkTimeBookingZepPort bookingPort,
                                WorkTimeAbsenceZepPort absencePort, WorkTimeExpectedWorkingDaysPort expectedWorkingDaysPort,
-                               WorkTimeWarningAssembler assembler, Clock clock) {
+                               WorkTimeProjectSnapshotPort projectSnapshotPort, WorkTimeWarningAssembler assembler, Clock clock) {
         this.userSnapshotPort = userSnapshotPort;
         this.bookingPort = bookingPort;
         this.absencePort = absencePort;
         this.expectedWorkingDaysPort = expectedWorkingDaysPort;
+        this.projectSnapshotPort = projectSnapshotPort;
         this.assembler = assembler;
         this.clock = clock;
     }
@@ -67,7 +75,7 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
                 bookingPort.fetchBookingsForEmployee(employee.zepUsername().value(), month)
         );
         if (bookings.isEmpty()) {
-            return assembler.assemble(bookings, Set.of(), Set.of(), LocalDate.now(clock));
+            return assembler.assemble(bookings, Set.of(), Set.of(), LocalDate.now(clock), Map.of());
         }
         Set<LocalDate> excusedDates = absencePort.fetchAbsencesForEmployee(employee.zepUsername(), month).stream()
                 .filter(absence -> absence.type() != AbsenceType.HOME_OFFICE)
@@ -77,7 +85,22 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
                 bookings,
                 expectedWorkingDaysPort.expectedWorkingDays(employeeId, month),
                 excusedDates,
-                LocalDate.now(clock)
+                LocalDate.now(clock),
+                billabilityOfBookedProjects(bookings)
         );
+    }
+
+    private Map<Integer, Boolean> billabilityOfBookedProjects(WorkTimeBookings bookings) {
+        Set<Integer> projectZepIds = bookings.values().stream()
+                .map(WorkTimeBooking::projectZepId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableSet());
+        Map<Integer, Boolean> billability = projectSnapshotPort.findBillabilityByZepIds(projectZepIds);
+        projectZepIds.stream()
+                .filter(projectZepId -> !billability.containsKey(projectZepId))
+                .sorted()
+                .forEach(projectZepId -> Log.warnf(
+                        "ZEP project %d is unknown to MEGA, skipping 'Intern -' note check for its bookings", projectZepId));
+        return billability;
     }
 }

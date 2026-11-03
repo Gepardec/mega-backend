@@ -18,6 +18,7 @@ public record ZepAttendance (
     Boolean billable,
     String workLocation,
     Boolean workLocationIsProjectRelevant,
+    String note,
     String activity,
     String vehicle,
     ZepAttendanceDirectionOfTravel directionOfTravel
@@ -37,6 +38,7 @@ public record ZepAttendance (
              builder.billable,
              builder.workLocation,
              builder.workLocationIsProjectRelevant,
+             builder.note,
              builder.activity,
              builder.vehicle,
              builder.directionOfTravel
@@ -73,6 +75,9 @@ public record ZepAttendance (
 
         @JsonProperty("work_location_is_project_relevant")
         private Boolean workLocationIsProjectRelevant;
+
+        @JsonProperty("note")
+        private String note;
 
         @JsonProperty("activity_id")
         private String activity;
@@ -135,6 +140,11 @@ public record ZepAttendance (
 
         public Builder workLocationIsProjectRelevant(Boolean workLocationIsProjectRelevant) {
             this.workLocationIsProjectRelevant = workLocationIsProjectRelevant;
+            return this;
+        }
+
+        public Builder note(String note) {
+            this.note = note;
             return this;
         }
 

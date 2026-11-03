@@ -197,6 +197,21 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
     }
 
     @Test
+    void getEmployeeWarnings_shouldReturnInternalPrefixMissingWithDateAndNullHours() {
+        allowRoles(Role.EMPLOYEE);
+        when(getEmployeeWarningsUseCase.getWarnings(EMPLOYEE_ID, MONTH)).thenReturn(List.of(
+                new WorkTimeWarning(LocalDate.of(2026, 3, 2), WorkTimeWarningType.INTERNAL_PREFIX_MISSING, null)));
+
+        Map<String, Object> warning = firstWarningPayload();
+
+        assertThat(warning)
+                .containsOnlyKeys("type", "date", "hours")
+                .containsEntry("type", "INTERNAL_PREFIX_MISSING")
+                .containsEntry("date", "2026-03-02")
+                .containsEntry("hours", null);
+    }
+
+    @Test
     void getEmployeeWarnings_shouldRejectProjectLeadRole() {
         allowRoles(Role.PROJECT_LEAD);
         given().accept(ContentType.JSON).get("/worktime/warnings/" + MONTH).then().statusCode(403);

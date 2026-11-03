@@ -10,6 +10,8 @@ public sealed interface WorkTimeBooking permits ProjectBooking, JourneyBooking {
     Task task();
     WorkingLocation workingLocation();
     boolean workLocationProjectRelevant();
+    Integer projectZepId();
+    String note();
 
     default LocalDate date() {
         return from().toLocalDate();
