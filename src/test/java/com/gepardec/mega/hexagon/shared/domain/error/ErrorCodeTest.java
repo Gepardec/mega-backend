@@ -72,7 +72,6 @@ class ErrorCodeTest {
                         entry("MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE", ErrorCategory.UNPROCESSABLE),
                         entry("PROJECT_NOT_FOUND", ErrorCategory.NOT_FOUND),
                         entry("PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE", ErrorCategory.CONFLICT),
-                        entry("PROJECT_ACTOR_NOT_LEAD", ErrorCategory.FORBIDDEN),
                         entry("WORKTIME_USER_NOT_FOUND", ErrorCategory.NOT_FOUND),
                         entry("USER_INTERNAL_RATES_EMPTY_FILE", ErrorCategory.INVALID),
                         entry("USER_INTERNAL_RATES_BAD_FORMAT", ErrorCategory.INVALID),

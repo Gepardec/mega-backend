@@ -75,7 +75,6 @@ The shared `ForbiddenException` (still in `shared/application/security`) also ex
 | `MonthEndErrorCode.TASK_TYPE_NOT_BULK_COMPLETABLE` (new, D16) | UNPROCESSABLE | 422 | `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE` |
 | `ProjectErrorCode.NOT_FOUND` | NOT_FOUND | 404 | `PROJECT_NOT_FOUND` |
 | `ProjectErrorCode.LEISTUNGSNACHWEIS_NOT_APPLICABLE` | CONFLICT | 409 | `PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE` |
-| `ProjectErrorCode.ACTOR_NOT_LEAD` (new) | FORBIDDEN | 403 | `PROJECT_ACTOR_NOT_LEAD` |
 | `WorkTimeErrorCode.USER_NOT_FOUND` | NOT_FOUND | 404 | `WORKTIME_USER_NOT_FOUND` |
 | `UserErrorCode.INTERNAL_RATES_UNKNOWN_USERS` (`UnknownUsersException`) | UNPROCESSABLE | 422 | `USER_INTERNAL_RATES_UNKNOWN_USERS` |
 | `InternalRateUploadErrorCode.INTERNAL_RATES_EMPTY_FILE` (adapter) | INVALID | 400 | `USER_INTERNAL_RATES_EMPTY_FILE` |
@@ -107,7 +106,7 @@ Identifiers are already `UUID` in the contract, and resources wrap them inline (
 `ZepMailWebhookResource` no longer catches `Exception`. The catch-all produces the `500` problem and logs at ERROR with the stack trace, which replaces the explicit `Log.error`. Pub/Sub only looks at the status, so retry behaviour is unchanged.
 
 ### D6: Non-authorization faults become plain unchecked exceptions
-`UserRepositoryAdapter.findByEmail` throws `IllegalStateException("authenticated actor resolution is ambiguous: N users share one email")`, without the email, so it becomes a `500`. `SetLeistungsnachweisEnabledService` throws the new `ProjectActorNotLeadException` instead of the shared `ForbiddenException`, the same pattern as `MonthEndActorNotAuthorizedException`. The status stays `403`; the code becomes more specific.
+`UserRepositoryAdapter.findByEmail` throws `IllegalStateException("authenticated actor resolution is ambiguous: N users share one email")`, without the email, so it becomes a `500`. `SetLeistungsnachweisEnabledService` no longer checks the project lead, because the coordinator role (#814) made the toggle coordinator-only, so it needs no actor code of its own.
 
 ### D7: The contract owns `Problem`; the extension's OpenAPI additions are ignored
 In `openapi/schemas/shared.yaml`, `ApiError` is replaced by:

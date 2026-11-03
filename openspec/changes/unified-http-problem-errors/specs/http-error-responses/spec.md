@@ -45,9 +45,9 @@ When a bounded context rejects a request for a reason specific to it (a business
 ### Requirement: Business-rule rejections use the status of their kind
 When a bounded context rejects a request, the HTTP status SHALL reflect the kind of rejection: `404` when the object the request URL addresses doesn't exist, `403` when the acting user may not perform the operation, `409` when the current state of the addressed object doesn't allow the operation, and `422` when the request is well-formed but what it refers to or asks for doesn't fit the domain. `400` SHALL be reserved for requests that don't satisfy the contract or whose content is malformed.
 
-#### Scenario: Non-lead toggles Leistungsnachweis
-- **WHEN** an authenticated user who does not lead the project calls `PUT /projects/{projectId}/leistungsnachweis-enabled`
-- **THEN** the API responds with `403` and a bounded-context-prefixed `code`
+#### Scenario: Bulk completion by an ineligible actor
+- **WHEN** an authenticated user requests bulk completion of a task type on a project where they are not an eligible actor for that type
+- **THEN** the API responds with `403` and the code `MONTHEND_ACTOR_NOT_AUTHORIZED`
 
 #### Scenario: Editing a closed clarification
 - **WHEN** the creator edits the text of, or deletes, a clarification that is already done
