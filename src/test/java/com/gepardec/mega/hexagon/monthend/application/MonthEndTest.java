@@ -5,8 +5,7 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonth
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonthEndTaskUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GenerateMonthEndTasksUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndStatusOverviewUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndStatusOverviewUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
@@ -19,6 +18,7 @@ import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarifica
 import com.gepardec.mega.hexagon.project.adapter.outbound.ProjectRepositoryAdapter;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.model.ZepProjectProfile;
+import com.gepardec.mega.hexagon.shared.domain.model.Capacity;
 import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -76,10 +76,7 @@ class MonthEndTest {
     CompleteMonthEndClarificationUseCase completeMonthEndClarificationUseCase;
 
     @Inject
-    GetEmployeeMonthEndStatusOverviewUseCase getEmployeeMonthEndStatusOverviewUseCase;
-
-    @Inject
-    GetProjectLeadMonthEndStatusOverviewUseCase getProjectLeadMonthEndStatusOverviewUseCase;
+    GetMonthEndStatusOverviewUseCase getMonthEndStatusOverviewUseCase;
 
     @Inject
     UserRepositoryAdapter userRepositoryAdapter;
@@ -109,7 +106,7 @@ class MonthEndTest {
         assertThat(result.created()).isEqualTo(4);
         assertThat(result.skipped()).isZero();
 
-        MonthEndStatusOverview employeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        MonthEndStatusOverview employeeOverview = getMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH, Capacity.EMPLOYEE);
         List<MonthEndTask> eligibleOpenItems = employeeOverview.tasks().stream()
                 .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(employee.id()))
                 .toList();
@@ -133,11 +130,37 @@ class MonthEndTest {
 
         completeMonthEndTaskUseCase.complete(employeeTimeCheck.id(), employee.id());
 
-        MonthEndStatusOverview updatedOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        MonthEndStatusOverview updatedOverview = getMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH, Capacity.EMPLOYEE);
         List<MonthEndTask> updatedEligibleOpenItems = updatedOverview.tasks().stream()
                 .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(employee.id()))
                 .toList();
         assertThat(updatedEligibleOpenItems).isEmpty();
+    }
+
+    @Test
+    void monthEndFlow_shouldOfferLeadsOwnReviewOnlyInControllingCapacityButStillAllowCompletion() {
+        User lead = user("lead", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        Project project = project(712, Set.of(lead.id()));
+        persistFixture(List.of(lead), project, Set.of(lead.zepUsername().value()));
+
+        generateMonthEndTasksUseCase.generate(MONTH);
+
+        MonthEndTask ownReview = getMonthEndStatusOverviewUseCase.getOverview(lead.id(), MONTH, Capacity.EMPLOYEE).tasks().stream()
+                .filter(item -> item.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(ownReview.subjectEmployeeId()).isEqualTo(lead.id());
+        assertThat(ownReview.isCompletableIn(Capacity.EMPLOYEE, lead.id())).isFalse();
+        assertThat(ownReview.isCompletableIn(Capacity.CONTROLLING, lead.id())).isTrue();
+        assertThat(getMonthEndStatusOverviewUseCase.getOverview(lead.id(), MONTH, Capacity.CONTROLLING).tasks())
+                .extracting(MonthEndTask::id)
+                .contains(ownReview.id());
+
+        MonthEndTask completed = completeMonthEndTaskUseCase.complete(ownReview.id(), lead.id());
+
+        assertThat(completed.status()).isEqualTo(MonthEndTaskStatus.DONE);
+        assertThat(completed.completedBy()).isEqualTo(lead.id());
     }
 
     @Test
@@ -153,8 +176,8 @@ class MonthEndTest {
         assertThat(result.created()).isEqualTo(4);
         assertThat(result.skipped()).isZero();
 
-        MonthEndStatusOverview leadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
-        MonthEndStatusOverview leadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
+        MonthEndStatusOverview leadAOverview = getMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH, Capacity.CONTROLLING);
+        MonthEndStatusOverview leadBOverview = getMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH, Capacity.CONTROLLING);
         List<MonthEndTask> leadAEligibleOpen = leadAOverview.tasks().stream()
                 .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(leadA.id()))
                 .toList();
@@ -184,8 +207,8 @@ class MonthEndTest {
 
         completeMonthEndTaskUseCase.complete(leadReviewItem.id(), leadA.id());
 
-        MonthEndStatusOverview updatedLeadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
-        MonthEndStatusOverview updatedLeadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
+        MonthEndStatusOverview updatedLeadAOverview = getMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH, Capacity.CONTROLLING);
+        MonthEndStatusOverview updatedLeadBOverview = getMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH, Capacity.CONTROLLING);
         List<MonthEndTask> updatedLeadAEligibleOpen = updatedLeadAOverview.tasks().stream()
                 .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(leadA.id()))
                 .toList();
@@ -250,7 +273,7 @@ class MonthEndTest {
 
         generateMonthEndTasksUseCase.generate(MONTH);
 
-        MonthEndStatusOverview employeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        MonthEndStatusOverview employeeOverview = getMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH, Capacity.EMPLOYEE);
         MonthEndTask employeeTimeCheck = employeeOverview.tasks().stream()
                 .filter(item -> item.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .findFirst()
@@ -258,7 +281,7 @@ class MonthEndTest {
 
         completeMonthEndTaskUseCase.complete(employeeTimeCheck.id(), employee.id());
 
-        MonthEndStatusOverview statusOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        MonthEndStatusOverview statusOverview = getMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH, Capacity.EMPLOYEE);
 
         assertThat(statusOverview.tasks())
                 .extracting(MonthEndTask::type, MonthEndTask::status)
@@ -306,7 +329,7 @@ class MonthEndTest {
 
         generateMonthEndTasksUseCase.generate(MONTH);
 
-        MonthEndStatusOverview leadAInitialOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
+        MonthEndStatusOverview leadAInitialOverview = getMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH, Capacity.CONTROLLING);
         MonthEndTask leadReviewTask = leadAInitialOverview.tasks().stream()
                 .filter(item -> item.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
                 .findFirst()
@@ -314,8 +337,8 @@ class MonthEndTest {
 
         completeMonthEndTaskUseCase.complete(leadReviewTask.id(), leadA.id());
 
-        MonthEndStatusOverview leadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
-        MonthEndStatusOverview leadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
+        MonthEndStatusOverview leadAOverview = getMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH, Capacity.CONTROLLING);
+        MonthEndStatusOverview leadBOverview = getMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH, Capacity.CONTROLLING);
 
         assertThat(leadAOverview.tasks())
                 .filteredOn(item -> item.id().equals(leadReviewTask.id()))
@@ -371,9 +394,9 @@ class MonthEndTest {
                 "I am leaving before the scheduled run."
         );
 
-        MonthEndStatusOverview employeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
-        MonthEndStatusOverview leadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
-        MonthEndStatusOverview leadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
+        MonthEndStatusOverview employeeOverview = getMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH, Capacity.EMPLOYEE);
+        MonthEndStatusOverview leadAOverview = getMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH, Capacity.CONTROLLING);
+        MonthEndStatusOverview leadBOverview = getMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH, Capacity.CONTROLLING);
 
         List<MonthEndTask> employeeEligibleOpen = employeeOverview.tasks().stream()
                 .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(employee.id()))
@@ -409,7 +432,7 @@ class MonthEndTest {
                 .orElseThrow();
         completeMonthEndTaskUseCase.complete(preparedEmployeeTimeCheck.id(), employee.id());
 
-        MonthEndStatusOverview updatedEmployeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        MonthEndStatusOverview updatedEmployeeOverview = getMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH, Capacity.EMPLOYEE);
         List<MonthEndTask> updatedEligibleOpen = updatedEmployeeOverview.tasks().stream()
                 .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(employee.id()))
                 .toList();
@@ -540,9 +563,9 @@ class MonthEndTest {
                 "Please verify the remaining booking."
         );
 
-        MonthEndStatusOverview employeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
-        MonthEndStatusOverview leadAOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH);
-        MonthEndStatusOverview leadBOverview = getProjectLeadMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH);
+        MonthEndStatusOverview employeeOverview = getMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH, Capacity.EMPLOYEE);
+        MonthEndStatusOverview leadAOverview = getMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH, Capacity.CONTROLLING);
+        MonthEndStatusOverview leadBOverview = getMonthEndStatusOverviewUseCase.getOverview(leadB.id(), MONTH, Capacity.CONTROLLING);
 
         assertThat(employeeOverview.clarifications()).singleElement()
                 .satisfies(c -> assertThat(c.id()).isEqualTo(clarification.id()));
@@ -584,7 +607,7 @@ class MonthEndTest {
                 "Please update the supporting note before close."
         );
 
-        MonthEndStatusOverview employeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        MonthEndStatusOverview employeeOverview = getMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH, Capacity.EMPLOYEE);
         MonthEndTask employeeTimeCheck = employeeOverview.tasks().stream()
                 .filter(item -> item.type() == MonthEndTaskType.EMPLOYEE_TIME_CHECK)
                 .findFirst()
@@ -592,7 +615,7 @@ class MonthEndTest {
 
         completeMonthEndTaskUseCase.complete(employeeTimeCheck.id(), employee.id());
 
-        MonthEndStatusOverview updatedEmployeeOverview = getEmployeeMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH);
+        MonthEndStatusOverview updatedEmployeeOverview = getMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH, Capacity.EMPLOYEE);
         assertThat(updatedEmployeeOverview.clarifications()).singleElement()
                 .satisfies(c -> {
                     assertThat(c.id()).isEqualTo(clarification.id());

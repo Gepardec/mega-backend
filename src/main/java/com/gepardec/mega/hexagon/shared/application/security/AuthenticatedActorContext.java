@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.shared.application.security;
 
 import com.gepardec.mega.hexagon.shared.domain.model.AuthenticatedActor;
+import com.gepardec.mega.hexagon.shared.domain.model.Capacity;
 import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
@@ -52,6 +53,14 @@ public class AuthenticatedActorContext {
 
     public boolean hasRole(Role role) {
         return role != null && roles().contains(role);
+    }
+
+    public void requireCapacity(Capacity capacity) {
+        if (!hasRole(capacity.requiredRole())) {
+            throw new ForbiddenException(
+                    "User has insufficient role " + roles() + " for capacity " + capacity
+            );
+        }
     }
 
     private User resolveUser() {

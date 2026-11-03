@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndCompletionPolicy;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndScope;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
@@ -65,7 +66,14 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
-    public List<MonthEndTask> findEmployeeVisibleTasks(UserId employeeId, YearMonth month) {
+    public List<MonthEndTask> findTasks(YearMonth month, MonthEndScope scope) {
+        return switch (scope) {
+            case MonthEndScope.SubjectEmployee subject -> findSubjectEmployeeTasks(subject.actorId(), month);
+            case MonthEndScope.LedProjects led -> findLedProjectsTasks(led.actorId(), month);
+        };
+    }
+
+    private List<MonthEndTask> findSubjectEmployeeTasks(UserId employeeId, YearMonth month) {
         return panache.find(
                         "monthValue = ?1 and subjectEmployeeId = ?2",
                         toMonthValue(month),
@@ -76,8 +84,7 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
                 .toList();
     }
 
-    @Override
-    public List<MonthEndTask> findLeadProjectTasks(UserId leadId, YearMonth month) {
+    private List<MonthEndTask> findLedProjectsTasks(UserId leadId, YearMonth month) {
         return panache.find(
                         "select task from MonthEndTaskEntity task " +
                                 "where task.monthValue = ?1 " +

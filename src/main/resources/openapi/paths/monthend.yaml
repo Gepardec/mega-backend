@@ -1,75 +1,37 @@
-'/monthend/payroll-month/employee':
+'/monthend/payroll-month':
   get:
     tags:
       - MonthEnd
-    operationId: getEmployeePayrollMonth
-    summary: Get the authenticated actor's employee payroll month
-    security:
-      - bearerAuth: [ ]
-    responses:
-      '200':
-        description: Employee payroll month
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/shared.yaml#/MonthValue'
-      '403':
-        $ref: '../responses/common.yaml#/Forbidden'
-      '500':
-        $ref: '../responses/common.yaml#/InternalServerError'
-'/monthend/payroll-month/project-lead':
-  get:
-    tags:
-      - MonthEnd
-    operationId: getProjectLeadPayrollMonth
-    summary: Get the authenticated actor's project-lead payroll month
-    security:
-      - bearerAuth: [ ]
-    responses:
-      '200':
-        description: Project-lead payroll month
-        content:
-          application/json:
-            schema:
-              $ref: '../schemas/shared.yaml#/MonthValue'
-      '403':
-        $ref: '../responses/common.yaml#/Forbidden'
-      '500':
-        $ref: '../responses/common.yaml#/InternalServerError'
-'/monthend/{month}/status-overview/employee':
-  get:
-    tags:
-      - MonthEnd
-    operationId: getEmployeeMonthEndStatusOverview
-    summary: Get the authenticated actor's employee month-end status overview
+    operationId: getPayrollMonth
+    summary: Get the authenticated actor's payroll month in the requested capacity
     security:
       - bearerAuth: [ ]
     parameters:
-      - name: month
-        in: path
+      - name: capacity
+        in: query
         required: true
-        description: Month-end context in yyyy-MM format.
+        description: The capacity the payroll month is resolved for.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          $ref: '../schemas/shared.yaml#/Capacity'
     responses:
       '200':
-        description: Employee month-end status overview
+        description: Payroll month
         content:
           application/json:
             schema:
-              $ref: '../schemas/monthend.yaml#/MonthEndStatusOverview'
+              $ref: '../schemas/shared.yaml#/MonthValue'
       '400':
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
-'/monthend/{month}/status-overview/project-lead':
+'/monthend/{month}/status-overview':
   get:
     tags:
       - MonthEnd
-    operationId: getProjectLeadMonthEndStatusOverview
-    summary: Get the authenticated actor's project-lead month-end status overview
+    operationId: getMonthEndStatusOverview
+    summary: Get the authenticated actor's month-end status overview in the requested capacity
     security:
       - bearerAuth: [ ]
     parameters:
@@ -79,9 +41,15 @@
         description: Month-end context in yyyy-MM format.
         schema:
           $ref: '../schemas/shared.yaml#/MonthValue'
+      - name: capacity
+        in: query
+        required: true
+        description: The capacity the overview is read in.
+        schema:
+          $ref: '../schemas/shared.yaml#/Capacity'
     responses:
       '200':
-        description: Project-lead month-end status overview
+        description: Month-end status overview
         content:
           application/json:
             schema:

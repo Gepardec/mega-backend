@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.shared.application.security;
 
 import com.gepardec.mega.hexagon.shared.domain.model.AuthenticatedActor;
+import com.gepardec.mega.hexagon.shared.domain.model.Capacity;
 import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
@@ -22,6 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -104,7 +106,42 @@ class AuthenticatedActorContextTest {
                 .hasMessageContaining("actor not found");
     }
 
+    @Test
+    void requireCapacity_shouldAcceptBothCapacitiesForProjectLead() {
+        stubUserWithRoles(Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+
+        assertThatCode(() -> authenticatedActorContext.requireCapacity(Capacity.EMPLOYEE)).doesNotThrowAnyException();
+        assertThatCode(() -> authenticatedActorContext.requireCapacity(Capacity.CONTROLLING)).doesNotThrowAnyException();
+    }
+
+    @Test
+    void requireCapacity_shouldAcceptEmployeeCapacityForPlainEmployee() {
+        stubUserWithRoles(Set.of(Role.EMPLOYEE));
+
+        assertThatCode(() -> authenticatedActorContext.requireCapacity(Capacity.EMPLOYEE)).doesNotThrowAnyException();
+    }
+
+    @Test
+    void requireCapacity_shouldRejectControllingCapacityForPlainEmployee() {
+        stubUserWithRoles(Set.of(Role.EMPLOYEE));
+
+        assertThatThrownBy(() -> authenticatedActorContext.requireCapacity(Capacity.CONTROLLING))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessageContaining("CONTROLLING");
+    }
+
+    private void stubUserWithRoles(Set<Role> roles) {
+        when(emailClaim.getValue()).thenReturn(EMAIL);
+        when(userRepository.findByEmail(Email.of(EMAIL))).thenReturn(Optional.of(
+                user(UserId.of(Instancio.create(UUID.class)), EMAIL, roles)
+        ));
+    }
+
     private User user(UserId actorId, String email) {
+        return user(actorId, email, Set.of(Role.EMPLOYEE));
+    }
+
+    private User user(UserId actorId, String email, Set<Role> roles) {
         return new User(
                 actorId,
                 Email.of(email),
@@ -112,7 +149,7 @@ class AuthenticatedActorContextTest {
                 ZepUsername.of("ada"),
                 null,
                 EmploymentPeriods.empty(),
-                Set.of(Role.EMPLOYEE)
+                roles
         );
     }
 }

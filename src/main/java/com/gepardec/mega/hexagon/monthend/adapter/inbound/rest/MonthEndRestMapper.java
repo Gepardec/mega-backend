@@ -14,6 +14,7 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskGenerationRes
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.shared.adapter.inbound.rest.SharedRefRestMapper;
+import com.gepardec.mega.hexagon.shared.domain.model.Capacity;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
@@ -57,23 +58,26 @@ public interface MonthEndRestMapper {
             MonthEndTask task,
             @Context Map<ProjectId, ProjectRef> projectRefs,
             @Context Map<UserId, UserRef> userRefs,
-            @Context UserId actorId
+            @Context UserId actorId,
+            @Context Capacity capacity
     );
 
     @AfterMapping
     default void enrichTaskEntry(
             MonthEndTask task,
             @MappingTarget MonthEndStatusOverviewEntryDto entry,
-            @Context UserId actorId
+            @Context UserId actorId,
+            @Context Capacity capacity
     ) {
-        entry.canComplete(task.canBeCompletedBy(actorId));
+        entry.canComplete(task.isCompletableIn(capacity, actorId));
     }
 
     MonthEndStatusOverviewDto toDto(
             MonthEndStatusOverview overview,
             @Context Map<ProjectId, ProjectRef> projectRefs,
             @Context Map<UserId, UserRef> userRefs,
-            @Context UserId actorId
+            @Context UserId actorId,
+            @Context Capacity capacity
     );
 
     @Mapping(target = "clarificationId", source = "id")

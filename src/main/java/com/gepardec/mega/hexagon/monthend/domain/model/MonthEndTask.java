@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.monthend.domain.model;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
 import com.gepardec.mega.hexagon.shared.domain.SystemActor;
+import com.gepardec.mega.hexagon.shared.domain.model.Capacity;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
@@ -106,6 +107,10 @@ public record MonthEndTask(
 
     public boolean canBeCompletedBy(UserId actorId) {
         return eligibleActorIds.contains(actorId);
+    }
+
+    public boolean isCompletableIn(Capacity capacity, UserId actorId) {
+        return canBeCompletedBy(actorId) && type.dutyOf() == capacity;
     }
 
     public MonthEndTaskKey businessKey() {

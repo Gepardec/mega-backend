@@ -11,6 +11,7 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.shared.adapter.inbound.rest.SharedRefRestMapper;
 import com.gepardec.mega.hexagon.shared.domain.SystemActor;
+import com.gepardec.mega.hexagon.shared.domain.model.Capacity;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
@@ -100,7 +101,8 @@ class MonthEndRestMapperTest {
                 overview,
                 Map.of(projectId, projectRef()),
                 userRefs,
-                employeeId
+                employeeId,
+                Capacity.EMPLOYEE
         );
 
         assertThat(response.getMonth()).isEqualTo("2026-03");
@@ -145,11 +147,41 @@ class MonthEndRestMapperTest {
                 overview,
                 Map.of(projectId, projectRef()),
                 Map.of(),
-                employeeId
+                employeeId,
+                Capacity.EMPLOYEE
         );
 
         assertThat(response.getTasks()).singleElement()
                 .satisfies(entry -> assertThat(entry.getCanComplete()).isFalse());
+    }
+
+    @Test
+    void toDto_shouldMapSelfReviewCanCompleteByCapacity() {
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(
+                leadId,
+                month,
+                List.of(MonthEndTask.create(
+                        MonthEndTaskId.of(Instancio.create(UUID.class)),
+                        month,
+                        MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        projectId,
+                        leadId,
+                        Set.of(leadId)
+                )),
+                List.of()
+        );
+
+        MonthEndStatusOverviewDto employeeView = mapper.toDto(
+                overview, Map.of(projectId, projectRef()), Map.of(), leadId, Capacity.EMPLOYEE
+        );
+        MonthEndStatusOverviewDto leadView = mapper.toDto(
+                overview, Map.of(projectId, projectRef()), Map.of(), leadId, Capacity.CONTROLLING
+        );
+
+        assertThat(employeeView.getTasks()).singleElement()
+                .satisfies(entry -> assertThat(entry.getCanComplete()).isFalse());
+        assertThat(leadView.getTasks()).singleElement()
+                .satisfies(entry -> assertThat(entry.getCanComplete()).isTrue());
     }
 
     @Test
@@ -172,7 +204,8 @@ class MonthEndRestMapperTest {
                 overview,
                 Map.of(projectId, projectRef()),
                 Map.of(),
-                employeeId
+                employeeId,
+                Capacity.CONTROLLING
         );
 
         assertThat(response.getTasks()).singleElement()

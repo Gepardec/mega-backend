@@ -1,5 +1,6 @@
 package com.gepardec.mega.hexagon.monthend.adapter.outbound;
 
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndScope;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
@@ -85,7 +86,7 @@ class MonthEndTaskRepositoryAdapterTest {
     }
 
     @Test
-    void findEmployeeVisibleTasks_shouldReturnOnlyTasksWhereEmployeeIsSubject() {
+    void findTasks_subjectEmployeeScope_shouldReturnOnlyTasksWhereEmployeeIsSubject() {
         YearMonth month = YearMonth.of(2026, 3);
         User employee = user("employee-visible", Set.of(Role.EMPLOYEE));
         User leadA = user("lead-visible-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
@@ -121,7 +122,7 @@ class MonthEndTaskRepositoryAdapterTest {
         );
         monthEndTaskRepositoryAdapter.saveAll(List.of(subjectOnlyTask, subjectAndEligibleTask, abrechnungTask));
 
-        List<MonthEndTask> tasks = monthEndTaskRepositoryAdapter.findEmployeeVisibleTasks(employee.id(), month);
+        List<MonthEndTask> tasks = monthEndTaskRepositoryAdapter.findTasks(month, new MonthEndScope.SubjectEmployee(employee.id()));
 
         assertThat(tasks).containsExactlyInAnyOrder(subjectOnlyTask, subjectAndEligibleTask);
     }
@@ -169,7 +170,7 @@ class MonthEndTaskRepositoryAdapterTest {
     }
 
     @Test
-    void findLeadProjectTasks_shouldNotReturnTasksFromProjectsWhereLeadIsOnlyAnEmployee() {
+    void findTasks_ledProjectsScope_shouldNotReturnTasksFromProjectsWhereLeadIsOnlyAnEmployee() {
         YearMonth month = YearMonth.of(2026, 3);
         User lead = user("lead-emp-only", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
         User otherLead = user("other-lead-emp", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
@@ -196,13 +197,13 @@ class MonthEndTaskRepositoryAdapterTest {
         );
         monthEndTaskRepositoryAdapter.saveAll(List.of(ledPlr, ownEtc, otherLeadPlr));
 
-        List<MonthEndTask> result = monthEndTaskRepositoryAdapter.findLeadProjectTasks(lead.id(), month);
+        List<MonthEndTask> result = monthEndTaskRepositoryAdapter.findTasks(month, new MonthEndScope.LedProjects(lead.id()));
 
         assertThat(result).containsExactly(ledPlr);
     }
 
     @Test
-    void findLeadProjectTasks_shouldReturnAllTasksForProjectsTheLeadLeads() {
+    void findTasks_ledProjectsScope_shouldReturnAllTasksForProjectsTheLeadLeads() {
         YearMonth month = YearMonth.of(2026, 3);
         User employee = user("emp-lead-proj", Set.of(Role.EMPLOYEE));
         User lead = user("lead-proj", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
@@ -231,7 +232,7 @@ class MonthEndTaskRepositoryAdapterTest {
         );
         monthEndTaskRepositoryAdapter.saveAll(List.of(etcTask, plrTask, abrechnungTask, unledTask));
 
-        List<MonthEndTask> result = monthEndTaskRepositoryAdapter.findLeadProjectTasks(lead.id(), month);
+        List<MonthEndTask> result = monthEndTaskRepositoryAdapter.findTasks(month, new MonthEndScope.LedProjects(lead.id()));
 
         assertThat(result).containsExactlyInAnyOrder(etcTask, plrTask, abrechnungTask);
     }

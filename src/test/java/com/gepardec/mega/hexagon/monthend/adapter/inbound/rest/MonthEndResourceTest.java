@@ -17,10 +17,8 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteMonth
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CompleteProjectLeadMonthEndTasksUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.DeleteMonthEndClarificationUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeeMonthEndStatusOverviewUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetEmployeePayrollMonthUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadMonthEndStatusOverviewUseCase;
-import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetProjectLeadPayrollMonthUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetMonthEndStatusOverviewUseCase;
+import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetPayrollMonthUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectSnapshotPort;
@@ -39,6 +37,8 @@ import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskStatus;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskType;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
+import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
+import com.gepardec.mega.hexagon.shared.domain.model.Capacity;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
@@ -51,6 +51,8 @@ import io.restassured.http.ContentType;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.Instant;
 import java.time.YearMonth;
@@ -72,6 +74,7 @@ import static org.mockito.Mockito.when;
 @TestSecurity(user = "test")
 class MonthEndResourceTest {
 
+    private static final int UNKNOWN_CAPACITY_STATUS = 404;
     private static final YearMonth MONTH = YearMonth.of(2026, 3);
     private static final YearMonth PREVIOUS_PAYROLL_MONTH = YearMonth.of(2026, 2);
     private static final YearMonth CURRENT_PAYROLL_MONTH = YearMonth.of(2026, 3);
@@ -87,16 +90,10 @@ class MonthEndResourceTest {
     AuthenticatedActorContext authenticatedActorContext;
 
     @InjectMock
-    GetEmployeePayrollMonthUseCase getEmployeePayrollMonthUseCase;
+    GetPayrollMonthUseCase getPayrollMonthUseCase;
 
     @InjectMock
-    GetProjectLeadPayrollMonthUseCase getProjectLeadPayrollMonthUseCase;
-
-    @InjectMock
-    GetEmployeeMonthEndStatusOverviewUseCase getEmployeeMonthEndStatusOverviewUseCase;
-
-    @InjectMock
-    GetProjectLeadMonthEndStatusOverviewUseCase getProjectLeadMonthEndStatusOverviewUseCase;
+    GetMonthEndStatusOverviewUseCase getMonthEndStatusOverviewUseCase;
 
     @InjectMock
     PrematureMonthEndPreparationUseCase prematureMonthEndPreparationUseCase;
@@ -137,71 +134,113 @@ class MonthEndResourceTest {
     }
 
     @Test
-    void getEmployeePayrollMonth_shouldReturnPreviousMonthForEmployeeWithOpenTasks() {
+    void getPayrollMonth_shouldReturnPreviousMonthInEmployeeCapacity() {
         allowRoles(Role.EMPLOYEE);
-        when(getEmployeePayrollMonthUseCase.getPayrollMonth(EMPLOYEE_ID)).thenReturn(PREVIOUS_PAYROLL_MONTH);
+        when(getPayrollMonthUseCase.getPayrollMonth(EMPLOYEE_ID, Capacity.EMPLOYEE)).thenReturn(PREVIOUS_PAYROLL_MONTH);
 
         YearMonth response = given()
-                .get("/monthend/payroll-month/employee")
+                .queryParam("capacity", "EMPLOYEE")
+                .get("/monthend/payroll-month")
                 .then()
                 .statusCode(200)
                 .extract()
                 .as(YearMonth.class);
 
         assertThat(response).isEqualTo(PREVIOUS_PAYROLL_MONTH);
-        verify(getEmployeePayrollMonthUseCase).getPayrollMonth(EMPLOYEE_ID);
-        verifyNoInteractions(getProjectLeadPayrollMonthUseCase);
+        verify(getPayrollMonthUseCase).getPayrollMonth(EMPLOYEE_ID, Capacity.EMPLOYEE);
     }
 
     @Test
-    void getEmployeePayrollMonth_shouldReturnCurrentMonthForEmployeeWithoutOpenTasks() {
+    void getPayrollMonth_shouldReturnCurrentMonthInEmployeeCapacity() {
         allowRoles(Role.EMPLOYEE);
-        when(getEmployeePayrollMonthUseCase.getPayrollMonth(EMPLOYEE_ID)).thenReturn(CURRENT_PAYROLL_MONTH);
+        when(getPayrollMonthUseCase.getPayrollMonth(EMPLOYEE_ID, Capacity.EMPLOYEE)).thenReturn(CURRENT_PAYROLL_MONTH);
 
         YearMonth response = given()
-                .get("/monthend/payroll-month/employee")
+                .queryParam("capacity", "EMPLOYEE")
+                .get("/monthend/payroll-month")
                 .then()
                 .statusCode(200)
                 .extract()
                 .as(YearMonth.class);
 
         assertThat(response).isEqualTo(CURRENT_PAYROLL_MONTH);
-        verify(getEmployeePayrollMonthUseCase).getPayrollMonth(EMPLOYEE_ID);
-        verifyNoInteractions(getProjectLeadPayrollMonthUseCase);
     }
 
     @Test
-    void getProjectLeadPayrollMonth_shouldReturnPreviousMonthForProjectLead() {
+    void getPayrollMonth_shouldServeProjectLeadInBothCapacities() {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
-        when(getProjectLeadPayrollMonthUseCase.getPayrollMonth(PROJECT_LEAD_ID)).thenReturn(PREVIOUS_PAYROLL_MONTH);
+        when(getPayrollMonthUseCase.getPayrollMonth(PROJECT_LEAD_ID, Capacity.CONTROLLING)).thenReturn(PREVIOUS_PAYROLL_MONTH);
+        when(getPayrollMonthUseCase.getPayrollMonth(PROJECT_LEAD_ID, Capacity.EMPLOYEE)).thenReturn(CURRENT_PAYROLL_MONTH);
 
-        YearMonth response = given()
-                .get("/monthend/payroll-month/project-lead")
+        YearMonth leadResponse = given()
+                .queryParam("capacity", "CONTROLLING")
+                .get("/monthend/payroll-month")
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(YearMonth.class);
+        YearMonth employeeResponse = given()
+                .queryParam("capacity", "EMPLOYEE")
+                .get("/monthend/payroll-month")
                 .then()
                 .statusCode(200)
                 .extract()
                 .as(YearMonth.class);
 
-        assertThat(response).isEqualTo(PREVIOUS_PAYROLL_MONTH);
-        verify(getProjectLeadPayrollMonthUseCase).getPayrollMonth(PROJECT_LEAD_ID);
-        verifyNoInteractions(getEmployeePayrollMonthUseCase);
+        assertThat(leadResponse).isEqualTo(PREVIOUS_PAYROLL_MONTH);
+        assertThat(employeeResponse).isEqualTo(CURRENT_PAYROLL_MONTH);
     }
 
     @Test
-    void getProjectLeadPayrollMonth_shouldRejectEmployeeWithoutProjectLeadRole() {
+    void getPayrollMonth_shouldRejectControllingCapacityWithoutProjectLeadRole() {
         allowRoles(Role.EMPLOYEE);
 
         given()
-                .get("/monthend/payroll-month/project-lead")
+                .queryParam("capacity", "CONTROLLING")
+                .get("/monthend/payroll-month")
                 .then()
                 .statusCode(403);
 
-        verifyNoInteractions(getProjectLeadPayrollMonthUseCase);
+        verifyNoInteractions(getPayrollMonthUseCase);
     }
 
     @Test
-    void getEmployeeMonthEndStatusOverview_shouldReturnMappedOverviewForEmployeeRole() {
+    void getPayrollMonth_shouldRejectMissingCapacity() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .get("/monthend/payroll-month")
+                .then()
+                .statusCode(400);
+
+        verifyNoInteractions(getPayrollMonthUseCase);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"MANAGER", "PROJECT_LEAD"})
+    void getPayrollMonth_shouldRejectUnknownCapacityWithClientError(String capacity) {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .queryParam("capacity", capacity)
+                .get("/monthend/payroll-month")
+                .then()
+                .statusCode(UNKNOWN_CAPACITY_STATUS);
+
+        verifyNoInteractions(getPayrollMonthUseCase);
+    }
+
+    @Test
+    void getPayrollMonth_shouldNotServeRemovedRoleSuffixedPaths() {
+        allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
+
+        given().get("/monthend/payroll-month/employee").then().statusCode(404);
+        given().get("/monthend/payroll-month/project-lead").then().statusCode(404);
+    }
+
+    @Test
+    void getMonthEndStatusOverview_shouldReturnMappedOverviewInEmployeeCapacity() {
         allowRoles(Role.EMPLOYEE);
         MonthEndClarification clarification = projectLeadClarification("Please revisit the supporting evidence.");
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
@@ -217,11 +256,12 @@ class MonthEndResourceTest {
                 )),
                 List.of(clarification)
         );
-        when(getEmployeeMonthEndStatusOverviewUseCase.getOverview(EMPLOYEE_ID, MONTH)).thenReturn(overview);
+        when(getMonthEndStatusOverviewUseCase.getOverview(EMPLOYEE_ID, MONTH, Capacity.EMPLOYEE)).thenReturn(overview);
 
         MonthEndStatusOverviewDto response = given()
                 .accept(ContentType.JSON)
-                .get("/monthend/{month}/status-overview/employee", MONTH.toString())
+                .queryParam("capacity", "EMPLOYEE")
+                .get("/monthend/{month}/status-overview", MONTH.toString())
                 .then()
                 .statusCode(200)
                 .extract()
@@ -241,12 +281,11 @@ class MonthEndResourceTest {
             assertThat(clarificationEntry.getCanEditText()).isFalse();
             assertThat(clarificationEntry.getCanDelete()).isFalse();
         });
-        verify(getEmployeeMonthEndStatusOverviewUseCase).getOverview(EMPLOYEE_ID, MONTH);
-        verifyNoInteractions(getProjectLeadMonthEndStatusOverviewUseCase);
+        verify(getMonthEndStatusOverviewUseCase).getOverview(EMPLOYEE_ID, MONTH, Capacity.EMPLOYEE);
     }
 
     @Test
-    void getEmployeeMonthEndStatusOverview_shouldSendExplicitNullCompletedByForOpenTask() {
+    void getMonthEndStatusOverview_shouldSendExplicitNullCompletedByForOpenTask() {
         allowRoles(Role.EMPLOYEE);
         MonthEndStatusOverview overview = new MonthEndStatusOverview(
                 EMPLOYEE_ID,
@@ -261,11 +300,12 @@ class MonthEndResourceTest {
                 )),
                 List.of()
         );
-        when(getEmployeeMonthEndStatusOverviewUseCase.getOverview(EMPLOYEE_ID, MONTH)).thenReturn(overview);
+        when(getMonthEndStatusOverviewUseCase.getOverview(EMPLOYEE_ID, MONTH, Capacity.EMPLOYEE)).thenReturn(overview);
 
         Map<String, Object> entry = given()
                 .accept(ContentType.JSON)
-                .get("/monthend/{month}/status-overview/employee", MONTH.toString())
+                .queryParam("capacity", "EMPLOYEE")
+                .get("/monthend/{month}/status-overview", MONTH.toString())
                 .then()
                 .statusCode(200)
                 .extract()
@@ -278,7 +318,7 @@ class MonthEndResourceTest {
     }
 
     @Test
-    void getEmployeeMonthEndStatusOverview_shouldReturnEmployeeViewForProjectLead() {
+    void getMonthEndStatusOverview_shouldReturnEmployeeCapacityViewForProjectLead() {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         MonthEndClarification clarification = leadSelfProjectLevelClarification("Own employee-page clarification.");
@@ -295,11 +335,12 @@ class MonthEndResourceTest {
                 )),
                 List.of(clarification)
         );
-        when(getEmployeeMonthEndStatusOverviewUseCase.getOverview(PROJECT_LEAD_ID, MONTH)).thenReturn(overview);
+        when(getMonthEndStatusOverviewUseCase.getOverview(PROJECT_LEAD_ID, MONTH, Capacity.EMPLOYEE)).thenReturn(overview);
 
         MonthEndStatusOverviewDto response = given()
                 .accept(ContentType.JSON)
-                .get("/monthend/{month}/status-overview/employee", MONTH.toString())
+                .queryParam("capacity", "EMPLOYEE")
+                .get("/monthend/{month}/status-overview", MONTH.toString())
                 .then()
                 .statusCode(200)
                 .extract()
@@ -315,12 +356,11 @@ class MonthEndResourceTest {
             assertThat(clarificationEntry.getSubjectEmployee()).isNull();
             assertThat(clarificationEntry.getCreatedBy().getId()).isEqualTo(PROJECT_LEAD_ID.value());
         });
-        verify(getEmployeeMonthEndStatusOverviewUseCase).getOverview(PROJECT_LEAD_ID, MONTH);
-        verifyNoInteractions(getProjectLeadMonthEndStatusOverviewUseCase);
+        verify(getMonthEndStatusOverviewUseCase).getOverview(PROJECT_LEAD_ID, MONTH, Capacity.EMPLOYEE);
     }
 
     @Test
-    void getProjectLeadMonthEndStatusOverview_shouldReturnMappedOverviewForLeadRole() {
+    void getMonthEndStatusOverview_shouldReturnMappedOverviewInControllingCapacity() {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         MonthEndClarification resolvedClarification = employeeClarification("Everything is clarified.")
@@ -338,11 +378,12 @@ class MonthEndResourceTest {
                 )),
                 List.of(resolvedClarification)
         );
-        when(getProjectLeadMonthEndStatusOverviewUseCase.getOverview(PROJECT_LEAD_ID, MONTH)).thenReturn(overview);
+        when(getMonthEndStatusOverviewUseCase.getOverview(PROJECT_LEAD_ID, MONTH, Capacity.CONTROLLING)).thenReturn(overview);
 
         MonthEndStatusOverviewDto response = given()
                 .accept(ContentType.JSON)
-                .get("/monthend/{month}/status-overview/project-lead", MONTH.toString())
+                .queryParam("capacity", "CONTROLLING")
+                .get("/monthend/{month}/status-overview", MONTH.toString())
                 .then()
                 .statusCode(200)
                 .extract()
@@ -362,21 +403,108 @@ class MonthEndResourceTest {
             assertThat(clarificationEntry.getCanEditText()).isFalse();
             assertThat(clarificationEntry.getCanDelete()).isFalse();
         });
-        verify(getProjectLeadMonthEndStatusOverviewUseCase).getOverview(PROJECT_LEAD_ID, MONTH);
-        verifyNoInteractions(getEmployeeMonthEndStatusOverviewUseCase);
+        verify(getMonthEndStatusOverviewUseCase).getOverview(PROJECT_LEAD_ID, MONTH, Capacity.CONTROLLING);
     }
 
     @Test
-    void getProjectLeadMonthEndStatusOverview_shouldRejectEmployeeRole() {
+    void getMonthEndStatusOverview_shouldOfferLeadsOwnReviewOnlyInControllingCapacity() {
+        allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
+        MonthEndTask ownReview = MonthEndTask.create(
+                MonthEndTaskId.of(Instancio.create(UUID.class)),
+                MONTH,
+                MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                PROJECT_ID,
+                PROJECT_LEAD_ID,
+                Set.of(PROJECT_LEAD_ID)
+        );
+        MonthEndStatusOverview overview = new MonthEndStatusOverview(PROJECT_LEAD_ID, MONTH, List.of(ownReview), List.of());
+        when(getMonthEndStatusOverviewUseCase.getOverview(PROJECT_LEAD_ID, MONTH, Capacity.EMPLOYEE)).thenReturn(overview);
+        when(getMonthEndStatusOverviewUseCase.getOverview(PROJECT_LEAD_ID, MONTH, Capacity.CONTROLLING)).thenReturn(overview);
+
+        MonthEndStatusOverviewDto employeeView = given()
+                .accept(ContentType.JSON)
+                .queryParam("capacity", "EMPLOYEE")
+                .get("/monthend/{month}/status-overview", MONTH.toString())
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(MonthEndStatusOverviewDto.class);
+        MonthEndStatusOverviewDto leadView = given()
+                .accept(ContentType.JSON)
+                .queryParam("capacity", "CONTROLLING")
+                .get("/monthend/{month}/status-overview", MONTH.toString())
+                .then()
+                .statusCode(200)
+                .extract()
+                .as(MonthEndStatusOverviewDto.class);
+
+        assertThat(employeeView.getTasks()).singleElement().satisfies(entry -> assertThat(entry.getCanComplete()).isFalse());
+        assertThat(leadView.getTasks()).singleElement().satisfies(entry -> assertThat(entry.getCanComplete()).isTrue());
+    }
+
+    @Test
+    void getMonthEndStatusOverview_shouldRejectControllingCapacityWithoutProjectLeadRole() {
         allowRoles(Role.EMPLOYEE);
 
         given()
                 .accept(ContentType.JSON)
-                .get("/monthend/{month}/status-overview/project-lead", MONTH.toString())
+                .queryParam("capacity", "CONTROLLING")
+                .get("/monthend/{month}/status-overview", MONTH.toString())
                 .then()
                 .statusCode(403);
 
-        verifyNoInteractions(getProjectLeadMonthEndStatusOverviewUseCase);
+        verifyNoInteractions(getMonthEndStatusOverviewUseCase);
+    }
+
+    @Test
+    void getMonthEndStatusOverview_shouldRejectMissingCapacity() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .accept(ContentType.JSON)
+                .get("/monthend/{month}/status-overview", MONTH.toString())
+                .then()
+                .statusCode(400);
+
+        verifyNoInteractions(getMonthEndStatusOverviewUseCase);
+    }
+
+    @Test
+    void getMonthEndStatusOverview_shouldRejectMalformedMonth() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .accept(ContentType.JSON)
+                .queryParam("capacity", "EMPLOYEE")
+                .get("/monthend/{month}/status-overview", "2026-13")
+                .then()
+                .statusCode(400);
+
+        verifyNoInteractions(getMonthEndStatusOverviewUseCase);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"MANAGER", "PROJECT_LEAD"})
+    void getMonthEndStatusOverview_shouldRejectUnknownCapacityWithClientError(String capacity) {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .accept(ContentType.JSON)
+                .queryParam("capacity", capacity)
+                .get("/monthend/{month}/status-overview", MONTH.toString())
+                .then()
+                .statusCode(UNKNOWN_CAPACITY_STATUS);
+
+        verifyNoInteractions(getMonthEndStatusOverviewUseCase);
+    }
+
+    @Test
+    void getMonthEndStatusOverview_shouldNotServeRemovedRoleSuffixedPaths() {
+        allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
+
+        given().get("/monthend/{month}/status-overview/employee", MONTH.toString()).then().statusCode(404);
+        given().get("/monthend/{month}/status-overview/project-lead", MONTH.toString()).then().statusCode(404);
     }
 
     @Test
@@ -939,7 +1067,14 @@ class MonthEndResourceTest {
     }
 
     private void allowRoles(Role... roles) {
-        when(authenticatedActorContext.roles()).thenReturn(Set.of(roles));
+        Set<Role> roleSet = Set.of(roles);
+        when(authenticatedActorContext.roles()).thenReturn(roleSet);
+        for (Capacity capacity : Capacity.values()) {
+            if (!roleSet.contains(capacity.requiredRole())) {
+                doThrow(new ForbiddenException("missing role for capacity " + capacity))
+                        .when(authenticatedActorContext).requireCapacity(capacity);
+            }
+        }
     }
 
     private MonthEndClarification employeeClarification(String text) {

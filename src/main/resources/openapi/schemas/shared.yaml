@@ -13,6 +13,16 @@ Role:
     - PROJECT_LEAD
     - ADMIN
     - SYSTEM
+Capacity:
+  type: string
+  description: >-
+    The capacity a caller acts in when reading data, named after the UI page it
+    serves. `EMPLOYEE` requires the employee role, `CONTROLLING` requires the
+    project-lead role. Capacity shapes reads only and is never accepted by
+    commands.
+  enum:
+    - EMPLOYEE
+    - CONTROLLING
 ApiError:
   type: object
   additionalProperties: false

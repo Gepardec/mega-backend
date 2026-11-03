@@ -21,14 +21,10 @@ tags:
   - name: Project
     description: Project endpoints for leistungsnachweis
 paths:
-  /monthend/payroll-month/employee:
-    $ref: './paths/monthend.yaml#/~1monthend~1payroll-month~1employee'
-  /monthend/payroll-month/project-lead:
-    $ref: './paths/monthend.yaml#/~1monthend~1payroll-month~1project-lead'
-  /monthend/{month}/status-overview/employee:
-    $ref: './paths/monthend.yaml#/~1monthend~1{month}~1status-overview~1employee'
-  /monthend/{month}/status-overview/project-lead:
-    $ref: './paths/monthend.yaml#/~1monthend~1{month}~1status-overview~1project-lead'
+  /monthend/payroll-month:
+    $ref: './paths/monthend.yaml#/~1monthend~1payroll-month'
+  /monthend/{month}/status-overview:
+    $ref: './paths/monthend.yaml#/~1monthend~1{month}~1status-overview'
   /monthend/generate-prematurely:
     $ref: './paths/monthend.yaml#/~1monthend~1generate-prematurely'
   /monthend/clarifications:

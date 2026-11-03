@@ -177,28 +177,6 @@ The system SHALL treat clarification subtasks as independent from the generated 
 - **THEN** the generated task completes successfully
 - **THEN** the clarification remains open until it is resolved through the clarification flow
 
-### Requirement: Clarification repository supports full-status queries for actor-scoped month-end overviews
-The system SHALL provide two additional repository query methods that return all clarifications for an actor's scope for a given month, regardless of clarification status:
-
-- `findAllEmployeeClarifications(UserId employeeId, YearMonth month)`: returns all `MonthEndClarification` records where the employee is the `subjectEmployeeId` for that month, including both `OPEN` and `DONE`.
-- `findAllProjectLeadClarifications(UserId leadId, YearMonth month)`: returns all `MonthEndClarification` records for projects the lead leads for that month, including both `OPEN` and `DONE`.
-
-#### Scenario: findAllEmployeeClarifications returns open and done clarifications
-- **WHEN** `findAllEmployeeClarifications` is called for an employee who has both open and done clarifications as subject employee in that month
-- **THEN** both open and done clarifications are returned
-
-#### Scenario: findAllEmployeeClarifications excludes clarifications from other months
-- **WHEN** `findAllEmployeeClarifications` is called for a given month
-- **THEN** clarifications from other months are not returned
-
-#### Scenario: findAllProjectLeadClarifications returns clarifications for all led projects
-- **WHEN** `findAllProjectLeadClarifications` is called for a lead who leads multiple projects
-- **THEN** clarifications for all those projects are returned, regardless of status
-
-#### Scenario: findAllProjectLeadClarifications excludes clarifications from projects the lead does not lead
-- **WHEN** `findAllProjectLeadClarifications` is called
-- **THEN** clarifications from projects where the lead has no eligible-actor role are not returned
-
 ### Requirement: ZEP mail processing failure fires ZepMailProcessingFailedEvent
 The system SHALL define `ZepMailProcessingFailedEvent` in `hexagon/monthend/domain/event/`. The event SHALL carry the creator `UserId` (optional, populated when the creator could be resolved), creator email (optional), error message, and raw mail content (subject + HTML body). The event SHALL be a Java record.
 
@@ -242,3 +220,25 @@ Events are fired by the application service layer (not the domain model itself) 
 #### Scenario: ZEP mail processing failure fires ZepMailProcessingFailedEvent
 - **WHEN** `CreateClarificationFromZepMailService` fails to process a ZEP mail
 - **THEN** a `ZepMailProcessingFailedEvent` is fired via CDI (see `ZEP mail processing failure fires ZepMailProcessingFailedEvent` requirement for full contract)
+
+### Requirement: Clarification overview query is scoped by capacity
+The system SHALL provide a repository query that returns all clarifications in a capacity scope for a given month, regardless of clarification status:
+
+- **Employee capacity scope**: all `MonthEndClarification` records where the actor is the `subjectEmployeeId` for that month, including both `OPEN` and `DONE`.
+- **Controlling capacity scope**: all `MonthEndClarification` records for projects the actor leads for that month, including both `OPEN` and `DONE`.
+
+#### Scenario: Employee capacity scope returns open and done clarifications
+- **WHEN** clarifications are queried in the employee capacity scope for an actor who has both open and done clarifications as subject employee in that month
+- **THEN** both open and done clarifications are returned
+
+#### Scenario: Employee capacity scope excludes clarifications from other months
+- **WHEN** clarifications are queried in the employee capacity scope for a given month
+- **THEN** clarifications from other months are not returned
+
+#### Scenario: Controlling capacity scope returns clarifications for all led projects
+- **WHEN** clarifications are queried in the controlling capacity scope for a lead who leads multiple projects
+- **THEN** clarifications for all those projects are returned, regardless of status
+
+#### Scenario: Controlling capacity scope excludes clarifications from projects the lead does not lead
+- **WHEN** clarifications are queried in the controlling capacity scope
+- **THEN** clarifications from projects where the lead has no eligible-actor role are not returned
