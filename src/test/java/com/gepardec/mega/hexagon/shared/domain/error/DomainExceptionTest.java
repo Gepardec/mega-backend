@@ -8,13 +8,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class DomainExceptionTest {
 
     @Test
-    void constructor_shouldExposeCodeCategoryAndMessage() {
+    void constructor_shouldExposeErrorCodeAndMessage() {
         // When
         DomainException exception = new SampleException("sample failed");
 
         // Then
-        assertThat(exception.code()).isEqualTo("SAMPLE_FAILED");
-        assertThat(exception.category()).isEqualTo(ErrorCategory.INVALID);
+        assertThat(exception.errorCode()).isEqualTo(SampleErrorCode.FAILED);
         assertThat(exception).hasMessage("sample failed");
     }
 
@@ -27,8 +26,7 @@ class DomainExceptionTest {
         DomainException exception = new SampleException("sample failed", cause);
 
         // Then
-        assertThat(exception.code()).isEqualTo("SAMPLE_FAILED");
-        assertThat(exception.category()).isEqualTo(ErrorCategory.INVALID);
+        assertThat(exception.errorCode()).isEqualTo(SampleErrorCode.FAILED);
         assertThat(exception).hasCause(cause);
     }
 

@@ -19,12 +19,4 @@ public abstract class DomainException extends RuntimeException {
     public ErrorCode errorCode() {
         return errorCode;
     }
-
-    public String code() {
-        return errorCode.code();
-    }
-
-    public ErrorCategory category() {
-        return errorCode.category();
-    }
 }
