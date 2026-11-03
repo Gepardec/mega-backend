@@ -4,6 +4,8 @@ import com.gepardec.mega.hexagon.generated.model.ApiErrorDto;
 import com.gepardec.mega.hexagon.generated.model.WorkTimeReportDto;
 import com.gepardec.mega.hexagon.generated.model.WorkTimeWarningDto;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
+import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
+import com.gepardec.mega.hexagon.shared.domain.model.Capacity;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectRef;
@@ -12,8 +14,7 @@ import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserRef;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWarningsUseCase;
-import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetEmployeeWorkTimeUseCase;
-import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetProjectLeadWorkTimeUseCase;
+import com.gepardec.mega.hexagon.worktime.application.port.inbound.GetWorkTimeReportUseCase;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEntry;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
@@ -26,6 +27,8 @@ import io.restassured.http.ContentType;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -43,24 +46,23 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestSecurity(user = "test")
-class WorkTimeEmployeeAndProjectLeadResourceTest {
+class WorkTimeResourceTest {
 
     private static final YearMonth MONTH = YearMonth.of(2026, 3);
     private static final UserId EMPLOYEE_ID = UserId.of(Instancio.create(UUID.class));
     private static final UserId PROJECT_LEAD_ID = UserId.of(Instancio.create(UUID.class));
     private static final ProjectId PROJECT_ID = ProjectId.of(Instancio.create(UUID.class));
+    // An unknown enum value in the query is not matched by the generated API and surfaces as a 404.
+    private static final int UNKNOWN_CAPACITY_STATUS = 404;
 
     @InjectMock
     AuthenticatedActorContext authenticatedActorContext;
 
     @InjectMock
-    GetEmployeeWorkTimeUseCase getEmployeeWorkTimeUseCase;
+    GetWorkTimeReportUseCase getWorkTimeReportUseCase;
 
     @InjectMock
     GetEmployeeWarningsUseCase getEmployeeWarningsUseCase;
-
-    @InjectMock
-    GetProjectLeadWorkTimeUseCase getProjectLeadWorkTimeUseCase;
 
     @BeforeEach
     void setUp() {
@@ -68,7 +70,7 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
     }
 
     @Test
-    void getEmployeeWorkTimeReport_shouldReturnMappedReportForEmployeeRole() {
+    void getWorkTimeReport_shouldReturnMappedReportInEmployeeCapacity() {
         allowRoles(Role.EMPLOYEE);
         WorkTimeReport report = new WorkTimeReport(
                 MONTH,
@@ -80,11 +82,12 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
                         20.0d
                 ))
         );
-        when(getEmployeeWorkTimeUseCase.getWorkTime(EMPLOYEE_ID, MONTH)).thenReturn(report);
+        when(getWorkTimeReportUseCase.getWorkTime(EMPLOYEE_ID, MONTH, Capacity.EMPLOYEE)).thenReturn(report);
 
         WorkTimeReportDto response = given()
                 .accept(ContentType.JSON)
-                .get("/worktime/employee/" + MONTH)
+                .queryParam("capacity", "EMPLOYEE")
+                .get("/worktime/" + MONTH)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -98,12 +101,12 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
             assertThat(entry.getProject().getZepUrl()).isNotNull();
             assertThat(entry.getEmployeeMonthTotalHours()).isEqualTo(20.0d);
         });
-        verify(getEmployeeWorkTimeUseCase).getWorkTime(EMPLOYEE_ID, MONTH);
+        verify(getWorkTimeReportUseCase).getWorkTime(EMPLOYEE_ID, MONTH, Capacity.EMPLOYEE);
     }
 
     @Test
-    void getProjectLeadWorkTimeReport_shouldReturnMappedReportForLeadRole() {
-        allowRoles(Role.PROJECT_LEAD);
+    void getWorkTimeReport_shouldReturnMappedReportInControllingCapacity() {
+        allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         WorkTimeReport report = new WorkTimeReport(
                 MONTH,
@@ -115,11 +118,12 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
                         20.0d
                 ))
         );
-        when(getProjectLeadWorkTimeUseCase.getWorkTime(PROJECT_LEAD_ID, MONTH)).thenReturn(report);
+        when(getWorkTimeReportUseCase.getWorkTime(PROJECT_LEAD_ID, MONTH, Capacity.CONTROLLING)).thenReturn(report);
 
         WorkTimeReportDto response = given()
                 .accept(ContentType.JSON)
-                .get("/worktime/projects/" + MONTH)
+                .queryParam("capacity", "CONTROLLING")
+                .get("/worktime/" + MONTH)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -132,20 +136,94 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
             assertThat(entry.getBillableHours()).isEqualTo(8.0d);
             assertThat(entry.getNonBillableHours()).isEqualTo(2.0d);
         });
-        verify(getProjectLeadWorkTimeUseCase).getWorkTime(PROJECT_LEAD_ID, MONTH);
+        verify(getWorkTimeReportUseCase).getWorkTime(PROJECT_LEAD_ID, MONTH, Capacity.CONTROLLING);
     }
 
     @Test
-    void getEmployeeWorkTimeReport_shouldRejectProjectLeadRole() {
+    void getWorkTimeReport_shouldServeProjectLeadInBothCapacities() {
+        allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
+        when(getWorkTimeReportUseCase.getWorkTime(PROJECT_LEAD_ID, MONTH, Capacity.EMPLOYEE))
+                .thenReturn(new WorkTimeReport(MONTH, List.of()));
+        when(getWorkTimeReportUseCase.getWorkTime(PROJECT_LEAD_ID, MONTH, Capacity.CONTROLLING))
+                .thenReturn(new WorkTimeReport(MONTH, List.of()));
+
+        given().queryParam("capacity", "EMPLOYEE").get("/worktime/" + MONTH).then().statusCode(200);
+        given().queryParam("capacity", "CONTROLLING").get("/worktime/" + MONTH).then().statusCode(200);
+    }
+
+    @Test
+    void getWorkTimeReport_shouldRejectControllingCapacityWithoutProjectLeadRole() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .accept(ContentType.JSON)
+                .queryParam("capacity", "CONTROLLING")
+                .get("/worktime/" + MONTH)
+                .then()
+                .statusCode(403);
+
+        verifyNoInteractions(getWorkTimeReportUseCase);
+    }
+
+    @Test
+    void getWorkTimeReport_shouldRejectEmployeeCapacityWithoutEmployeeRole() {
         allowRoles(Role.PROJECT_LEAD);
 
         given()
                 .accept(ContentType.JSON)
-                .get("/worktime/employee/" + MONTH)
+                .queryParam("capacity", "EMPLOYEE")
+                .get("/worktime/" + MONTH)
                 .then()
                 .statusCode(403);
 
-        verifyNoInteractions(getEmployeeWorkTimeUseCase);
+        verifyNoInteractions(getWorkTimeReportUseCase);
+    }
+
+    @Test
+    void getWorkTimeReport_shouldRejectMissingCapacity() {
+        allowRoles(Role.EMPLOYEE);
+
+        given().accept(ContentType.JSON).get("/worktime/" + MONTH).then().statusCode(400);
+
+        verifyNoInteractions(getWorkTimeReportUseCase);
+    }
+
+    @Test
+    void getWorkTimeReport_shouldRejectMalformedMonth() {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .accept(ContentType.JSON)
+                .queryParam("capacity", "EMPLOYEE")
+                .get("/worktime/not-a-month")
+                .then()
+                .statusCode(400);
+
+        verifyNoInteractions(getWorkTimeReportUseCase);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"MANAGER", "PROJECT_LEAD"})
+    void getWorkTimeReport_shouldRejectUnknownCapacityWithClientError(String capacity) {
+        allowRoles(Role.EMPLOYEE);
+
+        given()
+                .accept(ContentType.JSON)
+                .queryParam("capacity", capacity)
+                .get("/worktime/" + MONTH)
+                .then()
+                .statusCode(UNKNOWN_CAPACITY_STATUS);
+
+        verifyNoInteractions(getWorkTimeReportUseCase);
+    }
+
+    @Test
+    void getWorkTimeReport_shouldNotServeRemovedRoleSpecificPaths() {
+        allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
+
+        given().get("/worktime/employee/" + MONTH).then().statusCode(404);
+        given().get("/worktime/projects/" + MONTH).then().statusCode(404);
     }
 
     @Test
@@ -283,27 +361,15 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
     }
 
     @Test
-    void getProjectLeadWorkTimeReport_shouldRejectEmployeeRole() {
-        allowRoles(Role.EMPLOYEE);
-
-        given()
-                .accept(ContentType.JSON)
-                .get("/worktime/projects/" + MONTH)
-                .then()
-                .statusCode(403);
-
-        verifyNoInteractions(getProjectLeadWorkTimeUseCase);
-    }
-
-    @Test
-    void getEmployeeWorkTimeReport_shouldMapDomainNotFoundExceptionTo404() {
+    void getWorkTimeReport_shouldMapDomainNotFoundExceptionTo404() {
         allowRoles(Role.EMPLOYEE);
         doThrow(new WorkTimeUserNotFoundException("user not found: " + EMPLOYEE_ID.value()))
-                .when(getEmployeeWorkTimeUseCase).getWorkTime(EMPLOYEE_ID, MONTH);
+                .when(getWorkTimeReportUseCase).getWorkTime(EMPLOYEE_ID, MONTH, Capacity.EMPLOYEE);
 
         ApiErrorDto response = given()
                 .accept(ContentType.JSON)
-                .get("/worktime/employee/" + MONTH)
+                .queryParam("capacity", "EMPLOYEE")
+                .get("/worktime/" + MONTH)
                 .then()
                 .statusCode(404)
                 .extract()
@@ -324,7 +390,14 @@ class WorkTimeEmployeeAndProjectLeadResourceTest {
     }
 
     private void allowRoles(Role... roles) {
-        when(authenticatedActorContext.roles()).thenReturn(Set.of(roles));
+        Set<Role> roleSet = Set.of(roles);
+        when(authenticatedActorContext.roles()).thenReturn(roleSet);
+        for (Capacity capacity : Capacity.values()) {
+            if (!roleSet.contains(capacity.requiredRole())) {
+                doThrow(new ForbiddenException("missing role for capacity " + capacity))
+                        .when(authenticatedActorContext).requireCapacity(capacity);
+            }
+        }
     }
 
     private UserRef employeeRef() {

@@ -1,0 +1,22 @@
+# Tasks
+
+## 1. API contract (OpenAPI)
+
+- [x] 1.1 In `openapi/paths/worktime.yaml` and `openapi/openapi.yaml`, replace `/worktime/employee/{payrollMonth}` and `/worktime/projects/{payrollMonth}` with `GET /worktime/{payrollMonth}` (operationId `getWorkTimeReport`, tag `WorkTime`). It takes `PayrollMonthPathParameter` plus a required `capacity` query parameter referencing the shared `Capacity` schema, keeps the `WorkTimeReport` response, and documents `400`/`403`/`500`. Move `getEmployeeWarnings` to the `WorkTime` tag without other changes. Rename the `WorkTimeAdmin` tag of `listWarningRuleSettings` and `updateWarningRuleSetting` to `WorkTimeWarningRules`. Verify with `mvn clean compile` that exactly `WorkTimeApi` (with `getWorkTimeReport` (capacity `@NotNull`) and `getEmployeeWarnings`) and `WorkTimeWarningRulesApi` (with both rule-settings operations) are generated for worktime, and that `WorkTimeEmployeeApi`, `WorkTimeProjectLeadApi` and `WorkTimeAdminApi` do not exist.
+
+## 2. Application — unified report use case
+
+- [x] 2.1 Replace `GetEmployeeWorkTimeUseCase` and `GetProjectLeadWorkTimeUseCase` with `GetWorkTimeReportUseCase` (`getWorkTime(UserId actorId, YearMonth month, Capacity capacity)`), implemented by `GetWorkTimeReportService` with `@Transactional(TxType.NEVER)` and its explanatory comment kept. Introduce the package-private `WorkTimeScope` and project resolver, and run the shared fetch → total → group → assemble pipeline (design D1) with no sorting. Delete the two old services. Verify that it compiles once 3.1 is done.
+- [x] 2.2 Port `GetEmployeeWorkTimeServiceTest` and `GetProjectLeadWorkTimeServiceTest` into `GetWorkTimeReportServiceTest` with one nested group per capacity, comparing entries order-insensitively. Keep every existing case: unknown user → `WorkTimeUserNotFoundException`; missing ZEP username → `WorkTimeValidationException`; unknown project skipped; no bookings → empty; no led projects → empty; no members → empty; `employeeMonthTotalHours` across all projects; non-lead projects filtered out. Add a case for a lead with bookings on a led and a non-led project: the `EMPLOYEE` report has both entries, the `CONTROLLING` report only the led one, with identical hours and total. Verify by running `mvn test -Dtest=GetWorkTimeReportServiceTest`.
+
+- [x] 2.3 Move report assembly into the domain model (design D5): add `WorkTimeReport.assemble` and `WorkTimeReport.empty`, and `WorkTimeEntry.of`. The service resolves employees and projects first and keeps the existing warnings. Delete `WorkTimeReportAssembler` and `WorkTimeReportAssemblerTest`, and replace them with `WorkTimeReportTest` and `WorkTimeEntryTest`. One test covers that bookings on unresolved projects still count towards `employeeMonthTotalHours`. Verify with `mvn test -Dtest='WorkTimeReportTest*,WorkTimeEntryTest,GetWorkTimeReportServiceTest*'`.
+
+## 3. REST adapter
+
+- [x] 3.1 Merge `WorkTimeEmployeeResource` and `WorkTimeProjectLeadResource` into `WorkTimeResource implements WorkTimeApi`. `getWorkTimeReport` uses method-level `@MegaRolesAllowed(Role.EMPLOYEE)`, then the capacity gate, maps `CapacityDto` via `SharedRefRestMapper`, and calls the new use case. `getEmployeeWarnings` keeps its current behavior with method-level `@MegaRolesAllowed(Role.EMPLOYEE)`. Delete the two old resources. Change `WorkTimeWarningRuleResource` to implement `WorkTimeWarningRulesApi`, with no other changes.
+- [x] 3.2 Rename `WorkTimeEmployeeAndProjectLeadResourceTest` to `WorkTimeResourceTest` and move it to the new paths. Verify with REST tests: `200` with the mapped report for `EMPLOYEE` and for `CONTROLLING` (each delegating with the matching capacity); `403` for a caller without the project-lead role in `CONTROLLING`; `403` for a caller without the employee role in `EMPLOYEE`; `400` without `capacity`; `400` for a malformed month; the observed client-error status for an unknown capacity value is asserted explicitly; the old paths return `404`; every existing warnings test passes unchanged.
+
+## 4. Verification
+
+- [x] 4.1 Verify with `grep -rn` over `src` that no references remain to `GetEmployeeWorkTime`, `GetProjectLeadWorkTime`, `WorkTimeEmployeeApi`, `WorkTimeProjectLeadApi`, `WorkTimeAdminApi`, `WorkTimeEmployeeResource`, `WorkTimeProjectLeadResource`, `/worktime/employee/`, or `/worktime/projects/`.
+- [x] 4.2 Run `mvn test` and confirm the full suite, including `ArchitectureTest`, passes.

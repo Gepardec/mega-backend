@@ -122,12 +122,12 @@ The REST adapter SHALL be responsible for all clarification response enrichment.
 - **THEN** `canDelete` is `true` only when the authenticated actor is the creator and the clarification is open
 
 ### Requirement: Work time data is not embedded in the monthend status overview response
-The monthend status overview endpoint SHALL NOT include work time aggregations in its response. Work time per payroll month SHALL be fetched via the dedicated `/worktime` endpoints. The frontend SHALL call the work time endpoints independently to obtain billable/non-billable hour breakdowns alongside the monthend overview.
+The monthend status overview endpoint SHALL NOT include work time aggregations in its response. Work time per payroll month SHALL be fetched via the dedicated `/worktime/{payrollMonth}` endpoint in the same capacity as the overview. The frontend SHALL call the work time endpoint independently to obtain billable/non-billable hour breakdowns alongside the monthend overview.
 
 #### Scenario: Monthend overview response contains no work time fields
 - **WHEN** an authenticated actor requests the monthend status overview
 - **THEN** the response does NOT contain billable hours, non-billable hours, or work time entries
-- **THEN** work time data is available exclusively through the `/worktime/employee/{month}` and `/worktime/projects/{month}` endpoints
+- **THEN** work time data is available exclusively through `GET /worktime/{payrollMonth}?capacity=EMPLOYEE|CONTROLLING`
 
 ### Requirement: Monthend endpoint access follows employee, project-lead, and ops roles
 The system SHALL secure monthend REST endpoints by operation. The status overview and payroll month endpoints MUST require the role of the requested capacity. The clarification and preparation creation endpoints MUST require at least the employee role. The employee bulk task completion endpoint MUST require the employee role. The project-lead bulk task completion endpoint MUST require the project-lead role. Internal generation endpoints MUST require the internal sync or cron role defined for operational endpoints.

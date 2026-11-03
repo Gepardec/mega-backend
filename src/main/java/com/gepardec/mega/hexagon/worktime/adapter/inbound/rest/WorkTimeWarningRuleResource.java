@@ -1,6 +1,6 @@
 package com.gepardec.mega.hexagon.worktime.adapter.inbound.rest;
 
-import com.gepardec.mega.hexagon.generated.api.WorkTimeAdminApi;
+import com.gepardec.mega.hexagon.generated.api.WorkTimeWarningRulesApi;
 import com.gepardec.mega.hexagon.generated.model.WarningRuleDto;
 import com.gepardec.mega.hexagon.generated.model.WarningRuleSettingUpdateDto;
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
@@ -15,7 +15,7 @@ import jakarta.ws.rs.core.Response;
 @RequestScoped
 @Authenticated
 @MegaRolesAllowed(Role.ADMIN)
-public class WorkTimeWarningRuleResource implements WorkTimeAdminApi {
+public class WorkTimeWarningRuleResource implements WorkTimeWarningRulesApi {
 
     private final ListWarningRuleSettingsUseCase listUseCase;
     private final UpdateWarningRuleSettingUseCase updateUseCase;
