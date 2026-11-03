@@ -17,6 +17,11 @@ The system SHALL represent each month-end obligation as a `MonthEndTask` that be
 - **WHEN** the system creates a project lead review task for an employee on a project
 - **THEN** it creates one `MonthEndTask` with the fixed set of assigned project leads as eligible actors
 
+#### Scenario: Coordinator-eligible task is modeled as a month-end task
+- **WHEN** the system creates a Leistungsnachweis task for an employee on a project
+- **THEN** it creates one `MonthEndTask` with the fixed set of active project coordinators as eligible actors
+- **THEN** any one of those coordinators can complete it
+
 ### Requirement: Month-end tasks enforce type-specific invariants
 The system SHALL enforce task-type-specific invariants inside the `MonthEndTask` aggregate. `PROJECT_LEAD_REVIEW` tasks MUST reference a subject employee, `ABRECHNUNG` tasks MUST NOT reference a subject employee, and employee-owned tasks MUST reference the employee they are about while using that same single employee as their eligible actor.
 
@@ -37,6 +42,10 @@ The system SHALL treat the eligible actor set of a `MonthEndTask` as the snapsho
 
 #### Scenario: Lead changes after generation do not alter an open task
 - **WHEN** project lead assignments change after a month-end task has already been generated
+- **THEN** the existing task keeps its original eligible actor set
+
+#### Scenario: Coordinator changes after generation do not alter an open task
+- **WHEN** the set of users holding the project coordinator role changes after a `LEISTUNGSNACHWEIS` task has already been generated
 - **THEN** the existing task keeps its original eligible actor set
 
 ### Requirement: Each month-end task type is the duty of one capacity

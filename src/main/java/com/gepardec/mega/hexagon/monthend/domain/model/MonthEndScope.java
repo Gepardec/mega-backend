@@ -28,7 +28,12 @@ public sealed interface MonthEndScope {
         }
     }
 
-    /** Records of all projects the actor leads. */
+    /**
+     * Records of the projects the actor is accountable for. For tasks this covers every project on whose shared
+     * (any-eligible-actor) tasks the actor is eligible, which includes projects the actor does not lead, such as
+     * those whose Leistungsnachweis tasks list the actor as project coordinator. For clarifications it follows the
+     * lead snapshot recorded on the clarification.
+     */
     record LedProjects(UserId actorId) implements MonthEndScope {
 
         public LedProjects {

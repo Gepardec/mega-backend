@@ -128,6 +128,9 @@ mega:
   admin:
     emails: "${MEGA_ADMIN_EMAILS:}"
 
+  project-coordinator:
+    emails: "${MEGA_PROJECT_COORDINATOR_EMAILS:}"
+
   wiki:
     eom-url: "https://sites.google.com/a/gepardec.com/internal/home/zeiterfassung-mit-zep/monatsende-kontrolle-von-arbeitszeiten"
 
@@ -258,6 +261,10 @@ mega:
     admin:
       emails:
         - "admin@example.com"
+
+    project-coordinator:
+      emails:
+        - "coordinator@example.com"
 
     zep:
       origin: "https://www.zep-online.de/zepgepardecservices_test"

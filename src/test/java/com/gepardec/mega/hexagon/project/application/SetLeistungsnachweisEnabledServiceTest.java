@@ -4,7 +4,6 @@ import com.gepardec.mega.hexagon.project.domain.error.LeistungsnachweisNotApplic
 import com.gepardec.mega.hexagon.project.domain.error.ProjectNotFoundException;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
-import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.assertj.core.api.ThrowableAssert;
@@ -52,16 +51,14 @@ class SetLeistungsnachweisEnabledServiceTest {
     }
 
     @Test
-    void setLeistungsnachweisEnabled_nonLead_throwsForbiddenWithoutSaving() {
+    void setLeistungsnachweisEnabled_nonLeadCoordinator_canToggle() {
         Project project = new Project(ProjectId.generate(), 1, "X", LocalDate.now(), null, true, true, Set.of(LEAD_ID));
         when(projectRepository.findById(project.id())).thenReturn(Optional.of(project));
 
-        ThrowableAssert.ThrowingCallable throwingCallable = () -> service.setLeistungsnachweisEnabled(project.id(), OTHER_USER_ID, false);
+        Project returned = service.setLeistungsnachweisEnabled(project.id(), OTHER_USER_ID, false);
 
-        assertThatThrownBy(throwingCallable)
-                .isInstanceOf(ForbiddenException.class);
-
-        verify(projectRepository, never()).saveAll(anyList());
+        assertThat(returned.leistungsnachweisEnabled()).isFalse();
+        verify(projectRepository).saveAll(argThat(projects -> !projects.getFirst().leistungsnachweisEnabled()));
     }
 
     @Test

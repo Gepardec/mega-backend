@@ -4,7 +4,6 @@ import com.gepardec.mega.hexagon.project.application.port.inbound.SetLeistungsna
 import com.gepardec.mega.hexagon.project.domain.error.ProjectNotFoundException;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
-import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import io.quarkus.logging.Log;
@@ -29,10 +28,6 @@ public class SetLeistungsnachweisEnabledService implements SetLeistungsnachweisE
     public Project setLeistungsnachweisEnabled(ProjectId projectId, UserId actorId, boolean enabled) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
-
-        if (!project.isLedBy(actorId)) {
-            throw new ForbiddenException("Actor is not a lead " + actorId);
-        }
 
         boolean previousValue = project.leistungsnachweisEnabled();
         Project updated = project.withLeistungsnachweisEnabled(enabled);

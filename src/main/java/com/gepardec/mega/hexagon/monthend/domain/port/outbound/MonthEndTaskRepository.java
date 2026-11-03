@@ -29,7 +29,7 @@ public interface MonthEndTaskRepository {
 
     List<MonthEndTask> findOpenProjectTasksOfType(YearMonth month, ProjectId projectId, MonthEndTaskType type);
 
-    boolean existsLeadTask(YearMonth month, ProjectId projectId, UserId leadId);
+    boolean existsEligibleTaskOfType(YearMonth month, ProjectId projectId, MonthEndTaskType type, UserId actorId);
 
     void save(MonthEndTask task);
 

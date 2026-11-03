@@ -20,6 +20,7 @@ public class MonthEndTaskPlanningService {
             YearMonth month,
             MonthEndProjectSnapshot project,
             Set<UserId> activeLeadIds,
+            Set<UserId> activeCoordinatorIds,
             Set<UserRef> assignedUsers
     ) {
         List<MonthEndTask> tasks = new ArrayList<>();
@@ -38,15 +39,14 @@ public class MonthEndTaskPlanningService {
                 ));
             }
 
-
-            if (project.leistungsnachweisEnabled() && !activeLeadIds.isEmpty()) {
+            if (project.leistungsnachweisEnabled() && !activeLeadIds.isEmpty() && !activeCoordinatorIds.isEmpty()) {
                 tasks.add(MonthEndTask.create(
                         MonthEndTaskId.generate(),
                         month,
                         MonthEndTaskType.LEISTUNGSNACHWEIS,
                         project.id(),
                         assignedUser.id(),
-                        activeLeadIds
+                        activeCoordinatorIds
                 ));
             }
         }

@@ -67,12 +67,14 @@ class MonthEndTaskPlanningServiceTest {
         UserRef employeeB = activeUser("employee-b");
         UserId leadA = UserId.of(Instancio.create(UUID.class));
         UserId leadB = UserId.of(Instancio.create(UUID.class));
+        UserId coordinator = UserId.of(Instancio.create(UUID.class));
         MonthEndProjectSnapshot project = activeProject(true, true, Set.of(leadA, leadB));
 
         List<MonthEndTask> tasks = service.planProjectTasks(
                 month,
                 project,
                 Set.of(leadA, leadB),
+                Set.of(coordinator),
                 new LinkedHashSet<>(Set.of(employeeA, employeeB))
         );
 
@@ -88,7 +90,7 @@ class MonthEndTaskPlanningServiceTest {
                 .hasSize(2)
                 .allSatisfy(task -> {
                     assertThat(task.subjectEmployeeId()).isIn(employeeA.id(), employeeB.id());
-                    assertThat(task.eligibleActorIds()).containsExactlyInAnyOrder(leadA, leadB);
+                    assertThat(task.eligibleActorIds()).containsExactly(coordinator);
                 });
         assertThat(tasks.stream()
                 .filter(task -> task.type() == MonthEndTaskType.ABRECHNUNG))
@@ -104,7 +106,7 @@ class MonthEndTaskPlanningServiceTest {
         UserRef employee = activeUser("employee");
         MonthEndProjectSnapshot project = activeProject(true, true, Set.of());
 
-        List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(), Set.of(employee));
+        List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(), Set.of(UserId.of(Instancio.create(UUID.class))), Set.of(employee));
 
         assertThat(tasks).singleElement()
                 .satisfies(task -> assertThat(task.type()).isEqualTo(MonthEndTaskType.EMPLOYEE_TIME_CHECK));
@@ -116,7 +118,7 @@ class MonthEndTaskPlanningServiceTest {
         UserId lead = UserId.of(Instancio.create(UUID.class));
         MonthEndProjectSnapshot project = activeProject(false, false, Set.of(lead));
 
-        List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(lead), Set.of(employee));
+        List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(lead), Set.of(UserId.of(Instancio.create(UUID.class))), Set.of(employee));
 
         assertThat(tasks).extracting(MonthEndTask::type)
                 .containsExactlyInAnyOrder(
@@ -131,7 +133,7 @@ class MonthEndTaskPlanningServiceTest {
         UserId lead = UserId.of(Instancio.create(UUID.class));
         MonthEndProjectSnapshot project = activeProject(true, false, Set.of(lead));
 
-        List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(lead), Set.of(employee));
+        List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(lead), Set.of(UserId.of(Instancio.create(UUID.class))), Set.of(employee));
 
         assertThat(tasks).extracting(MonthEndTask::type)
                 .doesNotContain(MonthEndTaskType.LEISTUNGSNACHWEIS);
@@ -150,13 +152,48 @@ class MonthEndTaskPlanningServiceTest {
         UserId lead = UserId.of(Instancio.create(UUID.class));
         MonthEndProjectSnapshot project = activeProject(true, true, Set.of(lead));
 
-        List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(lead), Set.of(employee));
+        List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(lead), Set.of(UserId.of(Instancio.create(UUID.class))), Set.of(employee));
 
         assertThat(tasks).extracting(MonthEndTask::type)
                 .contains(
                         MonthEndTaskType.LEISTUNGSNACHWEIS
                 );
 
+    }
+
+    @Test
+    void planProjectTasks_shouldSkipLeistungsnachweis_whenNoCoordinatorsExist() {
+        UserRef employee = activeUser("employee");
+        UserId lead = UserId.of(Instancio.create(UUID.class));
+        MonthEndProjectSnapshot project = activeProject(true, true, Set.of(lead));
+
+        List<MonthEndTask> tasks = service.planProjectTasks(month, project, Set.of(lead), Set.of(), Set.of(employee));
+
+        assertThat(tasks).extracting(MonthEndTask::type)
+                .containsExactlyInAnyOrder(
+                        MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        MonthEndTaskType.ABRECHNUNG
+                );
+        assertThat(tasks.stream().filter(task -> task.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW))
+                .allSatisfy(task -> assertThat(task.eligibleActorIds()).containsExactly(lead));
+    }
+
+    @Test
+    void planProjectTasks_shouldMakeAllCoordinatorsEligibleAndNotLeads() {
+        UserRef employee = activeUser("employee");
+        UserId lead = UserId.of(Instancio.create(UUID.class));
+        UserId coordinatorA = UserId.of(Instancio.create(UUID.class));
+        UserId coordinatorB = UserId.of(Instancio.create(UUID.class));
+        MonthEndProjectSnapshot project = activeProject(true, true, Set.of(lead));
+
+        List<MonthEndTask> tasks = service.planProjectTasks(
+                month, project, Set.of(lead), Set.of(coordinatorA, coordinatorB), Set.of(employee));
+
+        assertThat(tasks.stream().filter(task -> task.type() == MonthEndTaskType.LEISTUNGSNACHWEIS))
+                .singleElement()
+                .satisfies(task -> assertThat(task.eligibleActorIds())
+                        .containsExactlyInAnyOrder(coordinatorA, coordinatorB));
     }
 
     private UserRef activeUser(String username) {

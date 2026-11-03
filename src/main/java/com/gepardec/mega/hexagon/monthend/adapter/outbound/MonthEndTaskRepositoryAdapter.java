@@ -155,18 +155,18 @@ public class MonthEndTaskRepositoryAdapter implements MonthEndTaskRepository {
     }
 
     @Override
-    public boolean existsLeadTask(YearMonth month, ProjectId projectId, UserId leadId) {
+    public boolean existsEligibleTaskOfType(YearMonth month, ProjectId projectId, MonthEndTaskType type, UserId actorId) {
         return panache.count(
                 "from MonthEndTaskEntity task " +
                         "join task.eligibleActorIds actor " +
                         "where task.monthValue = ?1 " +
                         "and task.projectId = ?2 " +
                         "and actor = ?3 " +
-                        "and task.type in ?4",
+                        "and task.type = ?4",
                 toMonthValue(month),
                 projectId.value(),
-                leadId.value(),
-                leadTaskTypes()
+                actorId.value(),
+                type
         ) > 0;
     }
 

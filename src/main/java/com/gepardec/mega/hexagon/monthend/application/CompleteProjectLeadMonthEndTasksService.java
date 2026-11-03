@@ -32,7 +32,7 @@ public class CompleteProjectLeadMonthEndTasksService implements CompleteProjectL
         if (!type.isProjectLeadBulkCompletable()) {
             throw new MonthEndValidationException("task type %s cannot be bulk completed by a project lead".formatted(type.name()));
         }
-        if (!monthEndTaskRepository.existsLeadTask(month, projectId, actorId)) {
+        if (!monthEndTaskRepository.existsEligibleTaskOfType(month, projectId, type, actorId)) {
             throw new MonthEndActorNotAuthorizedException("actor not authorized: " + actorId.value());
         }
 

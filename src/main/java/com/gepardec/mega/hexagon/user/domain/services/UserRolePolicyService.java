@@ -3,6 +3,7 @@ package com.gepardec.mega.hexagon.user.domain.services;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.user.domain.model.AdminEmails;
 import com.gepardec.mega.hexagon.user.domain.model.OfficeManagementEmails;
+import com.gepardec.mega.hexagon.user.domain.model.ProjectCoordinatorEmails;
 import com.gepardec.mega.hexagon.user.domain.model.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -16,11 +17,15 @@ public class UserRolePolicyService {
 
     private final OfficeManagementEmails officeManagementEmails;
     private final AdminEmails adminEmails;
+    private final ProjectCoordinatorEmails projectCoordinatorEmails;
 
     @Inject
-    public UserRolePolicyService(OfficeManagementEmails officeManagementEmails, AdminEmails adminEmails) {
+    public UserRolePolicyService(OfficeManagementEmails officeManagementEmails,
+                                 AdminEmails adminEmails,
+                                 ProjectCoordinatorEmails projectCoordinatorEmails) {
         this.officeManagementEmails = officeManagementEmails;
         this.adminEmails = adminEmails;
+        this.projectCoordinatorEmails = projectCoordinatorEmails;
     }
 
     public Set<Role> determineRoles(String email, User existingUser) {
@@ -30,6 +35,9 @@ public class UserRolePolicyService {
         }
         if (adminEmails.contains(email)) {
             roles.add(Role.ADMIN);
+        }
+        if (projectCoordinatorEmails.contains(email)) {
+            roles.add(Role.PROJECT_COORDINATOR);
         }
         if (existingUser != null && existingUser.roles().contains(Role.PROJECT_LEAD)) {
             roles.add(Role.PROJECT_LEAD);

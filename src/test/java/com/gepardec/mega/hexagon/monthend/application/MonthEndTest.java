@@ -95,6 +95,8 @@ class MonthEndTest {
     @InjectMock
     ProjectService projectService;
 
+    private final User coordinator = user("coordinator", Set.of(Role.EMPLOYEE, Role.PROJECT_COORDINATOR));
+
     @Test
     void monthEndFlow_shouldGenerateAndCompleteEmployeeTimeCheckItems() {
         User employee = user("employee", Set.of(Role.EMPLOYEE));
@@ -191,16 +193,22 @@ class MonthEndTest {
                 .extracting(MonthEndTask::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                        MonthEndTaskType.LEISTUNGSNACHWEIS,
                         MonthEndTaskType.ABRECHNUNG
                 );
         assertThat(leadBEligibleOpen)
                 .extracting(MonthEndTask::type)
                 .containsExactlyInAnyOrder(
                         MonthEndTaskType.PROJECT_LEAD_REVIEW,
-                        MonthEndTaskType.LEISTUNGSNACHWEIS,
                         MonthEndTaskType.ABRECHNUNG
                 );
+
+        List<MonthEndTask> coordinatorEligibleOpen = getMonthEndStatusOverviewUseCase
+                .getOverview(coordinator.id(), MONTH, Capacity.CONTROLLING).tasks().stream()
+                .filter(item -> item.status() == MonthEndTaskStatus.OPEN && item.canBeCompletedBy(coordinator.id()))
+                .toList();
+        assertThat(coordinatorEligibleOpen)
+                .extracting(MonthEndTask::type)
+                .containsExactly(MonthEndTaskType.LEISTUNGSNACHWEIS);
 
         MonthEndTask leadReviewItem = leadAEligibleOpen.stream()
                 .filter(item -> item.type() == MonthEndTaskType.PROJECT_LEAD_REVIEW)
@@ -220,10 +228,10 @@ class MonthEndTest {
 
         assertThat(updatedLeadAEligibleOpen)
                 .extracting(MonthEndTask::type)
-                .containsExactlyInAnyOrder(MonthEndTaskType.LEISTUNGSNACHWEIS, MonthEndTaskType.ABRECHNUNG);
+                .containsExactly(MonthEndTaskType.ABRECHNUNG);
         assertThat(updatedLeadBEligibleOpen)
                 .extracting(MonthEndTask::type)
-                .containsExactlyInAnyOrder(MonthEndTaskType.LEISTUNGSNACHWEIS, MonthEndTaskType.ABRECHNUNG);
+                .containsExactly(MonthEndTaskType.ABRECHNUNG);
     }
 
     @Test
@@ -523,15 +531,12 @@ class MonthEndTest {
         assertThat(leistungsnachweise.stream()
                 .filter(task -> task.projectId().equals(project1.id()))
                 .toList())
-                .allSatisfy(task -> assertThat(task.eligibleActorIds()).containsExactly(user1.id()));
+                .allSatisfy(task -> assertThat(task.eligibleActorIds()).containsExactly(coordinator.id()));
         assertThat(leistungsnachweise.stream()
                 .filter(task -> task.projectId().equals(project2.id()))
                 .toList())
                 .singleElement()
-                .satisfies(task -> assertThat(task.eligibleActorIds()).containsExactlyInAnyOrder(
-                        user1.id(),
-                        user2.id()
-                ));
+                .satisfies(task -> assertThat(task.eligibleActorIds()).containsExactly(coordinator.id()));
         assertThat(abrechnungen.stream()
                 .filter(task -> task.projectId().equals(project1.id()))
                 .toList())
@@ -660,6 +665,7 @@ class MonthEndTest {
 
     private void persistFixture(List<User> users, List<Project> projects, Map<Integer, Set<String>> assignedUsernamesByProject) {
         userRepositoryAdapter.saveAll(users);
+        userRepositoryAdapter.saveAll(List.of(coordinator));
         projectRepositoryAdapter.saveAll(projects);
         for (Project project : projects) {
             when(projectService.getProjectEmployeesForId(project.zepId(), MONTH))

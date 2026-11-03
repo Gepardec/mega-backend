@@ -7,7 +7,6 @@ import com.gepardec.mega.hexagon.project.domain.error.LeistungsnachweisNotApplic
 import com.gepardec.mega.hexagon.project.domain.error.ProjectNotFoundException;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
-import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
@@ -62,10 +61,10 @@ class ProjectResourceTest {
     }
 
     @Test
-    void getProjectSettings_shouldReturnMappedProjects_whenUserIsLead() {
-        allowRoles(Role.PROJECT_LEAD);
+    void getProjectSettings_shouldReturnMappedProjects_whenUserIsCoordinator() {
+        allowRoles(Role.PROJECT_COORDINATOR);
         Project project = new Project(PROJECT_ID, 123, "X", LocalDate.now(), null, true, true, Set.of(LEAD_ID));
-        when(getProjectSettingsUseCase.getLeadProjects(LEAD_ID)).thenReturn(List.of(project));
+        when(getProjectSettingsUseCase.getSettings()).thenReturn(List.of(project));
 
         given()
                 .accept(ContentType.JSON)
@@ -79,9 +78,9 @@ class ProjectResourceTest {
     }
 
     @Test
-    void getProjectSettings_shouldReturnEmptyList_whenLeadUserHasNoProjects() {
-        allowRoles(Role.PROJECT_LEAD);
-        when(getProjectSettingsUseCase.getLeadProjects(LEAD_ID)).thenReturn(List.of());
+    void getProjectSettings_shouldReturnEmptyList_whenNoProjectQualifies() {
+        allowRoles(Role.PROJECT_COORDINATOR);
+        when(getProjectSettingsUseCase.getSettings()).thenReturn(List.of());
 
         given()
                 .accept(ContentType.JSON)
@@ -92,19 +91,36 @@ class ProjectResourceTest {
     }
 
     @Test
-    void getProjectSettings_shouldRejectWithForbidden_whenUserIsNotLead() {
-        allowRoles(Role.EMPLOYEE);
+    void getProjectSettings_shouldRejectWithForbidden_whenUserIsLeadWithoutCoordinatorRole() {
+        allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
 
         given()
                 .accept(ContentType.JSON)
                 .get("/projects/settings")
                 .then()
                 .statusCode(HttpStatus.SC_FORBIDDEN);
+
+        verifyNoInteractions(getProjectSettingsUseCase);
     }
 
     @Test
-    void setLeistungsnachweisEnabled_shoudlToggleOwnProject() {
-        allowRoles(Role.PROJECT_LEAD);
+    void setLeistungsnachweisEnabled_shouldReturnForbidden_whenUserIsLeadWithoutCoordinatorRole() {
+        allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
+
+        given()
+                .accept(ContentType.JSON)
+                .contentType(ContentType.JSON)
+                .body(new LeistungsnachweisToggleRequestDto().enabled(false))
+                .put("/projects/" + PROJECT_ID.value() + "/leistungsnachweis-enabled")
+                .then()
+                .statusCode(HttpStatus.SC_FORBIDDEN);
+
+        verifyNoInteractions(setLeistungsnachweisEnabledUseCase);
+    }
+
+    @Test
+    void setLeistungsnachweisEnabled_shouldToggleProject() {
+        allowRoles(Role.PROJECT_COORDINATOR);
         var request = new LeistungsnachweisToggleRequestDto().enabled(false);
         when(setLeistungsnachweisEnabledUseCase.setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, false))
                 .thenReturn(project(true, false));
@@ -126,7 +142,7 @@ class ProjectResourceTest {
 
     @Test
     void setLeistungsnachweisEnabled_shouldReturnUpdatedSettings_whenEnabling() {
-        allowRoles(Role.PROJECT_LEAD);
+        allowRoles(Role.PROJECT_COORDINATOR);
         var request = new LeistungsnachweisToggleRequestDto().enabled(true);
         when(setLeistungsnachweisEnabledUseCase.setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, true))
                 .thenReturn(project(true, true));
@@ -144,7 +160,7 @@ class ProjectResourceTest {
 
     @Test
     void setLeistungsnachweisEnabled_shouldReturnDisabledSettings_whenProjectIsNonBillable() {
-        allowRoles(Role.PROJECT_LEAD);
+        allowRoles(Role.PROJECT_COORDINATOR);
         var request = new LeistungsnachweisToggleRequestDto().enabled(false);
         when(setLeistungsnachweisEnabledUseCase.setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, false))
                 .thenReturn(project(false, false));
@@ -160,26 +176,8 @@ class ProjectResourceTest {
     }
 
     @Test
-    void setLeistungsnachweisEnabled_shouldReturnForbidden_whenUserIsNotLead() {
-        allowRoles(Role.PROJECT_LEAD);
-        var request = new LeistungsnachweisToggleRequestDto().enabled(false);
-        doThrow(new ForbiddenException("user is not lead"))
-                .when(setLeistungsnachweisEnabledUseCase)
-                .setLeistungsnachweisEnabled(PROJECT_ID, LEAD_ID, false);
-
-        given()
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .body(request)
-                .put("/projects/" + PROJECT_ID.value() + "/leistungsnachweis-enabled")
-                .then()
-                .statusCode(HttpStatus.SC_FORBIDDEN);
-
-    }
-
-    @Test
     void setLeistungsnachweisEnabled_shoudlReturnNotFound_whenProjectIsUnknown() {
-        allowRoles(Role.PROJECT_LEAD);
+        allowRoles(Role.PROJECT_COORDINATOR);
         var request = new LeistungsnachweisToggleRequestDto().enabled(false);
         doThrow(new ProjectNotFoundException("Project not found"))
                 .when(setLeistungsnachweisEnabledUseCase)
@@ -196,7 +194,7 @@ class ProjectResourceTest {
 
     @Test
     void setLeistungsnachweisEnabled_shouldReturnBadRequest_whenEnabledIsNull() {
-        allowRoles(Role.PROJECT_LEAD);
+        allowRoles(Role.PROJECT_COORDINATOR);
 
         given()
                 .accept(ContentType.JSON)
@@ -211,7 +209,7 @@ class ProjectResourceTest {
 
     @Test
     void setLeistungsnachweisEnabled_shouldReturnBadRequest_whenBodyIsEmpty() {
-        allowRoles(Role.PROJECT_LEAD);
+        allowRoles(Role.PROJECT_COORDINATOR);
 
         given()
                 .accept(ContentType.JSON)
@@ -226,7 +224,7 @@ class ProjectResourceTest {
 
     @Test
     void setLeistungsnachweisEnabled_shouldReturnBadRequest_whenUseCaseThrowsNotApplicable() {
-        allowRoles(Role.PROJECT_LEAD);
+        allowRoles(Role.PROJECT_COORDINATOR);
         var request = new LeistungsnachweisToggleRequestDto().enabled(true);
         doThrow(new LeistungsnachweisNotApplicableException("not applicable"))
                 .when(setLeistungsnachweisEnabledUseCase)

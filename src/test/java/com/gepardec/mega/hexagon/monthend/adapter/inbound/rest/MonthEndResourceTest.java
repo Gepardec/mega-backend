@@ -823,7 +823,7 @@ class MonthEndResourceTest {
     }
 
     @Test
-    void completeProjectLeadMonthEndTasks_shouldReturnEmptyCompletedList_whenLeadHasNoTasksOfType() {
+    void completeProjectLeadMonthEndTasks_shouldReturnEmptyCompletedList_whenEligibleActorHasNoOpenTasksOfType() {
         allowRoles(Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         when(completeProjectLeadMonthEndTasksUseCase.complete(MONTH, PROJECT_ID, MonthEndTaskType.LEISTUNGSNACHWEIS, PROJECT_LEAD_ID))
@@ -841,6 +841,25 @@ class MonthEndResourceTest {
                 .as(MonthEndTaskCompletionDto.class);
 
         assertThat(response.getCompleted()).isEmpty();
+    }
+
+    @Test
+    void completeProjectLeadMonthEndTasks_shouldReturnForbidden_whenActorIsNotEligibleOnRequestedType() {
+        allowRoles(Role.PROJECT_LEAD);
+
+        when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
+        doThrow(new MonthEndActorNotAuthorizedException("actor not authorized: " + PROJECT_LEAD_ID.value()))
+                .when(completeProjectLeadMonthEndTasksUseCase)
+                .complete(MONTH, PROJECT_ID, MonthEndTaskType.LEISTUNGSNACHWEIS, PROJECT_LEAD_ID);
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(new CompleteProjectLeadMonthEndTasksRequestDto()
+                        .type(MonthEndTaskTypeDto.LEISTUNGSNACHWEIS))
+                .post("/monthend/{month}/projects/{projectId}/tasks/complete", MONTH.toString(), PROJECT_ID.value())
+                .then()
+                .statusCode(403);
     }
 
     @Test
