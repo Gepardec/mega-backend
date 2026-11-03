@@ -31,9 +31,9 @@
 
 See `frontend-handoff.md` in this change for details and the manual test plan.
 
-- [ ] 6.1 Rename the existing i18n keys `INTERNAL_NOTE_BILLABLE` → `INTERNAL_PREFIX_ON_BILLABLE_PROJECT` and `INTERNAL_NOTE_MISSING` → `INTERNAL_PREFIX_MISSING` in `public/i18n/de.json` and `en.json` and reword them to project level; verify no old key remains (`grep INTERNAL_NOTE public/i18n` is empty)
-- [ ] 6.2 Add component tests rendering both new warning types as translated text with a date chip and no hours; verify `npm test` in mega-frontend-v2 is green
-- [ ] 6.3 Run manual tests 1–8 from `frontend-handoff.md` against this backend branch; verify every expectation holds in DE and EN
+- [x] 6.1 Rename the existing i18n keys `INTERNAL_NOTE_BILLABLE` → `INTERNAL_PREFIX_ON_BILLABLE_PROJECT` and `INTERNAL_NOTE_MISSING` → `INTERNAL_PREFIX_MISSING` in `public/i18n/de.json` and `en.json` and reword them to project level; verify no old key remains (`grep INTERNAL_NOTE public/i18n` is empty)
+- [x] 6.2 Add component tests rendering both new warning types as translated text with a date chip and no hours; verify `npm test` in mega-frontend-v2 is green
+- [x] 6.3 Run manual tests 1–8 from `frontend-handoff.md` against this backend branch; verify every expectation holds in DE and EN
 
 ## Workflow follow-up
 
