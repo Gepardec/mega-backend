@@ -58,3 +58,9 @@
 - [x] 9.2 Add `MonthEndErrorCode.TASK_TYPE_NOT_BULK_COMPLETABLE` for the bulk-completion type rule and `MonthEndErrorCode.NO_ELIGIBLE_PROJECT_LEAD`, checked by the clarification creation factory. Pin both in `ErrorCodeTest`. Verify with a domain test that creating a clarification without eligible leads yields `NO_ELIGIBLE_PROJECT_LEAD`.
 - [x] 9.3 Add `@NotBlank` to `text` in `CreateClarificationRequest` and `UpdateClarificationTextRequest`. Verify with REST tests that a blank text returns `400` with a `violations` entry `field: "text"`, `in: "body"`, and no `code`.
 - [x] 9.4 Run `mvn clean package -Prewrite-check`. Verify it passes.
+
+## 10. Review follow-ups: one source per code, lenient REST clients
+
+- [x] 10.1 Rename `UserErrorCode.UNKNOWN_USERS` to `INTERNAL_RATES_UNKNOWN_USERS` and let `UserResource` reuse the exception's code. Move the empty-file and bad-format codes from string constants into the adapter-local enum `InternalRateUploadErrorCode`. Pin all three in `ErrorCodeTest`. Verify that `UserResourceTest` still sees the unchanged wire codes.
+- [x] 10.2 Replace `quarkus.jackson.fail-on-unknown-properties: true` with `StrictServerObjectMapperResolver` constrained to the server (D11). Verify with a `@QuarkusTest` that a REST client ignores an unknown response property and that the API still rejects an unknown request property with `400`.
+- [x] 10.3 Run `mvn clean package -Prewrite-check`. Verify it passes.

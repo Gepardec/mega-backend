@@ -7,6 +7,7 @@ import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDatesRequestDto;
 import com.gepardec.mega.hexagon.generated.model.UserDto;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
+import com.gepardec.mega.hexagon.shared.domain.error.ErrorCode;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.application.port.inbound.GetActiveUsersUseCase;
@@ -48,9 +49,6 @@ public class UserResource implements UserApi {
     private static final String CSV_COMMENT_PREFIX = "#";
     private static final String TEMPLATE_HEADER = "#ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD";
     private static final String TEMPLATE_FILENAME = "hourly_rates_template.csv";
-    private static final String ERROR_CODE_EMPTY_FILE = "USER_INTERNAL_RATES_EMPTY_FILE";
-    private static final String ERROR_CODE_BAD_FORMAT = "USER_INTERNAL_RATES_BAD_FORMAT";
-    private static final String ERROR_CODE_UNKNOWN_USERS = "USER_INTERNAL_RATES_UNKNOWN_USERS";
 
     private final GetActiveUsersUseCase getActiveUsersUseCase;
     private final UpdateInternalRatesUseCase updateInternalRatesUseCase;
@@ -125,7 +123,7 @@ public class UserResource implements UserApi {
     @MegaRolesAllowed(Role.OFFICE_MANAGEMENT)
     public Response uploadInternalRates(InputStream _fileInputStream) {
         if (_fileInputStream == null) {
-            throw badRequest(ERROR_CODE_EMPTY_FILE, List.of());
+            throw badRequest(InternalRateUploadErrorCode.INTERNAL_RATES_EMPTY_FILE, List.of());
         }
 
         final List<CsvLine> dataLines;
@@ -136,12 +134,12 @@ public class UserResource implements UserApi {
         }
 
         if (dataLines.isEmpty()) {
-            throw badRequest(ERROR_CODE_EMPTY_FILE, List.of());
+            throw badRequest(InternalRateUploadErrorCode.INTERNAL_RATES_EMPTY_FILE, List.of());
         }
 
         CsvValidationResult validationResult = validateAndMap(dataLines);
         if (!validationResult.errorLines().isEmpty()) {
-            throw badRequest(ERROR_CODE_BAD_FORMAT, validationResult.errorLines());
+            throw badRequest(InternalRateUploadErrorCode.INTERNAL_RATES_BAD_FORMAT, validationResult.errorLines());
         }
 
         try {
@@ -156,7 +154,7 @@ public class UserResource implements UserApi {
                     .filter(parsedLine -> unknownUsers.contains(parsedLine.command().zepUsername()))
                     .map(parsedLine -> parsedLine.csvLine().originalLineNumber())
                     .toList();
-            throw badRequest(ERROR_CODE_UNKNOWN_USERS, lines);
+            throw badRequest(exception.errorCode(), lines);
         }
 
         return Response.ok().build();
@@ -223,9 +221,9 @@ public class UserResource implements UserApi {
         }
     }
 
-    private HttpProblem badRequest(String code, List<Integer> lines) {
+    private HttpProblem badRequest(ErrorCode code, List<Integer> lines) {
         return HttpProblem.builder(HttpProblem.valueOf(Response.Status.BAD_REQUEST))
-                .with("code", code)
+                .with("code", code.code())
                 .with("lines", lines)
                 .build();
     }

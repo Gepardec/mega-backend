@@ -17,9 +17,6 @@ quarkus:
     auth:
       proactive: false
 
-  jackson:
-    fail-on-unknown-properties: true
-
   liquibase:
     change-log: "db/changelog-master.xml"
 

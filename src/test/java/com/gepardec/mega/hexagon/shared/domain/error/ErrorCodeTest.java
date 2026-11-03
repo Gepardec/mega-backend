@@ -68,7 +68,9 @@ class ErrorCodeTest {
                         "PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE",
                         "PROJECT_ACTOR_NOT_LEAD",
                         "WORKTIME_USER_NOT_FOUND",
-                        "USER_UNKNOWN_USERS"
+                        "USER_INTERNAL_RATES_EMPTY_FILE",
+                        "USER_INTERNAL_RATES_BAD_FORMAT",
+                        "USER_INTERNAL_RATES_UNKNOWN_USERS"
                 );
     }
 }
