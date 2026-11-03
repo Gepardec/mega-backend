@@ -54,7 +54,7 @@ public class GetPayrollMonthService implements GetPayrollMonthUseCase {
         YearMonth currentMonth = YearMonth.now(clock);
         YearMonth previousMonth = currentMonth.minusMonths(1);
 
-        if (!monthEndTaskRepository.findTasks(currentMonth, new MonthEndScope.LedProjects(leadId)).isEmpty()) {
+        if (monthEndTaskRepository.existsTasks(currentMonth, new MonthEndScope.LedProjects(leadId))) {
             return currentMonth;
         }
 

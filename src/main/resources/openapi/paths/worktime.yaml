@@ -17,8 +17,8 @@
     responses:
       '200':
         description: >-
-          Work time report. The order of entries is not defined; grouping and
-          sorting is up to the client.
+          Work time report. Entries are ordered by employee name, then by
+          project name.
         content:
           application/json:
             schema:

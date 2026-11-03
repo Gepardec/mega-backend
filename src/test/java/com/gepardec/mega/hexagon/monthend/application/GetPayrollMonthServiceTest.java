@@ -99,24 +99,24 @@ class GetPayrollMonthServiceTest {
     @Test
     void getPayrollMonth_shouldReturnCurrentMonth_inControllingCapacity_whenTasksExistForCurrentMonth() {
         MonthEndScope scope = new MonthEndScope.LedProjects(actorId);
-        when(monthEndTaskRepository.findTasks(CURRENT_MONTH, scope)).thenReturn(List.of(openLeadTask(CURRENT_MONTH)));
+        when(monthEndTaskRepository.existsTasks(CURRENT_MONTH, scope)).thenReturn(true);
 
         YearMonth payrollMonth = service.getPayrollMonth(actorId, Capacity.CONTROLLING);
 
         assertThat(payrollMonth).isEqualTo(CURRENT_MONTH);
-        verify(monthEndTaskRepository).findTasks(CURRENT_MONTH, scope);
+        verify(monthEndTaskRepository).existsTasks(CURRENT_MONTH, scope);
         verifyNoMoreInteractions(monthEndTaskRepository);
     }
 
     @Test
     void getPayrollMonth_shouldReturnPreviousMonth_inControllingCapacity_whenNoTasksExistForCurrentMonth() {
         MonthEndScope scope = new MonthEndScope.LedProjects(actorId);
-        when(monthEndTaskRepository.findTasks(CURRENT_MONTH, scope)).thenReturn(List.of());
+        when(monthEndTaskRepository.existsTasks(CURRENT_MONTH, scope)).thenReturn(false);
 
         YearMonth payrollMonth = service.getPayrollMonth(actorId, Capacity.CONTROLLING);
 
         assertThat(payrollMonth).isEqualTo(PREVIOUS_MONTH);
-        verify(monthEndTaskRepository).findTasks(CURRENT_MONTH, scope);
+        verify(monthEndTaskRepository).existsTasks(CURRENT_MONTH, scope);
         verifyNoMoreInteractions(monthEndTaskRepository);
     }
 
@@ -127,17 +127,6 @@ class GetPayrollMonthServiceTest {
                 MonthEndTaskType.EMPLOYEE_TIME_CHECK,
                 projectId,
                 actorId,
-                Set.of(actorId)
-        );
-    }
-
-    private MonthEndTask openLeadTask(YearMonth month) {
-        return MonthEndTask.create(
-                MonthEndTaskId.generate(),
-                month,
-                MonthEndTaskType.ABRECHNUNG,
-                projectId,
-                null,
                 Set.of(actorId)
         );
     }

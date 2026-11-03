@@ -22,10 +22,12 @@ import jakarta.transaction.Transactional;
 
 import java.time.YearMonth;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -66,13 +68,8 @@ public class GetWorkTimeReportService implements GetWorkTimeReportUseCase {
 
         return new WorkTimeScope(
                 Map.of(zepUsername, employee),
-                zepId -> {
-                    Optional<ProjectRef> project = workTimeProjectSnapshotPort.findByZepId(zepId, month);
-                    if (project.isEmpty()) {
-                        Log.warnf("Skipping worktime entry for unknown project zepId=%s", zepId);
-                    }
-                    return project;
-                }
+                zepId -> workTimeProjectSnapshotPort.findByZepId(zepId, month),
+                false
         );
     }
 
@@ -98,8 +95,8 @@ public class GetWorkTimeReportService implements GetWorkTimeReportUseCase {
                 .filter(user -> user.zepUsername() != null)
                 .collect(Collectors.toMap(user -> user.zepUsername().value(), Function.identity()));
 
-        // Bookings on non-lead projects are expected here, so they are dropped without a warning.
-        return Optional.of(new WorkTimeScope(usersByZepUsername, zepId -> Optional.ofNullable(projectsByZepId.get(zepId))));
+        // Bookings on non-lead projects are expected here.
+        return Optional.of(new WorkTimeScope(usersByZepUsername, zepId -> Optional.ofNullable(projectsByZepId.get(zepId)), true));
     }
 
     private WorkTimeReport buildReport(WorkTimeScope scope, YearMonth month) {
@@ -108,27 +105,33 @@ public class GetWorkTimeReportService implements GetWorkTimeReportUseCase {
                         .await().indefinitely();
 
         Map<UserRef, List<WorkTimeAttendance>> attendancesByEmployee = attendancesByZepUsername.entrySet().stream()
-                .filter(entry -> isKnownEmployee(entry.getKey(), scope))
                 .collect(Collectors.toMap(entry -> scope.employeesByZepUsername().get(entry.getKey()), Map.Entry::getValue));
 
         return WorkTimeReport.assemble(month, attendancesByEmployee, resolveProjects(attendancesByEmployee, scope));
     }
 
-    private boolean isKnownEmployee(String zepUsername, WorkTimeScope scope) {
-        boolean known = scope.employeesByZepUsername().containsKey(zepUsername);
-        if (!known) {
-            Log.warnf("Skipping worktime entries for unknown employee zepId=%s", zepUsername);
-        }
-        return known;
-    }
-
     private Map<Integer, ProjectRef> resolveProjects(Map<UserRef, List<WorkTimeAttendance>> attendancesByEmployee, WorkTimeScope scope) {
-        return attendancesByEmployee.values().stream()
+        Map<Integer, ProjectRef> resolved = new HashMap<>();
+        Set<Integer> unresolved = new TreeSet<>();
+        attendancesByEmployee.values().stream()
                 .flatMap(List::stream)
                 .map(WorkTimeAttendance::projectZepId)
                 .distinct()
-                .flatMap(zepId -> scope.projects().resolve(zepId).stream())
-                .collect(Collectors.toMap(ProjectRef::zepId, Function.identity()));
+                .forEach(zepId -> scope.projects().resolve(zepId)
+                        .ifPresentOrElse(project -> resolved.put(zepId, project), () -> unresolved.add(zepId)));
+        logUnresolvedProjects(unresolved, scope);
+        return resolved;
+    }
+
+    private void logUnresolvedProjects(Set<Integer> unresolvedZepIds, WorkTimeScope scope) {
+        if (unresolvedZepIds.isEmpty()) {
+            return;
+        }
+        if (scope.unresolvedProjectsExpected()) {
+            Log.debugf("Skipping worktime entries for projects outside the scope, zepIds=%s", unresolvedZepIds);
+        } else {
+            Log.warnf("Skipping worktime entries for unknown projects, zepIds=%s", unresolvedZepIds);
+        }
     }
 
     private Uni<Set<String>> fetchEmployeeZepIds(Collection<Integer> projectZepIds, YearMonth month) {

@@ -2,7 +2,6 @@ package com.gepardec.mega.hexagon.monthend.domain.model;
 
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
 import com.gepardec.mega.hexagon.shared.domain.SystemActor;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
@@ -98,7 +97,29 @@ class MonthEndClarificationTest {
                 createdAt
         );
 
-        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndValidationException.class);
+        assertThatThrownBy(throwingCallable).isInstanceOf(MonthEndActorNotAuthorizedException.class);
+    }
+
+    @Test
+    void constructor_shouldNotValidateCreator_whenRebuildingStoredClarification() {
+        MonthEndClarification stored = new MonthEndClarification(
+                MonthEndClarificationId.generate(),
+                month,
+                projectId,
+                null,
+                employeeId,
+                SourceSystem.MEGA,
+                Set.of(leadA, leadB),
+                MonthEndClarificationStatus.OPEN,
+                "Stored with a creator who is no longer involved.",
+                null,
+                null,
+                createdAt,
+                null,
+                createdAt
+        );
+
+        assertThat(stored.createdBy()).isEqualTo(employeeId);
     }
 
     @Test

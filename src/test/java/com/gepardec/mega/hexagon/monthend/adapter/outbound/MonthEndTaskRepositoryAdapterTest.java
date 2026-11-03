@@ -238,6 +238,77 @@ class MonthEndTaskRepositoryAdapterTest {
     }
 
     @Test
+    void existsTasks_subjectEmployeeScope_shouldReturnTrueOnlyWhenEmployeeIsSubjectInMonth() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User employee = user("exists-subject-emp", Set.of(Role.EMPLOYEE));
+        User otherEmployee = user("exists-subject-other", Set.of(Role.EMPLOYEE));
+        userRepositoryAdapter.saveAll(List.of(employee, otherEmployee));
+        Project project = project(401, true);
+        projectRepositoryAdapter.saveAll(List.of(project));
+        monthEndTaskRepositoryAdapter.saveAll(List.of(MonthEndTask.create(
+                MonthEndTaskId.generate(), month, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                project.id(), employee.id(), Set.of(employee.id())
+        )));
+
+        assertThat(monthEndTaskRepositoryAdapter.existsTasks(month, new MonthEndScope.SubjectEmployee(employee.id()))).isTrue();
+        assertThat(monthEndTaskRepositoryAdapter.existsTasks(month, new MonthEndScope.SubjectEmployee(otherEmployee.id()))).isFalse();
+        assertThat(monthEndTaskRepositoryAdapter.existsTasks(month.plusMonths(1), new MonthEndScope.SubjectEmployee(employee.id()))).isFalse();
+    }
+
+    @Test
+    void existsTasks_ledProjectsScope_shouldReturnTrueWhenLeadLeadsAProjectWithTasks() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User employee = user("exists-led-emp", Set.of(Role.EMPLOYEE));
+        User lead = user("exists-led-lead", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        userRepositoryAdapter.saveAll(List.of(employee, lead));
+        Project ledProject = project(411, true);
+        projectRepositoryAdapter.saveAll(List.of(ledProject));
+        monthEndTaskRepositoryAdapter.saveAll(List.of(
+                MonthEndTask.create(
+                        MonthEndTaskId.generate(), month, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        ledProject.id(), employee.id(), Set.of(employee.id())
+                ),
+                MonthEndTask.create(
+                        MonthEndTaskId.generate(), month, MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        ledProject.id(), employee.id(), Set.of(lead.id())
+                )
+        ));
+
+        assertThat(monthEndTaskRepositoryAdapter.existsTasks(month, new MonthEndScope.LedProjects(lead.id()))).isTrue();
+    }
+
+    @Test
+    void existsTasks_ledProjectsScope_shouldReturnFalse_whenNoTasksExist() {
+        User lead = user("exists-led-none", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        userRepositoryAdapter.saveAll(List.of(lead));
+
+        assertThat(monthEndTaskRepositoryAdapter.existsTasks(YearMonth.of(2026, 3), new MonthEndScope.LedProjects(lead.id()))).isFalse();
+    }
+
+    @Test
+    void existsTasks_ledProjectsScope_shouldReturnFalse_whenTasksExistOnlyOnProjectsTheLeadDoesNotLead() {
+        YearMonth month = YearMonth.of(2026, 3);
+        User employee = user("exists-unled-emp", Set.of(Role.EMPLOYEE));
+        User lead = user("exists-unled-lead", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        User otherLead = user("exists-unled-other", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        userRepositoryAdapter.saveAll(List.of(employee, lead, otherLead));
+        Project unledProject = project(421, true);
+        projectRepositoryAdapter.saveAll(List.of(unledProject));
+        monthEndTaskRepositoryAdapter.saveAll(List.of(
+                MonthEndTask.create(
+                        MonthEndTaskId.generate(), month, MonthEndTaskType.EMPLOYEE_TIME_CHECK,
+                        unledProject.id(), lead.id(), Set.of(lead.id())
+                ),
+                MonthEndTask.create(
+                        MonthEndTaskId.generate(), month, MonthEndTaskType.PROJECT_LEAD_REVIEW,
+                        unledProject.id(), employee.id(), Set.of(otherLead.id())
+                )
+        ));
+
+        assertThat(monthEndTaskRepositoryAdapter.existsTasks(month, new MonthEndScope.LedProjects(lead.id()))).isFalse();
+    }
+
+    @Test
     void findOpenProjectTasksOfType_shouldReturnTasksOfMonthProjectAndType() {
         YearMonth monthA = YearMonth.of(2026, 3);
         YearMonth monthB = YearMonth.of(2026, 4);

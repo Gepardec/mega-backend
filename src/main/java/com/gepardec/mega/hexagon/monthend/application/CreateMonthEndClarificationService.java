@@ -1,10 +1,10 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationCreatedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.SourceSystem;
 import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndClarificationRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -18,7 +18,6 @@ import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.time.YearMonth;
 import java.util.Objects;
-import java.util.Set;
 
 @ApplicationScoped
 @Transactional
@@ -59,24 +58,24 @@ public class CreateMonthEndClarificationService implements CreateMonthEndClarifi
         Objects.requireNonNull(actorId, "actorId must not be null");
         Objects.requireNonNull(sourceSystem, "sourceSystem must not be null");
 
-        Set<UserId> projectLeadIds = projectContextService.resolve(month, projectId).eligibleProjectLeadIds();
-        UserId subject = resolveSubject(subjectEmployeeId, actorId, projectLeadIds);
+        MonthEndProjectContext projectContext = projectContextService.resolve(month, projectId);
 
-        Set<UserId> eligibleLeadIds = subject != null
-                ? employeeContextService.resolve(month, projectId, subject).eligibleProjectLeadIds()
-                : projectLeadIds;
-
+        // The factory enforces who may create; it runs before the subject checks so a caller who
+        // is not allowed gets 403 even when the named employee is not assigned.
         MonthEndClarification clarification = MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
                 month,
                 projectId,
-                subject,
+                subjectEmployeeId,
                 actorId,
                 sourceSystem,
-                eligibleLeadIds,
+                projectContext.eligibleProjectLeadIds(),
                 text,
                 clock.instant()
         );
+        if (subjectEmployeeId != null) {
+            employeeContextService.resolve(projectContext, subjectEmployeeId);
+        }
         monthEndClarificationRepository.save(clarification);
         clarificationCreatedEvent.fire(new ClarificationCreatedEvent(
                 clarification.id(),
@@ -91,29 +90,9 @@ public class CreateMonthEndClarificationService implements CreateMonthEndClarifi
                 "Created month-end clarification %s for project %s, employee %s, month %s",
                 clarification.id().value(),
                 projectId.value(),
-                subject != null ? subject.value() : "project-level",
+                subjectEmployeeId != null ? subjectEmployeeId.value() : "project-level",
                 month
         );
         return clarification;
-    }
-
-    private UserId resolveSubject(UserId requestedSubjectId, UserId actorId, Set<UserId> projectLeadIds) {
-        boolean actorIsLead = projectLeadIds.contains(actorId);
-        if (requestedSubjectId == null) {
-            if (actorIsLead) {
-                return null;
-            }
-            throw new MonthEndActorNotAuthorizedException(
-                    "actor %s is not allowed to create a project-level clarification"
-                            .formatted(actorId.value())
-            );
-        }
-        if (actorIsLead || requestedSubjectId.equals(actorId)) {
-            return requestedSubjectId;
-        }
-        throw new MonthEndActorNotAuthorizedException(
-                "actor %s is not allowed to create a clarification for employee %s"
-                        .formatted(actorId.value(), requestedSubjectId.value())
-        );
     }
 }

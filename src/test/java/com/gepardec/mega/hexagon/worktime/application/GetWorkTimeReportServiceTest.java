@@ -32,6 +32,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -80,7 +81,8 @@ class GetWorkTimeReportServiceTest {
             WorkTimeReport report = service.getWorkTime(employeeId, MONTH, Capacity.EMPLOYEE);
 
             assertThat(report.payrollMonth()).isEqualTo(MONTH);
-            assertThat(report.entries()).hasSize(2);
+            assertThat(report.entries()).extracting(entry -> entry.project().id())
+                    .containsExactly(projectId, secondProjectId);
             assertThat(report.entries()).anySatisfy(entry -> {
                 assertThat(entry.project().id()).isEqualTo(projectId);
                 assertThat(entry.billableHours()).isEqualTo(2.5d);
@@ -182,7 +184,12 @@ class GetWorkTimeReportServiceTest {
 
             assertThat(report.payrollMonth()).isEqualTo(MONTH);
             // The booking on non-lead project 33 is filtered out, but still counts towards the employee total.
-            assertThat(report.entries()).hasSize(3);
+            assertThat(report.entries()).extracting(entry -> entry.employee().id(), entry -> entry.project().id())
+                    .containsExactly(
+                            tuple(employeeId, alpha.id()),
+                            tuple(employeeId, beta.id()),
+                            tuple(secondEmployeeId, alpha.id())
+                    );
             assertThat(report.entries()).anySatisfy(entry -> {
                 assertThat(entry.employee().id()).isEqualTo(employeeId);
                 assertThat(entry.project().id()).isEqualTo(alpha.id());
@@ -255,11 +262,11 @@ class GetWorkTimeReportServiceTest {
         WorkTimeReport controllingReport = service.getWorkTime(leadId, MONTH, Capacity.CONTROLLING);
 
         assertThat(employeeReport.entries()).extracting(entry -> entry.project().id())
-                .containsExactlyInAnyOrder(led.id(), notLed.id());
+                .containsExactly(led.id(), notLed.id());
         assertThat(controllingReport.entries()).singleElement().satisfies(entry -> {
             assertThat(entry.project().id()).isEqualTo(led.id());
             assertThat(entry.billableHours()).isEqualTo(4.0d);
-            assertThat(entry.nonBillableHours()).isEqualTo(1.0d);
+            assertThat(entry.nonBillableHours()).isOne();
             assertThat(entry.employeeMonthTotalHours()).isEqualTo(7.0d);
         });
         assertThat(employeeReport.entries()).filteredOn(entry -> entry.project().id().equals(led.id()))
