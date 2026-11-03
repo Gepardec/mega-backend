@@ -64,3 +64,10 @@
 - [x] 10.1 Rename `UserErrorCode.UNKNOWN_USERS` to `INTERNAL_RATES_UNKNOWN_USERS` and let `UserResource` reuse the exception's code. Move the empty-file and bad-format codes from string constants into the adapter-local enum `InternalRateUploadErrorCode`. Pin all three in `ErrorCodeTest`. Verify that `UserResourceTest` still sees the unchanged wire codes.
 - [x] 10.2 Replace `quarkus.jackson.fail-on-unknown-properties: true` with `StrictServerObjectMapperResolver` constrained to the server (D11). Verify with a `@QuarkusTest` that a REST client ignores an unknown response property and that the API still rejects an unknown request property with `400`.
 - [x] 10.3 Run `mvn clean package -Prewrite-check`. Verify it passes.
+
+## 11. Status by kind of rejection
+
+- [x] 11.1 Add the categories `CONFLICT` and `UNPROCESSABLE` and map them to `409` and `422` in `DomainProblemMapper`, exposing the mapping as `problemOf(ErrorCode)` (D17). Recategorise the codes as in the catalogue and let `UserResource` build its CSV problems from `problemOf`. Verify with `DomainProblemMapperTest` that each category yields its status and title.
+- [x] 11.2 Pin each code together with its category in `ErrorCodeTest`. Verify that it passes.
+- [x] 11.3 Add `Conflict` and `UnprocessableContent` to `openapi/responses/common.yaml` and reference them from the operations that can return them; give the CSV upload a `422` response with `InternalRateUploadProblem`. Verify with REST tests that a closed clarification yields `409`, an unassigned subject employee and an unsupported bulk type yield `422`, enabling Leistungsnachweis on a non-billable project yields `409`, and unknown CSV users yield `422` with `lines`.
+- [x] 11.4 Run `mvn clean package -Prewrite-check`. Verify it passes.

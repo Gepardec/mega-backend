@@ -89,7 +89,13 @@
       '200':
         description: Internal rates updated successfully
       '400':
-        description: CSV validation failed
+        description: The CSV is empty or malformed.
+        content:
+          application/problem+json:
+            schema:
+              $ref: '../schemas/user.yaml#/InternalRateUploadProblem'
+      '422':
+        description: The CSV names employees that aren't known.
         content:
           application/problem+json:
             schema:

@@ -223,7 +223,7 @@ class ProjectResourceTest {
     }
 
     @Test
-    void setLeistungsnachweisEnabled_shouldReturnBadRequest_whenUseCaseThrowsNotApplicable() {
+    void setLeistungsnachweisEnabled_shouldReturnConflict_whenUseCaseThrowsNotApplicable() {
         allowRoles(Role.PROJECT_COORDINATOR);
         var request = new LeistungsnachweisToggleRequestDto().enabled(true);
         doThrow(new ProjectException(ProjectErrorCode.LEISTUNGSNACHWEIS_NOT_APPLICABLE, "not applicable"))
@@ -236,6 +236,6 @@ class ProjectResourceTest {
                 .body(request)
                 .put("/projects/" + PROJECT_ID.value() + "/leistungsnachweis-enabled")
                 .then()
-                .statusCode(HttpStatus.SC_BAD_REQUEST);
+                .statusCode(HttpStatus.SC_CONFLICT);
     }
 }

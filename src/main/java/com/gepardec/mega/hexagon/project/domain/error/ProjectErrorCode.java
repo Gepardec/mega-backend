@@ -5,7 +5,7 @@ import com.gepardec.mega.hexagon.shared.domain.error.ErrorCode;
 
 public enum ProjectErrorCode implements ErrorCode {
     NOT_FOUND(ErrorCategory.NOT_FOUND),
-    LEISTUNGSNACHWEIS_NOT_APPLICABLE(ErrorCategory.INVALID),
+    LEISTUNGSNACHWEIS_NOT_APPLICABLE(ErrorCategory.CONFLICT),
     ACTOR_NOT_LEAD(ErrorCategory.FORBIDDEN);
 
     private final ErrorCategory category;

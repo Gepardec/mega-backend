@@ -327,7 +327,7 @@ class UserResourceTest {
     }
 
     @Test
-    void uploadInternalRates_shouldReturnUnknownUsersErrorWithCorrelatedLines() {
+    void uploadInternalRates_shouldReturnUnprocessableWithCorrelatedLines_whenUsersAreUnknown() {
         allowRoles(Role.OFFICE_MANAGEMENT);
         String csv = """
                 #ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD
@@ -343,7 +343,7 @@ class UserResourceTest {
                 .multiPart(buildCsvPart(csv))
                 .post("/users/internal-rates")
                 .then()
-                .statusCode(400)
+                .statusCode(422)
                 .contentType("application/problem+json")
                 .body("code", is("USER_INTERNAL_RATES_UNKNOWN_USERS"))
                 .body("lines", contains(3, 4))

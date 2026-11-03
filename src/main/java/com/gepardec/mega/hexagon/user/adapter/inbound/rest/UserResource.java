@@ -5,6 +5,7 @@ import com.gepardec.mega.hexagon.generated.model.ActiveUserDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDateEntryDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDatesRequestDto;
 import com.gepardec.mega.hexagon.generated.model.UserDto;
+import com.gepardec.mega.hexagon.shared.adapter.inbound.rest.DomainProblemMapper;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
 import com.gepardec.mega.hexagon.shared.domain.error.ErrorCode;
@@ -123,7 +124,7 @@ public class UserResource implements UserApi {
     @MegaRolesAllowed(Role.OFFICE_MANAGEMENT)
     public Response uploadInternalRates(InputStream _fileInputStream) {
         if (_fileInputStream == null) {
-            throw badRequest(InternalRateUploadErrorCode.INTERNAL_RATES_EMPTY_FILE, List.of());
+            throw uploadProblem(InternalRateUploadErrorCode.INTERNAL_RATES_EMPTY_FILE, List.of());
         }
 
         final List<CsvLine> dataLines;
@@ -134,12 +135,12 @@ public class UserResource implements UserApi {
         }
 
         if (dataLines.isEmpty()) {
-            throw badRequest(InternalRateUploadErrorCode.INTERNAL_RATES_EMPTY_FILE, List.of());
+            throw uploadProblem(InternalRateUploadErrorCode.INTERNAL_RATES_EMPTY_FILE, List.of());
         }
 
         CsvValidationResult validationResult = validateAndMap(dataLines);
         if (!validationResult.errorLines().isEmpty()) {
-            throw badRequest(InternalRateUploadErrorCode.INTERNAL_RATES_BAD_FORMAT, validationResult.errorLines());
+            throw uploadProblem(InternalRateUploadErrorCode.INTERNAL_RATES_BAD_FORMAT, validationResult.errorLines());
         }
 
         try {
@@ -154,7 +155,7 @@ public class UserResource implements UserApi {
                     .filter(parsedLine -> unknownUsers.contains(parsedLine.command().zepUsername()))
                     .map(parsedLine -> parsedLine.csvLine().originalLineNumber())
                     .toList();
-            throw badRequest(exception.errorCode(), lines);
+            throw uploadProblem(exception.errorCode(), lines);
         }
 
         return Response.ok().build();
@@ -221,9 +222,8 @@ public class UserResource implements UserApi {
         }
     }
 
-    private HttpProblem badRequest(ErrorCode code, List<Integer> lines) {
-        return HttpProblem.builder(HttpProblem.valueOf(Response.Status.BAD_REQUEST))
-                .with("code", code.code())
+    private HttpProblem uploadProblem(ErrorCode code, List<Integer> lines) {
+        return DomainProblemMapper.problemOf(code)
                 .with("lines", lines)
                 .build();
     }

@@ -22,9 +22,11 @@ class DomainProblemMapperTest {
 
     @ParameterizedTest
     @CsvSource({
-            "NOT_FOUND, 404, Not Found",
-            "FORBIDDEN, 403, Forbidden",
-            "INVALID,   400, Bad Request"
+            "NOT_FOUND,     404, Not Found",
+            "FORBIDDEN,     403, Forbidden",
+            "CONFLICT,      409, Conflict",
+            "UNPROCESSABLE, 422, Unprocessable Content",
+            "INVALID,       400, Bad Request"
     })
     void toProblem_shouldMapCategoryToStatusWithDetailAndCode(ErrorCategory category, int status, String title) {
         // Given

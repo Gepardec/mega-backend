@@ -19,7 +19,7 @@ Error responses are inconsistent across the API, and clients can't reliably tell
 - Hexagon inbound adapters no longer parse input by hand. Months are typed as year-month in the contract and generated as a native year-month type. The transport helpers are removed, and resources wrap identifiers into domain types directly.
 - All six legacy exception mappers are removed, together with the legacy `UnauthorizedException`, which nothing throws.
 - A duplicate-email conflict when resolving the authenticated actor is now a 500 instead of a 403, because it is a data-integrity fault, not an authorization decision.
-- The HTTP status of every existing business-rule rejection stays the same.
+- **BREAKING**: Business-rule rejections use the status of their kind instead of a blanket `400`. A clarification that is already done and enabling Leistungsnachweis on a non-billable project give `409`. Requests that are well-formed but refer to something that doesn't fit (an inactive project or employee, an employee outside the project, a project without an active lead, a task type that can't be bulk-completed, unknown employees in the internal-rate CSV) give `422`. `400` remains for requests that break the contract or are malformed. Codes don't change.
 - **BREAKING**: Failures that were never caller errors stop being reported as `400`. Stored month-end data that breaks a structural rule and a user without a ZEP username now give `500` without `code` or `detail`. The catch-all codes `MONTHEND_VALIDATION_FAILED` and `WORKTIME_VALIDATION_FAILED` are removed. The two rules a request can break that they also covered get their own codes, `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE` and `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD`, and blank clarification text is rejected by input validation.
 
 ## Capabilities
@@ -28,9 +28,11 @@ Error responses are inconsistent across the API, and clients can't reliably tell
 - `http-error-responses`: A cross-cutting contract for error responses across the whole API: problem-detail format and media type, the `code` member for domain and endpoint-specific errors, the validation-error shape, non-disclosure of internal details in 5xx responses, and how failures of external systems surface.
 
 ### Modified Capabilities
-- `user-rest-api`: The internal-rate CSV upload's failure body moves from `{ errorCode, lines }` to a problem with `code` and `lines`.
+- `user-rest-api`: The internal-rate CSV upload's failure body moves from `{ errorCode, lines }` to a problem with `code` and `lines`, and unknown employees are rejected with `422` instead of `400`.
 - `monthend-zep-mail-processing`: The webhook's 500 response no longer contains the raw exception message.
 - `hexagon-boundary-conventions`: Adds how hexagon failures are expressed: domain and application failures carry a stable code and an HTTP-free category, and only inbound adapters translate them into HTTP; inbound adapters take input already typed by the contract instead of parsing it.
+- `monthend-rest-api`: Project-lead bulk completion rejects an unsupported task type with `422` instead of `400`.
+- `project-rest-api`: Enabling Leistungsnachweis on a non-billable project is rejected with `409` instead of `400`.
 - `hexagon-layer-constraints`: Adds an architecture rule: hexagon domain and application packages must not depend on JAX-RS or the problem-details library.
 
 ## Impact

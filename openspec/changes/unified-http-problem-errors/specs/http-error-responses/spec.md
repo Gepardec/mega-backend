@@ -42,20 +42,28 @@ When a bounded context rejects a request for a reason specific to it (a business
 - **WHEN** a request fails because of an unexpected server-side error
 - **THEN** the API responds with `500` and a problem body without `code`
 
-### Requirement: Business-rule rejections keep their HTTP status
-When a bounded context rejects a request, the HTTP status SHALL reflect the kind of rejection: `404` when the referenced domain object doesn't exist, `403` when the acting user is not permitted to perform the operation, and `400` when the request violates a business rule. Introducing problem details SHALL NOT change the HTTP status of any existing rejection.
+### Requirement: Business-rule rejections use the status of their kind
+When a bounded context rejects a request, the HTTP status SHALL reflect the kind of rejection: `404` when the object the request URL addresses doesn't exist, `403` when the acting user may not perform the operation, `409` when the current state of the addressed object doesn't allow the operation, and `422` when the request is well-formed but what it refers to or asks for doesn't fit the domain. `400` SHALL be reserved for requests that don't satisfy the contract or whose content is malformed.
 
 #### Scenario: Non-lead toggles Leistungsnachweis
 - **WHEN** an authenticated user who does not lead the project calls `PUT /projects/{projectId}/leistungsnachweis-enabled`
 - **THEN** the API responds with `403` and a bounded-context-prefixed `code`
 
-#### Scenario: Rule violation keeps 400
+#### Scenario: Editing a closed clarification
+- **WHEN** the creator edits the text of, or deletes, a clarification that is already done
+- **THEN** the API responds with `409` and the code `MONTHEND_CLARIFICATION_CLOSED`
+
+#### Scenario: Unsupported bulk completion type
 - **WHEN** a project lead requests bulk completion for a task type that cannot be bulk-completed by a project lead
-- **THEN** the API responds with `400` and the code `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE`
+- **THEN** the API responds with `422` and the code `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE`
+
+#### Scenario: Clarification about an employee outside the project
+- **WHEN** an authenticated user creates a clarification about an employee who isn't assigned to the project in that month
+- **THEN** the API responds with `422` and the code `MONTHEND_EMPLOYEE_NOT_ASSIGNED_TO_PROJECT`
 
 #### Scenario: Clarification for a project without an active lead
 - **WHEN** an authenticated user creates a clarification, directly or through premature month-end preparation, for a project that has no active project lead in that month
-- **THEN** the API responds with `400` and the code `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD`
+- **THEN** the API responds with `422` and the code `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD`
 
 ### Requirement: Faults that the caller cannot fix are server errors
 A failure that no different request could have avoided SHALL NOT be reported as a `4xx`. It SHALL surface as `500` without `code` or `detail`, even where it was reported as `400` before. This covers stored data that breaks a structural rule of a domain object and a user without the ZEP username that a work-time read needs.

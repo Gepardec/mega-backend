@@ -85,6 +85,8 @@
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
         $ref: '../responses/common.yaml#/Forbidden'
+      '422':
+        $ref: '../responses/common.yaml#/UnprocessableContent'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
 '/monthend/clarifications':
@@ -117,6 +119,8 @@
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
         $ref: '../responses/common.yaml#/Forbidden'
+      '422':
+        $ref: '../responses/common.yaml#/UnprocessableContent'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
 '/monthend/tasks/{taskId}/complete':
@@ -161,6 +165,8 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '404':
         $ref: '../responses/common.yaml#/NotFound'
+      '409':
+        $ref: '../responses/common.yaml#/Conflict'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
 '/monthend/clarifications/{clarificationId}/text':
@@ -192,6 +198,8 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '404':
         $ref: '../responses/common.yaml#/NotFound'
+      '409':
+        $ref: '../responses/common.yaml#/Conflict'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
 '/monthend/clarifications/{clarificationId}/resolve':
@@ -296,6 +304,8 @@
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
         $ref: '../responses/common.yaml#/Forbidden'
+      '422':
+        $ref: '../responses/common.yaml#/UnprocessableContent'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
 '/monthend/{month}/my-tasks/complete':

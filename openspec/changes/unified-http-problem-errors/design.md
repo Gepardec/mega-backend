@@ -30,10 +30,11 @@ Constraints:
 - One rendering path for all problems: the extension. Our code only classifies errors.
 - Hexagon code classifies each failure once, at its definition, with no HTTP knowledge.
 - The OpenAPI `Problem` schema matches the actual JSON on the wire, and a test enforces it.
+- Each rejection gets the status of its kind: `400` only for contract violations, `409` for state conflicts, `422` for well-formed requests that don't fit the domain (D17).
 
 **Non-Goals:**
 - Success-side messages or response envelopes.
-- Re-evaluating the HTTP status of existing domain failures, for example whether a closed clarification should be `409`. All current statuses of business-rule rejections are kept (spec: *Business-rule rejections keep their HTTP status*). Failures that were wrongly reported as rejections are corrected (D16).
+- Re-evaluating `404` and `403` rejections. Only the blanket `400` is split up (D17).
 - Documenting legacy endpoints in the OpenAPI contract.
 - Frontend changes, including the planned error interceptor.
 - Adding `type` URIs or a problem-type registry.
@@ -59,24 +60,26 @@ The shared `ForbiddenException` (still in `shared/application/security`) also ex
 **One exception type per context.** Because the enum constant already names the failure and carries its category, each context has one concrete exception (`MonthEndException`, `ProjectException`, `WorkTimeException`, `UserException`) that takes its own enum constant, for example `new MonthEndException(MonthEndErrorCode.TASK_NOT_FOUND, message)`. A dedicated subclass exists only when the failure carries structured data or code must catch exactly that failure. Today that's `UnknownUsersException`, which `UserResource` catches to turn usernames into CSV line numbers. The shared `ForbiddenException` stays as it is. Tests assert on `errorCode()` instead of the exception class.
 - *Alternative:* one subclass per failure. Rejected because the subclasses repeated the enum constants without adding behaviour, and nothing caught them by type.
 
-**Code catalogue.** These are the stable values; the frontend switches on them. The status column matches the behaviour before this change, except where D16 reclassifies.
+**Code catalogue.** These are the stable values; the frontend switches on them. Statuses follow D17; the category is pinned together with the code in `ErrorCodeTest`.
 
 | Enum constant | Category | Status | Code |
 |---|---|---|---|
 | `MonthEndErrorCode.TASK_NOT_FOUND` | NOT_FOUND | 404 | `MONTHEND_TASK_NOT_FOUND` |
 | `MonthEndErrorCode.CLARIFICATION_NOT_FOUND` | NOT_FOUND | 404 | `MONTHEND_CLARIFICATION_NOT_FOUND` |
 | `MonthEndErrorCode.ACTOR_NOT_AUTHORIZED` | FORBIDDEN | 403 | `MONTHEND_ACTOR_NOT_AUTHORIZED` |
-| `MonthEndErrorCode.CLARIFICATION_CLOSED` | INVALID | 400 | `MONTHEND_CLARIFICATION_CLOSED` |
-| `MonthEndErrorCode.EMPLOYEE_CONTEXT_NOT_FOUND` | INVALID | 400 | `MONTHEND_EMPLOYEE_CONTEXT_NOT_FOUND` |
-| `MonthEndErrorCode.EMPLOYEE_NOT_ASSIGNED_TO_PROJECT` | INVALID | 400 | `MONTHEND_EMPLOYEE_NOT_ASSIGNED_TO_PROJECT` |
-| `MonthEndErrorCode.PROJECT_CONTEXT_NOT_FOUND` | INVALID | 400 | `MONTHEND_PROJECT_CONTEXT_NOT_FOUND` |
-| `MonthEndErrorCode.NO_ELIGIBLE_PROJECT_LEAD` (new, D16) | INVALID | 400 | `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD` |
-| `MonthEndErrorCode.TASK_TYPE_NOT_BULK_COMPLETABLE` (new, D16) | INVALID | 400 | `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE` |
+| `MonthEndErrorCode.CLARIFICATION_CLOSED` | CONFLICT | 409 | `MONTHEND_CLARIFICATION_CLOSED` |
+| `MonthEndErrorCode.EMPLOYEE_CONTEXT_NOT_FOUND` | UNPROCESSABLE | 422 | `MONTHEND_EMPLOYEE_CONTEXT_NOT_FOUND` |
+| `MonthEndErrorCode.EMPLOYEE_NOT_ASSIGNED_TO_PROJECT` | UNPROCESSABLE | 422 | `MONTHEND_EMPLOYEE_NOT_ASSIGNED_TO_PROJECT` |
+| `MonthEndErrorCode.PROJECT_CONTEXT_NOT_FOUND` | UNPROCESSABLE | 422 | `MONTHEND_PROJECT_CONTEXT_NOT_FOUND` |
+| `MonthEndErrorCode.NO_ELIGIBLE_PROJECT_LEAD` (new, D16) | UNPROCESSABLE | 422 | `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD` |
+| `MonthEndErrorCode.TASK_TYPE_NOT_BULK_COMPLETABLE` (new, D16) | UNPROCESSABLE | 422 | `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE` |
 | `ProjectErrorCode.NOT_FOUND` | NOT_FOUND | 404 | `PROJECT_NOT_FOUND` |
-| `ProjectErrorCode.LEISTUNGSNACHWEIS_NOT_APPLICABLE` | INVALID | 400 | `PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE` |
+| `ProjectErrorCode.LEISTUNGSNACHWEIS_NOT_APPLICABLE` | CONFLICT | 409 | `PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE` |
 | `ProjectErrorCode.ACTOR_NOT_LEAD` (new) | FORBIDDEN | 403 | `PROJECT_ACTOR_NOT_LEAD` |
 | `WorkTimeErrorCode.USER_NOT_FOUND` | NOT_FOUND | 404 | `WORKTIME_USER_NOT_FOUND` |
-| `UserErrorCode.UNKNOWN_USERS` (`UnknownUsersException`) | INVALID | 400 | `USER_UNKNOWN_USERS` |
+| `UserErrorCode.INTERNAL_RATES_UNKNOWN_USERS` (`UnknownUsersException`) | UNPROCESSABLE | 422 | `USER_INTERNAL_RATES_UNKNOWN_USERS` |
+| `InternalRateUploadErrorCode.INTERNAL_RATES_EMPTY_FILE` (adapter) | INVALID | 400 | `USER_INTERNAL_RATES_EMPTY_FILE` |
+| `InternalRateUploadErrorCode.INTERNAL_RATES_BAD_FORMAT` (adapter) | INVALID | 400 | `USER_INTERNAL_RATES_BAD_FORMAT` |
 | `SharedErrorCode.FORBIDDEN` (shared `ForbiddenException`) | FORBIDDEN | 403 | `FORBIDDEN` |
 
 `MONTHEND_ACTOR_NOT_AUTHORIZED` also covers the clarification creator and subject rule, which `main` turned from a `400` into a `403` before this change was rebased. The shared capacity check (`requireCapacity`) rejects through the shared `ForbiddenException`, so a capacity the caller doesn't hold yields `FORBIDDEN`.
@@ -84,7 +87,7 @@ The shared `ForbiddenException` (still in `shared/application/security`) also ex
 Internal-rate upload codes: `USER_INTERNAL_RATES_UNKNOWN_USERS` is `UserErrorCode.INTERNAL_RATES_UNKNOWN_USERS`, raised by the use case through `UnknownUsersException`; the resource reuses the exception's code and only adds `lines`. `USER_INTERNAL_RATES_EMPTY_FILE` and `USER_INTERNAL_RATES_BAD_FORMAT` are detected only by the CSV parsing, so they live in the adapter-local enum `InternalRateUploadErrorCode`. Every code is an `ErrorCode` enum constant where it's raised, so `ErrorCodeTest` pins all of them and no code exists only as a string. Problems produced by the framework have no code (D4).
 
 ### D3: One `DomainProblemMapper` extending the extension's `ExceptionMapperBase`
-`shared/adapter/inbound/rest/DomainProblemMapper extends ExceptionMapperBase<DomainException>`, with constructor injection of `PostProcessorsRegistry`. `toProblem` builds `HttpProblem.valueOf(status)`, which sets `title` to the reason phrase, then adds `detail = exception.getMessage()` and `.with("code", code)`. The category-to-status mapping lives only here: `NOT_FOUND → 404`, `FORBIDDEN → 403`, `INVALID → 400`. JAX-RS picks the most specific mapper, so it wins over the extension's `DefaultExceptionMapper` (`Exception`). Because it extends the base class, post-processing (logging, MDC) runs for domain problems exactly as for built-in ones.
+`shared/adapter/inbound/rest/DomainProblemMapper extends ExceptionMapperBase<DomainException>`, with constructor injection of `PostProcessorsRegistry`. `toProblem` starts from the public `problemOf(ErrorCode)`, which sets the status, `title` (the reason phrase) and `code`, then adds `detail = exception.getMessage()`. The category-to-status mapping lives only here: `NOT_FOUND → 404`, `FORBIDDEN → 403`, `CONFLICT → 409`, `UNPROCESSABLE → 422`, `INVALID → 400`. `422` is built by number because Jakarta REST has no constant for it. `UserResource` builds its CSV problems from `problemOf` too, so it never states a status itself. JAX-RS picks the most specific mapper, so it wins over the extension's `DefaultExceptionMapper` (`Exception`). Because it extends the base class, post-processing (logging, MDC) runs for domain problems exactly as for built-in ones.
 - *Alternatives (discussed and rejected):* a post-processor that rewrites the default `500`, which only uses documented API but is indirect; a CDI interceptor that translates to `HttpProblem`, which needs a binding on every resource and misses non-resource paths; or a plain `ExceptionMapper` with `HttpProblem.toResponse()`, which skips post-processing and logging.
 - *Trade-off:* `ExceptionMapperBase` is documented only in `CONTRIBUTING.md`, so it's effectively internal API. See the risks section.
 
@@ -146,11 +149,22 @@ D12 applies to every hexagon resource, not only `MonthEndResource`. A unit test 
 ### D16: Structural invariants are defects, not caller errors
 The compact constructors of `MonthEndTask` and `MonthEndClarification` throw `IllegalArgumentException` instead of a `MonthEndException`, so a violation becomes a `500` without `code` or `detail`. These constructors also run when MapStruct rebuilds an aggregate from the database, so a corrupt row used to reach the caller as a `400` with the invariant text in `detail`. The caller can't fix that, the frontend would call the request invalid, and no alert fires. The missing-ZEP-username check in the work-time services throws `IllegalStateException` for the same reason. `MONTHEND_VALIDATION_FAILED` and `WORKTIME_VALIDATION_FAILED` are removed.
 
-Rules a request can break are checked before construction and keep a `400` with their own code:
+Rules a request can break are checked before construction and get their own code (statuses per D17):
 - Bulk completion of a task type a project lead can't bulk-complete: `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE`, thrown by the use case. The type comes from the request body and the contract allows every task type.
-- A clarification for a project without an active lead this month: `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD`, thrown by the creation factory next to the creator check. It's a business state, not a bug. Strictly it's `409`, but INVALID keeps it consistent with `MONTHEND_PROJECT_CONTEXT_NOT_FOUND`.
+- A clarification for a project without an active lead this month: `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD`, thrown by the creation factory next to the creator check. It's a business state, not a bug.
 - Blank clarification text: `@NotBlank` on `text` in `CreateClarificationRequest` and `UpdateClarificationTextRequest`, the same as premature preparation, so it becomes a bean-validation `400` with a `violations` entry. The constructor check remains as a guard for the ZEP mail path, whose catch-all reports failures by mail.
 - *Rule of thumb:* if a different request could have succeeded, the failure is a domain exception with a code; if not, it's an unchecked JDK exception and a `500`. A guard that fires on the creation path means an earlier check is missing, which is also a defect.
+
+### D17: Status by kind of rejection
+RFC 9110 gives each 4xx a meaning, and the blanket `400` hid that. The rule, as categories:
+- `NOT_FOUND` → `404`: the object the request **URL** addresses doesn't exist. Objects named only in the body never give `404`, because the target URL (for example `/monthend/clarifications`) exists.
+- `FORBIDDEN` → `403`: the acting user may not perform the operation.
+- `CONFLICT` → `409`: the current state of the object the URL addresses doesn't allow the operation. `MONTHEND_CLARIFICATION_CLOSED` (edit or delete a done clarification) and `PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE` (the addressed project isn't billable).
+- `UNPROCESSABLE` → `422`: the request satisfies the contract, but what it refers to or asks for doesn't fit the domain. The month-end context codes, `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD`, `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE` and `USER_INTERNAL_RATES_UNKNOWN_USERS`.
+- `INVALID` → `400`: the content is malformed. Only the CSV's empty-file and bad-format codes; bean validation and parse errors are `400` from the framework.
+- *Frontend:* the failure mapper turns every 4xx other than 401/403/404 into the same reason and special-cases these codes by `code`, so nothing changes there. The status split is for HTTP semantics, monitoring and any other client, not for the current UI.
+- *Alternative (rejected):* `404` for references in the body. It confuses "this URL doesn't exist" with "a value in your request doesn't fit".
+- *Alternative (rejected):* keep `400` for everything and leave the distinction to `code`. That's what the first draft did; it makes the status carry no information beyond "client error".
 
 ### D10: Tests
 - A REST-Assured contract test class in `shared/adapter/inbound/rest` covering:

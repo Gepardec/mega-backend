@@ -16,6 +16,18 @@ NotFound:
     application/problem+json:
       schema:
         $ref: '../schemas/shared.yaml#/Problem'
+Conflict:
+  description: The current state of the addressed resource doesn't allow the operation.
+  content:
+    application/problem+json:
+      schema:
+        $ref: '../schemas/shared.yaml#/Problem'
+UnprocessableContent:
+  description: The request is well-formed, but what it refers to or asks for can't be processed.
+  content:
+    application/problem+json:
+      schema:
+        $ref: '../schemas/shared.yaml#/Problem'
 InternalServerError:
   description: Server could not process the request.
   content:

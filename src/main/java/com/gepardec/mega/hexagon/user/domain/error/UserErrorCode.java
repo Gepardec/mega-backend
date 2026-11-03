@@ -4,7 +4,7 @@ import com.gepardec.mega.hexagon.shared.domain.error.ErrorCategory;
 import com.gepardec.mega.hexagon.shared.domain.error.ErrorCode;
 
 public enum UserErrorCode implements ErrorCode {
-    INTERNAL_RATES_UNKNOWN_USERS(ErrorCategory.INVALID);
+    INTERNAL_RATES_UNKNOWN_USERS(ErrorCategory.UNPROCESSABLE);
 
     private final ErrorCategory category;
 

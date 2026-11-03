@@ -669,6 +669,50 @@ class MonthEndResourceTest {
     }
 
     @Test
+    void createMonthEndClarification_shouldReturnUnprocessable_whenSubjectIsNotAssignedToProject() {
+        allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
+        CreateClarificationRequestDto request = new CreateClarificationRequestDto()
+                .month(MONTH)
+                .projectId(PROJECT_ID.value())
+                .subjectEmployeeId(EMPLOYEE_ID.value())
+                .text("About someone outside the project.");
+        when(createMonthEndClarificationUseCase.create(
+                MONTH,
+                PROJECT_ID,
+                EMPLOYEE_ID,
+                EMPLOYEE_ID,
+                "About someone outside the project."
+        )).thenThrow(new MonthEndException(MonthEndErrorCode.EMPLOYEE_NOT_ASSIGNED_TO_PROJECT, "employee not assigned"));
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(request)
+                .post("/monthend/clarifications")
+                .then()
+                .statusCode(422)
+                .contentType("application/problem+json")
+                .body("title", is("Unprocessable Content"))
+                .body("code", is("MONTHEND_EMPLOYEE_NOT_ASSIGNED_TO_PROJECT"));
+    }
+
+    @Test
+    void updateMonthEndClarificationText_shouldReturnConflict_whenClarificationIsClosed() {
+        allowRoles(Role.EMPLOYEE);
+        when(updateMonthEndClarificationUseCase.updateText(CLARIFICATION_ID, EMPLOYEE_ID, "Too late."))
+                .thenThrow(new MonthEndException(MonthEndErrorCode.CLARIFICATION_CLOSED, "done clarifications cannot be edited"));
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(new UpdateClarificationTextRequestDto().text("Too late."))
+                .put("/monthend/clarifications/{clarificationId}/text", CLARIFICATION_ID.value())
+                .then()
+                .statusCode(409)
+                .body("code", is("MONTHEND_CLARIFICATION_CLOSED"));
+    }
+
+    @Test
     void createMonthEndClarification_shouldReturnCreatedClarificationForLeadWithSubjectEmployee() {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
@@ -907,7 +951,7 @@ class MonthEndResourceTest {
     }
 
     @Test
-    void completeProjectLeadMonthEndTasks_shouldReturnBadRequest_whenTypeIsEmployeeTimeCheck() {
+    void completeProjectLeadMonthEndTasks_shouldReturnUnprocessable_whenTypeIsEmployeeTimeCheck() {
         allowRoles(Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         doThrow(new MonthEndException(MonthEndErrorCode.TASK_TYPE_NOT_BULK_COMPLETABLE, "task type EMPLOYEE_TIME_CHECK cannot be bulk completed by a project lead"))
@@ -921,11 +965,12 @@ class MonthEndResourceTest {
                         .type(MonthEndTaskTypeDto.EMPLOYEE_TIME_CHECK))
                 .post("/monthend/{month}/projects/{projectId}/tasks/complete", MONTH.toString(), PROJECT_ID.value())
                 .then()
-                .statusCode(400);
+                .statusCode(422)
+                .body("code", is("MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE"));
     }
 
     @Test
-    void completeProjectLeadMonthEndTasks_shouldReturnBadRequest_whenTypeIsAbrechnung() {
+    void completeProjectLeadMonthEndTasks_shouldReturnUnprocessable_whenTypeIsAbrechnung() {
         allowRoles(Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
         doThrow(new MonthEndException(MonthEndErrorCode.TASK_TYPE_NOT_BULK_COMPLETABLE, "task type ABRECHNUNG cannot be bulk completed by a project lead"))
@@ -939,7 +984,8 @@ class MonthEndResourceTest {
                         .type(MonthEndTaskTypeDto.ABRECHNUNG))
                 .post("/monthend/{month}/projects/{projectId}/tasks/complete", MONTH.toString(), PROJECT_ID.value())
                 .then()
-                .statusCode(400);
+                .statusCode(422)
+                .body("code", is("MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE"));
     }
 
     @Test
