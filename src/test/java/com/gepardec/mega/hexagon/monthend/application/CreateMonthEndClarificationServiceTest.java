@@ -138,32 +138,26 @@ class CreateMonthEndClarificationServiceTest {
     }
 
     @Test
-    void create_shouldUseActorAsSubject_whenNonLeadOmitsSubject() {
+    void create_shouldThrowNotAuthorized_whenNonLeadOmitsSubject() {
         when(projectContextService.resolve(month, projectId))
                 .thenReturn(projectContext(Set.of(leadA, leadB)));
-        when(employeeContextService.resolve(month, projectId, employeeId))
-                .thenReturn(employeeContext(Set.of(leadA, leadB)));
 
-        MonthEndClarification result = service.create(month, projectId, null, employeeId, "Need support.");
+        assertThatThrownBy(() -> service.create(month, projectId, null, employeeId, "Need support."))
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class);
 
-        assertThat(result.subjectEmployeeId()).isEqualTo(employeeId);
-        assertThat(result.createdBy()).isEqualTo(employeeId);
-        verify(clarificationRepository).save(any(MonthEndClarification.class));
+        verifyNoInteractions(clarificationRepository, clarificationCreatedEvent);
     }
 
     @Test
-    void create_shouldUseActorAsSubject_whenUserLeadsOnlyADifferentProjectAndOmitsSubject() {
+    void create_shouldThrowNotAuthorized_whenUserLeadsOnlyADifferentProjectAndOmitsSubject() {
         UserId otherProjectLead = UserId.of(Instancio.create(UUID.class));
         when(projectContextService.resolve(month, projectId))
                 .thenReturn(projectContext(Set.of(leadA, leadB)));
-        when(employeeContextService.resolve(month, projectId, otherProjectLead))
-                .thenReturn(employeeContext(Set.of(leadA, leadB)));
 
-        MonthEndClarification result = service.create(month, projectId, null, otherProjectLead, "Need support.");
+        assertThatThrownBy(() -> service.create(month, projectId, null, otherProjectLead, "Need support."))
+                .isInstanceOf(MonthEndActorNotAuthorizedException.class);
 
-        assertThat(result.subjectEmployeeId()).isEqualTo(otherProjectLead);
-        assertThat(result.createdBy()).isEqualTo(otherProjectLead);
-        verify(clarificationRepository).save(any(MonthEndClarification.class));
+        verifyNoInteractions(clarificationRepository, clarificationCreatedEvent);
     }
 
     @Test

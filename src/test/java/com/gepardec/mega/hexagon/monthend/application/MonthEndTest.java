@@ -8,6 +8,7 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.GenerateMonth
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -47,6 +48,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
 
@@ -581,6 +583,30 @@ class MonthEndTest {
                     assertThat(saved.resolvedBy()).isEqualTo(leadA.id());
                     assertThat(saved.resolutionNote()).isEqualTo("Handled by lead.");
                 });
+    }
+
+    @Test
+    void monthEndFlow_shouldRejectNonLeadClarificationWithoutSubjectAndPersistNothing() {
+        User employee = user("employee-no-subject", Set.of(Role.EMPLOYEE));
+        User leadA = user("lead-no-subject-a", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        User leadB = user("lead-no-subject-b", Set.of(Role.EMPLOYEE, Role.PROJECT_LEAD));
+        Project project = project(733, Set.of(leadA.id(), leadB.id()));
+        persistFixture(List.of(employee, leadA, leadB), project, Set.of(employee.zepUsername().value()));
+
+        generateMonthEndTasksUseCase.generate(MONTH);
+
+        assertThatThrownBy(() -> createMonthEndClarificationUseCase.create(
+                MONTH,
+                project.id(),
+                null,
+                employee.id(),
+                "Project-level attempt."
+        )).isInstanceOf(MonthEndActorNotAuthorizedException.class);
+
+        assertThat(getMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH, Capacity.EMPLOYEE).clarifications())
+                .isEmpty();
+        assertThat(getMonthEndStatusOverviewUseCase.getOverview(leadA.id(), MONTH, Capacity.CONTROLLING).clarifications())
+                .isEmpty();
     }
 
     @Test

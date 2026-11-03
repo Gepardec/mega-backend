@@ -89,6 +89,11 @@
       - MonthEnd
     operationId: createMonthEndClarification
     summary: Create a month-end clarification for the authenticated actor
+    description: >-
+      The subject is taken only from subjectEmployeeId and is never inferred from the caller.
+      An omitted or null subjectEmployeeId creates a project-level clarification, which only an
+      eligible project lead of the project may create. A non-lead may name only themselves.
+      Every other request is rejected with 403.
     security:
       - bearerAuth: [ ]
     requestBody:

@@ -564,12 +564,13 @@ class MonthEndResourceTest {
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
                 .month(MONTH.toString())
                 .projectId(PROJECT_ID.value())
+                .subjectEmployeeId(EMPLOYEE_ID.value())
                 .text("Need support.");
         MonthEndClarification clarification = employeeClarification("Need support.");
         when(createMonthEndClarificationUseCase.create(
                 MONTH,
                 PROJECT_ID,
-                null,
+                EMPLOYEE_ID,
                 EMPLOYEE_ID,
                 "Need support."
         )).thenReturn(clarification);
@@ -594,10 +595,34 @@ class MonthEndResourceTest {
         verify(createMonthEndClarificationUseCase).create(
                 MONTH,
                 PROJECT_ID,
-                null,
+                EMPLOYEE_ID,
                 EMPLOYEE_ID,
                 "Need support."
         );
+    }
+
+    @Test
+    void createMonthEndClarification_shouldReturnForbidden_whenUseCaseRejectsNonLeadOmittedSubject() {
+        allowRoles(Role.EMPLOYEE);
+        CreateClarificationRequestDto request = new CreateClarificationRequestDto()
+                .month(MONTH.toString())
+                .projectId(PROJECT_ID.value())
+                .text("Project-level attempt.");
+        when(createMonthEndClarificationUseCase.create(
+                MONTH,
+                PROJECT_ID,
+                null,
+                EMPLOYEE_ID,
+                "Project-level attempt."
+        )).thenThrow(new MonthEndActorNotAuthorizedException("actor not authorized"));
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(request)
+                .post("/monthend/clarifications")
+                .then()
+                .statusCode(403);
     }
 
     @Test

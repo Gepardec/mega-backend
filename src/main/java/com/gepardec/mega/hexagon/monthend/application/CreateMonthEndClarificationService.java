@@ -100,7 +100,13 @@ public class CreateMonthEndClarificationService implements CreateMonthEndClarifi
     private UserId resolveSubject(UserId requestedSubjectId, UserId actorId, Set<UserId> projectLeadIds) {
         boolean actorIsLead = projectLeadIds.contains(actorId);
         if (requestedSubjectId == null) {
-            return actorIsLead ? null : actorId;
+            if (actorIsLead) {
+                return null;
+            }
+            throw new MonthEndActorNotAuthorizedException(
+                    "actor %s is not allowed to create a project-level clarification"
+                            .formatted(actorId.value())
+            );
         }
         if (actorIsLead || requestedSubjectId.equals(actorId)) {
             return requestedSubjectId;
