@@ -128,17 +128,17 @@ The system SHALL secure monthend REST endpoints by operation. The status overvie
 - **THEN** the API accepts the request and returns the employee-capacity overview scoped to that lead
 
 #### Scenario: Non-project-lead cannot access the project-lead bulk task completion endpoint
-- **WHEN** an authenticated actor without the project-lead role requests `POST /monthend/{month}/tasks/complete/project-lead`
+- **WHEN** an authenticated actor without the project-lead role requests `POST /monthend/{month}/projects/{projectId}/tasks/complete`
 - **THEN** the API rejects the request as forbidden
 
 #### Scenario: Caller without the employee role cannot access the employee bulk task completion endpoint
-- **WHEN** an authenticated caller without the employee role requests `POST /monthend/{month}/tasks/complete/employee`
+- **WHEN** an authenticated caller without the employee role requests `POST /monthend/{month}/my-tasks/complete`
 - **THEN** the API rejects the request as forbidden
 
 #### Scenario: Project lead can access both bulk task completion endpoints
-- **WHEN** an authenticated project lead requests `POST /monthend/{month}/tasks/complete/project-lead`
+- **WHEN** an authenticated project lead requests `POST /monthend/{month}/projects/{projectId}/tasks/complete`
 - **THEN** the API accepts the request and evaluates it against the controlling scope
-- **WHEN** the same project lead requests `POST /monthend/{month}/tasks/complete/employee`
+- **WHEN** the same project lead requests `POST /monthend/{month}/my-tasks/complete`
 - **THEN** the API accepts the request and completes only time-check tasks for which the lead is the subject employee
 
 #### Scenario: Employee can access shared monthend endpoint
@@ -174,19 +174,6 @@ The contract SHALL group monthend endpoints secured by the internal client-crede
 - **THEN** the endpoint carries the `Cron` tag
 - **THEN** the endpoint carries no tag that any employee-facing or project-lead-facing monthend endpoint also carries
 
-### Requirement: Project leads can bulk complete tasks via a role-suffixed endpoint
-The system SHALL provide `POST /monthend/{month}/tasks/complete/project-lead`, where `month` is in `yyyy-MM` format, requiring the project-lead role and a request body with required fields `projectId` and `type`. On success it SHALL return `200` after completing the caller's open tasks of that type for that project and month.
-
-#### Scenario: Project lead completes a whole task column for a project
-- **WHEN** an authenticated project lead submits `{ "projectId": "<uuid>", "type": "PROJECT_LEAD_REVIEW" }` to `POST /monthend/2026-06/tasks/complete/project-lead` for a project they lead in that month
-- **THEN** the API completes every open `PROJECT_LEAD_REVIEW` task for that project and month the lead is eligible for
-- **THEN** the API returns `200` with a `completed` array containing one entry per newly completed task
-- **THEN** each completed task records the authenticated caller as the completing actor
-
-#### Scenario: Bulk completion agrees with the project-lead status overview
-- **WHEN** the project-lead status overview returns a task of type `LEISTUNGSNACHWEIS` or `PROJECT_LEAD_REVIEW` with `canComplete` set to `true` for the authenticated lead
-- **THEN** a project-lead bulk completion request by that lead for that task's project, type, and month is accepted and completes that task if it is still open
-
 ### Requirement: Project-lead bulk completion rejects invalid requests
 The project-lead bulk completion endpoint SHALL respond with `400` for any `type` other than `LEISTUNGSNACHWEIS` or `PROJECT_LEAD_REVIEW`, and with `403` when the caller does not lead the referenced project in that month, including when the project is unknown. A caller who leads the project but has no open tasks of the requested type SHALL receive `200` with an empty `completed` array.
 
@@ -205,15 +192,6 @@ The project-lead bulk completion endpoint SHALL respond with `400` for any `type
 #### Scenario: Lead with no tasks of the requested type receives an empty result
 - **WHEN** an authenticated project lead submits `{ "projectId": "<uuid>", "type": "LEISTUNGSNACHWEIS" }` for a project they lead that has no `LEISTUNGSNACHWEIS` tasks in that month
 - **THEN** the API returns `200` with an empty `completed` array
-
-### Requirement: Employees can bulk complete their time checks via a role-suffixed endpoint
-The system SHALL provide `POST /monthend/{month}/tasks/complete/employee`, where `month` is in `yyyy-MM` format, requiring the employee role and taking no request body. It SHALL complete the caller's open `EMPLOYEE_TIME_CHECK` tasks in that month across all their projects.
-
-#### Scenario: Employee completes all their time checks for a month
-- **WHEN** an authenticated employee sends `POST /monthend/2026-06/tasks/complete/employee`
-- **THEN** the API completes every open `EMPLOYEE_TIME_CHECK` task in that month whose subject is the caller, across all their projects
-- **THEN** the API returns `200` with a `completed` array containing one entry per newly completed task
-- **THEN** each completed task records the authenticated caller as the completing actor
 
 ### Requirement: Bulk completion responses list only newly completed tasks
 Both bulk completion endpoints SHALL respond with `{ "completed": [ ... ] }`, where each entry uses the same task shape returned by single-task completion (`POST /monthend/tasks/{taskId}/complete`) and only tasks newly transitioned to `DONE` are included. Neither endpoint SHALL accept an actor or subject employee identifier.
@@ -322,3 +300,25 @@ The system SHALL provide `GET /monthend/payroll-month` with a required `capacity
 - **WHEN** an authenticated actor who is not an eligible project lead of the requested project submits a `CreateClarificationRequest` to `POST /monthend/clarifications` with a `subjectEmployeeId` referencing another user
 - **THEN** the API rejects the request with `403 Forbidden`
 - **THEN** no clarification is created
+
+### Requirement: Project leads bulk complete a project's tasks of one type
+The system SHALL provide `POST /monthend/{month}/projects/{projectId}/tasks/complete`, where `month` is in `yyyy-MM` format and `projectId` identifies the project, requiring the project-lead role and a request body with the required field `type`. On success it SHALL return `200` after completing the caller's open tasks of that type for that project and month.
+
+#### Scenario: Project lead completes a whole task column for a project
+- **WHEN** an authenticated project lead submits `{ "type": "PROJECT_LEAD_REVIEW" }` to `POST /monthend/2026-06/projects/<uuid>/tasks/complete` for a project they lead in that month
+- **THEN** the API completes every open `PROJECT_LEAD_REVIEW` task for that project and month the lead is eligible for
+- **THEN** the API returns `200` with a `completed` array containing one entry per newly completed task
+- **THEN** each completed task records the authenticated caller as the completing actor
+
+#### Scenario: Bulk completion agrees with the status overview in the controlling capacity
+- **WHEN** the status overview requested with `capacity=CONTROLLING` returns a task of type `LEISTUNGSNACHWEIS` or `PROJECT_LEAD_REVIEW` with `canComplete` set to `true` for the authenticated lead
+- **THEN** a bulk completion request by that lead for that task's project, type, and month is accepted and completes that task if it is still open
+
+### Requirement: Employees bulk complete their own time checks
+The system SHALL provide `POST /monthend/{month}/my-tasks/complete`, where `month` is in `yyyy-MM` format, requiring the employee role and taking no request body. It SHALL complete the caller's open `EMPLOYEE_TIME_CHECK` tasks in that month across all their projects.
+
+#### Scenario: Employee completes all their time checks for a month
+- **WHEN** an authenticated employee sends `POST /monthend/2026-06/my-tasks/complete`
+- **THEN** the API completes every open `EMPLOYEE_TIME_CHECK` task in that month whose subject is the caller, across all their projects
+- **THEN** the API returns `200` with a `completed` array containing one entry per newly completed task
+- **THEN** each completed task records the authenticated caller as the completing actor

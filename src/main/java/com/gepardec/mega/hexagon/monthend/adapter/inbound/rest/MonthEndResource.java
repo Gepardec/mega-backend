@@ -185,12 +185,12 @@ public class MonthEndResource implements MonthEndApi {
 
     @Override
     @MegaRolesAllowed(Role.PROJECT_LEAD)
-    public Response completeProjectLeadMonthEndTasks(String month, CompleteProjectLeadMonthEndTasksRequestDto request) {
+    public Response completeProjectLeadMonthEndTasks(String month, UUID projectId, CompleteProjectLeadMonthEndTasksRequestDto request) {
         UserId actorId = authenticatedActorContext.userId();
 
         List<MonthEndTask> tasks = completeProjectLeadMonthEndTasksUseCase.complete(
                 transportHelper.parseMonth(month),
-                transportHelper.toProjectId(request.getProjectId()),
+                transportHelper.toProjectId(projectId),
                 monthEndRestMapper.toDomain(request.getType()),
                 actorId
         );

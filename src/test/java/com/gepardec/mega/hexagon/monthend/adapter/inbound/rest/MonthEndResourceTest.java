@@ -805,9 +805,8 @@ class MonthEndResourceTest {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(new CompleteProjectLeadMonthEndTasksRequestDto()
-                        .projectId(PROJECT_ID.value())
                         .type(MonthEndTaskTypeDto.PROJECT_LEAD_REVIEW))
-                .post("/monthend/{month}/tasks/complete/project-lead", MONTH.toString())
+                .post("/monthend/{month}/projects/{projectId}/tasks/complete", MONTH.toString(), PROJECT_ID.value())
                 .then()
                 .statusCode(200)
                 .extract()
@@ -834,9 +833,8 @@ class MonthEndResourceTest {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(new CompleteProjectLeadMonthEndTasksRequestDto()
-                        .projectId(PROJECT_ID.value())
                         .type(MonthEndTaskTypeDto.LEISTUNGSNACHWEIS))
-                .post("/monthend/{month}/tasks/complete/project-lead", MONTH.toString())
+                .post("/monthend/{month}/projects/{projectId}/tasks/complete", MONTH.toString(), PROJECT_ID.value())
                 .then()
                 .statusCode(200)
                 .extract()
@@ -857,9 +855,8 @@ class MonthEndResourceTest {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(new CompleteProjectLeadMonthEndTasksRequestDto()
-                        .projectId(PROJECT_ID.value())
                         .type(MonthEndTaskTypeDto.EMPLOYEE_TIME_CHECK))
-                .post("/monthend/{month}/tasks/complete/project-lead", MONTH.toString())
+                .post("/monthend/{month}/projects/{projectId}/tasks/complete", MONTH.toString(), PROJECT_ID.value())
                 .then()
                 .statusCode(400);
     }
@@ -876,9 +873,8 @@ class MonthEndResourceTest {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(new CompleteProjectLeadMonthEndTasksRequestDto()
-                        .projectId(PROJECT_ID.value())
                         .type(MonthEndTaskTypeDto.ABRECHNUNG))
-                .post("/monthend/{month}/tasks/complete/project-lead", MONTH.toString())
+                .post("/monthend/{month}/projects/{projectId}/tasks/complete", MONTH.toString(), PROJECT_ID.value())
                 .then()
                 .statusCode(400);
     }
@@ -897,9 +893,8 @@ class MonthEndResourceTest {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(new CompleteProjectLeadMonthEndTasksRequestDto()
-                        .projectId(unknownProjectId.value())
                         .type(MonthEndTaskTypeDto.PROJECT_LEAD_REVIEW))
-                .post("/monthend/{month}/tasks/complete/project-lead", MONTH.toString())
+                .post("/monthend/{month}/projects/{projectId}/tasks/complete", MONTH.toString(), unknownProjectId.value())
                 .then()
                 .statusCode(403);
     }
@@ -917,9 +912,8 @@ class MonthEndResourceTest {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(new CompleteProjectLeadMonthEndTasksRequestDto()
-                        .projectId(PROJECT_ID.value())
                         .type(MonthEndTaskTypeDto.PROJECT_LEAD_REVIEW))
-                .post("/monthend/{month}/tasks/complete/project-lead", MONTH.toString())
+                .post("/monthend/{month}/projects/{projectId}/tasks/complete", MONTH.toString(), PROJECT_ID.value())
                 .then()
                 .statusCode(403);
     }
@@ -930,9 +924,8 @@ class MonthEndResourceTest {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(new CompleteProjectLeadMonthEndTasksRequestDto()
-                        .projectId(PROJECT_ID.value())
                         .type(MonthEndTaskTypeDto.PROJECT_LEAD_REVIEW))
-                .post("/monthend/{month}/tasks/complete/project-lead", MONTH.toString())
+                .post("/monthend/{month}/projects/{projectId}/tasks/complete", MONTH.toString(), PROJECT_ID.value())
                 .then()
                 .statusCode(403);
 
@@ -957,7 +950,7 @@ class MonthEndResourceTest {
 
         MonthEndTaskCompletionDto response = given()
                 .accept(ContentType.JSON)
-                .post("/monthend/{month}/tasks/complete/employee", MONTH.toString())
+                .post("/monthend/{month}/my-tasks/complete", MONTH.toString())
                 .then()
                 .statusCode(200)
                 .extract()
@@ -982,7 +975,7 @@ class MonthEndResourceTest {
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(Map.of("projectId", PROJECT_ID.value()))
-                .post("/monthend/{month}/tasks/complete/employee", MONTH.toString())
+                .post("/monthend/{month}/my-tasks/complete", MONTH.toString())
                 .then()
                 .statusCode(200);
 
@@ -993,7 +986,7 @@ class MonthEndResourceTest {
     void completeEmployeeMonthEndTasks_shouldRejectCallerWithoutEmployeeRole() {
         given()
                 .accept(ContentType.JSON)
-                .post("/monthend/{month}/tasks/complete/employee", MONTH.toString())
+                .post("/monthend/{month}/my-tasks/complete", MONTH.toString())
                 .then()
                 .statusCode(403);
 

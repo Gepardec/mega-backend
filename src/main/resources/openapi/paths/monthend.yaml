@@ -249,7 +249,7 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
-'/monthend/{month}/tasks/complete/project-lead':
+'/monthend/{month}/projects/{projectId}/tasks/complete':
   post:
     tags:
       - MonthEnd
@@ -264,6 +264,13 @@
         description: Month-end context in yyyy-MM format.
         schema:
           $ref: '../schemas/shared.yaml#/MonthValue'
+      - name: projectId
+        in: path
+        required: true
+        description: Project whose tasks are completed.
+        schema:
+          type: string
+          format: uuid
     requestBody:
       required: true
       content:
@@ -283,7 +290,7 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
-'/monthend/{month}/tasks/complete/employee':
+'/monthend/{month}/my-tasks/complete':
   post:
     tags:
       - MonthEnd

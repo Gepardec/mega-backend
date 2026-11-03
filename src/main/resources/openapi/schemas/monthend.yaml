@@ -225,16 +225,11 @@ CompleteProjectLeadMonthEndTasksRequest:
   type: object
   additionalProperties: false
   required:
-    - projectId
     - type
   properties:
-    projectId:
-      type: string
-      format: uuid
     type:
       $ref: '#/MonthEndTaskType'
   example:
-    projectId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
     type: PROJECT_LEAD_REVIEW
 MonthEndTaskCompletion:
   type: object
