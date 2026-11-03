@@ -7,13 +7,16 @@ import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepos
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.instancio.Instancio;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -30,16 +33,22 @@ class GetEmployeePayrollMonthServiceTest {
     private final UserId actorId = UserId.of(Instancio.create(UUID.class));
     private final ProjectId projectId = ProjectId.of(Instancio.create(UUID.class));
 
+    private final Clock clock = Clock.fixed(Instant.parse("2026-03-15T08:00:00Z"), ZoneOffset.UTC);
+
     @Mock
     private MonthEndTaskRepository monthEndTaskRepository;
 
-    @InjectMocks
     private GetEmployeePayrollMonthService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new GetEmployeePayrollMonthService(monthEndTaskRepository, clock);
+    }
 
     @Test
     void getPayrollMonth_shouldReturnCurrentMonth_whenOpenTasksExistForCurrentMonthAndPreviousMonth() {
-        YearMonth currentMonth = YearMonth.now();
-        YearMonth previousMonth = currentMonth.minusMonths(1);
+        YearMonth currentMonth = YearMonth.of(2026, 3);
+        YearMonth previousMonth = YearMonth.of(2026, 2);
         MonthEndTask currentMonthTask = openTask(currentMonth);
         MonthEndTask previousMonthTask = openTask(previousMonth);
         when(monthEndTaskRepository.findOpenSubjectTasks(actorId, currentMonth)).thenReturn(List.of(currentMonthTask));
@@ -54,8 +63,8 @@ class GetEmployeePayrollMonthServiceTest {
 
     @Test
     void getPayrollMonth_shouldReturnPreviousMonth_whenOpenTasksExistForPreviousMonthAndCurrentMonthIsEmpty() {
-        YearMonth currentMonth = YearMonth.now();
-        YearMonth previousMonth = currentMonth.minusMonths(1);
+        YearMonth currentMonth = YearMonth.of(2026, 3);
+        YearMonth previousMonth = YearMonth.of(2026, 2);
         MonthEndTask openTask = openTask(previousMonth);
         when(monthEndTaskRepository.findOpenSubjectTasks(actorId, currentMonth)).thenReturn(List.of());
         when(monthEndTaskRepository.findOpenSubjectTasks(actorId, previousMonth)).thenReturn(List.of(openTask));
@@ -70,8 +79,8 @@ class GetEmployeePayrollMonthServiceTest {
 
     @Test
     void getPayrollMonth_shouldReturnCurrentMonth_whenNoOpenTasksExistForPreviousMonth() {
-        YearMonth currentMonth = YearMonth.now();
-        YearMonth previousMonth = currentMonth.minusMonths(1);
+        YearMonth currentMonth = YearMonth.of(2026, 3);
+        YearMonth previousMonth = YearMonth.of(2026, 2);
         when(monthEndTaskRepository.findOpenSubjectTasks(actorId, currentMonth)).thenReturn(List.of());
         when(monthEndTaskRepository.findOpenSubjectTasks(actorId, previousMonth)).thenReturn(List.of());
 

@@ -7,13 +7,16 @@ import com.gepardec.mega.hexagon.monthend.domain.port.outbound.MonthEndTaskRepos
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.instancio.Instancio;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -29,15 +32,21 @@ class GetProjectLeadPayrollMonthServiceTest {
     private final UserId leadId = UserId.of(Instancio.create(UUID.class));
     private final ProjectId projectId = ProjectId.of(Instancio.create(UUID.class));
 
+    private final Clock clock = Clock.fixed(Instant.parse("2026-03-15T08:00:00Z"), ZoneOffset.UTC);
+
     @Mock
     private MonthEndTaskRepository monthEndTaskRepository;
 
-    @InjectMocks
     private GetProjectLeadPayrollMonthService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new GetProjectLeadPayrollMonthService(monthEndTaskRepository, clock);
+    }
 
     @Test
     void getPayrollMonth_shouldReturnCurrentMonth_whenTasksExistForCurrentMonth() {
-        YearMonth currentMonth = YearMonth.now();
+        YearMonth currentMonth = YearMonth.of(2026, 3);
         when(monthEndTaskRepository.findLeadProjectTasks(leadId, currentMonth)).thenReturn(List.of(openLeadTask(currentMonth)));
 
         YearMonth payrollMonth = service.getPayrollMonth(leadId);
@@ -49,8 +58,8 @@ class GetProjectLeadPayrollMonthServiceTest {
 
     @Test
     void getPayrollMonth_shouldReturnPreviousMonth_whenNoTasksExistForCurrentMonth() {
-        YearMonth currentMonth = YearMonth.now();
-        YearMonth previousMonth = currentMonth.minusMonths(1);
+        YearMonth currentMonth = YearMonth.of(2026, 3);
+        YearMonth previousMonth = YearMonth.of(2026, 2);
         when(monthEndTaskRepository.findLeadProjectTasks(leadId, currentMonth)).thenReturn(List.of());
 
         YearMonth payrollMonth = service.getPayrollMonth(leadId);

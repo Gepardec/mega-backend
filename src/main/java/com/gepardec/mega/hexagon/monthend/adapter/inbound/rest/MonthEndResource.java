@@ -153,14 +153,9 @@ public class MonthEndResource implements MonthEndApi {
     @MegaRolesAllowed(Role.EMPLOYEE)
     public Response createMonthEndClarification(CreateClarificationRequestDto request) {
         UserId actorId = authenticatedActorContext.userId();
-        UserId subjectEmployeeId = actorId;
-        if (authenticatedActorContext.hasRole(Role.PROJECT_LEAD)) {
-            if (request.getSubjectEmployeeId() != null) {
-                subjectEmployeeId = transportHelper.toUserId(request.getSubjectEmployeeId());
-            } else {
-                subjectEmployeeId = null;
-            }
-        }
+        UserId subjectEmployeeId = request.getSubjectEmployeeId() != null
+                ? transportHelper.toUserId(request.getSubjectEmployeeId())
+                : null;
 
         MonthEndClarification clarification = createMonthEndClarificationUseCase.create(
                 transportHelper.parseMonth(request.getMonth()),

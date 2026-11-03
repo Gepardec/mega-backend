@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.CreateMonthEndClarificationUseCase;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
 import com.gepardec.mega.hexagon.monthend.domain.event.ClarificationCreatedEvent;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
@@ -58,19 +59,18 @@ public class CreateMonthEndClarificationService implements CreateMonthEndClarifi
         Objects.requireNonNull(actorId, "actorId must not be null");
         Objects.requireNonNull(sourceSystem, "sourceSystem must not be null");
 
-        Set<UserId> eligibleLeadIds;
+        Set<UserId> projectLeadIds = projectContextService.resolve(month, projectId).eligibleProjectLeadIds();
+        UserId subject = resolveSubject(subjectEmployeeId, actorId, projectLeadIds);
 
-        if (subjectEmployeeId != null) {
-            eligibleLeadIds = employeeContextService.resolve(month, projectId, subjectEmployeeId).eligibleProjectLeadIds();
-        } else {
-            eligibleLeadIds = projectContextService.resolve(month, projectId).eligibleProjectLeadIds();
-        }
+        Set<UserId> eligibleLeadIds = subject != null
+                ? employeeContextService.resolve(month, projectId, subject).eligibleProjectLeadIds()
+                : projectLeadIds;
 
         MonthEndClarification clarification = MonthEndClarification.create(
                 MonthEndClarificationId.generate(),
                 month,
                 projectId,
-                subjectEmployeeId,
+                subject,
                 actorId,
                 sourceSystem,
                 eligibleLeadIds,
@@ -91,9 +91,23 @@ public class CreateMonthEndClarificationService implements CreateMonthEndClarifi
                 "Created month-end clarification %s for project %s, employee %s, month %s",
                 clarification.id().value(),
                 projectId.value(),
-                subjectEmployeeId != null ? subjectEmployeeId.value() : "project-level",
+                subject != null ? subject.value() : "project-level",
                 month
         );
         return clarification;
+    }
+
+    private UserId resolveSubject(UserId requestedSubjectId, UserId actorId, Set<UserId> projectLeadIds) {
+        boolean actorIsLead = projectLeadIds.contains(actorId);
+        if (requestedSubjectId == null) {
+            return actorIsLead ? null : actorId;
+        }
+        if (actorIsLead || requestedSubjectId.equals(actorId)) {
+            return requestedSubjectId;
+        }
+        throw new MonthEndActorNotAuthorizedException(
+                "actor %s is not allowed to create a clarification for employee %s"
+                        .formatted(actorId.value(), requestedSubjectId.value())
+        );
     }
 }

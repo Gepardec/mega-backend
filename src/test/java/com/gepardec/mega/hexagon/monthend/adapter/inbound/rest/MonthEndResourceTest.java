@@ -441,7 +441,7 @@ class MonthEndResourceTest {
         when(createMonthEndClarificationUseCase.create(
                 MONTH,
                 PROJECT_ID,
-                EMPLOYEE_ID,
+                null,
                 EMPLOYEE_ID,
                 "Need support."
         )).thenReturn(clarification);
@@ -466,7 +466,7 @@ class MonthEndResourceTest {
         verify(createMonthEndClarificationUseCase).create(
                 MONTH,
                 PROJECT_ID,
-                EMPLOYEE_ID,
+                null,
                 EMPLOYEE_ID,
                 "Need support."
         );
@@ -476,7 +476,6 @@ class MonthEndResourceTest {
     void createMonthEndClarification_shouldReturnCreatedClarificationForLeadWithSubjectEmployee() {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
-        when(authenticatedActorContext.hasRole(Role.PROJECT_LEAD)).thenReturn(true);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
                 .month(MONTH.toString())
                 .projectId(PROJECT_ID.value())
@@ -518,7 +517,6 @@ class MonthEndResourceTest {
     void createMonthEndClarification_shouldCreateProjectLevelClarificationWhenLeadOmitsSubjectEmployee() {
         allowRoles(Role.EMPLOYEE, Role.PROJECT_LEAD);
         when(authenticatedActorContext.userId()).thenReturn(PROJECT_LEAD_ID);
-        when(authenticatedActorContext.hasRole(Role.PROJECT_LEAD)).thenReturn(true);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
                 .month(MONTH.toString())
                 .projectId(PROJECT_ID.value())
@@ -555,41 +553,61 @@ class MonthEndResourceTest {
     }
 
     @Test
-    void createMonthEndClarification_shouldIgnoreProvidedSubjectEmployeeForEmployeeCaller() {
+    void createMonthEndClarification_shouldPassProvidedSubjectEmployeeThroughUnchanged() {
         allowRoles(Role.EMPLOYEE);
         CreateClarificationRequestDto request = new CreateClarificationRequestDto()
                 .month(MONTH.toString())
                 .projectId(PROJECT_ID.value())
                 .subjectEmployeeId(PROJECT_LEAD_ID.value())
-                .text("Still my own clarification.");
-        MonthEndClarification clarification = employeeClarification("Still my own clarification.");
+                .text("Foreign subject.");
         when(createMonthEndClarificationUseCase.create(
                 MONTH,
                 PROJECT_ID,
+                PROJECT_LEAD_ID,
                 EMPLOYEE_ID,
-                EMPLOYEE_ID,
-                "Still my own clarification."
-        )).thenReturn(clarification);
+                "Foreign subject."
+        )).thenReturn(employeeClarification("Foreign subject."));
 
-        MonthEndOverviewClarificationEntryDto response = given()
+        given()
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(request)
                 .post("/monthend/clarifications")
                 .then()
-                .statusCode(201)
-                .extract()
-                .as(MonthEndOverviewClarificationEntryDto.class);
+                .statusCode(201);
 
-        assertThat(response.getCreatedBy().getId()).isEqualTo(EMPLOYEE_ID.value());
-        assertThat(response.getSubjectEmployee().getId()).isEqualTo(EMPLOYEE_ID.value());
         verify(createMonthEndClarificationUseCase).create(
                 MONTH,
                 PROJECT_ID,
+                PROJECT_LEAD_ID,
                 EMPLOYEE_ID,
-                EMPLOYEE_ID,
-                "Still my own clarification."
+                "Foreign subject."
         );
+    }
+
+    @Test
+    void createMonthEndClarification_shouldReturnForbidden_whenUseCaseRejectsActor() {
+        allowRoles(Role.EMPLOYEE);
+        CreateClarificationRequestDto request = new CreateClarificationRequestDto()
+                .month(MONTH.toString())
+                .projectId(PROJECT_ID.value())
+                .subjectEmployeeId(PROJECT_LEAD_ID.value())
+                .text("Not allowed.");
+        when(createMonthEndClarificationUseCase.create(
+                MONTH,
+                PROJECT_ID,
+                PROJECT_LEAD_ID,
+                EMPLOYEE_ID,
+                "Not allowed."
+        )).thenThrow(new MonthEndActorNotAuthorizedException("actor not authorized"));
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(request)
+                .post("/monthend/clarifications")
+                .then()
+                .statusCode(403);
     }
 
     @Test

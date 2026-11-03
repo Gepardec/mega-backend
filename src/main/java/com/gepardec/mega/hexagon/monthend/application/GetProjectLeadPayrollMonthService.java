@@ -7,6 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import java.time.Clock;
 import java.time.YearMonth;
 
 @ApplicationScoped
@@ -14,15 +15,17 @@ import java.time.YearMonth;
 public class GetProjectLeadPayrollMonthService implements GetProjectLeadPayrollMonthUseCase {
 
     private final MonthEndTaskRepository monthEndTaskRepository;
+    private final Clock clock;
 
     @Inject
-    public GetProjectLeadPayrollMonthService(MonthEndTaskRepository monthEndTaskRepository) {
+    public GetProjectLeadPayrollMonthService(MonthEndTaskRepository monthEndTaskRepository, Clock clock) {
         this.monthEndTaskRepository = monthEndTaskRepository;
+        this.clock = clock;
     }
 
     @Override
     public YearMonth getPayrollMonth(UserId leadId) {
-        YearMonth currentMonth = YearMonth.now();
+        YearMonth currentMonth = YearMonth.now(clock);
         YearMonth previousMonth = currentMonth.minusMonths(1);
 
         if (!monthEndTaskRepository.findLeadProjectTasks(leadId, currentMonth).isEmpty()) {
