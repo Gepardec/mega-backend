@@ -77,7 +77,7 @@ quarkus:
     zep:
       url: "${mega.zep.origin}/next/api/v1/"
     zep-health:
-      url: "${mega.zep.origin}‚"
+      url: "${mega.zep.origin}"
 
   oidc:
     # for the default client (mega) we verify the access token locally
