@@ -36,7 +36,7 @@ public class WorkTimeWarningRuleResource implements WorkTimeWarningRulesApi {
     }
 
     @Override
-    public Response updateWarningRuleSetting(WarningRuleDto rule, WarningRuleSettingUpdateDto update) {
-        return Response.ok(mapper.toDto(updateUseCase.update(mapper.toDomain(rule, update)))).build();
+    public Response updateWarningRuleSetting(WarningRuleDto rule, WarningRuleSettingUpdateDto warningRuleSettingUpdateDto) {
+        return Response.ok(mapper.toDto(updateUseCase.update(mapper.toDomain(rule, warningRuleSettingUpdateDto)))).build();
     }
 }

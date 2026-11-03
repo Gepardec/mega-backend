@@ -123,14 +123,14 @@ public class UserResource implements UserApi {
 
     @Override
     @MegaRolesAllowed(Role.OFFICE_MANAGEMENT)
-    public Response uploadInternalRates(InputStream fileInputStream) {
-        if (fileInputStream == null) {
+    public Response uploadInternalRates(InputStream _fileInputStream) {
+        if (_fileInputStream == null) {
             throw badRequest(ERROR_CODE_EMPTY_FILE, List.of());
         }
 
         final List<CsvLine> dataLines;
         try {
-            dataLines = readAndFilterCsvLines(fileInputStream);
+            dataLines = readAndFilterCsvLines(_fileInputStream);
         } catch (IOException exception) {
             throw new UncheckedIOException(exception);
         }

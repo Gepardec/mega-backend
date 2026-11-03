@@ -16,6 +16,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -161,6 +162,27 @@ class ProblemContractTest {
         assertThat(problem.getDetail()).isNull();
         assertThat(problem.getCode()).isNull();
         assertThat(response.asString()).doesNotContain("secret_table");
+    }
+
+    @Test
+    @TestSecurity(user = "test")
+    void outboundHttpFailure_shouldBeBadGatewayWithoutDetailOrCode() {
+        allowRoles(Role.PROJECT_COORDINATOR);
+        when(getProjectSettingsUseCase.getSettings())
+                .thenThrow(new ClientWebApplicationException(
+                        "Received: 'Not Found, status code 404' when invoking: Rest Client method: 'ZepProjectRestClient#getProjects'",
+                        404
+                ));
+
+        Response response = given()
+                .accept(ContentType.JSON)
+                .get("/projects/settings");
+
+        ProblemDto problem = problemOf(response, 502);
+        assertThat(problem.getTitle()).isEqualTo("Bad Gateway");
+        assertThat(problem.getDetail()).isNull();
+        assertThat(problem.getCode()).isNull();
+        assertThat(response.asString()).doesNotContain("ZepProjectRestClient");
     }
 
     @Test

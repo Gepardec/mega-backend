@@ -2,7 +2,7 @@
 
 ## 1. Quarkus upgrade and extension
 
-- [x] 1.1 Raise `quarkus.version` in `pom.xml` from 3.37.1 to 3.38.3. Review the Quarkus 3.38 migration guide for extensions we use and apply any required config or code changes. Verify with `mvn clean package`, where all tests pass with no other change.
+- [x] 1.1 Make sure the Quarkus platform BOM manages `quarkus-http-problem` (3.38 or newer). Originally done by raising `quarkus.version` from 3.37.1 to 3.38.3; after rebasing onto `main` the project is on 3.40.1, which manages extension version 3.38.2. Verify with `mvn clean package`.
 - [x] 1.2 Add `io.quarkiverse.httpproblem:quarkus-http-problem` without a `<version>`. Verify `mvn dependency:tree` shows version 3.38.2, managed by `io.quarkus.platform:quarkus-bom`, and that the application starts in `mvn quarkus:dev`.
 - [x] 1.3 Delete the legacy `JacksonObjectMapperContextResolver` and set `quarkus.jackson.fail-on-unknown-properties: true` (D11). Verify with `mvn test` that problem bodies no longer contain `stackTrace` or `cause` and carry `code` at the top level.
 
@@ -37,7 +37,7 @@
 ## 6. OpenAPI contract and tests
 
 - [x] 6.1 Replace `ApiError` in `openapi/schemas/shared.yaml` with `Problem` and `Violation` as specified in the design. Switch every response in `openapi/responses/common.yaml` to `application/problem+json`. Replace `InternalRateUploadError` with `InternalRateUploadProblem` (`allOf` `Problem` + `lines`) in `openapi/schemas/user.yaml` and `openapi/paths/user.yaml`, and keep `code` optional. Its description states the naming rule and that framework-produced problems don't carry it, without listing individual codes. Verify that `mvn generate-sources` produces `ProblemDto`, `ViolationDto` and `InternalRateUploadProblemDto` and no longer produces `ApiErrorDto`.
-- [x] 6.2 Migrate `MonthEndResourceTest` and `WorkTimeEmployeeAndProjectLeadResourceTest` from `ApiErrorDto`/`message` to `ProblemDto` assertions on `status` and `code`. Verify that they pass.
+- [x] 6.2 Migrate `MonthEndResourceTest` and `WorkTimeResourceTest` (formerly `WorkTimeEmployeeAndProjectLeadResourceTest`) from `ApiErrorDto`/`message` to `ProblemDto` assertions on `status` and `code`. Verify that they pass.
 - [x] 6.3 Add a problem contract test in `src/test/java/.../hexagon/shared/adapter/inbound/rest`. It deserializes into `ProblemDto` and covers: a domain `404` (media type, `title`, `instance`, `code`, `detail`, no `type`), a malformed path value `400` without `code` or `violations`, a bean-validation `400` (missing `enabled` on `PUT /projects/{projectId}/leistungsnachweis-enabled`), a `401` without `code`, a `403` role rejection with `code: FORBIDDEN`, a `500` without `detail` or `code`, and a success response still served as `application/json`. Verify that it passes.
 - [x] 6.4 Set the `jaxrs-spec` option `generateJsonCreator` to `false` and replace required-args DTO constructor calls with the fluent setters. Add an optional `field` member to the `Problem` schema (D13). Verify that `PUT /projects/{projectId}/leistungsnachweis-enabled` with `{}` returns `violations` with `field: "enabled"` and `in: "body"`, and that a non-boolean `enabled` returns a `400` problem without `code` or `violations`.
 
@@ -45,3 +45,9 @@
 
 - [x] 7.1 Add an ArchUnit rule to `HexagonalArchitectureTest`: classes in `..hexagon..domain..` and `..hexagon..application..` must not depend on `jakarta.ws.rs..` or `io.quarkiverse.httpproblem..`. Verify with `mvn test -Dtest=HexagonalArchitectureTest`.
 - [x] 7.2 Run `mvn clean package`. Manually call one hexagon error endpoint and one legacy error endpoint in `mvn quarkus:dev` and confirm the extension logs 4xx at INFO and 5xx at ERROR, with no email address in the log lines.
+
+## 8. Drift after rebasing onto the capacity-unified endpoints
+
+- [x] 8.1 Add `shared/adapter/inbound/rest/OutboundHttpFailureProblemMapper extends ExceptionMapperBase<ClientWebApplicationException>` that answers `502` without `detail` or `code` (D14). Verify with a unit test for the mapper and a case in the problem contract test where a use case throws a `ClientWebApplicationException` with status `404` and the API answers `502` without `detail` or `code`.
+- [x] 8.2 Rename the body parameter of `WorkTimeWarningRuleResource.updateWarningRuleSetting` to the generated name and add a unit test that checks every resource implementing a generated API interface uses the interface's parameter names (D15). Verify with a REST test that `PUT /worktime/warning-rules/{rule}` with `{}` reports `violations` with `field: "enabled"` and `in: "body"`.
+- [x] 8.3 Run `mvn clean package` and the OpenRewrite hygiene check (`rewrite-check` profile) on the rebased branch. Verify both pass.

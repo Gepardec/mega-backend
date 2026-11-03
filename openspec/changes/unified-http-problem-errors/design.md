@@ -21,7 +21,8 @@ Constraints:
 - The bundle only contains hexagon paths. Legacy endpoints get problem responses at runtime but have no contract.
 - `quarkus.http.auth.proactive` is `false`, so authentication failures pass through JAX-RS exception mappers.
 - The hexagon `ForbiddenException` (`shared/application/security`) is a hexagon-owned `SecurityException`, not the JAX-RS type. Its throw sites don't leak HTTP today. They're touched here only so they get a category and code.
-- `quarkus-http-problem` versions follow Quarkus versions. `io.quarkus.platform:quarkus-bom` manages it from 3.38.0; 3.37.1 (our current version) doesn't. Platform BOMs 3.38.3 and 3.39.4 both manage extension version `3.38.2`.
+- `quarkus-http-problem` versions follow Quarkus versions. `io.quarkus.platform:quarkus-bom` manages it from 3.38.0 on. The project is on 3.40.1, whose BOM manages extension version `3.38.2`.
+- Hexagon outbound adapters call ZEP and Personio through MicroProfile REST clients, partly through the legacy `zep.rest.service` layer. A downstream HTTP error status surfaces as the client's `ClientWebApplicationException`, a `WebApplicationException` whose response carries the downstream status. Only the release-date update and `PersonioEmployeeAdapter` catch these; the ZEP reads used by work-time and month-end endpoints let them propagate.
 
 ## Goals / Non-Goals
 
@@ -39,9 +40,9 @@ Constraints:
 
 ## Decisions
 
-### D1: `quarkus-http-problem`, version managed by the platform BOM (Quarkus 3.38.3)
-We add `io.quarkiverse.httpproblem:quarkus-http-problem` without a `<version>` and raise `quarkus.version` from 3.37.1 to **3.38.3**, the latest patch of the first platform release that manages the extension. We choose 3.38.3 over 3.39.4 because it's the smallest upgrade that achieves the goal; 3.39.x brings no extension difference (same `3.38.2`).
-- *Alternatives:* pin `3.33.2` on 3.37.1, which the user rejected because they want the BOM to manage it. Or write our own mappers, which would re-implement mappers for validation, auth, Jackson and catch-all, plus logging.
+### D1: `quarkus-http-problem`, version managed by the platform BOM
+We add `io.quarkiverse.httpproblem:quarkus-http-problem` without a `<version>`, so the Quarkus platform BOM manages it. The original plan raised Quarkus from 3.37.1 to 3.38.3 for this; `main` has meanwhile moved to 3.40.1, so no upgrade is part of this change.
+- *Alternatives:* pin an explicit extension version, which the user rejected because they want the BOM to manage it. Or write our own mappers, which would re-implement mappers for validation, auth, Jackson and catch-all, plus logging.
 
 ### D2: Shared, HTTP-free `DomainException` with `code` and `ErrorCategory`
 `shared/domain/error/DomainException` (abstract, extends `RuntimeException`) exposes `String code()` and `ErrorCategory category()`. `ErrorCategory` is an enum `NOT_FOUND | FORBIDDEN | INVALID`, and we add values only when a failure needs them. Each BC's existing abstract base (`MonthEndException`, `WorkTimeException`, `ProjectException`) extends `DomainException`. Every concrete exception passes a **constant** code and category to `super(...)`, so both are fixed per class, not per throw site. `UnknownUsersException` gets a `UserException` base like the other contexts.
@@ -60,23 +61,25 @@ The shared `ForbiddenException` (still in `shared/application/security`) also ex
 
 **Code catalogue.** These are the stable values; the frontend switches on them. The status column must match today's behaviour.
 
-| Exception | Category | Status | Code |
+| Enum constant | Category | Status | Code |
 |---|---|---|---|
-| `MonthEndTaskNotFoundException` | NOT_FOUND | 404 | `MONTHEND_TASK_NOT_FOUND` |
-| `MonthEndClarificationNotFoundException` | NOT_FOUND | 404 | `MONTHEND_CLARIFICATION_NOT_FOUND` |
-| `MonthEndActorNotAuthorizedException` | FORBIDDEN | 403 | `MONTHEND_ACTOR_NOT_AUTHORIZED` |
-| `MonthEndClarificationClosedException` | INVALID | 400 | `MONTHEND_CLARIFICATION_CLOSED` |
-| `MonthEndEmployeeContextNotFoundException` | INVALID | 400 | `MONTHEND_EMPLOYEE_CONTEXT_NOT_FOUND` |
-| `MonthEndEmployeeNotAssignedToProjectException` | INVALID | 400 | `MONTHEND_EMPLOYEE_NOT_ASSIGNED_TO_PROJECT` |
-| `MonthEndProjectContextNotFoundException` | INVALID | 400 | `MONTHEND_PROJECT_CONTEXT_NOT_FOUND` |
-| `MonthEndValidationException` | INVALID | 400 | `MONTHEND_VALIDATION_FAILED` |
-| `ProjectNotFoundException` | NOT_FOUND | 404 | `PROJECT_NOT_FOUND` |
-| `LeistungsnachweisNotApplicableException` | INVALID | 400 | `PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE` |
-| `ProjectActorNotLeadException` (new) | FORBIDDEN | 403 | `PROJECT_ACTOR_NOT_LEAD` |
-| `WorkTimeUserNotFoundException` | NOT_FOUND | 404 | `WORKTIME_USER_NOT_FOUND` |
-| `WorkTimeValidationException` | INVALID | 400 | `WORKTIME_VALIDATION_FAILED` |
-| `UnknownUsersException` | INVALID | 400 | `USER_UNKNOWN_USERS` |
-| shared `ForbiddenException` | FORBIDDEN | 403 | `FORBIDDEN` |
+| `MonthEndErrorCode.TASK_NOT_FOUND` | NOT_FOUND | 404 | `MONTHEND_TASK_NOT_FOUND` |
+| `MonthEndErrorCode.CLARIFICATION_NOT_FOUND` | NOT_FOUND | 404 | `MONTHEND_CLARIFICATION_NOT_FOUND` |
+| `MonthEndErrorCode.ACTOR_NOT_AUTHORIZED` | FORBIDDEN | 403 | `MONTHEND_ACTOR_NOT_AUTHORIZED` |
+| `MonthEndErrorCode.CLARIFICATION_CLOSED` | INVALID | 400 | `MONTHEND_CLARIFICATION_CLOSED` |
+| `MonthEndErrorCode.EMPLOYEE_CONTEXT_NOT_FOUND` | INVALID | 400 | `MONTHEND_EMPLOYEE_CONTEXT_NOT_FOUND` |
+| `MonthEndErrorCode.EMPLOYEE_NOT_ASSIGNED_TO_PROJECT` | INVALID | 400 | `MONTHEND_EMPLOYEE_NOT_ASSIGNED_TO_PROJECT` |
+| `MonthEndErrorCode.PROJECT_CONTEXT_NOT_FOUND` | INVALID | 400 | `MONTHEND_PROJECT_CONTEXT_NOT_FOUND` |
+| `MonthEndErrorCode.VALIDATION_FAILED` | INVALID | 400 | `MONTHEND_VALIDATION_FAILED` |
+| `ProjectErrorCode.NOT_FOUND` | NOT_FOUND | 404 | `PROJECT_NOT_FOUND` |
+| `ProjectErrorCode.LEISTUNGSNACHWEIS_NOT_APPLICABLE` | INVALID | 400 | `PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE` |
+| `ProjectErrorCode.ACTOR_NOT_LEAD` (new) | FORBIDDEN | 403 | `PROJECT_ACTOR_NOT_LEAD` |
+| `WorkTimeErrorCode.USER_NOT_FOUND` | NOT_FOUND | 404 | `WORKTIME_USER_NOT_FOUND` |
+| `WorkTimeErrorCode.VALIDATION_FAILED` | INVALID | 400 | `WORKTIME_VALIDATION_FAILED` |
+| `UserErrorCode.UNKNOWN_USERS` (`UnknownUsersException`) | INVALID | 400 | `USER_UNKNOWN_USERS` |
+| `SharedErrorCode.FORBIDDEN` (shared `ForbiddenException`) | FORBIDDEN | 403 | `FORBIDDEN` |
+
+`MONTHEND_ACTOR_NOT_AUTHORIZED` also covers the clarification creator and subject rule, which `main` turned from a `400` into a `403` before this change was rebased. The shared capacity check (`requireCapacity`) rejects through the shared `ForbiddenException`, so a capacity the caller doesn't hold yields `FORBIDDEN`.
 
 Adapter-level codes (D5): `USER_INTERNAL_RATES_EMPTY_FILE`, `USER_INTERNAL_RATES_BAD_FORMAT`, `USER_INTERNAL_RATES_UNKNOWN_USERS`. Problems produced by the framework have no code (D4).
 
@@ -129,6 +132,15 @@ The extension resolves a body violation to `in: "body"` only when the resource m
 With `jaxrs-spec`'s default `generateJsonCreator=true`, request DTOs get a `@JsonCreator` with `@JsonProperty(required = true)`. A missing required field then fails inside Jackson before bean validation runs, and the extension's `MismatchedInputExceptionMapper` answers with `detail: "Malformed request body"` and a top-level `field` (often `?`) in place of `violations`. We set `generateJsonCreator=false`: a missing field deserializes to `null`, and the generated `@NotNull` reports it as a `violations` entry with `in: "body"`. Malformed JSON and values of the wrong JSON type still reach the extension's Jackson mappers. We accept their shape (`400`, no `code`, no `violations`, optional `field`), and the `Problem` schema declares `field` as optional.
 - *Alternatives:* a `ProblemPostProcessor` that turns the Jackson `field` problems into `violations`, which adds a hook for a case clients can't fix at runtime anyway; or keeping the creators and post-processing everything, where missing fields would only get `field: "?"`.
 
+### D14: Failed outbound REST-client calls become `502` without details
+`shared/adapter/inbound/rest/OutboundHttpFailureProblemMapper extends ExceptionMapperBase<ClientWebApplicationException>` answers `502 Bad Gateway` with no `detail` and no `code`, whatever status the external system returned. It's more specific than the extension's `WebApplicationExceptionMapper`, so JAX-RS picks it, and extending `ExceptionMapperBase` keeps the extension's ERROR log line with the stack trace, which still names the failing client method for operators. Connection failures and timeouts don't carry a response, so they still reach the catch-all `500`.
+- *Why:* without it the extension's `WebApplicationExceptionMapper` copies the downstream status and the client's message ("…when invoking: Rest Client method: '…'") into our problem. A ZEP `401` would make the frontend treat the user as logged out, and a ZEP `404` would look like a missing resource of ours.
+- *Why `502` and not `500`:* the fault is outside this service, and clients and operators can tell "external system failed" apart from our own bugs by status alone. Like other generic problems it carries no `code` (D4).
+- *Alternative (rejected for now):* make every outbound adapter translate client exceptions into a port-level failure. It's the purer hexagonal shape, but it touches about ten adapters and the legacy `zep.rest.service` layer, and every adapter added later would have to remember it; the inbound mapper is a safety net that holds by construction. Adapters that need a different outcome (the release-date update collects per-entry failures) keep catching locally.
+
+### D15: Resource parameter names match the generated interfaces
+D12 applies to every hexagon resource, not only `MonthEndResource`. A unit test reflects over every class implementing a generated `..hexagon.generated.api..` interface and checks that each implementing method uses the interface's parameter names. This catches resources added later, such as `WorkTimeWarningRuleResource`, whose body parameter `update` made violations report `in: "?"` and `field: "update.enabled"`. The build compiles with `-parameters`, so the names are available at runtime.
+
 ### D10: Tests
 - A REST-Assured contract test class in `shared/adapter/inbound/rest` covering:
   - a domain `404` (status, media type, `title`, `instance`, `code`, `detail`, no `type`);
@@ -136,27 +148,28 @@ With `jaxrs-spec`'s default `generateJsonCreator=true`, request DTOs get a `@Jso
   - a bean-validation `400`;
   - a `401` without `code`, and a `403` (role check) with `code: FORBIDDEN`;
   - a `500` without `detail` or `code`;
+  - a failed outbound REST-client call (`404` from the external system) answered as `502` without `detail` or `code` (D14);
   - success responses still using `application/json`.
 - Deserialize problems into the generated `ProblemDto`, so drift between schema and wire fails the test. REST-Assured's mapper rejects unknown members, so an unexpected extra member on a generic problem fails the test too.
-- Existing REST tests that read `ApiErrorDto` (`MonthEndResourceTest`, `WorkTimeEmployeeAndProjectLeadResourceTest`) and `errorCode` (`UserResourceTest`) assert on `code` instead.
+- Existing REST tests that read `ApiErrorDto` (`MonthEndResourceTest`, `WorkTimeResourceTest`) and `errorCode` (`UserResourceTest`) assert on `code` instead.
 - `HexagonalArchitectureTest` gets the JAX-RS / problem-library rule for `..domain..` and `..application..`.
+- A parameter-name test enforces D15 for every resource that implements a generated API interface.
 
 ## Risks / Trade-offs
 
 - [`ExceptionMapperBase` is internal API and could change in an extension release] → The contract test in D10 covers domain problems end to end, so a breaking upgrade fails the build. If that happens, switch to the post-processor approach (D3 alternative), which needs no contract change.
-- [The Quarkus 3.37 → 3.38 upgrade brings unrelated changes] → Do it as the first, separate step. Read the 3.38 migration guide and run the full test suite before adding the extension.
 - [Extension mappers take priority over custom ones for the same exception type] → We don't register any mapper for a built-in type. `DomainProblemMapper` targets our own type only.
 - [Frontend breaks on every error-handling path at once] → This is accepted and the change is marked breaking. Deploy together with the frontend release that reads `code`. There's no transition mode.
 - [Legacy endpoints change error bodies without a contract] → They were empty or ad hoc before. The frontend's future interceptor reads `code` from any `application/problem+json` response.
 - [Domain messages end up in `detail` and might contain identifiers] → Current messages hold IDs and field names, not personal data. The `UserRepositoryAdapter` message that contained an email becomes a 500, which never gets `detail`. New domain messages must not include personal data.
 - [`WorkTimeValidationException` ("zep username missing for user") is a data problem reported as `400`] → Kept to preserve behaviour (non-goal). It's a follow-up candidate for reclassification as a server error.
-- [A `WebApplicationException` carrying a `Response` entity bypasses every mapper (per the extension's TROUBLESHOOTING.md)] → No such throw sites exist. The only `WebApplicationException` user is `PersonioEmployeeAdapter`, which catches REST-client exceptions and doesn't rethrow them to the inbound side.
+- [A `WebApplicationException` carrying a `Response` entity bypasses every mapper (per the extension's TROUBLESHOOTING.md)] → We throw none ourselves. REST-client exceptions that reach the inbound side are handled by D14.
+- [The mapper in D14 depends on the REST client's exception type] → It's the documented type of the Quarkus REST client, and a REST test throws it end to end, so a change fails the build.
 
 ## Migration Plan
 
-1. Upgrade Quarkus alone; the suite must stay green.
-2. Add the extension, the shared error types and `DomainProblemMapper`, then remove the old mappers and move the throw sites.
-3. Update the OpenAPI contract and tests.
-4. Release together with the frontend change.
+1. Add the extension, the shared error types and `DomainProblemMapper`, then remove the old mappers and move the throw sites.
+2. Update the OpenAPI contract and tests.
+3. Release together with the frontend change.
 
 Rollback: revert the change as a whole. There are no data or schema migrations.

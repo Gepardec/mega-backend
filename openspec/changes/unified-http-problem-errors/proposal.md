@@ -13,7 +13,8 @@ Error responses are inconsistent across the API, and clients can't reliably tell
 - **BREAKING**: The ZEP mail webhook no longer echoes the raw exception message in its 500 response. It returns a problem like every other unhandled error.
 - Problems produced by the framework (authentication, input validation, unknown routes, malformed JSON, unexpected errors) carry no `code`. Clients identify them by `status` and, for validation, by `violations`.
 - 5xx responses never expose exception messages.
-- The Quarkiverse `quarkus-http-problem` extension renders and logs all problems. Quarkus moves from 3.37.1 to 3.38.x so the Quarkus platform BOM manages the extension's version.
+- **BREAKING**: When a call to an external system (ZEP, Personio) fails with an HTTP error status, the API answers `502` without `code` or `detail`. Until now the downstream status and the REST client's message were passed through, so a ZEP `401` or `404` looked like our own `401` or `404`.
+- The Quarkiverse `quarkus-http-problem` extension renders and logs all problems. Its version is managed by the Quarkus platform BOM, which manages it from Quarkus 3.38 on; the project is already on a newer Quarkus, so no upgrade is part of this change.
 - Hexagon errors are classified in one place. A shared, HTTP-free domain error base carries a stable `code` and a category. A single inbound mapper turns the category into an HTTP status. The per-BC domain mappers, the per-BC REST-adapter exception hierarchies and their mappers, and the hexagon forbidden mapper are removed.
 - Hexagon inbound adapters no longer parse input by hand. Months are typed as year-month in the contract and generated as a native year-month type. The transport helpers are removed, and resources wrap identifiers into domain types directly.
 - All six legacy exception mappers are removed, together with the legacy `UnauthorizedException`, which nothing throws.
@@ -23,7 +24,7 @@ Error responses are inconsistent across the API, and clients can't reliably tell
 ## Capabilities
 
 ### New Capabilities
-- `http-error-responses`: A cross-cutting contract for error responses across the whole API: problem-detail format and media type, the `code` member for domain and endpoint-specific errors, the validation-error shape, and non-disclosure of internal details in 5xx responses.
+- `http-error-responses`: A cross-cutting contract for error responses across the whole API: problem-detail format and media type, the `code` member for domain and endpoint-specific errors, the validation-error shape, non-disclosure of internal details in 5xx responses, and how failures of external systems surface.
 
 ### Modified Capabilities
 - `user-rest-api`: The internal-rate CSV upload's failure body moves from `{ errorCode, lines }` to a problem with `code` and `lines`.
@@ -35,8 +36,8 @@ Error responses are inconsistent across the API, and clients can't reliably tell
 
 - **API contract**: `openapi/schemas/shared.yaml` (`ApiError` becomes `Problem`, plus a violation item schema), `openapi/responses/common.yaml` (all error responses switch to `application/problem+json`), and `openapi/paths/user.yaml` together with `openapi/schemas/user.yaml` (the CSV upload error schema). Month fields and parameters use `format: year-month` instead of a pattern-constrained string. The frontend's generated client changes for every error type.
 - **Frontend**: Has to read `code`, not `message` or `errorCode`, and handle `application/problem+json`. Legacy endpoints, which aren't in the bundled contract, change their error bodies at runtime too.
-- **Dependencies**: Quarkus platform upgrade 3.37.1 to 3.38.x, and the new `io.quarkiverse.httpproblem:quarkus-http-problem`.
-- **Hexagon code**: Error types in `monthend`, `worktime`, `project` and `user` domains, the shared `ForbiddenException`, inbound adapter transport helpers (removed), `UserResource` (CSV upload), `ZepMailWebhookResource`, `SetLeistungsnachweisEnabledService`, `UserRepositoryAdapter`, and `HexagonalArchitectureTest`.
+- **Dependencies**: The new `io.quarkiverse.httpproblem:quarkus-http-problem`, version managed by the Quarkus platform BOM.
+- **Hexagon code**: Error types in `monthend`, `worktime`, `project` and `user` domains, the shared `ForbiddenException`, inbound adapter transport helpers (removed), `UserResource` (CSV upload), `ZepMailWebhookResource`, `SetLeistungsnachweisEnabledService`, `UserRepositoryAdapter`, a shared inbound mapper for failed outbound REST-client calls, the body parameter names of hexagon resources, and `HexagonalArchitectureTest`.
 - **Legacy code**: The `application/exception/mapper` package, `application/exception/UnauthorizedException`, `domain/model/ValidationViolation`, and their tests.
 - **Tests**: REST tests that deserialize `ApiErrorDto` or assert on `errorCode` move to problem assertions. The legacy mapper unit tests are removed.
 - **Logging**: The extension logs client errors at INFO and server errors at ERROR. The hexagon forbidden mapper's WARN line, which logged the user's email, goes away.

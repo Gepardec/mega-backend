@@ -86,3 +86,15 @@ A problem with a 5xx status SHALL NOT contain exception messages, exception clas
 - **WHEN** the authenticated user's email matches more than one user record
 - **THEN** the API responds with `500` and a problem body without `code`
 - **THEN** the body does not contain the email address
+
+### Requirement: Failures of external systems do not leak through
+When an external system the API calls, such as ZEP, answers with an HTTP error status, the API SHALL respond with `502` and a problem body without `code` and without `detail`, whatever status the external system returned. Failing to reach the external system at all, for example on a timeout, SHALL surface as an unexpected server error.
+
+#### Scenario: External system rejects the call
+- **WHEN** a client requests its work time report and ZEP answers the API's call with `404`
+- **THEN** the API responds with `502` and a problem body in `application/problem+json`
+- **THEN** the body contains neither `code` nor `detail`
+
+#### Scenario: External system authentication failure is not the caller's
+- **WHEN** ZEP answers a call the API makes on behalf of an authenticated user with `401`
+- **THEN** the API responds with `502`, not `401`
