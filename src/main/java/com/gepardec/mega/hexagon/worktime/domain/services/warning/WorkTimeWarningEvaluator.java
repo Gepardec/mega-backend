@@ -4,21 +4,17 @@ import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
 import com.gepardec.mega.hexagon.worktime.domain.model.WarningRuleSettings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeEvaluation;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
-import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType;
+import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarnings;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType.EMPTY_ENTRY_LIST;
-
-public class WorkTimeWarningAssembler {
+/**
+ * Runs every active warning rule over a month's evaluation.
+ */
+public class WorkTimeWarningEvaluator {
     private final List<WorkTimeWarningCalculator> calculators;
 
-    public WorkTimeWarningAssembler() {
+    public WorkTimeWarningEvaluator() {
         this(List.of(
                 new CoreWorkingHoursCalculator(),
                 new TimeOverlapCalculator(),
@@ -38,7 +34,7 @@ public class WorkTimeWarningAssembler {
                 new MealEntryCalculator()));
     }
 
-    WorkTimeWarningAssembler(List<WorkTimeWarningCalculator> calculators) {
+    WorkTimeWarningEvaluator(List<WorkTimeWarningCalculator> calculators) {
         this.calculators = List.copyOf(calculators);
     }
 
@@ -46,29 +42,15 @@ public class WorkTimeWarningAssembler {
         return calculators.stream().map(WorkTimeWarningCalculator::rule).toList();
     }
 
-    public List<WorkTimeWarning> assemble(WorkTimeEvaluation evaluation, WarningRuleSettings settings) {
+    public WorkTimeWarnings evaluate(WorkTimeEvaluation evaluation, WarningRuleSettings settings) {
         if (evaluation.bookings().isEmpty()) {
-            return List.of(new WorkTimeWarning(null, EMPTY_ENTRY_LIST, null));
+            return WorkTimeWarnings.noEntries();
         }
-        List<WorkTimeWarning> warnings = new ArrayList<>();
-        calculators.stream()
+        List<WorkTimeWarning> warnings = calculators.stream()
                 .filter(calculator -> settings.isActive(calculator.rule()))
-                .forEach(calculator -> calculator.calculate(evaluation).stream()
-                        .filter(warning -> settings.appliesOn(calculator.rule(), warning.date()))
-                        .forEach(warnings::add));
-        return distinctPerTypeAndDate(warnings);
-    }
-
-    private static List<WorkTimeWarning> distinctPerTypeAndDate(List<WorkTimeWarning> warnings) {
-        return List.copyOf(warnings.stream()
-                .collect(Collectors.toMap(
-                        warning -> new TypeAndDate(warning.type(), warning.date()),
-                        Function.identity(),
-                        (first, duplicate) -> first,
-                        LinkedHashMap::new))
-                .values());
-    }
-
-    private record TypeAndDate(WorkTimeWarningType type, LocalDate date) {
+                .flatMap(calculator -> calculator.calculate(evaluation).stream()
+                        .filter(warning -> settings.appliesOn(calculator.rule(), warning.date())))
+                .toList();
+        return new WorkTimeWarnings(warnings);
     }
 }

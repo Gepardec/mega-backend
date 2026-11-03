@@ -23,7 +23,7 @@ import com.gepardec.mega.hexagon.worktime.domain.model.WarningRuleSetting;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarningType;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkingLocation;
-import com.gepardec.mega.hexagon.worktime.domain.services.warning.WorkTimeWarningAssembler;
+import com.gepardec.mega.hexagon.worktime.domain.services.warning.WorkTimeWarningEvaluator;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,7 +79,7 @@ class GetEmployeeWarningsServiceTest {
     void setUp() {
         lenient().when(ruleSettingsPort.findAll()).thenReturn(settings(Set.of()));
         service = new GetEmployeeWarningsService(userPort, bookingPort, absencePort, expectedDaysPort,
-                projectSnapshotPort, mealEntryPort, ruleSettingsPort, new WorkTimeWarningAssembler(), Clock.fixed(Instant.parse("2026-05-10T00:00:00Z"), ZoneOffset.UTC));
+                projectSnapshotPort, mealEntryPort, ruleSettingsPort, new WorkTimeWarningEvaluator(), Clock.fixed(Instant.parse("2026-05-10T00:00:00Z"), ZoneOffset.UTC));
     }
 
     @Test
@@ -152,7 +152,7 @@ class GetEmployeeWarningsServiceTest {
     }
 
     @Test
-    void getWarnings_passesBillableProjectIdsOfBookedProjectsToAssembler() {
+    void getWarnings_passesBillableProjectIdsOfBookedProjectsToEvaluator() {
         YearMonth october = YearMonth.of(2026, 10);
         var date = october.atDay(6);
         when(userPort.findById(USER_ID, october)).thenReturn(Optional.of(user()));
@@ -277,7 +277,7 @@ class GetEmployeeWarningsServiceTest {
 
     private GetEmployeeWarningsService serviceAt(String instant) {
         return new GetEmployeeWarningsService(userPort, bookingPort, absencePort, expectedDaysPort,
-                projectSnapshotPort, mealEntryPort, ruleSettingsPort, new WorkTimeWarningAssembler(), Clock.fixed(Instant.parse(instant), ZoneOffset.UTC));
+                projectSnapshotPort, mealEntryPort, ruleSettingsPort, new WorkTimeWarningEvaluator(), Clock.fixed(Instant.parse(instant), ZoneOffset.UTC));
     }
 
     private void stubMonthWithDayTrip(YearMonth month, LocalDate date) {
