@@ -6,13 +6,14 @@ Error responses are inconsistent across the API, and clients can't reliably tell
 
 ## What Changes
 
-- **BREAKING**: Every error response from every endpoint, hexagon and legacy, becomes an RFC 9457 problem detail with media type `application/problem+json`. The body carries `title`, `status`, `instance`, and an optional `detail`. Problems raised for a domain or endpoint-specific reason also carry a stable `code` extension member that clients switch on. `type` is not used.
+- **BREAKING**: Every error response from a hexagon endpoint, and every error a legacy endpoint lets propagate, becomes an RFC 9457 problem detail with media type `application/problem+json`. The body carries `title`, `status`, `instance`, and an optional `detail`. Problems raised for a domain or endpoint-specific reason also carry a stable `code` extension member that clients switch on. `type` is not used.
 - **BREAKING**: The `ApiError` schema (`{ message }`) is removed from the OpenAPI contract and replaced by a `Problem` schema.
 - **BREAKING**: Bean-validation errors (missing mandatory fields and constraint violations) share one shape: a `400` problem with a `violations` array of `{ field, in, message }`. Path or query values that can't be parsed into their type, such as months and identifiers, get the framework's default 4xx problem without `violations`.
 - **BREAKING**: Internal-rate CSV upload failures become problems. The existing error codes move to `code`, and `lines` stays as an extension member. The `errorCode` field is removed.
 - **BREAKING**: The ZEP mail webhook no longer echoes the raw exception message in its 500 response. It returns a problem like every other unhandled error.
 - Problems produced by the framework (authentication, input validation, unknown routes, malformed JSON, unexpected errors) carry no `code`. Clients identify them by `status` and, for validation, by `violations`.
 - 5xx responses never expose exception messages.
+- Legacy resources that catch errors and build their own error response, such as the cron-triggered `/mail/send-reminder` and `/mail/retrieve-zep-mails`, are not migrated and keep their current responses.
 - **BREAKING**: When a call to an external system (ZEP, Personio) fails with an HTTP error status, the API answers `502` without `code` or `detail`. Until now the downstream status and the REST client's message were passed through, so a ZEP `401` or `404` looked like our own `401` or `404`.
 - The Quarkiverse `quarkus-http-problem` extension renders and logs all problems. Its version is managed by the Quarkus platform BOM, which manages it from Quarkus 3.38 on; the project is already on a newer Quarkus, so no upgrade is part of this change.
 - Hexagon errors are classified in one place. A shared, HTTP-free domain error base carries a stable `code` and a category. A single inbound mapper turns the category into an HTTP status. The per-BC domain mappers, the per-BC REST-adapter exception hierarchies and their mappers, and the hexagon forbidden mapper are removed.
@@ -25,7 +26,7 @@ Error responses are inconsistent across the API, and clients can't reliably tell
 ## Capabilities
 
 ### New Capabilities
-- `http-error-responses`: A cross-cutting contract for error responses across the whole API: problem-detail format and media type, the `code` member for domain and endpoint-specific errors, the validation-error shape, non-disclosure of internal details in 5xx responses, and how failures of external systems surface.
+- `http-error-responses`: A cross-cutting contract for error responses across the hexagon API and propagated legacy errors: problem-detail format and media type, the `code` member for domain and endpoint-specific errors, the validation-error shape, non-disclosure of internal details in 5xx responses, and how failures of external systems surface.
 
 ### Modified Capabilities
 - `user-rest-api`: The internal-rate CSV upload's failure body moves from `{ errorCode, lines }` to a problem with `code` and `lines`, and unknown employees are rejected with `422` instead of `400`.

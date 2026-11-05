@@ -2,12 +2,12 @@
 
 ## Purpose
 
-Defines one error-response contract for the whole HTTP API, hexagon and legacy endpoints alike. Clients get a problem-details body they can handle generically, and a stable `code` they switch on instead of parsing messages.
+Defines one error-response contract for the HTTP API. It covers every hexagon endpoint, and legacy endpoints for the errors they let propagate; legacy resources that build their own error responses are out of scope. Clients get a problem-details body they can handle generically, and a stable `code` they switch on instead of parsing messages.
 
 ## ADDED Requirements
 
 ### Requirement: Every error response is a problem detail
-Every response with a 4xx or 5xx status, from any endpoint, SHALL use media type `application/problem+json` and SHALL have a body following RFC 9457 (Problem Details for HTTP APIs). The body SHALL contain `status` (the HTTP status code as a number), `title` (the standard reason phrase of that status, for example `"Not Found"`), and `instance` (the request path). The body MAY contain `detail`, a human-readable explanation of this occurrence meant for developers, not end users. The body SHALL NOT contain `type`, so clients SHALL treat every problem's type as `about:blank`. Endpoints that are not part of the published OpenAPI contract SHALL follow the same format.
+Every response with a 4xx or 5xx status from a hexagon endpoint SHALL use media type `application/problem+json` and SHALL have a body following RFC 9457 (Problem Details for HTTP APIs). The body SHALL contain `status` (the HTTP status code as a number), `title` (the standard reason phrase of that status, for example `"Not Found"`), and `instance` (the request path). The body MAY contain `detail`, a human-readable explanation of this occurrence meant for developers, not end users. The body SHALL NOT contain `type`, so clients SHALL treat every problem's type as `about:blank`. Legacy endpoints, which are not part of the published OpenAPI contract, SHALL follow the same format for every error that propagates out of the resource. Legacy resources that catch an error and build their own error response are not covered.
 
 #### Scenario: Unknown resource returns a problem
 - **WHEN** a client requests a month-end task that does not exist

@@ -36,6 +36,7 @@ Constraints:
 - Success-side messages or response envelopes.
 - Re-evaluating `404` and `403` rejections. Only the blanket `400` is split up (D17).
 - Documenting legacy endpoints in the OpenAPI contract.
+- Migrating legacy resources that catch errors and build their own error response (for example `MailResourceImpl`). Only errors that propagate out of legacy resources become problems.
 - Frontend changes, including the planned error interceptor.
 - Adding `type` URIs or a problem-type registry.
 
