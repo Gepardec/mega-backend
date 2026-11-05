@@ -697,6 +697,33 @@ class MonthEndResourceTest {
     }
 
     @Test
+    void createMonthEndClarification_shouldReturnUnprocessable_whenProjectHasNoEligibleLead() {
+        allowRoles(Role.EMPLOYEE);
+        CreateClarificationRequestDto request = new CreateClarificationRequestDto()
+                .month(MONTH)
+                .projectId(PROJECT_ID.value())
+                .subjectEmployeeId(EMPLOYEE_ID.value())
+                .text("Nobody leads this project.");
+        when(createMonthEndClarificationUseCase.create(
+                MONTH,
+                PROJECT_ID,
+                EMPLOYEE_ID,
+                EMPLOYEE_ID,
+                "Nobody leads this project."
+        )).thenThrow(new MonthEndException(MonthEndErrorCode.NO_ELIGIBLE_PROJECT_LEAD, "project has no eligible lead"));
+
+        given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(request)
+                .post("/monthend/clarifications")
+                .then()
+                .statusCode(422)
+                .contentType("application/problem+json")
+                .body("code", is("MONTHEND_NO_ELIGIBLE_PROJECT_LEAD"));
+    }
+
+    @Test
     void updateMonthEndClarificationText_shouldReturnConflict_whenClarificationIsClosed() {
         allowRoles(Role.EMPLOYEE);
         when(updateMonthEndClarificationUseCase.updateText(CLARIFICATION_ID, EMPLOYEE_ID, "Too late."))
@@ -947,7 +974,9 @@ class MonthEndResourceTest {
                         .type(MonthEndTaskTypeDto.LEISTUNGSNACHWEIS))
                 .post("/monthend/{month}/projects/{projectId}/tasks/complete", MONTH.toString(), PROJECT_ID.value())
                 .then()
-                .statusCode(403);
+                .statusCode(403)
+                .contentType("application/problem+json")
+                .body("code", is("MONTHEND_ACTOR_NOT_AUTHORIZED"));
     }
 
     @Test
@@ -1190,7 +1219,9 @@ class MonthEndResourceTest {
         given()
                 .delete("/monthend/clarifications/{clarificationId}", CLARIFICATION_ID.value())
                 .then()
-                .statusCode(404);
+                .statusCode(404)
+                .contentType("application/problem+json")
+                .body("code", is("MONTHEND_CLARIFICATION_NOT_FOUND"));
     }
 
     private void allowRoles(Role... roles) {

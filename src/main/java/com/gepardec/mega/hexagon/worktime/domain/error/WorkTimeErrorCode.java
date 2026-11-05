@@ -4,7 +4,7 @@ import com.gepardec.mega.hexagon.shared.domain.error.ErrorCategory;
 import com.gepardec.mega.hexagon.shared.domain.error.ErrorCode;
 
 public enum WorkTimeErrorCode implements ErrorCode {
-    USER_NOT_FOUND(ErrorCategory.NOT_FOUND);
+    USER_NOT_FOUND(ErrorCategory.UNPROCESSABLE);
 
     private final ErrorCategory category;
 

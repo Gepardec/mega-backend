@@ -65,6 +65,10 @@ When a bounded context rejects a request, the HTTP status SHALL reflect the kind
 - **WHEN** an authenticated user creates a clarification, directly or through premature month-end preparation, for a project that has no active project lead in that month
 - **THEN** the API responds with `422` and the code `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD`
 
+#### Scenario: Work-time read for an actor without a record in that month
+- **WHEN** an authenticated user requests their work time report or warnings for a month in which they have no work-time record
+- **THEN** the API responds with `422` and the code `WORKTIME_USER_NOT_FOUND`
+
 ### Requirement: Faults that the caller cannot fix are server errors
 A failure that no different request could have avoided SHALL NOT be reported as a `4xx`. It SHALL surface as `500` without `code` or `detail`, even where it was reported as `400` before. This covers stored data that breaks a structural rule of a domain object and a user without the ZEP username that a work-time read needs.
 

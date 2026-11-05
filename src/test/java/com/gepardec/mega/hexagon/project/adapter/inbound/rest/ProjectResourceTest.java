@@ -236,6 +236,8 @@ class ProjectResourceTest {
                 .body(request)
                 .put("/projects/" + PROJECT_ID.value() + "/leistungsnachweis-enabled")
                 .then()
-                .statusCode(HttpStatus.SC_CONFLICT);
+                .statusCode(HttpStatus.SC_CONFLICT)
+                .contentType("application/problem+json")
+                .body("code", is("PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE"));
     }
 }

@@ -34,7 +34,7 @@ Constraints:
 
 **Non-Goals:**
 - Success-side messages or response envelopes.
-- Re-evaluating `404` and `403` rejections. Only the blanket `400` is split up (D17).
+- Re-evaluating `403` rejections, and `404`s for objects the URL addresses. The blanket `400` is split up, and `WORKTIME_USER_NOT_FOUND`, which named no URL-addressed object, moves from `404` to `422` (D17).
 - Documenting legacy endpoints in the OpenAPI contract.
 - Migrating legacy resources that catch errors and build their own error response (for example `MailResourceImpl`). Only errors that propagate out of legacy resources become problems.
 - Frontend changes, including the planned error interceptor.
@@ -76,7 +76,7 @@ The shared `ForbiddenException` (still in `shared/application/security`) also ex
 | `MonthEndErrorCode.TASK_TYPE_NOT_BULK_COMPLETABLE` (new, D16) | UNPROCESSABLE | 422 | `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE` |
 | `ProjectErrorCode.NOT_FOUND` | NOT_FOUND | 404 | `PROJECT_NOT_FOUND` |
 | `ProjectErrorCode.LEISTUNGSNACHWEIS_NOT_APPLICABLE` | CONFLICT | 409 | `PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE` |
-| `WorkTimeErrorCode.USER_NOT_FOUND` | NOT_FOUND | 404 | `WORKTIME_USER_NOT_FOUND` |
+| `WorkTimeErrorCode.USER_NOT_FOUND` | UNPROCESSABLE | 422 | `WORKTIME_USER_NOT_FOUND` |
 | `UserErrorCode.INTERNAL_RATES_UNKNOWN_USERS` (`UnknownUsersException`) | UNPROCESSABLE | 422 | `USER_INTERNAL_RATES_UNKNOWN_USERS` |
 | `InternalRateUploadErrorCode.INTERNAL_RATES_EMPTY_FILE` (adapter) | INVALID | 400 | `USER_INTERNAL_RATES_EMPTY_FILE` |
 | `InternalRateUploadErrorCode.INTERNAL_RATES_BAD_FORMAT` (adapter) | INVALID | 400 | `USER_INTERNAL_RATES_BAD_FORMAT` |
@@ -160,7 +160,7 @@ RFC 9110 gives each 4xx a meaning, and the blanket `400` hid that. The rule, as 
 - `NOT_FOUND` → `404`: the object the request **URL** addresses doesn't exist. Objects named only in the body never give `404`, because the target URL (for example `/monthend/clarifications`) exists.
 - `FORBIDDEN` → `403`: the acting user may not perform the operation.
 - `CONFLICT` → `409`: the current state of the object the URL addresses doesn't allow the operation. `MONTHEND_CLARIFICATION_CLOSED` (edit or delete a done clarification) and `PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE` (the addressed project isn't billable).
-- `UNPROCESSABLE` → `422`: the request satisfies the contract, but what it refers to or asks for doesn't fit the domain. The month-end context codes, `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD`, `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE` and `USER_INTERNAL_RATES_UNKNOWN_USERS`.
+- `UNPROCESSABLE` → `422`: the request satisfies the contract, but what it refers to or asks for doesn't fit the domain. The month-end context codes, `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD`, `MONTHEND_TASK_TYPE_NOT_BULK_COMPLETABLE`, `USER_INTERNAL_RATES_UNKNOWN_USERS` and `WORKTIME_USER_NOT_FOUND`. The last one fires when the authenticated actor has no work-time record for the requested month; no URL addresses that user, so it isn't a `404`, and another month can succeed, so it isn't a `500`.
 - `INVALID` → `400`: the content is malformed. Only the CSV's empty-file and bad-format codes; bean validation and parse errors are `400` from the framework.
 - *Frontend:* the failure mapper turns every 4xx other than 401/403/404 into the same reason and special-cases these codes by `code`, so nothing changes there. The status split is for HTTP semantics, monitoring and any other client, not for the current UI.
 - *Alternative (rejected):* `404` for references in the body. It confuses "this URL doesn't exist" with "a value in your request doesn't fit".

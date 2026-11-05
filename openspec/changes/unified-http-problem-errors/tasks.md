@@ -71,3 +71,8 @@
 - [x] 11.2 Pin each code together with its category in `ErrorCodeTest`. Verify that it passes.
 - [x] 11.3 Add `Conflict` and `UnprocessableContent` to `openapi/responses/common.yaml` and reference them from the operations that can return them; give the CSV upload a `422` response with `InternalRateUploadProblem`. Verify with REST tests that a closed clarification yields `409`, an unassigned subject employee and an unsupported bulk type yield `422`, enabling Leistungsnachweis on a non-billable project yields `409`, and unknown CSV users yield `422` with `lines`.
 - [x] 11.4 Run `mvn clean package -Prewrite-check`. Verify it passes.
+
+## 12. Verification follow-ups
+
+- [x] 12.1 Recategorise `WorkTimeErrorCode.USER_NOT_FOUND` as `UNPROCESSABLE` (D17), pin it in `ErrorCodeTest`, and add `422` to `getWorkTimeReport` and `getEmployeeWarnings` in `openapi/paths/worktime.yaml`. Verify with `WorkTimeResourceTest` that an actor unknown in the month yields `422` with `code: WORKTIME_USER_NOT_FOUND`.
+- [x] 12.2 Assert `code` in the REST tests for `PROJECT_LEISTUNGSNACHWEIS_NOT_APPLICABLE` (409), `MONTHEND_CLARIFICATION_NOT_FOUND` (404) and `MONTHEND_ACTOR_NOT_AUTHORIZED` (403), and add a `MonthEndResourceTest` case for creating a clarification that yields `422` with `MONTHEND_NO_ELIGIBLE_PROJECT_LEAD`. Verify that they pass.

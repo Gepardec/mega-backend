@@ -367,7 +367,7 @@ class WorkTimeResourceTest {
     }
 
     @Test
-    void getWorkTimeReport_shouldMapDomainNotFoundExceptionTo404() {
+    void getWorkTimeReport_shouldReturn422_whenActorIsUnknownInMonth() {
         allowRoles(Role.EMPLOYEE);
         doThrow(new WorkTimeException(WorkTimeErrorCode.USER_NOT_FOUND, "user not found: " + EMPLOYEE_ID.value()))
                 .when(getWorkTimeReportUseCase).getWorkTime(EMPLOYEE_ID, MONTH, Capacity.EMPLOYEE);
@@ -377,11 +377,11 @@ class WorkTimeResourceTest {
                 .queryParam("capacity", "EMPLOYEE")
                 .get("/worktime/" + MONTH)
                 .then()
-                .statusCode(404)
+                .statusCode(422)
                 .extract()
                 .as(ProblemDto.class);
 
-        assertThat(response.getStatus()).isEqualTo(404);
+        assertThat(response.getStatus()).isEqualTo(422);
         assertThat(response.getCode()).isEqualTo("WORKTIME_USER_NOT_FOUND");
     }
 
