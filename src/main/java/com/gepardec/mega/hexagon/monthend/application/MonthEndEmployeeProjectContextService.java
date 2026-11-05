@@ -2,8 +2,8 @@ package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectAssignmentPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndUserSnapshotPort;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeContextNotFoundException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndEmployeeNotAssignedToProjectException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndEmployeeProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
@@ -51,13 +51,13 @@ public class MonthEndEmployeeProjectContextService {
                 .filter(user -> user.id().equals(subjectEmployeeId))
                 .filter(user -> !SystemActor.USER_ID.equals(user.id()))
                 .findFirst()
-                .orElseThrow(() -> new MonthEndEmployeeContextNotFoundException(
+                .orElseThrow(() -> new MonthEndException(MonthEndErrorCode.EMPLOYEE_CONTEXT_NOT_FOUND,
                         "month-end employee context not found for employee %s in %s".formatted(subjectEmployeeId.value(), month)
                 ));
 
         if (!monthEndProjectAssignmentPort.findAssignedUsernames(project.zepId(), month)
                 .contains(subjectEmployee.zepUsername().value())) {
-            throw new MonthEndEmployeeNotAssignedToProjectException(
+            throw new MonthEndException(MonthEndErrorCode.EMPLOYEE_NOT_ASSIGNED_TO_PROJECT,
                     "employee %s is not assigned to project %s in %s"
                             .formatted(subjectEmployeeId.value(), project.id().value(), month)
             );

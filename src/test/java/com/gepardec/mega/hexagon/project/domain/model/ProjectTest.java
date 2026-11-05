@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.project.domain.model;
 
-import com.gepardec.mega.hexagon.project.domain.error.LeistungsnachweisNotApplicableException;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectErrorCode;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectException;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 import org.assertj.core.api.ThrowableAssert;
@@ -270,7 +271,8 @@ class ProjectTest {
         Project project = Project.create(ProjectId.generate(), profile(1, "X"));
 
         assertThatThrownBy(() -> project.withLeistungsnachweisEnabled(true))
-                .isInstanceOf(LeistungsnachweisNotApplicableException.class);
+                .isInstanceOfSatisfying(ProjectException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(ProjectErrorCode.LEISTUNGSNACHWEIS_NOT_APPLICABLE));
     }
 
     @Test

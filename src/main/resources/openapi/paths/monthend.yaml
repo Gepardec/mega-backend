@@ -19,7 +19,9 @@
         content:
           application/json:
             schema:
-              $ref: '../schemas/shared.yaml#/MonthValue'
+              type: string
+              format: year-month
+              example: "2026-09"
       '400':
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
@@ -40,7 +42,9 @@
         required: true
         description: Month-end context in yyyy-MM format.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          type: string
+          format: year-month
+          example: "2026-09"
       - name: capacity
         in: query
         required: true
@@ -81,6 +85,8 @@
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
         $ref: '../responses/common.yaml#/Forbidden'
+      '422':
+        $ref: '../responses/common.yaml#/UnprocessableContent'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
 '/monthend/clarifications':
@@ -113,6 +119,8 @@
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
         $ref: '../responses/common.yaml#/Forbidden'
+      '422':
+        $ref: '../responses/common.yaml#/UnprocessableContent'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
 '/monthend/tasks/{taskId}/complete':
@@ -157,6 +165,8 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '404':
         $ref: '../responses/common.yaml#/NotFound'
+      '409':
+        $ref: '../responses/common.yaml#/Conflict'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
 '/monthend/clarifications/{clarificationId}/text':
@@ -188,6 +198,8 @@
         $ref: '../responses/common.yaml#/Forbidden'
       '404':
         $ref: '../responses/common.yaml#/NotFound'
+      '409':
+        $ref: '../responses/common.yaml#/Conflict'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
 '/monthend/clarifications/{clarificationId}/resolve':
@@ -235,7 +247,9 @@
         required: true
         description: Month-end context in yyyy-MM format.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          type: string
+          format: year-month
+          example: "2026-09"
     responses:
       '200':
         description: Month-end generation result
@@ -263,7 +277,9 @@
         required: true
         description: Month-end context in yyyy-MM format.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          type: string
+          format: year-month
+          example: "2026-09"
       - name: projectId
         in: path
         required: true
@@ -288,6 +304,8 @@
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
         $ref: '../responses/common.yaml#/Forbidden'
+      '422':
+        $ref: '../responses/common.yaml#/UnprocessableContent'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
 '/monthend/{month}/my-tasks/complete':
@@ -304,7 +322,9 @@
         required: true
         description: Month-end context in yyyy-MM format.
         schema:
-          $ref: '../schemas/shared.yaml#/MonthValue'
+          type: string
+          format: year-month
+          example: "2026-09"
     responses:
       '200':
         description: Own time-check tasks bulk completed

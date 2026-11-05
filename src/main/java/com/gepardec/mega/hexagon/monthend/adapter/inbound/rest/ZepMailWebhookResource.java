@@ -30,14 +30,9 @@ public class ZepMailWebhookResource {
     @Path("/message-received")
     @Operation(operationId = "gmailMessageReceivedWebhook", description = "Webhook for new emails from ZEP to trigger comment creation.")
     public Response gmailMessageReceivedWebhook(String payload) {
-        try {
-            logNotificationReceived(payload);
-            createClarificationFromZepMailUseCase.create();
-            return Response.ok().build();
-        } catch (Exception exception) {
-            Log.error("Unhandled exception while processing ZEP mail webhook", exception);
-            return Response.serverError().entity(exception.getMessage()).build();
-        }
+        logNotificationReceived(payload);
+        createClarificationFromZepMailUseCase.create();
+        return Response.ok().build();
     }
 
     @POST

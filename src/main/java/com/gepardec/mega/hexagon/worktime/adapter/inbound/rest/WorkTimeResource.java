@@ -17,6 +17,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
+import java.time.YearMonth;
 import java.util.List;
 
 @RequestScoped
@@ -25,7 +26,6 @@ public class WorkTimeResource implements WorkTimeApi {
 
     private final GetWorkTimeReportUseCase getWorkTimeReportUseCase;
     private final AuthenticatedActorContext authenticatedActorContext;
-    private final WorkTimeRestTransportHelper workTimeRestTransportHelper;
     private final WorkTimeRestMapper workTimeRestMapper;
     private final GetEmployeeWarningsUseCase getEmployeeWarningsUseCase;
     private final WorkTimeWarningRestMapper workTimeWarningRestMapper;
@@ -35,7 +35,6 @@ public class WorkTimeResource implements WorkTimeApi {
     public WorkTimeResource(
             GetWorkTimeReportUseCase getWorkTimeReportUseCase,
             AuthenticatedActorContext authenticatedActorContext,
-            WorkTimeRestTransportHelper workTimeRestTransportHelper,
             WorkTimeRestMapper workTimeRestMapper,
             GetEmployeeWarningsUseCase getEmployeeWarningsUseCase,
             WorkTimeWarningRestMapper workTimeWarningRestMapper,
@@ -43,7 +42,6 @@ public class WorkTimeResource implements WorkTimeApi {
     ) {
         this.getWorkTimeReportUseCase = getWorkTimeReportUseCase;
         this.authenticatedActorContext = authenticatedActorContext;
-        this.workTimeRestTransportHelper = workTimeRestTransportHelper;
         this.workTimeRestMapper = workTimeRestMapper;
         this.getEmployeeWarningsUseCase = getEmployeeWarningsUseCase;
         this.workTimeWarningRestMapper = workTimeWarningRestMapper;
@@ -52,14 +50,14 @@ public class WorkTimeResource implements WorkTimeApi {
 
     @Override
     @MegaRolesAllowed(Role.EMPLOYEE)
-    public Response getWorkTimeReport(String payrollMonth, CapacityDto capacity) {
+    public Response getWorkTimeReport(YearMonth payrollMonth, CapacityDto capacity) {
         Capacity domainCapacity = sharedRefRestMapper.toDomain(capacity);
         authenticatedActorContext.requireCapacity(domainCapacity);
 
         UserId actorId = authenticatedActorContext.userId();
         WorkTimeReport report = getWorkTimeReportUseCase.getWorkTime(
                 actorId,
-                workTimeRestTransportHelper.parsePayrollMonth(payrollMonth),
+                payrollMonth,
                 domainCapacity
         );
         return Response.ok(workTimeRestMapper.toDto(report)).build();
@@ -67,11 +65,11 @@ public class WorkTimeResource implements WorkTimeApi {
 
     @Override
     @MegaRolesAllowed(Role.EMPLOYEE)
-    public Response getEmployeeWarnings(String payrollMonth) {
+    public Response getEmployeeWarnings(YearMonth payrollMonth) {
         UserId actorId = authenticatedActorContext.userId();
         List<WorkTimeWarning> warnings = getEmployeeWarningsUseCase.getWarnings(
                 actorId,
-                workTimeRestTransportHelper.parsePayrollMonth(payrollMonth)
+                payrollMonth
         );
         return Response.ok(workTimeWarningRestMapper.toDto(warnings)).build();
     }

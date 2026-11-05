@@ -1,6 +1,7 @@
 package com.gepardec.mega.hexagon.project.domain.model;
 
-import com.gepardec.mega.hexagon.project.domain.error.LeistungsnachweisNotApplicableException;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectErrorCode;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectException;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
 
@@ -47,7 +48,7 @@ public record Project(
 
     public Project withLeistungsnachweisEnabled(boolean enabled) {
         if (enabled && !billable) {
-            throw new LeistungsnachweisNotApplicableException(
+            throw new ProjectException(ProjectErrorCode.LEISTUNGSNACHWEIS_NOT_APPLICABLE,
                     "Leistungsnachweis cannot be enabled on non-billable project " + id.value());
         }
         return new Project(id, zepId, name, startDate, endDate, billable, enabled, leads);

@@ -1,6 +1,5 @@
 package com.gepardec.mega.hexagon.user.adapter.outbound;
 
-import com.gepardec.mega.hexagon.shared.application.security.ForbiddenException;
 import com.gepardec.mega.hexagon.shared.domain.model.Email;
 import com.gepardec.mega.hexagon.shared.domain.model.FullName;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
@@ -37,8 +36,8 @@ public class UserRepositoryAdapter implements UserRepository {
     public Optional<User> findByEmail(Email email) {
         List<UserEntity> users = panache.list("email", email.value());
         if (users.size() > 1) {
-            throw new ForbiddenException("authenticated actor resolution is ambiguous for email: %s (%d users found)"
-                    .formatted(email.value(), users.size()));
+            throw new IllegalStateException("authenticated actor resolution is ambiguous: %d users share one email"
+                    .formatted(users.size()));
         }
         return users.stream()
                 .findFirst()

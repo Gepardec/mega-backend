@@ -1,7 +1,8 @@
 package com.gepardec.mega.hexagon.project.application;
 
 import com.gepardec.mega.hexagon.project.application.port.inbound.SetLeistungsnachweisEnabledUseCase;
-import com.gepardec.mega.hexagon.project.domain.error.ProjectNotFoundException;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectErrorCode;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectException;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -27,7 +28,7 @@ public class SetLeistungsnachweisEnabledService implements SetLeistungsnachweisE
     @Override
     public Project setLeistungsnachweisEnabled(ProjectId projectId, UserId actorId, boolean enabled) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException("Project not found: " + projectId));
+                .orElseThrow(() -> new ProjectException(ProjectErrorCode.NOT_FOUND, "Project not found: " + projectId));
 
         boolean previousValue = project.leistungsnachweisEnabled();
         Project updated = project.withLeistungsnachweisEnabled(enabled);
