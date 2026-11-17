@@ -10,6 +10,7 @@ import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeBook
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeExpectedWorkingDaysPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeMealEntryZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectSnapshotPort;
+import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectTaskZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import com.gepardec.mega.hexagon.worktime.domain.model.Absence;
@@ -17,7 +18,9 @@ import com.gepardec.mega.hexagon.worktime.domain.model.AbsenceType;
 import com.gepardec.mega.hexagon.worktime.domain.model.JourneyBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.JourneyDirection;
 import com.gepardec.mega.hexagon.worktime.domain.model.ProjectBooking;
+import com.gepardec.mega.hexagon.worktime.domain.model.ProjectTask;
 import com.gepardec.mega.hexagon.worktime.domain.model.Task;
+import com.gepardec.mega.hexagon.worktime.domain.model.Vehicle;
 import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
 import com.gepardec.mega.hexagon.worktime.domain.model.WarningRuleSetting;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeWarning;
@@ -72,6 +75,8 @@ class GetEmployeeWarningsServiceTest {
     @Mock
     WorkTimeMealEntryZepPort mealEntryPort;
     @Mock
+    WorkTimeProjectTaskZepPort projectTaskPort;
+    @Mock
     WarningRuleSettingsPort ruleSettingsPort;
     private GetEmployeeWarningsService service;
 
@@ -79,7 +84,7 @@ class GetEmployeeWarningsServiceTest {
     void setUp() {
         lenient().when(ruleSettingsPort.findAll()).thenReturn(settings(Set.of()));
         service = new GetEmployeeWarningsService(userPort, bookingPort, absencePort, expectedDaysPort,
-                projectSnapshotPort, mealEntryPort, ruleSettingsPort, new WorkTimeWarningEvaluator(), Clock.fixed(Instant.parse("2026-05-10T00:00:00Z"), ZoneOffset.UTC));
+                projectSnapshotPort, mealEntryPort, projectTaskPort, ruleSettingsPort, new WorkTimeWarningEvaluator(), Clock.fixed(Instant.parse("2026-05-10T00:00:00Z"), ZoneOffset.UTC));
     }
 
     @Test
@@ -241,6 +246,88 @@ class GetEmployeeWarningsServiceTest {
     }
 
     @Test
+    void getWarnings_onlyTravelAllowanceActive_doesNotLoadBillableProjectIds() {
+        YearMonth october = YearMonth.of(2026, 10);
+        var date = october.atDay(6);
+        when(userPort.findById(USER_ID, october)).thenReturn(Optional.of(user()));
+        when(bookingPort.fetchBookingsForEmployee("ada", october)).thenReturn(List.of(nonBillableBookingOn(date, 42)));
+        when(absencePort.fetchAbsencesForEmployee(USERNAME, october)).thenReturn(List.of());
+        when(expectedDaysPort.expectedWorkingDays(USER_ID, october)).thenReturn(Set.of());
+        when(ruleSettingsPort.findAll()).thenReturn(settings(Set.of(), WarningRule.INTERNAL_NOTE));
+
+        service.getWarnings(USER_ID, october);
+
+        verify(projectSnapshotPort, never()).findBillableZepIds(anySet());
+        verify(projectTaskPort).fetchTasks(Set.of(42));
+    }
+
+    @Test
+    void getWarnings_passesDistinctProjectIdsOfAllBookingsToTaskLookup() {
+        YearMonth october = YearMonth.of(2026, 10);
+        var date = october.atDay(6);
+        when(userPort.findById(USER_ID, october)).thenReturn(Optional.of(user()));
+        when(bookingPort.fetchBookingsForEmployee("ada", october)).thenReturn(List.of(
+                nonBillableBookingOn(date, 42), nonBillableBookingOn(date, 42), nonBillableBookingOn(date, 7),
+                nonBillableBookingOn(date, null), journeyOn(date.atTime(8, 0), JourneyDirection.TO, 9)));
+        when(absencePort.fetchAbsencesForEmployee(USERNAME, october)).thenReturn(List.of());
+        when(expectedDaysPort.expectedWorkingDays(USER_ID, october)).thenReturn(Set.of());
+        when(projectSnapshotPort.findBillableZepIds(anySet())).thenReturn(Set.of());
+
+        service.getWarnings(USER_ID, october);
+
+        verify(projectTaskPort).fetchTasks(Set.of(42, 7, 9));
+    }
+
+    @Test
+    void getWarnings_travelAllowanceRuleDisabled_doesNotLookUpTasks() {
+        YearMonth october = YearMonth.of(2026, 10);
+        var date = october.atDay(6);
+        when(userPort.findById(USER_ID, october)).thenReturn(Optional.of(user()));
+        when(bookingPort.fetchBookingsForEmployee("ada", october)).thenReturn(List.of(nonBillableBookingOn(date, 42)));
+        when(absencePort.fetchAbsencesForEmployee(USERNAME, october)).thenReturn(List.of());
+        when(expectedDaysPort.expectedWorkingDays(USER_ID, october)).thenReturn(Set.of());
+        when(projectSnapshotPort.findBillableZepIds(anySet())).thenReturn(Set.of());
+        when(ruleSettingsPort.findAll()).thenReturn(settings(Set.of(), WarningRule.TRAVEL_ALLOWANCE));
+
+        service.getWarnings(USER_ID, october);
+
+        verify(projectTaskPort, never()).fetchTasks(anySet());
+    }
+
+    @Test
+    void getWarnings_travelAllowanceOnInternForTripOnProjectWithOwnTask_yieldsWrongProject() {
+        YearMonth october = YearMonth.of(2026, 10);
+        var date = october.atDay(6);
+        var journey = Instancio.of(JourneyBooking.class)
+                .set(field(JourneyBooking::from), date.atTime(6, 0))
+                .set(field(JourneyBooking::to), date.atTime(7, 0))
+                .set(field(JourneyBooking::direction), JourneyDirection.TO)
+                .set(field(JourneyBooking::vehicle), Vehicle.CAR_INACTIVE)
+                .set(field(JourneyBooking::start), "Wien")
+                .set(field(JourneyBooking::destination), "Linz")
+                .set(field(JourneyBooking::projectZepId), 42)
+                .create();
+        var allowance = Instancio.of(ProjectBooking.class)
+                .set(field(ProjectBooking::from), date.atTime(8, 0))
+                .set(field(ProjectBooking::to), date.atTime(8, 30))
+                .set(field(ProjectBooking::task), Task.BEARBEITEN)
+                .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
+                .set(field(ProjectBooking::process), "873")
+                .set(field(ProjectBooking::projectZepId), 3)
+                .create();
+        when(userPort.findById(USER_ID, october)).thenReturn(Optional.of(user()));
+        when(bookingPort.fetchBookingsForEmployee("ada", october)).thenReturn(List.of(journey, allowance));
+        when(absencePort.fetchAbsencesForEmployee(USERNAME, october)).thenReturn(List.of());
+        when(expectedDaysPort.expectedWorkingDays(USER_ID, october)).thenReturn(Set.of());
+        when(projectSnapshotPort.findBillableZepIds(anySet())).thenReturn(Set.of());
+        when(mealEntryPort.fetchMealEntryDates(USERNAME, october)).thenReturn(Set.of());
+        when(projectTaskPort.fetchTasks(Set.of(42, 3))).thenReturn(List.of(new ProjectTask(42, 2000, "Reisepauschale")));
+
+        assertThat(serviceAt("2026-10-10T00:00:00Z").getWarnings(USER_ID, october))
+                .contains(new WorkTimeWarning(date, WorkTimeWarningType.TRAVEL_ALLOWANCE_WRONG_PROJECT, null));
+    }
+
+    @Test
     void getWarnings_emptyMonthDoesNotLoadRuleSettings() {
         when(userPort.findById(USER_ID, MONTH)).thenReturn(Optional.of(user()));
         when(bookingPort.fetchBookingsForEmployee("ada", MONTH)).thenReturn(List.of());
@@ -277,7 +364,7 @@ class GetEmployeeWarningsServiceTest {
 
     private GetEmployeeWarningsService serviceAt(String instant) {
         return new GetEmployeeWarningsService(userPort, bookingPort, absencePort, expectedDaysPort,
-                projectSnapshotPort, mealEntryPort, ruleSettingsPort, new WorkTimeWarningEvaluator(), Clock.fixed(Instant.parse(instant), ZoneOffset.UTC));
+                projectSnapshotPort, mealEntryPort, projectTaskPort, ruleSettingsPort, new WorkTimeWarningEvaluator(), Clock.fixed(Instant.parse(instant), ZoneOffset.UTC));
     }
 
     private void stubMonthWithDayTrip(YearMonth month, LocalDate date) {
@@ -287,6 +374,15 @@ class GetEmployeeWarningsServiceTest {
         when(absencePort.fetchAbsencesForEmployee(USERNAME, month)).thenReturn(List.of());
         when(expectedDaysPort.expectedWorkingDays(USER_ID, month)).thenReturn(Set.of(date));
         when(projectSnapshotPort.findBillableZepIds(anySet())).thenReturn(Set.of());
+    }
+
+    private JourneyBooking journeyOn(LocalDateTime from, JourneyDirection direction, Integer projectZepId) {
+        return Instancio.of(JourneyBooking.class)
+                .set(field(JourneyBooking::from), from)
+                .set(field(JourneyBooking::to), from.plusHours(1))
+                .set(field(JourneyBooking::direction), direction)
+                .set(field(JourneyBooking::projectZepId), projectZepId)
+                .create();
     }
 
     private JourneyBooking journeyOn(LocalDateTime from, JourneyDirection direction) {

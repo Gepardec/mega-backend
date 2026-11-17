@@ -3,6 +3,7 @@ package com.gepardec.mega.zep.rest.client;
 import com.gepardec.mega.zep.rest.dto.ZepProject;
 import com.gepardec.mega.zep.rest.dto.ZepProjectDetail;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepProjectTask;
 import com.gepardec.mega.zep.rest.dto.ZepResponse;
 import io.quarkus.rest.client.reactive.ClientQueryParam;
 import io.smallrye.mutiny.Uni;
@@ -45,6 +46,14 @@ public interface ZepProjectRestClient {
     @Path("{id}/employees")
     Uni<ZepResponse<List<ZepProjectEmployee>>> getProjectEmployees(
             @PathParam("id") int projectId,
+            @QueryParam("page") int page
+    );
+
+    @GET
+    @Path("{id}/tasks")
+    Uni<ZepResponse<List<ZepProjectTask>>> getProjectTasks(
+            @PathParam("id") int projectId,
+            @QueryParam("search") String search,
             @QueryParam("page") int page
     );
 }

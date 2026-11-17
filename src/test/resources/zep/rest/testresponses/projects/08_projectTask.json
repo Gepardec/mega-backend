@@ -1,0 +1,25 @@
+{
+  "data": [
+    {
+      "id": 873,
+      "name": "Reisepauschale",
+      "description": null,
+      "status": "in Arbeit",
+      "project_id": 3,
+      "billing_type": {
+        "id": 0,
+        "name": "Like project"
+      },
+      "start_date": "2020-01-01T00:00:00.000000Z",
+      "end_date": null,
+      "created": "2020-01-01T08:00:00.000000Z",
+      "plan_hours": null,
+      "plan_costs": null,
+      "activities": [],
+      "dynamicAttributes": []
+    }
+  ],
+  "links": {
+    "next": null
+  }
+}
