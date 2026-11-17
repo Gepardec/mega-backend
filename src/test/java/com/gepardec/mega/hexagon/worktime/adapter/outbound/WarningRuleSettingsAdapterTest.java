@@ -27,8 +27,8 @@ class WarningRuleSettingsAdapterTest {
 
     @Test
     void save_shouldPersistNullActiveFrom() {
-        adapter.save(new WarningRuleSetting(WarningRule.BILLABLE_PROJECT, true, null));
+        adapter.save(new WarningRuleSetting(WarningRule.INTERNAL_NOTE, true, null));
 
-        assertThat(adapter.findAll()).contains(new WarningRuleSetting(WarningRule.BILLABLE_PROJECT, true, null));
+        assertThat(adapter.findAll()).contains(new WarningRuleSetting(WarningRule.INTERNAL_NOTE, true, null));
     }
 }

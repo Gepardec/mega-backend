@@ -122,7 +122,7 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
     }
 
     private Set<Integer> billableProjectZepIds(WorkTimeBookings bookings, WarningRuleSettings settings) {
-        if (Stream.of(WarningRule.BILLABLE_PROJECT, WarningRule.INTERNAL_NOTE, WarningRule.TRAVEL_ALLOWANCE)
+        if (Stream.of(WarningRule.INTERNAL_NOTE, WarningRule.TRAVEL_ALLOWANCE)
                 .noneMatch(settings::isActive)) {
             return Set.of();
         }

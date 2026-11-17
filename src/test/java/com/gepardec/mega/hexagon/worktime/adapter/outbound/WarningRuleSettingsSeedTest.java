@@ -55,7 +55,7 @@ class WarningRuleSettingsSeedTest {
         assertThat(byRule).containsOnlyKeys(WarningRule.values());
         LocalDate start = LocalDate.of(2026, 10, 1);
         for (WarningRule rule : WarningRule.values()) {
-            boolean dated = rule == WarningRule.BILLABLE_PROJECT || rule == WarningRule.INTERNAL_NOTE
+            boolean dated = rule == WarningRule.INTERNAL_NOTE
                     || rule == WarningRule.MEAL_ENTRY || rule == WarningRule.TRAVEL_ALLOWANCE;
             assertThat(byRule).as(rule.name()).containsEntry(rule, new WarningRuleSetting(rule, true, dated ? start : null));
         }

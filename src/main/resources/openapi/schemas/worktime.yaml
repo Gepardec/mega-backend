@@ -69,7 +69,6 @@ WarningRule:
     - LOCATION_PROJECT_RELEVANCE
     - INTERNAL_NOTE
     - NO_TIME_ENTRY
-    - BILLABLE_PROJECT
     - TRAVEL_ALLOWANCE
     - MEAL_ENTRY
 WarningRuleSetting:
