@@ -74,7 +74,11 @@ emit TRAVEL_ALLOWANCE_EXCEEDED(date, hours(excess)) if excess > 0
 
 ### D5: ZEP access
 
-- Add `ZepProjectTask` to `zep/rest/dto`. It is a record with `id`, `name` and `project_id`, ignores unknown fields, and follows the existing builder/`@JsonCreator` pattern.
+- Add `ZepProjectTask` to `zep/rest/dto`, following the existing builder/`@JsonCreator` pattern.
+  - It is a record with `Integer id`, `String name` and `Integer projectId` (`@JsonProperty("project_id")`).
+  - `status` is deliberately not mapped, so a closed "Reisepauschale" task still counts as the project's own task (decided 2026-11-17).
+  - All other fields of the response are ignored, including `description`, `billing_type`, dates, `plan_*`, `activities` and `dynamicAttributes`.
+  - Observed shape (test instance, Intern = project 3): `{"id": 873, "name": "Reisepauschale", "status": "in Arbeit", "project_id": 3, "billing_type": {"id": 0, "name": "Like project"}, ...}`.
 - Add `getProjectTasks(@PathParam("id") int projectId, @QueryParam("search") String search, @QueryParam("page") int page)` to `ZepProjectRestClient` under `{id}/tasks`. The class-level `limit` already applies.
 - Add `ProjectService.getProjectTasks(int projectId, String search)`, which pages like `getProjectEmployeesForIdAsync`. The adapter passes `search=reisepauschale`, so ZEP returns only candidate tasks instead of a project's full task list. This matters most for "Intern", which has many tasks.
 - The search only narrows the candidates. The exact rule (D2: `strip()` plus case-insensitive equality) is still applied in the domain, so a broader search result such as "Reisepauschale Kunde" is filtered out there. This relies on the search being case-insensitive and matching substrings.

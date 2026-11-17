@@ -3,7 +3,7 @@
 ## 1. ZEP project tasks
 
 - [x] 1.1 On the ZEP test instance, call `GET /api/v1/projects/{id}/tasks?search=reisepauschale` and compare the returned `id` with the `project_task_id` of attendances. Verified 2026-11-17: Intern returns "Reisepauschale" with `id` 873, the process id the attendances carry. The result is recorded in design.md under D5.
-- [ ] 1.2 Add the `ZepProjectTask` DTO (`id`, `name`, `project_id`, unknown fields ignored) and `getProjectTasks(projectId, search, page)` on `ZepProjectRestClient` (`{id}/tasks`). Verify: a JSON test response under `src/test/resources/zep/rest/testresponses/projects/` deserialises with all three fields.
+- [ ] 1.2 Add the `ZepProjectTask` DTO (`id`, `name`, `project_id` only, all other fields ignored, D5) and `getProjectTasks(projectId, search, page)` on `ZepProjectRestClient` (`{id}/tasks`). Verify: a JSON test response under `src/test/resources/zep/rest/testresponses/projects/` uses the full observed task shape from D5, including the fields not mapped, and deserialises into the three mapped fields.
 - [ ] 1.3 Add `ProjectService.getProjectTasks(int projectId, String search)`, which pages through all results and returns an empty list on ZEP 404. The adapter passes `search=reisepauschale`. Verify: a new `ProjectServiceTest` covers multiple pages, 404 (empty list) and other errors (propagated).
 
 ## 2. Domain model and calculator
