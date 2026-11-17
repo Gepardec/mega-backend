@@ -67,10 +67,6 @@ The system SHALL define the warning-type vocabulary covering the time-related ty
 - **WHEN** the meal-entry rule produces a warning
 - **THEN** the warning's type is `MEAL_ENTRY_MISSING`
 
-#### Scenario: The billable-project rule emits its own identifier
-- **WHEN** warnings are requested for any employee and month after the billable-project rule was removed
-- **THEN** no warning in the result has the type `NON_BILLABLE_ON_BILLABLE_PROJECT`, because that type is no longer part of the vocabulary
-
 ### Requirement: Warnings from all calculators are assembled into one flat result
 The system SHALL combine the outputs of all calculators into a single flat collection of warnings for the employee and month. Assembly SHALL NOT bake localized text and SHALL NOT collapse warnings of different types that fall on the same date. Grouping warnings by type for display is a client concern.
 
