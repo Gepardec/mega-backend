@@ -9,7 +9,10 @@ import java.util.Set;
 
 public record TravelAllowanceTasks(Map<Integer, Set<Integer>> ownTaskIdsByProject) {
 
-    /** ZEP id of the project "Intern", which never declares an own travel-allowance task. */
+    /**
+     * ZEP id of the project "Intern". Its "Reisepauschale" tasks are the central fallback place for travel
+     * allowance, so none of them counts as a project's own travel-allowance task.
+     */
     public static final int INTERN_PROJECT_ZEP_ID = 3;
 
     /** ZEP process "Reisepauschale" of the project "Intern". */
