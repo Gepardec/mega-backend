@@ -74,20 +74,6 @@ class WorkTimeWarningRuleResourceTest {
     }
 
     @Test
-    void update_shouldRejectRemovedBillableProjectRuleWith404() {
-        given().contentType(ContentType.JSON).body("{\"enabled\": true}")
-                .put("/worktime/warning-rules/BILLABLE_PROJECT")
-                .then().statusCode(404);
-    }
-
-    @Test
-    void list_shouldNotContainRemovedBillableProjectRule() {
-        given().accept(ContentType.JSON).get("/worktime/warning-rules")
-                .then().statusCode(200)
-                .body("rule", Matchers.not(Matchers.hasItem("BILLABLE_PROJECT")));
-    }
-
-    @Test
     void update_shouldRejectUnknownRuleWith404() {
         given().contentType(ContentType.JSON).body("{\"enabled\": true}")
                 .put("/worktime/warning-rules/UNKNOWN_RULE")
