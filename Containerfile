@@ -18,3 +18,6 @@ ENV COMMIT=$COMMIT
 EXPOSE 8080
 ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
+# Mitigation for Java4Shell (CVE-2026-114938) until a patched Red Hat OpenJDK 21 base image is available.
+# JDK_JAVA_OPTIONS is read by the java launcher itself, so it also applies when Helm overrides JAVA_OPTS.
+ENV JDK_JAVA_OPTIONS="-XX:-UseBASE64Intrinsics"
