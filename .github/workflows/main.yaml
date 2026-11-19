@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+      # hotfix branches are cut from the commit running in prod and need an image without going through main
+      - 'hotfix/**'
   pull_request:
     branches:
       - main
