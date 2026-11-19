@@ -50,7 +50,7 @@ public record ZepProjectTask(
         }
 
         public ZepProjectTask build() {
-            return new ZepProjectTask(this);
+            return new ZepProjectTask(id, name, projectId);
         }
     }
 }

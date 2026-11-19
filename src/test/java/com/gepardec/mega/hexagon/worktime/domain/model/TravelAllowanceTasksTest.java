@@ -45,9 +45,21 @@ class TravelAllowanceTasksTest {
     @Test
     void from_whenInternReisepauschaleTask_thenItIsDropped() {
         TravelAllowanceTasks tasks = TravelAllowanceTasks.from(List.of(
-                new ProjectTask(3, TravelAllowanceTasks.INTERN_REISEPAUSCHALE_TASK_ID, "Reisepauschale")));
+                new ProjectTask(TravelAllowanceTasks.INTERN_PROJECT_ZEP_ID,
+                        TravelAllowanceTasks.INTERN_REISEPAUSCHALE_TASK_ID, "Reisepauschale")));
 
-        assertThat(tasks.declaresOwnTask(3)).isFalse();
+        assertThat(tasks.declaresOwnTask(TravelAllowanceTasks.INTERN_PROJECT_ZEP_ID)).isFalse();
+    }
+
+    @Test
+    void from_whenInternHasAnotherMatchingTask_thenInternStillDeclaresNone() {
+        TravelAllowanceTasks tasks = TravelAllowanceTasks.from(List.of(
+                new ProjectTask(TravelAllowanceTasks.INTERN_PROJECT_ZEP_ID,
+                        TravelAllowanceTasks.INTERN_REISEPAUSCHALE_TASK_ID, "Reisepauschale"),
+                new ProjectTask(TravelAllowanceTasks.INTERN_PROJECT_ZEP_ID, 874, "Reisepauschale")));
+
+        assertThat(tasks.declaresOwnTask(TravelAllowanceTasks.INTERN_PROJECT_ZEP_ID)).isFalse();
+        assertThat(tasks.ownTaskIds(TravelAllowanceTasks.INTERN_PROJECT_ZEP_ID)).isEmpty();
     }
 
     @Test

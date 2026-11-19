@@ -9,6 +9,9 @@ import java.util.Set;
 
 public record TravelAllowanceTasks(Map<Integer, Set<Integer>> ownTaskIdsByProject) {
 
+    /** ZEP id of the project "Intern", which never declares an own travel-allowance task. */
+    public static final int INTERN_PROJECT_ZEP_ID = 3;
+
     /** ZEP process "Reisepauschale" of the project "Intern". */
     public static final int INTERN_REISEPAUSCHALE_TASK_ID = 873;
 
@@ -47,7 +50,7 @@ public record TravelAllowanceTasks(Map<Integer, Set<Integer>> ownTaskIdsByProjec
     }
 
     private static boolean isOwnTask(ProjectTask task) {
-        return task.zepTaskId() != INTERN_REISEPAUSCHALE_TASK_ID
+        return task.projectZepId() != INTERN_PROJECT_ZEP_ID
                 && task.name() != null
                 && TASK_NAME.equalsIgnoreCase(task.name().strip());
     }
