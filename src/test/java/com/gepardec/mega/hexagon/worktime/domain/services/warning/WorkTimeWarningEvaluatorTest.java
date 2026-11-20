@@ -3,7 +3,10 @@ package com.gepardec.mega.hexagon.worktime.domain.services.warning;
 import com.gepardec.mega.hexagon.worktime.domain.model.JourneyBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.JourneyDirection;
 import com.gepardec.mega.hexagon.worktime.domain.model.ProjectBooking;
+import com.gepardec.mega.hexagon.worktime.domain.model.ProjectTask;
 import com.gepardec.mega.hexagon.worktime.domain.model.Task;
+import com.gepardec.mega.hexagon.worktime.domain.model.TravelAllowanceTasks;
+import com.gepardec.mega.hexagon.worktime.domain.model.Vehicle;
 import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
 import com.gepardec.mega.hexagon.worktime.domain.model.WarningRuleSetting;
 import com.gepardec.mega.hexagon.worktime.domain.model.WarningRuleSettings;
@@ -100,7 +103,7 @@ class WorkTimeWarningEvaluatorTest {
     }
 
     @Test
-    void evaluate_whenNonBillableBookingWithoutMarkerIsOnBillableProjectFromOctober2026_thenOnlyNonBillableOnBillableProjectWarning() {
+    void evaluate_whenNonBillableBookingWithoutMarkerIsOnBillableProject_thenNoBookingConventionWarning() {
         LocalDate date = LocalDate.of(2026, 10, 6);
         var booking = Instancio.of(ProjectBooking.class)
                 .set(field(ProjectBooking::from), date.atTime(8, 0))
@@ -114,8 +117,8 @@ class WorkTimeWarningEvaluatorTest {
 
         assertThat(evaluate(new WorkTimeBookings(List.of(booking)),
                 YearMonth.from(date.plusDays(1)), Set.of(date), Set.of(), Set.of(42), Set.of(), date.plusDays(1)))
-                .contains(new WorkTimeWarning(date, WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT, null))
-                .doesNotContain(new WorkTimeWarning(date, WorkTimeWarningType.INTERNAL_NOTE_MISSING, null));
+                .extracting(WorkTimeWarning::type)
+                .doesNotContain(WorkTimeWarningType.INTERNAL_NOTE_MISSING, WorkTimeWarningType.INTERNAL_NOTE_BILLABLE);
     }
 
     @Test
@@ -135,6 +138,46 @@ class WorkTimeWarningEvaluatorTest {
         assertThat(evaluate(new WorkTimeBookings(List.of(booking)),
                 YearMonth.from(date.plusDays(1)), Set.of(date), Set.of(), Set.of(), Set.of(), date.plusDays(1)))
                 .contains(new WorkTimeWarning(date, WorkTimeWarningType.TRAVEL_ALLOWANCE_EXCEEDED, 0.5));
+    }
+
+    @Test
+    void evaluate_whenWrongPlaceOnInternAndExcessOnProjectTask_thenBothTravelAllowanceWarningsOnOneDay() {
+        LocalDate date = LocalDate.of(2026, 10, 6);
+        int projectX = 20;
+        int projectXTask = 2000;
+        var journey = Instancio.of(JourneyBooking.class)
+                .set(field(JourneyBooking::from), date.atTime(6, 0))
+                .set(field(JourneyBooking::to), date.atTime(7, 0))
+                .set(field(JourneyBooking::task), Task.REISEN)
+                .set(field(JourneyBooking::workingLocation), WorkingLocation.MAIN)
+                .set(field(JourneyBooking::direction), JourneyDirection.TO)
+                .set(field(JourneyBooking::vehicle), Vehicle.CAR_INACTIVE)
+                .set(field(JourneyBooking::start), "Wien")
+                .set(field(JourneyBooking::destination), "Linz")
+                .set(field(JourneyBooking::projectZepId), projectX)
+                .create();
+        var onIntern = Instancio.of(ProjectBooking.class)
+                .set(field(ProjectBooking::from), date.atTime(8, 0))
+                .set(field(ProjectBooking::to), date.atTime(8, 30))
+                .set(field(ProjectBooking::task), Task.BEARBEITEN)
+                .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
+                .set(field(ProjectBooking::process), "873")
+                .set(field(ProjectBooking::projectZepId), 3)
+                .create();
+        var onProjectTask = Instancio.of(ProjectBooking.class)
+                .set(field(ProjectBooking::from), date.atTime(9, 0))
+                .set(field(ProjectBooking::to), date.atTime(10, 0))
+                .set(field(ProjectBooking::task), Task.BEARBEITEN)
+                .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
+                .set(field(ProjectBooking::process), String.valueOf(projectXTask))
+                .set(field(ProjectBooking::projectZepId), projectX)
+                .create();
+        TravelAllowanceTasks tasks = TravelAllowanceTasks.from(List.of(new ProjectTask(projectX, projectXTask, "Reisepauschale")));
+
+        assertThat(evaluate(new WorkTimeBookings(List.of(journey, onIntern, onProjectTask)),
+                YearMonth.from(date.plusDays(1)), Set.of(date), Set.of(), Set.of(), Set.of(), date.plusDays(1), tasks))
+                .contains(new WorkTimeWarning(date, WorkTimeWarningType.TRAVEL_ALLOWANCE_WRONG_PROJECT, null),
+                        new WorkTimeWarning(date, WorkTimeWarningType.TRAVEL_ALLOWANCE_EXCEEDED, 0.5));
     }
 
     @Test
@@ -222,32 +265,6 @@ class WorkTimeWarningEvaluatorTest {
     }
 
     @Test
-    void evaluate_whenBillableProjectRuleStartsAfterBooking_thenNoWarning_andOnStartDayWarning() {
-        LocalDate before = LocalDate.of(2026, 9, 30);
-        LocalDate start = LocalDate.of(2026, 10, 1);
-
-        assertThat(billableProjectWarnings(before)).isEmpty();
-        assertThat(billableProjectWarnings(start))
-                .containsExactly(new WorkTimeWarning(start, WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT, null));
-    }
-
-    private static List<WorkTimeWarning> billableProjectWarnings(LocalDate date) {
-        var booking = Instancio.of(ProjectBooking.class)
-                .set(field(ProjectBooking::from), date.atTime(8, 0))
-                .set(field(ProjectBooking::to), date.atTime(9, 0))
-                .set(field(ProjectBooking::task), Task.BEARBEITEN)
-                .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
-                .set(field(ProjectBooking::billable), false)
-                .set(field(ProjectBooking::note), "Intern - JFX")
-                .set(field(ProjectBooking::projectZepId), 42)
-                .create();
-        return evaluate(new WorkTimeBookings(List.of(booking)), YearMonth.from(date), Set.of(date), Set.of(),
-                Set.of(42), Set.of(), date.plusDays(1)).stream()
-                .filter(warning -> warning.type() == WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT)
-                .toList();
-    }
-
-    @Test
     void evaluate_emptyBookingsReturnsSingleMonthWarning() {
         assertThat(evaluate(WorkTimeBookings.empty(), YearMonth.now(),
                 Set.of(), Set.of(), Set.of(), Set.of(), LocalDate.now()))
@@ -285,8 +302,16 @@ class WorkTimeWarningEvaluatorTest {
     private static List<WorkTimeWarning> evaluate(WorkTimeBookings bookings, YearMonth month, Set<LocalDate> expectedWorkingDays,
                                                   Set<LocalDate> excusedDates, Set<Integer> billableProjectZepIds,
                                                   Set<LocalDate> mealEntryDates, LocalDate today) {
+        return evaluate(bookings, month, expectedWorkingDays, excusedDates, billableProjectZepIds, mealEntryDates, today,
+                TravelAllowanceTasks.none());
+    }
+
+    private static List<WorkTimeWarning> evaluate(WorkTimeBookings bookings, YearMonth month, Set<LocalDate> expectedWorkingDays,
+                                                  Set<LocalDate> excusedDates, Set<Integer> billableProjectZepIds,
+                                                  Set<LocalDate> mealEntryDates, LocalDate today, TravelAllowanceTasks tasks) {
         return new WorkTimeWarningEvaluator().evaluate(
-                evaluation(bookings, month, expectedWorkingDays, excusedDates, billableProjectZepIds, mealEntryDates, today),
+                new WorkTimeEvaluation(bookings, month, today, expectedWorkingDays, excusedDates, billableProjectZepIds,
+                        mealEntryDates, tasks),
                 initialSettings()).values();
     }
 
@@ -298,7 +323,7 @@ class WorkTimeWarningEvaluatorTest {
 
     /** Mirrors the seeded production values: the four newer rules start on 2026-10-01. */
     private static WarningRuleSettings initialSettings() {
-        Set<WarningRule> dated = Set.of(WarningRule.BILLABLE_PROJECT, WarningRule.INTERNAL_NOTE,
+        Set<WarningRule> dated = Set.of(WarningRule.INTERNAL_NOTE,
                 WarningRule.MEAL_ENTRY, WarningRule.TRAVEL_ALLOWANCE);
         return new WarningRuleSettings(Arrays.stream(WarningRule.values())
                 .map(rule -> new WarningRuleSetting(rule, true, dated.contains(rule) ? LocalDate.of(2026, 10, 1) : null))
@@ -309,7 +334,7 @@ class WorkTimeWarningEvaluatorTest {
                                                  Set<LocalDate> excusedDates, Set<Integer> billableProjectZepIds,
                                                  Set<LocalDate> mealEntryDates, LocalDate today) {
         return new WorkTimeEvaluation(bookings, month, today, expectedWorkingDays, excusedDates, billableProjectZepIds,
-                mealEntryDates);
+                mealEntryDates, TravelAllowanceTasks.none());
     }
 
     private static JourneyBooking journeyAt(LocalDateTime from, LocalDateTime to, JourneyDirection direction) {
