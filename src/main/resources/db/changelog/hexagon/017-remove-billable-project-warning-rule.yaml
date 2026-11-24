@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: hexagon-worktime-warning-rule-settings-002
+      author: mega
+      changes:
+        - delete:
+            tableName: worktime_warning_rule_setting
+            where: rule = 'BILLABLE_PROJECT'

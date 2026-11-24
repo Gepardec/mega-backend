@@ -33,5 +33,6 @@
     <include file="changelog/hexagon/014-user-email-unique.yaml" relativeToChangelogFile="true"/>
     <include file="changelog/hexagon/015-disable-leistungsnachweis.yaml" relativeToChangelogFile="true"/>
     <include file="changelog/hexagon/016-worktime-warning-rule-settings.yaml" relativeToChangelogFile="true"/>
+    <include file="changelog/hexagon/017-remove-billable-project-warning-rule.yaml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

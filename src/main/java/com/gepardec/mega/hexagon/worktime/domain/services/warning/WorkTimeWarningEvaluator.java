@@ -29,7 +29,6 @@ public class WorkTimeWarningEvaluator {
                 new LocationRelevantSetJourneyCalculator(),
                 new InternalNoteConventionCalculator(),
                 new NoEntryWarningCalculator(),
-                new NonBillableOnBillableProjectCalculator(),
                 new TravelAllowanceCalculator(),
                 new MealEntryCalculator()));
     }

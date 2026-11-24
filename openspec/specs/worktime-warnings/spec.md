@@ -18,8 +18,12 @@ The system SHALL provide a use case that returns all time-booking warnings for a
 - **THEN** the result contains exactly one warning of type `EMPTY_ENTRY_LIST` and no per-day no-time-entry warnings
 
 #### Scenario: Warnings take the booked projects' billability into account
-- **WHEN** the warnings use case is invoked for a month in which the employee made a non-billable booking on a billable project
-- **THEN** the result contains a `NON_BILLABLE_ON_BILLABLE_PROJECT` warning for that booking's date
+- **WHEN** the warnings use case is invoked for a month in which a day on or after 2026-10-01 carries travel allowance and its only passive journey is booked on a billable project
+- **THEN** the result contains a `TRAVEL_ALLOWANCE_WRONG_PROJECT` warning for that day
+
+#### Scenario: A non-billable booking on a billable project produces no warning of its own
+- **WHEN** the warnings use case is invoked for a month in which, on a day without travel allowance, the employee's only booking is a non-billable booking without an internal marker on a billable project, e.g. on the task "Reisepauschale"
+- **THEN** the result contains no booking-convention warning for that day
 
 #### Scenario: Warnings take the employee's meal entries into account
 - **WHEN** the warnings use case is invoked for a month in which a past trip day on or after 2026-10-01 has no meal entry in ZEP
@@ -45,7 +49,7 @@ Each warning SHALL be a domain fact carrying a warning type, an optional date, a
 - **THEN** it carries the type only, with no date and no hours
 
 ### Requirement: The warning-type vocabulary is preserved from the legacy feature
-The system SHALL define the warning-type vocabulary covering the time-related types `OUTSIDE_CORE_WORKING_TIME`, `TIME_OVERLAP`, `NO_TIME_ENTRY`, `EMPTY_ENTRY_LIST`, `HOLIDAY`, `WEEKEND`, `WRONG_DOCTOR_APPOINTMENT`, `EXCESS_WORKING_TIME_PRESENT`, `MISSING_REST_TIME`, `MISSING_BREAK_TIME`, the journey-related types `BACK_MISSING`, `TO_MISSING`, `INVALID_WORKING_LOCATION`, `LOCATION_RELEVANT_SET`, `MEAL_ENTRY_MISSING`, and the booking-convention types `INTERNAL_NOTE_BILLABLE`, `INTERNAL_NOTE_MISSING`, `NON_BILLABLE_ON_BILLABLE_PROJECT`, `TRAVEL_ALLOWANCE_EXCEEDED`, `TRAVEL_ALLOWANCE_WRONG_PROJECT`. The type identifiers that exist in the legacy feature SHALL match the legacy identifiers so that existing frontend translation keys continue to resolve unchanged. The booking-convention types and `MEAL_ENTRY_MISSING` have no legacy counterpart and require new frontend translation keys.
+The system SHALL define the warning-type vocabulary covering the time-related types `OUTSIDE_CORE_WORKING_TIME`, `TIME_OVERLAP`, `NO_TIME_ENTRY`, `EMPTY_ENTRY_LIST`, `HOLIDAY`, `WEEKEND`, `WRONG_DOCTOR_APPOINTMENT`, `EXCESS_WORKING_TIME_PRESENT`, `MISSING_REST_TIME`, `MISSING_BREAK_TIME`, the journey-related types `BACK_MISSING`, `TO_MISSING`, `INVALID_WORKING_LOCATION`, `LOCATION_RELEVANT_SET`, `MEAL_ENTRY_MISSING`, and the booking-convention types `INTERNAL_NOTE_BILLABLE`, `INTERNAL_NOTE_MISSING`, `TRAVEL_ALLOWANCE_EXCEEDED`, `TRAVEL_ALLOWANCE_WRONG_PROJECT`. The type identifiers that exist in the legacy feature SHALL match the legacy identifiers so that existing frontend translation keys continue to resolve unchanged. The booking-convention types and `MEAL_ENTRY_MISSING` have no legacy counterpart and require new frontend translation keys.
 
 #### Scenario: Each calculator emits its preserved warning-type identifier
 - **WHEN** a calculator for a rule that exists in the legacy feature produces a warning
@@ -54,10 +58,6 @@ The system SHALL define the warning-type vocabulary covering the time-related ty
 #### Scenario: Booking-convention rules emit their own identifiers
 - **WHEN** the internal-note rules produce a warning
 - **THEN** the warning's type is `INTERNAL_NOTE_BILLABLE` or `INTERNAL_NOTE_MISSING`
-
-#### Scenario: The billable-project rule emits its own identifier
-- **WHEN** the billable-project rule produces a warning
-- **THEN** the warning's type is `NON_BILLABLE_ON_BILLABLE_PROJECT`
 
 #### Scenario: The travel-allowance rules emit their own identifiers
 - **WHEN** the travel-allowance rules produce a warning

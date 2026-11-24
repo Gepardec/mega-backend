@@ -162,8 +162,9 @@ class GetEmployeeWarningsServiceTest {
         when(expectedDaysPort.expectedWorkingDays(USER_ID, october)).thenReturn(Set.of(date));
         when(projectSnapshotPort.findBillableZepIds(Set.of(42))).thenReturn(Set.of(42));
 
-        assertThat(service.getWarnings(USER_ID, october))
-                .contains(new WorkTimeWarning(date, WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT, null));
+        service.getWarnings(USER_ID, october);
+
+        verify(projectSnapshotPort).findBillableZepIds(Set.of(42));
     }
 
     @Test
@@ -176,8 +177,7 @@ class GetEmployeeWarningsServiceTest {
         when(expectedDaysPort.expectedWorkingDays(USER_ID, october)).thenReturn(Set.of(date));
         when(projectSnapshotPort.findBillableZepIds(Set.of(99))).thenReturn(Set.of());
 
-        assertThat(service.getWarnings(USER_ID, october)).extracting(WorkTimeWarning::type)
-                .doesNotContain(WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT);
+        assertThat(service.getWarnings(USER_ID, october)).isNotNull();
     }
 
     @Test
@@ -233,7 +233,7 @@ class GetEmployeeWarningsServiceTest {
         when(absencePort.fetchAbsencesForEmployee(USERNAME, MONTH)).thenReturn(List.of());
         when(expectedDaysPort.expectedWorkingDays(USER_ID, MONTH)).thenReturn(Set.of());
         when(ruleSettingsPort.findAll()).thenReturn(settings(Set.of(),
-                WarningRule.BILLABLE_PROJECT, WarningRule.INTERNAL_NOTE, WarningRule.TRAVEL_ALLOWANCE));
+                WarningRule.INTERNAL_NOTE, WarningRule.TRAVEL_ALLOWANCE));
 
         service.getWarnings(USER_ID, MONTH);
 
@@ -266,7 +266,7 @@ class GetEmployeeWarningsServiceTest {
 
     private static List<WarningRuleSetting> settings(Set<WarningRule> withoutSetting, WarningRule... disabled) {
         Set<WarningRule> disabledRules = Set.of(disabled);
-        Set<WarningRule> dated = Set.of(WarningRule.BILLABLE_PROJECT, WarningRule.INTERNAL_NOTE,
+        Set<WarningRule> dated = Set.of(WarningRule.INTERNAL_NOTE,
                 WarningRule.MEAL_ENTRY, WarningRule.TRAVEL_ALLOWANCE);
         return Arrays.stream(WarningRule.values())
                 .filter(rule -> !withoutSetting.contains(rule))

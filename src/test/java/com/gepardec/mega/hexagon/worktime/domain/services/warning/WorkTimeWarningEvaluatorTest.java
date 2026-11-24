@@ -100,7 +100,7 @@ class WorkTimeWarningEvaluatorTest {
     }
 
     @Test
-    void evaluate_whenNonBillableBookingWithoutMarkerIsOnBillableProjectFromOctober2026_thenOnlyNonBillableOnBillableProjectWarning() {
+    void evaluate_whenNonBillableBookingWithoutMarkerIsOnBillableProject_thenNoBookingConventionWarning() {
         LocalDate date = LocalDate.of(2026, 10, 6);
         var booking = Instancio.of(ProjectBooking.class)
                 .set(field(ProjectBooking::from), date.atTime(8, 0))
@@ -114,8 +114,8 @@ class WorkTimeWarningEvaluatorTest {
 
         assertThat(evaluate(new WorkTimeBookings(List.of(booking)),
                 YearMonth.from(date.plusDays(1)), Set.of(date), Set.of(), Set.of(42), Set.of(), date.plusDays(1)))
-                .contains(new WorkTimeWarning(date, WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT, null))
-                .doesNotContain(new WorkTimeWarning(date, WorkTimeWarningType.INTERNAL_NOTE_MISSING, null));
+                .extracting(WorkTimeWarning::type)
+                .doesNotContain(WorkTimeWarningType.INTERNAL_NOTE_MISSING, WorkTimeWarningType.INTERNAL_NOTE_BILLABLE);
     }
 
     @Test
@@ -222,32 +222,6 @@ class WorkTimeWarningEvaluatorTest {
     }
 
     @Test
-    void evaluate_whenBillableProjectRuleStartsAfterBooking_thenNoWarning_andOnStartDayWarning() {
-        LocalDate before = LocalDate.of(2026, 9, 30);
-        LocalDate start = LocalDate.of(2026, 10, 1);
-
-        assertThat(billableProjectWarnings(before)).isEmpty();
-        assertThat(billableProjectWarnings(start))
-                .containsExactly(new WorkTimeWarning(start, WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT, null));
-    }
-
-    private static List<WorkTimeWarning> billableProjectWarnings(LocalDate date) {
-        var booking = Instancio.of(ProjectBooking.class)
-                .set(field(ProjectBooking::from), date.atTime(8, 0))
-                .set(field(ProjectBooking::to), date.atTime(9, 0))
-                .set(field(ProjectBooking::task), Task.BEARBEITEN)
-                .set(field(ProjectBooking::workingLocation), WorkingLocation.MAIN)
-                .set(field(ProjectBooking::billable), false)
-                .set(field(ProjectBooking::note), "Intern - JFX")
-                .set(field(ProjectBooking::projectZepId), 42)
-                .create();
-        return evaluate(new WorkTimeBookings(List.of(booking)), YearMonth.from(date), Set.of(date), Set.of(),
-                Set.of(42), Set.of(), date.plusDays(1)).stream()
-                .filter(warning -> warning.type() == WorkTimeWarningType.NON_BILLABLE_ON_BILLABLE_PROJECT)
-                .toList();
-    }
-
-    @Test
     void evaluate_emptyBookingsReturnsSingleMonthWarning() {
         assertThat(evaluate(WorkTimeBookings.empty(), YearMonth.now(),
                 Set.of(), Set.of(), Set.of(), Set.of(), LocalDate.now()))
@@ -298,7 +272,7 @@ class WorkTimeWarningEvaluatorTest {
 
     /** Mirrors the seeded production values: the four newer rules start on 2026-10-01. */
     private static WarningRuleSettings initialSettings() {
-        Set<WarningRule> dated = Set.of(WarningRule.BILLABLE_PROJECT, WarningRule.INTERNAL_NOTE,
+        Set<WarningRule> dated = Set.of(WarningRule.INTERNAL_NOTE,
                 WarningRule.MEAL_ENTRY, WarningRule.TRAVEL_ALLOWANCE);
         return new WarningRuleSettings(Arrays.stream(WarningRule.values())
                 .map(rule -> new WarningRuleSetting(rule, true, dated.contains(rule) ? LocalDate.of(2026, 10, 1) : null))
