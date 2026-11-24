@@ -12,6 +12,7 @@ import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeBook
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeExpectedWorkingDaysPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeMealEntryZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectSnapshotPort;
+import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectTaskZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.model.JourneyBooking;
 import com.gepardec.mega.hexagon.worktime.domain.model.JourneyDirection;
@@ -65,6 +66,8 @@ class WarningRuleSettingsFlowTest {
     WorkTimeProjectSnapshotPort projectSnapshotPort;
     @InjectMock
     WorkTimeMealEntryZepPort mealEntryPort;
+    @InjectMock
+    WorkTimeProjectTaskZepPort projectTaskPort;
     @Inject
     WarningRuleSettingsPort settingsPort;
 
@@ -83,6 +86,7 @@ class WarningRuleSettingsFlowTest {
         when(expectedDaysPort.expectedWorkingDays(USER_ID, MONTH)).thenReturn(Set.of(date));
         when(projectSnapshotPort.findBillableZepIds(anySet())).thenReturn(Set.of());
         when(mealEntryPort.fetchMealEntryDates(any(), any())).thenReturn(Set.of());
+        when(projectTaskPort.fetchTasks(anySet())).thenReturn(List.of());
     }
 
     @Test

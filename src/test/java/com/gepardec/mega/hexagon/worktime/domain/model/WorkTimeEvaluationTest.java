@@ -21,21 +21,21 @@ class WorkTimeEvaluationTest {
     @Test
     void shouldRejectNullBookings() {
         assertThatNullPointerException()
-                .isThrownBy(() -> new WorkTimeEvaluation(null, MONTH, TODAY, Set.of(), Set.of(), Set.of(), Set.of()))
+                .isThrownBy(() -> new WorkTimeEvaluation(null, MONTH, TODAY, Set.of(), Set.of(), Set.of(), Set.of(), TravelAllowanceTasks.none()))
                 .withMessage("bookings must not be null");
     }
 
     @Test
     void shouldRejectNullPayrollMonth() {
         assertThatNullPointerException()
-                .isThrownBy(() -> new WorkTimeEvaluation(WorkTimeBookings.empty(), null, TODAY, Set.of(), Set.of(), Set.of(), Set.of()))
+                .isThrownBy(() -> new WorkTimeEvaluation(WorkTimeBookings.empty(), null, TODAY, Set.of(), Set.of(), Set.of(), Set.of(), TravelAllowanceTasks.none()))
                 .withMessage("payrollMonth must not be null");
     }
 
     @Test
     void shouldRejectNullEvaluationDate() {
         assertThatNullPointerException()
-                .isThrownBy(() -> new WorkTimeEvaluation(WorkTimeBookings.empty(), MONTH, null, Set.of(), Set.of(), Set.of(), Set.of()))
+                .isThrownBy(() -> new WorkTimeEvaluation(WorkTimeBookings.empty(), MONTH, null, Set.of(), Set.of(), Set.of(), Set.of(), TravelAllowanceTasks.none()))
                 .withMessage("evaluationDate must not be null");
     }
 
@@ -43,17 +43,20 @@ class WorkTimeEvaluationTest {
     void shouldRejectNullSets() {
         var bookings = WorkTimeBookings.empty();
         assertThatNullPointerException()
-                .isThrownBy(() -> new WorkTimeEvaluation(bookings, MONTH, TODAY, null, Set.of(), Set.of(), Set.of()))
+                .isThrownBy(() -> new WorkTimeEvaluation(bookings, MONTH, TODAY, null, Set.of(), Set.of(), Set.of(), TravelAllowanceTasks.none()))
                 .withMessage("expectedWorkingDays must not be null");
         assertThatNullPointerException()
-                .isThrownBy(() -> new WorkTimeEvaluation(bookings, MONTH, TODAY, Set.of(), null, Set.of(), Set.of()))
+                .isThrownBy(() -> new WorkTimeEvaluation(bookings, MONTH, TODAY, Set.of(), null, Set.of(), Set.of(), TravelAllowanceTasks.none()))
                 .withMessage("excusedDates must not be null");
         assertThatNullPointerException()
-                .isThrownBy(() -> new WorkTimeEvaluation(bookings, MONTH, TODAY, Set.of(), Set.of(), null, Set.of()))
+                .isThrownBy(() -> new WorkTimeEvaluation(bookings, MONTH, TODAY, Set.of(), Set.of(), null, Set.of(), TravelAllowanceTasks.none()))
                 .withMessage("billableProjectZepIds must not be null");
         assertThatNullPointerException()
-                .isThrownBy(() -> new WorkTimeEvaluation(bookings, MONTH, TODAY, Set.of(), Set.of(), Set.of(), null))
+                .isThrownBy(() -> new WorkTimeEvaluation(bookings, MONTH, TODAY, Set.of(), Set.of(), Set.of(), null, TravelAllowanceTasks.none()))
                 .withMessage("mealEntryDates must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> new WorkTimeEvaluation(bookings, MONTH, TODAY, Set.of(), Set.of(), Set.of(), Set.of(), null))
+                .withMessage("travelAllowanceTasks must not be null");
     }
 
     @Test

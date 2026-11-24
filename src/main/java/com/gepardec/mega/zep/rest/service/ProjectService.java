@@ -4,11 +4,14 @@ import com.gepardec.mega.zep.rest.client.ZepProjectRestClient;
 import com.gepardec.mega.zep.rest.dto.ZepProject;
 import com.gepardec.mega.zep.rest.dto.ZepProjectDetail;
 import com.gepardec.mega.zep.rest.dto.ZepProjectEmployee;
+import com.gepardec.mega.zep.rest.dto.ZepProjectTask;
 import com.gepardec.mega.zep.rest.dto.ZepResponse;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 
@@ -80,6 +83,25 @@ public class ProjectService {
                 .await().indefinitely();
     }
 
+
+    public List<ZepProjectTask> getProjectTasks(int projectId, String search) {
+        return Multi.createBy().repeating()
+                .uni(AtomicInteger::new, page ->
+                        zepProjectRestClient.getProjectTasks(projectId, search, page.incrementAndGet())
+                                .onFailure(ProjectService::isNotFound).recoverWithItem(() -> new ZepResponse<>(List.of(), new ZepResponse.Links(null, null)))
+                                .onFailure().invoke(ex -> logger.warn("Error retrieving project tasks from ZEP", ex))
+                )
+                .whilst(ZepResponse::hasNext)
+                .map(ZepResponse::data)
+                .onItem().<ZepProjectTask>disjoint()
+                .collect().asList()
+                .await().indefinitely();
+    }
+
+    private static boolean isNotFound(Throwable throwable) {
+        return throwable instanceof WebApplicationException e
+                && e.getResponse().getStatus() == Response.Status.NOT_FOUND.getStatusCode();
+    }
 
     public List<ZepProjectEmployee> getProjectEmployeesForId(int projectId, YearMonth payrollMonth) {
         return getProjectEmployeesForIdAsync(projectId, payrollMonth)
