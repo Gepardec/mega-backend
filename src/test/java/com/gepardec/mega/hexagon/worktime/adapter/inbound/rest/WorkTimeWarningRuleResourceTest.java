@@ -68,7 +68,7 @@ class WorkTimeWarningRuleResourceTest {
     void update_shouldRemoveStartDateWhenNull() {
         given().contentType(ContentType.JSON).accept(ContentType.JSON)
                 .body("{\"enabled\": true, \"activeFrom\": null}")
-                .put("/worktime/warning-rules/BILLABLE_PROJECT")
+                .put("/worktime/warning-rules/INTERNAL_NOTE")
                 .then().statusCode(200)
                 .body("activeFrom", nullValue());
     }

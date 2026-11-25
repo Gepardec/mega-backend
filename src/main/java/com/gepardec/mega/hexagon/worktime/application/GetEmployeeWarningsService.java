@@ -9,11 +9,13 @@ import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeBook
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeExpectedWorkingDaysPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeMealEntryZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectSnapshotPort;
+import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectTaskZepPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
 import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeValidationException;
 import com.gepardec.mega.hexagon.worktime.domain.model.Absence;
 import com.gepardec.mega.hexagon.worktime.domain.model.AbsenceType;
+import com.gepardec.mega.hexagon.worktime.domain.model.TravelAllowanceTasks;
 import com.gepardec.mega.hexagon.worktime.domain.model.WarningRule;
 import com.gepardec.mega.hexagon.worktime.domain.model.WarningRuleSettings;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeBooking;
@@ -34,7 +36,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @ApplicationScoped
 @Transactional
@@ -45,6 +46,7 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
     private final WorkTimeExpectedWorkingDaysPort expectedWorkingDaysPort;
     private final WorkTimeProjectSnapshotPort projectSnapshotPort;
     private final WorkTimeMealEntryZepPort mealEntryPort;
+    private final WorkTimeProjectTaskZepPort projectTaskPort;
     private final WarningRuleSettingsPort ruleSettingsPort;
     private final WorkTimeWarningEvaluator warningEvaluator;
     private final Clock clock;
@@ -53,14 +55,16 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
     public GetEmployeeWarningsService(WorkTimeUserSnapshotPort userSnapshotPort, WorkTimeBookingZepPort bookingPort,
                                       WorkTimeAbsenceZepPort absencePort, WorkTimeExpectedWorkingDaysPort expectedWorkingDaysPort,
                                       WorkTimeProjectSnapshotPort projectSnapshotPort, WorkTimeMealEntryZepPort mealEntryPort,
+                                      WorkTimeProjectTaskZepPort projectTaskPort,
                                       WarningRuleSettingsPort ruleSettingsPort, Clock clock) {
         this(userSnapshotPort, bookingPort, absencePort, expectedWorkingDaysPort, projectSnapshotPort, mealEntryPort,
-                ruleSettingsPort, new WorkTimeWarningEvaluator(), clock);
+                projectTaskPort, ruleSettingsPort, new WorkTimeWarningEvaluator(), clock);
     }
 
     GetEmployeeWarningsService(WorkTimeUserSnapshotPort userSnapshotPort, WorkTimeBookingZepPort bookingPort,
                                WorkTimeAbsenceZepPort absencePort, WorkTimeExpectedWorkingDaysPort expectedWorkingDaysPort,
                                WorkTimeProjectSnapshotPort projectSnapshotPort, WorkTimeMealEntryZepPort mealEntryPort,
+                               WorkTimeProjectTaskZepPort projectTaskPort,
                                WarningRuleSettingsPort ruleSettingsPort, WorkTimeWarningEvaluator warningEvaluator, Clock clock) {
         this.userSnapshotPort = userSnapshotPort;
         this.bookingPort = bookingPort;
@@ -68,6 +72,7 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
         this.expectedWorkingDaysPort = expectedWorkingDaysPort;
         this.projectSnapshotPort = projectSnapshotPort;
         this.mealEntryPort = mealEntryPort;
+        this.projectTaskPort = projectTaskPort;
         this.ruleSettingsPort = ruleSettingsPort;
         this.warningEvaluator = warningEvaluator;
         this.clock = clock;
@@ -102,7 +107,8 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
                 expectedWorkingDaysPort.expectedWorkingDays(employeeId, month),
                 excusedDates,
                 billableProjectZepIds(bookings, settings),
-                mealEntryDates(employee, bookings, month, settings)), settings).values();
+                mealEntryDates(employee, bookings, month, settings),
+                travelAllowanceTasks(bookings, settings)), settings).values();
     }
 
     private WarningRuleSettings loadRuleSettings() {
@@ -122,14 +128,27 @@ public class GetEmployeeWarningsService implements GetEmployeeWarningsUseCase {
     }
 
     private Set<Integer> billableProjectZepIds(WorkTimeBookings bookings, WarningRuleSettings settings) {
-        if (Stream.of(WarningRule.BILLABLE_PROJECT, WarningRule.INTERNAL_NOTE, WarningRule.TRAVEL_ALLOWANCE)
-                .noneMatch(settings::isActive)) {
+        if (!settings.isActive(WarningRule.INTERNAL_NOTE)) {
             return Set.of();
         }
-        Set<Integer> bookedProjectZepIds = bookings.values().stream()
+        return projectSnapshotPort.findBillableZepIds(bookedProjectZepIds(bookings));
+    }
+
+    private TravelAllowanceTasks travelAllowanceTasks(WorkTimeBookings bookings, WarningRuleSettings settings) {
+        if (!settings.isActive(WarningRule.TRAVEL_ALLOWANCE)) {
+            return TravelAllowanceTasks.none();
+        }
+        Set<Integer> bookedProjectZepIds = bookedProjectZepIds(bookings);
+        if (bookedProjectZepIds.isEmpty()) {
+            return TravelAllowanceTasks.none();
+        }
+        return TravelAllowanceTasks.from(projectTaskPort.fetchTasks(bookedProjectZepIds));
+    }
+
+    private static Set<Integer> bookedProjectZepIds(WorkTimeBookings bookings) {
+        return bookings.values().stream()
                 .map(WorkTimeBooking::projectZepId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableSet());
-        return projectSnapshotPort.findBillableZepIds(bookedProjectZepIds);
     }
 }

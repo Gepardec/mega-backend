@@ -12,7 +12,8 @@ public record WorkTimeEvaluation(
         Set<LocalDate> expectedWorkingDays,
         Set<LocalDate> excusedDates,
         Set<Integer> billableProjectZepIds,
-        Set<LocalDate> mealEntryDates) {
+        Set<LocalDate> mealEntryDates,
+        TravelAllowanceTasks travelAllowanceTasks) {
 
     public WorkTimeEvaluation {
         Objects.requireNonNull(bookings, "bookings must not be null");
@@ -22,6 +23,7 @@ public record WorkTimeEvaluation(
         Objects.requireNonNull(excusedDates, "excusedDates must not be null");
         Objects.requireNonNull(billableProjectZepIds, "billableProjectZepIds must not be null");
         Objects.requireNonNull(mealEntryDates, "mealEntryDates must not be null");
+        Objects.requireNonNull(travelAllowanceTasks, "travelAllowanceTasks must not be null");
         expectedWorkingDays = Set.copyOf(expectedWorkingDays);
         excusedDates = Set.copyOf(excusedDates);
         billableProjectZepIds = Set.copyOf(billableProjectZepIds);
