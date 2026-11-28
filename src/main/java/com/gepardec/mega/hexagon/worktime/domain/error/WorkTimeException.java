@@ -1,12 +1,14 @@
 package com.gepardec.mega.hexagon.worktime.domain.error;
 
-public abstract class WorkTimeException extends RuntimeException {
+import com.gepardec.mega.hexagon.shared.domain.error.DomainException;
 
-    protected WorkTimeException(String message) {
-        super(message);
+public class WorkTimeException extends DomainException {
+
+    public WorkTimeException(WorkTimeErrorCode errorCode, String message) {
+        super(errorCode, message);
     }
 
-    protected WorkTimeException(String message, Throwable cause) {
-        super(message, cause);
+    public WorkTimeException(WorkTimeErrorCode errorCode, String message, Throwable cause) {
+        super(errorCode, message, cause);
     }
 }

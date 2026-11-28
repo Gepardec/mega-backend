@@ -70,8 +70,6 @@ public class AuthenticatedActorContext {
         }
 
         return userRepository.findByEmail(Email.of(value))
-                .orElseThrow(() -> new ForbiddenException(
-                        "authenticated actor not found for email: " + value
-                ));
+                .orElseThrow(() -> new ForbiddenException("authenticated actor not found"));
     }
 }

@@ -4,7 +4,9 @@ MonthQueryParameter:
   required: true
   description: Month-end context in yyyy-MM format.
   schema:
-    $ref: '../schemas/shared.yaml#/MonthValue'
+    type: string
+    format: year-month
+    example: "2026-09"
 TaskIdPathParameter:
   name: taskId
   in: path
@@ -27,4 +29,6 @@ PayrollMonthPathParameter:
   required: true
   description: Payroll month in yyyy-MM format.
   schema:
-    $ref: '../schemas/shared.yaml#/MonthValue'
+    type: string
+    format: year-month
+    example: "2026-09"

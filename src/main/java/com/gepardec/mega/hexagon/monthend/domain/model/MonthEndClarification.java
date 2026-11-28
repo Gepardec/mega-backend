@@ -1,8 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.domain.model;
 
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndClarificationClosedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.shared.domain.SystemActor;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
 import com.gepardec.mega.hexagon.shared.domain.model.UserId;
@@ -30,6 +29,9 @@ public record MonthEndClarification(
         Instant lastModifiedAt
 ) {
 
+    // Structural invariants. They also run when a clarification is loaded, so a violation is a
+    // defect (500), not a caller error. Rules a request can break are checked in the factories
+    // and behaviour methods with a MonthEndException.
     public MonthEndClarification {
         Objects.requireNonNull(id, "id must not be null");
         Objects.requireNonNull(month, "month must not be null");
@@ -111,6 +113,13 @@ public record MonthEndClarification(
             String text,
             Instant createdAt
     ) {
+        Objects.requireNonNull(eligibleProjectLeadIds, "eligibleProjectLeadIds must not be null");
+        // A project without an active lead this month is a business state a request can run into,
+        // so it is reported to the caller here rather than left to the structural invariant below.
+        if (eligibleProjectLeadIds.isEmpty()) {
+            throw new MonthEndException(MonthEndErrorCode.NO_ELIGIBLE_PROJECT_LEAD,
+                    "project %s has no active project lead in %s".formatted(projectId.value(), month));
+        }
         MonthEndClarification clarification = new MonthEndClarification(
                 id,
                 month,
@@ -137,11 +146,11 @@ public record MonthEndClarification(
         Objects.requireNonNull(modifiedAt, "modifiedAt must not be null");
 
         if (status == MonthEndClarificationStatus.DONE) {
-            throw new MonthEndClarificationClosedException("done clarifications cannot be edited");
+            throw new MonthEndException(MonthEndErrorCode.CLARIFICATION_CLOSED, "done clarifications cannot be edited");
         }
 
         if (!canEditText(actorId)) {
-            throw new MonthEndActorNotAuthorizedException("actor is not allowed to edit clarification text");
+            throw new MonthEndException(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED, "actor is not allowed to edit clarification text");
         }
 
         return new MonthEndClarification(
@@ -171,7 +180,7 @@ public record MonthEndClarification(
         }
 
         if (!canBeResolvedBy(actorId)) {
-            throw new MonthEndActorNotAuthorizedException("actor is not allowed to resolve clarification");
+            throw new MonthEndException(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED, "actor is not allowed to resolve clarification");
         }
 
         return new MonthEndClarification(
@@ -237,23 +246,23 @@ public record MonthEndClarification(
 
     private static void validateEligibleLeads(Set<UserId> eligibleProjectLeadIds) {
         if (eligibleProjectLeadIds.isEmpty()) {
-            throw new MonthEndValidationException("eligibleProjectLeadIds must not be empty");
+            throw new IllegalArgumentException("eligibleProjectLeadIds must not be empty");
         }
     }
 
     private static void validateCreator(MonthEndClarification clarification) {
         if (!clarification.isInvolved(clarification.createdBy())) {
-            throw new MonthEndActorNotAuthorizedException("clarification creator must be the subject employee or an eligible lead");
+            throw new MonthEndException(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED, "clarification creator must be the subject employee or an eligible lead");
         }
     }
 
     private static void validateTimestamps(Instant createdAt, Instant resolvedAt, Instant lastModifiedAt) {
         if (lastModifiedAt.isBefore(createdAt)) {
-            throw new MonthEndValidationException("lastModifiedAt must not be before createdAt");
+            throw new IllegalArgumentException("lastModifiedAt must not be before createdAt");
         }
 
         if (resolvedAt != null && resolvedAt.isBefore(createdAt)) {
-            throw new MonthEndValidationException("resolvedAt must not be before createdAt");
+            throw new IllegalArgumentException("resolvedAt must not be before createdAt");
         }
     }
 
@@ -265,19 +274,19 @@ public record MonthEndClarification(
     ) {
         if (status == MonthEndClarificationStatus.OPEN) {
             if (resolutionNote != null || resolvedBy != null || resolvedAt != null) {
-                throw new MonthEndValidationException("open clarifications must not have resolution metadata");
+                throw new IllegalArgumentException("open clarifications must not have resolution metadata");
             }
             return;
         }
 
         if (resolvedBy == null || resolvedAt == null) {
-            throw new MonthEndValidationException("done clarifications must have resolver and resolvedAt");
+            throw new IllegalArgumentException("done clarifications must have resolver and resolvedAt");
         }
     }
 
     private static String requireNonBlank(String value, String message) {
         if (value == null || value.isBlank()) {
-            throw new MonthEndValidationException(message);
+            throw new IllegalArgumentException(message);
         }
         return value;
     }

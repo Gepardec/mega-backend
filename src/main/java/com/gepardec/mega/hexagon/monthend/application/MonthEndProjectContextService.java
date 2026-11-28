@@ -2,7 +2,8 @@ package com.gepardec.mega.hexagon.monthend.application;
 
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndUserSnapshotPort;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndProjectContextNotFoundException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectContext;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -34,7 +35,7 @@ public class MonthEndProjectContextService {
         MonthEndProjectSnapshot project = monthEndProjectSnapshotPort.findActiveIn(month).stream()
                 .filter(candidate -> candidate.id().equals(projectId))
                 .findFirst()
-                .orElseThrow(() -> new MonthEndProjectContextNotFoundException(
+                .orElseThrow(() -> new MonthEndException(MonthEndErrorCode.PROJECT_CONTEXT_NOT_FOUND,
                         "month-end project context not found for project %s in %s".formatted(projectId.value(), month)
                 ));
 

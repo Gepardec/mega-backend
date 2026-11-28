@@ -45,5 +45,6 @@
       '400': { $ref: '../responses/common.yaml#/BadRequest' }
       '403': { $ref: '../responses/common.yaml#/Forbidden' }
       '404': { $ref: '../responses/common.yaml#/NotFound' }
+      '409': { $ref: '../responses/common.yaml#/Conflict' }
 
 

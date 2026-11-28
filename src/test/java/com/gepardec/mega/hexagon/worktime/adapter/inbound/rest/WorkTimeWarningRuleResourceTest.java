@@ -84,7 +84,11 @@ class WorkTimeWarningRuleResourceTest {
     void update_shouldRejectMissingEnabledWith400() {
         given().contentType(ContentType.JSON).body("{\"activeFrom\": \"2026-11-01\"}")
                 .put("/worktime/warning-rules/MEAL_ENTRY")
-                .then().statusCode(400);
+                .then().statusCode(400)
+                .contentType("application/problem+json")
+                .body("code", nullValue())
+                .body("violations[0].field", Matchers.is("enabled"))
+                .body("violations[0].in", Matchers.is("body"));
     }
 
     @Test

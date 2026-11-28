@@ -8,7 +8,8 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.GenerateMonth
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.GetMonthEndStatusOverviewUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.PrematureMonthEndPreparationUseCase;
 import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEndClarificationUseCase;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
@@ -606,7 +607,8 @@ class MonthEndTest {
                 null,
                 employee.id(),
                 "Project-level attempt."
-        )).isInstanceOf(MonthEndActorNotAuthorizedException.class);
+        )).isInstanceOfSatisfying(MonthEndException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED));
 
         assertThat(getMonthEndStatusOverviewUseCase.getOverview(employee.id(), MONTH, Capacity.EMPLOYEE).clarifications())
                 .isEmpty();

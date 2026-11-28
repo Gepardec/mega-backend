@@ -2,12 +2,13 @@ package com.gepardec.mega.hexagon.user.adapter.inbound.rest;
 
 import com.gepardec.mega.hexagon.generated.api.UserApi;
 import com.gepardec.mega.hexagon.generated.model.ActiveUserDto;
-import com.gepardec.mega.hexagon.generated.model.InternalRateUploadErrorDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDateEntryDto;
 import com.gepardec.mega.hexagon.generated.model.UpdateReleaseDatesRequestDto;
 import com.gepardec.mega.hexagon.generated.model.UserDto;
+import com.gepardec.mega.hexagon.shared.adapter.inbound.rest.DomainProblemMapper;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
+import com.gepardec.mega.hexagon.shared.domain.error.ErrorCode;
 import com.gepardec.mega.hexagon.shared.domain.model.Role;
 import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.user.application.port.inbound.GetActiveUsersUseCase;
@@ -18,6 +19,7 @@ import com.gepardec.mega.hexagon.user.application.port.inbound.UpdateReleaseDate
 import com.gepardec.mega.hexagon.user.domain.error.UnknownUsersException;
 import com.gepardec.mega.hexagon.user.domain.model.HourlyRate;
 import com.gepardec.mega.hexagon.user.domain.model.User;
+import io.quarkiverse.httpproblem.HttpProblem;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -27,6 +29,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -47,9 +50,6 @@ public class UserResource implements UserApi {
     private static final String CSV_COMMENT_PREFIX = "#";
     private static final String TEMPLATE_HEADER = "#ZEPMitarbeiterId,neuerStundensatz,gueltigAb YYYY-MM-DD";
     private static final String TEMPLATE_FILENAME = "hourly_rates_template.csv";
-    private static final String ERROR_CODE_EMPTY_FILE = "EMPTY_FILE";
-    private static final String ERROR_CODE_BAD_FORMAT = "BAD_FORMAT";
-    private static final String ERROR_CODE_UNKNOWN_USERS = "UNKNOWN_USERS";
 
     private final GetActiveUsersUseCase getActiveUsersUseCase;
     private final UpdateInternalRatesUseCase updateInternalRatesUseCase;
@@ -122,25 +122,25 @@ public class UserResource implements UserApi {
 
     @Override
     @MegaRolesAllowed(Role.OFFICE_MANAGEMENT)
-    public Response uploadInternalRates(InputStream fileInputStream) {
-        if (fileInputStream == null) {
-            return badRequest(ERROR_CODE_EMPTY_FILE, List.of());
+    public Response uploadInternalRates(InputStream _fileInputStream) {
+        if (_fileInputStream == null) {
+            throw uploadProblem(InternalRateUploadErrorCode.INTERNAL_RATES_EMPTY_FILE, List.of());
         }
 
         final List<CsvLine> dataLines;
         try {
-            dataLines = readAndFilterCsvLines(fileInputStream);
+            dataLines = readAndFilterCsvLines(_fileInputStream);
         } catch (IOException exception) {
-            return Response.serverError().build();
+            throw new UncheckedIOException(exception);
         }
 
         if (dataLines.isEmpty()) {
-            return badRequest(ERROR_CODE_EMPTY_FILE, List.of());
+            throw uploadProblem(InternalRateUploadErrorCode.INTERNAL_RATES_EMPTY_FILE, List.of());
         }
 
         CsvValidationResult validationResult = validateAndMap(dataLines);
         if (!validationResult.errorLines().isEmpty()) {
-            return badRequest(ERROR_CODE_BAD_FORMAT, validationResult.errorLines());
+            throw uploadProblem(InternalRateUploadErrorCode.INTERNAL_RATES_BAD_FORMAT, validationResult.errorLines());
         }
 
         try {
@@ -155,7 +155,7 @@ public class UserResource implements UserApi {
                     .filter(parsedLine -> unknownUsers.contains(parsedLine.command().zepUsername()))
                     .map(parsedLine -> parsedLine.csvLine().originalLineNumber())
                     .toList();
-            return badRequest(ERROR_CODE_UNKNOWN_USERS, lines);
+            throw uploadProblem(exception.errorCode(), lines);
         }
 
         return Response.ok().build();
@@ -222,11 +222,9 @@ public class UserResource implements UserApi {
         }
     }
 
-    private Response badRequest(String errorCode, List<Integer> lines) {
-        return Response.status(Response.Status.BAD_REQUEST)
-                .entity(new InternalRateUploadErrorDto()
-                        .errorCode(errorCode)
-                        .lines(lines))
+    private HttpProblem uploadProblem(ErrorCode code, List<Integer> lines) {
+        return DomainProblemMapper.problemOf(code)
+                .with("lines", lines)
                 .build();
     }
 

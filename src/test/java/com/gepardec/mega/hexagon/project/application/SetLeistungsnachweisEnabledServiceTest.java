@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.project.application;
 
-import com.gepardec.mega.hexagon.project.domain.error.LeistungsnachweisNotApplicableException;
-import com.gepardec.mega.hexagon.project.domain.error.ProjectNotFoundException;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectErrorCode;
+import com.gepardec.mega.hexagon.project.domain.error.ProjectException;
 import com.gepardec.mega.hexagon.project.domain.model.Project;
 import com.gepardec.mega.hexagon.project.domain.port.outbound.ProjectRepository;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -45,7 +45,8 @@ class SetLeistungsnachweisEnabledServiceTest {
         when(projectRepository.findById(projectId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.setLeistungsnachweisEnabled(projectId, LEAD_ID, true))
-                .isInstanceOf(ProjectNotFoundException.class);
+                .isInstanceOfSatisfying(ProjectException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(ProjectErrorCode.NOT_FOUND));
 
         verify(projectRepository, never()).saveAll(anyList());
     }
@@ -84,7 +85,8 @@ class SetLeistungsnachweisEnabledServiceTest {
         ThrowableAssert.ThrowingCallable throwingCallable = () -> service.setLeistungsnachweisEnabled(project.id(), LEAD_ID, true);
 
         assertThatThrownBy(throwingCallable)
-                .isInstanceOf(LeistungsnachweisNotApplicableException.class);
+                .isInstanceOfSatisfying(ProjectException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(ProjectErrorCode.LEISTUNGSNACHWEIS_NOT_APPLICABLE));
 
         verify(projectRepository, never()).saveAll(anyList());
     }

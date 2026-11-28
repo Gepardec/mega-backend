@@ -23,9 +23,11 @@ import com.gepardec.mega.hexagon.monthend.application.port.inbound.UpdateMonthEn
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndProjectSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.application.port.outbound.MonthEndUserSnapshotPort;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarification;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndClarificationId;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndProjectSnapshot;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndStatusOverview;
 import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTask;
+import com.gepardec.mega.hexagon.monthend.domain.model.MonthEndTaskId;
 import com.gepardec.mega.hexagon.shared.adapter.inbound.rest.SharedRefRestMapper;
 import com.gepardec.mega.hexagon.shared.application.security.AuthenticatedActorContext;
 import com.gepardec.mega.hexagon.shared.application.security.MegaRolesAllowed;
@@ -67,7 +69,6 @@ public class MonthEndResource implements MonthEndApi {
     private final MonthEndProjectSnapshotPort projectSnapshotPort;
     private final MonthEndUserSnapshotPort userSnapshotPort;
     private final AuthenticatedActorContext authenticatedActorContext;
-    private final MonthEndRestTransportHelper transportHelper;
     private final MonthEndRestMapper monthEndRestMapper;
     private final SharedRefRestMapper sharedRefRestMapper;
 
@@ -86,7 +87,6 @@ public class MonthEndResource implements MonthEndApi {
             MonthEndProjectSnapshotPort projectSnapshotPort,
             MonthEndUserSnapshotPort userSnapshotPort,
             AuthenticatedActorContext authenticatedActorContext,
-            MonthEndRestTransportHelper transportHelper,
             MonthEndRestMapper monthEndRestMapper,
             SharedRefRestMapper sharedRefRestMapper
     ) {
@@ -103,7 +103,6 @@ public class MonthEndResource implements MonthEndApi {
         this.projectSnapshotPort = projectSnapshotPort;
         this.userSnapshotPort = userSnapshotPort;
         this.authenticatedActorContext = authenticatedActorContext;
-        this.transportHelper = transportHelper;
         this.monthEndRestMapper = monthEndRestMapper;
         this.sharedRefRestMapper = sharedRefRestMapper;
     }
@@ -121,32 +120,30 @@ public class MonthEndResource implements MonthEndApi {
 
     @Override
     @MegaRolesAllowed(Role.EMPLOYEE)
-    public Response getMonthEndStatusOverview(String month, CapacityDto capacity) {
+    public Response getMonthEndStatusOverview(YearMonth month, CapacityDto capacity) {
         Capacity domainCapacity = sharedRefRestMapper.toDomain(capacity);
         authenticatedActorContext.requireCapacity(domainCapacity);
 
         UserId actorId = authenticatedActorContext.userId();
-        YearMonth parsedMonth = transportHelper.parseMonth(month);
-
-        MonthEndStatusOverview overview = getMonthEndStatusOverviewUseCase.getOverview(actorId, parsedMonth, domainCapacity);
+        MonthEndStatusOverview overview = getMonthEndStatusOverviewUseCase.getOverview(actorId, month, domainCapacity);
 
         return Response.ok(toOverviewResponse(overview, actorId, domainCapacity)).build();
     }
 
     @Override
     @MegaRolesAllowed(Role.EMPLOYEE)
-    public Response createMonthEndClarification(CreateClarificationRequestDto request) {
+    public Response createMonthEndClarification(CreateClarificationRequestDto createClarificationRequestDto) {
         UserId actorId = authenticatedActorContext.userId();
-        UserId subjectEmployeeId = request.getSubjectEmployeeId() != null
-                ? transportHelper.toUserId(request.getSubjectEmployeeId())
+        UserId subjectEmployeeId = createClarificationRequestDto.getSubjectEmployeeId() != null
+                ? UserId.of(createClarificationRequestDto.getSubjectEmployeeId())
                 : null;
 
         MonthEndClarification clarification = createMonthEndClarificationUseCase.create(
-                transportHelper.parseMonth(request.getMonth()),
-                transportHelper.toProjectId(request.getProjectId()),
+                createClarificationRequestDto.getMonth(),
+                ProjectId.of(createClarificationRequestDto.getProjectId()),
                 subjectEmployeeId,
                 actorId,
-                request.getText()
+                createClarificationRequestDto.getText()
         );
 
         Map<UserId, UserRef> userRefs = resolveUserRefs(clarification.referencedUserIds(), clarification.month());
@@ -157,14 +154,13 @@ public class MonthEndResource implements MonthEndApi {
 
     @Override
     @MegaRolesAllowed(Role.EMPLOYEE)
-    public Response generateMonthEndPrematurely(GenerateMonthEndPrematurelyRequestDto request) {
+    public Response generateMonthEndPrematurely(GenerateMonthEndPrematurelyRequestDto generateMonthEndPrematurelyRequestDto) {
         UserId actorId = authenticatedActorContext.userId();
-        YearMonth month = transportHelper.parseMonth(request.getMonth());
 
         prematureMonthEndPreparationUseCase.prepare(
-                month,
+                generateMonthEndPrematurelyRequestDto.getMonth(),
                 actorId,
-                request.getClarificationText()
+                generateMonthEndPrematurelyRequestDto.getClarificationText()
         );
 
         return Response.noContent().build();
@@ -176,7 +172,7 @@ public class MonthEndResource implements MonthEndApi {
         UserId actorId = authenticatedActorContext.userId();
 
         MonthEndTask task = completeMonthEndTaskUseCase.complete(
-                transportHelper.toTaskId(taskId),
+                MonthEndTaskId.of(taskId),
                 actorId
         );
 
@@ -185,13 +181,13 @@ public class MonthEndResource implements MonthEndApi {
 
     @Override
     @MegaRolesAllowed(Role.PROJECT_LEAD)
-    public Response completeProjectLeadMonthEndTasks(String month, UUID projectId, CompleteProjectLeadMonthEndTasksRequestDto request) {
+    public Response completeProjectLeadMonthEndTasks(YearMonth month, UUID projectId, CompleteProjectLeadMonthEndTasksRequestDto completeProjectLeadMonthEndTasksRequestDto) {
         UserId actorId = authenticatedActorContext.userId();
 
         List<MonthEndTask> tasks = completeProjectLeadMonthEndTasksUseCase.complete(
-                transportHelper.parseMonth(month),
-                transportHelper.toProjectId(projectId),
-                monthEndRestMapper.toDomain(request.getType()),
+                month,
+                ProjectId.of(projectId),
+                monthEndRestMapper.toDomain(completeProjectLeadMonthEndTasksRequestDto.getType()),
                 actorId
         );
 
@@ -200,11 +196,11 @@ public class MonthEndResource implements MonthEndApi {
 
     @Override
     @MegaRolesAllowed(Role.EMPLOYEE)
-    public Response completeEmployeeMonthEndTasks(String month) {
+    public Response completeEmployeeMonthEndTasks(YearMonth month) {
         UserId actorId = authenticatedActorContext.userId();
 
         List<MonthEndTask> tasks = completeEmployeeMonthEndTasksUseCase.complete(
-                transportHelper.parseMonth(month),
+                month,
                 actorId
         );
 
@@ -213,13 +209,13 @@ public class MonthEndResource implements MonthEndApi {
 
     @Override
     @MegaRolesAllowed({Role.EMPLOYEE, Role.PROJECT_LEAD})
-    public Response resolveMonthEndClarification(UUID clarificationId, ResolveClarificationRequestDto request) {
+    public Response resolveMonthEndClarification(UUID clarificationId, ResolveClarificationRequestDto resolveClarificationRequestDto) {
         UserId actorId = authenticatedActorContext.userId();
 
         MonthEndClarification clarification = completeMonthEndClarificationUseCase.complete(
-                transportHelper.toClarificationId(clarificationId),
+                MonthEndClarificationId.of(clarificationId),
                 actorId,
-                request.getResolutionNote()
+                resolveClarificationRequestDto.getResolutionNote()
         );
 
         Map<UserId, UserRef> userRefs = resolveUserRefs(clarification.referencedUserIds(), clarification.month());
@@ -232,7 +228,7 @@ public class MonthEndResource implements MonthEndApi {
         UserId actorId = authenticatedActorContext.userId();
 
         deleteMonthEndClarificationUseCase.delete(
-                transportHelper.toClarificationId(clarificationId),
+                MonthEndClarificationId.of(clarificationId),
                 actorId
         );
 
@@ -241,13 +237,13 @@ public class MonthEndResource implements MonthEndApi {
 
     @Override
     @MegaRolesAllowed({Role.EMPLOYEE, Role.PROJECT_LEAD})
-    public Response updateMonthEndClarificationText(UUID clarificationId, UpdateClarificationTextRequestDto request) {
+    public Response updateMonthEndClarificationText(UUID clarificationId, UpdateClarificationTextRequestDto updateClarificationTextRequestDto) {
         UserId actorId = authenticatedActorContext.userId();
 
         MonthEndClarification clarification = updateMonthEndClarificationUseCase.updateText(
-                transportHelper.toClarificationId(clarificationId),
+                MonthEndClarificationId.of(clarificationId),
                 actorId,
-                request.getText()
+                updateClarificationTextRequestDto.getText()
         );
 
         Map<UserId, UserRef> userRefs = resolveUserRefs(clarification.referencedUserIds(), clarification.month());
@@ -280,7 +276,7 @@ public class MonthEndResource implements MonthEndApi {
         List<MonthEndTaskDto> taskDtos = tasks.stream()
                 .map(monthEndRestMapper::toDto)
                 .toList();
-        return new MonthEndTaskCompletionDto(taskDtos);
+        return new MonthEndTaskCompletionDto().completed(taskDtos);
     }
 
     private MonthEndStatusOverviewDto toOverviewResponse(

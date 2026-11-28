@@ -103,7 +103,8 @@ class AuthenticatedActorContextTest {
 
         assertThatThrownBy(() -> authenticatedActorContext.authenticatedActor())
                 .isInstanceOf(ForbiddenException.class)
-                .hasMessageContaining("actor not found");
+                .hasMessageContaining("actor not found")
+                .hasMessageNotContaining(EMAIL);
     }
 
     @Test

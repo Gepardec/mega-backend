@@ -1,12 +1,14 @@
 package com.gepardec.mega.hexagon.project.domain.error;
 
-public abstract class ProjectException extends RuntimeException {
+import com.gepardec.mega.hexagon.shared.domain.error.DomainException;
 
-    protected ProjectException(String message) {
-        super(message);
+public class ProjectException extends DomainException {
+
+    public ProjectException(ProjectErrorCode errorCode, String message) {
+        super(errorCode, message);
     }
 
-    protected ProjectException(String message, Throwable cause) {
-        super(message, cause);
+    public ProjectException(ProjectErrorCode errorCode, String message, Throwable cause) {
+        super(errorCode, message, cause);
     }
 }

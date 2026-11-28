@@ -27,6 +27,8 @@
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
         $ref: '../responses/common.yaml#/Forbidden'
+      '422':
+        $ref: '../responses/common.yaml#/UnprocessableContent'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
 '/worktime/warnings/{payrollMonth}':
@@ -52,6 +54,8 @@
         $ref: '../responses/common.yaml#/BadRequest'
       '403':
         $ref: '../responses/common.yaml#/Forbidden'
+      '422':
+        $ref: '../responses/common.yaml#/UnprocessableContent'
       '500':
         $ref: '../responses/common.yaml#/InternalServerError'
 /worktime/warning-rules:

@@ -1,7 +1,7 @@
 package com.gepardec.mega.hexagon.monthend.domain.model;
 
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndActorNotAuthorizedException;
-import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndValidationException;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndErrorCode;
+import com.gepardec.mega.hexagon.monthend.domain.error.MonthEndException;
 import com.gepardec.mega.hexagon.shared.domain.SystemActor;
 import com.gepardec.mega.hexagon.shared.domain.model.Capacity;
 import com.gepardec.mega.hexagon.shared.domain.model.ProjectId;
@@ -22,6 +22,8 @@ public record MonthEndTask(
         UserId completedBy
 ) {
 
+    // Structural invariants. They also run when a task is loaded, so a violation is a defect (500),
+    // not a caller error. Rules a request can break are checked in the behaviour methods.
     public MonthEndTask {
         Objects.requireNonNull(id, "id must not be null");
         Objects.requireNonNull(month, "month must not be null");
@@ -61,7 +63,7 @@ public record MonthEndTask(
         Objects.requireNonNull(actorId, "actorId must not be null");
 
         if (!canBeCompletedBy(actorId)) {
-            throw new MonthEndActorNotAuthorizedException("actor is not eligible to complete the task");
+            throw new MonthEndException(MonthEndErrorCode.ACTOR_NOT_AUTHORIZED, "actor is not eligible to complete the task");
         }
 
         if (status == MonthEndTaskStatus.DONE) {
@@ -119,11 +121,11 @@ public record MonthEndTask(
 
     private static void validateCompletionPolicy(Set<UserId> eligibleActorIds, MonthEndTaskType type) {
         if (eligibleActorIds.isEmpty()) {
-            throw new MonthEndValidationException("eligibleActorIds must not be empty");
+            throw new IllegalArgumentException("eligibleActorIds must not be empty");
         }
 
         if (type.completionPolicy() == MonthEndCompletionPolicy.INDIVIDUAL_ACTOR && eligibleActorIds.size() != 1) {
-            throw new MonthEndValidationException("individual-actor tasks must have exactly one eligible actor");
+            throw new IllegalArgumentException("individual-actor tasks must have exactly one eligible actor");
         }
     }
 
@@ -135,30 +137,29 @@ public record MonthEndTask(
         switch (type) {
             case EMPLOYEE_TIME_CHECK -> {
                 if (subjectEmployeeId == null) {
-                    throw new MonthEndValidationException("employee-owned tasks require a subject employee");
+                    throw new IllegalArgumentException("employee-owned tasks require a subject employee");
                 }
                 if (!eligibleActorIds.contains(subjectEmployeeId)) {
-                    throw new MonthEndValidationException(
-                            "employee-owned tasks must reference their eligible employee actor"
+                    throw new IllegalArgumentException("employee-owned tasks must reference their eligible employee actor"
                     );
                 }
             }
             case LEISTUNGSNACHWEIS -> {
                 if (subjectEmployeeId == null) {
-                    throw new MonthEndValidationException("leistungsnachweis tasks require a subject employee");
+                    throw new IllegalArgumentException("leistungsnachweis tasks require a subject employee");
                 }
             }
             case PROJECT_LEAD_REVIEW -> {
                 if (subjectEmployeeId == null) {
-                    throw new MonthEndValidationException("project lead review tasks require a subject employee");
+                    throw new IllegalArgumentException("project lead review tasks require a subject employee");
                 }
             }
             case ABRECHNUNG -> {
                 if (subjectEmployeeId != null) {
-                    throw new MonthEndValidationException("abrechnung tasks must not reference a subject employee");
+                    throw new IllegalArgumentException("abrechnung tasks must not reference a subject employee");
                 }
             }
-            default -> throw new MonthEndValidationException("unsupported task type: " + type);
+            default -> throw new IllegalArgumentException("unsupported task type: " + type);
         }
     }
 
@@ -168,15 +169,15 @@ public record MonthEndTask(
             Set<UserId> eligibleActorIds
     ) {
         if (status == MonthEndTaskStatus.OPEN && completedBy != null) {
-            throw new MonthEndValidationException("open tasks must not record a completing actor");
+            throw new IllegalArgumentException("open tasks must not record a completing actor");
         }
 
         if (status == MonthEndTaskStatus.DONE) {
             if (completedBy == null) {
-                throw new MonthEndValidationException("completed tasks must record the completing actor");
+                throw new IllegalArgumentException("completed tasks must record the completing actor");
             }
             if (!SystemActor.USER_ID.equals(completedBy) && !eligibleActorIds.contains(completedBy)) {
-                throw new MonthEndValidationException("completedBy must be part of the eligible actor set");
+                throw new IllegalArgumentException("completedBy must be part of the eligible actor set");
             }
         }
     }

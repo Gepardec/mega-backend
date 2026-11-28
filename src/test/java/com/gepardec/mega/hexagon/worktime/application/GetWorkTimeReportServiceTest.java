@@ -10,8 +10,8 @@ import com.gepardec.mega.hexagon.shared.domain.model.ZepUsername;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeProjectSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeUserSnapshotPort;
 import com.gepardec.mega.hexagon.worktime.application.port.outbound.WorkTimeZepPort;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeUserNotFoundException;
-import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeValidationException;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeErrorCode;
+import com.gepardec.mega.hexagon.worktime.domain.error.WorkTimeException;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeAttendance;
 import com.gepardec.mega.hexagon.worktime.domain.model.WorkTimeReport;
 import io.smallrye.mutiny.Uni;
@@ -137,19 +137,20 @@ class GetWorkTimeReportServiceTest {
             ThrowableAssert.ThrowingCallable throwingCallable = () -> service.getWorkTime(employeeId, MONTH, Capacity.EMPLOYEE);
 
             assertThatThrownBy(throwingCallable)
-                    .isInstanceOf(WorkTimeUserNotFoundException.class)
+                    .isInstanceOfSatisfying(WorkTimeException.class,
+                        thrown -> assertThat(thrown.errorCode()).isEqualTo(WorkTimeErrorCode.USER_NOT_FOUND))
                     .hasMessage("user not found: " + employeeId.value());
         }
 
         @Test
-        void getWorkTime_shouldThrowWorkTimeValidationExceptionWhenZepUsernameIsMissing() {
+        void getWorkTime_shouldFailAsDefectWhenZepUsernameIsMissing() {
             UserId employeeId = UserId.of(Instancio.create(UUID.class));
             when(workTimeUserSnapshotPort.findById(employeeId, MONTH)).thenReturn(Optional.of(userWithoutZepUsername(employeeId)));
 
             ThrowableAssert.ThrowingCallable throwingCallable = () -> service.getWorkTime(employeeId, MONTH, Capacity.EMPLOYEE);
 
             assertThatThrownBy(throwingCallable)
-                    .isInstanceOf(WorkTimeValidationException.class)
+                    .isInstanceOf(IllegalStateException.class)
                     .hasMessage("zep username missing for user: " + employeeId.value());
         }
     }
